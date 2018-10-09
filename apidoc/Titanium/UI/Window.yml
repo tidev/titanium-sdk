@@ -35,7 +35,7 @@ methods:
   - name: hideNavBar
     summary: Hides the navigation bar.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
     parameters:
       - name: options
         summary: |
@@ -85,7 +85,7 @@ methods:
   - name: showNavBar
     summary: Makes the navigation bar visible.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
     parameters:
       - name: options
         summary: |
@@ -98,7 +98,7 @@ methods:
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
         Note: This method is only intended to work with toolbars that are created using [setToolbar](Titanium.UI.Window.setToolbar).
         It will not have any effect on toolbars added manually to the window.
     parameters:
@@ -115,7 +115,7 @@ methods:
   - name: hideToolbar
     summary: Makes the bottom toolbar invisible.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
         Note: This method is only intended to work with toolbars that are created using [setToolbar](Titanium.UI.Window.setToolbar).
         It will not have any effect on toolbars added manually to the window.
     parameters:
@@ -544,7 +544,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     default: false
-    since: 7.4.0
+    since: 7.5.0
 
   - name: largeTitleEnabled
     summary: A Boolean value indicating whether the title should be displayed in a large format.
@@ -634,12 +634,12 @@ properties:
         Since Titanium SDK 6.0.0, you can use this property to hide and show the property as well.
 
         Using this property, the navigation bar will be hidden or shown animated by default. Please note that
-        this property will only take effect if the window is used inside a <Titanium.UI.iOS.NavigationWindow>
+        this property will only take effect if the window is used inside a <Titanium.UI.NavigationWindow>
         and will be ignored otherwise. If you want to hide or show the navigation without an animation, use t
         he methods <Titanium.UI.Window.showNavBar> and <Titanium.UI.Window.hideNavBar> with the second parameter
         to specify the animation:
 
-            // "myWindow" is a Ti.UI.Window inside a Ti.UI.iOS.NavigationWindow
+            // "myWindow" is a Ti.UI.Window inside a Ti.UI.NavigationWindow
             myWindow.hideNavBar(true, {animated: false});
 
         #### Android Platform Notes
@@ -663,12 +663,12 @@ properties:
     platforms: [iphone,ipad]
 
   - name: navigationWindow
-    summary: The <Titanium.UI.iOS.NavigationWindow> instance hosting this window.
+    summary: The <Titanium.UI.NavigationWindow> instance hosting this window.
     description: |
         Returns the navigation window that hosts this window. Returns `null` if the window is not
         hosted by a navigation window.
     since: "7.3.0"
-    type: Titanium.UI.iOS.NavigationWindow
+    type: Titanium.UI.NavigationWindow
     permission: read-only
     platforms: [iphone, ipad]
 
@@ -904,7 +904,7 @@ properties:
     description: |
         If `false` the user will not be able to swipe from the left edge of the window to close it.
         Note: This property is only used for a window being embedded in a [Ti.UI.Tab](Titanium.UI.Tab) or
-        [Ti.UI.iOS.NavigationWindow](Titanium.UI.iOS.NavigationWindow). It is enabled by default.
+        [Ti.UI.NavigationWindow](Titanium.UI.NavigationWindow). It is enabled by default.
     type: Boolean
     since: "5.2.0"
     platforms: [iphone,ipad]
@@ -990,7 +990,7 @@ properties:
     summary: |
         Array of button objects to show in the window's toolbar.
     description: |
-        The toolbar is only shown when the window is inside a <Titanium.UI.iOS.NavigationWindow>.
+        The toolbar is only shown when the window is inside a <Titanium.UI.NavigationWindow>.
         To display a toolbar when a window is not inside a NavigationWindow, add an instance of a
         <Titanium.UI.iOS.Toolbar> to the window.
 
@@ -1028,7 +1028,7 @@ properties:
   - name: transitionAnimation
     summary: |
         Use a transition animation when opening or closing windows in a
-        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+        <Titanium.UI.NavigationWindow> or <Titanium.UI.Tab>.
     description: |
         Create the transition animation using the <Titanium.UI.iOS.createTransitionAnimation>
         method.
@@ -1299,7 +1299,7 @@ description: |
     Windows *contain* other views, but in general they are not *contained* inside
     other views. There are a few specialized views that manage windows:
 
-    * [NavigationWindow](Titanium.UI.iOS.NavigationWindow)
+    * [NavigationWindow](Titanium.UI.NavigationWindow)
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
@@ -1451,7 +1451,7 @@ description: |
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var win = Ti.UI.iOS.createNavigationWindow({
+        var win = Ti.UI.createNavigationWindow({
             window: Ti.UI.createWindow({
                 title: "Modal Window"
             })
@@ -2003,7 +2003,7 @@ examples:
   - title: Simple Example
     example: |
 
-        var win = Titanium.UI.createWindow({
+        var win = Ti.UI.createWindow({
             title: 'Title',
             barColor: 'yellow',
             titleAttributes:  {
@@ -2012,7 +2012,7 @@ examples:
                 shadow:{color:'gray', offset:{width:1,height:1}}
             }
         });
-        var nav = Titanium.UI.iOS.createNavigationWindow({window: win});
+        var nav = Ti.UI.createNavigationWindow({window: win});
         nav.open();
 
 properties:

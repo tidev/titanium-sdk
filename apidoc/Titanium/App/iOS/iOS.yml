@@ -26,8 +26,8 @@ description: |
 
     ### Local Interactive Notifications
 
-    You can create interactive notifications, where users can respond to application notifications 
-    without launching the application to the foreground. The user needs to reveal notification 
+    You can create interactive notifications, where users can respond to application notifications
+    without launching the application to the foreground. The user needs to reveal notification
     actions in the notification, then press a notification action to respond to the notification.
 
     To create an interactive notification, the application needs to:
@@ -53,7 +53,7 @@ description: |
 
     ### Handoff User Activities
 
-    Handoff allows you to create and transfer user activies from one device to another. For example, you can start editing 
+    Handoff allows you to create and transfer user activies from one device to another. For example, you can start editing
     a document on your phone, then transfer the activity to your iPad to continue editing the document.
 
     To make an activity shareable, use the <Titanium.App.iOS.UserActivity> API to create the activity.
@@ -468,7 +468,7 @@ properties:
     osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
-  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_TITLE
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
     summary: Show the notification's title, even if the user has disabled notification previews for the app.
     description: |
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
@@ -477,7 +477,7 @@ properties:
     osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
-  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_SUBTITLE
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
     summary: Show the notification's subtitle, even if the user has disabled notification previews for the app.
     description: |
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
@@ -1348,8 +1348,10 @@ properties:
   - name: identifier
     summary: The notification identifier.
     description: |
-        This property is required in iOS 10 and later and will fallback
-        to "notification" if not set.
+        This property is required in iOS 10+ and will fallback to a generated 
+        UUID-string if not set. It is recommended to manage the identifier 
+        yourself, but you can also get the generated UUID by accessing via 
+        the "userInfo.id" field for parity with older iOS versions.
     optional: false
     since: "7.3.0"
     type: String

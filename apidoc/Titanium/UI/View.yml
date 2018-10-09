@@ -86,9 +86,7 @@ description: |
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or
     `system` to specify that the platform's default unit should be used.
 
-    Note that prior to Release 2.0, iOS ignored any specified unit, so code that specifies
-    a unit may operate differently on iOS in Release 2.0. If you set the
-    `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
+    On IOS if you set the `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
     application should detect and handle Retina displays manually.
 
     Font sizes on iOS are treated differently than other sizes: font sizes are always
@@ -113,12 +111,10 @@ description: |
     *   <Titanium.UI.SIZE> specifies that the view should adjust this size to fit its
         contents, such as a label's text or a view's children.
     *   'auto' specifies that the view should choose either `FILL` or `SIZE` behavior.
-        In 2.0, the behavior of the 'auto' value is specified by the UI Composite Layout
-        Spec. This value is not recommended for new development and will be deprecated in
-        the future.
+        The use of `auto` is deprecated, and should be replaced with the SIZE or FILL constants if it is necessary to set the view's behavior explicitly.
 
     Sizes and positions can also be specified as a percentage of the parent's size, for
-    example, '50%'.
+    example, `50%`.
 
     How these properties are interpreted depends on the value of the view's `layout`
     property. See the description of the [layout](Titanium.UI.View.layout) property
@@ -268,7 +264,7 @@ events:
         fired when the property [focusable](Titanium.UI.View.focusable) is set to true. On iOS the
         event is generated only when using [Ti.UI.TextArea](Titanium.UI.TextArea), [Ti.UI.TextField](Titanium.UI.TextField)
         and [Ti.UI.SearchBar](Titanium.UI.SearchBar).
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: {android: "3.1.0", iphone: "5.4.0", ipad: "5.4.0"}
     properties:
       - name: keyCode
@@ -316,8 +312,8 @@ events:
   - name: pinch
     summary: Fired when the device detects a pinch gesture.
     description: |
-        A pinch is a touch and expand or contract 
-        with two fingers.  The event occurs continuously until a finger is lifted again.  
+        A pinch is a touch and expand or contract
+        with two fingers.  The event occurs continuously until a finger is lifted again.
     platforms: [iphone, ipad, android]
     since: "1.8.0"
     properties:
@@ -328,87 +324,87 @@ events:
       - name: velocity
         summary: The velocity of the pinch in scale factor per second.
         type: Number
-        
+
       - name: time
         summary: The event time of the current event being processed.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: timeDelta
         summary: |
-            The time difference in milliseconds between the previous accepted scaling event and the 
+            The time difference in milliseconds between the previous accepted scaling event and the
             current scaling event.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: currentSpan
         summary: |
             The average distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: currentSpanX
         summary: |
-            The average X distance between each of the pointers forming the gesture in progress through 
+            The average X distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
 
       - name: currentSpanY
         summary: |
-            The average Y distance between each of the pointers forming the gesture in progress through 
+            The average Y distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: previousSpan
         summary: |
-            The previous average distance between each of the pointers forming the gesture in progress through 
+            The previous average distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: previousSpanX
         summary: |
-            The previous average X distance between each of the pointers forming the gesture in progress through 
+            The previous average X distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: previousSpanY
         summary: |
-            The previous average Y distance between each of the pointers forming the gesture in progress through 
+            The previous average Y distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: focusX
         summary: |
             The X coordinate of the current gesture's focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: focusY
         summary: |
             The Y coordinate of the current gesture's focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
-        
+
       - name: inProgress
         summary: Returns `true` if a scale gesture is in progress, `false` otherwise.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
 
   - name: postlayout
@@ -768,11 +764,11 @@ methods:
 
         There are certain top-level containers that are not intended to be added
         as the children of other views. These top-level containers include
-        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.iOS.NavigationWindow>,
+        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.NavigationWindow>,
         and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
-        The special containers <Titanium.UI.iOS.NavigationWindow>,
+        The special containers <Titanium.UI.NavigationWindow>,
         <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.Tab>, and
         <Titanium.UI.TabGroup> manage windows.
         These managed windows may be referred to as *children* of the
@@ -1063,10 +1059,10 @@ properties:
         <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        Defaults to Title or label of the control.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
-    default: Title or label of the control.
 
   - name: accessibilityValue
     summary: A string describing the value (if any) of the view for the device's accessibility service.
@@ -1077,10 +1073,10 @@ properties:
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        Defaults to State or value of the control.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
-    default: State or value of the control.
 
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
@@ -1092,9 +1088,10 @@ properties:
         corner.
 
         See the "Using an anchorPoint" example in <Titanium.UI.Animation> for a demonstration.
+        The default is center of this view.
     type: Point
-    default: Center of this view.
-    platforms: [iphone, ipad]
+    since: {android: "7.5.0", iphone: "2.1.0", ipad: "2.1.0"}
+    platforms: [android, iphone, ipad]
 
   - name: animatedCenter
     summary: Current position of the view during an animation.
@@ -1105,24 +1102,23 @@ properties:
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>.
+        For information about color values, see the "Colors" section of <Titanium.UI>. Defaults to `Transparent`.
     type: String
-    default: Transparent
 
   - name: backgroundDisabledColor
     summary: Disabled background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
+        Defaults to the normal background color of this view.
     type: String
-    default: Same as the normal background color of this view.
     platforms: [android]
 
   - name: backgroundDisabledImage
     summary: Disabled background image for the view, specified as a local file path or URL.
+    description: |
+        If `backgroundDisabledImage` is undefined, and the normal background image`backgroundImage`
+        is set, the normal image is used when this view is disabled.
     type: String
-    default: |
-        If `backgroundDisabledImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is disabled.
     platforms: [android]
 
   - name: backgroundFocusedColor
@@ -1131,23 +1127,22 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         For normal views, the focused color is only used if `focusable` is `true`.
+        Defaults to the normal background color of this view.
     type: String
-    default: Same as the normal background color of this view.
     platforms: [android]
 
   - name: backgroundFocusedImage
     summary: Focused background image for the view, specified as a local file path or URL.
-    description: For normal views, the focused background is only used if `focusable` is `true`.
+    description: |
+      For normal views, the focused background is only used if `focusable` is `true`.
+      If `backgroundFocusedImage` is undefined, and the normal background image `backgroundImage`
+      is set, the normal image is used when this view is focused.
     type: String
-    default: |
-        If `backgroundFocusedImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is focused.
     platforms: [android]
 
   - name: backgroundGradient
     summary: A background gradient for the view.
     type: Gradient
-    default: No gradient
     platforms: [iphone,ipad,android]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously
@@ -1173,6 +1168,7 @@ properties:
 
         Android's linear gradients ignores `backfillStart` and `backfillEnd`, treating them as if
         they are true. Android's radial gradients ignore the `endPoint` property.
+        Defaults to no gradient.
     examples:
       - title: Linear and Radial Gradients
         example: |
@@ -1216,11 +1212,10 @@ properties:
 
   - name: backgroundImage
     summary: Background image for the view, specified as a local file path or URL.
+    description: |
+        Default behavior when `backgroundImage` is unspecified depends on the type of view and the platform.
+        For generic views, no image is used. For most controls (buttons, textfields, and so on), platform-specific default images are used.
     type: String
-    default: |
-        Default behavior when `backgroundImage` is unspecified depends on the type of view and
-        the platform. For generic views, no image is used. For most controls (buttons, text
-        fields, and so on), platform-specific default images are used.
 
   - name: backgroundRepeat
     summary: Determines whether to tile a background across a view.
@@ -1256,18 +1251,20 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         `focusable` must be true for normal views.
+
+        Defaults to background color of this view.
     type: String
     platforms: [android]
-    default: Background color of this view.
 
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
-    description: For normal views, the selected background is only used if `focusable` is `true`.
+    description: |
+      For normal views, the selected background is only used if `focusable` is `true`.
+
+      If `backgroundSelectedImage` is undefined, and the normal background image `backgroundImage` is set
+      the normal image is used when this view is selected.
     type: String
     platforms: [android]
-    default: |
-        If `backgroundSelectedImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is selected.
 
   - name: backgroundTopCap
     summary: Size of the top end cap.
@@ -1281,16 +1278,15 @@ properties:
     summary: Border color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    default: Same as the normal background color of this view (Android), black (iOS).
-    type: String
 
+        Defaults to the normal background color of this view (Android), black (iOS).
+    type: String
 
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
     description: Each corner is rounded using an arc of a circle.
     type: Number
     default: 0
-
 
   - name: borderWidth
     summary: Border width of the view.
@@ -1299,7 +1295,6 @@ properties:
         will be changed to 1 of the unit declared as 'ti.ui.defaultunit' in tiapp.xml descriptor.
     type: Number
     default: 0
-
 
   - name: bottom
     summary: View's bottom position, in platform-specific units.
@@ -1310,15 +1305,17 @@ properties:
 
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
+
+        Defaults to `undefined`.
     type: [Number,String]
-    default: undefined
 
   - name: center
     summary: View's center position, in the parent view's coordinates.
     description: |
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
-    default: undefined
+
+        Defaults to `undefined`.
     type: Point
 
 
@@ -1334,8 +1331,9 @@ properties:
         Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
         When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred.
         See section on iOS Clipping Behavior in <Titanium.UI.View>.
+
+        Defaults to `undefined`. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
     type: Number
-    default: Undefined. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
     platforms: [iphone, ipad]
     since: "3.3.0"
 
@@ -1391,9 +1389,10 @@ properties:
 
         * <Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE>. Keeps the space and just hides the object (default).
         * <Titanium.UI.HIDDEN_BEHAVIOR_GONE>. Releases the space and hides the object.
+
+        Defaults to Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE.
     type: Number
     constants: [Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE, Titanium.UI.HIDDEN_BEHAVIOR_GONE]
-    default: Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE
     platforms: [android]
     since: 6.1.0
 
@@ -1419,8 +1418,9 @@ properties:
 
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
+
+        Defaults to `undefined`.
     type: [Number,String]
-    default: undefined
 
   - name: layout
     type: String
@@ -1542,27 +1542,29 @@ properties:
             On Android and iOS _prior to_ Release
             2.1.0, the horizontal layout always wraps and the `horizontalWrap` property is not supported.
 
-    default: Composite layout
+            Defaults to Composite layout.
 
   - name: opacity
-    summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
+    summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque). Defaults to 1.0 (opaque).
     type: Number
-    default: 1.0 (opaque)
 
   - name: overrideCurrentAnimation
     summary: When on, animate call overrides current animation if applicable.
     description: |
         If this property is set to false, the animate call is ignored if the view is currently being animated.
+
+        Defaults to `undefined` but behaves as false
     type: Boolean
-    default: undefined but behaves as false
     since: "3.3.0"
     availability: creation
     platforms: [android]
 
   - name: pullBackgroundColor
-    summary: Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
+    summary: |
+      Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
+
+      Defaults to `undefined`. Results in a light grey background color on the wrapper view.
     type: String
-    default: Undefined. Results in a light grey background color on the wrapper view.
     since: "3.3.0"
     platforms: [iphone,ipad]
 
@@ -1588,8 +1590,9 @@ properties:
 
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
+
+        Defaults to `undefined`.
     type: [Number, String]
-    default: undefined
 
   - name: rect
     summary: |
@@ -1663,10 +1666,9 @@ properties:
 
 
   - name: softKeyboardOnFocus
-    summary: Determines keyboard behavior when this view is focused.
+    summary: Determines keyboard behavior when this view is focused. Defaults to <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>.
     type: Number
     constants: Titanium.UI.Android.SOFT_KEYBOARD_*
-    default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
     platforms: [android]
 
   - name: tintColor
@@ -1710,17 +1712,16 @@ properties:
 
   - name: touchFeedbackColor
     summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true.
+    description: Defaults to provided theme color.
     type: String
-    default: Theme provided color.
     platforms: [android]
     osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: transform
     summary: Transformation matrix to apply to the view.
-    description: Android only supports 2DMatrix transforms.
+    description: Android only supports 2DMatrix transforms. Defaults to identity matrix.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
-    default: Identity matrix
 
   - name: translationX
     summary: Horizontal location of the view relative to its left position in pixels.
@@ -1767,22 +1768,22 @@ properties:
 
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
+    description: Defaults to `undefined`. Behaves as if set to 3.
     type: Number
-    default: Undefined. Behaves as if set to 3.
     platforms: [iphone,ipad]
     since: "3.3.0"
 
   - name: viewShadowColor
     summary: Determines the color of the shadow.
+    description: Defaults to `undefined`. Behaves as if transparent.
     type: String
-    default: Undefined. Behaves as if transparent.
     platforms: [iphone,ipad]
     since: "3.3.0"
 
   - name: viewShadowOffset
     summary: Determines the offset for the shadow of the view.
+    description: Defaults to `undefined`. Behaves as if set to (0,-3)
     type: Point
-    default: Undefined. Behaves as if set to (0,-3)
     platforms: [iphone,ipad]
     since: "3.3.0"
 
@@ -1829,8 +1830,9 @@ properties:
         A view does not have a default z-index value, meaning that it is undefined by default.
         When this property is explicitly set, regardless of its value, it causes the view to be
         positioned in front of any sibling that has an undefined z-index.
+
+        Defaults to `undefined`.
     type: Number
-    default: undefined
 
   - name: keepScreenOn
     summary: Determines whether to keep the device screen on.

@@ -209,9 +209,9 @@
     NSFileManager *fm = [NSFileManager defaultManager];
     NSString *path = localPath;
     if (hires) {
-      if ([TiUtils isRetinaHDDisplay]) { // Save as @3x w/retina-hd
+      if ([TiUtils is3xRetina]) { // Save as @3x w/retina-hd
         path = [NSString stringWithFormat:@"%@@3x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
-      } else if ([TiUtils isRetinaDisplay]) { // Save as @2x w/retina
+      } else if ([TiUtils is2xRetina]) { // Save as @2x w/retina
         path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
       }
     }
@@ -451,7 +451,7 @@ DEFINE_EXCEPTIONS
       NSLog(@"[CACHE DEBUG] Loading locally from path %@", path);
 #endif
       BOOL scaleUp = NO;
-      if (([TiUtils isRetinaDisplay] && [path rangeOfString:@"@2x"].location != NSNotFound) || ([TiUtils isRetinaHDDisplay] && [path rangeOfString:@"@3x"].location != NSNotFound)) {
+      if (([TiUtils is2xRetina] && [path rangeOfString:@"@2x"].location != NSNotFound) || ([TiUtils is3xRetina] && [path rangeOfString:@"@3x"].location != NSNotFound)) {
         scaleUp = YES;
       }
       UIImage *resultImage = nil;
@@ -488,7 +488,7 @@ DEFINE_EXCEPTIONS
         // do click 2x to scale it up so we have to check for this method
         if ([UIImage instancesRespondToSelector:@selector(imageWithCGImage:scale:orientation:)]) {
           // if we specified a 2x, we need to upscale it
-          resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:([TiUtils isRetinaHDDisplay] ? 3.0 : 2.0)orientation:[resultImage imageOrientation]];
+          resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:([TiUtils is3xRetina] ? 3.0 : 2.0)orientation:[resultImage imageOrientation]];
         }
       }
       result = [self setImage:resultImage forKey:url hires:NO];

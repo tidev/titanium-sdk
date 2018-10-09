@@ -77,15 +77,39 @@ function checkVersions(api, startVersion, endVersion, className) {
 
 	if (assert(api, 'deprecated')) {
 		if (assert(api.deprecated, 'removed')) {
-			if (nodeappc.lte(startVersion, api.deprecated.removed)) {
-				if (!endVersion || (endVersion && nodeappc.gt(endVersion, api.deprecated.removed))) {
-					rv.removed = true;
+			let versions = [];
+			if (api.deprecated.removed instanceof Object) {
+				for (let key in api.deprecated.removed) {
+					versions.push(api.deprecated.removed[key]);
+				}
+			} else {
+				versions.push(api.deprecated.removed);
+			}
+			for (let version of versions) {
+				if (nodeappc.lte(startVersion, version)) {
+					if (!endVersion || (endVersion && nodeappc.gt(endVersion, version))) {
+						rv.removed = true;
+						break;
+					}
 				}
 			}
 		}
-		if (nodeappc.lte(startVersion, api.deprecated.since)) {
-			if (!endVersion || (endVersion && nodeappc.gt(endVersion, api.deprecated.since))) {
-				rv.deprecated = true;
+		if (assert(api.deprecated, 'since')) {
+			let versions = [];
+			if (api.deprecated.since instanceof Object) {
+				for (let key in api.deprecated.since) {
+					versions.push(api.deprecated.since[key]);
+				}
+			} else {
+				versions.push(api.deprecated.since);
+			}
+			for (let version of versions) {
+				if (nodeappc.lte(startVersion, version)) {
+					if (!endVersion || (endVersion && nodeappc.gt(endVersion, version))) {
+						rv.deprecated = true;
+						break;
+					}
+				}
 			}
 		}
 		rv.name = className ? className + '.' + api.name : api.name;
