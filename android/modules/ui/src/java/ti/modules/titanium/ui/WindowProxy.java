@@ -39,6 +39,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
 import android.transition.ChangeImageTransform;
@@ -48,6 +49,7 @@ import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -70,6 +72,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
+
+	private static int id_toolbar;
 
 	private WeakReference<TiBaseActivity> windowActivity;
 
@@ -264,6 +268,25 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 				win.setLayout(w, h);
 			}
+		}
+
+		// add toolbar to NavigationWindow
+		if (this.getNavigationWindow() != null && !(this instanceof NavigationWindowProxy)) {
+			if (activity.getSupportActionBar() == null) {
+				try {
+					if (id_toolbar == 0) {
+						id_toolbar = TiRHelper.getResource("layout.titanium_ui_toolbar");
+					}
+				} catch (TiRHelper.ResourceNotFoundException e) {
+					android.util.Log.e(TAG, "XML resources could not be found!!!");
+				}
+				LayoutInflater inflater = LayoutInflater.from(activity);
+				Toolbar toolbar = (Toolbar) inflater.inflate(id_toolbar, null, false);
+
+				activity.setSupportActionBar(toolbar);
+			}
+			activity.getSupportActionBar().setHomeButtonEnabled(true);
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 
 		activity.getActivityProxy().getDecorView().add(this);

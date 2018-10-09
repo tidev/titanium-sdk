@@ -1184,6 +1184,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
 						if (onHomeIconItemSelected != null) {
 							onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+
+							// handle NavigationWindow back press
+						} else if (window.getNavigationWindow() != null) {
+							onBackPressed();
 						}
 					}
 				}
