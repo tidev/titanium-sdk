@@ -73,6 +73,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	protected List<Pair<View, String>> sharedElementPairs;
+	public TiWindowProxy navigationWindow;
 
 	public static interface PostOpenListener {
 		public void onPostOpen(TiWindowProxy window);
@@ -551,6 +552,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (LOLLIPOP_OR_GREATER) {
 			sharedElementPairs.clear();
 		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public TiWindowProxy getNavigationWindow()
+	// clang-format on
+	{
+		return navigationWindow;
+	}
+
+	public void setNavigationWindow(TiWindowProxy navigationWindow)
+	{
+		this.navigationWindow = navigationWindow;
 	}
 
 	/**
