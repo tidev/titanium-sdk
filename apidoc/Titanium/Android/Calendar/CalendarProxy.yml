@@ -1,5 +1,5 @@
 ---
-name: Titanium.Android.Calendar.Calendar
+name: Titanium.Android.Calendar.CalendarProxy
 summary: An object that represents a single calendar on Android.
 extends: Titanium.Proxy
 platforms: [android]
