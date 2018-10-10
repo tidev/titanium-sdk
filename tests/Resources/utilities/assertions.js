@@ -89,6 +89,17 @@ should.Assertion.add('readWriteProperty', function (propName) {
 // TODO Do we need to distinguish between constant and readOnlyproperty?
 should.Assertion.alias('readOnlyProperty', 'constant');
 
+should.Assertion.add('enumeration', function (type, names) {
+	this.params = { operator: 'to have a set of enumerated constants with names: ' + names };
+	if (this.obj.apiName) {
+		this.params.obj = this.obj.apiName;
+	}
+
+	for (let i = 0; i < names.length; i++) {
+		should(this.obj).have.constant(names[i]).which.is.a[type];
+	}
+}, false);
+
 // TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), i.e. Ti.UI.FILL vs SIZE vs UNKNOWN
 // TODO Use more custom assertions for things like color properties?
 module.exports = should;
