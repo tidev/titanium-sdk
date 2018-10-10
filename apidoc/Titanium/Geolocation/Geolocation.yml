@@ -78,13 +78,13 @@ description: |
                 </plist>
             </ios>
         </ti:app>
-        
+
     For iOS 11 and later, also add the [`NSLocationAlwaysAndWhenInUseUsageDescription`](https://developer.apple.com/documentation/corelocation/choosing_the_authorization_level_for_location_services/request_always_authorization)
     when planning to request the "Always" permission. Using the above key, you are also able to upgrade your permissions from
     "When in Use" to "Always", which is the recommended way for managing location permissions in iOS 11 and later.
-    Please also remember to request your desired location-permissions before using any geolocation-related API in 
+    Please also remember to request your desired location-permissions before using any geolocation-related API in
     order to receive the best usability and permission-control during the app-lifecycle using <Titanium.Geolocation.hasLocationPermissions>
-    and <Titanium.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
+    and <Titanium.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key
     in *any* case when targeting iOS 11 and later. Descriptive error-logs will be thrown if required permissions are missing.
 
     #### Configurating Location Updates on Android
@@ -249,14 +249,14 @@ methods:
         In iOS 8, Apple introduced the Info.plist keys `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysUsageDescription`
         that are used to display an own description while requesting location permissions. In addition to this method, you need to
         include one of these keys (based on how your location updates should behave) or the application will crash if your app does not.
-        
+
         In iOS 11, Apple introduced another Info.plist key `NSLocationAlwaysAndWhenInUseUsageDescription` that allows developers to upgrade
         their permissions from "When in Use" to "Always". In order to get the best usability for iOS 11 and later, request "When in Use" first
         and upgrade your location-permissions by requesting "Always" permissions later if required. If this permission-flow is not used, iOS
-        will still ask the user to select between "When in Use", "Always", and "Don't Allow" (primary action) on iOS 11 when asking for "Always" 
-        permissions, which can lead to a higher frequence of denied permissions, so be careful requesting location permissions. 
+        will still ask the user to select between "When in Use", "Always", and "Don't Allow" (primary action) on iOS 11 when asking for "Always"
+        permissions, which can lead to a higher frequence of denied permissions, so be careful requesting location permissions.
         The iOS 11 related upgrade-flow is available in Titanium SDK 6.3.0 and later.
-        
+
         Finally, iOS 11 and later will require you to *always* include the `NSLocationWhenInUseUsageDescription` permission and Titanium will throw a
         descriptive error-log if any required keys are missing.
 
@@ -693,6 +693,7 @@ properties:
     type: Number
     constants: Titanium.Geolocation.AUTHORIZATION_*
     platforms: [iphone, ipad]
+    permission: read-only
 
   - name: locationServicesEnabled
     summary: Indicates if the user has enabled or disabled location services for the device (not the application).
@@ -736,12 +737,12 @@ properties:
 
   - name: showBackgroundLocationIndicator
     summary: |
-        Specifies that an indicator be shown when the app makes use of continuous 
+        Specifies that an indicator be shown when the app makes use of continuous
         background location updates.
     description: |
-        Starting continuous background location updates requires the app to 
-        set `UIBackgroundModes` to include "location" and to set this property 
-        to `true` before calling `getCurrentPosition` with the intent to continue 
+        Starting continuous background location updates requires the app to
+        set `UIBackgroundModes` to include "location" and to set this property
+        to `true` before calling `getCurrentPosition` with the intent to continue
         in the background.
 
         Note that this property only applies to apps with Always authorization.
@@ -780,7 +781,7 @@ properties:
         When `UIBackgroundModes` include `location` in tiapp.xml, this property is
         set to `true` by default.
     type: Boolean
-    default: true
+    default: false
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
     since: "5.0.0"
