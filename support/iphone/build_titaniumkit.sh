@@ -6,6 +6,41 @@ cd $SCRIPT_PATH
 # Change to TitaniumKit directory
 cd ../../iphone/TitaniumKit
 
+# Use the SDK version, timestamp and git hash passed in to use via options, and fall back to calculating them ourselves if not specified
+SDK_VERSION=""
+TIMESTAMP=""
+GIT_HASH=""
+
+while getopts v:t:h: option
+do
+case "${option}"
+in
+v) SDK_VERSION=${OPTARG};;
+t) TIMESTAMP=${OPTARG};;
+h) GIT_HASH=$OPTARG;;
+esac
+done
+
+if [ -z "$SDK_VERSION" ]
+then
+      SDK_VERSION=`node -p "require('../../package.json').version;"`
+fi
+
+if [ -z "$TIMESTAMP" ]
+then
+      TIMESTAMP=`date +"%m/%d/%Y %H:%M"`
+fi
+
+if [ -z "$GIT_HASH" ]
+then
+      GIT_HASH=`git rev-parse --short --no-color HEAD`
+fi
+
+# Inject the values into the source
+sed -i '' 's@__VERSION__@'"$SDK_VERSION"'@g' TitaniumKit/Sources/API/TopTiModule.m
+sed -i '' 's@__TIMESTAMP__@'"$TIMESTAMP"'@g' TitaniumKit/Sources/API/TopTiModule.m
+sed -i '' 's@__GITHASH__@'"$GIT_HASH"'@g' TitaniumKit/Sources/API/TopTiModule.m
+
 REVEAL_ARCHIVE_IN_FINDER=false
 
 FRAMEWORK_NAME="TitaniumKit"

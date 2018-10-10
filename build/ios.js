@@ -33,7 +33,7 @@ IOS.prototype.clean = function (next) {
 IOS.prototype.build = function (next) {
 	console.log('Building TitaniumKit ...');
 
-	const child = spawn(path.join(ROOT_DIR, 'support', 'iphone', 'build_titaniumkit.sh'));
+	const child = spawn(path.join(ROOT_DIR, 'support', 'iphone', 'build_titaniumkit.sh'), [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ]);
 
 	child.stdout.on('data', (data) => {
 		console.log(`\n${data}`);
