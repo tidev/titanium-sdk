@@ -113,7 +113,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	private ArrayList<TiUITab> tabs = new ArrayList<>();
 
-	public TiUIAbstractTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
+	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
 	{
 		super(proxy);
 
@@ -155,24 +155,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		tabGroupViewPager.setAdapter(tabGroupPagerAdapter);
 
-		tabGroupViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			@Override
-			public void onPageSelected(int position)
-			{
-				// On changing the page simply select the tab with the same position.
-				selectTabItemInController(position);
-			}
-
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2)
-			{
-			}
-
-			@Override
-			public void onPageScrollStateChanged(int arg0)
-			{
-			}
-		});
 		addViews(activity);
 	}
 

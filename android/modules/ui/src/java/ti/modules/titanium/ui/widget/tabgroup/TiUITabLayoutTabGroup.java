@@ -46,15 +46,16 @@ import ti.modules.titanium.ui.TabProxy;
  * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
  * for further details on how Action bar tabs work.
  */
-public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
+public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLayout.OnTabSelectedListener
 {
 	TabLayout mTabLayout;
+
+	private TabLayout.OnTabSelectedListener onTabSelectedListener;
 
 	public TiUITabLayoutTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
 	{
 		// Setup the action bar for navigation tabs.
 		super(proxy, activity, savedInstanceState);
-
 	}
 
 	@Override
@@ -74,22 +75,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 		// Set the colorPrimary as backgroundColor by default
 		this.mTabLayout.setBackgroundColor(colorPrimaryInt);
 
-		this.mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-			@Override
-			public void onTabSelected(TabLayout.Tab tab) {
-				selectTab(mTabLayout.getSelectedTabPosition());
-			}
-
-			@Override
-			public void onTabUnselected(TabLayout.Tab tab) {
-
-			}
-
-			@Override
-			public void onTabReselected(TabLayout.Tab tab) {
-
-			}
-		});
+		this.mTabLayout.addOnTabSelectedListener(this);
 		TiCompositeLayout.LayoutParams tabLayoutLP = new TiCompositeLayout.LayoutParams();
 		tabLayoutLP.autoFillsWidth = true;
 		mTabLayout.setLayoutParams(tabLayoutLP);
@@ -172,7 +158,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 
 	@Override
 	public void selectTabItemInController(int position) {
+		((TabGroupProxy) proxy).onTabSelected(position);
+		mTabLayout.clearOnTabSelectedListeners();
 		mTabLayout.getTabAt(position).select();
+		mTabLayout.addOnTabSelectedListener(this);
 	}
 
 	@Override
@@ -186,4 +175,23 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 		mTabLayout.setBackground(drawable);
 	}
 
+	@Override
+	public void onTabSelected(TabLayout.Tab tab) {
+		// Get the index of the currently selected tab.
+		int index = this.mTabLayout.getSelectedTabPosition();
+		// Select the proper page in the ViewPager.
+		selectTab(index);
+		// Trigger the select/unselect event firing.
+		((TabGroupProxy) getProxy()).onTabSelected(index);
+	}
+
+	@Override
+	public void onTabUnselected(TabLayout.Tab tab) {
+		((TabGroupProxy) getProxy()).getTabList().get(tab.getPosition()).fireEvent(TiC.EVENT_UNSELECTED, null, false);
+	}
+
+	@Override
+	public void onTabReselected(TabLayout.Tab tab) {
+
+	}
 }

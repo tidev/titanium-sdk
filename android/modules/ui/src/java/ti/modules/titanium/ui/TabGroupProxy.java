@@ -31,6 +31,7 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Message;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -372,7 +373,24 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-		topActivity.startActivity(intent);
+		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+		if (!animated) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			topActivity.startActivity(intent);
+			topActivity.overridePendingTransition(0, 0);
+		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
+			|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			topActivity.startActivity(intent);
+			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+		} else {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
+			} else {
+				topActivity.startActivity(intent);
+			}
+		}
 	}
 
 	@Override
@@ -423,7 +441,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		TabProxy activeTab = handleGetActiveTab();
 		if (activeTab != null) {
-			selectedTab = null;
+			selectedTab = activeTab;
 			// If tabHost's selected tab is same as the active tab, we need
 			// to invoke onTabSelected so focus/blur event fire appropriately
 			if (tg.getSelectedTab() == activeTab) {
@@ -494,6 +512,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		selectedTab.onFocusChanged(focused, null);
 	}
 
+	public void onTabSelected(int position) {
+		onTabSelected(tabs.get(position));
+	}
+
 	/**
 	 * Invoked when a tab in the group is selected.
 	 *
@@ -526,6 +548,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		selectedTab.onSelectionChanged(true);
 		selectedTab.onFocusChanged(true, focusEventData);
+		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
 	}
 
 	private void fillIntent(Activity activity, Intent intent)
@@ -585,6 +608,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 					t.setTabGroup(null);
 					t.releaseViews();
 				}
+				tabs.clear();
+				tabs = null;
 			}
 		}
 	}

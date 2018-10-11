@@ -44,6 +44,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
 	ArrayList<TabProxy> mTabProxiesArray = new ArrayList<>();
 	private int mBottomNavigationHeightValue;
+	// BottomNavigationView lacks anything similar to onTabUnselected method of TabLayout.OnTabSelectedListener.
+	// We track the previously selected item index manually to mimic the behavior in order to keep parity across styles.
+	private int currentlySelectedIndex = -1;
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState) {
 		super(proxy, activity, savedInstanceState);
@@ -92,6 +95,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		menuItem.setIcon(drawable);
 		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
 		this.mMenuItemsArray.add(menuItem);
+		// TabLayout automatically select the first tab that is added to it,
+		// but BottomNavigationView does not do that, so we manually trigger it.
+		// That's necessary to match the behavior across styles.
+		if (this.mMenuItemsArray.size() == 1) {
+			((TabGroupProxy) getProxy()).onTabSelected(tabProxy);
+			currentlySelectedIndex = 0;
+		}
 		setDrawables();
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
 			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
@@ -181,7 +191,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	@Override
 	public void selectTabItemInController(int position) {
+		// Fire the UNSELECTED event from the currently selected tab.
+		((TabGroupProxy) getProxy()).getTabList().get(currentlySelectedIndex).fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		currentlySelectedIndex = position;
+		// The ViewPager has changed current page from swiping.
+		// Or any other interaction with it that can cause page change.
+		// Set the proper item in the controller.
 		this.mBottomNavigationView.getMenu().getItem(position).setChecked(true);
+		// Trigger the select event firing for the newly selected tab.
+		((TabGroupProxy) getProxy()).onTabSelected(position);
 	}
 
 	@Override
@@ -197,8 +215,16 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
+		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
+		if (index != currentlySelectedIndex) {
+			((TabGroupProxy) getProxy()).getTabList().get(currentlySelectedIndex).fireEvent(TiC.EVENT_UNSELECTED, null, false);
+			currentlySelectedIndex = index;
+		}
+		// Make the ViewPager to select the proper page too.
 		selectTab(index);
+		// Trigger the select event firing for the new tab.
+		((TabGroupProxy) getProxy()).onTabSelected(index);
 		return false;
 	}
 }
