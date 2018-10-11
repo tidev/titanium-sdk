@@ -6,7 +6,7 @@
  */
 
 #import "AnalyticsModule.h"
-#import "APSAnalytics/APSAnalytics.h"
+#import <TitaniumKit/APSAnalytics.h>
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 static NSMutableArray *_filteredEvents;

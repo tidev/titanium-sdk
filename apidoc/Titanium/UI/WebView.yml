@@ -179,7 +179,8 @@ methods:
   - name: evalJS
     summary: |
         Evaluates a JavaScript expression inside the context of the web view and
-        optionally, returns a result.
+        optionally, returns a result. If a callback function is passed in as second argument,
+        the evaluation will take place asynchronously and the the callback function will be called with the result.
     description: |
         The JavaScript expression must be passed in as a string. If you are passing in any objects,
         you must serialize them to strings using [stringify](Global).
@@ -194,13 +195,25 @@ methods:
         call returns the empty string:
 
             myWebView.evalJS('return document.title');
+
+        The `evalJS` variant with a second callback argument executes asynchronously.
+
+            myWebView.evalJS('document.title', function (result) {
+              // Manipulate the result here
+            });
     returns:
         type: String
-    parameters:
+        summary: Result of the evaluation. May be null if the asynchronous variant of this method is called.
 
+    parameters:
       - name: code
         summary: JavaScript code as a string. The code will be evaluated inside the web view context.
         type: String
+
+      - name: callback
+        summary: Optional callback function for the result. Required on Windows, optional on iOS/Android.
+        optional: true
+        type: Callback<String>
 
   - name: goBack
     summary: Goes back one entry in the web view's history list, to the previous page.

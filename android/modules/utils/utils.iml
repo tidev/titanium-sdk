@@ -20,9 +20,7 @@
     <orderEntry type="module" module-name="kroll-apt" />
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commons-codec-1.10.jar!/" />
-        </CLASSES>
+        <CLASSES />
         <JAVADOC />
         <SOURCES />
       </library>

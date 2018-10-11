@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
@@ -31,34 +30,32 @@ public class TiResourceFile extends TiBaseFile
 	private static final String TAG = "TiResourceFile";
 
 	private String path;
+	private String name;
 	private boolean statsFetched = false;
 	private boolean exists = false;
 
 	public TiResourceFile(String path)
 	{
 		super(TYPE_RESOURCE);
-		this.path = path;
+		this.path = (path != null) ? path : "";
+		fetchName();
 	}
 
 	@Override
 	public boolean isDirectory()
 	{
-		if (statsFetched) {
-			return this.exists && this.typeDir;
+		if (this.statsFetched == false) {
+			fetchStats();
 		}
-
-		fetchStats();
 		return this.exists && this.typeDir;
 	}
 
 	@Override
 	public boolean isFile()
 	{
-		if (statsFetched) {
-			return this.exists && this.typeFile;
+		if (this.statsFetched == false) {
+			fetchStats();
 		}
-
-		fetchStats();
 		return this.exists && this.typeFile;
 	}
 
@@ -71,12 +68,8 @@ public class TiResourceFile extends TiBaseFile
 	@Override
 	public InputStream getInputStream() throws IOException
 	{
-		Context context = TiApplication.getInstance();
-		if (context != null) {
-			String p = TiFileHelper2.joinSegments("Resources", path);
-			return context.getAssets().open(p);
-		}
-		return null;
+		String resourcePath = TiFileHelper2.getResourcesPath(this.path);
+		return KrollAssetHelper.openAsset(resourcePath);
 	}
 
 	@Override
@@ -145,22 +138,16 @@ public class TiResourceFile extends TiBaseFile
 	@Override
 	public boolean exists()
 	{
-		if (statsFetched) {
-			return this.exists;
+		if (this.statsFetched == false) {
+			fetchStats();
 		}
-
-		fetchStats();
 		return this.exists;
 	}
 
 	@Override
 	public String name()
 	{
-		int idx = path.lastIndexOf("/");
-		if (idx != -1) {
-			return path.substring(idx + 1);
-		}
-		return path;
+		return this.name;
 	}
 
 	@Override
@@ -224,45 +211,8 @@ public class TiResourceFile extends TiBaseFile
 	@Override
 	public List<String> getDirectoryListing()
 	{
-		List<String> listing = new ArrayList<String>();
-		try {
-			String lpath = TiFileHelper2.getResourcesPath(path);
-			if (lpath.endsWith("/")) {
-				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
-			}
-
-			// list application assets
-			String[] names = TiApplication.getInstance().getAssets().list(lpath);
-			if (names != null) {
-				int len = names.length;
-				for (int i = 0; i < len; i++) {
-					listing.add(names[i]);
-				}
-			}
-
-			// list encrypted assets
-			String[] assets = KrollAssetHelper.getEncryptedAssetPaths();
-			if (assets != null) {
-				for (String asset : assets) {
-					if (asset.startsWith(path)) {
-						String relativePath = asset.substring(path.length());
-						int dirIndex = relativePath.lastIndexOf('/');
-						if (dirIndex != -1) {
-							String dir = relativePath.substring(0, dirIndex);
-							if (dir.length() > 0 && !listing.contains(dir)) {
-								listing.add(dir);
-							}
-						} else if (relativePath.length() > 0) {
-							listing.add(relativePath);
-						}
-					}
-				}
-			}
-
-		} catch (IOException e) {
-			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
-		}
-		return listing;
+		String resourcePath = TiFileHelper2.getResourcesPath(this.path);
+		return KrollAssetHelper.getDirectoryListing(resourcePath);
 	}
 
 	public String toString()
@@ -272,24 +222,59 @@ public class TiResourceFile extends TiBaseFile
 
 	private void fetchStats()
 	{
-		if (KrollAssetHelper.assetExists(TiFileHelper2.getResourcesPath(path))) {
+		// Do not continue if already fetched.
+		if (this.statsFetched) {
+			return;
+		}
+
+		// Determine if the path references an existing file or directory.
+		String resourcePath = TiFileHelper2.getResourcesPath(this.path);
+		if (this.path.isEmpty() || this.path.equals("/")) {
+			// Path references the root "Resources" directory. (This is an optimization.)
+			this.typeFile = false;
+			this.typeDir = true;
+			this.exists = true;
+		} else if (KrollAssetHelper.assetExists(resourcePath)) {
+			// Path references an existing file.
 			this.typeDir = false;
 			this.typeFile = true;
 			this.exists = true;
-
 		} else {
+			// Path does not reference a file. Check if it references an existing directory.
 			this.typeFile = false;
+			this.typeDir = KrollAssetHelper.directoryExists(resourcePath);
+			this.exists = this.typeDir;
+		}
 
-			if (!getDirectoryListing().isEmpty()) {
-				this.typeDir = true;
-				this.exists = true;
+		// Flag that path info has been fetched.
+		this.statsFetched = true;
+	}
 
-				// does not exist; neither file or directory
-			} else {
-				this.typeDir = false;
-				this.exists = false;
+	private void fetchName()
+	{
+		// Extract the file/directory name from the path.
+		// Notes:
+		// - An empty path or "/" references the root "Resources" directory.
+		// - A directory path may or may not end with a trailing "/".
+		String name = "Resources";
+		if (this.path.length() > 0) {
+			int startIndex = 0;
+			int endIndexExclusive = this.path.length();
+			if (this.path.charAt(endIndexExclusive - 1) == '/') {
+				endIndexExclusive--;
+			}
+			for (int index = endIndexExclusive - 1; index >= 0; index--) {
+				if (this.path.charAt(index) == '/') {
+					startIndex = index + 1;
+					break;
+				}
+			}
+			if ((startIndex == 0) && (endIndexExclusive == this.path.length())) {
+				name = this.path;
+			} else if (startIndex < endIndexExclusive) {
+				name = this.path.substring(startIndex, endIndexExclusive);
 			}
 		}
-		statsFetched = true;
+		this.name = name;
 	}
 }

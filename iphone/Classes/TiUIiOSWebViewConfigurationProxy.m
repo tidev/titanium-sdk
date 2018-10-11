@@ -9,7 +9,7 @@
 
 #import "TiUIiOSWebViewConfigurationProxy.h"
 #import "TiUIiOSWebViewProcessPoolProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiOSWebViewConfigurationProxy
 

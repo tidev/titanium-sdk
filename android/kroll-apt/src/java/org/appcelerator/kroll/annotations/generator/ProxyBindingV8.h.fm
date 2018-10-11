@@ -21,6 +21,7 @@ public:
 	explicit ${className}();
 
 	static void bindProxy(v8::Local<v8::Object>, v8::Local<v8::Context>);
+	static v8::Local<v8::FunctionTemplate> getProxyTemplate(v8::Isolate*);
 	static v8::Local<v8::FunctionTemplate> getProxyTemplate(v8::Local<v8::Context>);
 	static void dispose(v8::Isolate*);
 
@@ -45,7 +46,7 @@ private:
 	</@Proxy.listDynamicProperties>
 
 	<#if interceptor??>
-	static void interceptor(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void interceptor(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 	</#if>
 };
 

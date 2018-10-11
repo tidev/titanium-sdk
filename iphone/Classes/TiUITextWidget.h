@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @protocol TiUITextWidget
 

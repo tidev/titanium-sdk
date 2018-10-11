@@ -4,24 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 #ifdef USE_TI_UI
 
-#import "TiDimension.h"
-#import "TiProxy.h"
 #import "UIModule.h"
 
-#ifdef USE_TI_UI2DMATRIX
-#import "Ti2DMatrix.h"
-#endif
-
-#ifdef USE_TI_UI3DMATRIX
-#import "Ti3DMatrix.h"
-#endif
+#import <TitaniumKit/Ti2DMatrix.h>
+#import <TitaniumKit/Ti3DMatrix.h>
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_UIANIMATION
-#import "TiAnimation.h"
+#import <TitaniumKit/TiAnimation.h>
 #endif
 #ifdef USE_TI_UIIPAD
 #import "TiUIiPadProxy.h"
@@ -42,10 +37,10 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation UIModule
 
@@ -254,7 +249,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #pragma mark Factory methods
 
-#ifdef USE_TI_UI2DMATRIX
 - (id)create2DMatrix:(id)args
 {
   if (args == nil || [args count] == 0) {
@@ -264,7 +258,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
   Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
   return [matrix autorelease];
 }
-#endif
 
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args
@@ -391,8 +384,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 #endif
 
-#ifdef USE_TI_UI3DMATRIX
-- (id)create3DMatrix:(id)args
+- (Ti3DMatrix *)create3DMatrix:(id)args
 {
   if (args == nil || [args count] == 0) {
     return [[[Ti3DMatrix alloc] init] autorelease];
@@ -401,7 +393,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
   return [matrix autorelease];
 }
-#endif
 
 #ifdef USE_TI_UICLIPBOARD
 - (id)Clipboard
@@ -516,7 +507,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
-MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak); // deprecated
 
 - (NSNumber *)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {

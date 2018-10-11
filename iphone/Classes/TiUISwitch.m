@@ -6,8 +6,8 @@
  */
 
 #import "TiUISwitch.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @implementation TiUISwitch
 

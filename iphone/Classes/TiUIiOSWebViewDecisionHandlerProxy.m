@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIiOSWebViewDecisionHandlerProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiOSWebViewDecisionHandlerProxy
 

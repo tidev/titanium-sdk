@@ -9,11 +9,11 @@
 #import <AVFoundation/AVFAudio.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-#import "TiBlob.h"
-#import "TiFile.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaSoundProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaSoundProxy
 

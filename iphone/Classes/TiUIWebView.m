@@ -7,13 +7,20 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebView.h"
-#import "SBJSON.h"
-#import "TiApp.h"
-#import "TiFilesystemFileProxy.h"
 #import "TiUIWebViewProxy.h"
 #import "TiUIiOSWebViewConfigurationProxy.h"
 #import "TiUIiOSWebViewDecisionHandlerProxy.h"
-#import "Webcolor.h"
+
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiExceptionHandler.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiHost.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/TiFilesystemFileProxy.h>
 
 #import <objc/runtime.h>
 
@@ -633,9 +640,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     if ([message.name isEqualToString:@"_Ti_"]) {
       NSString *callback = [[message body] objectForKey:@"callback"];
 
-      SBJSON *decoder = [[[SBJSON alloc] init] autorelease];
       NSError *error = nil;
-      NSDictionary *event = [decoder fragmentWithString:callback error:&error];
+      NSData *eventData = [callback dataUsingEncoding:NSUTF8StringEncoding];
+      NSDictionary *event = [NSJSONSerialization JSONObjectWithData:eventData options:kNilOptions error:&error];
 
       NSString *method = [[message body] objectForKey:@"method"];
       NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";

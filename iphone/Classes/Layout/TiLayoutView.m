@@ -7,7 +7,7 @@
 
 #ifdef TI_USE_AUTOLAYOUT
 #import "TiLayoutView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #define SuppressPerformSelectorLeakWarning(Stuff) \
 do { \

@@ -7,9 +7,9 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
-#import "NSData+Additions.h"
-#import "TiApp.h"
-#import "TiEvaluator.h"
+#import <TitaniumKit/NSData+Additions.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiEvaluator.h>
 
 #import <sys/utsname.h>
 

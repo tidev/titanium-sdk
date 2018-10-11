@@ -192,7 +192,7 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 	for (let i = 0; i < issues.length; i++) {
 		if ((typeof name === 'string' && issues[i].id === name) || (typeof name === 'object' && name.test(issues[i].id))) {
 			this.logger.banner();
-			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i, arr) {
+			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line) {
 				this.logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
 			}, this);
 			this.logger.log();
@@ -435,9 +435,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 					flags: {
 						'force-copy': {
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
-						},
-						'force-copy-all': {
-							desc: __('removed in Titanium SDK 8.0.0 since TiCore was removed in favor of the built-in JavaScriptCore framework')
 						},
 						'launch-watch-app': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app and the main app', 'simulator'.cyan)
@@ -2062,30 +2059,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			},
 
 			function toSymlinkOrNotToSymlink() {
-				this.symlinkLibrariesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
+				this.symlinkLibrariesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'];
 				this.symlinkFilesOnCopy = false;
-
-				/* eslint-disable max-len */
-				/*
-				// since things are looking good, determine if files should be symlinked on copy
-				// note that iOS 9 simulator does not support symlinked files :(
-				this.symlinkFilesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
-
-				// iOS 9 Simulator does not like symlinks :(
-				if (cli.argv.target === 'simulator' && this.symlinkFilesOnCopy) {
-					if (cli.argv['build-only'] && this.symlinkFilesOnCopy) {
-						logger.warn(__('Files are being symlinked which is known to not work when running in an iOS 9 Simulators'));
-						logger.warn(__('You may want to specify the --force-copy flag'));
-					} else if (this.simHandle && appc.version.gte(this.simHandle.version, '9.0')) {
-						logger.info(__('Symlinked files not supported with iOS %s simulator, forcing files to be copied', this.simHandle.version));
-						this.symlinkFilesOnCopy = false;
-					}
-				} else if (this.symlinkFilesOnCopy && cli.argv.target === 'device' && (cli.argv['debug-host'] || cli.argv['profiler-host']) && version.gte(this.iosSdkVersion, '9.0')) {
-					logger.info(__('Symlinked files are not supported with iOS %s device %s builds, forcing files to be copied', version.format(this.iosSdkVersion, 2, 2), cli.argv['debug-host'] ? 'debug' : 'profiler'));
-					this.symlinkFilesOnCopy = false;
-				}
-				*/
-				/* eslint-enable max-len */
 			},
 
 			function determineMinIosVer() {
@@ -2159,7 +2134,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								}
 
 								if (!module.libFile) {
-									this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+									this.logger.error(__('Module "%s" (%s) is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
 									process.exit(1);
 								}
 							}
@@ -2167,16 +2142,31 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
+							const frameworkName = this.scrubbedModuleId(module.id) + '.framework';
 
-							module.libName = 'lib' + module.id.toLowerCase() + '.a';
-							module.libFile = path.join(module.modulePath, module.libName);
+							// Try to load native module as static library (Obj-C)
+							if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
+								module.libName = 'lib' + module.id.toLowerCase() + '.a';
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isFramework = false;
 
-							if (!fs.existsSync(module.libFile)) {
-								this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+								// For Obj-C static libraries, use the .a library or hashing
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
+								// Try to load native module as framework (Swift)
+							} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
+								module.libName = frameworkName;
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isFramework = true;
+								// For Swift frameworks, use the binary inside the .framework for hashing
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
+
+								// Else - fail
+							} else {
+								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
 								process.exit(1);
 							}
 
-							nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 							this.nativeLibModules.push(module);
 						}
 
@@ -2197,6 +2187,12 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			callback();
 		});
 	}.bind(this); // end of function returned by validate()
+};
+
+iOSBuilder.prototype.scrubbedModuleId = function (moduleId) {
+	return moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
+		return s.substring(0, 1).toUpperCase() + s.substring(1);
+	}).join('');
 };
 
 /**
@@ -2350,7 +2346,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.ppUuid             = this.provisioningProfileUUID;
 	this.currentBuildManifest.outputDir          = this.cli.argv['output-dir'];
 	this.currentBuildManifest.forceCopy          = this.forceCopy               = !!argv['force-copy'];
-	this.currentBuildManifest.forceCopyAll       = this.forceCopyAll            = !!argv['force-copy-all'];
 	this.currentBuildManifest.name               = this.tiapp.name;
 	this.currentBuildManifest.id                 = this.tiapp.id;
 	this.currentBuildManifest.analytics          = this.tiapp.analytics;
@@ -2701,18 +2696,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
-		// check if the --force-copy or --force-copy-all flags were set
+		// check if the --force-copy flag was set
 		if (this.forceCopy !== manifest.forceCopy) {
 			this.logger.info(__('Forcing rebuild: force copy flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', cyan(manifest.forceCopy)));
 			this.logger.info('  ' + __('Now: %s', cyan(this.forceCopy)));
-			return true;
-		}
-
-		if (this.forceCopyAll !== manifest.forceCopyAll) {
-			this.logger.info(__('Forcing rebuild: force copy all flag changed since last build'));
-			this.logger.info('  ' + __('Was: %s', cyan(manifest.forceCopyAll)));
-			this.logger.info('  ' + __('Now: %s', cyan(this.forceCopyAll)));
 			return true;
 		}
 
@@ -2891,12 +2879,12 @@ iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
-	const appName = this.tiapp.name,
-		scrubbedAppName = this.sanitizedAppName(),
-		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
-		contents = fs.readFileSync(srcFile).toString(),
-		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
-		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
+	const appName = this.tiapp.name;
+	const scrubbedAppName = appName.replace(/[-\W]/g, '_');
+	const srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj');
+	const xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'));
+	const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
+	const contents = fs.readFileSync(srcFile).toString();
 
 	xcodeProject.hash = xcodeParser.parse(contents);
 	const xobjs = xcodeProject.hash.project.objects;
@@ -3082,10 +3070,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
 
-	if (/simulator|device|dist-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
-		gccDefs.push('KROLL_COVERAGE=1');
-	}
-
 	if (this.enableLaunchScreenStoryboard) {
 		gccDefs.push('LAUNCHSCREEN_STORYBOARD=1');
 	}
@@ -3243,8 +3227,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	if (this.nativeLibModules.length) {
 		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
 		this.nativeLibModules.forEach(function (lib) {
-			const fileRefUuid = this.generateXcodeUuid(xcodeProject),
+			const isFramework = lib.isFramework,
+				fileRefUuid = this.generateXcodeUuid(xcodeProject),
 				buildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+			// Framworks are handled by our framework manager!
+			if (isFramework) {
+				return;
+			}
 
 			// add the file reference
 			xobjs.PBXFileReference[fileRefUuid] = {
@@ -3276,9 +3266,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				comment: lib.libName + ' in Frameworks'
 			});
 
-			// add the library to the search paths
+			// add the library / framework to the dedicated search paths
 			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+
 				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
 				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 			});
@@ -3725,6 +3716,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	});
 
 	const hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
+
+		// clean up TitaniumKit project references
+		xcodeProject.removeFramework('TitaniumKit.framework', { customFramework: true, embed: true });
+		xcodeProject.addFramework(path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework'), { customFramework: true, embed: true });
+
 		const contents = xcodeProject.writeSync(),
 			dest = xcodeProject.filepath,
 			parent = path.dirname(dest);
@@ -3914,6 +3910,38 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	});
 
 	[ {
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
 		orientation: 'Portrait',
 		'minimum-system-version': '11.0',
 		name: 'Default-Portrait',
@@ -4325,7 +4353,7 @@ iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents
 			// note: order of regexps matters
 			[ /TitaniumViewController/g, namespace + '$ViewController' ],
 			[ /TitaniumModule/g, namespace + '$Module' ],
-			[ /Titanium|Appcelerator/g, namespace ],
+			[ /(?!TitaniumKit)(Titanium|Appcelerator)/g, namespace ],
 			[ /titanium/g, '_' + namespace.toLowerCase() ],
 			[ /(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase() ],
 			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile' ], // eslint-disable-line security/detect-non-literal-regexp
@@ -4360,7 +4388,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		modules: this.modules
 	};
 
-	[ 'Classes', 'headers' ].forEach(function (dir) {
+	[ 'Classes', 'Frameworks' ].forEach(function (dir) {
 		this.copyDirSync(path.join(this.platformPath, dir), path.join(this.buildDir, dir), {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: /^(defines\.h|bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/, // eslint-disable-line max-len
@@ -4767,6 +4795,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 		resourcesToCopy = {},
 		jsFiles = {},
+		jsBootstrapFiles = [],
 		cssFiles = {},
 		htmlJsFiles = {},
 		appIcons = {},
@@ -4857,6 +4886,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	this.logger.info(__('Analyzing Resources directory'));
+	walk(path.join(this.titaniumSdkPath, 'common', 'Resources'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir);
@@ -5507,6 +5537,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							'Default-Landscape-736h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'landscape', width: 2208, height: 1242, scale: 3, subtype: '736h' },
 							// iPhone Landscape - iOS 11 - Retina HD iPhone X (2436x1125)
 							'Default-Landscape-2436h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'landscape', width: 2436, height: 1125, scale: 3, subtype: '2436h' },
+							// iPhone Landscape - iOS 12 - Retina HD iPhone X Max (2688x1242)
+							'Default-Landscape-2688h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 2688, height: 1242, scale: 3, subtype: '2688h' },
+							// iPhone Landscape - iOS 12 - Retina iPhone XR (1792x828)
+							'Default-Landscape-1792h@2x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 1792, height: 828, scale: 2, subtype: '1792h' },
 
 							// iPad Portrait - iOS 7-9 - 1x (????)
 							'Default-Portrait.png':          { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 768, height: 1024, scale: 1 },
@@ -5515,7 +5549,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							// iPhone Portrait - iOS 8,9 - Retina HD 5.5 (1242x2208)
 							'Default-Portrait-736h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 1242, height: 2208, scale: 3, subtype: '736h' },
 							// iPhone Portrait - iOS 11 - Retina HD iPhone X (1125x2436)
-							'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' }
+							'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' },
+							// iPhone Portrait - iOS 12 - Retina HD iPhone X Max (1242x2688)
+							'Default-Portrait-2688h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 1242, height: 2688, scale: 3, subtype: '2688h' },
+							// iPhone Portrait - iOS 12 - Retina iPhone XR (828x1792)
+							'Default-Portrait-1792h@2x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 828, height: 1792, scale: 2, subtype: '1792h' }
 						},
 						found = {};
 
@@ -5716,89 +5754,124 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			}, this);
 		},
 
-		function processJSFiles(next) {
-			this.logger.info(__('Processing JavaScript files'));
+		function (next) {
+			series(this, [
+				function processJSFiles(next) {
+					this.logger.info(__('Processing JavaScript files'));
 
-			async.eachSeries(Object.keys(jsFiles), function (file, next) {
-				setImmediate(function () {
-					const info = jsFiles[file];
-					if (this.encryptJS) {
-						if (file.indexOf('/') === 0) {
-							file = path.basename(file);
-						}
-						file = file.replace(/\./g, '_');
-						info.dest = path.join(this.buildAssetsDir, file);
-						this.jsFilesToEncrypt.push(file);
-					}
+					async.eachSeries(Object.keys(jsFiles), function (file, next) {
+						setImmediate(function () {
+							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
+							// Add it as a require() compatible string to bootstrap array if it's a match.
+							const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+							if (bootstrapPath.endsWith('.bootstrap')) {
+								jsBootstrapFiles.push(bootstrapPath);
+							}
 
-					try {
-						this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-							const originalContents = fs.readFileSync(from).toString();
-							// Populate an initial object to pass in. This won't have modified
-							// contents or symbols populated, which it used to at this point,
-							// but I don't think any plugin relied on that behavior, while
-							// hyperloop would clobber the contents if we didn't do the mods
-							// inside the compile hook.
-							const r = {
-								original: originalContents,
-								contents: originalContents,
-								symbols: []
-							};
-							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								// Read the possibly modified file contents
-								const source = r.contents;
-								// Analyze Ti API usage, possibly also minify/transpile
-								const analyzeOptions = {
-									filename: from,
-									minify: this.minifyJS,
-									transpile: this.transpile,
-									sourceMap: this.sourceMaps || this.deployType === 'development',
-									resourcesDir: this.xcodeAppDir,
-									targets: {
-										ios: this.minSupportedIosSdk
-									}
-								};
-
-								try {
-									const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-									const newContents = modified.contents;
-
-									// we want to sort by the "to" filename so that we correctly handle file overwriting
-									this.tiSymbols[to] = modified.symbols;
-
-									const dir = path.dirname(to);
-									fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-									const exists = fs.existsSync(to);
-									// dest doesn't exist, or new contents differs from existing dest file
-									if (!exists || newContents !== fs.readFileSync(to).toString()) {
-										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-										exists && fs.unlinkSync(to);
-										fs.writeFileSync(to, newContents);
-										this.jsFilesChanged = true;
-									} else {
-										this.logger.trace(__('No change, skipping %s', to.cyan));
-									}
-									cb2();
-								} catch (err) {
-									err.message.split('\n').forEach(this.logger.error);
-									if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
-										this.logger.log(err.codeFrame);
-									}
-									this.logger.log();
-									process.exit(1);
-								} finally {
-									this.unmarkBuildDirFile(to);
+							const info = jsFiles[file];
+							if (this.encryptJS) {
+								if (file.indexOf('/') === 0) {
+									file = path.basename(file);
 								}
-							})(r, from, to, cb);
-						})(info.src, info.dest, next);
-					} catch (ex) {
-						ex.message.split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
+								file = file.replace(/\./g, '_');
+								info.dest = path.join(this.buildAssetsDir, file);
+								this.jsFilesToEncrypt.push(file);
+							}
+
+							try {
+								this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+									const originalContents = fs.readFileSync(from).toString();
+									// Populate an initial object to pass in. This won't have modified
+									// contents or symbols populated, which it used to at this point,
+									// but I don't think any plugin relied on that behavior, while
+									// hyperloop would clobber the contents if we didn't do the mods
+									// inside the compile hook.
+									const r = {
+										original: originalContents,
+										contents: originalContents,
+										symbols: []
+									};
+									this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+										// Read the possibly modified file contents
+										const source = r.contents;
+										// Analyze Ti API usage, possibly also minify/transpile
+										const analyzeOptions = {
+											filename: from,
+											minify: this.minifyJS,
+											transpile: this.transpile,
+											sourceMap: this.sourceMaps || this.deployType === 'development',
+											resourcesDir: this.xcodeAppDir,
+											logger: this.logger,
+											targets: {
+												ios: this.minSupportedIosSdk
+											}
+										};
+
+										try {
+											const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+											const newContents = modified.contents;
+
+											// we want to sort by the "to" filename so that we correctly handle file overwriting
+											this.tiSymbols[to] = modified.symbols;
+
+											const dir = path.dirname(to);
+											fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+											const exists = fs.existsSync(to);
+											// dest doesn't exist, or new contents differs from existing dest file
+											if (!exists || newContents !== fs.readFileSync(to).toString()) {
+												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+												exists && fs.unlinkSync(to);
+												fs.writeFileSync(to, newContents);
+												this.jsFilesChanged = true;
+											} else {
+												this.logger.trace(__('No change, skipping %s', to.cyan));
+											}
+											cb2();
+										} catch (err) {
+											err.message.split('\n').forEach(this.logger.error);
+											if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
+												this.logger.log(err.codeFrame);
+											}
+											this.logger.log();
+											process.exit(1);
+										} finally {
+											this.unmarkBuildDirFile(to);
+										}
+									})(r, from, to, cb);
+								})(info.src, info.dest, next);
+							} catch (ex) {
+								ex.message.split('\n').forEach(this.logger.error);
+								this.logger.log();
+								process.exit(1);
+							}
+						}.bind(this));
+					}.bind(this), next);
+				},
+
+				function writeBootstrapJson() {
+					this.logger.info(__('Writing bootstrap json'));
+
+					const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : path.join('ti.internal', 'bootstrap.json'),
+						bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath),
+						bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
+
+					this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+
+					if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
+						this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
+
+						if (!fs.existsSync(path.dirname(bootstrapJsonAbsolutePath))) {
+							wrench.mkdirSyncRecursive(path.dirname(bootstrapJsonAbsolutePath));
+						}
+						fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
+					} else {
+						this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
 					}
-				}.bind(this));
-			}.bind(this), next);
+
+					this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
+				},
+			], next);
 		},
 
 		function writeAppProps() {
