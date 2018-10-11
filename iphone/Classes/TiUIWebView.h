@@ -6,11 +6,10 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-
 #import <WebKit/WebKit.h>
 
-#import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIWebView : TiUIView <WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler> {
   @private

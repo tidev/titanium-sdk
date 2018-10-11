@@ -10,9 +10,9 @@
 #import <TitaniumKit/TiHost.h>
 #import <TitaniumKit/TiUtils.h>
 
+#import "TiNetworkCookieProxy.h"
 #import "TiUIWebView.h"
 #import "TiUIWebViewProxy.h"
-#import "TiNetworkCookieProxy.h"
 
 @implementation TiUIWebViewProxy
 

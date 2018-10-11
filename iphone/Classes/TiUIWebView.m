@@ -16,11 +16,11 @@
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiExceptionHandler.h>
 #import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiFilesystemFileProxy.h>
 #import <TitaniumKit/TiHost.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
-#import <TitaniumKit/TiFilesystemFileProxy.h>
 
 #import <objc/runtime.h>
 

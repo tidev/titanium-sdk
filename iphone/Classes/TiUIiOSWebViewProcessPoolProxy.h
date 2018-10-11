@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import <WebKit/WebKit.h>
 #import <TitaniumKit/TiProxy.h>
+#import <WebKit/WebKit.h>
 
 @interface TiUIiOSWebViewProcessPoolProxy : TiProxy {
 }
