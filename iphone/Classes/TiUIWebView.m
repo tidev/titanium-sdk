@@ -744,25 +744,37 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       NSString *method = [[message body] objectForKey:@"method"];
       NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";
 
-      id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
-      TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
-      [tiModule setExecutionContext:context];
+      // FIXME: This doesn't play nice with the new obj-c based modules!
+      // Unify the special handling for init with the code in KrollBridge?
+      // Maybe just fork the behavior altogether here, since I don't think the event stuff will work properly?
+      id module;
+      if ([moduleName isEqualToString:@"API"]) {
+        // Really we need to grab the same instance we stuck into the Ti namespace, not a brand new one. But how?
+        // Maybe grab Ti from global and just ask for property with module name?
+        Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", moduleName]);
+        module = [[moduleClass alloc] init];
+      } else {
+        id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
+        TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
+        [tiModule setExecutionContext:context];
+        module = tiModule;
+      }
 
       if ([method isEqualToString:@"fireEvent"]) {
-        [tiModule fireEvent:name withObject:payload];
+        [module fireEvent:name withObject:payload];
       } else if ([method isEqualToString:@"addEventListener"]) {
         id listenerid = [event objectForKey:@"id"];
-        [tiModule addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+        [module addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"removeEventListener"]) {
         id listenerid = [event objectForKey:@"id"];
-        [tiModule removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+        [module removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"log"]) {
         NSString *level = [event objectForKey:@"level"];
         NSString *message = [event objectForKey:@"message"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([tiModule respondsToSelector:@selector(log:)]) {
-          [tiModule performSelector:@selector(log:) withObject:@[ level, message ]];
+        if ([module respondsToSelector:@selector(log:)]) {
+          [module performSelector:@selector(log:) withObject:@[ level, message ]];
         }
 #pragma clang diagnostic pop
       }
