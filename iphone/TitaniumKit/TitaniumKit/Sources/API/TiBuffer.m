@@ -70,7 +70,7 @@ NSArray *bufferKeySequence = nil;
                 location:CODELOCATION];
     return @(-1);
   }
-  
+
   if (hasSourceOffset && !hasSourceLength) {
     [self throwException:@"TiArgsException"
                subreason:@"Ti.Buffer.append(buf,offset,length) requires three arguments"
