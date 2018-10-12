@@ -36,21 +36,20 @@ import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 
 /**
- * Tab group implementation using the Action Bar navigation tabs.
+ * TabGroup implementation using TabLayout as a controller.
+ * This clas has been created for a backward compatibility with versions
+ * that relied on the implementation based on the deprecated ActionBar tab
+ * navigation mode.
  *
- * When the target SDK version and device framework level is 11 or higher
- * we will use this implementation to place the tabs inside the action bar.
- * Each tab window provides a fragment which is made visible by a fragment
- * transaction when it is selected.
- *
- * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
- * for further details on how Action bar tabs work.
+ * Functionality has been kept the same with minor visual differences which
+ * are introduced in favor of following Material Design guidelines.
  */
 public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLayout.OnTabSelectedListener
 {
-	TabLayout mTabLayout;
-
+	// region private fields
+	private TabLayout mTabLayout;
 	private TabLayout.OnTabSelectedListener onTabSelectedListener;
+	// endregion
 
 	public TiUITabLayoutTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
 	{
@@ -58,59 +57,77 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		super(proxy, activity, savedInstanceState);
 	}
 
+	/**
+	 * Removes the controller from the UI layout.
+	 * @param disable
+	 */
 	@Override
-	public void disableTabNavigation(boolean disable) {
+	public void disableTabNavigation(boolean disable)
+	{
+		super.disableTabNavigation(disable);
 		if (disable) {
-			mTabLayout.setVisibility(View.GONE);
+			this.mTabLayout.setVisibility(View.GONE);
 		} else {
-			mTabLayout.setVisibility(View.VISIBLE);
+			this.mTabLayout.setVisibility(View.VISIBLE);
 		}
 	}
 
 	@Override
-	public void addViews(TiBaseActivity activity) {
+	public void addViews(TiBaseActivity activity)
+	{
 
 		this.mTabLayout = new TabLayout(activity);
 
-		// Set the colorPrimary as backgroundColor by default
-		this.mTabLayout.setBackgroundColor(colorPrimaryInt);
-
+		// Set the colorPrimary as backgroundColor by default.
+		this.mTabLayout.setBackgroundColor(this.colorPrimaryInt);
+		// Set the OnTabSelected listener.
 		this.mTabLayout.addOnTabSelectedListener(this);
+		// Set the LayoutParams for the TabLayout instance.
 		TiCompositeLayout.LayoutParams tabLayoutLP = new TiCompositeLayout.LayoutParams();
 		tabLayoutLP.autoFillsWidth = true;
-		mTabLayout.setLayoutParams(tabLayoutLP);
+		this.mTabLayout.setLayoutParams(tabLayoutLP);
+		// Set the LayoutParams for the ViewPager instance.
 		((TiCompositeLayout) activity.getLayout()).setLayoutArrangement(TiC.LAYOUT_VERTICAL);
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 		params.autoFillsWidth = true;
-		((ViewGroup) activity.getLayout()).addView(mTabLayout);
-		((ViewGroup) activity.getLayout()).addView(tabGroupViewPager, params);
-		setNativeView(tabGroupViewPager);
+		// Add the views to their container.
+		((ViewGroup) activity.getLayout()).addView(this.mTabLayout);
+		((ViewGroup) activity.getLayout()).addView(this.tabGroupViewPager, params);
+		// Set the ViewPager as a native view.
+		setNativeView(this.tabGroupViewPager);
 	}
 
 	@Override
-	public void addTabItemInController(TabProxy tabProxy) {
+	public void addTabItemInController(TabProxy tabProxy)
+	{
 
-		TabLayout.Tab newTab = mTabLayout.newTab();
+		// Create a new tab instance.
+		TabLayout.Tab newTab = this.mTabLayout.newTab();
 		// Set the title.
 		newTab.setText(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
 		// Set the icon.
-		Drawable iconDrawable = TiDrawableReference.fromObject(getProxy(), tabProxy.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		Drawable iconDrawable =
+			TiDrawableReference.fromObject(getProxy(), tabProxy.getProperty(TiC.PROPERTY_ICON)).getDrawable();
 		newTab.setIcon(iconDrawable);
-		mTabLayout.addTab(newTab);
+		// Add the new tab to the TabLayout.
+		this.mTabLayout.addTab(newTab);
 
-		RippleDrawable backgroundRippleDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
+		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
+		RippleDrawable backgroundRippleDrawable =
+			createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 
 		// Go through the layout to set the background color state drawable manually for each tab.
 		// Currently we support only the default type of TabLayout which has a SlidingTabStrip.
 		try {
-			LinearLayout stripLayout = ((LinearLayout) mTabLayout.getChildAt(0));
+			LinearLayout stripLayout = ((LinearLayout) this.mTabLayout.getChildAt(0));
 			// Get the just added TabView as a LinearLayout in order to set the background.
-			LinearLayout tabLL = ((LinearLayout) stripLayout.getChildAt(mTabLayout.getTabCount() - 1));
+			LinearLayout tabLL = ((LinearLayout) stripLayout.getChildAt(this.mTabLayout.getTabCount() - 1));
 			tabLL.setBackground(backgroundRippleDrawable);
 			// Set the TextView textColor.
-			for (int i=0; i < tabLL.getChildCount(); i++) {
-				if ( tabLL.getChildAt(i) instanceof TextView ) {
-					((TextView) tabLL.getChildAt(i)).setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+			for (int i = 0; i < tabLL.getChildCount(); i++) {
+				if (tabLL.getChildAt(i) instanceof TextView) {
+					((TextView) tabLL.getChildAt(i))
+						.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
 				}
 			}
 		} catch (Exception e) {
@@ -118,65 +135,50 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		}
 	}
 
-
-
+	/**
+	 * Remove a tab from the TabLayout for a specific index.
+	 *
+	 * @param position the position of the removed item.
+	 */
 	@Override
-	public void processProperties(KrollDict d)
+	public void removeTabItemFromController(int position)
 	{
-		// TODO Auto-generated method stub
-		super.processProperties(d);
-		if (d.containsKey(TiC.PROPERTY_TITLE)) {
-			// TODO: Deal with title property
-		}
-		if (d.containsKey(TiC.PROPERTY_SWIPEABLE)) {
-			swipeable = d.getBoolean(TiC.PROPERTY_SWIPEABLE);
-		}
-		if (d.containsKey(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
-			smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
-		}
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		// TODO Auto-generated method stub
-		if (key.equals(TiC.PROPERTY_TITLE)) {
-			//TODO: Deal with Title property
-		} else if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
-			swipeable = TiConvert.toBoolean(newValue);
-		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
-			smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
-	}
-
-	@Override
-	public void removeTabItemFromController(int position) {
 		this.mTabLayout.removeTab(this.mTabLayout.getTabAt(position));
 	}
 
+	/**
+	 * Select a tab from the TabLayout with a specific position.
+	 *
+	 * @param position the position of the item to be selected.
+	 */
 	@Override
-	public void selectTabItemInController(int position) {
-		((TabGroupProxy) proxy).onTabSelected(position);
-		mTabLayout.clearOnTabSelectedListeners();
-		mTabLayout.getTabAt(position).select();
-		mTabLayout.addOnTabSelectedListener(this);
-	}
-
-	@Override
-	public void selectTab(TabProxy tabProxy)
+	public void selectTabItemInController(int position)
 	{
-
+		((TabGroupProxy) proxy).onTabSelected(position);
+		this.mTabLayout.clearOnTabSelectedListeners();
+		this.mTabLayout.getTabAt(position).select();
+		this.mTabLayout.addOnTabSelectedListener(this);
 	}
 
+	/**
+	 * Set the background drawable for TabLayout.
+	 *
+	 * @param drawable the new background drawable.
+	 */
 	@Override
-	public void setBackgroundDrawable(Drawable drawable) {
-		mTabLayout.setBackground(drawable);
+	public void setBackgroundDrawable(Drawable drawable)
+	{
+		this.mTabLayout.setBackground(drawable);
 	}
 
+	/**
+	 * After a tab is selected send the index for the ViewPager to select the proper page.
+	 *
+	 * @param tab that has been selected.
+	 */
 	@Override
-	public void onTabSelected(TabLayout.Tab tab) {
+	public void onTabSelected(TabLayout.Tab tab)
+	{
 		// Get the index of the currently selected tab.
 		int index = this.mTabLayout.getSelectedTabPosition();
 		// Select the proper page in the ViewPager.
@@ -185,13 +187,18 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		((TabGroupProxy) getProxy()).onTabSelected(index);
 	}
 
+	/**
+	 * Send the "unselected" event for a tab that has been unselected.
+	 * @param tab - the tab that has been unselected.
+	 */
 	@Override
-	public void onTabUnselected(TabLayout.Tab tab) {
+	public void onTabUnselected(TabLayout.Tab tab)
+	{
 		((TabGroupProxy) getProxy()).getTabList().get(tab.getPosition()).fireEvent(TiC.EVENT_UNSELECTED, null, false);
 	}
 
 	@Override
-	public void onTabReselected(TabLayout.Tab tab) {
-
+	public void onTabReselected(TabLayout.Tab tab)
+	{
 	}
 }
