@@ -454,7 +454,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
     @"Filesystem",
     @"Geolocation",
     @"Gesture",
-    @"Locale",
     @"Media",
     @"Network",
     @"Stream",
@@ -492,7 +491,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // New JSExport based modules
   // Basically a whitelist of Ti.* modules to load lazily
-  NSArray *moduleNames = @[ @"API", @"Platform" ];
+  NSArray *moduleNames = @[ @"API", @"Locale", @"Platform" ];
   for (NSString *name in moduleNames) {
     // We must generate the block and copy it to put it into heap or else every instance of the block shares
     // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
