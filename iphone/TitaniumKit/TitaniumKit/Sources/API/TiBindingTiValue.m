@@ -122,8 +122,12 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
       return privateObject;
     }
 
-    // This is a special Hyperloop wrapped object, unwrap it
+    // No private object, so this may be:
+    // - a standard JS object (Array, Date, Function, Object)
+    // - A JS object wrapping a new-style obj-c proxy (JSExport)
+    // - A JS object wrapper for hyperloop holding a $native property that is the native proxy
     if (privateObject == nil) {
+      // First, check for special hyperloop $native property
       JSStringRef jsString = JSStringCreateWithUTF8CString("$native");
       JSValueRef jsValue = JSObjectGetProperty(jsContext, obj, jsString, NULL);
       JSStringRelease(jsString);
@@ -132,6 +136,15 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
         if (privateObject != nil) {
           return privateObject;
         }
+      }
+
+      // Next, try to convert to new-style obj-c proxy!
+      JSGlobalContextRef globalContext = JSContextGetGlobalContext(jsContext);
+      JSContext *context = [JSContext contextWithJSGlobalContextRef:globalContext];
+      JSValue *objcJSValue = [JSValue valueWithJSValueRef:objRef inContext:context];
+      id whatever = [objcJSValue toObject]; // For typical JS Object, this will become an NSDictionary*, which we could cheat and re-use below instead of calling TiBindingTiValueToNSDictionary (though it'd have to handle the Error special case)
+      if (whatever != nil && [whatever conformsToProtocol:@protocol(JSExport)]) {
+        return whatever;
       }
     }
 
@@ -157,12 +170,12 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
       JSValueRef resultDate = JSObjectCallAsFunction(jsContext, fnObj, obj, 0, NULL, NULL);
       double value = JSValueToNumber(jsContext, resultDate, NULL);
       return [NSDate dateWithTimeIntervalSince1970:value / 1000]; // ms for JS, sec for Obj-C
-      break;
     }
     if (JSObjectIsFunction(jsContext, obj)) {
       KrollContext *context = GetKrollContext(jsContext);
       return [[[KrollCallback alloc] initWithCallback:obj thisObject:JSContextGetGlobalObject(jsContext) context:context] autorelease];
     }
+
     return TiBindingTiValueToNSDictionary(jsContext, objRef);
   }
   default: {
@@ -215,6 +228,10 @@ JSValueRef TiBindingTiValueFromProxy(JSContextRef jsContext, TiProxy *obj)
 
 JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
 {
+  if ([obj conformsToProtocol:@protocol(JSExport)]) {
+    JSContext *objcContext = [JSContext contextWithJSGlobalContextRef:JSContextGetGlobalContext(jsContext)];
+    return [[JSValue valueWithObject:obj inContext:objcContext] JSValueRef];
+  }
   if ([obj isKindOfClass:[NSNull class]]) {
     return JSValueMakeNull(jsContext);
   }
