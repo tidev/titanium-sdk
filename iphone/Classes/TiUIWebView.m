@@ -12,6 +12,7 @@
 #import "TiUIiOSWebViewDecisionHandlerProxy.h"
 
 #import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/SBJSON.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiExceptionHandler.h>
@@ -154,9 +155,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([value hasPrefix:@"http"] || [value hasPrefix:@"https"]) {
     [self loadRequestWithURL:[NSURL URLWithString:[TiUtils stringValue:value]]];
   } else {
-    NSURL *url = [TiUtils toURL:value proxy:self.proxy];
-    [[self webView] loadFileURL:url
-        allowingReadAccessToURL:[url URLByDeletingLastPathComponent]];
+    NSString *path = [[TiUtils toURL:value proxy:self.proxy] absoluteString];
+    [[self webView] loadFileURL:[NSURL fileURLWithPath:path]
+        allowingReadAccessToURL:[NSURL fileURLWithPath:[path stringByDeletingLastPathComponent]]];
   }
 }
 
@@ -640,9 +641,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     if ([message.name isEqualToString:@"_Ti_"]) {
       NSString *callback = [[message body] objectForKey:@"callback"];
 
+      SBJSON *decoder = [[[SBJSON alloc] init] autorelease];
       NSError *error = nil;
-      NSData *eventData = [callback dataUsingEncoding:NSUTF8StringEncoding];
-      NSDictionary *event = [NSJSONSerialization JSONObjectWithData:eventData options:kNilOptions error:&error];
+      NSDictionary *event = [decoder fragmentWithString:callback error:&error];
 
       NSString *method = [[message body] objectForKey:@"method"];
       NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";

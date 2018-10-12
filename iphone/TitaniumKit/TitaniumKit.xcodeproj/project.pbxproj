@@ -25,7 +25,7 @@
 		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
 		DB15965A2075389000292B19 /* APIModule.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596582075389000292B19 /* APIModule.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB1596622075461400292B19 /* SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596602075461400292B19 /* SBJSON.h */; };
+		DB1596622075461400292B19 /* SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596602075461400292B19 /* SBJSON.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB1596632075461400292B19 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596612075461400292B19 /* SBJSON.m */; };
 		DB15FBEE1F0A80E400A82C45 /* TiDimension.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FBEA1F0A80E400A82C45 /* TiDimension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FBEF1F0A80E400A82C45 /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FBEB1F0A80E400A82C45 /* TiDimension.m */; };
@@ -613,6 +613,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB1596622075461400292B19 /* SBJSON.h in Headers */,
 				DB3908652075228900AE31EC /* APSAnalytics.h in Headers */,
 				DB15FCAC1F0A86D400A82C45 /* TiLogServer.h in Headers */,
 				DBE66A36210F92FD00095F1E /* KrollWrapper.h in Headers */,
@@ -627,7 +628,6 @@
 				DB15FC981F0A862000A82C45 /* TiPoint.h in Headers */,
 				DB15FC3F1F0A833100A82C45 /* KrollPropertyDelegate.h in Headers */,
 				DB15FC671F0A84E000A82C45 /* TiStylesheet.h in Headers */,
-				DB1596622075461400292B19 /* SBJSON.h in Headers */,
 				DB15FBF01F0A80E400A82C45 /* TiThreading.h in Headers */,
 				DB258D9B1F097680000D0D8D /* TiToolbar.h in Headers */,
 				DB15FCB01F0A86E600A82C45 /* TiBindingTiValue.h in Headers */,
