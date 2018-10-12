@@ -40,7 +40,6 @@ import android.view.WindowManager;
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TABS_BACKGROUND_COLOR,
-		TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR,
 		TiC.PROPERTY_SWIPEABLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
@@ -218,7 +217,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (tabGroup != null) {
 			tabGroup.removeTabAt(indexToRemove);
 		}
-
 	}
 
 	@Kroll.method
@@ -246,7 +244,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// Once the change is completed onTabSelected() will be
 			// called to fire events and update the active tab.
 			tabGroup.selectTab(tab);
-
 		} else {
 			// Mark this tab to be selected when the tab group opens.
 			selectedTab = tab;
@@ -379,7 +376,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.startActivity(intent);
 			topActivity.overridePendingTransition(0, 0);
 		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-			|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+				   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
 			topActivity.startActivity(intent);
 			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
@@ -512,7 +509,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		selectedTab.onFocusChanged(focused, null);
 	}
 
-	public void onTabSelected(int position) {
+	public void onTabSelected(int position)
+	{
 		onTabSelected(tabs.get(position));
 	}
 

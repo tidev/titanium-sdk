@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -48,6 +49,11 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 
+/**
+ *  Abstract class representing Tab Navigation in Titanium. Abstract methods in it
+ *  are declared to provide an interface to connect different UI components acting
+ *  as a controller. All the work done by the ViewPager is happening in this class.
+ */
 public abstract class TiUIAbstractTabGroup extends TiUIView
 {
 	/**
@@ -77,12 +83,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * @param position the position of the item to be selected.
 	 */
 	public abstract void selectTabItemInController(int position);
-	/**
-	 * Changes the selected tab of the group.
-	 *
-	 * @param tabProxy the tab that will become selected
-	 */
-	public abstract void selectTab(TabProxy tabProxy);
+
 	/**
 	 * Changes the controller's background color.
 	 *
@@ -90,84 +91,88 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	public abstract void setBackgroundDrawable(Drawable drawable);
 
+	// region protected fields
 	protected static final String TAG = "TiUITabLayoutTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE = "Trying to customize an unknown layout, sticking to the default one";
 
-	// Default value is true. Set it to false if the tab is selected using the selectTab() method.
-	private boolean tabClicked = true;
 	protected boolean swipeable = true;
-
 	protected boolean smoothScrollOnTabClick = true;
-
-	// The tab to be selected once the activity resumes.
-	private TabLayout.Tab selectedTabOnResume;
-	protected boolean viewPagerRestoreComplete = false;
-	protected PagerAdapter tabGroupPagerAdapter;
-	protected ViewPager tabGroupViewPager;
 	protected boolean tabsDisabled = false;
-	protected boolean pendingDisableTabs = false;
-	protected boolean tempTabsDisabled = false;
 	protected int numTabsWhenDisabled;
 	protected int colorPrimaryInt;
-	private int textColorInt;
+	protected PagerAdapter tabGroupPagerAdapter;
+	protected ViewPager tabGroupViewPager;
+	// endregion
 
+	// region private fields
+	private final int offscreenPagesLimit = 1;
+	private int textColorInt;
 	private ArrayList<TiUITab> tabs = new ArrayList<>();
+	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
 	{
 		super(proxy);
 
+		// Getting the value for colorPrimary from the currently used theme.
 		TypedValue colorPrimaryTypedValue = new TypedValue();
 		TypedArray colorPrimary = activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
-		colorPrimaryInt = colorPrimary.getColor(0, 0);
+		this.colorPrimaryInt = colorPrimary.getColor(0, 0);
+		// Getting the value for textColorPrimary for the currently used theme.
 		TypedValue typedValue = new TypedValue();
 		TypedArray textColor = activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
-		textColorInt = textColor.getColor(0, 0);
+		this.textColorInt = textColor.getColor(0, 0);
 
-		tabGroupPagerAdapter =
+		this.tabGroupPagerAdapter =
 			new TabGroupFragmentPagerAdapter(((AppCompatActivity) activity).getSupportFragmentManager());
 
-		tabGroupViewPager = (new ViewPager(proxy.getActivity()) {
+		this.tabGroupViewPager = (new ViewPager(proxy.getActivity()) {
 			@Override
 			public boolean onTouchEvent(MotionEvent event)
 			{
-				return swipeable ? super.onTouchEvent(event) : false;
+				return swipeable && !tabsDisabled ? super.onTouchEvent(event) : false;
 			}
 
 			@Override
 			public boolean onInterceptTouchEvent(MotionEvent event)
 			{
-				return swipeable ? super.onInterceptTouchEvent(event) : false;
+				return swipeable && !tabsDisabled ? super.onInterceptTouchEvent(event) : false;
 			}
 
 			@Override
 			public void onRestoreInstanceState(Parcelable state)
 			{
 				super.onRestoreInstanceState(state);
-				// ActionBar will freak out if ViewPager changes pages while tabs disabled
-				// So we delay the disable until after the ViewPager restore
-				viewPagerRestoreComplete = true;
-				checkAndDisableTabsIfRequired();
 			}
 		});
 
-		tabGroupViewPager.setId(android.R.id.tabcontent);
-
-		tabGroupViewPager.setAdapter(tabGroupPagerAdapter);
+		this.tabGroupViewPager.setId(android.R.id.tabcontent);
+		this.tabGroupViewPager.setAdapter(this.tabGroupPagerAdapter);
 
 		addViews(activity);
 	}
 
-	protected void checkAndDisableTabsIfRequired()
-	{
-		if (viewPagerRestoreComplete && pendingDisableTabs) {
-			tabsDisabled = tempTabsDisabled;
-			tempTabsDisabled = false;
-			disableTabNavigation(true);
-		}
+	/**
+	 * Sets the tabsDisabled flag to whether the tabs navigation is enabled/disabled.
+	 * @param value boolean to set for the flag.
+	 */
+	public void disableTabNavigation(boolean value) {
+		this.tabsDisabled = value;
+		this.numTabsWhenDisabled = ((TabGroupProxy) getProxy()).getTabList().size();
 	}
 
-	public abstract void disableTabNavigation(boolean disable);
+	/**
+	 * Method for handling of the setActiveTab. It is used to set the currently selected page
+	 * throw the code and not clicking/swiping.
+	 * @param tabProxy the TabProxy instance to be set as currently selected
+	 */
+	public void selectTab(TabProxy tabProxy) {
+		int index = ((TabGroupProxy) getProxy()).getTabList().indexOf(tabProxy);
+		// Guard for trying to set a tab, that is not part of the group, as active.
+		if (index != -1 && !tabsDisabled) {
+			this.tabGroupViewPager.setCurrentItem(index, this.smoothScrollOnTabClick);
+		}
+	}
 
 	/**
 	 * Add the provided tab to this group.
@@ -180,41 +185,54 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		long itemId;
 		TiUITab abstractTab = new TiUITab(tabProxy);
 		tabs.add(abstractTab);
-		boolean shouldUpdateTabsDisabled = false;
 
 		tabProxy.setView(abstractTab);
 
-		// Add the new tab, but don't select it just yet.
-		// The selected tab is set once the group is done opening.
-
-		tabGroupPagerAdapter.notifyDataSetChanged();
-		int offscreen = 1;
-		tabGroupViewPager.setOffscreenPageLimit(offscreen);
-		if (tempTabsDisabled && shouldUpdateTabsDisabled) {
-			pendingDisableTabs = true;
-			checkAndDisableTabsIfRequired();
-		}
+		this.tabGroupPagerAdapter.notifyDataSetChanged();
+		this.tabGroupViewPager.setOffscreenPageLimit(this.offscreenPagesLimit);
 
 		addTabItemInController(tabProxy);
 	}
 
+	/**
+	 * Method for creating a ColorStateList instance usef for item in the Controller.
+	 * It creates a ColorStateList with two states - one for the provided parameter and
+	 * one for the negative value of the provided parameter.
+	 * If the properties are not set the method falls back to the textColorPrimary of the
+	 * current theme.
+	 *
+	 * @param tabProxy proxy from which are the values taken.
+	 * @param stateToUse appropriate state for the Controller type.
+	 * @return ColorStateList for the provided state.
+	 */
 	protected ColorStateList textColorStateList(TabProxy tabProxy, int stateToUse) {
 		int[][] textColorStates = new int[][] {
 			new int[] {-stateToUse},
 			new int[] {stateToUse}};
 		int[] textColors = {
-			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString()) : textColorInt,
-			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString()) : textColorInt
+			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString()) : this.textColorInt,
+			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString()) : this.textColorInt
 		};
 		ColorStateList stateListDrawable = new ColorStateList(textColorStates, textColors);
 		return stateListDrawable;
 	}
 
+	/**
+	 * Method for creating a RippleDrawable to be used as a bacgkround for an item in the Controller.
+	 * Creates the RippleDrawable for two states - the provided state and its negative value.
+	 * If the properties are not set the method falls back to the colorPrimary of the current theme.
+	 * The previous implementation of TabGroup added the ripple effect by default for tabs, thus this
+	 * method is manually adding it.
+	 *
+	 * @param tabProxy proxy from which are the values taken.
+	 * @param stateToUse appropriate state for the Controller type.
+	 * @return RippleDrawable for the provided state.
+	 */
 	protected RippleDrawable createBackgroundDrawableForState(TabProxy tabProxy, int stateToUse) {
 		StateListDrawable stateListDrawable = new StateListDrawable();
 		int colorInt;
 		// If the TabGroupd has backgroundColor property, use it. If not - use the primaryColor of the theme.
-		colorInt = proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR) ? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()) : colorPrimaryInt;
+		colorInt = proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR) ? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()) : this.colorPrimaryInt;
 		// If the Tab has its own backgroundColor property, use it instead.
 		colorInt = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString()) : colorInt;
 		stateListDrawable.addState(new int[] {-stateToUse}, new ColorDrawable(colorInt));
@@ -250,7 +268,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		// Remove the reference in tabsMap.
 		tabs.remove(index);
 		// Update the ViewPager.
-		tabGroupPagerAdapter.notifyDataSetChanged();
+		this.tabGroupPagerAdapter.notifyDataSetChanged();
 		// Remove the item from the controller.
 		removeTabItemFromController(index);
 	}
@@ -262,9 +280,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	public void selectTab(int tabIndex) {
 		// Release the OnPageChangeListener in order to calling an unnecessary item selection.
-		tabGroupViewPager.clearOnPageChangeListeners();
-		tabGroupViewPager.setCurrentItem(tabIndex, smoothScrollOnTabClick);
-		tabGroupViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+		this.tabGroupViewPager.clearOnPageChangeListeners();
+		this.tabGroupViewPager.setCurrentItem(tabIndex, this.smoothScrollOnTabClick);
+		this.tabGroupViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageScrolled(int i, float v, int i1) {
 
@@ -280,7 +298,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 			}
 		});
-	};
+	}
 
 	@Override
 	public void processProperties(KrollDict d)
@@ -289,19 +307,42 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
 			ActivityProxy activityProxy = getProxy().getActivityProxy();
 			if (activityObject instanceof HashMap<?, ?> && activityProxy != null) {
-				@SuppressWarnings("unchecked")
 				KrollDict options = new KrollDict((HashMap<String, Object>) activityObject);
 				activityProxy.handleCreationDict(options);
 			}
 		}
-
+		if (d.containsKey(TiC.PROPERTY_SWIPEABLE)) {
+			this.swipeable = d.getBoolean(TiC.PROPERTY_SWIPEABLE);
+		}
+		if (d.containsKey(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
+			this.smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
+		}
 		super.processProperties(d);
 	}
 
-	public TabProxy getSelectedTab() {
-		return new TabProxy();
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		 if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
+			this.swipeable = TiConvert.toBoolean(newValue);
+		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
+			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 
+	/**
+	 * Returns the currently selected TabProxy
+	 * @return the TabProxy instance.
+	 */
+	public TabProxy getSelectedTab() {
+		return ((TabGroupProxy) getProxy()).getTabList().get(this.tabGroupViewPager.getCurrentItem());
+	}
+
+	/**
+	 * Implemenation of the FragmentPagerAdapter
+	 */
 	private class TabGroupFragmentPagerAdapter extends FragmentPagerAdapter
 	{
 
@@ -372,20 +413,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		public Object instantiateItem(ViewGroup container, int position)
 		{
 			TabFragment fragment = (TabFragment) super.instantiateItem(container, position);
-/*			String tag = fragment.getTag();
-			int sanityCheck = fragmentTags.indexOf(tag);
-			if (sanityCheck >= 0) {
-				// Never happens, just a bug test
-				Log.e(TAG, "instantiateItem trying to add an existing tag");
-			}
-			while (fragmentTags.size() <= position) {
-				fragmentTags.add(null);
-			}
-			fragmentTags.set(position, tag);*/
 			return fragment;
 		}
 	}
 
+	/**
+	 * Helper class to connect Fragment with TabProxies
+	 */
 	public static class TabFragment extends Fragment
 	{
 		private TiUITab tab;
