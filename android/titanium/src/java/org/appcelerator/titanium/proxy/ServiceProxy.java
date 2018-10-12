@@ -18,7 +18,11 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.ServiceConnection;
+import android.Manifest;
 import android.os.Build;
 import android.os.IBinder;
 
@@ -298,12 +302,67 @@ public class ServiceProxy extends KrollProxy
 					throw new RuntimeException(ex);
 				}
 
+				// Determine if service is configured for the foreground or background.
+				boolean isForeground = (notificationId != 0) && (notificationObject != null);
+
+				// For foreground services, check if "AndroidManifest.xml" has "FOREGROUND_SERVICE" permission,
+				// but only if the app is "targeting" API Level 28 (android 9.0) or higher.
+				boolean hasPermission = true;
+				final String permissionName = "android.permission.FOREGROUND_SERVICE";
+				try {
+					if (isForeground) {
+						String packageName = service.getPackageName();
+						PackageManager packageManager = service.getPackageManager();
+						PackageInfo packageInfo =
+							packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+						ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+						if (appInfo.targetSdkVersion >= 28) {
+							// Fetch array of manifest permissions and find the one required.
+							// Note: We can't use Context.checkCallingOrSelfPermission() on older OS versions
+							//       since it'll always fail for newer OS permission constants, but we want
+							//       to check anyways in case app developer doesn't test on newest OS.
+							boolean wasFound = false;
+							if (packageInfo.requestedPermissions != null) {
+								for (String nextPermissionName : packageInfo.requestedPermissions) {
+									if (permissionName.equals(nextPermissionName)) {
+										wasFound = true;
+										break;
+									}
+								}
+							}
+							hasPermission = wasFound;
+						}
+					}
+				} catch (Exception ex) {
+					// Something else went wrong. Assume we have permission and proceed.
+					Log.w(TAG, ex.getMessage(), ex);
+				}
+				if (!hasPermission) {
+					// We don't have permission. Log an error.
+					String message =
+						"[Developer Error] Ti.Android.Service.foregroundNotify() requires manifest permission: "
+						+ permissionName;
+					Log.e(TAG, message);
+
+					// Throw an exception, but only if in developer mode.
+					// This allows Titanium to display an exception dialog to the developer stating what's wrong.
+					boolean isProduction =
+						TiApplication.getInstance().getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION);
+					if (!isProduction) {
+						throw new RuntimeException(message);
+					}
+				}
+
 				// Enable/Disable the service's foreground state.
 				// Note: A notification will be shown in the status bar while enabled.
-				if ((notificationId != 0) && (notificationObject != null)) {
-					service.startForeground(notificationId, notificationObject);
-				} else {
-					service.stopForeground(true);
+				try {
+					if (isForeground) {
+						service.startForeground(notificationId, notificationObject);
+					} else {
+						service.stopForeground(true);
+					}
+				} catch (Exception ex) {
+					Log.e(TAG, ex.getMessage(), ex);
 				}
 			}
 		});

@@ -4751,7 +4751,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	const exe = this.xcodeEnv.executables.xcodebuild,
-		args = [ 'clean', '-scheme', this.sanitizedAppName() ];
+		args = [ 'clean', '-UseNewBuildSystem=' + (this.useNewBuildSystem ? 'YES' : 'NO'), '-scheme', this.sanitizedAppName() ];
 	let tries = 0,
 		lastErr = null,
 		done = false;
@@ -5893,7 +5893,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									minify: this.minifyJS,
 									transpile: this.transpile,
 									sourceMap: this.sourceMaps || this.deployType === 'development',
-									resourcesDir: this.xcodeAppDir
+									resourcesDir: this.xcodeAppDir,
+									logger: this.logger
 								};
 								// generate our transpile target based on tijscore/jscore
 								if (this.useJSCore) {

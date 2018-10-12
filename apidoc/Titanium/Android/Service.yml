@@ -79,6 +79,18 @@ methods:
         The notification will be automatically removed from the status bar when the service has
         been stopped or if you call the [foregroundCancel()](Titanium.Android.Service.foregroundCancel)
         method.
+
+        This method will fail on Android 9.0 and above unless you set the following Android manifest
+        permission in your "tiapp.xml" file.
+
+            <ti:app>
+                <android xmlns:android="http://schemas.android.com/apk/res/android">
+                    <manifest>
+                        <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+                    </manifest>
+                </android>
+            </ti:app>
+
     parameters:
       - name: id
         summary: Unique integer ID to be assigned to the notification. Cannot be zero.

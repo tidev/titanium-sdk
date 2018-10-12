@@ -266,6 +266,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PAUSED = "paused";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PINCH = "pinch";
 
 	/**
@@ -546,6 +551,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_RESUME = "resume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_RESUMED = "resumed";
 
 	/**
 	 * @module.api
