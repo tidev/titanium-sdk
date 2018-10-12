@@ -17,6 +17,7 @@ const path = require('path'),
  * @param {Object} options options object
  * @param {String} options.sdkVersion version of Titanium SDK
  * @param {String} options.gitHash SHA of Titanium SDK HEAD
+ * @param {String} options.timestamp Value injected for Ti.buildDate
  * @constructor
  */
 function IOS(options) {

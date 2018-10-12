@@ -58,19 +58,6 @@ function unzip(zipfile, dest, next) {
 	});
 }
 
-function leftpad(str, len, ch) {
-	str = String(str);
-	let i = -1;
-	if (!ch && ch !== 0) {
-		ch = ' ';
-	}
-	len -= str.length;
-	while (++i < len) {
-		str = ch + str;
-	}
-	return str;
-}
-
 /**
  * @param {String} outputDir path to place the temp files and zipfile
  * @param {String} targetOS  'win32', 'linux', or 'osx'
@@ -79,9 +66,10 @@ function leftpad(str, len, ch) {
  * @param {string} versionTag version tag
  * @param {string} moduleApiVersion module api version
  * @param {string} gitHash git commit SHA
+ * @param {string} timestamp build date/timestamp
  * @constructor
  */
-function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApiVersion, gitHash) {
+function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApiVersion, gitHash, timestamp) {
 	this.srcDir = ROOT_DIR;
 	this.outputDir = outputDir; // root folder where output is placed
 	this.targetOS = targetOS;
@@ -90,8 +78,7 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.versionTag = versionTag;
 	this.moduleApiVersion = moduleApiVersion;
 	this.gitHash = gitHash;
-	const date = new Date();
-	this.timestamp = '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
+	this.timestamp = timestamp;
 	this.zipFile = path.join(this.outputDir, 'mobilesdk-' + this.versionTag + '-' + this.targetOS + '.zip');
 	this.packagers = {
 		android: this.zipAndroid.bind(this),
