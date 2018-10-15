@@ -9,7 +9,7 @@ description: |
     On Android, by default, a toast notification appears centered on the bottom half of the screen.
     On Windows Phone, by default, a toast notification appears over the status bar on the top part
     of the screen.
-extends: Titanium.UI.View
+extends: Titanium.Proxy
 since: "0.8"
 platforms: [android]
 examples: 

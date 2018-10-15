@@ -30,6 +30,7 @@ public:
 	static void makeSoftReference(jlong key);
 	static jobject clearReference(jlong key);
 	static jobject getReference(jlong key);
+	static jboolean isStrongReference(jlong key);
 };
 
 } // namespace titanium

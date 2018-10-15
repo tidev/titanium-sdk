@@ -1,17 +1,17 @@
 ---
 name: Titanium.UI.iPad.Popover
 platforms: [ipad]
-summary: A Popover is used to manage the presentation of content in a popover. 
+summary: A Popover is used to manage the presentation of content in a popover.
 description: |
     A popover is created using the <Titanium.UI.iPad.createPopover> method or **`<Popover>`** Alloy element.
-    
-    Popovers are used to present information temporarily, but in a way that does not take over 
-    the entire screen in the way that a modal view does. The popover content is layered on top of 
-    the existing content in a special type of window. The popover remains visible until the user 
+
+    Popovers are used to present information temporarily, but in a way that does not take over
+    the entire screen in the way that a modal view does. The popover content is layered on top of
+    the existing content in a special type of window. The popover remains visible until the user
     taps outside of the popover window or it is explicitly dismissed.
 
     Do not add top-level view containers, such as a `SplitWindow` or `TabGroup`, to a popover.
-    Adding top-level view containers may have unintended side effects. See the [contentView](Titanium.UI.iPad.Popover.contentView) 
+    Adding top-level view containers may have unintended side effects. See the [contentView](Titanium.UI.iPad.Popover.contentView)
     property for more information.
 
 extends: Titanium.UI.View
@@ -19,7 +19,7 @@ since: "1.2"
 excludes:
     events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
-    methods: [animate, convertPointToView, removeAllChildren, toImage]
+    methods: [add, remove, replaceAt, animate, convertPointToView, removeAllChildren, toImage]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundDisabledColor,
                  backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
@@ -34,26 +34,12 @@ events:
     summary: Fired when the popover is hidden.
 
 methods:
-  - name: add
-    summary: Adds a child to the popover.
-    deprecated:
-        since: "3.2.0"
-        removed: "3.4.2"
-        notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
-
   - name: hide
     summary: Hides the popover.
     parameters:
       - name: options
         summary: Display properties to use when hiding the popover.
         type: PopoverParams
-
-  - name: remove
-    summary: Removes a child from the popover.
-    deprecated:
-        since: "3.2.0"
-        removed: "3.4.2"
-        notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
 
   - name: show
     summary: Displays the popover.
@@ -74,11 +60,11 @@ properties:
     constants: [Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_ANY,Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_DOWN,
                 Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT,Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT,
                 Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_UP]
-    
+
   - name: backgroundColor
     summary: Sets the background color of the popover.
-    description: | 
-        It is recommended to set this property to colorize the whole popover instead of only 
+    description: |
+        It is recommended to set this property to colorize the whole popover instead of only
         its content view.
     availability: creation
     since: 5.2.0
@@ -88,12 +74,12 @@ properties:
     summary: View to use for the popover content. Must be set before calling the `show()` method.
     description: |
         Set this property to any <Titanium.UI.View> object, including a <Titanium.UI.Window> or
-        <Titanium.UI.iOS.NavigationWindow> object.
+        <Titanium.UI.NavigationWindow> object.
 
         This property does not support the <Titanium.UI.iPad.SplitWindow> or <Titanium.UI.TabGroup> objects.
 
         When this property is set to a valid object, the popover **does not include the navigation
-        controller** unless it is set to a <Titanium.UI.iOS.NavigationWindow> object.
+        controller** unless it is set to a <Titanium.UI.NavigationWindow> object.
 
         In an Alloy application, you can specify this property as a `<ContentView>` child element
         of the `<Popover>` element:
@@ -124,7 +110,7 @@ properties:
         since: "3.4.2"
         notes: This property is no longer supported.
     description: |
-        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
+        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
         In an Alloy application, you can specify this property as a `<LeftNavButton>` child element
         of the `<Popover>` element:
@@ -209,7 +195,7 @@ examples:
 
             var popover = Ti.UI.iPad.createPopover({
                 backgroundColor: 'green',
-                contentView: Ti.UI.iOS.createNavigationWindow({
+                contentView: Ti.UI.createNavigationWindow({
                     width: 250,
                     height: 100,
                     window: contentWindow

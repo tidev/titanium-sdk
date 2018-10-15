@@ -103,6 +103,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                                            selector:@selector(accessibilityVoiceOverStatusChanged:)
                                                name:UIAccessibilityVoiceOverStatusChanged
                                              object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(handleUserInteraction:)
+                                               name:kTiUserInteraction
+                                             object:nil];
 }
 
 - (NSString *)apiName
@@ -188,7 +192,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
     DebugLog(@"[DEBUG] Firing app event: %@", type);
 
-    NSArray *array = [appListeners objectForKey:type];
+    NSArray *array = [[appListeners objectForKey:type] copy];
 
     if (array != nil && [array count] > 0) {
       NSMutableDictionary *eventObject = nil;
@@ -209,6 +213,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         [host fireEvent:[entry listener] withObject:jsonObject remove:NO context:[entry context] thisObject:nil];
       }
     }
+    [array release];
   }
 }
 
@@ -275,6 +280,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (NSNumber *)disableNetworkActivityIndicator
 {
   return NUMBOOL([TiApp app].disableNetworkActivityIndicator);
+}
+
+- (void)handleUserInteraction:(id)notification
+{
+  if ([self _hasListeners:@"userinteraction"]) {
+    [self fireEvent:@"userinteraction" withObject:nil];
+  }
 }
 
 //To fire the keyboard frame change event.
@@ -364,6 +376,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
+  [nc addObserver:self selector:@selector(errored:) name:kTiErrorNotification object:nil];
 
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
@@ -568,6 +581,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
             notification:NO];
   BOOL flag = [TiUtils boolValue:args def:NO];
   [[TiApp app] setForceSplashAsSnapshot:flag];
+}
+
+- (NSNumber *)forceSplashAsSnapshot
+{
+  return @([[TiApp app] forceSplashAsSnapshot]);
 }
 
 #if defined(USE_TI_APPIOS)

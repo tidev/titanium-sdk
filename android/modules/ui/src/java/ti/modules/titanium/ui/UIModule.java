@@ -151,6 +151,63 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public static final String AUTOFILL_TYPE_CARD_EXPIRATION_YEAR = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR;
 
 	@Kroll.constant
+	public static final int BLEND_MODE_NORMAL = 0;
+	@Kroll.constant
+	public static final int BLEND_MODE_MULTIPLY = 1;
+	@Kroll.constant
+	public static final int BLEND_MODE_SCREEN = 2;
+	@Kroll.constant
+	public static final int BLEND_MODE_OVERLAY = 3;
+	@Kroll.constant
+	public static final int BLEND_MODE_DARKEN = 4;
+	@Kroll.constant
+	public static final int BLEND_MODE_LIGHTEN = 5;
+	@Kroll.constant
+	public static final int BLEND_MODE_COLOR_DODGE = 6;
+	@Kroll.constant
+	public static final int BLEND_MODE_COLOR_BURN = 7;
+	@Kroll.constant
+	public static final int BLEND_MODE_SOFT_LIGHT = 8;
+	@Kroll.constant
+	public static final int BLEND_MODE_HARD_LIGHT = 9;
+	@Kroll.constant
+	public static final int BLEND_MODE_DIFFERENCE = 10;
+	@Kroll.constant
+	public static final int BLEND_MODE_EXCLUSION = 11;
+	@Kroll.constant
+	public static final int BLEND_MODE_HUE = 12;
+	@Kroll.constant
+	public static final int BLEND_MODE_SATURATION = 13;
+	@Kroll.constant
+	public static final int BLEND_MODE_COLOR = 14;
+	@Kroll.constant
+	public static final int BLEND_MODE_LUMINOSITY = 15;
+	@Kroll.constant
+	public static final int BLEND_MODE_CLEAR = 16;
+	@Kroll.constant
+	public static final int BLEND_MODE_COPY = 17;
+	@Kroll.constant
+	public static final int BLEND_MODE_SOURCE_IN = 18;
+	@Kroll.constant
+	public static final int BLEND_MODE_SOURCE_OUT = 19;
+	@Kroll.constant
+	public static final int BLEND_MODE_SOURCE_ATOP = 20;
+	@Kroll.constant
+	public static final int BLEND_MODE_DESTINATION_OVER = 21;
+	@Kroll.constant
+	public static final int BLEND_MODE_DESTINATION_IN = 22;
+	@Kroll.constant
+	public static final int BLEND_MODE_DESTINATION_OUT = 23;
+	@Kroll.constant
+	public static final int BLEND_MODE_DESTINATION_ATOP = 24;
+	@Kroll.constant
+	public static final int BLEND_MODE_XOR = 25;
+	@Kroll.constant
+	public static final int BLEND_MODE_PLUS_DARKER = 26;
+	@Kroll.constant
+	public static final int BLEND_MODE_PLUS_LIGHTER = 27;
+
+	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_NONE = 0;
 	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_ROUNDED = 1;

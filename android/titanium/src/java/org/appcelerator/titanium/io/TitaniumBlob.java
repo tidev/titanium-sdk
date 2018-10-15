@@ -15,8 +15,10 @@ import java.io.OutputStream;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiFileHelper;
 
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,84 +32,94 @@ public class TitaniumBlob extends TiBaseFile
 	protected String url;
 	protected String name;
 	protected String path;
+	protected long size;
 
 	public TitaniumBlob(String url)
 	{
 		super(TYPE_BLOB);
 		this.url = url;
-		if (url != null) {
-			init();
-		}
+		init();
 	}
 
 	protected void init()
 	{
-		String[] projection = { MediaStore.Images.ImageColumns.DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA };
-		Cursor c = null;
+		// Initialize file related member variables.
+		this.name = null;
+		this.path = null;
+		this.size = -1L;
 
+		// Do not continue if not provided a valid URL. (Nothing to fetch from content provider.)
+		if (this.url == null) {
+			return;
+		}
+
+		// Get ready to fetch URL's description, path, and file size via content provider.
+		String[] projection = { MediaStore.Images.ImageColumns.DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA,
+								MediaStore.Images.ImageColumns.SIZE };
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+
+		// First, attempt to fetch an absolute path to the file, if publicly available.
 		if (url.startsWith("content://com.android.providers.media.documents")) {
-			try {
-				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), null, null, null, null);
-				c.moveToFirst();
-				String id = c.getString(0);
-				id = id.substring(id.lastIndexOf(":") + 1);
-				c.close();
-
-				c = TiApplication.getInstance().getContentResolver().query(
-					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
-					MediaStore.Images.Media._ID + " = ? ", new String[] { id }, null);
-
-				if (c.moveToNext()) {
-					name = c.getString(0);
-					path = c.getString(1);
+			// This is a media scanned file.
+			String id = null;
+			try (Cursor cursor = contentResolver.query(Uri.parse(url), null, null, null, null)) {
+				if (cursor != null) {
+					cursor.moveToFirst();
+					id = getStringFrom(cursor, 0);
+					if (id != null) {
+						id = id.substring(id.lastIndexOf(":") + 1);
+					}
 				}
-			} finally {
-				if (c != null) {
-					c.close();
+			} catch (Exception ex) {
+			}
+			if (id != null) {
+				Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+				String queryString = MediaStore.Images.Media._ID + " = ? ";
+				try (Cursor cursor = contentResolver.query(uri, projection, queryString, new String[] { id }, null)) {
+					if ((cursor != null) && cursor.moveToNext()) {
+						this.name = getStringFrom(cursor, 0);
+						this.path = getStringFrom(cursor, 1);
+					}
+				} catch (Exception ex) {
 				}
 			}
 		} else if (url.startsWith("content://com.android.providers.downloads.documents")) {
-			try {
-				String id = DocumentsContract.getDocumentId(Uri.parse(url));
-				Uri uri =
-					ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-				c = TiApplication.getInstance().getContentResolver().query(uri, projection, null, null, null);
-
-				if (c.moveToNext()) {
-					name = c.getString(0);
-					path = c.getString(1);
+			// This was a file downloaded from the Google cloud.
+			String id = DocumentsContract.getDocumentId(Uri.parse(url));
+			Uri uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+			try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {
+				if ((cursor != null) && cursor.moveToNext()) {
+					this.name = getStringFrom(cursor, 0);
+					this.path = getStringFrom(cursor, 1);
 				}
-			} finally {
-				if (c != null) {
-					c.close();
-				}
+			} catch (Exception ex) {
 			}
-		} else {
-			try {
-				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null,
-																		   null);
+		}
+		if (canReadFromFile(this.path) == false) {
+			// We don't have permission to read from the file system path retrieved above.
+			this.path = null;
+		}
 
-				if (c.moveToNext()) {
-					name = c.getString(0);
-					path = c.getString(1);
-				}
+		// If the above didn't give us direct file system access, then query content provider normally.
+		if (this.path == null) {
+			try (Cursor cursor = contentResolver.query(Uri.parse(url), projection, null, null, null)) {
+				if ((cursor != null) && cursor.moveToNext()) {
+					// Fetch the file's description.
+					this.name = getStringFrom(cursor, 0);
 
-				// must be a remote file, save locally as a temp file
-				// TODO: we should refactor our content resolving implementation
-				if (path == null) {
-					try {
-						InputStream inputStream =
-							TiApplication.getInstance().getContentResolver().openInputStream(Uri.parse(url));
-						File tempFile = TiFileHelper.getInstance().getTempFileFromInputStream(inputStream, name, true);
-						path = tempFile.getPath();
-					} catch (FileNotFoundException e) {
-						Log.e(TAG, "could not find " + url);
+					// Attempt to fetch the file system path, if accessible.
+					this.path = getStringFrom(cursor, 1);
+					if (canReadFromFile(this.path) == false) {
+						this.path = null;
+					}
+
+					// Only fetch file size from content provider if we don't have file system access.
+					if ((this.path == null) && (cursor.getType(2) == Cursor.FIELD_TYPE_INTEGER)) {
+						this.size = cursor.getLong(2);
 					}
 				}
-			} finally {
-				if (c != null) {
-					c.close();
-				}
+			} catch (Exception ex) {
+				Log.e(TAG, "Error reading from ContentResolver for url:" + url, ex);
 			}
 		}
 	}
@@ -115,9 +127,7 @@ public class TitaniumBlob extends TiBaseFile
 	public void setUrl(String url)
 	{
 		this.url = url;
-		if (url != null) {
-			init();
-		}
+		init();
 	}
 
 	@Override
@@ -139,16 +149,23 @@ public class TitaniumBlob extends TiBaseFile
 
 	public File getFile()
 	{
-		return new File(path);
+		return getNativeFile();
 	}
 
 	public String getContentType()
 	{
+		if (url == null) {
+			return null;
+		}
 		return TiApplication.getInstance().getContentResolver().getType(Uri.parse(url));
 	}
 
+	@Override
 	public InputStream getInputStream() throws IOException
 	{
+		if (url == null) {
+			return null;
+		}
 		return TiApplication.getInstance().getContentResolver().openInputStream(Uri.parse(url));
 	}
 
@@ -161,11 +178,59 @@ public class TitaniumBlob extends TiBaseFile
 	@Override
 	public File getNativeFile()
 	{
+		if (path == null) {
+			return null;
+		}
 		return new File(path);
 	}
 
 	public String getNativePath()
 	{
 		return path;
+	}
+
+	@Override
+	public long size()
+	{
+		// If we've successfully fetched file size from content provider, then return it.
+		if (this.size >= 0) {
+			return this.size;
+		}
+
+		// Attempt to fetch file size via direct file system access.
+		File file = getNativeFile();
+		if (file != null) {
+			return file.length();
+		}
+
+		// Log a warning stating file size was not obtainable.
+		return super.size();
+	}
+
+	private String getStringFrom(Cursor cursor, int columnIndex)
+	{
+		String result = null;
+		if ((cursor != null) && (columnIndex >= 0)) {
+			try {
+				if (cursor.getType(columnIndex) == Cursor.FIELD_TYPE_STRING) {
+					result = cursor.getString(columnIndex);
+				}
+			} catch (Exception ex) {
+			}
+		}
+		return result;
+	}
+
+	private boolean canReadFromFile(String path)
+	{
+		boolean canRead = false;
+		if ((path != null) && !path.isEmpty()) {
+			try {
+				File file = new File(path);
+				canRead = file.canRead();
+			} catch (Exception ex) {
+			}
+		}
+		return canRead;
 	}
 }

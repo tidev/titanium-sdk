@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -63,6 +63,9 @@ public class TiUIWebView extends TiUIView
 	private boolean isLocalHTML = false;
 	private boolean disableContextMenu = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
+	private float zoomLevel =
+		TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
+	private float initScale = zoomLevel;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -74,11 +77,6 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
-
-	// TIMOB-25462: minor 'hack' to prevent 'beforeload' and 'load' being
-	// called when the user-agent has been changed, this is a chromium bug
-	// https://bugs.chromium.org/p/chromium/issues/detail?id=315891
-	public boolean hasSetUserAgent = false;
 
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
@@ -304,8 +302,12 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
-		TiWebView webView =
-			isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
+		TiWebView webView = null;
+		try {
+			webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
+		} catch (Exception e) {
+			// silence unnecessary internal logs...
+		}
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
@@ -325,6 +327,20 @@ public class TiUIWebView extends TiUIView
 		if (cacheDir != null) {
 			settings.setAppCacheEnabled(true);
 			settings.setAppCachePath(cacheDir.getAbsolutePath());
+		}
+
+		// mixed content mode, allow HTTP resource requests from HTTPS page
+		boolean mixedContentMode = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MIXED_CONTENT_MODE), false);
+		if (mixedContentMode) {
+			// use reflection for compatiblity with Android 4.3 and below
+			try {
+				Method mixedContentModeMethod = WebSettings.class.getMethod("setMixedContentMode", int.class);
+				if (mixedContentModeMethod != null) {
+					mixedContentModeMethod.invoke(settings, 0); // MIXED_CONTENT_ALWAYS_ALLOW
+				}
+			} catch (Exception ex) {
+				// ignore...
+			}
 		}
 
 		// enable zoom controls by default
@@ -436,6 +452,11 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
+		// set user-agent befoe loading url to avoid immediate reload
+		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
+			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_URL)
 			&& !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
@@ -476,8 +497,8 @@ public class TiUIWebView extends TiUIView
 			disableContextMenu = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_CONTEXT_MENU);
 		}
 
-		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
-			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
+		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
+			zoomBy(getWebView(), TiConvert.toFloat(d, TiC.PROPERTY_ZOOM_LEVEL));
 		}
 	}
 
@@ -510,6 +531,8 @@ public class TiUIWebView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
 			disableContextMenu = TiConvert.toBoolean(newValue);
+		} else if (TiC.PROPERTY_ZOOM_LEVEL.equals(key)) {
+			zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
 			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
 		} else {
@@ -524,6 +547,36 @@ public class TiUIWebView extends TiUIView
 		if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
 			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
+	}
+
+	private void zoomBy(WebView webView, float scale)
+	{
+		if (Build.VERSION.SDK_INT >= 21 && webView != null) {
+			if (scale <= 0.0f) {
+				scale = 0.01f;
+			} else if (scale >= 100.0f) {
+				scale = 100.0f;
+			}
+
+			float targetVal = (initScale * scale) / zoomLevel;
+			webView.zoomBy(targetVal);
+		}
+	}
+
+	public void zoomBy(float scale)
+	{
+		zoomBy(getWebView(), scale);
+	}
+
+	public float getZoomLevel()
+	{
+		return zoomLevel;
+	}
+
+	public void setZoomLevel(float value)
+	{
+		getProxy().setProperty(TiC.PROPERTY_ZOOM_LEVEL, value / initScale);
+		zoomLevel = value;
 	}
 
 	private boolean mightBeHtml(String url)
@@ -677,11 +730,11 @@ public class TiUIWebView extends TiUIView
 	}
 
 	/**
-	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
-	 * must be set to non null in order for the web view history to work correctly 
-	 * when working with local files (IE:  goBack() and goForward() will not work if 
+	 * Loads HTML content into the web view.  Note that the "historyUrl" property
+	 * must be set to non null in order for the web view history to work correctly
+	 * when working with local files (IE:  goBack() and goForward() will not work if
 	 * null is used)
-	 * 
+	 *
 	 * @param html					HTML data to load into the web view
 	 * @param baseUrl				url to associate with the data being loaded
 	 * @param mimeType			mime type of the data being loaded
@@ -854,7 +907,6 @@ public class TiUIWebView extends TiUIView
 	{
 		WebView currWebView = getWebView();
 		if (currWebView != null) {
-			hasSetUserAgent = true;
 			currWebView.getSettings().setUserAgentString(userAgentString);
 		}
 	}
@@ -950,6 +1002,7 @@ public class TiUIWebView extends TiUIView
 	public void setBindingCodeInjected(boolean injected)
 	{
 		bindingCodeInjected = injected;
+		initScale = getZoomLevel();
 	}
 
 	public boolean interceptOnBackPressed()

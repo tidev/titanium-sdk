@@ -74,11 +74,22 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private static final int MSG_SHOW_DATE_PICKER_DIALOG = MSG_FIRST_ID + 108;
 	private boolean useSpinner = false;
 	private boolean nativeSpinner = false;
+	private int lastSelectedIndex = -1;
 
 	public PickerProxy()
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_CALENDAR_VIEW_SHOWN, false);
+	}
+
+	public void setLastSelectedIndex(int index)
+	{
+		this.lastSelectedIndex = index;
+	}
+
+	public int getLastSelectedIndex()
+	{
+		return lastSelectedIndex;
 	}
 
 	@Override
@@ -679,6 +690,13 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("title")) {
 			dialog.setTitle(TiConvert.toString(settings, "title"));
 		}
+		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialog)
+			{
+				fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
+			}
+		});
 		dialog.show();
 		if (settings.containsKey("okButtonTitle")) {
 			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));

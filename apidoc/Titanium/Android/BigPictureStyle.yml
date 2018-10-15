@@ -10,25 +10,27 @@ examples:
   - title: Big picture style Example
     example: |
 
-        // This example will be use image that placed in one of the density-specific folder
-        // under `Resources/android/images`
+        This example will be use image that placed in one of the density-specific folder
+        under `Resources/android/images`
 
-        var bigPictureStyle = Titanium.Android.createBigPictureStyle({
-            bigPicture: "/images/bigPicture.png",
-            bigContentTitle: "Title for big picture",
-            summaryText: "Summary for big picture"
-        });
+            var bigPictureStyle = Titanium.Android.createBigPictureStyle({
+                bigPicture: "/images/bigPicture.png",
+                bigContentTitle: "Title for big picture",
+                summaryText: "Summary for big picture"
+            });
 
-        // Create big image style notification
-        var notification = Titanium.Android.createNotification({
-            contentTitle: 'Something Happened',
-            contentText : 'Click to return to the application.',
-            style: bigPictureStyle,
-            time: Date.now()
-        });
+        Create big image style notification
 
-        // Send the notification.
-        Titanium.Android.NotificationManager.notify(1, notification);
+            var notification = Titanium.Android.createNotification({
+                contentTitle: 'Something Happened',
+                contentText : 'Click to return to the application.',
+                style: bigPictureStyle,
+                time: Date.now()
+            });
+
+        Send the notification.
+
+            Titanium.Android.NotificationManager.notify(1, notification);
 
 since: "5.4.0"
 platforms: [android]
@@ -68,7 +70,7 @@ properties:
         or a `Blob` object containing image data.
 
         If there is a redirect and change in protocol, it will not follow. For example,
-        from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
+        from http to https and vice versa. See [Java Bug Database](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
         for more information.
 
         If specified as a local URL, the bigPicture must be placed in one of the density-specific

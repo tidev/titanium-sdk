@@ -298,7 +298,7 @@ properties:
         <Titanium.Contacts.Person>.
     description: |
 
-        If you are using one of the pre-defined constants, you can reference to the list of icons from Apple [here](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UIApplicationShortcutIcon_Class/index.html#//apple_ref/c/tdef/UIApplicationShortcutIconType).
+        If you are using one of the pre-defined constants, you can reference to the list of icons from Apple [here](https://developer.apple.com/documentation/uikit/uiapplicationshortcuticon).
 
         If you are using an image file, enable slicing (adding the image to an asset catalog) for
         the project. To enable slicing, add the `use-app-thinning` element to the `ios` element in the
@@ -311,7 +311,7 @@ properties:
               </ios>
             </ti:app>
 
-        The recommended size for image files is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UIApplicationShortcutIcon_Class/index.html)  
+        The recommended size for image files is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationshortcuticon)  
         for more information on shortcut icons.
 
     type: [Number,String,Titanium.Contacts.Person]

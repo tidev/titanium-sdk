@@ -95,13 +95,32 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			output += lineSource + "\n";
 			output += fill(lineOffset - 1) + "^\n";
 		}
+		// sometimes the stacktrace can include the error
+		// don't re-print the error if that is the case
 		if (jsStack != null) {
-			output += jsStack;
-		} else {
-			output += message;
+			if (!jsStack.contains("Error:")) {
+				output += message + "\n";
+			}
+			output += jsStack + "\n";
 		}
 		if (javaStack != null) {
-			output += "\n" + javaStack;
+			output += javaStack;
+
+			// no java stack, attempt to obtain last ten stack entries
+			// omitting our error handling entries
+		} else {
+			StackTraceElement[] trace = new Error().getStackTrace();
+			int startIndex = 0;
+			for (StackTraceElement e : trace) {
+				startIndex++;
+				if (e.getMethodName().equals("dispatchException")) {
+					break;
+				}
+			}
+			int endIndex = startIndex + 10;
+			for (int i = startIndex; trace.length >= endIndex && i < endIndex; i++) {
+				output += "\n    " + trace[i].toString();
+			}
 		}
 
 		return output;

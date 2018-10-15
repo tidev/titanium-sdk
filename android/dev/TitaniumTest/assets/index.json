@@ -1,1 +1,7 @@
-{"Resources/app.js":1}
+{
+  "Resources/app.js": 1,
+  "Resources/ti.internal/bootstrap.json": 1,
+  "Resources/ti.internal/bootstrap.loader.js": 1,
+  "Resources/ti.internal/extensions/Error.js": 1,
+  "Resources/ti.main.js": 1
+}

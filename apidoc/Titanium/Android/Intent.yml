@@ -10,7 +10,7 @@ description: |
     To receive an intent, an application needs to declare an Intent Filter. An intent filter
     indicates to the Android OS that your application can handle certain data types or URIs.
     For details on using Intent Filters, see the
-    [Android Intent Filters guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+    [Android Intent Filters guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
     Intents can be used to start an activity, start a service or start a broadcast.
 
@@ -101,8 +101,8 @@ description: |
 
     #### Further Reading
 
-      * [Android Intents guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intents)
-      * [Android Developer: Intent](http://developer.android.com/reference/android/content/Intent.html)
+      * [Android Intents guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intents)
+      * [Android Developer: Intent](https://developer.android.com/reference/android/content/Intent.html)
 
 
 extends: Titanium.Proxy
@@ -145,6 +145,9 @@ methods:
       - name: name
         summary: Property to get.
         type: String
+      - name: default
+        summary: Default value to return if property does not exist or is of a different type.
+        type: Boolean
 
   - name: getData
     summary: Get the Data URI from this `Intent`.
@@ -159,6 +162,9 @@ methods:
       - name: name
         summary: Property to get.
         type: String
+      - name: default
+        summary: Default value to return if property does not exist or is of a different type.
+        type: Number
 
   - name: getIntExtra
     summary: Get an integer property from this `Intent`.
@@ -168,6 +174,9 @@ methods:
       - name: name
         summary: Property to get.
         type: String
+      - name: default
+        summary: Default value to return if property does not exist or is of a different type.
+        type: Number
 
   - name: getLongExtra
     summary: Get a long property from this `Intent`.
@@ -177,6 +186,9 @@ methods:
       - name: name
         summary: Property to get.
         type: String
+      - name: default
+        summary: Default value to return if property does not exist or is of a different type.
+        type: Number
 
   - name: getStringExtra
     summary: Get a string property from this `Intent`.
@@ -188,7 +200,7 @@ methods:
         all of its possible return types to JavaScript.
 
         See also:
-        [getParcelableExtra](http://developer.android.com/reference/android/content/Intent.html#getParcelableExtra(java.lang.String)
+        [getParcelableExtra](https://developer.android.com/reference/android/content/Intent.html#getParcelableExtra(java.lang.String)
         in the Android Developer Reference.
     returns:
         type: String
@@ -254,7 +266,7 @@ properties:
         intent is created.
 
         For more information on data URIs, see:
-        [Intent.setData in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
+        [Intent.setData in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
     type: String
     availability: creation
     permission: read-only
@@ -276,7 +288,7 @@ properties:
         intent is created.
 
         For information on MIME types and intents, see:
-        [Intent.setType in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setType(java.lang.String)).
+        [Intent.setType in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#setType(java.lang.String)).
     type: String
     availability: creation
     permission: read-only
@@ -324,7 +336,7 @@ examples:
         After copying the default root activity of your application from the `AndroidManifest.xml`
         file to the Android manifest section of the `tiapp.xml` file, add an intent filter.
         For detailed instructions, refer to the
-        [Android Intent Filters guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+        [Android Intent Filters guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
         You can trigger this intent filter by long pressing on an image in the Android gallery
         and selecting "share".

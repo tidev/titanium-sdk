@@ -9,11 +9,13 @@ description: |
     
         Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);
 
-    See also: [android.R](http://developer.android.com/reference/android/R.html) in the
+    See also: [android.R](https://developer.android.com/reference/android/R.html) in the
     Android Developer Reference.
 
-    Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided drawables can be 
-    removed across Android versions. Prefer to copy the images to application res folder. 
+    Starting in Titanium SDK 7.3.0, this API exposes all Android related R classes
+    for the usage in Hyperloop. For example, it can be used to access `menu` resources
+    as part of native user interfaces, e.g. `BottomNavigationView` or `RecyclerView`.
+    See an example in the [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) for details! 
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -24,15 +26,25 @@ properties:
   - name: anim
     summary: |
         Animation resources. See 
-        [R.anim](http://developer.android.com/reference/android/R.anim.html) 
+        [R.anim](https://developer.android.com/reference/android/R.anim.html) 
         in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+    
+  - name: animator
+    summary: |
+        Animator resources. See 
+        [R.animator](https://developer.android.com/reference/android/R.animator.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
 
   - name: array
     summary: |
-        Array resources. See [R.array](http://developer.android.com/reference/android/R.array.html)
+        Array resources. See [R.array](https://developer.android.com/reference/android/R.array.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -41,16 +53,26 @@ properties:
   - name: attr
     summary: |
         Attribute resources. See 
-        [R.attr](http://developer.android.com/reference/android/R.attr.html)
+        [R.attr](https://developer.android.com/reference/android/R.attr.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
 
+  - name: bool
+    summary: |
+        Boolean resources. See 
+        [R.bool](https://developer.android.com/reference/android/R.bool.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
+
   - name: color
     summary: |
         Color resources. See 
-        [R.color](http://developer.android.com/reference/android/R.color.html)
+        [R.color](https://developer.android.com/reference/android/R.color.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -59,7 +81,7 @@ properties:
   - name: dimen
     summary: |
         Dimension resources.  See 
-        [http://developer.android.com/reference/android/R.dimen.html](http://developer.android.com/reference/android/R.dimen.html)
+        [https://developer.android.com/reference/android/R.dimen.html](https://developer.android.com/reference/android/R.dimen.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -68,18 +90,26 @@ properties:
   - name: drawable
     summary: |
         Drawable resources. See 
-        [R.drawable](http://developer.android.com/reference/android/R.drawable.html)
+        [R.drawable](https://developer.android.com/reference/android/R.drawable.html)
         in the Android Developer Reference.
-        Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided 
-        drawables can be removed across Android versions. Prefer to copy the images to application res folder. 
     type: Object
     accessors: false
     permission: read-only
 
+  - name: fraction
+    summary: |
+        Fraction resources. See 
+        [R.fraction](https://developer.android.com/reference/android/R.fraction.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
+
   - name: id
     summary: |
         ID resources.  See 
-        [R.id](http://developer.android.com/reference/android/R.id.html)
+        [R.id](https://developer.android.com/reference/android/R.id.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -88,25 +118,75 @@ properties:
   - name: integer
     summary: |
         Integer resources. See 
-        [R.integer](http://developer.android.com/reference/android/R.integer.html)
+        [R.integer](https://developer.android.com/reference/android/R.integer.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
+  - name: interpolator
+    summary: |
+        Interpolator resources. See 
+        [R.fraction](https://developer.android.com/reference/android/R.interpolator.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
 
   - name: layout
     summary: |
         Layout resources. See 
-        [R.layout](http://developer.android.com/reference/android/R.layout.html)
+        [R.layout](https://developer.android.com/reference/android/R.layout.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
 
+  - name: menu
+    summary: |
+        Menu resources. See 
+        [R.menu](https://developer.android.com/reference/android/R.menu.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
+
+  - name: mipmap
+    summary: |
+        Mipmap resources. See 
+        [R.mipmap](https://developer.android.com/reference/android/R.mipmap.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
+
+  - name: plurals
+    summary: |
+        Plurals resources. See 
+        [R.plurals](https://developer.android.com/reference/android/R.plurals.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
+
+  - name: raw
+    summary: |
+        Raw resources. See 
+        [R.raw](https://developer.android.com/reference/android/R.raw.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
+  
   - name: string
     summary: |
         String resources. See 
-        [R.string](http://developer.android.com/reference/android/R.string.html)
+        [R.string](https://developer.android.com/reference/android/R.string.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -115,7 +195,7 @@ properties:
   - name: style
     summary: |
         Style resources. See 
-        [R.style](http://developer.android.com/reference/android/R.style.html)
+        [R.style](https://developer.android.com/reference/android/R.style.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -123,9 +203,29 @@ properties:
 
   - name: styleable
     summary: |
-        Styleable reosurces. See 
-        [R.styleable](http://developer.android.com/reference/android/R.styleable.html)
+        Styleable resources. See 
+        [R.styleable](https://developer.android.com/reference/android/R.styleable.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
+  - name: transition
+    summary: |
+        Transition resources. See 
+        [R.transition](https://developer.android.com/reference/android/R.transition.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"
+
+  - name: xml
+    summary: |
+        XML resources. See 
+        [R.xml](https://developer.android.com/reference/android/R.xml.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.3.0"

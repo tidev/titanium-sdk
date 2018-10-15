@@ -12,7 +12,7 @@ description: |
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
 
-    ### iOS 9 Application Note
+    ### App Transport Security
 
     Starting with iOS 9, Apple introduced new security and compatibility guidelines for networking
     and connectivity, which include:
@@ -24,10 +24,11 @@ description: |
 
     Because of the new requirements, Titanium disables the App Transport Security (ATS)
     requirements, which only includes the TLS and certificate cipher requirements,
-    to allow all connections.
+    to allow all connections by default.
 
     If you wish to re-enable ATS, add the `NSAppTransportSecurity` dict to the `ios plist` section
-    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to true.
+    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to `false`, indicating
+    that you want to manage your whitelisted URL's yourself.
 
         <ti:app>
           ...
@@ -36,7 +37,8 @@ description: |
               <dict>
                 <key>NSAppTransportSecurity</key>
                 <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
+                  <key>NSAllowsArbitraryLoads</key>
+                  <false/>
                 </dict>
               </dict>
             </plist>
@@ -70,7 +72,7 @@ description: |
     specific domains.
 
     For more information, see
-    [iOS Developer Library: App Transport Security Technote](https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/index.html).
+    [iOS Developer Library: App Transport Security](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33).
 
     Example:
 
@@ -81,7 +83,11 @@ description: |
               <dict>
                 <key>NSAppTransportSecurity</key>
                 <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
+                  <!-- 1) Default: Disable ATS completely -->
+                  <key>NSAllowsArbitraryLoads</key>
+                  <true/>
+
+                  <-- 2) Alternative: Define whitelisted domains -->
                   <key>NSExceptionDomains</key>
                   <dict>
                     <!-- Loosen security measure for www.foo.com domain -->
@@ -111,14 +117,14 @@ description: |
     If you submit your application to the iTunes Store, you should setup an IPv6 DNS64/NAT64
     network to test your application to verify it is compatible with IPv6.
 
-    If you are running OS X 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
+    If you are running macOS 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
     network, which requires an Internet connection not through Wi-Fi.
 
     To create the network, from System Preferences, enable Internet sharing with NAT64 network
     enabled to share your Wi-Fi connection.
 
     For detailed instructions, see
-    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/prerelease/mac/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
+    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
 
 extends: Titanium.Module
 since: "0.1"
@@ -144,7 +150,7 @@ methods:
         `expiryDate` property must be a date later than the creating date, otherwise the cookie will not persist in the
         cookie storage.
         On Android, any existing cookie with the same domain and name will be replaced with the new cookie. This is a bug
-        in [BasicCookieStore](http://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
+        in [BasicCookieStore](https://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
         because based on `RFC6265`, an existing cookie can be evicted and replaced only when it has the same cookie-name,
         domain-value and path-value with the new cookie.
     parameters:
@@ -386,30 +392,14 @@ methods:
     description: |
         Call this method at application startup.
 
-        For iOS 8 and later, before calling this method, the application needs to call the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method and pass it the notification types to use.  Setting the notification types with this
-        method will have no effect on iOS 8 and later.
-
-        For iOS 7 and earlier, set the notification types to use with this method.
+        Before calling this method, the application needs to call the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
+        method and pass it the notification types to use. Setting the notification types with this
+        method will have no effect and throws a warning.
     platforms: [iphone, ipad]
     parameters:
       - name: config
         summary: Dictionary specifying push-notification related options.
         type: PushNotificationConfig
-
-  - name: removeConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
-    summary: |
-        Legacy method to remove a connectivity listener.
-    parameters:
-      - name: callback
-        summary: Callback function to remove.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
 
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
@@ -417,7 +407,7 @@ methods:
     description: |
         Per Apple's documentation, it is rarely necessary to call this method. See:
         [unregisterForRemoteNotifications in the UIApplication Class
-        Reference](http://developer.apple.com/library/IOs/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/occ/instm/UIApplication/unregisterForRemoteNotifications)
+        Reference](https://developer.apple.com/documentation/uikit/uiapplication/1623093-unregisterforremotenotifications)
 
         For example, calling this method would be required if a new version of
         your application no longer supports push notifications.
@@ -429,7 +419,7 @@ events:
         summary: New network type as a string.
         type: String
       - name: online
-        summary: Boolean to indicate if the device is online.
+        summary: Boolean indicating if the device is connected to the network.
         type: Boolean
       - name: networkType
         summary: New network type
@@ -686,10 +676,14 @@ properties:
     permission: read-only
 
   - name: online
-    summary: Boolean value indicating if the device can reach the Internet.
+    summary: Boolean value indicating if the device is connected to the network.
     description: |
-        The `online` property is `true` if the device can currently reach the Internet
-        using either WiFi, mobile network or LAN.
+        The `online` property is `true` if the device has network access via WiFi,
+        LAN, or mobile/cellular network.
+
+        Note that if the device is connected to a private network without Internet access,
+        then this property will be `true` as well. This means you cannot assume the device
+        has Internet access if it's connected to the network.
     type: Boolean
     permission: read-only
 
@@ -724,12 +718,9 @@ properties:
   - name: types
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
     description: |
-        For iOS 8 and later, setting the `types` property with the
-        <Titanium.Network.registerForPushNotifications> method has no effect.
+        Setting the `types` property with the <Titanium.Network.registerForPushNotifications> method has no effect.
 
-        For devices running iOS 8 and later, use the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method to register the notification types to receive.
+        Use the <Titanium.App.iOS.registerUserNotificationSettings> method to register the notification types to receive.
     type: Array<Number>
     constants: Titanium.Network.NOTIFICATION_TYPE_*
   - name: success
@@ -809,8 +800,8 @@ properties:
     description: |
         For more information, see the following item in the iOS Developer Library:
 
-        [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
-        Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
+        [`application:didReceiveRemoteNotification:fetchCompletionHandler` in the UIApplicationDelegate Protocol
+        Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application)
     type: Dictionary
   - name: inBackground
     summary: |

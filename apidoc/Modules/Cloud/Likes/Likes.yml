@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Likes: Create a Like](http://docs.appcelerator.com/arrowdb/latest/#!/api/Likes-method-create)
+        See [Likes: Create a Like](https://docs.appcelerator.com/arrowdb/latest/#!/api/Likes-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `likes` property of the parameter passed to the callback.
@@ -28,7 +28,7 @@ methods:
     description: |
         Requires user login.
 
-        See [Likes: Delete a Like](http://docs.appcelerator.com/arrowdb/latest/#!/api/Likes-method-delete)
+        See [Likes: Delete a Like](https://docs.appcelerator.com/arrowdb/latest/#!/api/Likes-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
