@@ -266,6 +266,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PAUSED = "paused";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PINCH = "pinch";
 
 	/**
@@ -381,6 +386,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_RECURRENCE_RULES = "recurrenceRules";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_REQUEST_CODE = "requestCode";
 
 	/**
@@ -397,6 +407,61 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_SCALE = "scale";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_TIME = "time";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FOCUS_X = "focusX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FOCUS_Y = "focusY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN = "currentSpan";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN_X = "currentSpanX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN_Y = "currentSpanY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN = "previousSpan";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN_X = "previousSpanX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN_Y = "previousSpanY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_TIME_DELTA = "timeDelta";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_IN_PROGRESS = "inProgress";
 
 	/**
 	 * @module.api
@@ -481,6 +546,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_RESUME = "resume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_RESUMED = "resumed";
 
 	/**
 	 * @module.api
@@ -621,6 +691,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_INTERACTION = "userinteraction";
 
 	/**
 	 * @module.api
@@ -1076,6 +1151,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BUTTON_CLICK_REQUIRED = "buttonClickRequired";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
 
 	/**
@@ -1091,7 +1171,42 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CACHE_SIZE = "cacheSize";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_MONTH = "daysOfTheMonth";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_WEEK = "daysOfTheWeek";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_YEAR = "daysOfTheYear";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_ID = "calendarID";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_MONTHS_OF_THE_YEAR = "monthsOfTheYear";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_WEEKS_OF_THE_YEAR = "weeksOfTheYear";
 
 	/**
 	 * @module.api
@@ -1182,6 +1297,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CLEAR_ON_EDIT = "clearOnEdit";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CLIP_VIEWS = "clipViews";
 
 	/**
 	 * @module.api
@@ -1317,6 +1437,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DATE = "date";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DAY_BEFORE_MONTH = "dayBeforeMonth";
 
 	/**
 	 * @module.api
@@ -1457,6 +1582,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ENABLE_VIBRATION = "enableVibration";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_END = "end";
 
 	/**
 	 * @module.api
@@ -1818,6 +1948,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INTERVAL = "interval";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ITEM_ID = "itemId";
 
 	/**
@@ -1963,6 +2098,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOCALE = "locale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOCATION = "location";
 
 	/**
@@ -2003,6 +2143,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MASK = "mask";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MAX = "max";
 
 	/**
@@ -2039,6 +2184,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
 
 	/**
 	 * @module.api
@@ -2112,12 +2262,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MIXED_CONTENT_MODE = "mixedContentMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MOBILE = "mobile";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_MODAL = "modal";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MODE = "mode";
 
 	/**
 	 * @module.api
@@ -2158,6 +2318,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NUMBER = "number";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
 
 	/**
 	 * @module.api
@@ -2283,6 +2448,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OPTIONS = "options";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OPTED_OUT = "optedOut";
 
 	/**
 	 * @module.api
@@ -2594,6 +2764,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SCROLLABLE = "scrollable";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SEARCH = "search";
 
 	/**
@@ -2705,6 +2880,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SHOW_CANCEL = "showCancel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOWS_CONTROLS = "showsControls";
 
 	/**
 	 * @module.api
@@ -2935,6 +3115,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TINT = "tint";
 
 	/**
 	 * @module.api
@@ -3211,7 +3396,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_X_ABSOLUTE = "absoluteX";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_Y = "y";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_Y_ABSOLUTE = "absoluteY";
 
 	/**
 	 * @module.api
@@ -3222,6 +3417,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZINDEX = "zIndex";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ZOOM_LEVEL = "zoomLevel";
 
 	/**
 	 * @module.api
@@ -3242,6 +3442,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CUSTOM = "custom";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CUSTOM_VIEW = "customView";
 
 	/**
 	 * @module.api

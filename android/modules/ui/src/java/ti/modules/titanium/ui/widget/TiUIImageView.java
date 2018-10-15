@@ -118,7 +118,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			@Override
 			public void postDownload(URI uri)
 			{
-				if (TiResponseCache.peek(uri)) {
+				if (TiResponseCache.peekFollowingRedirects(uri)) {
 					handleCacheAndSetImage(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()));
 				}
 			}
@@ -739,7 +739,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				try {
 					String imageUrl = TiUrl.getCleanUri(imageref.getUrl()).toString();
 					uri = new URI(imageUrl);
-					isCachedInDisk = TiResponseCache.peek(uri);
+					isCachedInDisk = TiResponseCache.peekFollowingRedirects(uri);
 				} catch (URISyntaxException e) {
 					Log.e(TAG, "URISyntaxException for url " + imageref.getUrl(), e);
 				} catch (NullPointerException e) {
@@ -951,15 +951,29 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	public TiBlob toBlob()
 	{
-		TiImageView view = getView();
-		if (view != null) {
-			Drawable drawable = view.getImageDrawable();
-			if (drawable != null && drawable instanceof BitmapDrawable) {
-				Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
-					bitmap = imageSources.get(0).getBitmap(true);
+		TiDrawableReference imageReference =
+			imageSources != null && imageSources.size() == 1 ? imageSources.get(0) : null;
+		Bitmap cachedBitmap = imageReference != null ? mMemoryCache.get(imageReference.hashCode()) : null;
+
+		if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
+			return TiBlob.blobFromImage(cachedBitmap);
+
+		} else {
+			TiImageView view = getView();
+			if (view != null) {
+				Drawable drawable = view.getImageDrawable();
+				if (drawable != null && drawable instanceof BitmapDrawable) {
+					Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+					if (bitmap == null && imageSources != null && imageSources.size() == 1) {
+						bitmap = imageSources.get(0).getBitmap(true);
+					}
+					if (bitmap != null) {
+						if (imageReference != null) {
+							mMemoryCache.put(imageReference.hashCode(), bitmap);
+						}
+						return TiBlob.blobFromImage(bitmap);
+					}
 				}
-				return bitmap == null ? null : TiBlob.blobFromImage(bitmap);
 			}
 		}
 

@@ -30,7 +30,7 @@ static NSArray *imageKeySequence;
 - (NSArray *)keySequence
 {
   if (imageKeySequence == nil) {
-    imageKeySequence = [[NSArray arrayWithObjects:@"width", @"height", nil] retain];
+    imageKeySequence = [[NSArray arrayWithObjects:@"width", @"height", @"image", @"tintColor", nil] retain];
   }
   return imageKeySequence;
 }

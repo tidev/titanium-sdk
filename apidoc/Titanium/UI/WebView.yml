@@ -100,7 +100,7 @@ description: |
 
     For more information, see the following topics:
 
-      * [Android Developers: Migrating to WebView in Android 4.4](http://developer.android.com/guide/webapps/migrating.html)
+      * [Android Developers: Migrating to WebView in Android 4.4](https://developer.android.com/guide/webapps/migrating.html)
       * [Google Chrome: WebView for Android](https://developer.chrome.com/multidevice/webview/overview)
 
     **Plugin Support**
@@ -130,14 +130,15 @@ description: |
     #### For More Information
 
     See [Integrating Web
-    Content](http://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
+    Content](https://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
     in the Titanium Mobile Guides for more information on using web views, including use
     cases, more code examples, and best practices for web view content.
 
 
 extends: Titanium.UI.View
 excludes:
-    methods: [ add, removeAllChildren ]
+    methods: [ add, remove, removeAllChildren, replaceAt ]
+    properties: [children]
 since: "0.8"
 methods:
 
@@ -153,7 +154,7 @@ methods:
       For example:
 
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  {baseURL:'http://developer.appcelerator.com/'});
+                  {baseURL:'https://developer.appcelerator.com/'});
     parameters:
 
       - name: html
@@ -178,7 +179,8 @@ methods:
   - name: evalJS
     summary: |
         Evaluates a JavaScript expression inside the context of the web view and
-        optionally, returns a result.
+        optionally, returns a result. If a callback function is passed in as second argument,
+        the evaluation will take place asynchronously and the the callback function will be called with the result.
     description: |
         The JavaScript expression must be passed in as a string. If you are passing in any objects,
         you must serialize them to strings using [stringify](Global).
@@ -193,13 +195,25 @@ methods:
         call returns the empty string:
 
             myWebView.evalJS('return document.title');
+
+        The `evalJS` variant with a second callback argument executes asynchronously.
+
+            myWebView.evalJS('document.title', function (result) {
+              // Manipulate the result here
+            });
     returns:
         type: String
-    parameters:
+        summary: Result of the evaluation. May be null if the asynchronous variant of this method is called.
 
+    parameters:
       - name: code
         summary: JavaScript code as a string. The code will be evaluated inside the web view context.
         type: String
+
+      - name: callback
+        summary: Optional callback function for the result. Required on Windows, optional on iOS/Android.
+        optional: true
+        type: Callback<String>
 
   - name: goBack
     summary: Goes back one entry in the web view's history list, to the previous page.
@@ -282,8 +296,8 @@ events:
     description: |
         The `errorCode` value refers to one of the <Titanium.UI> URL_ERROR constants or, if it does not
         match one of those constants, it refers to a platform-specific constant. The platform-specific
-        values are underlying [iOS NSURLError*](https://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Constants/Reference/reference.html#//apple_ref/doc/uid/TP40003793-CH3g-SW40)
-        or [Android WebViewClient ERROR_*](http://developer.android.com/reference/android/webkit/WebViewClient.html) constants.
+        values are underlying [iOS NSURLError*](https://developer.apple.com/documentation/foundation/1508628-url_loading_system_error_codes)
+        or [Android WebViewClient ERROR_*](https://developer.android.com/reference/android/webkit/WebViewClient.html) constants.
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
@@ -577,7 +591,7 @@ properties:
             </android>
 
         See Android documentation for
-        [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html).
+        [WebSettings.PluginState](https://developer.android.com/reference/android/webkit/WebSettings.PluginState.html).
 
         This property only works on Android devices at API Level 8 or greater.
     type: Number
@@ -599,7 +613,6 @@ properties:
     default: true
     platforms: [iphone,ipad]
     since: 2.0.0
-    default: true
 
   - name: enableZoomControls
     summary: If `true`, zoom controls are enabled.
@@ -607,6 +620,18 @@ properties:
     platforms: [android]
     since: "1.8.0"
     default: true
+
+  - name: mixedContentMode
+    summary: If `true`, allows the loading of insecure resources from a secure origin.
+    description: |
+        On iOS this functionality can be set in the `<plist>` section of the tiapp.xml
+        using the `NSAllowsArbitraryLoads` key as part of the App Transport Security.
+        The plist key is enabled by default, allowing arbitrary loads to be processed.
+    type: Boolean
+    platforms: [android]
+    since: "7.5.0"
+    default: false
+    availability: creation
 
   - name: scalesPageToFit
     summary: If `true`, scale contents to fit the web view.
@@ -636,6 +661,10 @@ properties:
     description: |
         On the iOS platform, this is not per-webview. Once you have set this property for a webview
         it will not change for same. But while creating new webview it can be changed to new user agent.
+
+        On Android, changing the user agent after the webview has begun loading content may cause
+        the webview to reload and fire multiple `load` or `beforeload` events. Developers should provide the
+        user agent value in the creation properties to avoid the reload and multiple events firing.
     type: String
     default: System default user-agent value.
     platforms: [android, iphone, ipad]
@@ -685,9 +714,15 @@ properties:
         On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
         inside `createWebView()` or put it inside the window `open` event.
     type: Dictionary
-    platforms: [android,iphone,ipad]
+    platforms: [android, iphone, ipad]
     since: "6.1.0"
 
+  - name: zoomLevel
+    summary: Manage the zoom-level of the current page.
+    type: Number
+    default: undefined. Behaves as no zoom applied.
+    platforms: [android, iphone, ipad]
+    since: "7.3.0"
 
 examples:
   - title: Basic Web View to External URL

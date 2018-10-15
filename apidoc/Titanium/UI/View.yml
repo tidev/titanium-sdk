@@ -86,9 +86,7 @@ description: |
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or
     `system` to specify that the platform's default unit should be used.
 
-    Note that prior to Release 2.0, iOS ignored any specified unit, so code that specifies
-    a unit may operate differently on iOS in Release 2.0. If you set the
-    `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
+    On IOS if you set the `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
     application should detect and handle Retina displays manually.
 
     Font sizes on iOS are treated differently than other sizes: font sizes are always
@@ -96,7 +94,7 @@ description: |
 
     For more details see:
 
-    * [UI Composite Layout Spec](http://docs.appcelerator.com/platform/latest/#!/guide/UI_Composite_Layout_Behavior_Spec)
+    * [UI Composite Layout Spec](https://docs.appcelerator.com/platform/latest/#!/guide/UI_Composite_Layout_Behavior_Spec)
 
     #### Size and Position
 
@@ -113,12 +111,10 @@ description: |
     *   <Titanium.UI.SIZE> specifies that the view should adjust this size to fit its
         contents, such as a label's text or a view's children.
     *   'auto' specifies that the view should choose either `FILL` or `SIZE` behavior.
-        In 2.0, the behavior of the 'auto' value is specified by the UI Composite Layout
-        Spec. This value is not recommended for new development and will be deprecated in
-        the future.
+        The use of `auto` is deprecated, and should be replaced with the SIZE or FILL constants if it is necessary to set the view's behavior explicitly.
 
     Sizes and positions can also be specified as a percentage of the parent's size, for
-    example, '50%'.
+    example, `50%`.
 
     How these properties are interpreted depends on the value of the view's `layout`
     property. See the description of the [layout](Titanium.UI.View.layout) property
@@ -151,10 +147,10 @@ description: |
     The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
     that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
     on iOS). On iOS, Titanium will then take these values and set the native properties
-    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    of the same name which are defined in the [UIAccessibilityProtocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
     On Android, Titanium takes the three values and concatenates them in the order `accessibilityLabel`,
     `accessibilityValue`, and `accessibilityHint`, and then uses the result to set the native view's
-    [`contentDescription`](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
+    [`contentDescription`](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
     property.
 
     You are not required to set all three properties: feel free to set just one or two as needed and
@@ -162,11 +158,10 @@ description: |
 
     The fourth property, `accessibilityHidden`, when set to `true`, indicates that the view can be ignored
     by the assistive service. In iOS this sets the similarly-named
-    [accessibilityElementsHidden](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html#//apple_ref/occ/instp/NSObject/accessibilityElementsHidden)
-    native property, which is only available in iOS 5.0 and later. On earlier versions of
-    iOS, this property is ignored.
+    [accessibilityElementsHidden](https://developer.apple.com/documentation/objectivec/nsobject/1615080-accessibilityelementshidden)
+    native property.
 
-    In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
+    In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
     this property is set to `true` (i.e., "hidden" means it's not important). However, the
     native `setImportantForAccessibility` method is available only on devices running
     Android 4.1 (API level 16/Jelly Bean) or later. On earlier versions of Android, this
@@ -182,12 +177,6 @@ description: |
     Given an image of width `w` and height `h`, the stretchable portion on the image is defined as a rectangle with the `top-left` point set to
     `(backgroundLeftCap , backgroundTopCap)` and the `bottom-right` point set to `(w - backgroundLeftCap , h - backgroundTopCap)`. The portions not covered by
     the stretchable portion keep their original size and appearance.
-
-    The behavior of these properties on [ImageView](Titanium.UI.ImageView) is slightly different and depends on the iOS version on the device.
-
-    * For iOS 6.x and above, the behavior is as described above.
-    * For iOS 5.x the computed rectangle is tiled and not streched in the stretchable portion.
-    * For iOS 4.x the strechable portion is always a 1x1 region that is tiled repeatedly.
 
     For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
 
@@ -275,12 +264,12 @@ events:
         fired when the property [focusable](Titanium.UI.View.focusable) is set to true. On iOS the
         event is generated only when using [Ti.UI.TextArea](Titanium.UI.TextArea), [Ti.UI.TextField](Titanium.UI.TextField)
         and [Ti.UI.SearchBar](Titanium.UI.SearchBar).
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: {android: "3.1.0", iphone: "5.4.0", ipad: "5.4.0"}
     properties:
       - name: keyCode
         type: Number
-        summary: The code for the physical key that was pressed. For more details, see [KeyEvent](http://developer.android.com/reference/android/view/KeyEvent.html). This API is experimental and subject to change.
+        summary: The code for the physical key that was pressed. For more details, see [KeyEvent](https://developer.android.com/reference/android/view/KeyEvent.html). This API is experimental and subject to change.
 
   - name: longclick
     summary: Fired when the device detects a long click.
@@ -325,7 +314,7 @@ events:
     description: |
         A pinch is a touch and expand or contract
         with two fingers.  The event occurs continuously until a finger is lifted again.
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, android]
     since: "1.8.0"
     properties:
       - name: scale
@@ -335,6 +324,88 @@ events:
       - name: velocity
         summary: The velocity of the pinch in scale factor per second.
         type: Number
+
+      - name: time
+        summary: The event time of the current event being processed.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: timeDelta
+        summary: |
+            The time difference in milliseconds between the previous accepted scaling event and the
+            current scaling event.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: currentSpan
+        summary: |
+            The average distance between each of the pointers forming the gesture in progress through
+            the focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: currentSpanX
+        summary: |
+            The average X distance between each of the pointers forming the gesture in progress through
+            the focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: currentSpanY
+        summary: |
+            The average Y distance between each of the pointers forming the gesture in progress through
+            the focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: previousSpan
+        summary: |
+            The previous average distance between each of the pointers forming the gesture in progress through
+            the focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: previousSpanX
+        summary: |
+            The previous average X distance between each of the pointers forming the gesture in progress through
+            the focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: previousSpanY
+        summary: |
+            The previous average Y distance between each of the pointers forming the gesture in progress through
+            the focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: focusX
+        summary: |
+            The X coordinate of the current gesture's focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: focusY
+        summary: |
+            The Y coordinate of the current gesture's focal point.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
+
+      - name: inProgress
+        summary: Returns `true` if a scale gesture is in progress, `false` otherwise.
+        type: Number
+        since: "7.5.0"
+        platforms: [android]
 
   - name: postlayout
     summary: Fired when a layout cycle is finished.
@@ -693,11 +764,11 @@ methods:
 
         There are certain top-level containers that are not intended to be added
         as the children of other views. These top-level containers include
-        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.iOS.NavigationWindow>,
+        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.NavigationWindow>,
         and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
-        The special containers <Titanium.UI.iOS.NavigationWindow>,
+        The special containers <Titanium.UI.NavigationWindow>,
         <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.Tab>, and
         <Titanium.UI.TabGroup> manage windows.
         These managed windows may be referred to as *children* of the
@@ -737,6 +808,7 @@ methods:
       - name: callback
         summary: Function to be invoked upon completion of the animation.
         type: Callback<Object>
+        optional: true
 
   - name: finishLayout
     since: "2.0.0"
@@ -947,12 +1019,10 @@ properties:
     description: |
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
         [UIAccessibility
-        Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
-        The native property is only available in iOS 5.0 and later; if
-        `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
+        Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
 
         On Android, setting `accessibilityHidden` calls the native
-        [View.setImportantForAccessibility](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
+        [View.setImportantForAccessibility](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
         method. The native method is only available in Android 4.1 (API level 16/Jelly Bean) and
         later; if this property is specified on earlier versions of Android, it is ignored.
 
@@ -970,11 +1040,11 @@ properties:
     summary: Briefly describes what performing an action (such as a click) on the view will do.
     description: |
         On iOS this is a direct analog of the `accessibilityHint` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
-        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     type: String
     since: "3.0.0"
     platforms: [android, iphone, ipad]
@@ -984,29 +1054,29 @@ properties:
     summary: A succint label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
-        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        Defaults to Title or label of the control.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
-    default: Title or label of the control.
 
   - name: accessibilityValue
     summary: A string describing the value (if any) of the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityValue` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
-        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        Defaults to State or value of the control.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
-    default: State or value of the control.
 
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
@@ -1018,9 +1088,10 @@ properties:
         corner.
 
         See the "Using an anchorPoint" example in <Titanium.UI.Animation> for a demonstration.
+        The default is center of this view.
     type: Point
-    default: Center of this view.
-    platforms: [iphone, ipad]
+    since: {android: "7.5.0", iphone: "2.1.0", ipad: "2.1.0"}
+    platforms: [android, iphone, ipad]
 
   - name: animatedCenter
     summary: Current position of the view during an animation.
@@ -1031,24 +1102,23 @@ properties:
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>.
+        For information about color values, see the "Colors" section of <Titanium.UI>. Defaults to `Transparent`.
     type: String
-    default: Transparent
 
   - name: backgroundDisabledColor
     summary: Disabled background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
+        Defaults to the normal background color of this view.
     type: String
-    default: Same as the normal background color of this view.
     platforms: [android]
 
   - name: backgroundDisabledImage
     summary: Disabled background image for the view, specified as a local file path or URL.
+    description: |
+        If `backgroundDisabledImage` is undefined, and the normal background image`backgroundImage`
+        is set, the normal image is used when this view is disabled.
     type: String
-    default: |
-        If `backgroundDisabledImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is disabled.
     platforms: [android]
 
   - name: backgroundFocusedColor
@@ -1057,23 +1127,22 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         For normal views, the focused color is only used if `focusable` is `true`.
+        Defaults to the normal background color of this view.
     type: String
-    default: Same as the normal background color of this view.
     platforms: [android]
 
   - name: backgroundFocusedImage
     summary: Focused background image for the view, specified as a local file path or URL.
-    description: For normal views, the focused background is only used if `focusable` is `true`.
+    description: |
+      For normal views, the focused background is only used if `focusable` is `true`.
+      If `backgroundFocusedImage` is undefined, and the normal background image `backgroundImage`
+      is set, the normal image is used when this view is focused.
     type: String
-    default: |
-        If `backgroundFocusedImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is focused.
     platforms: [android]
 
   - name: backgroundGradient
     summary: A background gradient for the view.
     type: Gradient
-    default: No gradient
     platforms: [iphone,ipad,android]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously
@@ -1088,6 +1157,7 @@ properties:
 
             { x: 30, y: 30 }
         Or:
+
             { x: '50%', y: '50%' }
 
         When specifying multiple colors, you can specify an *offset* value for each color, defining
@@ -1096,8 +1166,9 @@ properties:
 
             colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
 
-        Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
-        treating them as if they are true.
+        Android's linear gradients ignores `backfillStart` and `backfillEnd`, treating them as if
+        they are true. Android's radial gradients ignore the `endPoint` property.
+        Defaults to no gradient.
     examples:
       - title: Linear and Radial Gradients
         example: |
@@ -1119,7 +1190,7 @@ properties:
                         startPoint: { x: 50, y: 50 },
                         endPoint: { x: 50, y: 50 },
                         colors: [ 'red', 'blue'],
-                        startRadius: '90%',
+                        startRadius: 50,
                         endRadius: 0,
                         backfillStart: true
                     }
@@ -1141,11 +1212,10 @@ properties:
 
   - name: backgroundImage
     summary: Background image for the view, specified as a local file path or URL.
+    description: |
+        Default behavior when `backgroundImage` is unspecified depends on the type of view and the platform.
+        For generic views, no image is used. For most controls (buttons, textfields, and so on), platform-specific default images are used.
     type: String
-    default: |
-        Default behavior when `backgroundImage` is unspecified depends on the type of view and
-        the platform. For generic views, no image is used. For most controls (buttons, text
-        fields, and so on), platform-specific default images are used.
 
   - name: backgroundRepeat
     summary: Determines whether to tile a background across a view.
@@ -1181,18 +1251,20 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         `focusable` must be true for normal views.
+
+        Defaults to background color of this view.
     type: String
     platforms: [android]
-    default: Background color of this view.
 
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
-    description: For normal views, the selected background is only used if `focusable` is `true`.
+    description: |
+      For normal views, the selected background is only used if `focusable` is `true`.
+
+      If `backgroundSelectedImage` is undefined, and the normal background image `backgroundImage` is set
+      the normal image is used when this view is selected.
     type: String
     platforms: [android]
-    default: |
-        If `backgroundSelectedImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is selected.
 
   - name: backgroundTopCap
     summary: Size of the top end cap.
@@ -1206,9 +1278,9 @@ properties:
     summary: Border color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    default: Same as the normal background color of this view (Android), black (iOS).
-    type: String
 
+        Defaults to the normal background color of this view (Android), black (iOS).
+    type: String
 
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
@@ -1216,15 +1288,13 @@ properties:
     type: Number
     default: 0
 
-
   - name: borderWidth
     summary: Border width of the view.
     description: |
-        If [borderColor](Ti.UI.View.borderColor) is set without [borderWidth](Ti.UI.View.borderWidth), this value
+        If [borderColor](Titanium.UI.View.borderColor) is set without [borderWidth](Titanium.UI.View.borderWidth), this value
         will be changed to 1 of the unit declared as 'ti.ui.defaultunit' in tiapp.xml descriptor.
     type: Number
     default: 0
-
 
   - name: bottom
     summary: View's bottom position, in platform-specific units.
@@ -1235,15 +1305,17 @@ properties:
 
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
+
+        Defaults to `undefined`.
     type: [Number,String]
-    default: undefined
 
   - name: center
     summary: View's center position, in the parent view's coordinates.
     description: |
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
-    default: undefined
+
+        Defaults to `undefined`.
     type: Point
 
 
@@ -1259,8 +1331,9 @@ properties:
         Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
         When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred.
         See section on iOS Clipping Behavior in <Titanium.UI.View>.
+
+        Defaults to `undefined`. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
     type: Number
-    default: Undefined. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
     platforms: [iphone, ipad]
     since: "3.3.0"
 
@@ -1273,7 +1346,7 @@ properties:
         **Note:** The `elevation` property only works on `Titanium.UI.View` objects.
         Many Android components have a default elevation that cannot be modified.
         For more information, see
-        [Google design guidelines: Elevation and shadows](https://www.google.com/design/spec/what-is-material/elevation-shadows.html).
+        [Google design guidelines: Elevation and shadows](https://developer.android.com/training/material/shadows-clipping#Elevation).
     type: Number
     platforms: [android]
     since: 5.0.0
@@ -1290,7 +1363,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:
@@ -1316,11 +1389,25 @@ properties:
 
         * <Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE>. Keeps the space and just hides the object (default).
         * <Titanium.UI.HIDDEN_BEHAVIOR_GONE>. Releases the space and hides the object.
+
+        Defaults to Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE.
     type: Number
     constants: [Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE, Titanium.UI.HIDDEN_BEHAVIOR_GONE]
-    default: Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE
     platforms: [android]
     since: 6.1.0
+
+  - name: horizontalMotionEffect
+    summary: Adds a horizontal parallax effect to the view
+    description: |
+        Pass an object with the following key-value pairs:
+
+         * `min` (Number): Minimum amount it can move horizontally (-10 for example)
+         * `max` (Number): Maximum amount it can move horizontally (10 for example)
+
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: 7.3.0
 
   - name: left
     summary: View's left position, in platform-specific units.
@@ -1331,8 +1418,9 @@ properties:
 
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
+
+        Defaults to `undefined`.
     type: [Number,String]
-    default: undefined
 
   - name: layout
     type: String
@@ -1365,47 +1453,47 @@ properties:
             <th>Scenario</th><th>Behavior</th>
             </tr>
             <tr>
-            <td>`height` & `top` specified</td><td>Child positioned `top` unit from
-            parent's top, using specified `height`;
-            any `center.y` and `bottom` values are ignored.</td>
+            <td><code>height</code> & <code>top</code> specified</td><td>Child positioned <code>top</code> unit from
+            parent's top, using specified <code>height</code>;
+            any <code>center.y</code> and <code>bottom</code> values are ignored.</td>
             </tr>
             <tr>
-            <td>`height` & `center.y` specified</td><td>Child positioned with center at
-            `center.y`, using specified `height`; any `bottom` value is ignored.</td>
+            <td><code>height</code> & <code>center.y</code> specified</td><td>Child positioned with center at
+            <code>center.y</code>, using specified <code>height</code>; any <code>bottom</code> value is ignored.</td>
             </tr>
             <tr>
-            <td>`height` & `bottom` specified</td><td>Child positioned `bottom` units from
-            parent's bottom, using specified `height`.</td>
+            <td><code>height</code> & <code>bottom</code> specified</td><td>Child positioned <code>bottom</code> units from
+            parent's bottom, using specified <code>height</code>.</td>
             </tr>
             <tr>
-            <td>`top` & `center.y` specified</td><td>Child positioned with top edge `top` units from
-            parent's top and center at `center.y`. Height is determined implicitly;
-            any `bottom` value is ignored.</td>
+            <td><code>top</code> & <code>center.y</code> specified</td><td>Child positioned with top edge <code>top</code> units from
+            parent's top and center at <code>center.y</code>. Height is determined implicitly;
+            any <code>bottom</code> value is ignored.</td>
             </tr>
             <tr>
-            <td>`top` & `bottom` specified</td><td>Child positioned with top edge `top` units from
-            parent's top and bottom edge `bottom` units from parent's bottom. Height is determined
+            <td><code>top</code> & <code>bottom</code> specified</td><td>Child positioned with top edge <code>top</code> units from
+            parent's top and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
             implicitly. </td>
             </tr>
             <tr>
-            <td>Only `top` specified</td><td>Child positioned `top` units from parent's
+            <td>Only <code>top</code> specified</td><td>Child positioned <code>top</code> units from parent's
             top, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>`center.y` and `bottom` specified</td><td>Child positioned with center at
-            `center.y` and bottom edge `bottom` units from parent's bottom. Height is determined
+            <td><code>center.y</code> and <code>bottom</code> specified</td><td>Child positioned with center at
+            <code>center.y</code> and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
             implicitly.</td>
             </tr>
             <tr>
-            <td>Only `center.y` specified</td><td>Child positioned with center at
-            `center.y`, and uses the default height calculation for the view type.</td>
+            <td>Only <code>center.y</code> specified</td><td>Child positioned with center at
+            <code>center.y</code>, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>Only `bottom` specified</td><td>Child positioned with bottom edge `bottom`
+            <td>Only <code>bottom</code> specified</td><td>Child positioned with bottom edge <code>bottom</code>
             units from parent's bottom, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>`height`, `top`, `center.y`, and `bottom` unspecified</td><td>Child
+            <td><code>height</code>, <code>top</code>, <code>center.y</code>, and <code>bottom</code> unspecified</td><td>Child
             centered vertically in the parent and uses the default height calculation
             for the child view type.</td>
             </tr>
@@ -1415,7 +1503,7 @@ properties:
             precedence is `width`, `left`, `center.x`, `right`.
 
             For complete details on composite layout rules, see
-            [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
+            [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
             in the Titanium Mobile Guides.
 
          *  `vertical`. Children are laid out vertically from top to bottom. The first child
@@ -1454,27 +1542,29 @@ properties:
             On Android and iOS _prior to_ Release
             2.1.0, the horizontal layout always wraps and the `horizontalWrap` property is not supported.
 
-    default: Composite layout
+            Defaults to Composite layout.
 
   - name: opacity
-    summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
+    summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque). Defaults to 1.0 (opaque).
     type: Number
-    default: 1.0 (opaque)
 
   - name: overrideCurrentAnimation
     summary: When on, animate call overrides current animation if applicable.
     description: |
         If this property is set to false, the animate call is ignored if the view is currently being animated.
+
+        Defaults to `undefined` but behaves as false
     type: Boolean
-    default: undefined but behaves as false
     since: "3.3.0"
     availability: creation
     platforms: [android]
 
   - name: pullBackgroundColor
-    summary: Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
+    summary: |
+      Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
+
+      Defaults to `undefined`. Results in a light grey background color on the wrapper view.
     type: String
-    default: Undefined. Results in a light grey background color on the wrapper view.
     since: "3.3.0"
     platforms: [iphone,ipad]
 
@@ -1500,8 +1590,9 @@ properties:
 
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
+
+        Defaults to `undefined`.
     type: [Number, String]
-    default: undefined
 
   - name: rect
     summary: |
@@ -1511,6 +1602,9 @@ properties:
 
         The view's size is `rect.width` x `rect.height`. The view's top-left position relative to
         its parent is (`rect.x` , `rect.y`).
+
+        On Android it will also return `rect.absoluteX` and 'rect.absoluteY' which are relative to
+        the main window.
 
         The correct values will only be available when layout is complete.
         To determine when layout is complete, add a listener for the
@@ -1572,14 +1666,13 @@ properties:
 
 
   - name: softKeyboardOnFocus
-    summary: Determines keyboard behavior when this view is focused.
+    summary: Determines keyboard behavior when this view is focused. Defaults to <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>.
     type: Number
     constants: Titanium.UI.Android.SOFT_KEYBOARD_*
-    default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
     platforms: [android]
 
   - name: tintColor
-    summary: The view's tintColor. This property is applicable on iOS 7 and greater.
+    summary: The view's tintColor
     description: |
         This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified,
         the tintColor of the View is inherited from its superview.
@@ -1619,17 +1712,16 @@ properties:
 
   - name: touchFeedbackColor
     summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true.
+    description: Defaults to provided theme color.
     type: String
-    default: Theme provided color.
     platforms: [android]
     osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: transform
     summary: Transformation matrix to apply to the view.
-    description: Android only supports 2DMatrix transforms.
+    description: Android only supports 2DMatrix transforms. Defaults to identity matrix.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
-    default: Identity matrix
 
   - name: translationX
     summary: Horizontal location of the view relative to its left position in pixels.
@@ -1661,24 +1753,37 @@ properties:
     since: "5.0.2"
     osver: {android: {min: 5.0}}
 
+  - name: verticalMotionEffect
+    summary: Adds a vertical parallax effect to the view
+    description: |
+        Pass an object with the following key-value pairs:
+
+         * `min` (Number): Minimum amount it can move vertically (-10 for example)
+         * `max` (Number): Maximum amount it can move vertically (10 for example)
+
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: 7.3.0
+
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
+    description: Defaults to `undefined`. Behaves as if set to 3.
     type: Number
-    default: Undefined. Behaves as if set to 3.
     platforms: [iphone,ipad]
     since: "3.3.0"
 
   - name: viewShadowColor
     summary: Determines the color of the shadow.
+    description: Defaults to `undefined`. Behaves as if transparent.
     type: String
-    default: Undefined. Behaves as if transparent.
     platforms: [iphone,ipad]
     since: "3.3.0"
 
   - name: viewShadowOffset
     summary: Determines the offset for the shadow of the view.
+    description: Defaults to `undefined`. Behaves as if set to (0,-3)
     type: Point
-    default: Undefined. Behaves as if set to (0,-3)
     platforms: [iphone,ipad]
     since: "3.3.0"
 
@@ -1692,7 +1797,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:
@@ -1725,8 +1830,9 @@ properties:
         A view does not have a default z-index value, meaning that it is undefined by default.
         When this property is explicitly set, regardless of its value, it causes the view to be
         positioned in front of any sibling that has an undefined z-index.
+
+        Defaults to `undefined`.
     type: Number
-    default: undefined
 
   - name: keepScreenOn
     summary: Determines whether to keep the device screen on.
@@ -1765,16 +1871,16 @@ since: "1.8.0"
 platforms: [android, iphone, ipad]
 properties:
   - name: x
-    type: Number
+    type: [Number, String]
     summary: The x-axis coordinate of this point.
 
   - name: y
-    type: Number
+    type: [Number, String]
     summary: The y-axis coordinate of this point.
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [iphone, ipad]
+platforms: [android, iphone, ipad]
 since: "1.8.0"
 properties:
   - name: type
@@ -1795,10 +1901,14 @@ properties:
   - name: startRadius
     summary: For a radial gradient, the radius at the `startPoint`.
     type: Number
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: endRadius
     summary: For a radial gradient, the radius at the `endPoint`.
     type: Number
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: colors
     summary: |
@@ -1809,15 +1919,19 @@ properties:
 
   - name: backfillStart
     summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
+    description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: backfillEnd
     summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
+    description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
 ---
 name: GradientColorRef
@@ -1831,7 +1945,13 @@ properties:
     type: String
 
   - name: offset
-    summary: Offset of this color in the gradient, from 0 (start) to 1 (end).
+    summary: The color's normalized position within the gradient, ranging from 0 (start) to 1 (end).
+    description: |
+        For a linear gradient, the offset ranges between [startPoint](Gradient.startPoint)
+        and [endPoint](Gradient.endPoint).
+
+        For a radial gradient, the offset ranges between [startRadius](Gradient.startRadius)
+        and [endRadius](Gradient.endRadius).
     type: Number
 
 ---
@@ -1864,7 +1984,7 @@ properties:
 ---
 name: AnimationOption
 summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
-since: 5.1.0
+since: "5.1.0"
 platforms: [android]
 properties:
   - name: animated
@@ -1872,3 +1992,23 @@ properties:
     type: Boolean
     default: false
     osver: {android: {min: 5.0}}
+
+---
+name: ViewPadding
+summary: Dictionary object of parameters for the padding applied to all kinds of views.
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+
+  - name: right
+    type: Number
+    summary: Right padding
+
+  - name: top
+    type: Number
+    summary: Top padding
+
+  - name: bottom
+    type: Number
+    summary: Bottom padding

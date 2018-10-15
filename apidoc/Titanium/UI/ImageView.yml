@@ -8,6 +8,17 @@ description: |
 
     Specifying either a `width` or `height` property for this view will scale its image(s) with
     the aspect ratio maintained, up to a maximum size that does not exceed its parent view.
+    
+    #### Remote Images
+    
+    You can display both local and remote images in an ImageView. When loading remote images, you should 
+    set the defaultImage property to a local image, which will be displayed while the remote image is being 
+    downloaded. Remote images are cached automatically on the iOS-, Android- and Windows platform.
+    
+    Android Note: Android 6 and later uses runtime permissions to secure the user's privacy. 
+    Therefore, you should call <Titanium.Filesystem.requestStoragePermissions> before attempting to load remote images.
+    
+    Read more about remote images and general best practices in the [Image Best Practices Guide](https://wiki.appcelerator.org/display/guides2/Image+Best+Practices#ImageBestPractices-Cachingremoteimages).
 
     #### Android 9-Patch Scaled Images
 
@@ -23,37 +34,22 @@ description: |
     this purpose.
 
     For further information about nine-patch images and the Android utility, see the
-    [Nine-patch](http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch)
-    and [Draw 9-patch](http://developer.android.com/guide/developing/tools/draw9patch.html) sections
+    [Nine-patch](https://developer.android.com/guide/topics/graphics/drawables#nine-patch)
+    and [Draw 9-patch](https://developer.android.com/studio/write/draw9patch) sections
     of the Android Developer website.
 
     The nine-patch technique may be used with any of Titanium's static image properties. See the
     "Button with Nine-patch Background Image" example for a demonstration.
 extends: Titanium.UI.View
 since: "0.9"
-
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to an `ImageView` is not supported on all platforms.
-
-        If you need to add views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
     platforms: [android, iphone, ipad]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.ImageView.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
 
   - name: resume
     summary: Resumes an animation from a `pause` state.
@@ -190,7 +186,7 @@ properties:
 
   - name: hires
     summary: |
-        Set to `true` to prevent scaling of 2x-resolution remote images for Retina
+        Set to `true` to prevent scaling of 2x/3x-resolution remote images for retina
         displays.
     description: |
         Causes images to display at 50%, where one pixel of the graphic maps to one physical pixel

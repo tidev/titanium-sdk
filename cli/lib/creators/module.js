@@ -3,7 +3,7 @@
  * Logic for creating new Titanium modules.
  *
  * @copyright
- * Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -76,10 +76,10 @@ util.inherits(ModuleCreator, Creator);
 ModuleCreator.prototype.init = function init() {
 	return {
 		options: {
-			'id':            this.configOptionId(150),
-			'name':          this.configOptionName(140),
-			'platforms':     this.configOptionPlatforms(120),
-			'template':      this.configOptionTemplate(110),
+			id:            this.configOptionId(150),
+			name:          this.configOptionName(140),
+			platforms:     this.configOptionPlatforms(120),
+			template:      this.configOptionTemplate(110),
 			'workspace-dir': this.configOptionWorkspaceDir(170)
 		}
 	};
@@ -192,7 +192,6 @@ ModuleCreator.prototype.run = function run(callback) {
 		tasks.push(function (next) {
 			// send the analytics
 			this.cli.addAnalyticsEvent('project.create.module', {
-				dir: projectDir,
 				name: variables.moduleName,
 				author: variables.author,
 				moduleid: variables.moduleId,

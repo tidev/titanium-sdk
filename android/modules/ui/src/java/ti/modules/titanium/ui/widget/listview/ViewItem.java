@@ -43,7 +43,7 @@ public class ViewItem
 
 		for (String appliedProp : this.properties.keySet()) {
 			if (!properties.containsKey(appliedProp)) {
-				applyProperty(appliedProp, null);
+				applyProperty(appliedProp, this.properties.get(appliedProp));
 			}
 		}
 

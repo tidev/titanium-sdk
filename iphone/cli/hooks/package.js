@@ -228,6 +228,21 @@ exports.init = function (logger, config, cli) {
 		exportsOptions.provisioningProfiles = {};
 		exportsOptions.provisioningProfiles[builder.tiapp.id] = pp.uuid;
 
+		builder.extensions.forEach(function (ext) {
+			const nativeTargets = ext.objs.PBXNativeTarget;
+			ext.targets.forEach(function (extTarget) {
+				if (extTarget.ppUUIDs[target]) {
+					const targetUUID = Object.keys(nativeTargets).filter(uuid => typeof nativeTargets[uuid] === 'object' && nativeTargets[uuid].name.replace(/^"/, '').replace(/"$/, '') === extTarget.name)[0];
+					const buildConf = targetUUID && ext.objs.XCConfigurationList[nativeTargets[targetUUID].buildConfigurationList].buildConfigurations.filter(c => c.comment === 'Release');
+					const confUUID = buildConf && buildConf.length && buildConf[0].value;
+					const id = confUUID && ext.objs.XCBuildConfiguration[confUUID].buildSettings.PRODUCT_BUNDLE_IDENTIFIER;
+					if (id) {
+						exportsOptions.provisioningProfiles[id] = extTarget.ppUUIDs[target];
+					}
+				}
+			});
+		});
+
 		// check if the app is using CloudKit
 		const entitlementsFile = path.join(builder.buildDir, builder.tiapp.name + '.entitlements');
 		if (fs.existsSync(entitlementsFile)) {

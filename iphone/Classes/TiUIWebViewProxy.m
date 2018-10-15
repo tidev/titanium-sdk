@@ -62,9 +62,28 @@
   [super _initWithProperties:properties];
 }
 
-- (NSString *)evalJS:(id)code
+- (NSString *)evalJS:(id)args
 {
-  ENSURE_SINGLE_ARG(code, NSString);
+  KrollCallback *callback = nil;
+  NSString *code = nil;
+  ENSURE_ARG_AT_INDEX(code, args, 0, NSString); // Conform to class because that's good practice
+  if ([args count] > 1) {
+    ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
+  }
+
+  // Handle async
+  if (callback != nil) {
+
+    // Spin off a thread that will invoke on main thread and fire callback, then return nil immediately
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *result = [(TiUIWebView *)[self view] stringByEvaluatingJavaScriptFromString:code];
+        [callback call:@[ result ] thisObject:nil];
+      });
+    });
+    return nil;
+  }
+
   /*
      Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
@@ -114,6 +133,17 @@ USE_VIEW_FOR_CONTENT_WIDTH
       YES);
 
   return NUMBOOL(loading);
+}
+
+- (NSNumber *)zoomLevel
+{
+  NSString *zoomLevel = [[(TiUIWebView *)[self view] webview] stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom"];
+
+  if (zoomLevel == nil || zoomLevel.length == 0) {
+    return @(1.0);
+  }
+
+  return @([zoomLevel doubleValue]);
 }
 
 - (void)goBack:(id)args

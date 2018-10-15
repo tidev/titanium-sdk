@@ -1,14 +1,28 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.webkit.ValueCallback;
+import android.webkit.WebView;
+
+import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -22,10 +36,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
-import android.app.Activity;
-import android.os.Handler;
-import android.os.Message;
-import android.webkit.WebView;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -59,10 +69,14 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
 	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
 	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
+	private static final int MSG_ZOOM_BY = MSG_FIRST_ID + 115;
+	private static final int MSG_EVAL_JS = MSG_FIRST_ID + 116;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
 	private static String fpassword;
+	private static int frequestID = 0;
+	private static Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<Integer, EvalJSRunnable>();
 
 	private Message postCreateMessage;
 
@@ -75,6 +89,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
+		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1.0);
 	}
 
 	@Override
@@ -98,7 +113,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.method
-	public Object evalJS(String code)
+	public Object evalJS(String code, @Kroll.argument(optional = true) KrollFunction callback)
 	{
 		// If the view doesn't even exist yet,
 		// or if it once did exist but doesn't anymore
@@ -110,7 +125,64 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			Log.w(TAG, "WebView not available, returning null for evalJS result.");
 			return null;
 		}
+		if (callback != null) {
+			EvalJSRunnable runnable = new EvalJSRunnable(view, getKrollObject(), code, callback);
+			// When on Android 19+ we can use the builtin evalAsync method!
+			if (Build.VERSION.SDK_INT >= 19) {
+				if (TiApplication.isUIThread()) {
+					runnable.runAsync();
+				} else {
+					// Stick the runnable in a static map so we can pull it out in handleMessage()
+					final int requestID = frequestID++;
+					fevalJSRequests.put(requestID, runnable);
+					Message message = getMainHandler().obtainMessage(MSG_EVAL_JS);
+					message.arg1 = requestID;
+					message.sendToTarget();
+				}
+			} else {
+				// Just do our sync eval in a separate Thread. Doesn't need to be done in UI
+				Thread clientThread = new Thread(runnable, "TiWebViewProxy-" + System.currentTimeMillis());
+				clientThread.setPriority(Thread.MIN_PRIORITY);
+				clientThread.start();
+			}
+			return null;
+		}
+		// TODO deprecate the sync variant?
 		return view.getJSValue(code);
+	}
+
+	private class EvalJSRunnable implements Runnable
+	{
+		private final TiUIWebView view;
+		private final KrollObject krollObject;
+		private final String code;
+		private final KrollFunction callback;
+
+		public EvalJSRunnable(TiUIWebView view, KrollObject krollObject, String code, KrollFunction callback)
+		{
+			this.view = view;
+			this.krollObject = krollObject;
+			this.code = code;
+			this.callback = callback;
+		}
+
+		public void run()
+		{
+			// Runs the "old" API we built
+			String result = view.getJSValue(code);
+			callback.callAsync(krollObject, new Object[] { result });
+		}
+
+		public void runAsync()
+		{
+			// Runs the newer API provided by Android
+			view.getWebView().evaluateJavascript(code, new ValueCallback<String>() {
+				public void onReceiveValue(String value)
+				{
+					callback.callAsync(krollObject, new Object[] { value });
+				}
+			});
+		}
 	}
 
 	// clang-format off
@@ -205,6 +277,16 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 				case MSG_SET_HTML:
 					String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
 					getWebView().setHtml(html);
+					return true;
+				case MSG_ZOOM_BY:
+					getWebView().zoomBy(TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL)));
+					return true;
+				case MSG_EVAL_JS:
+					final int evalJSRequestID = msg.arg1;
+					if (fevalJSRequests.containsKey(evalJSRequestID)) {
+						EvalJSRunnable runnable = fevalJSRequests.remove(evalJSRequestID);
+						runnable.runAsync();
+					}
 					return true;
 			}
 		}
@@ -445,6 +527,40 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		return enabled;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getZoomLevel()
+	// clang-format on
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL), 1.0f);
+		} else {
+			return 1.0f;
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setZoomLevel(float value)
+	// clang-format on
+	{
+		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
+
+		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
+		// view is created.
+		TiUIView v = peekView();
+		if (v != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIWebView) v).zoomBy(value);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_ZOOM_BY);
+			}
+		}
 	}
 
 	public void clearBasicAuthentication()

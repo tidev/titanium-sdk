@@ -114,7 +114,7 @@ jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::V
 
 jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue)
 {
-	if (jsValue->IsNull()) {
+	if (jsValue.IsEmpty() || jsValue->IsNullOrUndefined()) {
 		return NULL;
 	}
 
@@ -640,7 +640,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 		v8::Local<v8::Object> jsObject = jsValue.As<Object>();
 
 		if (JavaObject::isJavaObject(jsObject)) {
-			*isNew = JavaObject::useGlobalRefs ? false : true;
+			*isNew = true;
 			JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
 			return javaObject->getJavaObject();
 		} else {
@@ -650,7 +650,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 				v8::Local<v8::Value> nativeObject = jsObject->GetRealNamedProperty(nativeString);
 				jsObject = nativeObject->ToObject(isolate);
 				if (JavaObject::isJavaObject(jsObject)) {
-					*isNew = JavaObject::useGlobalRefs ? false : true;
+					*isNew = true;
 					JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
 					return javaObject->getJavaObject();
 				}

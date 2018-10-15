@@ -19,7 +19,8 @@ description: |
         <SearchView ns="Ti.UI.Android" platform="android"/>
 
 extends: Titanium.UI.View
-excludes: { methods: [ add ] }
+excludes:
+    methods: [add]
 since: "3.0.2"
 platforms: [android]
 methods:
@@ -63,6 +64,14 @@ properties:
     type: String
     default: no hint text
 
+  - name: hintTextColor
+    summary: Color of hint text that displays when field is empty.
+    description: |
+        Color of hint text that displays when field is empty.
+    type: String
+    default: Default Android theme's hint text color.
+    since: 7.1.0
+
   - name: value
     summary: Value of the search view.
     description: |
@@ -71,13 +80,13 @@ properties:
     
   - name: iconified
     summary: Iconifies or expands the search view
-    description: see [Android Documentation](http://developer.android.com/reference/android/widget/SearchView.html#setIconified(boolean)) for more details.
+    description: see [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconified(boolean)) for more details.
     type: Boolean
     default: undefined
   
   - name: iconifiedByDefault
     summary: Sets the default or resting state of the search view
-    description: see [Android Documentation](http://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
+    description: see [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
     type: Boolean
     default: true
   

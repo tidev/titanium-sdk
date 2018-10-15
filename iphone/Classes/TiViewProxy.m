@@ -172,6 +172,7 @@ static NSArray *touchEventsArray;
 - (void)add:(id)arg
 {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
   TiUIWindowProxy *windowProxy = nil;
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     windowProxy = (TiUIWindowProxy *)self;
@@ -181,18 +182,23 @@ static NSArray *touchEventsArray;
     }
   }
 #endif
+#endif
 
   // allow either an array of arrays or an array of single proxy
   if ([arg isKindOfClass:[NSArray class]]) {
     for (id a in arg) {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
       if (windowProxy.safeAreaViewProxy) {
         [windowProxy.safeAreaViewProxy add:a];
       } else {
 #endif
+#endif
         [self add:a];
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
       }
+#endif
 #endif
     }
     return;
@@ -209,10 +215,12 @@ static NSArray *touchEventsArray;
 #endif
   if ([arg isKindOfClass:[NSDictionary class]]) {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy add:arg];
       return;
     }
+#endif
 #endif
     childView = [arg objectForKey:@"view"];
     position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
@@ -307,6 +315,7 @@ static NSArray *touchEventsArray;
 - (void)replaceAt:(id)args
 {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
@@ -314,6 +323,7 @@ static NSArray *touchEventsArray;
       return;
     }
   }
+#endif
 #endif
 
   ENSURE_SINGLE_ARG(args, NSDictionary);
@@ -330,6 +340,7 @@ static NSArray *touchEventsArray;
 - (void)remove:(id)arg
 {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
@@ -337,6 +348,7 @@ static NSArray *touchEventsArray;
       return;
     }
   }
+#endif
 #endif
 
   ENSURE_UI_THREAD_1_ARG(arg);
@@ -401,6 +413,7 @@ static NSArray *touchEventsArray;
 - (void)removeAllChildren:(id)arg
 {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
@@ -408,6 +421,7 @@ static NSArray *touchEventsArray;
       return;
     }
   }
+#endif
 #endif
 
   ENSURE_UI_THREAD_1_ARG(arg);
@@ -1458,7 +1472,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
     TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
     NSString *basename = [[self pageContext] basename];
-    NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
+    NSString *density = [TiUtils is2xRetina] ? @"high" : @"medium";
 
     if (objectId != nil || className != nil || classNames != nil || [stylesheet basename:basename density:density hasTag:type]) {
       // get classes from proxy
@@ -1517,6 +1531,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 #if IS_XCODE_9
 - (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
 {
+#ifdef USE_TI_UIWINDOW
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     /*
      Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
@@ -1541,6 +1556,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       [self add:windowProxy.safeAreaViewProxy];
     }
   }
+#endif
 }
 #endif
 
@@ -2931,17 +2947,55 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
   if (viewTemplate == nil) {
-    return;
+    return nil;
   }
 
   if (viewTemplate.type != nil) {
-    TiViewProxy *proxy = [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
-    [context.krollContext invokeBlockOnThread:^{
-      [context registerProxy:proxy];
-      [proxy rememberSelf];
-    }];
-    [proxy unarchiveFromTemplate:viewTemplate];
-    return proxy;
+    TiViewProxy *proxy = nil; // A proxy can be constructed either
+
+    // First try a native proxy class...
+    if ([viewTemplate.type hasPrefix:@"Ti."] || [viewTemplate.type hasPrefix:@"Titanium."]) {
+      proxy = (TiViewProxy *)[[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+      [context.krollContext invokeBlockOnThread:^{
+        [context registerProxy:proxy];
+        [proxy rememberSelf];
+      }];
+    } else {
+      // No such class exists, so fall back to trying to load an Alloy widget or CommonJS module
+      // TODO Cache by name? Otherwise it seems to keep trying to load native class repeatedly (and failing) and has to re-eval this below!
+      // TODO eval once and pass in the controller name and props as args?
+      NSString *code = [NSString stringWithFormat:@"var result;"
+                                                   "try {"
+                                                   "  var jsModule = require('/alloy/widgets/%@/controllers/widget');"
+                                                   "  if (!jsModule) {"
+                                                   "    jsModule = require('%@');"
+                                                   "  }"
+                                                   "  if (jsModule) {"
+                                                   "    result = function (parameters) {"
+                                                   "      const obj = new jsModule(parameters);"
+                                                   "      return obj.getView();"
+                                                   "    };"
+                                                   "  }"
+                                                   "} catch (e) {"
+                                                   "  Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
+                                                   "}"
+                                                   "result;",
+                                 viewTemplate.type, viewTemplate.type, viewTemplate.type];
+      id result = [context evalJSAndWait:code];
+      if (result != nil) {
+        KrollCallback *func = (KrollCallback *)result;
+        id contructResult = [func call:@[ viewTemplate.properties ] thisObject:nil]; // TODO: Do some error-handling here if the widget contructor fails?
+        proxy = (TiViewProxy *)contructResult;
+      } else {
+        [self throwException:@"Invalid item template type provided"
+                   subreason:@"The item template type provided cannot be resolved."
+                    location:CODELOCATION];
+      }
+    }
+    if (proxy != nil) {
+      [proxy unarchiveFromTemplate:viewTemplate];
+      return proxy;
+    }
   }
   return nil;
 }

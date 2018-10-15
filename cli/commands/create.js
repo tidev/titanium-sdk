@@ -64,7 +64,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 				return next();
 			}
 
-			const creator = new (require(path.join(creatorDir, filename)))(logger, config, cli); // eslint-disable-line security/detect-non-literal-require
+			const creator = new(require(path.join(creatorDir, filename)))(logger, config, cli); // eslint-disable-line security/detect-non-literal-require
 			this.creators[creator.type] = creator;
 
 			try {
@@ -88,13 +88,13 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 			cli.createHook('create.config', this, function (callback) {
 				var conf = {
 					flags: {
-						'force': {
+						force: {
 							abbr: 'f',
 							desc: __('force project creation even if path already exists')
 						}
 					},
 					options: appc.util.mix({
-						'type': {
+						type: {
 							abbr: 't',
 							default: cli.argv.prompt ? undefined : 'app',
 							desc: __('the type of project to create'),

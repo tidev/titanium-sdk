@@ -255,6 +255,7 @@
   [window setIsManaged:YES];
   [window setTab:self];
   [window setParentOrientationController:self];
+
   //Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
@@ -262,6 +263,10 @@
       args = [NSArray arrayWithObject:args];
     }
     [window open:args];
+
+    TiUIView *view = [window view];
+    TiViewController *controller = (TiViewController *)[window hostingController];
+    [view setFrame:controller.view.bounds];
     return;
   }
 
@@ -499,9 +504,7 @@
 
   UIViewController *rootController = [rootWindow hostingController];
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
-#if IS_XCODE_8
   id badgeColor = [self valueForKey:@"badgeColor"];
-#endif
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
@@ -511,11 +514,9 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-#if IS_XCODE_8
     if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
-#endif
 
     [rootController setTabBarItem:newItem];
     [newItem release];
@@ -581,11 +582,9 @@
     }
   }
 
-#if IS_XCODE_8
   if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
-#endif
 
   [ourItem setBadgeValue:badgeValue];
   [rootController setTabBarItem:ourItem];
@@ -672,12 +671,6 @@
 
 - (void)setActiveIcon:(id)icon
 {
-  if (![UITabBarItem instancesRespondToSelector:
-                         @selector(setFinishedSelectedImage:withFinishedUnselectedImage:)]) {
-    NSLog(@"[WARN] activeIcon is only supported in iOS 5 or above.");
-    return;
-  }
-
   if ([icon isKindOfClass:[NSString class]]) {
     // we might be inside a different context than our tab group and if so, he takes precendence in
     // url resolution
@@ -736,6 +729,25 @@
 #pragma mark - TiOrientationController
 
 @synthesize parentOrientationController;
+
+#if IS_XCODE_9
+- (BOOL)homeIndicatorAutoHide
+{
+  if (rootWindow == nil) {
+    return NO;
+  }
+
+  UINavigationController *nc = [[rootWindow hostingController] navigationController];
+  UIViewController *topVc = [nc topViewController];
+  if ([topVc isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVc proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      return [(id<TiWindowProtocol>)theProxy homeIndicatorAutoHide];
+    }
+  }
+  return NO;
+}
+#endif
 
 - (BOOL)hidesStatusBar
 {

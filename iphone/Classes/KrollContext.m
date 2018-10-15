@@ -743,12 +743,15 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
 }
 
-#ifdef TI_USE_KROLL_THREAD
 - (NSString *)threadName
 {
+#ifdef TI_USE_KROLL_THREAD
   return [NSString stringWithFormat:@"KrollContext<%@>", krollContextId];
-}
+#else
+  return @"KrollContext<MainThread>";
 #endif
+}
+
 - (id)init
 {
   if (self = [super init]) {
@@ -761,10 +764,10 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     queue = [[NSMutableArray alloc] init];
     lock = [[NSRecursiveLock alloc] init];
     [lock setName:[NSString stringWithFormat:@"%@ Lock", [self threadName]]];
+#endif
     timerLock = [[NSRecursiveLock alloc] init];
     NSString *timerName = [NSString stringWithFormat:@"%@ Timer Lock", [self threadName]];
     [timerLock setName:timerName];
-#endif
     stopped = YES;
     KrollContextCount++;
     debugger = NULL;
@@ -850,24 +853,18 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 #endif
 - (void)registerTimer:(id)timer timerId:(double)timerId
 {
-#ifdef TI_USE_KROLL_THREAD
   [timerLock lock];
-#endif
   if (timers == nil) {
     timers = [[NSMutableDictionary alloc] init];
   }
   NSString *key = [[NSNumber numberWithDouble:timerId] stringValue];
   [timers setObject:timer forKey:key];
-#ifdef TI_USE_KROLL_THREAD
   [timerLock unlock];
-#endif
 }
 
 - (void)unregisterTimer:(double)timerId
 {
-#ifdef TI_USE_KROLL_THREAD
   [timerLock lock];
-#endif
   if (timers != nil) {
     NSString *timer = [[NSNumber numberWithDouble:timerId] stringValue];
     KrollTimer *t = [timers objectForKey:timer];
@@ -881,9 +878,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
       RELEASE_TO_NIL(timers);
     }
   }
-#ifdef TI_USE_KROLL_THREAD
   [timerLock unlock];
-#endif
 }
 
 - (void)start
@@ -1098,7 +1093,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     TiObjectRef global = TiContextGetGlobalObject(context);
     TiObjectSetProperty(context, global,
         invokerFnName, invoker,
-        kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+        kTiPropertyAttributeNone,
         NULL);
   }
   TiStringRelease(invokerFnName);
@@ -1123,6 +1118,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (int)forceGarbageCollectNow
 {
 #ifdef USE_JSCORE_FRAMEWORK
+  JSGarbageCollect(context);
   gcrequest = NO;
   loopCount = 0;
 #else
@@ -1410,9 +1406,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   if (delegate != nil && [delegate respondsToSelector:@selector(willStopNewContext:)]) {
     [delegate performSelector:@selector(willStopNewContext:) withObject:self];
   }
-#ifdef TI_USE_KROLL_THREAD
+
   [timerLock lock];
-#endif
   // stop any running timers
   if (timers != nil && [timers count] > 0) {
     for (id timerId in [NSDictionary dictionaryWithDictionary:timers]) {
@@ -1421,9 +1416,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     }
     [timers removeAllObjects];
   }
-#ifdef TI_USE_KROLL_THREAD
   [timerLock unlock];
-#endif
+
   [KrollCallback shutdownContext:self];
 
   // now we can notify listeners we're done

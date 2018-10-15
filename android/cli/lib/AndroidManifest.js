@@ -21,20 +21,20 @@ const appc = require('node-appc'),
 		// according to http://developer.android.com/guide/topics/manifest/meta-data-element.html,
 		// <meta-data> is not intended to be a direct descendent of <application> but it is required
 		// that we support it so that we can pass a Google Maps API key to their library
-		'application': /^(activity|activity-alias|meta-data|provider|receiver|service|uses-library)$/
+		application: /^(activity|activity-alias|meta-data|provider|receiver|service|uses-library)$/
 	},
 
 	tagAttrs = {
-		'application': /^(allowTaskReparenting|allowBackup|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/,
-		'activity': /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|maxRecents|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/,
+		application: /^(allowTaskReparenting|allowBackup|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
+		activity: /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|maxRecents|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/, // eslint-disable-line max-len
 		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
-		'data': /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
+		data: /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
 		'intent-filter': /^(icon|label|priority)$/,
 		'meta-data': /^(name|resource|value)$/,
 		'path-permission': /^(path|pathPrefix|pathPattern|permission|readPermissions|writePermissions)$/,
-		'provider': /^(authorities|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
-		'receiver': /^(enabled|exported|icon|label|name|permission|process)$/,
-		'service': /^(enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
+		provider: /^(authorities|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
+		receiver: /^(enabled|exported|icon|label|name|permission|process)$/,
+		service: /^(enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
 		'uses-library': /^(name|required)$/,
 		'uses-sdk': /^(name|required)$/
 	};

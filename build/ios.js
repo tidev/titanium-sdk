@@ -13,7 +13,8 @@ const exec = require('child_process').exec, // eslint-disable-line security/dete
 	ROOT_DIR = path.join(__dirname, '..'),
 	IOS_ROOT = path.join(ROOT_DIR, 'iphone'),
 	IOS_LIB = path.join(IOS_ROOT, 'lib'),
-	TI_CORE_VERSION = 24;
+	TI_CORE_VERSION = 24,
+	TI_CORE_INTEGRITY = 'sha512-iTyrzaMs6SfPlyEgO70pg8EW08mn211tjpAI5hAmRHQaZGu1ieuBnT8uEkEYcsO8hdzAFbouqPPEaXWcJH5SLA==';
 
 function gunzip(gzFile, destFile, next) {
 	console.log('Gunzipping ' + gzFile + ' to ' + destFile);
@@ -55,7 +56,7 @@ IOS.prototype.fetchLibTiCore = function (next) {
 	console.log('You don\'t seem to have the appropriate thirdparty files. I\'ll fetch them.');
 	console.log('This could take awhile.. Might want to grab a cup of Joe or make fun of Nolan.');
 
-	downloadURL(url, function (err, file) {
+	downloadURL(url, TI_CORE_INTEGRITY, function (err, file) {
 		if (err) {
 			return next(err);
 		}
@@ -94,9 +95,9 @@ IOS.prototype.package = function (packager, next) {
 				// Copy and inject values for special source files
 				function (cb) {
 					const subs = {
-						'__VERSION__': this.sdkVersion,
-						'__TIMESTAMP__': this.timestamp,
-						'__GITHASH__': this.gitHash
+						__VERSION__: this.sdkVersion,
+						__TIMESTAMP__: this.timestamp,
+						__GITHASH__: this.gitHash
 					};
 					copyAndModifyFiles(path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'Classes'), [ 'TopTiModule.m', 'TiApp.m' ], subs, cb);
 				}.bind(this),
@@ -105,7 +106,7 @@ IOS.prototype.package = function (packager, next) {
 				},
 				// copy iphone/package.json, but replace __VERSION__ with our version!
 				function (cb) {
-					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { '__VERSION__': this.sdkVersion }, cb);
+					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { __VERSION__: this.sdkVersion }, cb);
 				}.bind(this),
 				// Copy iphone/Resources/modules/<name>/* to this.zipSDKDir/iphone/modules/<name>/images
 				function (cb) {

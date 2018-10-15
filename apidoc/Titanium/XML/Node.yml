@@ -3,7 +3,7 @@ name: Titanium.XML.Node
 extends: Titanium.Proxy
 summary: A single node in the [Document](Titanium.XML.Document) tree.
 description: |
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247)
+    Implements the [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247)
     on Android and iOS.
 
     Note that on iOS, only [Element](Titanium.XML.Element) nodes are mutable. This means
@@ -216,7 +216,7 @@ properties:
         Note that a node always has an owning document, even if it is not part of the
         document tree.
 
-        For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc)
+        For more on node ownership, see [ownerDocument issues](https://www.w3.org/DOM/faq.html#ownerdoc)
         in the W3C DOM FAQ.
     type: Titanium.XML.Document
     permission: read-only

@@ -18,6 +18,7 @@
 #import "TiHost.h"
 #import "TiPoint.h"
 #import "TiProxy.h"
+#import "TiUIView.h"
 #import "TiUtils.h"
 #import "WebFont.h"
 
@@ -73,14 +74,14 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 + (int)dpi
 {
   if ([TiUtils isIPad]) {
-    if ([TiUtils isRetinaDisplay]) {
+    if ([TiUtils is2xRetina]) {
       return 260;
     }
     return 130;
   } else {
-    if ([TiUtils isRetinaHDDisplay]) {
+    if ([TiUtils is3xRetina]) {
       return 480;
-    } else if ([TiUtils isRetinaDisplay]) {
+    } else if ([TiUtils is2xRetina]) {
       return 320;
     }
     return 160;
@@ -95,28 +96,55 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isRetinaiPhone6
 {
+  return [TiUtils isRetina4_7Inch];
+}
+
++ (BOOL)isRetinaiPhone6Plus
+{
+  return [TiUtils isRetina5_5Inch];
+}
+
++ (BOOL)isRetinaiPhoneX
+{
+  return [TiUtils isSuperRetina5_8Inch];
+}
+
++ (BOOL)isRetina4_7Inch
+{
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
   return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
 }
 
-+ (BOOL)isRetinaiPhone6Plus
++ (BOOL)isRetina5_5Inch
 {
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
   return (mainScreenBoundsSize.height == 736 || mainScreenBoundsSize.width == 736);
 }
 
-+ (BOOL)isRetinaiPhoneX
++ (BOOL)isSuperRetina5_8Inch
 {
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
   return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
 }
 
-+ (BOOL)isRetinaHDDisplay
++ (BOOL)isRetina6_1Inch
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && ![TiUtils is3xRetina];
+}
+
++ (BOOL)isSuperRetina6_5Inch
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && [TiUtils is3xRetina];
+}
+
++ (BOOL)is3xRetina
 {
   return [UIScreen mainScreen].scale == 3.0;
 }
 
-+ (BOOL)isRetinaDisplay
++ (BOOL)is2xRetina
 {
   // since we call this alot, cache it
   static CGFloat scale = 0.0;
@@ -135,7 +163,17 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
     }
     scale = [[UIScreen mainScreen] scale];
   }
-  return scale > 1.0;
+  return scale > 1.0; // TODO: In the future (next major), this should be == 2.0 which is a breaking change
+}
+
++ (BOOL)isRetinaHDDisplay
+{
+  return [TiUtils is3xRetina];
+}
+
++ (BOOL)isRetinaDisplay
+{
+  return [TiUtils is2xRetina];
 }
 
 + (BOOL)isIOS4_2OrGreater
@@ -163,6 +201,11 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return [TiUtils isIOSVersionOrGreater:@"8.0"];
 }
 
++ (BOOL)isIOS82rGreater
+{
+  return [TiUtils isIOSVersionOrGreater:@"8.2"];
+}
+
 + (BOOL)isIOS9OrGreater
 {
   return [TiUtils isIOSVersionOrGreater:@"9.0"];
@@ -180,25 +223,22 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isIOS10OrGreater
 {
-#if IS_XCODE_8
   return [TiUtils isIOSVersionOrGreater:@"10.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOS11OrGreater
 {
-#if IS_XCODE_9
   return [TiUtils isIOSVersionOrGreater:@"11.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOSVersionOrGreater:(NSString *)version
 {
   return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
+}
+
++ (BOOL)isIOSVersionLower:(NSString *)version
+{
+  return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
 }
 
 + (BOOL)isIPad
@@ -461,6 +501,10 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (NSNumber *)numberFromObject:(id)obj
 {
+  if (obj == nil) {
+    return nil;
+  }
+
   if ([obj isKindOfClass:[NSNumber class]]) {
     return obj;
   }
@@ -588,7 +632,9 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   case TiDimensionTypeAuto:
     return @"auto";
   case TiDimensionTypeDip:
-    return [NSNumber numberWithFloat:dimension.value];
+    return @(dimension.value);
+  case TiDimensionTypePercent:
+    return [NSString stringWithFormat:@"%li%%", (long)(dimension.value * 100)];
   default: {
     break;
   }
@@ -762,14 +808,14 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
   NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
-  if ([TiUtils isRetinaHDDisplay]) {
-    if ([TiUtils isRetinaiPhoneX]) {
+  if ([TiUtils is3xRetina]) {
+    if ([TiUtils isSuperRetina5_8Inch]) {
       // -2436h@3x iPhone X specific
       NSString *testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
         return [NSURL fileURLWithPath:testpath];
       }
-    } else if ([TiUtils isRetinaiPhone6]) {
+    } else if ([TiUtils isRetina4_7Inch]) {
       // -736h@3x iPhone 6/7 Plus specific
       NSString *testpath = [NSString stringWithFormat:@"%@-736h@3x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
@@ -783,8 +829,8 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
       return [NSURL fileURLWithPath:testpath];
     }
   }
-  if ([TiUtils isRetinaDisplay]) {
-    if ([TiUtils isRetinaiPhone6]) {
+  if ([TiUtils is2xRetina]) {
+    if ([TiUtils isRetina4_7Inch]) {
       // -667h@2x iPhone 6/7 specific
       NSString *testpath = [NSString stringWithFormat:@"%@-667h@2x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
@@ -1268,7 +1314,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (NSTextAlignment)textAlignmentValue:(id)alignment
 {
-  NSTextAlignment align = NSTextAlignmentNatural; // Default for iOS 6+
+  NSTextAlignment align = NSTextAlignmentNatural;
 
   if ([alignment isKindOfClass:[NSString class]]) {
     if ([alignment isEqualToString:@"left"]) {
@@ -1394,6 +1440,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
   [view setCenter:newCenter];
 }
 
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds
+{
+  ApplyConstraintToViewWithBounds([proxy layoutProperties], view, bounds);
+}
+
 + (CGRect)viewPositionRect:(UIView *)view
 {
 #if USEFRAME
@@ -1497,7 +1548,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (NSUInteger)extendedEdgesFromProp:(id)prop
 {
   if (![prop isKindOfClass:[NSArray class]]) {
-    return 0;
+    return 0; // TODO: Change the default value in SDK 8+ to match native iOS behavior
   }
 
   NSUInteger result = 0;
@@ -1957,6 +2008,13 @@ If the new path starts with / and the base url is app://..., we have to massage 
     return nil;
   }
 
+  // TIMOB-25785: Try to repair invalid JSON objects for backwards
+  // compatibility. Eventually remove later once developers are sensitized
+  if (![NSJSONSerialization isValidJSONObject:value]) {
+    DebugLog(@"[WARN] Cannot serialize object, trying to repair ...");
+    value = [TiUtils stripInvalidJSONPayload:value];
+  }
+
   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value
                                                      options:kNilOptions
                                                        error:error];
@@ -2045,6 +2103,49 @@ If the new path starts with / and the base url is app://..., we have to massage 
   UIGraphicsEndImageContext();
 
   return image;
+}
+
++ (id)stripInvalidJSONPayload:(id)jsonPayload
+{
+  if ([jsonPayload isKindOfClass:[NSDictionary class]]) {
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    for (NSString *key in [jsonPayload allKeys]) {
+      id value = [jsonPayload valueForKey:key];
+      if ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSDictionary class]]) {
+        value = [TiUtils stripInvalidJSONPayload:value];
+      }
+      if ([self isSupportedFragment:value]) {
+        [result setObject:value forKey:key];
+      } else {
+        DebugLog(@"[WARN] Found invalid attribute \"%@\" that cannot be serialized, skipping it ...", key)
+      }
+    }
+    return [result autorelease];
+  } else if ([jsonPayload isKindOfClass:[NSArray class]]) {
+    NSMutableArray *result = [NSMutableArray new];
+    for (id value in [jsonPayload allObjects]) {
+      if ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSDictionary class]]) {
+        value = [TiUtils stripInvalidJSONPayload:value];
+      }
+      if ([self isSupportedFragment:value]) {
+        [result addObject:value];
+      } else {
+        DebugLog(@"[WARN] Found invalid value \"%@\" that cannot be serialized, skipping it ...", value);
+      }
+    }
+    return [result autorelease];
+  } else {
+    DebugLog(@"[ERROR] Unhandled JSON type: %@", NSStringFromClass([jsonPayload class]));
+  }
+
+  return jsonPayload;
+}
+
++ (BOOL)isSupportedFragment:(id)fragment
+{
+  return ([fragment isKindOfClass:[NSDictionary class]] || [fragment isKindOfClass:[NSArray class]] ||
+      [fragment isKindOfClass:[NSString class]] || [fragment isKindOfClass:[NSNumber class]] ||
+      [fragment isKindOfClass:[NSDate class]] || [fragment isKindOfClass:[NSNull class]] || fragment == nil);
 }
 
 @end

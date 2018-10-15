@@ -220,7 +220,7 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 			manualLocationProviders.remove(providerName);
 
 			if (manualMode && (geolocationModule.numLocationListeners > 0)) {
-				tiLocation.locationManager.removeUpdates(existingLocationProvider);
+				geolocationModule.unregisterLocationProvider(existingLocationProvider);
 			}
 
 			manualLocationProviders.put(providerName, locationProvider);
@@ -257,7 +257,7 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 	{
 		manualLocationProviders.remove(locationProvider.getName());
 		if (manualMode && (geolocationModule.numLocationListeners > 0)) {
-			tiLocation.locationManager.removeUpdates(locationProvider);
+			geolocationModule.unregisterLocationProvider(locationProvider);
 		}
 	}
 

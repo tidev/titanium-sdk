@@ -15,7 +15,7 @@ description: |
     but it lets you use new ArrowDB APIs as soon as they are available.
     
     For a more detailed overview of ArrowDB and how to configure an application to use it, refer to the
-    [Integrating with Appcelerator Cloud Services](http://docs.appcelerator.com/platform/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services).
+    [Integrate with Mobile Backend Services](https://docs.appcelerator.com/platform/latest/#!/guide/Integrate_with_Mobile_Backend_Services).
         
     #### Using the Modules.Cloud Module
     
@@ -46,7 +46,7 @@ description: |
     #### Invoking ArrowDB REST APIs Directly with sendRequest()
 
     The `Modules.Cloud.sendRequest` method lets you directly invoke ArrowDB REST APIs. The following example,
-    equivalent to the previous one, invokes the [users/login.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/Users-method-login) 
+    equivalent to the previous one, invokes the [users/login.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/Users-method-login) 
     method directly to login a user.
 
         Cloud.sendRequest({
@@ -97,12 +97,7 @@ description: |
     By default, Ti.Cloud always uses SSL for communicating with the ArrowDB servers. This behavior can be overridden
     by setting the URLs with their non-SSL counterpart.
 
-        <property name="acs-base-url" type="string">http://api.cloud.appcelerator.com</property>
-
-    #### Pre 3.1.1 Release behavior
-    Before Release 3.1.1 specify URLs without the protocol:
-
-        <property name="acs-base-url" type="string">api.cloud.appcelerator.com</property>
+        <property name="acs-base-url" type="string">https://api.cloud.appcelerator.com</property>
 
     To disable SSL, add this line to the application code:
 
@@ -144,7 +139,7 @@ methods:
     summary: Makes a REST API call to the ArrowDB server.
     description: |
             This method lets you easily call ArrowDB REST APIs directly. You provide the REST API endpoint 
-            relative to the ArrowDB base API URL ([users/login.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/Users-method-login)
+            relative to the ArrowDB base API URL ([users/login.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/Users-method-login)
             for example), the appropriate HTTP method type (`GET`, `POST`, or `DELETE`), and the data
             to send with the request.
 
@@ -156,9 +151,9 @@ methods:
 
             If the method call completed successfully, the `CloudResponse` object contains an additonal object 
             for the actual response payload. The name and type of this object depends on the REST
-            endpoint that was invoked. The [ArrowDB and Push API documentation](http://docs.appcelerator.com/arrowdb/latest/#!/api) 
-            specifies the return type for each REST endpoint. For example, the [users/login.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/Users-method-login)
-            endpoint returns a single element array named `users` that contains the [Users](http://docs.appcelerator.com/arrowdb/latest/#!/api/Users) 
+            endpoint that was invoked. The [ArrowDB and Push API documentation](https://docs.appcelerator.com/arrowdb/latest/#!/api) 
+            specifies the return type for each REST endpoint. For example, the [users/login.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/Users-method-login)
+            endpoint returns a single element array named `users` that contains the [Users](https://docs.appcelerator.com/arrowdb/latest/#!/api/Users) 
             object for the logged-in user.
 
             For example:
@@ -221,19 +216,19 @@ methods:
             So to use this feature by default, you will need to get api.cloud.appcelerator.der by simply executing these 
             2 commands:
 
-            echo -n | openssl s_client -connect api.cloud.appcelerator.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > api.cloud.appcelerator.com.crt
-            openssl x509 -in api.cloud.appcelerator.com.crt -outform der -out api.cloud.appcelerator.com.der
+                echo -n | openssl s_client -connect api.cloud.appcelerator.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > api.cloud.appcelerator.com.crt
+                openssl x509 -in api.cloud.appcelerator.com.crt -outform der -out api.cloud.appcelerator.com.der
 
             For virtual private cloud (VPC) deployments, you can specify a different URL.
             After generating the X509 certifcate file in der format, you have to place it in the Resources folder in your titanium project.
             Before making any Cloud request, it is important to create security manager first, as shown:
 
-            Cloud.createX509CertificatePinningSecurityManager([
-                {
-                    url: "https://api.cloud.appcelerator.com",
-                    serverCertificate: "api.cloud.appcelerator.com.der"
-                }
-            ]);
+                Cloud.createX509CertificatePinningSecurityManager([
+                    {
+                        url: "https://api.cloud.appcelerator.com",
+                        serverCertificate: "api.cloud.appcelerator.com.der"
+                    }
+                ]);
 
     parameters:
       - name: params
@@ -282,7 +277,7 @@ properties:
             To disable SSL, set the `acs-base-url` and `acs-authbase-url` properties in the `tiapp.xml` using the HTTP URL.
             To enable SSL, use the HTTPS URL.
 
-                <property name="acs-base-url" type="string">http://api.cloud.appcelerator.com</property>
+                <property name="acs-base-url" type="string">https://api.cloud.appcelerator.com</property>
 
   - name: sessionId
     since: "2.1.2"

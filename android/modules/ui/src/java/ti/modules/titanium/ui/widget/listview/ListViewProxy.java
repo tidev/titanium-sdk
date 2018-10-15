@@ -28,6 +28,7 @@ import android.os.Message;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_CAN_SCROLL,
 		TiC.PROPERTY_HEADER_TITLE,
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
@@ -496,24 +497,6 @@ public class ListViewProxy extends TiViewProxy
 				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_SECTIONS), sectionsArray);
 			}
 		}
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.setProperty
-	public void setCanScroll(boolean canScroll)
-	// clang-format on
-	{
-		setProperty(TiC.PROPERTY_CAN_SCROLL, canScroll);
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.getProperty
-	public boolean getCanScroll()
-	// clang-format on
-	{
-		return (Boolean) getProperty(TiC.PROPERTY_CAN_SCROLL);
 	}
 
 	private ListSectionProxy[] handleSections()

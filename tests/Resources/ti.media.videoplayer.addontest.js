@@ -8,19 +8,29 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe('Titanium.Media.VideoPlayer', function () {
-	it.windowsMissing('VIDEO_PLAYBACK_* constants', function () {
-		should(Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED).eql(0);
-		should(Ti.Media.VIDEO_PLAYBACK_STATE_PLAYING).eql(1);
-		should(Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED).eql(2);
-		should(Ti.Media.VIDEO_PLAYBACK_STATE_INTERRUPTED).eql(3);
-		
-		if (utilities.isAndroid()) {
-			should(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD).eql(4);
-			should(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD).eql(5);
-		}
+
+	it.ios('playableDuration in milliseconds', function (finish) {
+		var win = Ti.UI.createWindow();
+		var videoPlayer = Ti.Media.createVideoPlayer({
+			url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+			autoplay: true,
+			showsControls: false,
+			height: 200
+		});
+
+		this.timeout(10000);
+
+		videoPlayer.addEventListener('durationavailable', function (e) {
+			e.duration.should.be.above(1000);
+			videoPlayer.duration.should.be.above(1000);
+			videoPlayer.playableDuration.should.be.above(1000);
+			finish();
+		});
+
+		win.add(videoPlayer);
+		win.open();
 	});
 });

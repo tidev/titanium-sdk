@@ -14,15 +14,19 @@
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
+	"v8": {
+		"version": "6.2.414.36",
+		"mode": "release"
+	},
 	"minSDKVersion": "16",
-	"compileSDKVersion": "26",
+	"compileSDKVersion": "28",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=25.x",
-		"android build tools": "26.x",
-		"android platform tools": "26.x",
+		"android sdk": ">=23.x <=27.x",
+		"android build tools": ">=25.x <=28.x",
+		"android platform tools": "28.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r11c <=r15c",
-		"node": ">=4.0 <=7.x",
+		"android ndk": ">=r11c <=r17b",
+		"node": ">=4.0 <=8.x",
 		"java": ">=1.8.x"
 	},
 	"repository": {

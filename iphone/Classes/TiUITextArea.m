@@ -90,21 +90,17 @@
 {
   if (textWidgetView == nil) {
     TiUITextViewImpl *textViewImpl = [[TiUITextViewImpl alloc] initWithFrame:CGRectZero];
-    textViewImpl.delaysContentTouches = NO;
     [textViewImpl setTouchHandler:self];
+    textViewImpl.delaysContentTouches = NO;
     textViewImpl.delegate = self;
+    textViewImpl.text = @"";
+
     [self addSubview:textViewImpl];
     [textViewImpl setContentInset:UIEdgeInsetsZero];
     self.clipsToBounds = YES;
 
     lastSelectedRange.location = 0;
     lastSelectedRange.length = 0;
-    //Temporarily setting text to a blank space, to set the editable property [TIMOB-10295]
-    //This is a workaround for a Apple Bug.
-    textViewImpl.text = @" ";
-    textViewImpl.editable = YES;
-
-    textViewImpl.text = @""; //Setting TextArea text to empty string
 
     textWidgetView = textViewImpl;
   }
@@ -364,7 +360,6 @@
     }
   }
 
-  [(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
   return TRUE;
 }
 

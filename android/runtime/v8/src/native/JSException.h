@@ -11,6 +11,8 @@
 #include <jni.h>
 #include <v8.h>
 
+#define MAX_STACK 10
+
 #define THROW(isolate, msg) \
 	isolate->ThrowException(v8::String::NewFromUtf8(isolate, msg))
 

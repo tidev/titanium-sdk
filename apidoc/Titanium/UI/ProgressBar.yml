@@ -33,27 +33,10 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [android, iphone, ipad]
-
-methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `ProgressBar` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.ProgressBar.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 properties:
-
   - name: color
     summary: Color of the progress bar message, as a color name or hex triplet.
     description: |
@@ -67,27 +50,34 @@ properties:
   - name: max
     summary: Maximum value of the progress bar.
     type: Number
+
   - name: message
     summary: Progress bar text.
     type: String
+
   - name: tintColor
     summary: The color shown for the portion of the progress bar that is filled.
+
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: String
     platforms: [iphone, ipad]
     since: "5.2.0"
+
   - name: min
     summary: Minimum value of the progress bar.
     type: Number
+
   - name: style
     summary: Style of the progress bar.
     description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
     type: Number
     platforms: [iphone,ipad]
+
   - name: value
     summary: Current value of the progress bar.
     type: Number
+
 examples:
   - title: Simple Progress Bar
     example: |

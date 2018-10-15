@@ -6,6 +6,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 
 #import "KrollBridge.h"
 #import "TiHost.h"
@@ -28,10 +29,10 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  @see app
  */
-@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate> {
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate> {
   UIWindow *window;
   UIImageView *loadView;
-  UIImageView *splashScreenImage;
+  UIView *splashScreenView;
   BOOL loaded;
 
   TiContextGroupRef contextGroup;
@@ -50,12 +51,17 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   NSString *userAgent;
   NSString *remoteDeviceUUID;
 
-  id remoteNotificationDelegate;
   NSDictionary *remoteNotification;
-  NSMutableDictionary *pendingCompletionHandlers;
-  NSMutableDictionary *pendingReplyHandlers;
-  NSMutableDictionary *backgroundTransferCompletionHandlers;
-  NSMutableDictionary *queuedBootEvents;
+
+  NSMutableDictionary<NSString *, id> *pendingCompletionHandlers;
+  NSMutableDictionary<NSString *, id> *pendingReplyHandlers;
+  NSMutableDictionary<NSString *, id> *backgroundTransferCompletionHandlers;
+  NSMutableDictionary<NSString *, id> *queuedBootEvents;
+  NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, id> *> *uploadTaskResponses;
+
+  NSMutableDictionary<NSString *, NSOrderedSet<id> *> *_queuedApplicationSelectors;
+  NSMutableSet<id> *_applicationDelegates;
+
   BOOL appBooted;
 
   NSString *sessionId;
@@ -75,8 +81,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  Convenience method to access the application's primary window
  */
 @property (nonatomic, retain) IBOutlet UIWindow *window;
-
-@property (nonatomic, assign) id remoteNotificationDelegate;
 
 @property (nonatomic, readonly) NSMutableDictionary *pendingCompletionHandlers;
 @property (nonatomic, readonly) NSMutableDictionary *backgroundTransferCompletionHandlers;
@@ -128,6 +132,10 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (UIView *)topMostView;
 
 - (void)attachXHRBridgeIfRequired;
+
+- (void)registerApplicationDelegate:(id)applicationDelegate;
+
+- (void)unregisterApplicationDelegate:(id)applicationDelegate;
 
 /**
  Returns application launch options
@@ -210,6 +218,16 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (NSString *)systemUserAgent;
 
 /**
+ Returns a dictionary containing the native notification information (iOS 10 and later).
+ */
++ (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier:(NSString *)identifier;
+
+/**
+ Returns a dictionary containing the native notification information.
+ */
++ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier;
+
+/**
  Returns or set the user agent string to use for network requests.
  */
 @property (nonatomic, retain) NSString *userAgent;
@@ -222,7 +240,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (void)registerBackgroundService:(TiProxy *)proxy;
 - (void)unregisterBackgroundService:(TiProxy *)proxy;
 - (void)stopBackgroundService:(TiProxy *)proxy;
-- (void)completionHandler:(id)key withResult:(int)result;
-- (void)completionHandlerForBackgroundTransfer:(id)key;
+- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result removeAfterExecution:(BOOL)removeAfterExecution;
+- (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key;
 - (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo;
 @end

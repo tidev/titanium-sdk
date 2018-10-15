@@ -19,6 +19,7 @@ public:
 	static Persistent<Context> globalContext;
 	static Persistent<Object> krollGlobalObject;
 	static Persistent<Array> moduleContexts;
+	
 	static Isolate* v8_isolate;
 	static Platform* platform;
 

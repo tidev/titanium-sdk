@@ -311,13 +311,13 @@
       return image;
     }
   }
+
   *imageOrientation = UIDeviceOrientationPortrait;
   *imageIdiom = UIUserInterfaceIdiomPhone;
-  // Default
   image = nil;
 
-  // iPhone X
-  if ([TiUtils isRetinaiPhoneX]) {
+  // iPhone X / iPhone XS
+  if ([TiUtils isSuperRetina5_8Inch]) {
     if (UIDeviceOrientationIsPortrait(orientation)) {
       // Portrait
       image = [UIImage imageNamed:@"LaunchImage-1100-Portrait-2436h@3x"];
@@ -331,8 +331,38 @@
     }
   }
 
+  // iPhone XR
+  if ([TiUtils isRetina6_1Inch]) {
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+      // Portrait
+      image = [UIImage imageNamed:@"LaunchImage-1200-Portrait-1792h"];
+    } else if (UIDeviceOrientationIsLandscape(orientation)) {
+      // Landscape
+      image = [UIImage imageNamed:@"LaunchImage-1200-Landscape-1792h"];
+    }
+    if (image != nil) {
+      *imageOrientation = orientation;
+      return image;
+    }
+  }
+
+  // iPhone XS Max
+  if ([TiUtils isSuperRetina6_5Inch]) {
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+      // Portrait
+      image = [UIImage imageNamed:@"LaunchImage-1200-Portrait-2688h"];
+    } else if (UIDeviceOrientationIsLandscape(orientation)) {
+      // Landscape
+      image = [UIImage imageNamed:@"LaunchImage-1200-Landscape-2688h"];
+    }
+    if (image != nil) {
+      *imageOrientation = orientation;
+      return image;
+    }
+  }
+
   // iPhone 6 Plus
-  if ([TiUtils isRetinaiPhone6Plus]) {
+  if ([TiUtils isRetina5_5Inch]) {
     if (UIDeviceOrientationIsPortrait(orientation)) {
       image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
     } else if (UIDeviceOrientationIsLandscape(orientation)) {
@@ -345,7 +375,7 @@
   }
 
   // iPhone 6
-  if ([TiUtils isRetinaiPhone6]) {
+  if ([TiUtils isRetina4_7Inch]) {
     image = [UIImage imageNamed:@"LaunchImage-800-667h"];
     if (image != nil) {
       return image;
@@ -780,7 +810,7 @@
     topVC = [topVC presentingViewController];
   }
 
-  if ([topVC isKindOfClass:[TiErrorController class]]) {
+  if ([topVC isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
     return;
   }
@@ -788,7 +818,7 @@
   if ([topVC isKindOfClass:[UIAlertController class]]) {
     if (((UIAlertController *)topVC).preferredStyle == UIAlertControllerStyleAlert) {
       trulyAnimated = NO;
-      if (![theController isKindOfClass:[TiErrorController class]]) {
+      if (![theController isKindOfClass:[TiErrorNavigationController class]]) {
         DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
         return;
       }
@@ -1178,8 +1208,15 @@
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    [self rotateHostingViewToOrientation:target
-                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils isIOSVersionLower:@"12.0"]) {
+      forcingStatusBarOrientation = YES;
+      [[UIApplication sharedApplication] setStatusBarOrientation:target animated:NO];
+      [UIViewController attemptRotationToDeviceOrientation];
+      forcingStatusBarOrientation = NO;
+    } else {
+      [self rotateHostingViewToOrientation:target
+                           fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    }
     forcingRotation = NO;
 #endif
   } else {
@@ -1341,6 +1378,12 @@
     [self refreshOrientationWithDuration:nil];
     [self updateStatusBar];
   }
+
+#if IS_XCODE_9
+  if ([TiUtils isIOS11OrGreater]) {
+    [self setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1468,6 +1511,18 @@
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
+
+#pragma mark - HomeIndicatorAutoHidden
+
+#if IS_XCODE_9
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+  if ([containedWindows count] > 0) {
+    return [[containedWindows lastObject] homeIndicatorAutoHide];
+  }
+  return NO;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden

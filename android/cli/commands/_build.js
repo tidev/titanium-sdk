@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2012-2013 Chris Talkington, contributors.
  * {@link https://github.com/ctalkington/node-archiver}
@@ -39,6 +39,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	SymbolWriter = require('appc-aar-tools').SymbolWriter,
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
+	url = require('url'),
 	util = require('util'),
 	wrench = require('wrench'),
 
@@ -46,7 +47,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	i18nLib = appc.i18n(__dirname),
 	__ = i18nLib.__,
 	__n = i18nLib.__n,
-	version = appc.version;
+	version = appc.version,
+	V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -67,8 +69,8 @@ function AndroidBuilder() {
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 
 	this.deployTypes = {
-		'emulator': 'development',
-		'device': 'test',
+		emulator: 'development',
+		device: 'test',
 		'dist-playstore': 'production'
 	};
 
@@ -124,7 +126,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_CONFIG_SETTING_NOT_INSTALLED');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_NOT_SUPPORTED');
 
 					if (!cli.argv.prompt) {
 						// check that the Android SDK is found and sane
@@ -261,7 +265,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		cli.createHook('build.android.config', this, function (callback) {
 			const conf = {
 				flags: {
-					'launch': {
+					launch: {
 						desc: __('disable launching the app after installing'),
 						default: true,
 						hideDefault: true,
@@ -269,7 +273,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					}
 				},
 				options: {
-					'alias': {
+					alias: {
 						abbr: 'L',
 						desc: __('the alias for the keystore'),
 						hint: 'alias',
@@ -676,7 +680,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						}
 					},
-					'keystore': {
+					keystore: {
 						abbr: 'K',
 						callback: function () {
 							_t.conf.options['alias'].required = true;
@@ -859,7 +863,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						}
 					},
-					'target': {
+					target: {
 						abbr: 'T',
 						callback: function (value) {
 							// as soon as we know the target, toggle required options for validation
@@ -878,7 +882,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						required: true,
 						values: _t.targets
 					},
-					'sigalg': {
+					sigalg: {
 						desc: __('the type of a digital signature algorithm. only used when overriding keystore signing algorithm'),
 						hint: __('signing'),
 						order: 170,
@@ -913,6 +917,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
+
+	// Transpilation details
+	this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+	this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
+	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
+	const v8Version = this.packageJson.v8.version;
+	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+	this.chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -1258,6 +1270,12 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// determine the abis to support
 	this.abis = this.validABIs;
+	if (this.deployType === 'production') {
+		// by default, remove 'x86' from production builds
+		// 'x86' devices are scarce; this is predominantly used for emulators
+		// we can save 16MB+ by removing this from release builds
+		this.abis.splice(this.abis.indexOf('x86'), 1);
+	}
 	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
@@ -1630,13 +1648,9 @@ process.exit(1);
 					for (let dependency of timodule.modules) {
 						if (!dependency.platform || /^android$/.test(dependency.platform)) {
 
-							let missing = true;
-							for (let module of this.nativeLibModules) {
-								if (module.id === dependency.id) {
-									missing = false;
-									break;
-								}
-							}
+							let missing = !this.nativeLibModules.some(function (mod) {
+								return mod.id === dependency.id;
+							});
 							if (missing) {
 								dependency.depended = module;
 
@@ -1738,6 +1752,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
+		'copyGradleTemplate',
 		'generateJavaFiles',
 		'generateAidl',
 
@@ -1805,7 +1820,6 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
@@ -2313,6 +2327,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableResources = {},
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
+		jsBootstrapFiles = [],
 		htmlJsFiles = this.htmlJsFiles = {},
 		symlinkFiles = process.platform !== 'win32' && this.config.get('android.symlinkResources', true),
 		_t = this;
@@ -2504,6 +2519,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
 							jsFiles[id] = from;
+
+							// JS files that end with "*.bootstrap.js" are loaded before the "app.js".
+							// Add it as a require() compatible string to bootstrap array if it's a match.
+							const bootstrapPath = id.substr(0, id.length - 3);  // Remove the ".js" extension.
+							if (bootstrapPath.endsWith('.bootstrap')) {
+								jsBootstrapFiles.push(bootstrapPath);
+							}
 						}
 
 						next();
@@ -2545,8 +2567,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	const tasks = [
-		// first task is to copy all files in the Resources directory, but ignore
-		// any directory that is the name of a known platform
+		// First copy all of the Titanium SDK's core JS files shared by all platforms.
+		function (cb) {
+			const src = path.join(this.titaniumSdkPath, 'common', 'Resources');
+			warnDupeDrawableFolders.call(this, src);
+			_t.logger.debug(__('Copying %s', src.cyan));
+			copyDir.call(this, {
+				src: src,
+				dest: this.buildBinAssetsResourcesDir,
+				ignoreRootDirs: ti.allPlatformNames
+			}, cb);
+		},
+
+		// Next, copy all files in the project's Resources directory,
+		// but ignore any directory that is the name of a known platform.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources');
 			warnDupeDrawableFolders.call(this, src);
@@ -2558,7 +2592,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			}, cb);
 		},
 
-		// next copy all files from the Android specific Resources directory
+		// Last, copy all files from the Android specific Resources directory.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources', 'android');
 			warnDupeDrawableFolders.call(this, src);
@@ -2697,28 +2731,61 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				try {
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-						// parse the AST
-						const r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+						const originalContents = fs.readFileSync(from).toString();
+						// Populate an initial object to pass in. This won't have modified
+						// contents or symbols populated, which it used to at this point,
+						// but I don't think any plugin relied on that behavior, while
+						// hyperloop would clobber the contents if we didn't do the mods
+						// inside the compile hook.
+						const r = {
+							original: originalContents,
+							contents: originalContents,
+							symbols: []
+						};
+						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+							// Read the possibly modified file contents
+							const source = r.contents;
+							// Analyze Ti API usage, possibly also minify/transpile
+							try {
+								const modified = jsanalyze.analyzeJs(source, {
+									filename: from,
+									minify: this.minifyJS,
+									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
+									targets: {
+										chrome: this.chromeVersion
+									},
+									resourcesDir: this.buildBinAssetsResourcesDir,
+									logger: this.logger
+								});
+								const newContents = modified.contents;
 
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
+								// we want to sort by the "to" filename so that we correctly handle file overwriting
+								this.tiSymbols[to] = modified.symbols;
 
-						const dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+								const dir = path.dirname(to);
+								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-						if (this.minifyJS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-
-							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-								fs.writeFile(to, r.contents, cb2);
-							})(r, from, to, cb);
-						} else if (symlinkFiles) {
-							copyFile.call(this, from, to, cb);
-						} else {
-							// we've already read in the file, so just write the original contents
-							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-							fs.writeFile(to, r.contents, cb);
-						}
+								if (symlinkFiles && newContents === originalContents) {
+									this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+									copyFile.call(this, from, to, cb2);
+								} else {
+									// TODO If dest file exists and contents match, don't do anything?
+									this.logger.debug(__('Writing modified contents to %s', to.cyan));
+									// if it exists, wipe it first, as it may be a symlink back to the original, and updating that would be BAD.
+									// See TIMOB-25875
+									fs.existsSync(to) && fs.unlinkSync(to);
+									fs.writeFile(to, newContents, cb2);
+								}
+							} catch (err) {
+								err.message.split('\n').forEach(this.logger.error);
+								if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
+									this.logger.log(err.codeFrame);
+								}
+								this.logger.log();
+								process.exit(1);
+							}
+						})(r, from, to, cb);
 					})(from, to, done);
 				} catch (ex) {
 					ex.message.split('\n').forEach(this.logger.error);
@@ -2728,7 +2795,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			};
 		}), function () {
 			// write the properties file
-			const appPropsFile = path.join(this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir, '_app_props_.json'),
+			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
+				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
 				props = {};
 			Object.keys(this.tiapp.properties).forEach(function (prop) {
 				props[prop] = this.tiapp.properties[prop].value;
@@ -2739,6 +2807,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			);
 			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
 			delete this.lastBuildFiles[appPropsFile];
+
+			// Write the "bootstrap.json" file, even if the bootstrap array is empty.
+			// Note: An empty array indicates the app has no bootstrap files.
+			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
+				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
+			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
 
 			if (!jsFilesToEncrypt.length) {
 				// nothing to encrypt, continue
@@ -2791,7 +2867,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			const opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
-						'JAVA_HOME': this.jdkInfo.home
+						JAVA_HOME: this.jdkInfo.home
 					})
 				},
 				fatal = function fatal(err) {
@@ -3006,11 +3082,11 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 	function createModuleDescriptor(namespace) {
 		var results = {
-				'api_name': '',
-				'class_name': '',
-				'bindings': tiNamespaces[namespace],
-				'external_child_modules': [],
-				'on_app_create': null
+				api_name: '',
+				class_name: '',
+				bindings: tiNamespaces[namespace],
+				external_child_modules: [],
+				on_app_create: null
 			},
 			moduleBindingKeys = Object.keys(moduleBindings),
 			len = moduleBindingKeys.length,
@@ -3233,6 +3309,72 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	}, this);
 
 	next();
+};
+
+AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) {
+	let proxyUrl;
+
+	async.series([
+		function (done) {
+			// Fetch proxy server information, if configured.
+			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], { shell: true, windowsHide: true }, function (code, out) {
+				if (!code && out && (out.length > 0)) {
+					try {
+						proxyUrl = url.parse(out.trim());
+					} catch (ex) {
+						this.logger.warn('Failed to parse configured "proxerServer" URL. Reason: ' + ex.message);
+					}
+				}
+				done();
+			}.bind(this));
+		}.bind(this),
+		function (done) {
+			// Copy Titanium's ProGuard gradle script to the app's build directory.
+			afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
+
+			// Copy the gradle template directory tree to the app's build directory.
+			// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
+			//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
+			afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
+				logger: this.logger.debug,
+				preserve: false
+			});
+			fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
+			fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
+
+			// Set up a "gradle.properties" file in the build directory.
+			let propertyArray = [];
+			const propertiesFilePath = path.join(this.buildDir, 'gradle.properties');
+			if (proxyUrl) {
+				if (proxyUrl.hostname) {
+					propertyArray.push('systemProp.http.proxyHost=' + proxyUrl.hostname);
+					propertyArray.push('systemProp.https.proxyHost=' + proxyUrl.hostname);
+				}
+				if (proxyUrl.port) {
+					propertyArray.push('systemProp.http.proxyPort=' + proxyUrl.port);
+					propertyArray.push('systemProp.https.proxyPort=' + proxyUrl.port);
+				}
+				if (proxyUrl.auth) {
+					const authArray = proxyUrl.auth.split(':');
+					propertyArray.push('systemProp.http.proxyUser=' + authArray[0]);
+					propertyArray.push('systemProp.https.proxyUser=' + authArray[0]);
+					if (authArray.length > 1) {
+						propertyArray.push('systemProp.http.proxyPassword=' + authArray[1]);
+						propertyArray.push('systemProp.https.proxyPassword=' + authArray[1]);
+					}
+				}
+			}
+			propertyArray.push('');
+			try {
+				fs.writeFileSync(propertiesFilePath, propertyArray.join('\n'));
+			} catch (ex) {
+				this.logger.error('Failed to generate project\'s "gradle.properties" file.\n- Reason:' + ex.message);
+				this.logger.log();
+				process.exit(1);
+			}
+			done();
+		}.bind(this),
+	], next);
 };
 
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
@@ -3511,7 +3653,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		},
 
 		tiNamespacePermissions = {
-			'geolocation': geoPermissions
+			geolocation: geoPermissions
 		},
 
 		tiMethodPermissions = {
@@ -3547,28 +3689,28 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 		tiMethodActivities = {
 			'Map.createView': {
-				'activity': {
-					'name': 'ti.modules.titanium.map.TiMapActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'launchMode': 'singleTask'
+				activity: {
+					name: 'ti.modules.titanium.map.TiMapActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					launchMode: 'singleTask'
 				},
 				'uses-library': {
-					'name': 'com.google.android.maps'
+					name: 'com.google.android.maps'
 				}
 			},
 			'Media.createVideoPlayer': {
-				'activity': {
-					'name': 'ti.modules.titanium.media.TiVideoActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'theme': '@style/Theme.AppCompat.Fullscreen',
-					'launchMode': 'singleTask'
+				activity: {
+					name: 'ti.modules.titanium.media.TiVideoActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					theme: '@style/Theme.AppCompat.Fullscreen',
+					launchMode: 'singleTask'
 				}
 			},
 			'Media.showCamera': {
-				'activity': {
-					'name': 'ti.modules.titanium.media.TiCameraActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'theme': '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
+				activity: {
+					name: 'ti.modules.titanium.media.TiCameraActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					theme: '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
 				}
 			}
 		},
@@ -3665,14 +3807,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}, this);
 	}, this);
 
-	// TIMOB-15253: Titanium Android cannot be used with 'android:launchMode' as it can dispose the KrollRuntime instance
-	// prevent 'android:launchMode' from being defined in the AndroidManifest.xml
+	// scan "AndroidManifest.xml" activities
 	if (tiappAndroidManifest && tiappAndroidManifest.application) {
+		// Log a warning if Activity "launchMode" is set. May make app behave in a manner Titanium does not expect.
+		// Note: Allow it since some developers want "singleTask" support and know how to deal with its repercussions.
 		for (const activity in tiappAndroidManifest.application.activity) {
 			const parameters = tiappAndroidManifest.application.activity[activity];
 			if (parameters['launchMode']) {
-				delete parameters['launchMode'];
-				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
+				this.logger.warn(__('Setting "%s" is not recommended for activity "%s"', 'android:launchMode'.red, activity.cyan));
 			}
 		}
 
@@ -3740,6 +3882,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,
+			permission: 'android.permission.BIND_JOB_SERVICE',
 			exported: false
 		};
 	}
@@ -3773,6 +3916,26 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			}
 		}
 	}, this);
+
+	this.androidLibraries.forEach(libraryInfo => {
+		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
+		if (fs.existsSync(libraryManifestPath)) {
+			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
+
+			// handle injected build variables such as ${applicationId}
+			// https://developer.android.com/studio/build/manifest-build-variables
+			libraryManifestContent = libraryManifestContent.replace(/\$\{applicationId\}/g, this.appid); // eslint-disable-line no-template-curly-in-string
+
+			const libraryManifest = new AndroidManifest();
+			libraryManifest.parse(libraryManifestContent);
+
+			// we don't want android libraries to override the <supports-screens> or <uses-sdk> tags
+			delete libraryManifest.__attr__;
+			delete libraryManifest['supports-screens'];
+			delete libraryManifest['uses-sdk'];
+			finalAndroidManifest.merge(libraryManifest);
+		}
+	});
 
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
@@ -3858,6 +4021,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidCompileSDK.androidJar,
 			'-F', this.ap_File,
+			'--ignore-assets', '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~',
 			'--output-text-symbols', bundlesPath,
 			'--no-version-vectors'
 		];
@@ -4092,8 +4256,11 @@ AndroidBuilder.prototype.runProguard = function runProguard(next) {
 		});
 
 	proguardHook(
-		this.jdkInfo.executables.java,
-		[ '-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile ],
+		path.join(this.buildDir, (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew'),
+		[
+			'-b', path.join(this.buildDir, 'proguard.gradle'),
+			'-Pconfiguration=' + proguardConfigFile
+		],
 		{ cwd: this.buildDir },
 		next
 	);
@@ -4117,17 +4284,19 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				done();
 			}.bind(this));
 		}),
-		injars = [
+		injarsCore = [
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
+		].concat(Object.keys(this.jarLibraries)),
+		injarsAll = injarsCore.slice().concat(Object.keys(this.moduleJars)),
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
 		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
-		outjar = path.join(this.buildDir, 'mainDexClasses.jar');
+		outjar = path.join(this.buildDir, 'mainDexClasses.jar'),
+		pathArraySeparator = (process.platform === 'win32') ? ';' : ':';
 	let dexArgs = [
 		'-Xmx' + this.dxMaxMemory,
 		'-XX:-UseGCOverheadLimit',
-		'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
+		'-classpath', this.androidInfo.sdk.platformTools.path,
 		'-jar', this.androidInfo.sdk.dx,
 		'--dex', '--multi-dex',
 		'--set-max-idx-number=' + this.dxMaxIdxNumber,
@@ -4141,11 +4310,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	}
 
 	if (this.allowDebugging && this.debugPort) {
-		injars.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
 	}
 
 	if (this.allowProfiling && this.profilerPort) {
-		injars.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
 	// nuke and create the folder holding all the classes*.dex files
@@ -4157,35 +4326,57 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	// Wipe existing outjar
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
 
-	// We need to hack multidex for APi level < 21 to generate the list of classes that *need* to go into the first dex file
-	// We skip these intermediate steps if 21+ and eventually just run dexer
+	// Add all Java classes used/declared by the "Application" derived class to main dex file.
+	// We only do this if the min Android OS version supported is less than 5.0.
+	// Note: Android OS versions older than 5.0 (API Level 21) do not natively support multidexed apps.
+	//       So, we have to call Multidex.install() Java method upon app startup for Android 4.x support.
+	//       Since Java runtime attempts to find all classes used by "Application" derived class before
+	//       the app can invoke the Multidex.install() method, we must ensure those classes are in the
+	//       main dex file or else the runtime will fail to link those classes and cause a crash on 4.x.
 	async.series([
 		function (done) {
-			// 'api-level' and 'sdk' properties both seem to hold apiLevel
-			if (this.androidTargetSDK.sdk >= 21) {
+			// Skip the below if the min Android OS version supported is 5.0 or higher.
+			if (this.minSDK >= 21) {
 				return done();
 			}
 
-			// Run: java
-			// -jar $this.androidInfo.sdk.proguard
-			// -injars "${@}"
-			// -dontwarn -forceprocessing
-			// -outjars ${tmpOut}
-			// -libraryjars "${shrinkedAndroidJar}"
-			// -dontoptimize -dontobfuscate -dontpreverify
-			// -include "${baserules}"
-			appc.subprocess.run(this.jdkInfo.executables.java, [
-				'-jar',
-				this.androidInfo.sdk.proguard,
-				'-injars', injars.join(':'),
-				'-dontwarn', '-forceprocessing',
-				'-outjars', outjar,
-				'-libraryjars', shrinkedAndroid,
-				'-dontoptimize', '-dontobfuscate', '-dontpreverify', '-include',
-				baserules
-			], {}, function (code, out, err) {
+			// Double quotes given path and escapes double quote characters in file/directory names.
+			function quotePath(filePath) {
+				if (!filePath) {
+					return '""';
+				}
+				if (process.platform !== 'win32') {
+					filePath = filePath.replace(/"/g, '\\"');
+				}
+				return '"' + filePath + '"';
+			}
+
+			// Create a ProGuard config file.
+			let proguardConfig
+					= '-dontoptimize\n'
+					+ '-dontobfuscate\n'
+					+ '-dontpreverify\n'
+					+ '-dontwarn **\n'
+					+ '-libraryjars ' + quotePath(shrinkedAndroid) + '\n';
+			for (let index = 0; index < injarsCore.length; index++) {
+				proguardConfig += '-injars ' + quotePath(injarsCore[index]) + '(!META-INF/**)\n';
+			}
+			proguardConfig += '-outjars ' + quotePath(outjar) + '\n';
+			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
+			fs.writeFileSync(mainDexProGuardFilePath, proguardConfig);
+
+			// Run ProGuard via Gradle to create a single JAR of all the main Java classes used by the app.
+			// Note: ProGuard included with the Android SDK is very old (v4.x) and doesn't support loading Java 8 JARs,
+			//       such as the JARs Google provides with Android build-tools v27. Google now acquires the newest
+			//       version of ProGuard via Gradle/Maven, which is kept up to date by the ProGuard maintainers.
+			const gradleAppFileName = (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew';
+			appc.subprocess.run(quotePath(path.join(this.buildDir, gradleAppFileName)), [
+				'-b', quotePath(path.join(this.buildDir, 'proguard.gradle')),
+				'-Pforceprocessing=true',
+				'-Pconfiguration=' + quotePath(baserules) + pathArraySeparator + quotePath(mainDexProGuardFilePath)
+			], { shell: true, windowsHide: true }, function (code, out, err) {
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to run gradle:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();
@@ -4196,15 +4387,15 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		}.bind(this),
 		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
 		function (done) {
-			// 'api-level' and 'sdk' properties both seem to hold apiLevel
-			if (this.androidTargetSDK.sdk >= 21) {
+			// Skip the below if the min Android OS version supported is 5.0 or higher.
+			if (this.minSDK >= 21) {
 				return done();
 			}
 
-			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injars.join(':') ], {}, function (code, out, err) {
+			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to generate main class for dexer:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();
@@ -4220,7 +4411,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			}.bind(this));
 		}.bind(this),
 		function (done) {
-			dexArgs = dexArgs.concat(injars);
+			dexArgs = dexArgs.concat(injarsAll);
 			dexerHook(this.jdkInfo.executables.java, dexArgs, {}, done);
 		}.bind(this)
 	], next);
@@ -4237,200 +4428,189 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
-		origConsoleError = console.error,
 		entryNames = [];
 
-	// since the archiver library didn't set max listeners, we squelch all error output
-	console.error = function () {};
+	fs.existsSync(this.unsignedApkFile) && fs.unlinkSync(this.unsignedApkFile);
+	const apkStream = fs.createWriteStream(this.unsignedApkFile);
+	apkStream.on('close', function () {
+		next();
+	});
+	dest.catchEarlyExitAttached = true; // silence exceptions
+	dest.pipe(apkStream);
+
+	this.logger.info(__('Creating unsigned apk'));
+
+	// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
+	const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+
+	archives.forEach(function (file) {
+		const src = new AdmZip(file),
+			entries = src.getEntries();
+
+		this.logger.debug(__('Processing %s', file.cyan));
+
+		entries.forEach(function (entry) {
+			if (entry.entryName.indexOf('META-INF/') === -1
+				&& (entry.entryName.indexOf('org/appcelerator/titanium/bindings/') === -1 || !jsonRegExp.test(entry.name))
+				&& entry.name.charAt(0) !== '.'
+				&& !classRegExp.test(entry.name)
+				&& !trailingSlashRegExp.test(entry.entryName)
+			) {
+				// do not add duplicate entries
+				if (entryNames.indexOf(entry.entryName) > -1) {
+					this.logger.warn(__('Removing duplicate entry %s', entry.entryName.cyan));
+					return;
+				}
+
+				const store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) !== -1;
+
+				this.logger.debug(store
+					? __('Adding %s', entry.entryName.cyan)
+					: __('Deflating %s', entry.entryName.cyan));
+
+				dest.append(src.readFile(entry), {
+					name: entry.entryName,
+					store: store
+				});
+				entryNames.push(entry.entryName);
+			}
+		}, this);
+	}, this);
+
+	// Add dex files
+	this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
+	fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
+		var file = path.join(this.buildBinClassesDex, name);
+		if (dexRegExp.test(name)) {
+			this.logger.debug(__('Adding %s', name.cyan));
+			dest.append(fs.createReadStream(file), { name: name });
+		}
+	}, this);
+
+	this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
+	(function copyDir(dir, base) {
+		base = base || dir;
+		fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					copyDir(file, base);
+				} else if (!javaRegExp.test(name)) {
+					name = file.replace(base, '').replace(/^[/\\]/, '');
+					this.logger.debug(__('Adding %s', name.cyan));
+					dest.append(fs.createReadStream(file), { name: name });
+				}
+			}
+		}, this);
+	}.call(this, this.buildSrcDir));
+
+	const addNativeLibs = function (dir) {
+		if (!fs.existsSync(dir)) {
+			return;
+		}
+
+		for (let i = 0; i < this.abis.length; i++) {
+			const abiDir = path.join(dir, this.abis[i]);
+
+			// check that we found the desired abi, otherwise we abort the build
+			if (!fs.existsSync(abiDir) || !fs.statSync(abiDir).isDirectory()) {
+				throw this.abis[i];
+			}
+
+			// copy all the .so files into the archive
+			fs.readdirSync(abiDir).forEach(function (name) {
+				if (name !== 'libtiprofiler.so' || (this.allowProfiling && this.profilerPort)) {
+					const file = path.join(abiDir, name),
+						rel = 'lib/' + this.abis[i] + '/' + name;
+					if (!nativeLibs[rel] && soRegExp.test(name) && fs.existsSync(file)) {
+						nativeLibs[rel] = 1;
+						this.logger.debug(__('Adding %s', rel.cyan));
+						dest.append(fs.createReadStream(file), { name: rel });
+					}
+				}
+			}, this);
+		}
+	}.bind(this);
 
 	try {
-		fs.existsSync(this.unsignedApkFile) && fs.unlinkSync(this.unsignedApkFile);
-		const apkStream = fs.createWriteStream(this.unsignedApkFile);
-		apkStream.on('close', function () {
-			console.error = origConsoleError;
-			next();
+		// add Titanium native modules
+		addNativeLibs(path.join(this.platformPath, 'native', 'libs'));
+	} catch (abi) {
+		// this should never be called since we already validated this
+		const abis = [];
+		fs.readdirSync(path.join(this.platformPath, 'native', 'libs')).forEach(function (abi) {
+			var dir = path.join(this.platformPath, 'native', 'libs', abi);
+			if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+				abis.push(abi);
+			}
 		});
-		dest.catchEarlyExitAttached = true; // silence exceptions
-		dest.pipe(apkStream);
+		this.logger.error(__('Invalid native Titanium library ABI "%s"', abi));
+		this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
+		process.exit(1);
+	}
 
-		this.logger.info(__('Creating unsigned apk'));
+	try {
+		// add native modules from the build dir's "libs" dir
+		addNativeLibs(path.join(this.buildDir, 'libs'));
+	} catch (e) {
+		// ignore
+	}
 
-		// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
-		const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
-
-		archives.forEach(function (file) {
-			const src = new AdmZip(file),
-				entries = src.getEntries();
-
-			this.logger.debug(__('Processing %s', file.cyan));
-
-			entries.forEach(function (entry) {
-				if (entry.entryName.indexOf('META-INF/') === -1
-					&& (entry.entryName.indexOf('org/appcelerator/titanium/bindings/') === -1 || !jsonRegExp.test(entry.name))
-					&& entry.name.charAt(0) !== '.'
-					&& !classRegExp.test(entry.name)
-					&& !trailingSlashRegExp.test(entry.entryName)
-				) {
-					// do not add duplicate entries
-					if (entryNames.indexOf(entry.entryName) > -1) {
-						this.logger.warn(__('Removing duplicate entry %s', entry.entryName.cyan));
-						return;
-					}
-
-					const store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) !== -1;
-
-					this.logger.debug(store
-						? __('Adding %s', entry.entryName.cyan)
-						: __('Deflating %s', entry.entryName.cyan));
-
-					dest.append(src.readFile(entry), {
-						name: entry.entryName,
-						store: store
-					});
-					entryNames.push(entry.entryName);
-				}
-			}, this);
-		}, this);
-
-		// Add dex files
-		this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
-		fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
-			var file = path.join(this.buildBinClassesDex, name);
-			if (dexRegExp.test(name)) {
-				this.logger.debug(__('Adding %s', name.cyan));
-				dest.append(fs.createReadStream(file), { name: name });
-			}
-		}, this);
-
-		this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
-		(function copyDir(dir, base) {
-			base = base || dir;
-			fs.readdirSync(dir).forEach(function (name) {
-				var file = path.join(dir, name);
-				if (fs.existsSync(file)) {
-					if (fs.statSync(file).isDirectory()) {
-						copyDir(file, base);
-					} else if (!javaRegExp.test(name)) {
-						name = file.replace(base, '').replace(/^[/\\]/, '');
-						this.logger.debug(__('Adding %s', name.cyan));
-						dest.append(fs.createReadStream(file), { name: name });
-					}
-				}
-			}, this);
-		}.call(this, this.buildSrcDir));
-
-		const addNativeLibs = function (dir) {
-			if (!fs.existsSync(dir)) {
-				return;
-			}
-
-			for (let i = 0; i < this.abis.length; i++) {
-				const abiDir = path.join(dir, this.abis[i]);
-
-				// check that we found the desired abi, otherwise we abort the build
-				if (!fs.existsSync(abiDir) || !fs.statSync(abiDir).isDirectory()) {
-					throw this.abis[i];
-				}
-
-				// copy all the .so files into the archive
-				fs.readdirSync(abiDir).forEach(function (name) {
-					if (name !== 'libtiprofiler.so' || (this.allowProfiling && this.profilerPort)) {
-						const file = path.join(abiDir, name),
-							rel = 'lib/' + this.abis[i] + '/' + name;
-						if (!nativeLibs[rel] && soRegExp.test(name) && fs.existsSync(file)) {
-							nativeLibs[rel] = 1;
-							this.logger.debug(__('Adding %s', rel.cyan));
-							dest.append(fs.createReadStream(file), { name: rel });
-						}
-					}
-				}, this);
-			}
-		}.bind(this);
-
-		try {
-			// add Titanium native modules
-			addNativeLibs(path.join(this.platformPath, 'native', 'libs'));
-		} catch (abi) {
-			// this should never be called since we already validated this
-			const abis = [];
-			fs.readdirSync(path.join(this.platformPath, 'native', 'libs')).forEach(function (abi) {
-				var dir = path.join(this.platformPath, 'native', 'libs', abi);
-				if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
-					abis.push(abi);
-				}
-			});
-			this.logger.error(__('Invalid native Titanium library ABI "%s"', abi));
-			this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
-			process.exit(1);
-		}
-
-		try {
-			// add native modules from the build dir's "libs" dir
-			addNativeLibs(path.join(this.buildDir, 'libs'));
-		} catch (e) {
-			// ignore
-		}
-
-		this.modules.forEach(function (m) {
-			if (m.native) {
-				try {
-					// add native modules for each module
-					addNativeLibs(path.join(m.modulePath, 'libs'));
-				} catch (abi) {
-					// this should never be called since we already validated this
-					const abis = [];
-					fs.readdirSync(path.join(m.modulePath, 'libs')).forEach(function (abi) {
-						var dir = path.join(m.modulePath, 'libs', abi);
-						if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
-							abis.push(abi);
-						}
-					});
-					/* commenting this out to preserve the old, incorrect behavior
-					this.logger.error(__('The module "%s" does not support the ABI "%s"', m.id, abi));
-					this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
-					process.exit(1);
-					*/
-					this.logger.warn(__('The module %s does not support the ABI: %s', m.id.cyan, abi.cyan));
-					this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', '))); // eslint-disable-line max-statements-per-line
-					this.logger.warn(__('Your application will most likely encounter issues'));
-				}
-			}
-		}, this);
-
-		this.androidLibraries.forEach(function (libraryInfo) {
-			if (libraryInfo.nativeLibraries.length === 0) {
-				return;
-			}
-
-			const libraryJniPath = path.join(libraryInfo.explodedPath, 'jni');
+	this.modules.forEach(function (m) {
+		if (m.native) {
 			try {
-				addNativeLibs(libraryJniPath);
-			} catch (e) {
+				// add native modules for each module
+				addNativeLibs(path.join(m.modulePath, 'libs'));
+			} catch (abi) {
+				// this should never be called since we already validated this
 				const abis = [];
-				fs.readdirSync(libraryJniPath).forEach(function (abi) {
-					const dir = path.join(libraryJniPath, abi);
+				fs.readdirSync(path.join(m.modulePath, 'libs')).forEach(function (abi) {
+					var dir = path.join(m.modulePath, 'libs', abi);
 					if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
 						abis.push(abi);
 					}
 				});
-				// FIXME This validation code isn't right. Shoudl likley be in the function above!
-				// if (libraryInfo.task.originType === 'Module') {
-				// 	this.logger.error(__('The Android Library "%s" from module "%s" does not support the ABI: %s', libraryInfo.packageName, libraryInfo.task.moduleInfo.id, abi));
-				// } else if (libraryInfo.task.originType === 'Project') {
-				// 	this.logger.error(__('The Android Library "%s" does not support the ABI: %s', libraryInfo.packageName, abi));
-				// }
-				this.logger.error(__('Supported ABIs by the Android Library: %s', abis.join(', ')));
-				this.logger.error(__('Valid ABIs for this project: %s', this.abis(', ')));
+				/* commenting this out to preserve the old, incorrect behavior
+				this.logger.error(__('The module "%s" does not support the ABI "%s"', m.id, abi));
+				this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
 				process.exit(1);
+				*/
+				this.logger.warn(__('The module %s does not support the ABI: %s', m.id.cyan, abi.cyan));
+				this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', '))); // eslint-disable-line max-statements-per-line
+				this.logger.warn(__('Your application will most likely encounter issues'));
 			}
-		}, this);
+		}
+	}, this);
 
-		this.logger.info(__('Writing unsigned apk: %s', this.unsignedApkFile.cyan));
-		dest.finalize();
-	} catch (ex) {
-		console.error = origConsoleError;
-		throw ex;
-	}
+	this.androidLibraries.forEach(function (libraryInfo) {
+		if (libraryInfo.nativeLibraries.length === 0) {
+			return;
+		}
+
+		const libraryJniPath = path.join(libraryInfo.explodedPath, 'jni');
+		try {
+			addNativeLibs(libraryJniPath);
+		} catch (abi) {
+			const abis = [];
+			fs.readdirSync(libraryJniPath).forEach(function (abi) {
+				const dir = path.join(libraryJniPath, abi);
+				if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+					abis.push(abi);
+				}
+			});
+
+			if (libraryInfo.task.originType === 'Module') {
+				this.logger.warn(__('The Android Library "%s" from module "%s" does not support the ABI: %s', libraryInfo.packageName.cyan, libraryInfo.task.moduleInfo.id.cyan, abi.cyan));
+			} else if (libraryInfo.task.originType === 'Project') {
+				this.logger.warn(__('The Android Library "%s" does not support the ABI: %s', libraryInfo.packageName.cyan, abi.cyan));
+			}
+			this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', '))); // eslint-disable-line max-statements-per-line
+			this.logger.warn(__('Your application will most likely encounter issues'));
+		}
+	}, this);
+
+	this.logger.info(__('Writing unsigned apk: %s', this.unsignedApkFile.cyan));
+	dest.finalize();
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
