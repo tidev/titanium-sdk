@@ -11,7 +11,7 @@
 var should = require('./utilities/assertions');
 
 describe('Example', function () {
-	it('Should pass', function () {
-		should(true).equal(true);
+	it('Should fail', function () {
+		should(true).equal(false);
 	});
 });
