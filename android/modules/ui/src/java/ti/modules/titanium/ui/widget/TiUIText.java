@@ -471,14 +471,21 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			// Can only set truncated text in afterTextChanged. Otherwise, it will crash.
 			return;
 		}
-		String newText = tv.getText().toString();
-		if (!disableChangeEvent
-			&& (!isTruncatingText
-				|| (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)))) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.PROPERTY_VALUE, newText);
-			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
-			fireEvent(TiC.EVENT_CHANGE, data);
+
+		// Fire change events, but only if it's coming from the end-user (ignore programmatic text changes).
+		if (!disableChangeEvent) {
+			// Fire a text "change" event.
+			String newText = tv.getText().toString();
+			if (!isTruncatingText || proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)) {
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_VALUE, newText);
+				proxy.setProperty(TiC.PROPERTY_VALUE, newText);
+				fireEvent(TiC.EVENT_CHANGE, data);
+			}
+
+			// Fire an app "userinteraction" event when the end-user is typing on the keyboard.
+			// Note: The Activity.onUserInteraction() method does not get called in this case.
+			TiApplication.getInstance().fireAppEvent(TiC.EVENT_USER_INTERACTION, null);
 		}
 	}
 

@@ -5,7 +5,7 @@ const async = require('async');
 const utils = require('./utils');
 const fs = require('fs-extra');
 const path = require('path');
-const modulesPath = path.join('../support/module/packaged/modules.json');
+const modulesPath = path.join(__dirname, '../support/module/packaged/modules.json');
 const modules = require(modulesPath); // eslint-disable-line security/detect-non-literal-require
 
 const platforms = Object.keys(modules);

@@ -16,11 +16,11 @@ description: |
     `reload` event, you should assume that any existing `Person` or `Group` objects are invalid and
     reload them from the `Contacts` module before modifying them.
 
-    See the examples for sample use of the `reload` event.
+    See the examples for a sample use of the `reload` event.
 
     If 'ABAddressBookErrorDomain error 0' occurs, it implies that you are not allowed to add or edit 
     certain fields. Check your default account in the iOS settings under contacts. If it's not 'iCloud',
-    mostly likely it will not support fields such as alternateBirthday or socialProfile.
+    most likely it will not support fields such as alternateBirthday or socialProfile.
 
 extends: Titanium.Module
 since: "0.8"
@@ -390,7 +390,7 @@ examples:
   - title: Add New System Address Book Records
     example: |
         Create two new records in the system address book. Note that the <Titanium.Contacts.Person> 
-        object is queried in the same way that it is created (as shown in previous example.)
+        object is queried in the same way that it is created (as shown in the previous example.)
         
             Ti.API.info('Saving contact...');
             Ti.Contacts.createPerson({

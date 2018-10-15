@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -68,7 +69,10 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	@Override
 	public String getUrl()
 	{
-		return "app.js";
+		// The Titanium "ti.main.js" script is shared by all platforms.
+		// It will run the app developer's "app.js" script after loading all JS extensions.
+		// Script Location: titanium_mobile/common/Resources
+		return "ti.main.js";
 	}
 
 	@Override
@@ -204,6 +208,13 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 		if (finishing2373) {
 			return;
+		}
+		TiApplication tiApp = TiApplication.getInstance();
+		if (tiApp != null) {
+			KrollModule appModule = tiApp.getModuleByName("App");
+			if (appModule != null) {
+				appModule.fireEvent(TiC.EVENT_CLOSE, null);
+			}
 		}
 
 		Log.d(TAG, "root activity onDestroy, activity = " + this, Log.DEBUG_MODE);

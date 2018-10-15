@@ -6,21 +6,14 @@
  */
 package ti.modules.titanium.utils;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiDigestUtils;
 
 import android.util.Base64;
 
@@ -85,21 +78,13 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String md5HexDigest(Object obj)
 	{
-		byte[] data = convertToBytes(obj);
-		if (data != null) {
-			return DigestUtils.md5Hex(data);
-		}
-		return null;
+		return TiDigestUtils.md5Hex(convertToBytes(obj));
 	}
 
 	@Kroll.method
 	public String sha1(Object obj)
 	{
-		byte[] data = convertToBytes(obj);
-		if (data != null) {
-			return DigestUtils.shaHex(data);
-		}
-		return null;
+		return TiDigestUtils.sha1Hex(convertToBytes(obj));
 	}
 
 	@Kroll.method
@@ -111,23 +96,7 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String sha256(Object obj)
 	{
-		// NOTE: DigestUtils with the version before 1.4 doesn't have the function sha256Hex,
-		// so we deal with it ourselves
-		try {
-			byte[] b = convertToBytes(obj);
-			MessageDigest algorithm = MessageDigest.getInstance("SHA-256");
-			algorithm.reset();
-			algorithm.update(b);
-			byte messageDigest[] = algorithm.digest();
-			StringBuilder result = new StringBuilder();
-			for (int i = 0; i < messageDigest.length; i++) {
-				result.append(Integer.toString((messageDigest[i] & 0xff) + 0x100, 16).substring(1));
-			}
-			return result.toString();
-		} catch (NoSuchAlgorithmException e) {
-			Log.e(TAG, "SHA256 is not a supported algorithm");
-		}
-		return null;
+		return TiDigestUtils.sha256Hex(convertToBytes(obj));
 	}
 
 	@Override
