@@ -728,7 +728,7 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER, UIWebViewNavigationTypeOther);
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args
 {
-  DEPRECATED_REPLACED(@"UI.iOS.ApplicationShortcuts", @"7.1.0", @"UI.ApplicationShortcuts");
+  DEPRECATED_REPLACED(@"UI.iOS.ApplicationShortcuts", @"7.5.0", @"UI.ApplicationShortcuts");
   return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
