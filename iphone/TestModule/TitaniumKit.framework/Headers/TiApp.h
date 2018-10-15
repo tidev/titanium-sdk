@@ -34,10 +34,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 
   JSContextGroupRef contextGroup;
   KrollBridge *kjsBridge;
-<<<<<<< HEAD:iphone/Classes/TiApp.h
-=======
-  XHRBridge *xhrBridge;
->>>>>>> next:iphone/TestModule/TitaniumKit.framework/Headers/TiApp.h
 
   NSMutableDictionary *launchOptions;
   NSTimeInterval started;
