@@ -167,7 +167,7 @@ events:
         On Android, when a listener for this event is not present, by default the application will soft restart
         upon a locale change. Once a listener for this event is present, the behaviour for a locale change is developer
         defined.
-    since: "7.4.0"
+    since: "7.5.0"
 
 properties:
   - name: currentCountry
