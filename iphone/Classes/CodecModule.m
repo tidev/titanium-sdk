@@ -1,13 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "CodecModule.h"
-#import <TitaniumKit/TiBuffer.h>
-
 #ifdef USE_TI_CODEC
+
+#import "CodecModule.h"
+@import TitaniumKit.TiBuffer;
+@import TitaniumKit.TiBase;
+@import TitaniumKit.TiUtils;
 
 @interface CodecModule (Private)
 - (NSStringEncoding)constantToEncodingType:(NSString *)type;
@@ -30,26 +32,18 @@
   return @"Ti.Codec";
 }
 
-- (NSNumber *)encodeNumber:(id)args
+- (NSNumber *)encodeNumber:(JSValue *)dict
 {
-  ENSURE_SINGLE_ARG(args, NSDictionary);
+  TiBuffer *dest = [self JSValueToNative:dict[@"dest"]];
 
-  TiBuffer *dest = nil;
-  int position;
-  BOOL hasPosition;
-  NSNumber *data;
-  NSString *type;
-  CFByteOrder byteOrder;
-  BOOL hasByteOrder;
+  BOOL hasPosition = [dict hasProperty:@"position"];
+  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
 
-  ENSURE_ARG_FOR_KEY(dest, args, @"dest", TiBuffer);
-  ENSURE_INT_OR_NIL_FOR_KEY(position, args, @"position", hasPosition);
-  ENSURE_ARG_FOR_KEY(data, args, @"source", NSNumber);
-  ENSURE_ARG_FOR_KEY(type, args, @"type", NSString);
-  ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, args, @"byteOrder", hasByteOrder);
+  BOOL hasByteOrder = [dict hasProperty:@"byteOrder"];
+  CFByteOrder byteOrder = (hasByteOrder) ? [dict[@"byteOrder"] toUInt32] : CFByteOrderGetCurrent();
 
-  position = (hasPosition) ? position : 0;
-  byteOrder = (hasByteOrder) ? byteOrder : CFByteOrderGetCurrent();
+  NSNumber *data = [dict[@"source"] toNumber];
+  NSString *type = [dict[@"type"] toString];
 
   int result = [TiUtils encodeNumber:data toBuffer:dest offset:position type:type endianness:byteOrder];
 
@@ -86,24 +80,17 @@
   }
 }
 
-- (NSNumber *)decodeNumber:(id)args
+- (NSNumber *)decodeNumber:(JSValue *)dict
 {
-  ENSURE_SINGLE_ARG(args, NSDictionary);
+  TiBuffer *src = [self JSValueToNative:dict[@"source"]];
 
-  TiBuffer *src = nil;
-  NSString *type;
-  int position;
-  BOOL hasPosition;
-  CFByteOrder byteOrder;
-  BOOL hasByteOrder;
+  BOOL hasPosition = [dict hasProperty:@"position"];
+  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
 
-  ENSURE_ARG_FOR_KEY(src, args, @"source", TiBuffer);
-  ENSURE_ARG_FOR_KEY(type, args, @"type", NSString);
-  ENSURE_INT_OR_NIL_FOR_KEY(position, args, @"position", hasPosition);
-  ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, args, @"byteOrder", hasByteOrder);
+  BOOL hasByteOrder = [dict hasProperty:@"byteOrder"];
+  CFByteOrder byteOrder = (hasByteOrder) ? [dict[@"byteOrder"] toUInt32] : CFByteOrderGetCurrent();
 
-  position = (hasPosition) ? position : 0;
-  byteOrder = (hasByteOrder) ? byteOrder : CFByteOrderGetCurrent();
+  NSString *type = [dict[@"type"] toString];
 
   switch (byteOrder) {
   case CFByteOrderBigEndian:
@@ -213,31 +200,28 @@
   return NUMINT(-1);
 }
 
-- (NSNumber *)encodeString:(id)args
+- (NSNumber *)encodeString:(JSValue *)dict
 {
-  ENSURE_SINGLE_ARG(args, NSDictionary);
+  TiBuffer *dest = [self JSValueToNative:dict[@"dest"]];
 
-  TiBuffer *dest = nil;
-  NSUInteger destPosition;
-  BOOL hasDestPosition;
-  NSString *string = nil;
-  NSUInteger srcPosition;
-  BOOL hasSrcPosition;
-  NSUInteger srcLength;
-  BOOL hasSrcLength;
-  NSString *charset;
+  NSString *string = [dict[@"source"] toString];
 
-  ENSURE_ARG_FOR_KEY(dest, args, @"dest", TiBuffer);
-  ENSURE_INT_OR_NIL_FOR_KEY(destPosition, args, @"destPosition", hasDestPosition);
-  ENSURE_ARG_FOR_KEY(string, args, @"source", NSString);
-  ENSURE_INT_OR_NIL_FOR_KEY(srcPosition, args, @"sourcePosition", hasSrcPosition);
-  ENSURE_INT_OR_NIL_FOR_KEY(srcLength, args, @"sourceLength", hasSrcLength);
-  ENSURE_ARG_OR_NIL_FOR_KEY(charset, args, @"charset", NSString);
+  BOOL hasPosition = [dict hasProperty:@"position"];
+  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
 
-  destPosition = (hasDestPosition) ? destPosition : 0;
-  srcPosition = (hasSrcPosition) ? srcPosition : 0;
-  srcLength = (hasSrcLength) ? srcLength : [string length];
-  charset = (charset) ? charset : [self CHARSET_UTF8];
+  BOOL hasDestPosition = [dict hasProperty:@"destPosition"];
+  NSUInteger destPosition = (hasDestPosition) ? [dict[@"destPosition"] toUInt32] : 0;
+
+  BOOL hasSrcPosition = [dict hasProperty:@"sourcePosition"];
+  NSUInteger srcPosition = (hasSrcPosition) ? [dict[@"sourcePosition"] toUInt32] : 0;
+
+  BOOL hasSrcLength = [dict hasProperty:@"sourceLength"];
+  NSUInteger srcLength = (hasSrcLength) ? [dict[@"sourceLength"] toUInt32] : [string length];
+
+  NSString *charset = [self CHARSET_UTF8];
+  if ([dict hasProperty:@"charset"]) {
+    charset = [dict[@"charset"] toString];
+  }
 
   int result = [TiUtils encodeString:string toBuffer:dest charset:charset offset:destPosition sourceOffset:srcPosition length:srcLength];
 
@@ -268,25 +252,20 @@
   }
 }
 
-- (NSString *)decodeString:(id)args
+- (NSString *)decodeString:(JSValue *)dict
 {
-  ENSURE_SINGLE_ARG(args, NSDictionary);
+  TiBuffer *src = [self JSValueToNative:dict[@"source"]];
 
-  TiBuffer *src = nil;
-  int position;
-  BOOL hasPosition;
-  int length;
-  BOOL hasLength;
-  NSString *charset = nil;
+  BOOL hasPosition = [dict hasProperty:@"position"];
+  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
 
-  ENSURE_ARG_FOR_KEY(src, args, @"source", TiBuffer);
-  ENSURE_INT_OR_NIL_FOR_KEY(position, args, @"position", hasPosition);
-  ENSURE_INT_OR_NIL_FOR_KEY(length, args, @"length", hasLength);
-  ENSURE_ARG_OR_NIL_FOR_KEY(charset, args, @"charset", NSString);
+  BOOL hasLength = [dict hasProperty:@"length"];
+  NSUInteger length = (hasLength) ? [dict[@"length"] toUInt32] : [[src length] intValue];
 
-  position = (hasPosition) ? position : 0;
-  length = (hasLength) ? length : [[src length] intValue];
-  charset = (charset) ? charset : [self CHARSET_UTF8];
+  NSString *charset = [self CHARSET_UTF8];
+  if ([dict hasProperty:@"charset"]) {
+    charset = [dict[@"charset"] toString];
+  }
 
   NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
   if (encoding == 0) {
@@ -302,13 +281,13 @@
                 location:CODELOCATION];
   }
   if (length > [[src data] length]) {
-    NSString *errorStr = [NSString stringWithFormat:@"Length %d is past buffer bounds (length %lu)", length, (unsigned long)[[src data] length]];
+    NSString *errorStr = [NSString stringWithFormat:@"Length %lu is past buffer bounds (length %lu)", (unsigned long)length, (unsigned long)[[src data] length]];
     [self throwException:errorStr
                subreason:nil
                 location:CODELOCATION];
   }
   if (length + position > [[src data] length]) {
-    NSString *errorStr = [NSString stringWithFormat:@"total length %d is past buffer bounds (length %lu)", position + length, (unsigned long)[[src data] length]];
+    NSString *errorStr = [NSString stringWithFormat:@"total length %lu is past buffer bounds (length %lu)", position + length, (unsigned long)[[src data] length]];
     [self throwException:errorStr
                subreason:nil
                 location:CODELOCATION];
@@ -317,7 +296,7 @@
   return [[[NSString alloc] initWithBytes:([[src data] bytes] + position) length:length encoding:encoding] autorelease];
 }
 
-- (NSNumber *)getNativeByteOrder:(id)_void
+- (NSNumber *)getNativeByteOrder
 {
   return NUMLONG(CFByteOrderGetCurrent());
 }
@@ -337,17 +316,16 @@ MAKE_SYSTEM_STR(TYPE_LONG, kTiLongTypeName);
 MAKE_SYSTEM_STR(TYPE_FLOAT, kTiFloatTypeName);
 MAKE_SYSTEM_STR(TYPE_DOUBLE, kTiDoubleTypeName);
 
-// Because BIG_ENDIAN and LITTLE_ENDIAN are reserved macro names, we have to return them as "undefined keys"...
-// Defining a method name for them conflicts with the macros.
-- (id)valueForUndefinedKey:(NSString *)key
-{
-  if ([key isEqualToString:@"LITTLE_ENDIAN"]) {
-    return NUMINT(CFByteOrderLittleEndian);
-  } else if ([key isEqualToString:@"BIG_ENDIAN"]) {
-    return NUMINT(CFByteOrderBigEndian);
-  }
-  return [super valueForUndefinedKey:key];
-}
+// Because BIG_ENDIAN and LITTLE_ENDIAN are reserved macro names, we have to temporarily undefine them and then set them back after
+#define OLD_LITTLE_ENDIAN LITTLE_ENDIAN
+#undef LITTLE_ENDIAN
+MAKE_SYSTEM_PROP(LITTLE_ENDIAN, CFByteOrderLittleEndian);
+#define LITTLE_ENDIAN OLD_LITTLE_ENDIAN
+
+#define OLD_BIG_ENDIAN BIG_ENDIAN
+#undef BIG_ENDIAN
+MAKE_SYSTEM_PROP(BIG_ENDIAN, CFByteOrderBigEndian);
+#define BIG_ENDIAN OLD_BIG_ENDIAN
 
 @end
 #endif
