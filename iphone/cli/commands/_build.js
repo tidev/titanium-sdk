@@ -4007,7 +4007,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		i18nLaunchScreens[path.basename(p)] = 1;
 	});
 
-	[{
+	[ {
 		orientation: 'Portrait',
 		'minimum-system-version': '12.0',
 		name: 'Default-Portrait',
@@ -4109,7 +4109,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		name: 'Default-Landscape',
 		scale: [ '2x', '1x' ],
 		size: '{768, 1024}'
-	}].forEach(function (asset) {
+	} ].forEach(function (asset) {
 		asset.scale.some(function (scale) {
 			let key;
 			const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),

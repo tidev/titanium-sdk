@@ -8,7 +8,7 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 
 describe('Titanium.Media.VideoPlayer', function () {
 
