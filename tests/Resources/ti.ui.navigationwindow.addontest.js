@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Axway. All Rights Reserved.
+ * Copyright (c) 2017-Present by Axway. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -83,7 +83,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 		});
 		window1.addEventListener('close', function () {
 			setTimeout(function () {
-				finish()
+				finish();
 			}, 500);
 		});
 		window2.addEventListener('close', function () {
