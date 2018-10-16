@@ -558,8 +558,8 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)playableDuration
 {
-  if (movie != nil && [[[[movie player] currentItem] asset] isPlayable]) {
-    return NUMINT(CMTimeGetSeconds([[[[movie player] currentItem] asset] duration]));
+  if (movie != nil && [[[[movie player] currentItem] asset] isPlayable] == YES) {
+    return NUMINT(1000.0f * CMTimeGetSeconds([[[[movie player] currentItem] asset] duration]));
   } else {
     return NUMINT(0);
   }
@@ -568,7 +568,7 @@ NSArray *moviePlayerKeys = nil;
 - (NSNumber *)duration
 {
   if (movie != nil) {
-    return NUMFLOAT(CMTimeGetSeconds([[[[movie player] currentItem] asset] duration]));
+    return NUMFLOAT(1000.0f * CMTimeGetSeconds([[[[movie player] currentItem] asset] duration]));
   } else {
     return NUMFLOAT(0);
   }
@@ -577,7 +577,7 @@ NSArray *moviePlayerKeys = nil;
 - (NSNumber *)currentPlaybackTime
 {
   if (movie != nil) {
-    return NUMFLOAT(CMTimeGetSeconds([[[movie player] currentItem] currentTime]));
+    return NUMFLOAT(1000.0f * CMTimeGetSeconds([[[movie player] currentItem] currentTime]));
   } else {
     RETURN_FROM_LOAD_PROPERTIES(@"currentPlaybackTime", NUMFLOAT(0));
   }

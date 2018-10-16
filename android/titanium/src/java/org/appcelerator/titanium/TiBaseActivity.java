@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
@@ -1274,6 +1275,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
 		}
+		KrollModule appModule = tiApp.getModuleByName("App");
+		if (appModule != null) {
+			appModule.fireEvent(TiC.EVENT_PAUSE, null);
+			appModule.fireEvent(TiC.EVENT_PAUSED, null);
+		}
 
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -1328,6 +1334,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
+		}
+		KrollModule appModule = tiApp.getModuleByName("App");
+		if (appModule != null) {
+			appModule.fireEvent(TiC.EVENT_RESUME, null);
+			appModule.fireEvent(TiC.EVENT_RESUMED, null);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList())

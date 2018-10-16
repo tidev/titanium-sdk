@@ -266,6 +266,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PAUSED = "paused";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PINCH = "pinch";
 
 	/**
@@ -541,6 +546,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_RESUME = "resume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_RESUMED = "resumed";
 
 	/**
 	 * @module.api
@@ -3493,4 +3503,5 @@ public class TiC
 	public static final String URL_APP_SCHEME = "app";
 	public static final String URL_APP_JS = "app://app.js";
 	public static final String URL_ANDROID_ASSET_RESOURCES = "file:///android_asset/Resources/";
+	public static final String PATH_APP_JS = "Resources/app.js";
 }
