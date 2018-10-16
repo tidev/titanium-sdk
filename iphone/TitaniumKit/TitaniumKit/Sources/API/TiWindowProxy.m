@@ -11,13 +11,6 @@
 #import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
 
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavigationWindowProxy.h"
-#endif
-#ifdef USE_TI_UINAVIGATIONWINDOW
-#import "TiUINavigationWindowProxy.h"
-#endif
-
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;
 - (void)closeOnUIThread:(id)args;
@@ -673,18 +666,6 @@
     NSLog(@"[WARN] Use this method only with toolbars which are attached to a Ti.UI.NavigationWindow by using the setToolbar method.");
   }
 }
-
-#if defined(USE_TI_UIIOSNAVIGATIONWINDOW) || defined(USE_TI_UINAVIGATIONWINDOW)
-- (TiUINavigationWindowProxy *)navigationWindow
-{
-  if (parentController != nil && [parentController isKindOfClass:[TiUINavigationWindowProxy class]]) {
-    return (TiUINavigationWindowProxy *)parentController;
-  }
-
-  NSLog(@"[ERROR] Trying to receive a Ti.UI.NavigationWindow instance that does not exist in this context!");
-  return nil;
-}
-#endif
 
 - (void)hideToolbar:(NSArray *)args
 {

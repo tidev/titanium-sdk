@@ -7,7 +7,7 @@
 
 #if defined(USE_TI_UINAVIGATIONWINDOW) || defined(USE_TI_UIIOSNAVIGATIONWINDOW)
 
-#import "TiUIWindow.h"
+@import TitaniumKit.TiUIWindow;
 
 @interface TiUINavigationWindowInternal : TiUIWindow
 
