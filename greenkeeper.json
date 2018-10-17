@@ -1,0 +1,12 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "android/package.json",
+        "iphone/package.json",
+        "package.json",
+        "templates/app/angular-default/template/app/package.json"
+      ]
+    }
+  }
+}
