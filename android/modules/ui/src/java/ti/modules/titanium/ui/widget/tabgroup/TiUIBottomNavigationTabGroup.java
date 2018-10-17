@@ -1,36 +1,18 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.app.Activity;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Bundle;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v7.view.menu.MenuBuilder;
-import android.util.TypedValue;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiDrawableReference;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -50,12 +32,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	private int currentlySelectedIndex = -1;
 	private BottomNavigationView mBottomNavigationView;
 	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
-	private ArrayList<TabProxy> mTabProxiesArray = new ArrayList<>();
 	// endregion
 
-	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
+	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
-		super(proxy, activity, savedInstanceState);
+		super(proxy, activity);
 	}
 
 	@Override
@@ -108,15 +89,24 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void addTabItemInController(TabProxy tabProxy)
 	{
+		// Guard for the limit of tabs in the BottomNavigationView.
+		if (this.mMenuItemsArray.size() == 5) {
+			Log.e(TAG, "Trying to add more than five tabs in a TabGroup with TABS_STYLE_BOTTOM_NAVIGATION style.");
+			return;
+		}
 		// Create a new item with id representing its index in mMenuItemsArray.
 		MenuItem menuItem = this.mBottomNavigationView.getMenu().add(null);
 		// Set the click listener.
 		menuItem.setOnMenuItemClickListener(this);
-		// Set the icon.
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
-		menuItem.setIcon(drawable);
 		// Set the title.
-		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE)) {
+			menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
+		}
+		// Set the icon.
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
+			Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
+			menuItem.setIcon(drawable);
+		}
 		// Add the MenuItem to the menu of BottomNavigationView.
 		this.mMenuItemsArray.add(menuItem);
 		// TabLayout automatically select the first tab that is added to it,
@@ -150,9 +140,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			for (int i = 0; i < this.mMenuItemsArray.size(); i++) {
 				TabProxy tabProxy = tabs.get(i);
-				RippleDrawable backgroundRippleDrawable =
-					createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-				bottomMenuView.getChildAt(i).setBackground(backgroundRippleDrawable);
+				Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+				bottomMenuView.getChildAt(i).setBackground(backgroundDrawable);
 				// Set the TextView textColor.
 				((BottomNavigationItemView) bottomMenuView.getChildAt(i))
 					.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));

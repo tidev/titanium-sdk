@@ -63,6 +63,9 @@ public class TiUITab extends TiUIView
 
 	private TiWindowProxy getWindowProxy()
 	{
+		if (proxy == null) {
+			return null;
+		}
 		Object windowProxy = proxy.getProperty(TiC.PROPERTY_WINDOW);
 		if (windowProxy instanceof TiWindowProxy) {
 			return (TiWindowProxy) windowProxy;

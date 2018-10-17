@@ -6,21 +6,18 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -30,21 +27,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
-import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -93,7 +86,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	// region protected fields
 	protected static final String TAG = "TiUITabLayoutTabGroup";
-	protected static final String WARNING_LAYOUT_MESSAGE = "Trying to customize an unknown layout, sticking to the default one";
+	protected static final String WARNING_LAYOUT_MESSAGE =
+		"Trying to customize an unknown layout, sticking to the default one";
 
 	protected boolean swipeable = true;
 	protected boolean smoothScrollOnTabClick = true;
@@ -110,17 +104,19 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	private ArrayList<TiUITab> tabs = new ArrayList<>();
 	// endregion
 
-	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
+	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy);
 
 		// Getting the value for colorPrimary from the currently used theme.
 		TypedValue colorPrimaryTypedValue = new TypedValue();
-		TypedArray colorPrimary = activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
+		TypedArray colorPrimary =
+			activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
 		this.colorPrimaryInt = colorPrimary.getColor(0, 0);
 		// Getting the value for textColorPrimary for the currently used theme.
 		TypedValue typedValue = new TypedValue();
-		TypedArray textColor = activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
+		TypedArray textColor =
+			activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
 		this.textColorInt = textColor.getColor(0, 0);
 
 		this.tabGroupPagerAdapter =
@@ -156,7 +152,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * Sets the tabsDisabled flag to whether the tabs navigation is enabled/disabled.
 	 * @param value boolean to set for the flag.
 	 */
-	public void disableTabNavigation(boolean value) {
+	public void disableTabNavigation(boolean value)
+	{
 		this.tabsDisabled = value;
 		this.numTabsWhenDisabled = ((TabGroupProxy) getProxy()).getTabList().size();
 	}
@@ -166,7 +163,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * throw the code and not clicking/swiping.
 	 * @param tabProxy the TabProxy instance to be set as currently selected
 	 */
-	public void selectTab(TabProxy tabProxy) {
+	public void selectTab(TabProxy tabProxy)
+	{
 		int index = ((TabGroupProxy) getProxy()).getTabList().indexOf(tabProxy);
 		// Guard for trying to set a tab, that is not part of the group, as active.
 		if (index != -1 && !tabsDisabled) {
@@ -181,8 +179,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * added, but must not call {@link TabGroupProxy#onTabSelected(TabProxy)}
 	 * when doing so.
 	 */
-	public void addTab(TabProxy tabProxy) {
-		long itemId;
+	public void addTab(TabProxy tabProxy)
+	{
 		TiUITab abstractTab = new TiUITab(tabProxy);
 		tabs.add(abstractTab);
 
@@ -205,14 +203,16 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * @param stateToUse appropriate state for the Controller type.
 	 * @return ColorStateList for the provided state.
 	 */
-	protected ColorStateList textColorStateList(TabProxy tabProxy, int stateToUse) {
-		int[][] textColorStates = new int[][] {
-			new int[] {-stateToUse},
-			new int[] {stateToUse}};
-		int[] textColors = {
-			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString()) : this.textColorInt,
-			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString()) : this.textColorInt
-		};
+	protected ColorStateList textColorStateList(TabProxy tabProxy, int stateToUse)
+	{
+		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
+		int[] textColors = { tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
+								 ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString())
+								 : this.textColorInt,
+							 tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+								 ? TiColorHelper.parseColor(
+									   tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString())
+								 : this.textColorInt };
 		ColorStateList stateListDrawable = new ColorStateList(textColorStates, textColors);
 		return stateListDrawable;
 	}
@@ -228,43 +228,62 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * @param stateToUse appropriate state for the Controller type.
 	 * @return RippleDrawable for the provided state.
 	 */
-	protected RippleDrawable createBackgroundDrawableForState(TabProxy tabProxy, int stateToUse) {
+	protected Drawable createBackgroundDrawableForState(TabProxy tabProxy, int stateToUse)
+	{
+		Drawable resultDrawable;
 		StateListDrawable stateListDrawable = new StateListDrawable();
 		int colorInt;
-		// If the TabGroupd has backgroundColor property, use it. If not - use the primaryColor of the theme.
-		colorInt = proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR) ? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()) : this.colorPrimaryInt;
+		// If the TabGroup has backgroundColor property, use it. If not - use the primaryColor of the theme.
+		colorInt = proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
+					   ? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString())
+					   : this.colorPrimaryInt;
 		// If the Tab has its own backgroundColor property, use it instead.
-		colorInt = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString()) : colorInt;
-		stateListDrawable.addState(new int[] {-stateToUse}, new ColorDrawable(colorInt));
+		colorInt = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)
+					   ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString())
+					   : colorInt;
+		stateListDrawable.addState(new int[] { -stateToUse }, new ColorDrawable(colorInt));
 		// Take the TabGroup tabsBackgroundSelectedProperty.
-		colorInt = proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR) ? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString()) : colorInt;
+		colorInt =
+			proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)
+				? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString())
+				: colorInt;
 		// If a tab specific background color is defined for selected state, use it instead.
-		colorInt = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR).toString()) : colorInt;
-		stateListDrawable.addState(new int[] {stateToUse}, new ColorDrawable(colorInt));
+		colorInt =
+			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
+				? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR).toString())
+				: colorInt;
+		stateListDrawable.addState(new int[] { stateToUse }, new ColorDrawable(colorInt));
 
-		// ActionBar Tabs had rippble effect by default, but support library TabLayout does not have ripple effect
+		// ActionBar Tabs had ripple effect by default, but support library TabLayout does not have ripple effect
 		// out of the box, so we create a ripple drawable for that.
 
-		// Set the ripple state.
-		int[][] rippleStates = new int[][] {new int[] {android.R.attr.state_pressed}};
-		// Set the ripple color.
-		TypedValue typedValue = new TypedValue();
-		TypedArray colorControlHighlight = proxy.getActivity().obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-		int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-		int[] rippleColors = new int[] {colorControlHighlightInt};
-		// Create the ColorStateList.
-		ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-		// Create the RippleDrawable.
-		RippleDrawable rippleDrawable = new RippleDrawable(colorStateList, stateListDrawable, null);
-		return rippleDrawable;
+		// RippleDrawable was introduced for Android Lollipop, so we create it only for API level of 21 and above.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			// Set the ripple state.
+			int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
+			// Set the ripple color.
+			TypedValue typedValue = new TypedValue();
+			TypedArray colorControlHighlight = proxy.getActivity().obtainStyledAttributes(
+				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+			int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
+			int[] rippleColors = new int[] { colorControlHighlightInt };
+			// Create the ColorStateList.
+			ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+			// Create the RippleDrawable.
+			resultDrawable = new RippleDrawable(colorStateList, stateListDrawable, null);
+		} else {
+			resultDrawable = stateListDrawable;
+		}
+		return resultDrawable;
 	}
 
 	/**
 	 * Remove the tab from this group.
 	 *
-	 * @param tabProxy the tab to remove from the group
+	 * @param index the tab to remove from the group
 	 */
-	public void removeTabAt(int index) {
+	public void removeTabAt(int index)
+	{
 		// Remove the reference in tabsMap.
 		tabs.remove(index);
 		// Update the ViewPager.
@@ -278,24 +297,26 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 *
 	 * @param tabIndex the index of the tab that will become selected
 	 */
-	public void selectTab(int tabIndex) {
+	public void selectTab(int tabIndex)
+	{
 		// Release the OnPageChangeListener in order to calling an unnecessary item selection.
 		this.tabGroupViewPager.clearOnPageChangeListeners();
 		this.tabGroupViewPager.setCurrentItem(tabIndex, this.smoothScrollOnTabClick);
 		this.tabGroupViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
-			public void onPageScrolled(int i, float v, int i1) {
-
+			public void onPageScrolled(int i, float v, int i1)
+			{
 			}
 
 			@Override
-			public void onPageSelected(int i) {
+			public void onPageSelected(int i)
+			{
 				selectTabItemInController(i);
 			}
 
 			@Override
-			public void onPageScrollStateChanged(int i) {
-
+			public void onPageScrollStateChanged(int i)
+			{
 			}
 		});
 	}
@@ -323,7 +344,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		 if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
+		if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
 			this.swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
@@ -336,7 +357,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * Returns the currently selected TabProxy
 	 * @return the TabProxy instance.
 	 */
-	public TabProxy getSelectedTab() {
+	public TabProxy getSelectedTab()
+	{
 		return ((TabGroupProxy) getProxy()).getTabList().get(this.tabGroupViewPager.getCurrentItem());
 	}
 
@@ -365,7 +387,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		// The FragmentPagerAdapter uses the ID to construct the fragment tag (android:switcher:containerID:ID)
 		// and then checks the FragmentManager for presence of said tag. The default Android implementation
 		// returns the fragment position in the ViewPager, which is of course wrong when a tab is removed
-		// and fragments in higher positions move. Thus we maintain the position and IDs in an ArrayList ourselves
+		// and fragments in higher positions move. Thus we maintain the position and IDs in an ArrayList ourselves.
 		@Override
 		public long getItemId(int position)
 		{
@@ -379,7 +401,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			if (tabsDisabled) {
 				// Since we don't want the FragmentPagerAdapter to do all kinds of rearrangements
 				// just because we decided to disable tabs. We want the fragments to stay alive for when
-				// we reenable the tabs.
+				// we enable the tabs again.
 				return numTabsWhenDisabled;
 			} else {
 				return tabs.size();
@@ -391,11 +413,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		// This gets called when getCount returns an unexpected value (e.g. a tab was removed)
 		// and now the FragmentPagerAdapter wants to check where the fragments are.
 		// We thus need to maintain a list of fragment tags since that's how we check based on
-		// the fragment passed into this function
+		// the fragment passed into this function.
 		@Override
 		public int getItemPosition(Object object)
 		{
-			TabFragment fragment = (TabFragment) object;
 			int index = tabs.indexOf(((TabFragment) object).getTab());
 			// Notify the PagerAdapter that we have removed a tab.
 			if (index < 0) {

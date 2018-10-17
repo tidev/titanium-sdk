@@ -6,29 +6,16 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.app.Activity;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
@@ -48,13 +35,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 {
 	// region private fields
 	private TabLayout mTabLayout;
-	private TabLayout.OnTabSelectedListener onTabSelectedListener;
 	// endregion
 
-	public TiUITabLayoutTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
+	public TiUITabLayoutTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		// Setup the action bar for navigation tabs.
-		super(proxy, activity, savedInstanceState);
+		super(proxy, activity);
 	}
 
 	/**
@@ -104,17 +90,20 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		// Create a new tab instance.
 		TabLayout.Tab newTab = this.mTabLayout.newTab();
 		// Set the title.
-		newTab.setText(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE)) {
+			newTab.setText(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
+		}
 		// Set the icon.
-		Drawable iconDrawable =
-			TiDrawableReference.fromObject(getProxy(), tabProxy.getProperty(TiC.PROPERTY_ICON)).getDrawable();
-		newTab.setIcon(iconDrawable);
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
+			Drawable iconDrawable =
+				TiDrawableReference.fromObject(getProxy(), tabProxy.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+			newTab.setIcon(iconDrawable);
+		}
 		// Add the new tab to the TabLayout.
 		this.mTabLayout.addTab(newTab);
 
 		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
-		RippleDrawable backgroundRippleDrawable =
-			createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
+		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 
 		// Go through the layout to set the background color state drawable manually for each tab.
 		// Currently we support only the default type of TabLayout which has a SlidingTabStrip.
@@ -122,7 +111,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			LinearLayout stripLayout = ((LinearLayout) this.mTabLayout.getChildAt(0));
 			// Get the just added TabView as a LinearLayout in order to set the background.
 			LinearLayout tabLL = ((LinearLayout) stripLayout.getChildAt(this.mTabLayout.getTabCount() - 1));
-			tabLL.setBackground(backgroundRippleDrawable);
+			tabLL.setBackground(backgroundDrawable);
 			// Set the TextView textColor.
 			for (int i = 0; i < tabLL.getChildCount(); i++) {
 				if (tabLL.getChildAt(i) instanceof TextView) {
@@ -183,7 +172,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		int index = this.mTabLayout.getSelectedTabPosition();
 		// Select the proper page in the ViewPager.
 		selectTab(index);
-		// Trigger the select/unselect event firing.
+		// Trigger the selected/unselected event firing.
 		((TabGroupProxy) getProxy()).onTabSelected(index);
 	}
 

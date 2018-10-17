@@ -269,7 +269,6 @@ properties:
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android]
 
-
   - name: activeTitleColor
     summary: Defines the color of the title of tab when it's active.
     description: |

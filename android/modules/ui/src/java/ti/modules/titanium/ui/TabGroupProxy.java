@@ -25,6 +25,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
@@ -286,7 +287,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void handleSetTabs(Object obj)
 	{
-		tabs.clear();
+		if (tabs != null) {
+			tabs.clear();
+		} else {
+			tabs = new ArrayList<TabProxy>();
+		}
 		if (obj instanceof Object[]) {
 			Object[] objArray = (Object[]) obj;
 			for (Object tabProxy : objArray) {
@@ -398,10 +403,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		if (getProperty(TiC.PROPERTY_STYLE) == null || getProperty(TiC.PROPERTY_STYLE).toString().equals("default")) {
-			view = new TiUITabLayoutTabGroup(this, activity, savedInstanceState);
+		// Currently only two styles. Introducing new ones will work with a switch statement.
+		if (getProperty(TiC.PROPERTY_STYLE) == null
+			|| ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_DEFAULT) {
+			view = new TiUITabLayoutTabGroup(this, activity);
 		} else {
-			view = new TiUIBottomNavigationTabGroup(this, activity, savedInstanceState);
+			view = new TiUIBottomNavigationTabGroup(this, activity);
 		}
 
 		setModelListener(view);
@@ -478,7 +485,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		for (TabProxy tab : tabs) {
 			tab.close(activityIsFinishing);
 		}
-
+		tabs.clear();
+		tabs = null;
 		// Call super to fire the close event on the tab group.
 		// This event must fire after each tab has been closed.
 		super.closeFromActivity(activityIsFinishing);
@@ -606,8 +614,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 					t.setTabGroup(null);
 					t.releaseViews();
 				}
-				tabs.clear();
-				tabs = null;
 			}
 		}
 	}
