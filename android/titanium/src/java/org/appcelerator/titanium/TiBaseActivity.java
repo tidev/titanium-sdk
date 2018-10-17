@@ -242,6 +242,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
+	public void resetTotalWindowStack()
+	{
+		totalWindowStack = 0;
+	}
+
 	/**
 	 * Returns the window at the top of the stack.
 	 * @return the top window or null if the stack is empty.
