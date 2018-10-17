@@ -331,6 +331,15 @@ events:
     platforms: [iphone, ipad]
     since: '3.1.0'
 
+  - name: shortcutitemclick
+    summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
+    properties:
+      - name: id
+        summary: Identifier of the clicked shortcut item.
+        type: String
+    platforms: [iphone, ipad, android]
+    since: '7.5.0'
+    
   - name: userinteraction
     summary: Called whenever an interaction with the window occurred. To be used together with the <Titanium.App.trackUserInteraction> property.
     description: |
