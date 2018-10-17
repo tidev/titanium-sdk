@@ -77,10 +77,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": "4.x || 6.x || 8.x"
+    "node": "6.x || 8.x || 10.x"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "license": "Apache-2.0"
 }
