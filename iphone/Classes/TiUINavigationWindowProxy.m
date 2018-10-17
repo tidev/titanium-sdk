@@ -1,16 +1,17 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Axway Titanium
+ * Copyright (c) 2018-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 
-#import "TiUIiOSNavWindowProxy.h"
+#if defined(USE_TI_UINAVIGATIONWINDOW) || defined(USE_TI_UIIOSNAVIGATIONWINDOW)
+
+#import "TiUINavigationWindowProxy.h"
 #import "TiApp.h"
-#import "TiUIiOSNavWindow.h"
+#import "TiUINavigationWindowInternal.h"
 
-@implementation TiUIiOSNavWindowProxy
+@implementation TiUINavigationWindowProxy
 
 - (void)_destroy
 {
@@ -27,7 +28,7 @@
 
 - (NSString *)apiName
 {
-  return @"Ti.UI.iOS.NavigationWindow";
+  return @"Ti.UI.NavigationWindow";
 }
 
 - (void)popGestureStateHandler:(UIGestureRecognizer *)recognizer
@@ -136,7 +137,7 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
   if (window == rootWindow && ![[TiApp app] willTerminate]) {
-    DebugLog(@"[ERROR] Can not close root window of the navWindow. Close this window instead");
+    DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
     return;
   }
   TiThreadPerformOnMainThread(^{
@@ -245,7 +246,7 @@
 
 #pragma mark - Private API
 
-- (void)setFrame:(CGRect)bounds
+- (void)_setFrame:(CGRect)bounds
 {
   if (navController != nil) {
     [[navController view] setFrame:bounds];
@@ -466,7 +467,7 @@
 - (TiUIView *)newView
 {
   CGRect frame = [self appFrame];
-  TiUIiOSNavWindow *win = [[TiUIiOSNavWindow alloc] initWithFrame:frame];
+  TiUINavigationWindowInternal *win = [[TiUINavigationWindowInternal alloc] initWithFrame:frame];
   return win;
 }
 
