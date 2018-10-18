@@ -322,6 +322,7 @@
 		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
 		DBCE968920FCEF1600B47572 /* KrollWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = DBCE968820FCEF1600B47572 /* KrollWrapper.m */; };
 		DBCFCB7C1F8261BF00A4CE61 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DBCFCB7B1F8261BF00A4CE61 /* SBJSON.m */; };
+		DBF4B13B200FD93400777136 /* TiUIApplicationShortcutsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF4B13A200FD93400777136 /* TiUIApplicationShortcutsProxy.m */; };
 		EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
@@ -971,6 +972,8 @@
 		DBCE968820FCEF1600B47572 /* KrollWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = KrollWrapper.m; path = ../Classes/KrollWrapper.m; sourceTree = "<group>"; };
 		DBCFCB7A1F8261BF00A4CE61 /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJSON.h; path = ../Classes/SBJSON.h; sourceTree = "<group>"; };
 		DBCFCB7B1F8261BF00A4CE61 /* SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SBJSON.m; path = ../Classes/SBJSON.m; sourceTree = "<group>"; };
+		DBF4B139200FD93400777136 /* TiUIApplicationShortcutsProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIApplicationShortcutsProxy.h; sourceTree = "<group>"; };
+		DBF4B13A200FD93400777136 /* TiUIApplicationShortcutsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIApplicationShortcutsProxy.m; sourceTree = "<group>"; };
 		DBE07F2D20AC4B42000307EA /* APSUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSUtility.h; sourceTree = "<group>"; };
 		EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = "<group>"; };
 		EF0ADD19143FA0CD00977386 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
@@ -1424,6 +1427,7 @@
 		24CA8C14111164040084E2DE /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				DBF4B138200FD90600777136 /* Application Shortcuts */,
 				DB4E9B7020B2E9510064ADF9 /* Navigation Window */,
 				DB0D54921F3B491300E2B771 /* Toolbar */,
 				BBDD81351A2C71E5003CDA10 /* AttributedString */,
@@ -2437,6 +2441,15 @@
 			name = SBJSON;
 			sourceTree = "<group>";
 		};
+		DBF4B138200FD90600777136 /* Application Shortcuts */ = {
+			isa = PBXGroup;
+			children = (
+				DBF4B139200FD93400777136 /* TiUIApplicationShortcutsProxy.h */,
+				DBF4B13A200FD93400777136 /* TiUIApplicationShortcutsProxy.m */,
+			);
+			name = "Application Shortcuts";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2592,6 +2605,7 @@
 				24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */,
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */,
+				DBF4B13B200FD93400777136 /* TiUIApplicationShortcutsProxy.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */,
 				24CA8B8C111161FE0084E2DE /* TiUISwitchProxy.m in Sources */,

@@ -140,6 +140,25 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
+	public void pin()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && shortcut != null) {
+			if (shortcutManager.isRequestPinShortcutSupported()) {
+				boolean shortcutExists = false;
+				for (ShortcutInfo shortcut : shortcutManager.getPinnedShortcuts()) {
+					if (shortcut.getId().equals(this.shortcut.getId())) {
+						shortcutExists = true;
+						break;
+					}
+				}
+				if (!shortcutExists) {
+					shortcutManager.requestPinShortcut(this.shortcut, null);
+				}
+			}
+		}
+	}
+
 	@Kroll.getProperty
 	public String getId()
 	{

@@ -78,6 +78,8 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 							if ('ios'.equals(os)) {
 								// Gather the crash report(s)
 								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								// wait 1 minute, sometimes it's delayed in writing out crash reports to disk...
+								sleep time: 1, unit: 'MINUTES'
 								def crashFiles = sh(returnStdout: true, script: "ls -1 ${home}/Library/Logs/DiagnosticReports/").trim().readLines()
 								for (int i = 0; i < crashFiles.size(); i++) {
 									def crashFile = crashFiles[i]
@@ -460,7 +462,7 @@ timestamps {
 						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existing build status.
+							sh returnStatus: true, script: 'npx danger ci' // Don't fail build if danger fails. We want to retain existing build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()

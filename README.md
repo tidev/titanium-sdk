@@ -13,6 +13,9 @@ see the LICENSE file for specific details.
 *[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
 # Table of Contents
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/appcelerator/titanium_mobile.svg)](https://greenkeeper.io/)
+
 1. [Features](#features)
 2. [Hyperloop](#hyperloop)
 3. [Alloy](#alloy)
