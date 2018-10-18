@@ -1,6 +1,8 @@
 package ti.modules.titanium.ui.widget;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,7 +20,9 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
+import org.appcelerator.titanium.view.TiToolbarStyleHandler;
 import org.appcelerator.titanium.view.TiUIView;
 
 public class TiToolbar extends TiUIView implements Handler.Callback
@@ -66,7 +70,53 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	public TiToolbar(TiViewProxy proxy)
 	{
 		super(proxy);
-		toolbar = new Toolbar(proxy.getActivity());
+		toolbar = new Toolbar(proxy.getActivity()) {
+			@Override
+			protected void onConfigurationChanged(Configuration newConfig)
+			{
+				// If auto-sized, then resize toolbar height and font size to what's defined in XML.
+				// Note: Typically, the default height is 56dp in portrait and 48dp in landscape.
+				TiCompositeLayout.LayoutParams params = TiToolbar.this.getLayoutParams();
+				boolean isAutoSized = (params != null) ? params.hasAutoSizedHeight() : true;
+				if (isAutoSized) {
+					TiToolbarStyleHandler styleHandler = new TiToolbarStyleHandler(this);
+					styleHandler.onConfigurationChanged(newConfig);
+				}
+				super.onConfigurationChanged(newConfig);
+			}
+
+			@Override
+			protected boolean fitSystemWindows(Rect insets)
+			{
+				// Do custom inset handling if "extendBackground" was applied to toolbar.
+				if ((insets != null) && getFitsSystemWindows()) {
+					// Determine if we need to pad the top or bottom based on toolbar's y-axis position.
+					boolean isPaddingTop = true;
+					TiCompositeLayout.LayoutParams params = TiToolbar.this.getLayoutParams();
+					if (params != null) {
+						if ((params.optionTop == null) && (params.optionCenterY == null)) {
+							if ((params.optionBottom != null) && (params.optionBottom.getAsPixels(this) <= 0)) {
+								// Toolbar is docked to the bottom of the view. So, pad the bottom instead.
+								isPaddingTop = false;
+							}
+						}
+					}
+
+					// Create a new insets object with either the top or bottom inset padding stripped off.
+					// Note: We never want the toolbar to pad both the top and bottom.
+					//       Especially when toolbar is docked to top of view but using a translucent navigation bar.
+					insets = new Rect(insets);
+					if (isPaddingTop) {
+						insets.bottom = 0;
+					} else {
+						insets.top = 0;
+					}
+				}
+
+				// Apply the insets to the toolbar. (Google blindly pads view based on these insets.)
+				return super.fitSystemWindows(insets);
+			}
+		};
 		setNativeView(toolbar);
 	}
 
@@ -131,27 +181,15 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			Window window = TiApplication.getAppCurrentActivity().getWindow();
-			//Compensate for status bar's height
+			// Compensate for status bar's height
 			toolbar.setFitsSystemWindows(true);
-			//Set flags for the current window that allow drawing behind status bar
-			window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-														| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+			// Set flags for the current window that allow drawing behind status bar
+			int flags = window.getDecorView().getSystemUiVisibility();
+			flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+			window.getDecorView().setSystemUiVisibility(flags);
 			window.setStatusBarColor(Color.TRANSPARENT);
 		}
-	}
-
-	/**
-	 * Calculates the Status Bar's height depending on the device
-	 * @return The status bar's height. 0 if the API level does not have status_bar_height resource
-	 */
-	private int calculateStatusBarHeight()
-	{
-		int resourceId =
-			TiApplication.getAppCurrentActivity().getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0) {
-			return TiApplication.getAppCurrentActivity().getResources().getDimensionPixelSize(resourceId);
-		}
-		return 0;
 	}
 
 	/**
