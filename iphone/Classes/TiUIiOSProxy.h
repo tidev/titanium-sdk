@@ -230,7 +230,7 @@
 - (id)createBlurView:(id)args;
 #endif
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
-- (id)createApplicationShortcuts:(id)args;
+- (id)createApplicationShortcuts:(id)args; // Deprecated in 7.1.0 in favor of API on Ti.UI namespace
 #endif
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 - (id)createFeedbackGenerator:(id)args;
