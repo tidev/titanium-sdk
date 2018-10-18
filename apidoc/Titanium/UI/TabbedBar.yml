@@ -12,7 +12,7 @@ description: |
     Use the <Titanium.UI.createTabbedBar> method to create a Tabbed Bar.
 extends: Titanium.UI.View
 platforms: [iphone, ipad, android]
-since: {iphone: "0.8", ipad: "0.8", android: "7.5.0"}
+since: {iphone: "0.8", ipad: "0.8", android: "8.0.0"}
 excludes:
     events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
         'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
