@@ -584,7 +584,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			mask |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
 			if ((getWindow().getAttributes().flags & mask) != 0) {
 				String message = "You cannot use a translucent status bar or navigation bar unless you "
-					+ "set the window's '" + TiC.PROPERTY_EXTEND_SAFE_AREA + "' property to true.";
+								 + "set the window's '" + TiC.PROPERTY_EXTEND_SAFE_AREA + "' property to true.";
 				Log.w(TAG, message);
 				getWindow().clearFlags(mask);
 			}

@@ -24,8 +24,7 @@ public class TiActivitySafeAreaMonitor
 	 * <p>
 	 * An instance of this type is expected to be passed to the setOnChangedListener() method.
 	 */
-	public interface OnChangedListener
-	{
+	public interface OnChangedListener {
 		void onChanged(TiActivitySafeAreaMonitor monitor);
 	}
 
@@ -80,8 +79,8 @@ public class TiActivitySafeAreaMonitor
 		// Set up a listener for root decor view's layout changes.
 		this.viewLayoutListener = new View.OnLayoutChangeListener() {
 			@Override
-			public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft,
-										int oldTop, int oldRight, int oldBottom)
+			public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop,
+									   int oldRight, int oldBottom)
 			{
 				// Updates safe-area based on view's newest size and position.
 				// Note: On Android 4.4 and below, we have to poll for inset on every layout change.
