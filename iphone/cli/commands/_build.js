@@ -2558,12 +2558,11 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 				if (error.code === 'ENOTFOUND') {
 					_t.logger.error(__('Unable to connect to log server on localhost'));
 					_t.logger.error(__('Please ensure your /etc/hosts file contains a valid entry for `localhost`'));
-					process.exit(1);
 				} else {
 					_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
 					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-					process.exit(1);
 				}
+				process.exit(1);
 			}
 
 			// connect to the port and see if it's a Titanium app...
