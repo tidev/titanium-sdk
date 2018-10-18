@@ -42,7 +42,6 @@ import android.util.Pair;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewParent;
-import android.view.Window;
 
 // clang-format off
 @Kroll.proxy(propertyAccessors = {

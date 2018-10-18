@@ -54,9 +54,9 @@ public class TiToolbarStyleHandler
 	}
 
 	/**
-	 * To be called by the owner when the activity/view's overriden onConfigurationChanged() method has been called.
+	 * To be called by the owner when the activity/view's overridden onConfigurationChanged() method has been called.
 	 * Updates the toolbar's height and font size base on the given configuration.
-	 * @param newConfig The udpated configuration applied to the activity/view.
+	 * @param newConfig The updated configuration applied to the activity/view.
 	 */
 	public void onConfigurationChanged(Configuration newConfig)
 	{

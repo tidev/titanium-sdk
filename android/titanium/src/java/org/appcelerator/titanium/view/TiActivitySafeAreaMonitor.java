@@ -362,7 +362,7 @@ public class TiActivitySafeAreaMonitor
 
 		// Calculate the safe-area, which is the region between the insets.
 		// Note: We must dynamically add ActionBar height here (if enabled) since its
-		//       visbility and height changes can only be detected via an onLayoutChange() event.
+		//       visibility and height changes can only be detected via an onLayoutChange() event.
 		Rect rect = new Rect();
 		rect.left = this.insetLeft;
 		rect.top = this.insetTop + getActionBarInsetHeight();

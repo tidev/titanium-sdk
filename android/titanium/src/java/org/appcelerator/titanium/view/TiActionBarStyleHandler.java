@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiRHelper;
 
 /**
@@ -37,9 +38,9 @@ public class TiActionBarStyleHandler
 	}
 
 	/**
-	 * To be called by the owner when the activity's overriden onConfigurationChanged() method has been called.
+	 * To be called by the owner when the activity's overridden onConfigurationChanged() method has been called.
 	 * Updates the ActionBar's height and font size base on the given configuration.
-	 * @param newConfig The udpated configuration applied to the activity.
+	 * @param newConfig The updated configuration applied to the activity.
 	 */
 	public void onConfigurationChanged(Configuration newConfig)
 	{
@@ -93,6 +94,7 @@ public class TiActionBarStyleHandler
 				toolbarStyleHandler = new TiToolbarStyleHandler((Toolbar) view);
 			}
 		} catch (Exception ex) {
+			Log.d(TAG, ex.getMessage(), ex);
 		}
 
 		// Do not continue if ActionBar not found.
