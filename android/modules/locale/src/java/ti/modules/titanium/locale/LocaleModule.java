@@ -26,7 +26,7 @@ public class LocaleModule extends KrollModule
 
 	public LocaleModule()
 	{
-		super();
+		super("Locale");
 	}
 
 	// clang-format off

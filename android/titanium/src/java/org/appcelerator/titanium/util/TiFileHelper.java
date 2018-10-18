@@ -33,12 +33,14 @@ import java.util.zip.ZipInputStream;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Environment;
 import android.webkit.URLUtil;
 
@@ -50,6 +52,8 @@ public class TiFileHelper
 	public static final String TI_DIR = "tiapp";
 	public static final String TI_DIR_JS = "tijs";
 	private static final String MACOSX_PREFIX = "__MACOSX";
+	private static final String CONTENT_URL_PREFIX = ContentResolver.SCHEME_CONTENT + ":";
+	private static final String ANDROID_RESOURCE_URL_PREFIX = ContentResolver.SCHEME_ANDROID_RESOURCE + ":";
 	private static final String TI_RESOURCE_PREFIX = "ti:";
 	public static final String RESOURCE_ROOT_ASSETS = "file:///android_asset/Resources";
 	public static final String SD_CARD_PREFIX = "/sdcard/Ti.debug";
@@ -198,6 +202,9 @@ public class TiFileHelper
 			} else if (URLUtil.isFileUrl(path)) {
 				URL u = new URL(path);
 				is = u.openStream();
+			} else if (path.startsWith(ANDROID_RESOURCE_URL_PREFIX) || path.startsWith(CONTENT_URL_PREFIX)) {
+				ContentResolver contentResolver = context.getContentResolver();
+				is = contentResolver.openInputStream(Uri.parse(path));
 			} else {
 				path = joinPaths("Resources", path);
 				is = context.getAssets().open(path);

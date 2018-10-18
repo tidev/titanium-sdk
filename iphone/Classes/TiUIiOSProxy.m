@@ -45,7 +45,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavWindowProxy.h"
+#import "TiUIiOSNavigationWindowProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSPLITWINDOW
@@ -501,7 +501,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 - (id)createNavigationWindow:(id)args
 {
-  return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  return [[[TiUIiOSNavigationWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -728,9 +728,12 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER, UIWebViewNavigationTypeOther);
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args
 {
+  DEPRECATED_REPLACED(@"UI.iOS.ApplicationShortcuts", @"7.5.0", @"UI.ApplicationShortcuts");
   return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+#endif
 
+#if defined(USE_TI_UIIOSAPPLICATIONSHORTCUTS) || defined(USE_TI_UIAPPLICATIONSHORTCUTS)
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE, UIApplicationShortcutIconTypeCompose);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY, UIApplicationShortcutIconTypePlay);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PAUSE, UIApplicationShortcutIconTypePause);
