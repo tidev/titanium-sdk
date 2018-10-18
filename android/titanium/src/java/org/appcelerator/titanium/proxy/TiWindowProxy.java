@@ -508,15 +508,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
+		ActivityOptions options = null;
 		if (hasActivityTransitions() && sharedElementPairs != null && !sharedElementPairs.isEmpty()) {
-			Bundle b = ActivityOptions
-						   .makeSceneTransitionAnimation(
-							   activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]))
-						   .toBundle();
-			return b;
+			options = ActivityOptions.makeSceneTransitionAnimation(
+				activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
 		} else {
-			return null;
+			options = ActivityOptions.makeBasic();
 		}
+		return options.toBundle();
 	}
 
 	/**
