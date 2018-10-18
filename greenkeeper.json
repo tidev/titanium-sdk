@@ -4,7 +4,11 @@
       "packages": [
         "android/package.json",
         "iphone/package.json",
-        "package.json",
+        "package.json"
+      ]
+    },
+    "templates": {
+      "packages": [
         "templates/app/angular-default/template/app/package.json"
       ]
     }
