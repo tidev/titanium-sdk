@@ -78,6 +78,8 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 							if ('ios'.equals(os)) {
 								// Gather the crash report(s)
 								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								// wait 1 minute, sometimes it's delayed in writing out crash reports to disk...
+								sleep time: 1, unit: 'MINUTES'
 								def crashFiles = sh(returnStdout: true, script: "ls -1 ${home}/Library/Logs/DiagnosticReports/").trim().readLines()
 								for (int i = 0; i < crashFiles.size(); i++) {
 									def crashFile = crashFiles[i]
