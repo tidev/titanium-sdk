@@ -2174,11 +2174,14 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (proxy == null) {
 			return null;
 		}
+		KrollDict properties = proxy.getProperties();
+		return composeContentDescription(properties);
+	}
 
+	public static String composeContentDescription(KrollDict properties)
+	{
 		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
 		StringBuilder buffer = new StringBuilder();
-
-		KrollDict properties = proxy.getProperties();
 		String label, hint, value;
 		label = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
 		hint = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
