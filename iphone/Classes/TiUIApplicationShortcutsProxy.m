@@ -1,12 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
-#import "TiUIiOSApplicationShortcutsProxy.h"
+#if defined(USE_TI_UIIOSAPPLICATIONSHORTCUTS) || defined(USE_TI_UIAPPLICATIONSHORTCUTS)
+#import "TiUIApplicationShortcutsProxy.h"
 #import "TiUtils.h"
 #ifdef USE_TI_CONTACTS
 #import "TiContactsPerson.h"
@@ -14,17 +14,17 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <ContactsUI/ContactsUI.h>
 
-@implementation TiUIiOSApplicationShortcutsProxy
+@implementation TiUIApplicationShortcutsProxy
 
 - (NSString *)apiName
 {
-  return @"Ti.Ui.iOS.ApplicationShortcuts";
+  return @"Ti.UI.ApplicationShortcuts";
 }
 
 - (NSDictionary *)shortcutItemToDictionary:(UIApplicationShortcutItem *)item
 {
   NSMutableDictionary *dict = [NSMutableDictionary
-      dictionaryWithObjectsAndKeys:item.type, @"itemtype",
+      dictionaryWithObjectsAndKeys:item.type, @"identifier",
       nil];
 
   if (item.localizedTitle != nil) {
@@ -100,25 +100,25 @@
   return NO;
 }
 
-- (NSNumber *)dynamicShortcutExists:(id)itemtype
+- (NSNumber *)dynamicShortcutExists:(id)identifier
 {
-  ENSURE_SINGLE_ARG(itemtype, NSString);
+  ENSURE_SINGLE_ARG(identifier, NSString);
 
-  if ([TiUtils stringValue:itemtype] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
+  if ([TiUtils stringValue:identifier] == nil) {
+    NSLog(@"[ERROR] Ti.UI.ApplicationShortcuts: The \"identifier\" property is required.");
     return;
   }
 
-  return NUMBOOL([self typeExists:[TiUtils stringValue:itemtype]]);
+  return NUMBOOL([self typeExists:[TiUtils stringValue:identifier]]);
 }
 
-- (NSDictionary *)getDynamicShortcut:(id)itemtype
+- (NSDictionary *)getDynamicShortcut:(id)identifier
 {
-  ENSURE_SINGLE_ARG(itemtype, NSString);
+  ENSURE_SINGLE_ARG(identifier, NSString);
 
   NSArray *shortcuts = [UIApplication sharedApplication].shortcutItems;
   for (UIApplicationShortcutItem *item in shortcuts) {
-    if ([item.type isEqualToString:[TiUtils stringValue:itemtype]]) {
+    if ([item.type isEqualToString:[TiUtils stringValue:identifier]]) {
       return [self shortcutItemToDictionary:item];
     }
   }
@@ -126,14 +126,14 @@
   return nil;
 }
 
-- (void)removeDynamicShortcut:(id)itemtype
+- (void)removeDynamicShortcut:(id)identifier
 {
-  ENSURE_SINGLE_ARG(itemtype, NSString);
+  ENSURE_SINGLE_ARG(identifier, NSString);
 
-  NSString *key = [TiUtils stringValue:itemtype];
+  NSString *key = [TiUtils stringValue:identifier];
 
   if (key == nil) {
-    NSLog(@"[ERROR] The \"itemtype\" property is required.");
+    NSLog(@"[ERROR] The \"identifier\" property is required.");
     return;
   }
 
@@ -156,23 +156,23 @@
 {
   ENSURE_SINGLE_ARG(args, NSDictionary);
 
-  if ([args objectForKey:@"itemtype"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
+  if ([args objectForKey:@"identifier"] == nil) {
+    NSLog(@"[ERROR] Ti.UI.ApplicationShortcuts: The \"identifier\" property is required.");
     return;
   }
 
   if ([args objectForKey:@"title"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"title\" property is required.");
+    NSLog(@"[ERROR] Ti.UI.ApplicationShortcuts: The \"title\" property is required.");
     return;
   }
 
-  if ([self typeExists:[args objectForKey:@"itemtype"]]) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype for the shortcut %@ already exists. This field must be unique.",
-        [args objectForKey:@"itemtype"]);
+  if ([self typeExists:[args objectForKey:@"identifier"]]) {
+    NSLog(@"[ERROR] Ti.UI.ApplicationShortcuts: The identifier for the shortcut %@ already exists. This field must be unique.",
+        [args objectForKey:@"identifier"]);
     return;
   }
 
-  UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"itemtype"]
+  UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"identifier"]
                                                                           localizedTitle:[args objectForKey:@"title"]
                                                                        localizedSubtitle:[args objectForKey:@"subtitle"]
                                                                                     icon:[self findIcon:[args objectForKey:@"icon"]]
@@ -209,7 +209,7 @@
     return [UIApplicationShortcutIcon iconWithTemplateImageName:[self urlInAssetCatalog:value]];
   }
 
-  NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: Invalid icon provided, defaulting to use no icon.");
+  NSLog(@"[ERROR] Ti.UI.ApplicationShortcuts: Invalid icon provided, defaulting to use no icon.");
   return nil;
 }
 
