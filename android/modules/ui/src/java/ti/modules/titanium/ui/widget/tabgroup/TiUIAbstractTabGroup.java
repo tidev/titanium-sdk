@@ -99,7 +99,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	// endregion
 
 	// region private fields
-	private final int offscreenPagesLimit = 1;
 	private int textColorInt;
 	private ArrayList<TiUITab> tabs = new ArrayList<>();
 	// endregion
@@ -187,7 +186,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		tabProxy.setView(abstractTab);
 
 		this.tabGroupPagerAdapter.notifyDataSetChanged();
-		this.tabGroupViewPager.setOffscreenPageLimit(this.offscreenPagesLimit);
 
 		addTabItemInController(tabProxy);
 	}
