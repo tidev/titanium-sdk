@@ -828,7 +828,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   UIGraphicsEndImageContext();
 
-  TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+  TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
   NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
   [self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
 }
@@ -1713,7 +1713,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)saveCompletedForImage:(UIImage *)image error:(NSError *)error contextInfo:(void *)contextInfo
 {
   NSDictionary *saveCallbacks = (NSDictionary *)contextInfo;
-  TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+  TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
 
   if (error != nil) {
     KrollCallback *errorCallback = [saveCallbacks objectForKey:@"error"];
@@ -1761,7 +1761,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 - (void)handleTrimmedVideo:(NSURL *)theURL withDictionary:(NSDictionary *)dictionary
 {
-  TiBlob *media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[theURL path]] autorelease];
+  TiBlob *media = [[[TiBlob alloc] initWithFile:[theURL path]] autorelease];
   NSMutableDictionary *eventDict = [NSMutableDictionary dictionaryWithDictionary:dictionary];
   [eventDict setObject:media forKey:@"media"];
   if (saveToRoll) {
@@ -1859,7 +1859,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (isVideo) {
 
     UIImage *thumbnailImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-    thumbnail = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:thumbnailImage] autorelease];
+    thumbnail = [[[TiBlob alloc] initWithImage:thumbnailImage] autorelease];
 
     if (picker.allowsEditing) {
       NSNumber *startTime = [editingInfo objectForKey:@"_UIImagePickerControllerVideoEditingStart"];
@@ -1906,7 +1906,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       }
     }
 
-    media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[mediaURL path]] autorelease];
+    media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
     if ([media mimeType] == nil) {
       [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
     }
@@ -1918,7 +1918,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
     if ((mediaURL != nil) && (editedImage == nil)) {
 
-      media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[mediaURL path]] autorelease];
+      media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
       [media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
 
       if (saveToRoll) {
@@ -1969,8 +1969,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
         resultImage = [TiUtils adjustRotation:editedImage ?: originalImage];
       }
 
-      media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
-      [media setImage:resultImage];
+      media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
 
       if (saveToRoll) {
         UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);

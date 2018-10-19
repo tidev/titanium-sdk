@@ -11,7 +11,6 @@
 #import "TiCalendarAlert.h"
 #import "TiCalendarEvent.h"
 #import "TiCalendarRecurrenceRule.h"
-#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 
 #pragma mark -
