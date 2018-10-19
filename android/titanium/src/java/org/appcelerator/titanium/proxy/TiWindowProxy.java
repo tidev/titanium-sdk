@@ -29,15 +29,13 @@ import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.util.DisplayMetrics;
-import android.util.Pair;
-import android.view.Display;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.view.View;
 import android.view.Window;
 
@@ -508,12 +506,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
-		ActivityOptions options = null;
+		ActivityOptionsCompat options = null;
 		if (hasActivityTransitions() && sharedElementPairs != null && !sharedElementPairs.isEmpty()) {
-			options = ActivityOptions.makeSceneTransitionAnimation(
+			options = ActivityOptionsCompat.makeSceneTransitionAnimation(
 				activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
 		} else {
-			options = ActivityOptions.makeBasic();
+			options = ActivityOptionsCompat.makeBasic();
 		}
 		return options.toBundle();
 	}
