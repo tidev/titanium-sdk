@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@
 #import "FilesystemModule.h"
 #import "TiFilesystemBlobProxy.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiFilesystemFileProxy.h>
 #import <TitaniumKit/TiFilesystemFileStreamProxy.h>
 #import <TitaniumKit/TiHost.h>
@@ -206,7 +207,7 @@
         RELEASE_TO_NIL(sha)
       }
     }
-    return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andImage:image] autorelease];
+    return [[[TiBlob alloc] initWithImage:image] autorelease];
   }
   return [NSNull null];
 }
