@@ -23,8 +23,8 @@ describe('Titanium.Network.HTTPClient', function () {
 			try {
 				const response = e.source.responseDictionary ? e.source.responseDictionary.json : null;
 
-				if (response) {
-					if (response.count <= 8) {
+				if (response !== undefined) {
+					if (response && response.count <= 8) {
 						return xhr.send(JSON.stringify({ count: ++count }));
 					}
 					return finish();
