@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,11 +20,16 @@
   if ([arg isString]) {
     return [arg toString];
   }
-  // FIXME: Once TiBlob/TiFile have been migrated we can remove this conversion
+
+  // The *new* way of converting from JSValue to JSExport based proxies
+  id possibleBlob = [arg toObject];
+  if ([possibleBlob isKindOfClass:[TiBlob class]]) {
+    return [(TiBlob *)possibleBlob text];
+  }
+
+  // FIXME: Once TiFile have been migrated we can remove this conversion
   id oldProxyStyle = [self JSValueToNative:arg];
-  if ([oldProxyStyle isKindOfClass:[TiBlob class]]) {
-    return [(TiBlob *)oldProxyStyle text];
-  } else if ([oldProxyStyle isKindOfClass:[TiFile class]]) {
+  if ([oldProxyStyle isKindOfClass:[TiFile class]]) {
     return [(TiBlob *)[(TiFile *)oldProxyStyle blob] text];
   }
   THROW_INVALID_ARG(@"Invalid type");
@@ -36,14 +41,17 @@
     return [[self convertToString:arg] dataUsingEncoding:NSUTF8StringEncoding];
   }
 
-  // FIXME: Once TiBlob/TiFile have been migrated we can remove this conversion
+  // The *new* way of converting from JSValue to JSExport based proxies
+  id possibleBlob = [arg toObject];
+  if ([possibleBlob isKindOfClass:[TiBlob class]]) {
+    return [(TiBlob *)possibleBlob data];
+  }
+
+  // FIXME: Once TiFile have been migrated we can remove this conversion
   id oldProxyStyle = [self JSValueToNative:arg];
   if ([oldProxyStyle isKindOfClass:[TiFile class]]) {
     // Support TiFile with possibly binary data by converting to TiBlob and continuing...
-    oldProxyStyle = [(TiFile *)oldProxyStyle blob];
-  }
-  if ([oldProxyStyle isKindOfClass:[TiBlob class]]) {
-    return [(TiBlob *)oldProxyStyle data];
+    return [[(TiFile *)oldProxyStyle blob] data];
   }
   THROW_INVALID_ARG(@"Invalid type");
 }
@@ -55,20 +63,19 @@
 
 #pragma mark Public API
 
-- (JSValue *)base64encode:(JSValue *)obj
+- (TiBlob *)base64encode:(JSValue *)obj
 {
   NSData *data = [self convertToData:obj];
   NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
   if (base64Encoded != nil) {
-    // FIXME: Remove conversion once TiBlob is moved to Obj-c proxy
-    return [self NativeToJSValue:[[[TiBlob alloc] initWithData:[base64Encoded dataUsingEncoding:NSUTF8StringEncoding]
-                                                      mimetype:@"application/octet-stream"] autorelease]];
+    return [[[TiBlob alloc] initWithData:[base64Encoded dataUsingEncoding:NSUTF8StringEncoding]
+                                mimetype:@"application/octet-stream"] autorelease];
   }
 
   return nil;
 }
 
-- (JSValue *)base64decode:(JSValue *)obj
+- (TiBlob *)base64decode:(JSValue *)obj
 {
   NSString *str = [[self convertToString:obj] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
   int padding = (4 - (str.length % 4)) % 4;
@@ -76,8 +83,7 @@
   NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:paddedStr options:0] autorelease];
 
   if (decodedData != nil) {
-    // FIXME: Remove conversion once TiBlob is moved to Obj-c proxy
-    return [self NativeToJSValue:[[[TiBlob alloc] initWithData:decodedData mimetype:@"application/octet-stream"] autorelease]];
+    return [[[TiBlob alloc] initWithData:decodedData mimetype:@"application/octet-stream"] autorelease];
   }
 
   return nil;

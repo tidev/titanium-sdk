@@ -8,7 +8,6 @@
 #ifdef USE_TI_CALENDAR
 
 #import "TiCalendarCalendar.h"
-#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 
 #import "TiCalendarRecurrenceRule.h"
