@@ -507,7 +507,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
 		ActivityOptionsCompat options = null;
-		if (hasActivityTransitions() && sharedElementPairs != null && !sharedElementPairs.isEmpty()) {
+		if (hasActivityTransitions()) {
+
+			// NOTE: some versions of Android do not animate the window enter or exit transition
+			// without returning a valid bundle. If the activity has transitions; always return a bundle.
+			if (sharedElementPairs.isEmpty()) {
+				sharedElementPairs.add(new Pair<View, String>(new View(activity), "ti_compatibility_element"));
+			}
 			options = ActivityOptionsCompat.makeSceneTransitionAnimation(
 				activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
 		} else {
