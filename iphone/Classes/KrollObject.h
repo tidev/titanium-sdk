@@ -83,4 +83,9 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 - (void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
 - (void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
 
+#ifdef USE_JSCORE_FRAMEWORK
+- (void)applyGarbageCollectionSafeguard;
+- (void)removeGarbageCollectionSafeguard;
+#endif
+
 @end
