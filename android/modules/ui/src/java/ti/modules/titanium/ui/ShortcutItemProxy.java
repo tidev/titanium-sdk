@@ -140,8 +140,30 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
+	public void pin()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && shortcut != null) {
+			if (shortcutManager.isRequestPinShortcutSupported()) {
+				boolean shortcutExists = false;
+				for (ShortcutInfo shortcut : shortcutManager.getPinnedShortcuts()) {
+					if (shortcut.getId().equals(this.shortcut.getId())) {
+						shortcutExists = true;
+						break;
+					}
+				}
+				if (!shortcutExists) {
+					shortcutManager.requestPinShortcut(this.shortcut, null);
+				}
+			}
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
+	// clang-format on
 	{
 		if (shortcut != null) {
 			return shortcut.getId();
@@ -149,8 +171,11 @@ public class ShortcutItemProxy extends KrollProxy
 		return null;
 	}
 
+	// clang-format off
+	@Kroll.method
 	@Kroll.getProperty
 	public boolean getVisible()
+	// clang-format on
 	{
 		if (shortcut != null) {
 			return shortcuts.contains(shortcut);

@@ -393,6 +393,16 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
   return false;
 }
 
+@interface KrollObject ()
+
+/**
+ Boolean flag indicating whether the underlying JSObjectRef was safeguarded against
+ being GC'ed during the proxy creation flow.
+ */
+@property (nonatomic, assign, getter=isGcSafeguarded) BOOL gcSafeguarded;
+
+@end
+
 @implementation KrollObject
 
 @synthesize propsObject, finalized, bridge;
@@ -445,6 +455,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     bridge = (KrollBridge *)[context_ delegate];
     jsobject = TiObjectMake(jsContext, [[self class] jsClassRef], self);
     targetable = [target conformsToProtocol:@protocol(KrollTargetable)];
+
+    self.gcSafeguarded = NO;
   }
   return self;
 }
@@ -1397,5 +1409,68 @@ TiThreadPerformOnMainThread(mainBlock, NO);
     }
   }
 }
+
+#ifdef USE_JSCORE_FRAMEWORK
+/**
+ Protects the underlying JSObjectRef from being accidentally GC'ed.
+
+ Upon proxy creation there is a small timeframe between creating the KrollObject
+ with its JSObject and the JSObject actually getting referenced in the JS object graph.
+ If JSC's garbage collection happens during this time the JSObject is lost and eventually
+ leads to a crash inside the JSC runtime.
+ */
+- (void)applyGarbageCollectionSafeguard
+{
+  if (self.isGcSafeguarded == YES) {
+    return;
+  }
+
+  if (finalized == YES || jsContext == NULL || jsobject == NULL) {
+    return;
+  }
+
+#ifdef TI_USE_KROLL_THREAD
+  if (![context isKJSThread]) {
+    NSOperation *safeProtect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(applyGarbageCollectionSafeguard) object:nil];
+    [context enqueue:safeProtect];
+    [safeProtect release];
+    return;
+  }
+#endif
+
+  TiValueProtect(jsContext, jsobject);
+  self.gcSafeguarded = YES;
+}
+
+/**
+ Removes the garbage collection safeguard by unprotecting the JSObjectRef again.
+
+ This must only be called immediately before the JSObjectRef gets inserted into the JS object
+ graph. Even better would be after the insertion but there is currently no viable place to do
+ that in our proxy creation flow.
+ */
+- (void)removeGarbageCollectionSafeguard
+{
+  if (self.isGcSafeguarded == NO) {
+    return;
+  }
+
+  if (finalized == YES || jsContext == NULL || jsobject == NULL) {
+    return;
+  }
+
+#ifdef TI_USE_KROLL_THREAD
+  if (![context isKJSThread]) {
+    NSOperation *safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(removeGarbageCollectionSafeguard) object:nil];
+    [context enqueue:safeUnprotect];
+    [safeUnprotect release];
+    return;
+  }
+#endif
+
+  TiValueUnprotect(jsContext, jsobject);
+  self.gcSafeguarded = NO;
+}
+#endif
 
 @end
