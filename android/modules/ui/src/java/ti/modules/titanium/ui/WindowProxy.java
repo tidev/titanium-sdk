@@ -57,8 +57,7 @@ import android.view.WindowManager;
 	propertyAccessors = {
 		TiC.PROPERTY_MODAL,
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-		TiC.PROPERTY_FLAG_SECURE,
-		TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE
+		TiC.PROPERTY_FLAG_SECURE
 })
 // clang-format on
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow

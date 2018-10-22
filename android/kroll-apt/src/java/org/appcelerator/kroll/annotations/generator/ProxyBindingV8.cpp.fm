@@ -208,22 +208,28 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 			titanium::Proxy::onPropertyChanged,
 		</#if>
 			Local<Value>(), DEFAULT,
-		<#if property.set>
+		<#if property.set || proxyAttrs.propertyAccessors?seq_contains(name)>
 			static_cast<v8::PropertyAttribute>(v8::DontDelete)
 		<#else>
 			static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete)
 		</#if>
-		);
+	);
 	</@Proxy.listDynamicProperties>
 
 	// Accessors --------------------------------------------------------------
 	<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+	<#if !dynamicProperties?? || !dynamicProperties?keys?seq_contains(name)>
 	instanceTemplate->SetAccessor(
 		NEW_SYMBOL(isolate, "${name}"),
 		titanium::Proxy::getProperty,
 		titanium::Proxy::onPropertyChanged);
+	</#if>
+	<#if !methods?? || !methods?keys?seq_contains(getter)>
 	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${getter}", titanium::Proxy::getProperty, NEW_SYMBOL(isolate, "${name}"));
+	</#if>
+	<#if !methods?? || !methods?keys?seq_contains(setter)>
 	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${setter}", titanium::Proxy::onPropertyChanged, NEW_SYMBOL(isolate, "${name}"));
+	</#if>
 	</@Proxy.listPropertyAccessors>
 
 	<#if interceptor??>

@@ -19,21 +19,7 @@ import android.app.NotificationChannel;
 import android.os.Build;
 
 @TargetApi(26)
-// clang-format off
-@Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_BYPASS_DND,
-	TiC.PROPERTY_DESCRIPTION,
-	TiC.PROPERTY_ENABLE_LIGHTS,
-	TiC.PROPERTY_ENABLE_VIBRATION,
-	TiC.PROPERTY_GROUP_ID,
-	TiC.PROPERTY_IMPORTANCE,
-	TiC.PROPERTY_LIGHT_COLOR,
-	TiC.PROPERTY_LOCKSCREEN_VISIBILITY,
-	TiC.PROPERTY_NAME,
-	TiC.PROPERTY_SHOW_BADGE,
-	TiC.PROPERTY_VIBRATE_PATTERN
-})
-// clang-format on
+@Kroll.proxy
 public class NotificationChannelProxy extends KrollProxy
 {
 	private static final String TAG = "TiNotificationChannel";
@@ -98,12 +84,29 @@ public class NotificationChannelProxy extends KrollProxy
 
 	// clang-format off
 	@Kroll.method
+	@Kroll.getProperty
+	public boolean getEnableLights()
+	// clang-format on
+	{
+		return channel.shouldShowLights();
+	}
+
+	// clang-format off
+	@Kroll.method
 	@Kroll.setProperty
 	public void setEnableLights(boolean lights)
 	// clang-format on
 	{
 		channel.enableLights(lights);
-		setProperty(TiC.PROPERTY_ENABLE_LIGHTS, lights);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getEnableVibration()
+	// clang-format on
+	{
+		return channel.shouldVibrate();
 	}
 
 	// clang-format off
@@ -113,7 +116,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.enableVibration(vibration);
-		setProperty(TiC.PROPERTY_ENABLE_VIBRATION, vibration);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getBypassDnd()
+	// clang-format on
+	{
+		return channel.canBypassDnd();
 	}
 
 	// clang-format off
@@ -123,7 +134,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setBypassDnd(bypassDnd);
-		setProperty(TiC.PROPERTY_BYPASS_DND, bypassDnd);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getDescription()
+	// clang-format on
+	{
+		return channel.getDescription();
 	}
 
 	// clang-format off
@@ -133,7 +152,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setDescription(description);
-		setProperty(TiC.PROPERTY_DESCRIPTION, description);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getGroupId()
+	// clang-format on
+	{
+		return channel.getGroup();
 	}
 
 	// clang-format off
@@ -143,7 +170,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setGroup(groupId);
-		setProperty(TiC.PROPERTY_GROUP_ID, groupId);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getImportance()
+	// clang-format on
+	{
+		return channel.getImportance();
 	}
 
 	// clang-format off
@@ -153,7 +188,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setImportance(importance);
-		setProperty(TiC.PROPERTY_IMPORTANCE, importance);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLightColor()
+	// clang-format on
+	{
+		return channel.getLightColor();
 	}
 
 	// clang-format off
@@ -163,7 +206,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setLightColor(argb);
-		setProperty(TiC.PROPERTY_LIGHT_COLOR, argb);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLockscreenVisibility()
+	// clang-format on
+	{
+		return channel.getLockscreenVisibility();
 	}
 
 	// clang-format off
@@ -173,7 +224,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setLockscreenVisibility(lockscreenVisibility);
-		setProperty(TiC.PROPERTY_LOCKSCREEN_VISIBILITY, lockscreenVisibility);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	// clang-format on
+	{
+		return channel.getName().toString();
 	}
 
 	// clang-format off
@@ -183,7 +242,15 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setName(name);
-		setProperty(TiC.PROPERTY_NAME, name);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getShowBadge()
+	// clang-format on
+	{
+		return channel.canShowBadge();
 	}
 
 	// clang-format off
@@ -193,7 +260,20 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setShowBadge(showBadge);
-		setProperty(TiC.PROPERTY_SHOW_BADGE, showBadge);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public Object getVibrationPattern()
+	// clang-format on
+	{
+		long[] pattern = channel.getVibrationPattern();
+		Object[] patternArray = new Object[pattern.length];
+		for (int i = 0; i < pattern.length; i++) {
+			patternArray[i] = Long.valueOf(pattern[i]);
+		}
+		return patternArray;
 	}
 
 	// clang-format off
@@ -214,7 +294,6 @@ public class NotificationChannelProxy extends KrollProxy
 				pattern[i] = ((Integer) patternArray[i]).intValue();
 			}
 			channel.setVibrationPattern(pattern);
-			setProperty(TiC.PROPERTY_VIBRATE_PATTERN, patternArray);
 		}
 	}
 

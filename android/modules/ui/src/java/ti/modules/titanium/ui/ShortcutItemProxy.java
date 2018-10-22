@@ -159,8 +159,11 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 	}
 
+	// clang-format off
+	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
+	// clang-format on
 	{
 		if (shortcut != null) {
 			return shortcut.getId();
@@ -168,8 +171,11 @@ public class ShortcutItemProxy extends KrollProxy
 		return null;
 	}
 
+	// clang-format off
+	@Kroll.method
 	@Kroll.getProperty
 	public boolean getVisible()
+	// clang-format on
 	{
 		if (shortcut != null) {
 			return shortcuts.contains(shortcut);
