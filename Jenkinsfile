@@ -12,7 +12,7 @@ def isGreenKeeper = env.BRANCH_NAME.startsWith('greenkeeper/') || 'greenkeeper[b
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of windows SDK to use and test suite to test with
-def targetBranch = isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master')
+def targetBranch = isGreenKeeper ? 'master' : (isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master'))
 def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline branch, by default
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
@@ -156,14 +156,7 @@ timestamps {
 
 					// Install dependencies
 					timeout(5) {
-						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						if (isGreenKeeper) {
-							sh 'npm install'
-							sh 'npm install -g sgtcoolguy/greenkeeper-lockfile#jenkins-multibranch'
-							sh 'greenkeeper-lockfile-update'
-						} else {
-							sh 'npm ci'
-						}
+						sh 'npm ci'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
 					if (fileExists('npm_test.log')) {
@@ -179,8 +172,6 @@ timestamps {
 						stash allowEmpty: true, name: 'test-report-ios'
 						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
-					} else if (isGreenKeeper) {
-						sh 'greenkeeper-lockfile-upload' // FIXME: This will get pushed up even if unit tests on sims fails later...
 					}
 				}
 
