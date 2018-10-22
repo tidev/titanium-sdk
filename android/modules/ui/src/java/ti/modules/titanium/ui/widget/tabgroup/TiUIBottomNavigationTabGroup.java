@@ -115,6 +115,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		if (this.mMenuItemsArray.size() == 1) {
 			((TabGroupProxy) getProxy()).onTabSelected(tabProxy);
 			currentlySelectedIndex = 0;
+			selectTab(currentlySelectedIndex);
 		}
 		// Set the drawables.
 		setDrawables();
