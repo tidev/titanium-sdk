@@ -55,7 +55,7 @@
   "devDependencies": {
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
-    "danger": "^4.4.8",
+    "danger": "^6.0.0",
     "eslint-config-axway": "^4.0.0",
     "eslint-plugin-mocha": "^5.0.0",
     "grunt": "^1.0.3",
