@@ -454,17 +454,8 @@
                                  if (!callback) {
                                    return;
                                  }
-
-                                 NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
-                                   @"result" : result ?: [NSNull null],
-                                   @"success" : NUMBOOL(error == nil)
-                                 }];
-
-                                 if (error) {
-                                   [event setObject:[error localizedDescription] forKey:@"error"];
-                                 }
-
-                                 [callback call:[[NSArray alloc] initWithObjects:&event count:1] thisObject:self];
+                                 result = result ?: [NSNull null];
+                                 [callback call:@[ result ] thisObject:self];
                                }];
   },
       NO);
