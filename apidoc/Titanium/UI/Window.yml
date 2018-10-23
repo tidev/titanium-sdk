@@ -456,7 +456,7 @@ properties:
         Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
     platforms: [android, iphone, ipad]
     type: Boolean
-    default: `true` on iOS. `false` on Android.
+    default: {android: false, ios: true}
     since: {android: "7.5.0", iphone: "6.3.0", ipad: "6.3.0"}
     availability: creation
     osver: {android: {min: "4.4"}, ios: {min: "11.0"}}
