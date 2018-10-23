@@ -1,5 +1,6 @@
 package ti.modules.titanium.ui.widget;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -10,12 +11,15 @@ import android.os.Message;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowManager;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -86,6 +90,17 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 			}
 
 			@Override
+			public WindowInsets onApplyWindowInsets(WindowInsets insets)
+			{
+				// Give toolbar a copy of insets and ignore returned "consumed" insets which is set to all zeros.
+				// Returning zero insets prevents other child views in the hierarchy from receiving system insets,
+				// which prevents their setFitsSystemWindows(true) from working. (Such as a 2nd toolbar.)
+				WindowInsets clonedInsets = (insets != null) ? new WindowInsets(insets) : null;
+				super.onApplyWindowInsets(clonedInsets);
+				return insets;
+			}
+
+			@Override
 			protected boolean fitSystemWindows(Rect insets)
 			{
 				// Do custom inset handling if "extendBackground" was applied to toolbar.
@@ -113,8 +128,12 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 					}
 				}
 
-				// Apply the insets to the toolbar. (Google blindly pads view based on these insets.)
-				return super.fitSystemWindows(insets);
+				// Apply insets to toolbar. (Google blindly pads the view based on these insets.)
+				super.fitSystemWindows(insets);
+
+				// Returning false prevents given insets from being consumed.
+				// Allows other views with setFitsSystemWindows(true) to receive insets. (Such as a 2nd toolbar.)
+				return false;
 			}
 		};
 		setNativeView(toolbar);
@@ -179,17 +198,51 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	private void handleBackgroundExtended()
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			Window window = TiApplication.getAppCurrentActivity().getWindow();
-			// Compensate for status bar's height
-			toolbar.setFitsSystemWindows(true);
-
-			// Set flags for the current window that allow drawing behind status bar
-			int flags = window.getDecorView().getSystemUiVisibility();
-			flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-			window.getDecorView().setSystemUiVisibility(flags);
-			window.setStatusBarColor(Color.TRANSPARENT);
+		// This feature is only supported on Android 4.4 or higher.
+		if (Build.VERSION.SDK_INT < 19) {
+			return;
 		}
+
+		// Fetch the currently displayed activity window and its root decor view.
+		// Note: Will be null if all activities have just been destroyed.
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity == null) {
+			return;
+		}
+		Window window = activity.getWindow();
+		if (window == null) {
+			return;
+		}
+		View decorView = window.getDecorView();
+		if (decorView == null) {
+			return;
+		}
+
+		// Set up root content views to allow top status bar to overlap them.
+		decorView.setFitsSystemWindows(false);
+		if (activity instanceof TiBaseActivity) {
+			View view = ((TiBaseActivity) activity).getLayout();
+			if (view != null) {
+				view.setFitsSystemWindows(false);
+			}
+		}
+
+		// Set up toolbar so that it's title and buttons won't be overlapped by the status bar.
+		// Note that the toolbar will automatically pad its background beneath the status bar as well.
+		toolbar.setFitsSystemWindows(true);
+
+		// Set flags so that the current window will allow drawing behind the status bar.
+		int flags = decorView.getSystemUiVisibility();
+		flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+		decorView.setSystemUiVisibility(flags);
+		if (Build.VERSION.SDK_INT >= 21) {
+			window.setStatusBarColor(Color.TRANSPARENT);
+		} else {
+			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+		}
+
+		// Request window to re-fit its views.
+		toolbar.requestFitSystemWindows();
 	}
 
 	/**
