@@ -2437,6 +2437,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_LINK = "onlink";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
 
 	/**
