@@ -11,6 +11,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -45,10 +46,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// Manually calculate the proper position of the BottomNavigationView.
 		int resourceID = activity.getResources().getIdentifier("design_bottom_navigation_height", "dimen",
 															   activity.getPackageName());
-		mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
+		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
 
 		this.mBottomNavigationView = new BottomNavigationView(activity);
-
+		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			this.mBottomNavigationView.setBackgroundColor(
+				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString()));
+		}
 		// Set the LayoutParams for the ViewPager.
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 		params.autoFillsWidth = true;

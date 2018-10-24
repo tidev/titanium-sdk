@@ -16,6 +16,7 @@ import android.widget.TextView;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
@@ -61,11 +62,14 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void addViews(TiBaseActivity activity)
 	{
-
 		this.mTabLayout = new TabLayout(activity);
-
-		// Set the colorPrimary as backgroundColor by default.
-		this.mTabLayout.setBackgroundColor(this.colorPrimaryInt);
+		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			this.mTabLayout.setBackgroundColor(
+				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString()));
+		} else {
+			this.mTabLayout.setBackgroundColor(this.colorPrimaryInt);
+		}
 		// Set the OnTabSelected listener.
 		this.mTabLayout.addOnTabSelectedListener(this);
 		// Set the LayoutParams for the TabLayout instance.

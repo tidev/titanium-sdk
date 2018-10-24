@@ -45,7 +45,7 @@ since: "0.9"
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
-                 anchorPoint,animatedCenter,backgroundColor,backgroundDisabledColor,backgroundDisabledImage,
+                 anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
                  backgroundRepeat,backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,
                  borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,

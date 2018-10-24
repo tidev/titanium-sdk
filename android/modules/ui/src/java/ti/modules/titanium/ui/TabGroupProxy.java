@@ -486,7 +486,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			tab.close(activityIsFinishing);
 		}
 		tabs.clear();
-		tabs = null;
 		// Call super to fire the close event on the tab group.
 		// This event must fire after each tab has been closed.
 		super.closeFromActivity(activityIsFinishing);
@@ -555,45 +554,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		selectedTab.onSelectionChanged(true);
 		selectedTab.onFocusChanged(true, focusEventData);
 		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
-	}
-
-	private void fillIntent(Activity activity, Intent intent)
-	{
-		int windowFlags = 0;
-		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
-		}
-
-		//Set the fullscreen flag
-		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
-			}
-		}
-
-		//Set the secure flag
-		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
-			}
-		}
-
-		//Stuff flags in intent
-		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
-
-		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
-			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
-							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
-		}
-
-		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
-							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
-		} else {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
-		}
 	}
 
 	@Override

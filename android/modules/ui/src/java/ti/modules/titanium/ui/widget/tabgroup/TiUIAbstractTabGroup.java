@@ -38,6 +38,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -100,7 +101,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	// region private fields
 	private int textColorInt;
-	private ArrayList<TiUITab> tabs = new ArrayList<>();
+	private AtomicLong fragmentIdGenerator = new AtomicLong();
+	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
+	private ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
 	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)
@@ -182,7 +185,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		TiUITab abstractTab = new TiUITab(tabProxy);
 		tabs.add(abstractTab);
-
+		tabFragmentIDs.add(fragmentIdGenerator.getAndIncrement());
 		tabProxy.setView(abstractTab);
 
 		this.tabGroupPagerAdapter.notifyDataSetChanged();
@@ -284,6 +287,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		// Remove the reference in tabsMap.
 		tabs.remove(index);
+		tabFragmentIDs.remove(index);
 		// Update the ViewPager.
 		this.tabGroupPagerAdapter.notifyDataSetChanged();
 		// Remove the item from the controller.
@@ -389,7 +393,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		@Override
 		public long getItemId(int position)
 		{
-			long id = tabs.get(position).hashCode();
+			long id = tabFragmentIDs.get(position);
 			return id;
 		}
 
