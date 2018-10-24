@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,8 +17,8 @@
 
 @interface ContactsModule : TiModule <ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate, CNContactViewControllerDelegate, TiContactsPersonUpdateObserver> {
   @private
-  ABAddressBookRef addressBook;
-  ABPeoplePickerNavigationController *picker;
+  ABAddressBookRef addressBook; // Deprecated
+  ABPeoplePickerNavigationController *picker; // Deprecated
   BOOL reloadAddressBook;
   BOOL animated;
   KrollCallback *cancelCallback;
@@ -41,10 +41,10 @@
 - (NSArray *)getAllPeople:(id)unused;
 - (TiContactsPerson *)createPerson:(id)arg;
 - (void)removePerson:(id)arg;
-
-@property (nonatomic, readonly) NSNumber *contactsAuthorization;
 - (void)requestAuthorization:(id)args;
 - (void)requestContactsPermissions:(id)args;
+
+@property (nonatomic, readonly) NSNumber *contactsAuthorization;
 
 @property (nonatomic, readonly) NSNumber *CONTACTS_KIND_PERSON;
 @property (nonatomic, readonly) NSNumber *CONTACTS_KIND_ORGANIZATION;
