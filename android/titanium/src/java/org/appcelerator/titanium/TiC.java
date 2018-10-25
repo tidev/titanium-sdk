@@ -1626,6 +1626,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_EXTEND_SAFE_AREA = "extendSafeArea";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FATHER = "father";
 
 	/**
@@ -2428,6 +2433,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ONLOAD = "onload";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_LINK = "onlink";
 
 	/**
 	 * @module.api

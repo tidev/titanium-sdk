@@ -110,7 +110,7 @@ extern NSString *const TI_APPLICATION_GUID;
   }
   if ([httpRequest response] != nil) {
     APSHTTPResponseState curState = [[httpRequest response] readyState];
-    if (curState != APSHTTPResponseStateUnsent) {
+    if (curState != APSHTTPResponseStateUnsent && curState != APSHTTPResponseStateDone) {
       NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ", curState);
       return;
     }

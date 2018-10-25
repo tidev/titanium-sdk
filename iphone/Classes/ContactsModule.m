@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,7 +27,6 @@ static NSArray *contactKeysWithoutImage;
 
 void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRef info, void *context)
 {
-  DebugLog(@"Got External Change Callback");
   ContactsModule *theModule = (ContactsModule *)context;
   theModule->reloadAddressBook = YES;
   [theModule fireEvent:@"reload" withObject:nil];
@@ -57,7 +56,7 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   if (addressBook == NULL) {
     addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
     if (addressBook == NULL) {
-      DebugLog(@"[WARN] Could not create an address book. Make sure you have gotten permission first.");
+      DebugLog(@"[ERROR] Could not create an address book. Make sure you have gotten permission first.");
     } else {
       ABAddressBookRegisterExternalChangeCallback(addressBook, CMExternalChangeCallback, self);
     }
@@ -203,11 +202,11 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
       break;
     case CNAuthorizationStatusDenied:
       code = CNAuthorizationStatusDenied;
-      error = @"The user has denied access to the address book";
+      error = NSLocalizedString(@"The user has denied access to the address book", nil);
       break;
     case CNAuthorizationStatusRestricted:
       code = CNAuthorizationStatusRestricted;
-      error = @"The user is unable to allow access to the address book";
+      error = NSLocalizedString(@"The user is unable to allow access to the address book", nil);
       break;
     default:
       break;
@@ -224,7 +223,7 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
       CNContactStore *ourContactStore = [self contactStore];
       [ourContactStore requestAccessForEntityType:CNEntityTypeContacts
                                 completionHandler:^(BOOL granted, NSError *error) {
-                                  NSString *errorMessage = granted ? nil : @"The user has denied access to the address book";
+                                  NSString *errorMessage = granted ? nil : NSLocalizedString(@"The user has denied access to the address book", nil);
                                   NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code] message:errorMessage];
                                   KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                                   [[callback context] enqueue:invocationEvent];
@@ -244,11 +243,11 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
     break;
   case kABAuthorizationStatusDenied:
     code = kABAuthorizationStatusDenied;
-    error = @"The user has denied access to the address book";
+    error = NSLocalizedString(@"The user has denied access to the address book", nil);
     break;
   case kABAuthorizationStatusRestricted:
     code = kABAuthorizationStatusRestricted;
-    error = @"The user is unable to allow access to the address book";
+    error = NSLocalizedString(@"The user is unable to allow access to the address book", nil);
   default:
     break;
   }
@@ -406,33 +405,35 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   [[TiApp app] showModalController:picker animated:animated];
 }
 
-// OK to do outside main thread
 - (TiContactsPerson *)getPersonByID:(id)arg
 {
   ENSURE_SINGLE_ARG(arg, NSObject)
 
   if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"This method is removed for iOS9 and greater.");
+    DEPRECATED_REPLACED(@"Contacts.getPersonByID", @"5.0.0", @"Contacts.getPersonByIdentifier");
     return nil;
   }
-  ENSURE_SINGLE_ARG(arg, NSObject)
-  __block int idNum = [TiUtils intValue:arg];
-  __block BOOL validId = NO;
+
+  __block ABRecordID recordId = [TiUtils intValue:arg];
+  __block BOOL isValidId = NO;
+
   TiThreadPerformOnMainThread(^{
     ABAddressBookRef ourAddressBook = [self addressBook];
     if (ourAddressBook == NULL) {
       return;
     }
     ABRecordRef record = NULL;
-    record = ABAddressBookGetPersonWithRecordID(ourAddressBook, idNum);
+    record = ABAddressBookGetPersonWithRecordID(ourAddressBook, recordId);
     if (record != NULL) {
-      validId = YES;
+      isValidId = YES;
     }
   },
       YES);
-  if (validId == YES) {
-    return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
+
+  if (isValidId) {
+    return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:recordId module:self] autorelease];
   }
+
   return NULL;
 }
 
@@ -441,12 +442,12 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   ENSURE_SINGLE_ARG(arg, NSObject)
 
   if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"This method is removed for iOS9 and greater.");
+    DEPRECATED_REPLACED(@"Contacts.getGroupByID", @"5.0.0", @"Contacts.getGroupByIdentifier");
     return nil;
   }
 
-  __block int idNum = [TiUtils intValue:arg];
-  __block BOOL validId = NO;
+  __block ABRecordID recordId = [TiUtils intValue:arg];
+  __block BOOL isValidId = NO;
 
   TiThreadPerformOnMainThread(^{
     ABAddressBookRef ourAddressBook = [self addressBook];
@@ -454,27 +455,27 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
       return;
     }
     ABRecordRef record = NULL;
-    record = ABAddressBookGetGroupWithRecordID(ourAddressBook, idNum);
+    record = ABAddressBookGetGroupWithRecordID(ourAddressBook, recordId);
     if (record != NULL) {
-      validId = YES;
+      isValidId = YES;
     }
   },
       YES);
 
-  if (validId == YES) {
-    return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
+  if (isValidId) {
+    return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:recordId module:self] autorelease];
   }
 
   return NULL;
 }
 
-//New in iOS9
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg
 {
+  // Backwards support for iOS 8: Use the deprecated API
   if (![TiUtils isIOS9OrGreater]) {
-    DebugLog(@"This method is only for iOS9 and greater.");
-    return nil;
+    return [self getPersonByID:arg];
   }
+
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -500,13 +501,13 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
                                                 observer:self] autorelease];
 }
 
-// New in iOS9
 - (TiContactsGroup *)getGroupByIdentifier:(id)arg
 {
+  // Backwards support for iOS 8: Use the deprecated API
   if (![TiUtils isIOS9OrGreater]) {
-    DebugLog(@"This method is only for iOS9 and greater.");
-    return nil;
+    return [self getGroupByID:arg];
   }
+
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -627,7 +628,7 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
       RELEASE_TO_NIL(peopleRefs)
       return people;
     } else {
-      DebugLog(@"%@", [TiUtils messageFromError:error]);
+      DebugLog(@"[ERROR] %@", [TiUtils messageFromError:error]);
       RELEASE_TO_NIL(peopleRefs)
       return nil;
     }
@@ -904,7 +905,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, kABAuthorizationStatusRestricted);
 MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, kABAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 
-#pragma mark Picker delegate functions
+#pragma mark ABPeoplePickerNavigationControllerDelegate (iOS < 9)
 
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
@@ -914,13 +915,13 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
   }
 }
 
-// Called after a person has been selected by the user. New in iOS 8
+// Called after a person has been selected by the user
 - (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person
 {
   if (selectedPersonCallback) {
     TiContactsPerson *personObject = nil;
     if (ABAddressBookGetAuthorizationStatus() != kABAuthorizationStatusAuthorized) {
-      // In iOS 8 selected contact is returned without requiring user permission. But we cannot query metadata like recordid.
+      // In iOS 8 selected contact is returned without requiring user permission. But we cannot query metadata like recordId.
       personObject = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] person:person module:self] autorelease];
     } else {
       // iOS7 and below or iOS8 with permission granted.
@@ -935,7 +936,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
   }
 }
 
-// Called after a property has been selected by the user. New in iOS 8
+// Called after a property has been selected by the user
 - (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
   if (selectedPropertyCallback) {
@@ -1024,7 +1025,8 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
   }
 }
 
-//iOS9 delegates
+#pragma mark CNContactPickerDelegate (iOS 9+)
+
 - (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContact:(nonnull CNContact *)contact
 {
   if (selectedPersonCallback) {
@@ -1036,11 +1038,6 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
     [[TiApp app] hideModalController:contactPicker animated:animated];
   }
 }
-/*
-- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContactProperties:(nonnull NSArray<CNContactProperty *> *)contactProperties
-{
-    
-}*/
 
 - (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContactProperty:(nonnull CNContactProperty *)contactProperty
 {
@@ -1101,7 +1098,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
       result = phoneNumber.stringValue;
     }
 
-    //unfortunately, iOS9 Beta doesn't valuate birthdays. Watch this in case of changes.
+    // iOS 9+ doesn't valuate birthdays. Watch this in case of changes.
     // Also contactProperty.identifier has an undocumented string "_systemCalendar" for gregorian calender.
     if ([contactProperty.key isEqualToString:@"birthdays"]) {
       if ([contactProperty.identifier isEqualToString:@"gregorian"] ||
@@ -1121,11 +1118,6 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
   }
   return YES;
 }
-/*
-- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContacts:(nonnull NSArray<CNContact *> *)contacts
-{
-    
-}*/
 
 - (void)contactPickerDidCancel:(nonnull CNContactPickerViewController *)picker
 {
@@ -1137,14 +1129,17 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 
 - (void)contactViewController:(nonnull CNContactViewController *)viewController didCompleteWithContact:(nullable CNContact *)contact
 {
+  // Unused for nwo
 }
 
-#pragma mark - TiContactsPersonUpdateObserver
+#pragma mark - Ti.Contacts.PersonUpdateObserver
+
 - (void)didUpdatePerson:(TiContactsPerson *)person
 {
   saveRequest = saveRequest ? saveRequest : [CNSaveRequest new];
   [saveRequest updateContact:person.nativePerson];
 }
+
 @end
 
 #endif
