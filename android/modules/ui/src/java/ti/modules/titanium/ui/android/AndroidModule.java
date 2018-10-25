@@ -34,6 +34,11 @@ public class AndroidModule extends KrollModule
 	private static final String TAG = "UIAndroidModule";
 
 	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_NAVIGATION = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_STATUS = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+
+	@Kroll.constant
 	public static final int PIXEL_FORMAT_A_8 = PixelFormat.A_8;
 	@Kroll.constant
 	public static final int PIXEL_FORMAT_LA_88 = PixelFormat.LA_88;

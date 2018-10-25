@@ -349,6 +349,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT), PixelFormat.UNKNOWN));
 		}
+		if (hasProperty(TiC.PROPERTY_EXTEND_SAFE_AREA)) {
+			boolean value = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXTEND_SAFE_AREA), false);
+			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
+		}
 
 		// Set the theme property
 		if (hasProperty(TiC.PROPERTY_THEME)) {
