@@ -408,9 +408,24 @@ properties:
         This property allows the user to choose whether they would use this design
         behavior.
 
-        NOTE: This property only affects TabGroups with the BOTTOM_NAVIGATION_VIEW_STYLE.
+        **NOTE** This property only affects TabGroups with the BOTTOM_NAVIGATION_VIEW_STYLE.
     type: Boolean
     default: true
+    since: "7.5.0"
+    platforms: [android]
+
+  - name: tabMaxWidth
+    summary: Sets the maximum allowed width for tab items in the TabGroup's controller.
+    description: |
+        This property allows to override the default maximum width for each tab item in the
+        TabGroup's controller. This way empty space not covered from the controller due to the
+        device being in Landscape orientation or having less tabs than the count this would require.
+
+        **NOTE** This is a creation-only property and does not support relative values for width. Also setting a
+        value may result in an unexpected behavior of TabGroups using [shiftMode](Ti.UI.TabGroup.shiftMode) as it depends
+        on the default value.
+    type: Number
+    availability: creation
     since: "7.5.0"
     platforms: [android]
 

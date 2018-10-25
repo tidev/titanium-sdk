@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -49,6 +50,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
 
 		this.mBottomNavigationView = new BottomNavigationView(activity);
+		setTabMaxWidth();
+
 		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			this.mBottomNavigationView.setBackgroundColor(
@@ -154,6 +157,35 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+		}
+	}
+
+	private void setTabMaxWidth()
+	{
+		try {
+			BottomNavigationMenuView bottomMenuView =
+				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TAB_MAX_WIDTH)) {
+				// Create a TiDimension to hold the value used in the creation dictionary.
+				TiDimension nativeWidth =
+					new TiDimension(proxy.getProperty(TiC.PROPERTY_TAB_MAX_WIDTH).toString(), TiDimension.TYPE_WIDTH);
+				// Make a reference to the Window to use for relative dimensions calculation.
+				View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+				// Get the property converted to pixels to use in the reflection.
+				int valueInPixels = nativeWidth.getAsPixels(decorView);
+				Field inactiveItemMaxWidth = bottomMenuView.getClass().getDeclaredField("mInactiveItemMaxWidth");
+				inactiveItemMaxWidth.setAccessible(true);
+				inactiveItemMaxWidth.setInt(bottomMenuView, valueInPixels);
+				inactiveItemMaxWidth.setAccessible(false);
+				Field activeItemMaxWidth = bottomMenuView.getClass().getDeclaredField("mActiveItemMaxWidth");
+				activeItemMaxWidth.setAccessible(true);
+				activeItemMaxWidth.setInt(bottomMenuView, valueInPixels);
+				activeItemMaxWidth.setAccessible(false);
+			}
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -3064,6 +3064,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TAB_MAX_WIDTH = "tabMaxWidth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 
 	/**
