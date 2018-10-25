@@ -441,24 +441,25 @@ properties:
 
   - name: extendSafeArea
     summary: |
-        Specifies whether the content (subviews) of the window  will render inside the safe-area or not.
-        Only used in iOS 11.0 and later.
+        Specifies whether the screen insets/notches are allowed to overlap the window's content or not.
     description:  |
-        If set `true` (the default), then the content of the window will be extended to fill the whole screen and
-        under the system's UI elements (such as the top status-bar) and physical obstructions (such as the iPhone X
-        rounded corners and top sensor housing). In this case, it is the app developer's responsibility to position
-        views so that they're unobstructed.
+        If set `true`, then the contents of the window will be extended to fill the whole screen and allow the
+        system's UI elements (such as a translucent status-bar) and physical obstructions (such as the iPhone X
+        rounded corners and top sensor housing) to overlap the window's content. In this case, it is the app
+        developer's responsibility to position views so that they're unobstructed. On Android, you can use the
+        [Window.safeAreaPadding](Titanium.UI.Window.safeAreaPadding) property after the window has been opened to
+        layout your content within the insets.
 
         If set `false`, then the window's content will be laid out within the safe-area and its child views will be
         unobstructed. For example, you will not need to position a view below the top status-bar.
 
         Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     type: Boolean
-    default: true
-    since: 6.3.0
+    default: {android: false, ios: true}
+    since: {android: "7.5.0", iphone: "6.3.0", ipad: "6.3.0"}
     availability: creation
-    osver: {ios: {min: "11.0"}}
+    osver: {android: {min: "4.4"}, ios: {min: "11.0"}}
 
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.
@@ -847,6 +848,51 @@ properties:
     since: "3.3.0"
     type: Array<Titanium.UI.View>
 
+  - name: safeAreaPadding
+    platforms: [android]
+    summary: The padding needed to safely display content without it being overlapped by the screen insets and notches.
+    description: |
+        When setting [Window.extendSafeArea](Titanium.UI.Window.extendSafeArea) to `true`, the system's insets
+        such as a translucent status bar, translucent navigation bar, and/or camera notches will be allowed to
+        overlay on top of the window's content. In this case, it is the app developer's responsibility to
+        prevent these insets from overlapping key content such as buttons. This property provides the amount of
+        space needed to be added to the left, top, right, and bottom edges of the window root view to do this.
+
+        This property won't return values greater than zero until the window has been opened. It is recommended
+        that you read this property via a <Titanium.UI.View.postlayout> event listener since the padding values can
+        change when when the app's orientation changes or when showing/hiding the action bar.
+
+        If the [Window.extendSafeArea](Titanium.UI.Window.extendSafeArea) property is set `false`, then the
+        returned padding will be all zeros since the root content will be positioned between all insets.
+
+        Below is an example on how to set up a safe-area view container using this property.
+
+            // Set up a window with a translucent top status bar and translucent nav bar.
+            // This will only work on Android 4.4 and newer OS versions.
+            var win = Ti.UI.createWindow({
+                extendSafeArea: true,
+                theme: 'Theme.AppCompat.NoTitleBar',
+                windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION | Ti.UI.Android.FLAG_TRANSLUCENT_STATUS
+            });
+
+            // Set up a safe-area view to be layed out between the system insets.
+            // You should use this as a container for child views.
+            var safeAreaView = Ti.UI.createView({
+                backgroundColor: 'green'
+            });
+            win.add(safeAreaView);
+            win.addEventListener('postlayout', function() {
+                // Update the safe-area view's dimensions after every 'postlayout' event.
+                safeAreaView.applyProperties(win.safeAreaPadding);
+            });
+
+            // Open the window.
+            win.open();
+
+    type: Dimension
+    permission: read-only
+    since: "7.5.0"
+
   - name: shadowImage
     summary: Shadow image for the navigation bar, specified as a URL to a local image..
     description: |
@@ -1075,9 +1121,14 @@ properties:
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.
     description: |
-        Set the flags of the window, as per the WindowManager.LayoutParams flags.
-        See [WindowManager.LayoutParams](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html) for a
-        list of supported flags. Setting <Titanium.UI.Window.fullscreen> to true automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN)
+        Sets flags such as <Titanium.UI.Android.FLAG_TRANSLUCENT_NAVIGATION> and
+        <Titanium.UI.Android.FLAG_TRANSLUCENT_STATUS>. When using multiple flags, you must bitwise-or them together.
+
+        See [WindowManager.LayoutParams](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html) for
+        list of additional flags that you can assign to this property. You can assign these Java flags to this property
+        by using their numeric constant.
+
+        Setting <Titanium.UI.Window.fullscreen> to `true` automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN)
         flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
     platforms: [android]
     type: Number

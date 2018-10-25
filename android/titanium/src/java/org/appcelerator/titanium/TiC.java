@@ -1626,6 +1626,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_EXTEND_SAFE_AREA = "extendSafeArea";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FATHER = "father";
 
 	/**
