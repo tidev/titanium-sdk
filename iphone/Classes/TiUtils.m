@@ -809,7 +809,13 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
   if ([TiUtils is3xRetina]) {
-    if ([TiUtils isSuperRetina5_8Inch]) {
+    if ([TiUtils isSuperRetina6_5Inch]) {
+      // -2688@3x iPhone XS Max specific
+      NSString *testpath = [NSString stringWithFormat:@"%@-2688h@3x.%@", partial, ext];
+      if ([fm fileExistsAtPath:testpath]) {
+        return [NSURL fileURLWithPath:testpath];
+      }
+    } else if ([TiUtils isSuperRetina5_8Inch]) {
       // -2436h@3x iPhone X specific
       NSString *testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
@@ -830,7 +836,13 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
     }
   }
   if ([TiUtils is2xRetina]) {
-    if ([TiUtils isRetina4_7Inch]) {
+    if ([TiUtils isRetina6_1Inch]) {
+      // -1792h@2x iPhone XR specific
+      NSString *testpath = [NSString stringWithFormat:@"%@-1792h@2x.%@", partial, ext];
+      if ([fm fileExistsAtPath:testpath]) {
+        return [NSURL fileURLWithPath:testpath];
+      }
+    } else if ([TiUtils isRetina4_7Inch]) {
       // -667h@2x iPhone 6/7 specific
       NSString *testpath = [NSString stringWithFormat:@"%@-667h@2x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
