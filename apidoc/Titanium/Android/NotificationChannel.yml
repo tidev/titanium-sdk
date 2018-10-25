@@ -91,6 +91,7 @@ properties:
             notificationChannel.sound = Ti.Filesystem.resRawDirectory + 'my_sound.wav';
 
     type: String
+    since: "7.5.0"
 
   - name: vibratePattern
     summary: The vibration pattern for notifications posted to this channel.
