@@ -23,7 +23,6 @@
 #ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
-#import <JavaScriptCore/JavaScriptCore.h>
 #endif
 
 static unsigned short KrollContextIdCounter = 0;
@@ -1178,7 +1177,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   [kroll release];
   TiStringRelease(prop);
 
-#ifdef USE_JSCORE_FRAMEWORK
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
   [JSTimerManager initializeInContext:jsContext];
 #else
