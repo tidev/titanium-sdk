@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,17 +30,16 @@ import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.util.DisplayMetrics;
-import android.util.Pair;
-import android.view.Display;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.view.View;
+import android.view.Window;
 import android.view.ViewParent;
 
 // clang-format off
@@ -589,7 +588,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public void addSharedElement(TiViewProxy view, String transitionName)
 	{
 		if (LOLLIPOP_OR_GREATER) {
-			TiUIView v = view.peekView();
+			TiUIView v = view.getOrCreateView();
 			if (v != null) {
 				Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
 				sharedElementPairs.add(p);
@@ -614,15 +613,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
+		ActivityOptionsCompat options = null;
 		if (hasActivityTransitions()) {
-			Bundle b = ActivityOptions
-						   .makeSceneTransitionAnimation(
-							   activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]))
-						   .toBundle();
-			return b;
+
+			// NOTE: some versions of Android do not animate the window enter or exit transition
+			// without returning a valid bundle. If the activity has transitions; always return a bundle.
+			if (sharedElementPairs.isEmpty()) {
+				sharedElementPairs.add(new Pair<View, String>(new View(activity), "ti_compatibility_element"));
+			}
+			options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+				activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
 		} else {
-			return null;
+			options = ActivityOptionsCompat.makeBasic();
 		}
+		return options.toBundle();
 	}
 
 	/**
@@ -630,7 +634,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	protected boolean hasActivityTransitions()
 	{
-		final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
-		return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
+		if (LOLLIPOP_OR_GREATER) {
+			final Window win = getActivity() != null ? getActivity().getWindow() : null;
+			final boolean isAnimated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
+			final boolean hasSharedElements = sharedElementPairs != null && !sharedElementPairs.isEmpty();
+			final boolean hasTransitions =
+				win != null
+				&& (win.getEnterTransition() != null || win.getExitTransition() != null
+					|| win.getReenterTransition() != null || win.getReturnTransition() != null);
+			return isAnimated && (hasSharedElements || hasTransitions);
+		}
+		return false;
 	}
 }

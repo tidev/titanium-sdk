@@ -160,7 +160,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
 		} else {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+				&& Build.VERSION.SDK_INT != Build.VERSION_CODES.M) {
 				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
 			} else {
 				topActivity.startActivity(intent);
