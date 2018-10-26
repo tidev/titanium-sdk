@@ -729,6 +729,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 }
 @end
 
+@class JSTimerManager;
+
 @implementation KrollContext
 
 @synthesize delegate;
