@@ -50,9 +50,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		this.mBottomNavigationView = new BottomNavigationView(activity);
 		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			this.mBottomNavigationView.setBackgroundColor(
-				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString()));
+				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
+		} else {
+			this.mBottomNavigationView.setBackgroundColor(this.colorPrimaryInt);
 		}
 		// Set the LayoutParams for the ViewPager.
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();

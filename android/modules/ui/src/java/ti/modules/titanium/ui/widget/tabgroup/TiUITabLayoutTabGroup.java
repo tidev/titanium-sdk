@@ -64,9 +64,9 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		this.mTabLayout = new TabLayout(activity);
 		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			this.mTabLayout.setBackgroundColor(
-				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString()));
+				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
 		} else {
 			this.mTabLayout.setBackgroundColor(this.colorPrimaryInt);
 		}
