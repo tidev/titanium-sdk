@@ -553,6 +553,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		selectedTab.onSelectionChanged(true);
 		selectedTab.onFocusChanged(true, focusEventData);
+
 		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
 	}
 
@@ -598,6 +599,33 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected AppCompatActivity getWindowActivity()
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
+	}
+
+	public void fireSafeAreaChangedEvent()
+	{
+		// First, fire the event for this TabGroup.
+		super.fireSafeAreaChangedEvent();
+
+		// Create a shallow copy of the tab proxy collection owned by this TabGroup.
+		// We need to do this since a tab's event handler can remove a tab, which would break iteration.
+		ArrayList<TabProxy> clonedTabList = null;
+		synchronized (this.tabs)
+		{
+			clonedTabList = (ArrayList<TabProxy>) this.tabs.clone();
+		}
+		if (clonedTabList == null) {
+			return;
+		}
+
+		// Fire a safe-area change event for each tab window.
+		for (TabProxy tab : clonedTabList) {
+			if (tab != null) {
+				TiWindowProxy window = tab.getWindow();
+				if (window != null) {
+					window.fireSafeAreaChangedEvent();
+				}
+			}
+		}
 	}
 
 	@Override
