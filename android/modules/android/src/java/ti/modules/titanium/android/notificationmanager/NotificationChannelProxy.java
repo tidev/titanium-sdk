@@ -16,6 +16,8 @@ import ti.modules.titanium.android.AndroidModule;
 
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 
 @TargetApi(26)
@@ -64,6 +66,9 @@ public class NotificationChannelProxy extends KrollProxy
 			}
 			if (d.containsKey(TiC.PROPERTY_SHOW_BADGE)) {
 				setShowBadge(d.getBoolean(TiC.PROPERTY_SHOW_BADGE));
+			}
+			if (d.containsKey(TiC.PROPERTY_SOUND)) {
+				setSound(d.getString(TiC.PROPERTY_SOUND));
 			}
 			if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 				setVibrationPattern(d.get(TiC.PROPERTY_VIBRATE_PATTERN));
@@ -260,6 +265,28 @@ public class NotificationChannelProxy extends KrollProxy
 	// clang-format on
 	{
 		channel.setShowBadge(showBadge);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getSound()
+	// clang-format on
+	{
+		Uri uri = channel.getSound();
+		return (uri != null) ? uri.toString() : null;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setSound(String path)
+	// clang-format on
+	{
+		AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
+		attributesBuilder.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+		attributesBuilder.setUsage(AudioAttributes.USAGE_NOTIFICATION);
+		channel.setSound(Uri.parse(resolveUrl(null, path)), attributesBuilder.build());
 	}
 
 	// clang-format off
