@@ -731,8 +731,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 }
 @end
 
-@class JSTimerManager;
-
 @implementation KrollContext
 
 @synthesize delegate;
@@ -1543,14 +1541,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 #ifdef USE_JSCORE_FRAMEWORK
 
-@interface JSTimerManager : NSObject
-
-+ (void)initializeInContext:(JSContext *)context;
-
-+ (NSMutableDictionary<NSNumber *, NSTimer *> *)timers;
-
-@end
-
 @implementation JSTimerManager
 
 + (void)initializeInContext:(JSContext *)context
@@ -1587,7 +1577,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   JSValue *callbackFunction = [callbackArgs objectAtIndex:0];
   [callbackArgs removeObjectAtIndex:0];
   double interval = [[arguments objectAtIndex:1] toDouble] / 1000;
-  [callbackArgs removeObjectAtIndex:1]
+  [callbackArgs removeObjectAtIndex:1];
   NSNumber *timerIdentifier = [NSNumber numberWithUnsignedInteger:[[[[NSUUID alloc] init] autorelease] hash]];
   NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                    repeats:shouldRepeat
