@@ -814,6 +814,9 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
 #endif
   RELEASE_TO_NIL(timers);
+#ifdef USE_JSCORE_FRAMEWORK
+  RELEASE_TO_NIL(timerManager);
+#endif
 }
 
 #if CONTEXT_MEMORY_DEBUG == 1
@@ -1184,7 +1187,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 #ifdef USE_JSCORE_FRAMEWORK
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
-  [JSTimerManager initializeInContext:jsContext];
+  timerManager = [[JSTimerManager alloc] initInContext:jsContext];
 #else
   [self bindCallback:@"setTimeout"
             callback:&SetTimeoutCallback];
@@ -1550,42 +1553,49 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 @implementation JSTimerManager
 
-+ (void)initializeInContext:(JSContext *)context
+- (instancetype)initInContext:(JSContext *)context
 {
+  self = [super init];
+  if (!self) {
+    return nil;
+  }
+  
+  self.timers = [NSMutableDictionary new];
+  
   int (^setInterval)(void) = ^() {
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
-
+  
   int (^setTimeout)(void) = ^() {
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
-
+  
   void (^clearInterval)(JSValue *) = ^(JSValue *value) {
     return [self clearIntervalWithIdentifier:value.toInt32];
   };
   context[@"clearInterval"] = clearInterval;
   context[@"clearTimeout"] = clearInterval;
+  
+  return self;
 }
 
-+ (NSMutableDictionary<NSNumber *, NSTimer *> *)timers
+- (void)dealloc
 {
-  static NSMutableDictionary *timers = nil;
-  if (timers == nil) {
-    timers = [NSMutableDictionary new];
-  }
-  return timers;
+  RELEASE_TO_NIL(self.timers);
+  
+  [super dealloc];
 }
 
-+ (void)invalidateAllTimers
+- (void)invalidateAllTimers
 {
   for (NSNumber *timerIdentifier in self.timers.allKeys) {
     [self clearIntervalWithIdentifier:timerIdentifier.intValue];
   }
 }
 
-+ (int)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
+- (int)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
 {
   NSMutableArray *callbackArgs = [arguments.mutableCopy autorelease];
   JSValue *callbackFunction = [callbackArgs objectAtIndex:0];
@@ -1605,7 +1615,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return [timerIdentifier intValue];
 }
 
-+ (void)clearIntervalWithIdentifier:(int)identifier
+- (void)clearIntervalWithIdentifier:(int)identifier
 {
   NSNumber *timerIdentifier = [NSNumber numberWithInteger:identifier];
   [self.timers[timerIdentifier] invalidate];
