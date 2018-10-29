@@ -175,3 +175,27 @@ KrollContext *GetKrollContext(TiContextRef context);
 @property (nonatomic, readwrite, retain) id invocationArg4;
 
 @end
+
+#ifdef USE_JSCORE_FRAMEWORK
+
+/**
+ * Handles creating and clearing timers when running with JavaScriptCore
+ */
+@interface JSTimerManager : NSObject
+
+/**
+ * Initailizes the timer manager in the given JS context. Exposes the global set/clear
+ * functions for creating and clearing intervals/timeouts.
+ *
+ * @param context The JSContext where timer function should be made available to.
+ */
++ (void)initializeInContext:(JSContext *)context;
+
+/**
+ * Map of timer identifiers and the underlying native NSTimer.
+ */
++ (NSMutableDictionary<NSNumber *, NSTimer *> *)timers;
+
+@end
+
+#endif
