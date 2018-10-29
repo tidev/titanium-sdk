@@ -25,6 +25,8 @@
 
 @end
 
+@class JSTimerManager;
+
 @interface KrollContext : NSObject {
   @private
   id<KrollDelegate> delegate;
@@ -50,6 +52,9 @@
   NSMutableArray *queue;
   id cachedThreadId;
 #endif
+  
+#ifdef USE_JSCORE_FRAMEWORK
+  JSTimerManager *timerManager;
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
@@ -186,19 +191,19 @@ KrollContext *GetKrollContext(TiContextRef context);
 @interface JSTimerManager : NSObject
 
 /**
+ * Map of timer identifiers and the underlying native NSTimer.
+ */
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSTimer *> *timers;
+
+/**
  * Initailizes the timer manager in the given JS context. Exposes the global set/clear
  * functions for creating and clearing intervals/timeouts.
  *
  * @param context The JSContext where timer function should be made available to.
  */
-+ (void)initializeInContext:(JSContext *)context;
+- (instancetype)initInContext:(JSContext *)context;
 
-/**
- * Map of timer identifiers and the underlying native NSTimer.
- */
-+ (NSMutableDictionary<NSNumber *, NSTimer *> *)timers;
-
-+ (void)invalidateAllTimers;
+- (void)invalidateAllTimers;
 
 @end
 
