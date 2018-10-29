@@ -1179,7 +1179,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   [kroll release];
   TiStringRelease(prop);
 
-#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
+#ifdef USE_JSCORE_FRAMEWORK
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
   [JSTimerManager initializeInContext:jsContext];
 #else
@@ -1537,6 +1537,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 @end
 
+#ifdef USE_JSCORE_FRAMEWORK
+ 
 @interface JSTimerManager : NSObject
 
 + (void)initializeInContext:(JSContext *)context;
@@ -1547,25 +1549,27 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 @implementation JSTimerManager
 
-+ (void)initializeInContext:(JSContext *)context {
++ (void)initializeInContext:(JSContext *)context
+{
   int (^setInterval)(void) = ^() {
-    return [self setIntervalInContext:context withArguments:JSContext.currentArguments shouldRepeat:YES];
+    return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
   
   int (^setTimeout)(void) = ^() {
-    return [self setIntervalInContext:context withArguments:JSContext.currentArguments shouldRepeat:NO];
+    return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
   
   void (^clearInterval)(JSValue *) = ^(JSValue *value) {
-    return [self clearIntervalInContext:JSContext.currentContext withIdentifier:value.toInt32];
+    return [self clearIntervalWithIdentifier:value.toInt32];
   };
   context[@"clearInterval"] = clearInterval;
   context[@"clearTimeout"] = clearInterval;
 }
 
-+ (NSMutableDictionary<NSNumber *, NSTimer *> *)timers {
++ (NSMutableDictionary<NSNumber *, NSTimer *> *)timers
+{
   static NSMutableDictionary *timers = nil;
   if (timers == nil) {
     timers = [NSMutableDictionary new];
@@ -1573,22 +1577,28 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return timers;
 }
 
-+ (int)setIntervalInContext:(JSContext *)context withArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)repeats {
-  JSValue *callbackFunction = [[arguments objectAtIndex:0] retain];
++ (int)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
+{
+  JSValue *callbackFunction = [arguments objectAtIndex:0];
   double interval = [[arguments objectAtIndex:1] toDouble] / 1000;
   NSNumber *timerIdentifier = [NSNumber numberWithUnsignedInteger:[[[[NSUUID alloc] init] autorelease] hash]];
-  NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval repeats:repeats block:^(NSTimer * _Nonnull timer) {
+  NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval repeats:shouldRepeat block:^(NSTimer * _Nonnull timer) {
     [callbackFunction callWithArguments:nil];
-    [callbackFunction release];
+    if (!shouldRepeat) {
+      [self.timers removeObjectForKey:timerIdentifier];
+    }
   }];
   self.timers[timerIdentifier] = timer;
   return [timerIdentifier intValue];
 }
 
-+ (void)clearIntervalInContext:(JSContext *)context withIdentifier:(int)identifier {
++ (void)clearIntervalWithIdentifier:(int)identifier
+{
   NSNumber *timerIdentifier = [NSNumber numberWithInteger:identifier];
   [self.timers[timerIdentifier] invalidate];
   [self.timers removeObjectForKey:timerIdentifier];
 }
 
 @end
+
+#endif
