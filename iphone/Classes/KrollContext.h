@@ -198,6 +198,8 @@ KrollContext *GetKrollContext(TiContextRef context);
  */
 + (NSMutableDictionary<NSNumber *, NSTimer *> *)timers;
 
++ (void)invalidateAllTimers;
+
 @end
 
 #endif
