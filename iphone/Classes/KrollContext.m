@@ -1183,12 +1183,14 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
   [JSTimerManager initializeInContext:jsContext];
 #else
-  [self bindCallback:@"setTimeout" callback:&SetTimeoutCallback];
+  [self bindCallback:@"setTimeout"
+            callback:&SetTimeoutCallback];
   [self bindCallback:@"setInterval" callback:&SetIntervalCallback];
   [self bindCallback:@"clearTimeout" callback:&ClearTimerCallback];
   [self bindCallback:@"clearInterval" callback:&ClearTimerCallback];
 #endif
-  [self bindCallback:@"require" callback:&CommonJSRequireCallback];
+  [self bindCallback:@"require"
+            callback:&CommonJSRequireCallback];
   [self bindCallback:@"L" callback:&LCallback];
   [self bindCallback:@"alert" callback:&AlertCallback];
 
