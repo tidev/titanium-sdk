@@ -7,7 +7,6 @@
 #import "KrollContext.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
-#import "KrollTimer.h"
 #import "TiLocale.h"
 #import "TiUtils.h"
 
@@ -21,6 +20,7 @@
 #endif
 
 #ifndef USE_JSCORE_FRAMEWORK
+#import "KrollTimer.h"
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #endif
@@ -145,6 +145,7 @@ TiValueRef ThrowException(TiContextRef ctx, NSString *message, TiValueRef *excep
   return TiValueMakeUndefined(ctx);
 }
 
+#ifndef USE_JSCORE_FRAMEWORK
 static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValueRef fnRef, TiObjectRef jsThis, TiValueRef durationRef, BOOL onetime)
 {
   static dispatch_once_t timerInitializer;
@@ -227,6 +228,7 @@ static TiValueRef SetTimeoutCallback(TiContextRef jsContext, TiObjectRef jsFunct
 
   return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, YES);
 }
+#endif
 
 static TiValueRef CommonJSRequireCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
