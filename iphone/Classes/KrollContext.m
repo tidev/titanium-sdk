@@ -1538,7 +1538,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 @end
 
 #ifdef USE_JSCORE_FRAMEWORK
- 
+
 @interface JSTimerManager : NSObject
 
 + (void)initializeInContext:(JSContext *)context;
@@ -1555,12 +1555,12 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
-  
+
   int (^setTimeout)(void) = ^() {
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
-  
+
   void (^clearInterval)(JSValue *) = ^(JSValue *value) {
     return [self clearIntervalWithIdentifier:value.toInt32];
   };
@@ -1582,12 +1582,14 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   JSValue *callbackFunction = [arguments objectAtIndex:0];
   double interval = [[arguments objectAtIndex:1] toDouble] / 1000;
   NSNumber *timerIdentifier = [NSNumber numberWithUnsignedInteger:[[[[NSUUID alloc] init] autorelease] hash]];
-  NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval repeats:shouldRepeat block:^(NSTimer * _Nonnull timer) {
-    [callbackFunction callWithArguments:nil];
-    if (!shouldRepeat) {
-      [self.timers removeObjectForKey:timerIdentifier];
-    }
-  }];
+  NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval
+                                                   repeats:shouldRepeat
+                                                     block:^(NSTimer *_Nonnull timer) {
+                                                       [callbackFunction callWithArguments:nil];
+                                                       if (!shouldRepeat) {
+                                                         [self.timers removeObjectForKey:timerIdentifier];
+                                                       }
+                                                     }];
   self.timers[timerIdentifier] = timer;
   return [timerIdentifier intValue];
 }
