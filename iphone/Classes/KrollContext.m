@@ -1581,13 +1581,16 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 + (int)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
 {
-  JSValue *callbackFunction = [arguments objectAtIndex:0];
+  NSMutableArray *callbackArgs = arguments.mutableCopy;
+  JSValue *callbackFunction = [callbackArgs objectAtIndex:0];
+  [callbackArgs removeObjectAtIndex:0];
   double interval = [[arguments objectAtIndex:1] toDouble] / 1000;
+  [callbackArgs removeObjectAtIndex:1]
   NSNumber *timerIdentifier = [NSNumber numberWithUnsignedInteger:[[[[NSUUID alloc] init] autorelease] hash]];
   NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                    repeats:shouldRepeat
                                                      block:^(NSTimer *_Nonnull timer) {
-                                                       [callbackFunction callWithArguments:nil];
+                                                       [callbackFunction callWithArguments:callbackArgs];
                                                        if (!shouldRepeat) {
                                                          [self.timers removeObjectForKey:timerIdentifier];
                                                        }
