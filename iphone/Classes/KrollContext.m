@@ -853,6 +853,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return [[krollContextId retain] autorelease];
 }
 #endif
+
+#ifndef USE_JSCORE_FRAMEWORK
 - (void)registerTimer:(id)timer timerId:(double)timerId
 {
   [timerLock lock];
@@ -882,6 +884,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
   [timerLock unlock];
 }
+#endif
 
 - (void)start
 {

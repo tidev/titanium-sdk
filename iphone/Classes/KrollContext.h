@@ -79,8 +79,10 @@
 
 - (void)enqueue:(id)obj;
 
+#ifndef USE_JSCORE_FRAMEWORK
 - (void)registerTimer:(id)timer timerId:(double)timerId;
 - (void)unregisterTimer:(double)timerId;
+#endif
 
 - (int)forceGarbageCollectNow;
 #ifdef TI_USE_KROLL_THREAD
