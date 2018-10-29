@@ -1419,6 +1419,9 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     [delegate performSelector:@selector(willStopNewContext:) withObject:self];
   }
 
+#ifdef USE_JSCORE_FRAMEWORK
+  [JSTimerManager invalidateAllTimers];
+#else
   [timerLock lock];
   // stop any running timers
   if (timers != nil && [timers count] > 0) {
@@ -1429,6 +1432,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     [timers removeAllObjects];
   }
   [timerLock unlock];
+#endif
 
   [KrollCallback shutdownContext:self];
 
@@ -1572,6 +1576,13 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     timers = [NSMutableDictionary new];
   }
   return timers;
+}
+
++ (void)invalidateAllTimers
+{
+  for (NSNumber *timerIdentifier in self.timers.allKeys) {
+    [self clearIntervalWithIdentifier:timerIdentifier.intValue];
+  }
 }
 
 + (int)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
