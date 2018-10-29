@@ -102,6 +102,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 				output += message + "\n";
 			}
 			output += jsStack + "\n";
+		} else {
+			output += message + "\n";
 		}
 		if (javaStack != null) {
 			output += javaStack;
