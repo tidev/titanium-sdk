@@ -231,14 +231,13 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(v8::Isolate* isolate)
 		titanium::Proxy::onPropertyChanged);
 	</#if>
 	<#if !methods?? || !methods?keys?seq_contains(getter)>
-	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${getter}", titanium::Proxy::getProperty, ${name}));
+	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${getter}", titanium::Proxy::getProperty, ${name});
 	</#if>
 	<#if !methods?? || !methods?keys?seq_contains(setter)>
-	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${setter}", titanium::Proxy::onPropertyChanged, ${name}));
+	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${setter}", titanium::Proxy::onPropertyChanged, ${name});
 	</#if>
 	</@Proxy.listPropertyAccessors>
 
-	</@Proxy.listPropertyAccessors>
 	<#if interceptor??>
 	instanceTemplate->SetNamedPropertyHandler(${className}::interceptor);
 	// instanceTemplate->SetHandler(NamedPropertyHandlerConfiguration(${className}::interceptor, 0, 0, 0, 0, Local<Value>(), PropertyHandlerFlags::kOnlyInterceptStrings));

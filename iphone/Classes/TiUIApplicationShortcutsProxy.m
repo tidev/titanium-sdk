@@ -7,7 +7,7 @@
 
 #if defined(USE_TI_UIIOSAPPLICATIONSHORTCUTS) || defined(USE_TI_UIAPPLICATIONSHORTCUTS)
 #import "TiUIApplicationShortcutsProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #ifdef USE_TI_CONTACTS
 #import "TiContactsPerson.h"
 #endif
