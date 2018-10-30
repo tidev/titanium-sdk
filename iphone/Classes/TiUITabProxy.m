@@ -7,11 +7,11 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiProxy.h"
 #import "TiUITabGroupProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 //NOTE: this proxy is a little different than normal Proxy/View pattern
 //since it's not really backed by a view in the normal way.  It's given
@@ -514,7 +514,7 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-    if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+    if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
 
@@ -577,12 +577,12 @@
   }
 
   if (iconInsets != nil) {
-    if (UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
+    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets])) {
       [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
     }
   }
 
-  if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+  if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
 

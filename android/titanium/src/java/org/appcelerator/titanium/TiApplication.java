@@ -97,6 +97,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	private String defaultUnit;
 	private TiResponseCache responseCache;
+	private BroadcastReceiver localeReceiver;
 	private BroadcastReceiver externalStorageReceiver;
 	private AccessibilityManager accessibilityManager = null;
 	private boolean forceFinishRootActivity = false;
@@ -149,8 +150,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		modules = new HashMap<String, WeakReference<KrollModule>>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
-
-		Log.i(TAG, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 
 	/**
@@ -366,9 +365,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
 
-		baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
-
-		File fullPath = new File(baseUrl, getStartFilename("app.js"));
+		File fullPath = new File(TiC.URL_ANDROID_ASSET_RESOURCES, "app.js");
 		baseUrl = fullPath.getParent();
 
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
@@ -381,6 +378,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	@Override
 	public void onTerminate()
 	{
+		stopLocaleMonitor();
 		stopExternalStorageMonitor();
 		accessibilityManager = null;
 		super.onTerminate();
@@ -447,6 +445,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
+		startLocaleMonitor();
 		startExternalStorageMonitor();
 
 		// Register the default cache handler
@@ -537,11 +536,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public String getStartUrl()
 	{
 		return startUrl;
-	}
-
-	private String getStartFilename(String defaultStartFile)
-	{
-		return defaultStartFile;
 	}
 
 	public void addAppEventProxy(KrollProxy appEventProxy)
@@ -753,6 +747,28 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public void softRestart()
+	{
+		KrollRuntime runtime = KrollRuntime.getInstance();
+
+		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
+		TiBaseActivity.canFinishRoot = false;
+
+		// terminate all activities excluding root
+		TiApplication.terminateActivityStack();
+
+		// allow termination again
+		TiBaseActivity.canFinishRoot = true;
+
+		// restart kroll runtime
+		runtime.doDispose();
+		runtime.initRuntime();
+
+		// manually re-launch app
+		runtime.doRunModule(KrollAssetHelper.readAsset(TiC.PATH_APP_JS), TiC.URL_APP_JS,
+							((TiBaseActivity) getRootOrCurrentActivity()).getActivityProxy());
+	}
+
 	public boolean isRestartPending()
 	{
 		return restartPending;
@@ -803,6 +819,29 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isDebuggerEnabled()
 	{
 		return getDeployData().isDebuggerEnabled();
+	}
+
+	private void startLocaleMonitor()
+	{
+		localeReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				final KrollModule locale = getModuleByName("Locale");
+				if (!locale.hasListeners(TiC.EVENT_CHANGE)) {
+					TiApplication.getInstance().softRestart();
+				} else {
+					locale.fireEvent(TiC.EVENT_CHANGE, null);
+				}
+			}
+		};
+
+		registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+	}
+
+	private void stopLocaleMonitor()
+	{
+		unregisterReceiver(localeReceiver);
 	}
 
 	private void startExternalStorageMonitor()

@@ -7,16 +7,16 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebView.h"
-#import "Mimetypes.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiExceptionHandler.h"
-#import "TiFile.h"
-#import "TiHost.h"
-#import "TiProxy.h"
 #import "TiUIWebViewProxy.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiExceptionHandler.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiHost.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 extern NSString *const TI_APPLICATION_ID;
 static NSString *const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti.App.id=Ti.appId;Ti.App._xhr=XMLHttpRequest;"
@@ -149,7 +149,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 
 #if IS_XCODE_9
-    if ([TiUtils isIOS11OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       webview.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
 #endif
@@ -230,7 +230,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   if ([path hasPrefix:@"/"]) {
     path = [path substringFromIndex:1];
   }
-  return [NSURL URLWithString:[[NSString stringWithFormat:@"app://%@/%@", TI_APPLICATION_ID, path] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+  NSString *appPath = [NSString stringWithFormat:@"app://%@/%@", TI_APPLICATION_ID, path];
+  return [NSURL URLWithString:[appPath stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
 }
 
 - (NSString *)titaniumInjection
@@ -294,7 +295,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
   [self ensureLocalProtocolHandler];
   [[self webview] loadData:[content dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:baseURL];
-  if (scalingOverride == NO) {
+  if (!scalingOverride) {
     [[self webview] setScalesPageToFit:NO];
   }
 }
@@ -312,7 +313,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   [request setValue:[NSString stringWithFormat:@"%lu", (localId++)] forHTTPHeaderField:@"X-Titanium-Local-Id"];
 
   [self loadURLRequest:request];
-  if (scalingOverride == NO) {
+  if (!scalingOverride) {
     [[self webview] setScalesPageToFit:NO];
   }
 }
@@ -335,9 +336,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)setAllowsLinkPreview_:(id)value
 {
-  if ([TiUtils isIOS9OrGreater] == NO) {
-    return;
-  }
   ENSURE_TYPE(value, NSNumber);
   [webview setAllowsLinkPreview:[TiUtils boolValue:value]];
 }
@@ -451,7 +449,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       // Empty NSURL since nil is not accepted here
       NSURL *emptyURL = [[NSURL new] autorelease];
       [[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:emptyURL];
-      if (scalingOverride == NO) {
+      if (!scalingOverride) {
         [[self webview] setScalesPageToFit:YES];
       }
       break;
@@ -519,7 +517,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   } else {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [self loadURLRequest:request];
-    if (scalingOverride == NO) {
+    if (!scalingOverride) {
       [[self webview] setScalesPageToFit:YES];
     }
   }
@@ -614,7 +612,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
       NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
       [self loadURLRequest:request];
-      if (scalingOverride == NO) {
+      if (!scalingOverride) {
         [[self webview] setScalesPageToFit:YES];
       }
       return;
@@ -771,9 +769,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     // Use "onlink" callback property to decide the navigation policy
     KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
     if (onLink != nil) {
-      TiValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : newUrl.absoluteString } ]];
-      if (functionResult != NULL && TiValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
-        return TiValueToBoolean([onLink.bridge.krollContext context], functionResult);
+      JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : newUrl.absoluteString } ]];
+      if (functionResult != NULL && JSValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
+        return JSValueToBoolean([onLink.bridge.krollContext context], functionResult);
       }
     }
 
@@ -783,7 +781,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   UIApplication *uiApp = [UIApplication sharedApplication];
 
   if ([uiApp canOpenURL:newUrl] && !willHandleUrl) {
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [uiApp openURL:newUrl options:@{} completionHandler:nil];
     } else {
       [uiApp openURL:newUrl];

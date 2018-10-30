@@ -7,13 +7,13 @@
 #ifdef USE_TI_UIBUTTON
 
 #import "TiUINavBarButton.h"
-#import "ImageLoader.h"
-#import "TiBlob.h"
 #import "TiButtonUtil.h"
 #import "TiUIButton.h"
 #import "TiUIButtonProxy.h"
-#import "TiUIView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUtils.h>
 
 #define NAVBAR_MEMORY_DEBUG 0
 

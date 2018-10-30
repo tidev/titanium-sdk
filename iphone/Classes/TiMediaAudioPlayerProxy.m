@@ -11,7 +11,7 @@
 
 #import "TiMediaAudioPlayerProxy.h"
 #import "TiMediaAudioSession.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaAudioPlayerProxy
 
@@ -144,6 +144,8 @@
     // Convert duration to milliseconds (parity with progress/Android)
     _duration = (int)(CMTimeGetSeconds([[[self player] currentItem] duration]) * 1000);
   }
+
+  return NUMDOUBLE(_duration);
 }
 
 - (NSNumber *)paused
@@ -375,7 +377,7 @@
 
   // The AVPlayer does not properly support state management on iOS < 10.
   // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     // iOS 10+: For playbackState property / playbackstate event
     [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
   } else {
@@ -408,7 +410,7 @@
     return;
   }
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [[self player] removeObserver:self forKeyPath:@"timeControlStatus"];
   } else {
     [[self player] removeObserver:self forKeyPath:@"rate"];
@@ -416,11 +418,12 @@
 
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferFull"];
+  [[[self player] currentItem] removeObserver:self forKeyPath:@"timedMetadata"];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     if (object == _player && [keyPath isEqualToString:@"timeControlStatus"]) {
       [self handleTimeControlStatusNotification:nil];
     }

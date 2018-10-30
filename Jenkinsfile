@@ -6,13 +6,13 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: 
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
-def MAINLINE_BRANCH_REGEXP = /master|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 def isGreenKeeper = env.BRANCH_NAME.startsWith('greenkeeper/') || 'greenkeeper[bot]'.equals(env.CHANGE_AUTHOR) // greenkeeper needs special handling to avoid using npm ci, and to use greenkeeper-lockfile
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of windows SDK to use and test suite to test with
-def targetBranch = isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master')
+def targetBranch = isGreenKeeper ? 'master' : (isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master'))
 def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline branch, by default
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
@@ -59,7 +59,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 					manager.addWarningBadge(msg)
 					throw e
 				}
-			}
+			} // dir
 			// copy over any overridden unit tests into this workspace
 			sh 'rm -rf tests'
 			unstash 'override-tests'
@@ -78,11 +78,26 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 							if ('ios'.equals(os)) {
 								// Gather the crash report(s)
 								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+								// wait 1 minute, sometimes it's delayed in writing out crash reports to disk...
+								sleep time: 1, unit: 'MINUTES'
+								def crashFiles = sh(returnStdout: true, script: "ls -1 ${home}/Library/Logs/DiagnosticReports/").trim().readLines()
+								for (int i = 0; i < crashFiles.size(); i++) {
+									def crashFile = crashFiles[i]
+									if (crashFile =~ /^mocha_.*\.crash$/) {
+										sh "mv ${home}/Library/Logs/DiagnosticReports/${crashFile} ."
+									}
+								}
 								archiveArtifacts 'mocha_*.crash'
 								sh 'rm -f mocha_*.crash'
 							} else {
-								// FIXME gather crash reports/tombstones for Android?
+								// gather crash reports/tombstones for Android
+								sh 'adb pull /data/tombstones'
+								archiveArtifacts 'tombstones/'
+								sh 'rm -f tombstones/'
+								// wipe tombstones and re-build dir with proper permissions/ownership on emulator
+								sh 'adb shell rm -rf /data/tombstones'
+								sh 'adb shell mkdir -m 771 /data/tombstones'
+								sh 'adb shell chown system:system /data/tombstones'
 							}
 							throw e
 						} finally {
@@ -106,7 +121,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-10') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -141,14 +156,7 @@ timestamps {
 
 					// Install dependencies
 					timeout(5) {
-						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						if (isGreenKeeper) {
-							sh 'npm install'
-							sh 'npm install -g sgtcoolguy/greenkeeper-lockfile#jenkins-multibranch'
-							sh 'greenkeeper-lockfile-update'
-						} else {
-							sh 'npm ci'
-						}
+						sh 'npm ci'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
 					if (fileExists('npm_test.log')) {
@@ -164,8 +172,6 @@ timestamps {
 						stash allowEmpty: true, name: 'test-report-ios'
 						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
-					} else if (isGreenKeeper) {
-						sh 'greenkeeper-lockfile-upload' // FIXME: This will get pushed up even if unit tests on sims fails later...
 					}
 				}
 
@@ -215,7 +221,7 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions?
 					dir('build') {
 						timeout(15) {
-							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R12B} --android-sdk ${env.ANDROID_SDK}"
+							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 						} // timeout
 						ansiColor('xterm') {
 							timeout(15) {
@@ -444,10 +450,10 @@ timestamps {
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
-						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
+						withEnv(["ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}","DANGER_JS_APP_INSTALL_ID=''"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existing build status.
+							sh returnStatus: true, script: 'npx danger ci --verbose' // Don't fail build if danger fails. We want to retain existing build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()

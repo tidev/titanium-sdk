@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.pm.ActivityInfo;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
@@ -39,6 +41,8 @@ import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewParent;
+
 // clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_EXIT_ON_CLOSE,
@@ -57,6 +61,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
 	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
+	private static final int MSG_GET_SAFE_AREA_PADDING = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
@@ -111,6 +116,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleClose((KrollDict) result.getArg());
 				result.setResult(null); // signal closed
+				return true;
+			}
+			case MSG_GET_SAFE_AREA_PADDING: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(handleGetSafeAreaPadding());
 				return true;
 			}
 			default: {
@@ -307,6 +317,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 		fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, null, false);
 	}
 
+	public void fireSafeAreaChangedEvent()
+	{
+		TiUIHelper.firePostLayoutEvent(this);
+	}
+
 	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
@@ -424,6 +439,99 @@ public abstract class TiWindowProxy extends TiViewProxy
 		} else {
 			return null;
 		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public KrollDict getSafeAreaPadding()
+	// clang-format on
+	{
+		KrollDict dictionary;
+		if (TiApplication.isUIThread()) {
+			dictionary = handleGetSafeAreaPadding();
+		} else {
+			dictionary = (KrollDict) TiMessenger.sendBlockingMainMessage(
+				getMainHandler().obtainMessage(MSG_GET_SAFE_AREA_PADDING), getActivity());
+		}
+		return dictionary;
+	}
+
+	private KrollDict handleGetSafeAreaPadding()
+	{
+		// Initialize safe-area padding to zero. (ie: no padding)
+		double paddingLeft = 0;
+		double paddingTop = 0;
+		double paddingRight = 0;
+		double paddingBottom = 0;
+
+		// Fetch safe-area from activity. (Returned safe-area is relative to root decor view.)
+		Rect safeAreaRect = null;
+		Activity activity = getActivity();
+		if (activity instanceof TiBaseActivity) {
+			safeAreaRect = ((TiBaseActivity) activity).getSafeAreaRect();
+		}
+
+		// Fetch content view that the safe-area should be made relative to.
+		View contentView = null;
+		if (this.tabGroup != null) {
+			// This window is displayed within a TabGroup. Use the TabGroup's container view.
+			// Note: Don't use this window's content view because if its tab is not currently selected,
+			//       then this window's view coordinates will be offscreen and won't intersect safe-area.
+			TiUIView uiView = this.tabGroup.peekView();
+			if (uiView != null) {
+				contentView = uiView.getNativeView();
+			}
+		}
+		if ((contentView == null) && (this.view != null)) {
+			// Use this window's content view.
+			contentView = this.view.getNativeView();
+		}
+
+		// Calculate safe-area padding relative to content view.
+		if ((contentView != null) && (safeAreaRect != null)) {
+			// Get the content view's x/y position relative to window's root decor view.
+			// Note: Do not use the getLocationInWindow() method, because it'll fetch the view's current position
+			//       during transition animations. Such as when the ActionBar is being shown/hidden.
+			int contentX = contentView.getLeft();
+			int contentY = contentView.getTop();
+			{
+				ViewParent viewParent = contentView.getParent();
+				for (; viewParent instanceof View; viewParent = viewParent.getParent()) {
+					View view = (View) viewParent;
+					contentX += view.getLeft() - view.getScrollX();
+					contentY += view.getTop() - view.getScrollY();
+				}
+			}
+
+			// Convert safe-area coordinates to be relative to content view.
+			safeAreaRect.offset(-contentX, -contentY);
+
+			// Calculate the safe-area padding relative to the content view.
+			// Do not allow the padding to be less than zero on any side.
+			paddingLeft = (double) Math.max(safeAreaRect.left, 0);
+			paddingTop = (double) Math.max(safeAreaRect.top, 0);
+			paddingRight = (double) Math.max(contentView.getWidth() - safeAreaRect.right, 0);
+			paddingBottom = (double) Math.max(contentView.getHeight() - safeAreaRect.bottom, 0);
+
+			// Convert padding values from pixels to Titanium's default units.
+			TiDimension leftDimension = new TiDimension(paddingLeft, TiDimension.TYPE_LEFT);
+			TiDimension topDimension = new TiDimension(paddingTop, TiDimension.TYPE_TOP);
+			TiDimension rightDimension = new TiDimension(paddingRight, TiDimension.TYPE_RIGHT);
+			TiDimension bottomDimension = new TiDimension(paddingBottom, TiDimension.TYPE_BOTTOM);
+			paddingLeft = leftDimension.getAsDefault(contentView);
+			paddingTop = topDimension.getAsDefault(contentView);
+			paddingRight = rightDimension.getAsDefault(contentView);
+			paddingBottom = bottomDimension.getAsDefault(contentView);
+		}
+
+		// Return the result via a titanium "ViewPadding" dictionary.
+		KrollDict dictionary = new KrollDict();
+		dictionary.put(TiC.PROPERTY_LEFT, paddingLeft);
+		dictionary.put(TiC.PROPERTY_TOP, paddingTop);
+		dictionary.put(TiC.PROPERTY_RIGHT, paddingRight);
+		dictionary.put(TiC.PROPERTY_BOTTOM, paddingBottom);
+		return dictionary;
 	}
 
 	protected abstract void handleOpen(KrollDict options);

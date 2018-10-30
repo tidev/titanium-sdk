@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiUIActivityIndicatorStyleProxy : TiProxy {
 }
