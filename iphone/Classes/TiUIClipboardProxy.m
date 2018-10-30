@@ -7,10 +7,10 @@
 
 #ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiFile.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <MobileCoreServices/UTType.h>
@@ -269,7 +269,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasText:(id)unused
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasStrings]);
   }
 
@@ -278,7 +278,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasColors:(id)unused
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasColors]);
   }
 
@@ -288,7 +288,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasImages:(id)unused
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasImages]);
   }
 
@@ -298,7 +298,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasURLs:(id)unused
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasURLs]);
   }
 
@@ -308,7 +308,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (void)setItems:(id)args
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSArray *items = [args objectForKey:@"items"];
     NSDictionary *options = [args objectForKey:@"options"];
 
@@ -341,7 +341,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)getItems:(id)unused
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     __block id items;
 
     TiThreadPerformOnMainThread(^{

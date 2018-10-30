@@ -9,7 +9,7 @@
 #import "TiUITextWidgetProxy.h"
 #import "TiUITextWidget.h"
 
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITextWidgetProxy
 @synthesize suppressFocusEvents;

@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, APSHTTPResponseState) {
 //@property(nonatomic, assign, readonly ) NSStringEncoding     encoding;
 
 @property (nonatomic, strong, readonly) NSData *responseData; // used by TiNetworkHTTPClientProxy, ImageLoader
-@property (nonatomic, strong, readonly) NSString *responseString; // used by TiNetworkHTTPClientProxy, YahooModule and GeolocationModule
+@property (nonatomic, strong, readonly) NSString *responseString; // used by TiNetworkHTTPClientProxy and GeolocationModule
 @property (nonatomic, strong, readonly) NSDictionary *responseDictionary; // used by TiNetworkHTTPClientProxy
 @property (nonatomic, strong, readonly) NSArray *responseArray; // used by TiNetworkHTTPClientProxy
 @property (nonatomic, assign, readonly) BOOL saveToFile; // used by TiNetworkHTTPClientProxy

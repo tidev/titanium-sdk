@@ -6,18 +6,18 @@
  */
 #ifdef USE_TI_UILISTVIEW
 #import "TiUIListView.h"
-#import "TiApp.h"
-#import "TiRootViewController.h"
 #import "TiUILabelProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
 #import "TiUIListSectionProxy.h"
 #import "TiUISearchBarProxy.h"
-#import "TiWindowProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiRootViewController.h>
+#import <TitaniumKit/TiWindowProxy.h>
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -113,7 +113,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     _tableView.prefetchDataSource = nil;
   }
 
@@ -212,7 +212,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
 
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       _tableView.prefetchDataSource = self;
     }
 
@@ -235,12 +235,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self configureHeaders];
     _defaultSeparatorInsets = [_tableView separatorInset];
 
-    [_tableView setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      _tableView.cellLayoutMarginsFollowReadableWidth = NO;
-    }
+    _tableView.layoutMargins = UIEdgeInsetsZero;
+    _tableView.cellLayoutMarginsFollowReadableWidth = NO;
   }
+
   if ([_tableView superview] != self) {
     [self addSubview:_tableView];
   }
@@ -758,7 +756,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (args != nil) {
     _refreshControlProxy = [args retain];
 
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [[self tableView] setRefreshControl:_refreshControlProxy.control];
     } else {
       [[self tableView] addSubview:[_refreshControlProxy control]];
@@ -1252,13 +1250,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
 
-  if ([self canEditRowAtIndexPath:realIndexPath] == YES && [self canInsertRowAtIndexPath:realIndexPath] == YES) {
+  if ([self canEditRowAtIndexPath:realIndexPath] && [self canInsertRowAtIndexPath:realIndexPath]) {
     DebugLog(@"[WARN] The row at sectionIndex=%i and itemIndex=%i has both 'canEdit' and 'canInsert'. Please use either 'canEdit' for deleting or 'canInsert' for inserting a row.", realIndexPath.section, realIndexPath.row);
   }
 
-  if ([self canEditRowAtIndexPath:realIndexPath] == YES) {
+  if ([self canEditRowAtIndexPath:realIndexPath]) {
     return UITableViewCellEditingStyleDelete;
-  } else if ([self canInsertRowAtIndexPath:realIndexPath] == YES) {
+  } else if ([self canInsertRowAtIndexPath:realIndexPath]) {
     return UITableViewCellEditingStyleInsert;
   }
 
@@ -1845,10 +1843,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
-    if ((scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO)) {
+    if ((scrollView.contentOffset.y < pullThreshhold) && !pullActive) {
       pullActive = YES;
       [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES)) {
+    } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive)) {
       pullActive = NO;
       [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
@@ -1958,7 +1956,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   if ([self.proxy _hasListeners:@"pullend"]) {
-    if ((_pullViewProxy != nil) && (pullActive == YES)) {
+    if ((_pullViewProxy != nil) && (pullActive)) {
       pullActive = NO;
       [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
@@ -2116,10 +2114,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       searchControllerPresenter = [[[TiApp app] controller] retain];
     }
   }
-  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
   searchControllerPresenter.definesPresentationContext = YES;
   [searchControllerPresenter presentViewController:controller
-                                          animated:shouldAnimate
+                                          animated:NO
                                         completion:^{
                                           isSearched = YES;
                                           [self showDimmingView];
@@ -2133,9 +2130,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     return;
   }
 
-  // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
-  // as soon as we remove iOS < 9 support
-  id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
+  UIBarButtonItem *searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]];
   [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
   [_tableView setEditing:NO];
 }

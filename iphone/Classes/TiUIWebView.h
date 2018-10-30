@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIWebView : TiUIView <UIWebViewDelegate, NSURLConnectionDelegate> {
   @private

@@ -8,9 +8,9 @@
 #if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
 
 #import "TiMediaItem.h"
-#import "TiProxy.h"
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiMediaMusicPlayer : TiProxy {
   MPMusicPlayerController *player;
