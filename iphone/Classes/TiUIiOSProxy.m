@@ -6,8 +6,8 @@
  */
 
 #import "TiUIiOSProxy.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIIOS
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
@@ -25,7 +25,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiUIiOSTransitionAnimationProxy.h"
+#import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #endif
 
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
@@ -167,24 +167,15 @@
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 - (NSNumber *)PREVIEW_ACTION_STYLE_DEFAULT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleDefault);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleDefault);
 }
 - (NSNumber *)PREVIEW_ACTION_STYLE_DESTRUCTIVE
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleDestructive);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleDestructive);
 }
 - (NSNumber *)PREVIEW_ACTION_STYLE_SELECTED
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleSelected);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleSelected);
 }
 #endif
 
@@ -428,7 +419,7 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINTEGER(UIBlurEffectStyleRegular);
   }
   return [NSNull null];
@@ -436,7 +427,7 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINTEGER(UIBlurEffectStyleProminent);
   }
   return [NSNull null];
@@ -565,7 +556,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_FULL
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
   }
   return nil;
@@ -573,7 +564,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_HINT
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
   }
 
@@ -584,7 +575,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTOBADGE
 - (TiBlob *)createLivePhotoBadge:(id)value
 {
-  if ([TiUtils isIOS9_1OrGreater] == NO) {
+  if (![TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return nil;
   }
 
@@ -608,7 +599,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
   }
   return NUMINT(0);
@@ -618,7 +609,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
   }
   return NUMINT(0);

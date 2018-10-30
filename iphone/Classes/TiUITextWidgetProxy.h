@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUITextWidgetProxy : TiViewProxy <TiKeyboardFocusableView> {
 

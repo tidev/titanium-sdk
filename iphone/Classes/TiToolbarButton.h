@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#include "TiToolbar.h"
+#import <TitaniumKit/TiToolbar.h>
 
 /**
  The protocol is used for any type of UI decoration which needs

@@ -8,8 +8,8 @@
 #if defined(USE_TI_UINAVIGATIONWINDOW) || defined(USE_TI_UIIOSNAVIGATIONWINDOW)
 
 #import "TiUINavigationWindowProxy.h"
-#import "TiApp.h"
 #import "TiUINavigationWindowInternal.h"
+#import <TitaniumKit/TiApp.h>
 
 @implementation TiUINavigationWindowProxy
 
