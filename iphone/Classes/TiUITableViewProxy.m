@@ -11,15 +11,15 @@
 #endif
 
 #import "TiUITableViewProxy.h"
-#import "TiApp.h"
-#import "TiComplexValue.h"
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "WebFont.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiComplexValue.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/WebFont.h>
 
 NSArray *tableKeySequence;
 
