@@ -2903,6 +2903,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     // No such class exists, so fall back to trying to load an Alloy widget or CommonJS module
     // TODO Cache by name? Otherwise it seems to keep trying to load native class repeatedly (and failing) and has to re-eval this below!
     // TODO eval once and pass in the controller name and props as args?
+    DebugLog(@"[DEBUG] Failed to load native class %@, trying Alloy widget / CommonJS module", viewTemplate.type);
     NSString *code = [NSString stringWithFormat:@"var result;"
                                                  "try {"
                                                  "  var jsModule = require('/alloy/widgets/%@/controllers/widget');"
