@@ -7,7 +7,7 @@
 
 #ifdef TI_USE_AUTOLAYOUT
 #import "TiLayoutView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #define SuppressPerformSelectorLeakWarning(Stuff) \
 do { \
@@ -199,7 +199,7 @@ DEFINE_EXCEPTIONS
     dispatch_async(dispatch_get_main_queue(), ^{
         
         CGRect newRect = self.frame;
-        if (_isInToolbar && self.translatesAutoresizingMaskIntoConstraints == NO)
+        if (_isInToolbar && !self.translatesAutoresizingMaskIntoConstraints)
         {
             [self setNeedsLayout];
             [self layoutIfNeeded];
@@ -652,7 +652,7 @@ DEFINE_EXCEPTIONS
 
 -(void)updateWidthAndHeight
 {
-    if (_loaded == NO) return;
+    if (!_loaded) return;
     
     UIView* superview = [self superview];
     if (superview == nil) return;

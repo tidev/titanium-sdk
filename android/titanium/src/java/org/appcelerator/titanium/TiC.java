@@ -471,6 +471,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_SHORTCUT = "shortcut";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_SOURCE = "source";
 
 	/**
@@ -576,6 +581,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_SCROLLSTART = "scrollstart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SHORTCUT_ITEM_CLICK = "shortcutitemclick";
 
 	/**
 	 * @module.api
@@ -1616,6 +1626,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_EXTEND_SAFE_AREA = "extendSafeArea";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FATHER = "father";
 
 	/**
@@ -2418,6 +2433,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ONLOAD = "onload";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_LINK = "onlink";
 
 	/**
 	 * @module.api
@@ -3503,4 +3523,5 @@ public class TiC
 	public static final String URL_APP_SCHEME = "app";
 	public static final String URL_APP_JS = "app://app.js";
 	public static final String URL_ANDROID_ASSET_RESOURCES = "file:///android_asset/Resources/";
+	public static final String PATH_APP_JS = "Resources/app.js";
 }

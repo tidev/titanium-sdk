@@ -35,6 +35,15 @@ properties:
     permission: read-only
     since: 3.3.0
 
+events:
+  - name: shortcutitemclick
+    summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
+    properties:
+      - name: id
+        summary: Identifier of the clicked shortcut item.
+        type: String
+    since: 7.5.0
+
 examples:
   - title: Custom String Resource
     example: |

@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 /**
  * Enumeration to handle the feedback generator type in this proxy.

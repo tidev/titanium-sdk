@@ -8,8 +8,8 @@
 
 #import "TiUIScrollableView.h"
 #import "TiUIScrollableViewProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIScrollableView (redefiningProxy)
 @property (nonatomic, readonly) TiUIScrollableViewProxy *proxy;
@@ -554,7 +554,7 @@
   showPageControl = [TiUtils boolValue:args];
 
   if (pageControl != nil) {
-    if (showPageControl == NO) {
+    if (!showPageControl) {
 #ifndef TI_USE_AUTOLAYOUT
       [pageControl removeFromSuperview];
       RELEASE_TO_NIL(pageControl);

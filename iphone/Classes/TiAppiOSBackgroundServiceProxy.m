@@ -6,8 +6,8 @@
  */
 
 #import "TiAppiOSBackgroundServiceProxy.h"
-#import "TiApp.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
 

@@ -6,12 +6,12 @@
  */
 #ifdef USE_TI_UITABLEVIEW
 
-#import "TiDimension.h"
 #import "TiUISearchBarProxy.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUIView.h"
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiUIView.h>
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
