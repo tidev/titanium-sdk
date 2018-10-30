@@ -25,7 +25,9 @@
 
 @end
 
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
 @class JSTimerManager;
+#endif
 
 @interface KrollContext : NSObject {
   @private
@@ -53,7 +55,7 @@
   id cachedThreadId;
 #endif
 
-#ifdef USE_JSCORE_FRAMEWORK
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
   JSTimerManager *timerManager;
 #endif
 }
@@ -85,10 +87,8 @@
 
 - (void)enqueue:(id)obj;
 
-#ifndef USE_JSCORE_FRAMEWORK
 - (void)registerTimer:(id)timer timerId:(double)timerId;
 - (void)unregisterTimer:(double)timerId;
-#endif
 
 - (int)forceGarbageCollectNow;
 #ifdef TI_USE_KROLL_THREAD
@@ -184,7 +184,7 @@ KrollContext *GetKrollContext(TiContextRef context);
 
 @end
 
-#ifdef USE_JSCORE_FRAMEWORK
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
 
 /**
  * Handles creating and clearing timers when running with JavaScriptCore
