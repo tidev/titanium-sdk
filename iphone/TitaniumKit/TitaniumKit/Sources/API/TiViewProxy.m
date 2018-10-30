@@ -2289,7 +2289,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
     positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
 
-    BOOL layoutChanged = (!CGRectEqualToRect(oldRect, sizeCache) || !CGPointEqualToPoint(oldCenter, positionCache));
+    BOOL layoutChanged = (!CGRectEqualToRect(oldRect, sizeCache) || !CGPointEqualToPoint(oldCenter, positionCache)) || didSafeAreaUpdated;
 
     [view setAutoresizingMask:autoresizeCache];
     [view setCenter:positionCache];

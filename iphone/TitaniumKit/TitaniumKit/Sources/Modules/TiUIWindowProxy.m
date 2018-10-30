@@ -245,7 +245,12 @@
   [self performSelector:@selector(processForSafeArea)
              withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+<<<<<<< HEAD:iphone/TitaniumKit/TitaniumKit/Sources/Modules/TiUIWindowProxy.m
 
+=======
+  didSafeAreaUpdated = YES;
+#endif
+>>>>>>> [TIMOB - 26461] : iOS: Add "safeAreaPadding" property to Ti.UI.Window:iphone/Classes/TiUIWindowProxy.m
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
   [self willChangeSize];
@@ -974,7 +979,7 @@
 
 - (void)processForSafeArea
 {
-  if (self.shouldExtendSafeArea || ![TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if (![TiUtils TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return;
   }
 
@@ -989,6 +994,26 @@
   } else {
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
   }
+
+  if (self.shouldExtendSafeArea) {
+    [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
+      @"left" : NUMFLOAT(edgeInsets.left),
+      @"bottom" : NUMFLOAT(edgeInsets.bottom),
+      @"right" : NUMFLOAT(edgeInsets.right) }
+            forKey:@"safeAreaPadding"];
+    if (didSafeAreaUpdated) {
+      // postlayout event has already fired while rotating device. So forcefully fire event again
+      [self relayout];
+      didSafeAreaUpdated = NO;
+    }
+    return;
+  }
+
+  [self setValue:@{ @"top" : NUMFLOAT(0.0),
+    @"left" : NUMFLOAT(0.0),
+    @"bottom" : NUMFLOAT(0.0),
+    @"right" : NUMFLOAT(0.0) }
+          forKey:@"safeAreaPadding"];
 
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
   CGFloat oldTop = [[safeAreaProxy valueForKey:@"top"] floatValue];
