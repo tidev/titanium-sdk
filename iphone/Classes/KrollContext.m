@@ -1559,32 +1559,32 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   if (!self) {
     return nil;
   }
-  
+
   self.timers = [NSMutableDictionary new];
-  
+
   int (^setInterval)(void) = ^() {
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
-  
+
   int (^setTimeout)(void) = ^() {
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
-  
+
   void (^clearInterval)(JSValue *) = ^(JSValue *value) {
     return [self clearIntervalWithIdentifier:value.toInt32];
   };
   context[@"clearInterval"] = clearInterval;
   context[@"clearTimeout"] = clearInterval;
-  
+
   return self;
 }
 
 - (void)dealloc
 {
   RELEASE_TO_NIL(self.timers);
-  
+
   [super dealloc];
 }
 

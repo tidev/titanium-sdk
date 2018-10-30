@@ -52,9 +52,10 @@
   NSMutableArray *queue;
   id cachedThreadId;
 #endif
-  
+
 #ifdef USE_JSCORE_FRAMEWORK
   JSTimerManager *timerManager;
+#endif
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
