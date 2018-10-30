@@ -352,53 +352,33 @@ exports.init = function (logger, config, cli) {
 
 						(function startApp() {
 							logger.debug(__('Trying to start the app...'));
-							async.series([
-								function (next) {
-									// Power on the screen if currently off.
-									adb.shell(device.id, 'input keyevent KEYCODE_MENU', next);
-								},
-								function (next) {
-									// Remove the screen-lock and show the home screen.
-									adb.shell(device.id, 'input keyevent KEYCODE_MENU', next);
-								},
-								function (next) {
-									// If the screen-lock was never shown to begin with, then the above might show
-									// the home screen's page selection interface. Clear out of it with the home key.
-									adb.shell(device.id, 'input keyevent KEYCODE_HOME', next);
-								},
-								function (next) {
-									// Launch the app's main activity.
-									// Note: The above ensures that the activiy is onscreen. This is especially needed
-									//       for automated testing since some UI events won't happen while backgrounded.
-									adb.startApp(device.id, builder.appid, builder.classname + 'Activity', function (err) { // eslint-disable-line no-unused-vars
-										if (watchingPid) {
-											return;
-										}
-										watchingPid = true;
-
-										let done = false;
-										async.whilst(
-											function () { return !done; },
-											function (cb2) {
-												adb.getPid(device.id, builder.appid, function (err, pid) {
-													if (err || !pid) {
-														setTimeout(cb2, 250);
-													} else {
-														clearTimeout(intervalTimer);
-														clearTimeout(abortTimer);
-
-														logger.info(__('Application pid: %s', String(pid).cyan));
-														device.appPidRegExp = new RegExp('\\(\\s*' + pid + '\\):'); // eslint-disable-line security/detect-non-literal-regexp
-														done = true;
-														setTimeout(cb2, 0);
-													}
-												});
-											},
-											next
-										);
-									});
+							adb.startApp(device.id, builder.appid, builder.classname + 'Activity', function (err) { // eslint-disable-line no-unused-vars
+								if (watchingPid) {
+									return;
 								}
-							], cb);
+								watchingPid = true;
+
+								let done = false;
+								async.whilst(
+									function () { return !done; },
+									function (cb2) {
+										adb.getPid(device.id, builder.appid, function (err, pid) {
+											if (err || !pid) {
+												setTimeout(cb2, 250);
+											} else {
+												clearTimeout(intervalTimer);
+												clearTimeout(abortTimer);
+
+												logger.info(__('Application pid: %s', String(pid).cyan));
+												device.appPidRegExp = new RegExp('\\(\\s*' + pid + '\\):'); // eslint-disable-line security/detect-non-literal-regexp
+												done = true;
+												setTimeout(cb2, 0);
+											}
+										});
+									},
+									cb
+								);
+							});
 
 							intervalTimer = setTimeout(function () {
 								logger.debug(__('App still not started, trying again'));

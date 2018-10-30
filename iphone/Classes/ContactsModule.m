@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -137,11 +137,11 @@ static NSArray *contactKeysWithoutImage;
     break;
   case CNAuthorizationStatusDenied:
     code = CNAuthorizationStatusDenied;
-    error = @"The user has denied access to the address book";
+    error = NSLocalizedString(@"The user has denied access to the address book", nil);
     break;
   case CNAuthorizationStatusRestricted:
     code = CNAuthorizationStatusRestricted;
-    error = @"The user is unable to allow access to the address book";
+    error = NSLocalizedString(@"The user is unable to allow access to the address book", nil);
     break;
   default:
     break;
@@ -242,7 +242,6 @@ static NSArray *contactKeysWithoutImage;
   [[TiApp app] showModalController:contactPicker animated:animated];
 }
 
-// OK to do outside main thread
 - (TiContactsPerson *)getPersonByID:(id)arg
 {
   DebugLog(@"[WARN] The \"getPersonByID\" method has been removed for iOS 9 and greater.");
@@ -255,7 +254,6 @@ static NSArray *contactKeysWithoutImage;
   return nil;
 }
 
-//New in iOS9
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg
 {
   if (![NSThread isMainThread]) {
@@ -283,7 +281,6 @@ static NSArray *contactKeysWithoutImage;
                                                 observer:self] autorelease];
 }
 
-// New in iOS9
 - (TiContactsGroup *)getGroupByIdentifier:(id)arg
 {
   if (![NSThread isMainThread]) {
@@ -604,7 +601,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
       result = phoneNumber.stringValue;
     }
 
-    //unfortunately, iOS9 Beta doesn't valuate birthdays. Watch this in case of changes.
+    // iOS 9+ doesn't valuate birthdays. Watch this in case of changes.
     // Also contactProperty.identifier has an undocumented string "_systemCalendar" for gregorian calender.
     if ([contactProperty.key isEqualToString:@"birthdays"]) {
       if ([contactProperty.identifier isEqualToString:@"gregorian"] ||
@@ -635,14 +632,17 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
 
 - (void)contactViewController:(nonnull CNContactViewController *)viewController didCompleteWithContact:(nullable CNContact *)contact
 {
+  // Unused for nwo
 }
 
-#pragma mark - TiContactsPersonUpdateObserver
+#pragma mark - Ti.Contacts.PersonUpdateObserver
+
 - (void)didUpdatePerson:(TiContactsPerson *)person
 {
   saveRequest = saveRequest ? saveRequest : [CNSaveRequest new];
   [saveRequest updateContact:person.nativePerson];
 }
+
 @end
 
 #endif

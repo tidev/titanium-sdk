@@ -2501,10 +2501,15 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 
 			let client = null;
 
-			function die() {
+			function die(error) {
 				client && client.destroy();
-				_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
-				_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+				if (error.code === 'ENOTFOUND') {
+					_t.logger.error(__('Unable to connect to log server on localhost'));
+					_t.logger.error(__('Please ensure your /etc/hosts file contains a valid entry for `localhost`'));
+				} else {
+					_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
+					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+				}
 				process.exit(1);
 			}
 
@@ -2515,6 +2520,8 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 			//    then we will fail out
 			//  - if the port is bound by another process that expects data before the
 			//    response is returned, then we will just timeout and fail out
+			//  - if localhost cannot be resolved then we will fail out and inform
+			//    the user of that
 			client = net.connect({
 				host: 'localhost',
 				port: _t.tiLogServerPort,
@@ -2532,7 +2539,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 							process.exit(1);
 						}
 					} catch (e) {
-						die();
+						die(e);
 					}
 					_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
 					next();
