@@ -1419,7 +1419,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
 
 #if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
-  [JSTimerManager invalidateAllTimers];
+  [timerManager invalidateAllTimers];
 #else
   [timerLock lock];
   // stop any running timers
@@ -1579,7 +1579,11 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 - (void)dealloc
 {
-  RELEASE_TO_NIL(self.timers);
+  if (self.timers != nil) {
+    [self.timers removeAllObjects];
+    [self.timers release];
+    self.timers = nil;
+  }
 
   [super dealloc];
 }
