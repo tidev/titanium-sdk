@@ -7,6 +7,7 @@
 #import "KrollContext.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
+#import "KrollTimer.h"
 #import "TiLocale.h"
 #import "TiUtils.h"
 
@@ -20,7 +21,6 @@
 #endif
 
 #ifndef USE_JSCORE_FRAMEWORK
-#import "KrollTimer.h"
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #endif
@@ -145,7 +145,6 @@ TiValueRef ThrowException(TiContextRef ctx, NSString *message, TiValueRef *excep
   return TiValueMakeUndefined(ctx);
 }
 
-#ifndef USE_JSCORE_FRAMEWORK
 static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValueRef fnRef, TiObjectRef jsThis, TiValueRef durationRef, BOOL onetime)
 {
   static dispatch_once_t timerInitializer;
@@ -228,7 +227,6 @@ static TiValueRef SetTimeoutCallback(TiContextRef jsContext, TiObjectRef jsFunct
 
   return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, YES);
 }
-#endif
 
 static TiValueRef CommonJSRequireCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
@@ -814,7 +812,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
 #endif
   RELEASE_TO_NIL(timers);
-#ifdef USE_JSCORE_FRAMEWORK
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
   RELEASE_TO_NIL(timerManager);
 #endif
 }
@@ -857,7 +855,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 }
 #endif
 
-#ifndef USE_JSCORE_FRAMEWORK
 - (void)registerTimer:(id)timer timerId:(double)timerId
 {
   [timerLock lock];
@@ -887,7 +884,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
   [timerLock unlock];
 }
-#endif
 
 - (void)start
 {
@@ -1185,7 +1181,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   [kroll release];
   TiStringRelease(prop);
 
-#ifdef USE_JSCORE_FRAMEWORK
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
   timerManager = [[JSTimerManager alloc] initInContext:jsContext];
 #else
@@ -1422,7 +1418,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     [delegate performSelector:@selector(willStopNewContext:) withObject:self];
   }
 
-#ifdef USE_JSCORE_FRAMEWORK
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
   [JSTimerManager invalidateAllTimers];
 #else
   [timerLock lock];
@@ -1549,7 +1545,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 @end
 
-#ifdef USE_JSCORE_FRAMEWORK
+#if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
 
 @implementation JSTimerManager
 
