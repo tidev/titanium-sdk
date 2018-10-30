@@ -8,14 +8,10 @@
 
 #import "FilesystemModule.h"
 #import "TiFilesystemBlobProxy.h"
-#import "TiFilesystemFileProxy.h"
-#import "TiFilesystemFileStreamProxy.h"
-#import "TiHost.h"
 #import <CommonCrypto/CommonDigest.h>
-
-#if TARGET_IPHONE_SIMULATOR
-extern NSString *TI_APPLICATION_RESOURCE_DIR;
-#endif
+#import <TitaniumKit/TiFilesystemFileProxy.h>
+#import <TitaniumKit/TiFilesystemFileStreamProxy.h>
+#import <TitaniumKit/TiHost.h>
 
 @implementation FilesystemModule
 
@@ -168,7 +164,7 @@ extern NSString *TI_APPLICATION_RESOURCE_DIR;
 {
   NSString *newpath = [self pathFromComponents:args];
 
-  if ([newpath hasPrefix:[self resourcesDirectory]] && ([newpath hasSuffix:@".html"] || [newpath hasSuffix:@".js"] || [newpath hasSuffix:@".css"])) {
+  if ([newpath hasPrefix:[self resourcesDirectory]] && ([newpath hasSuffix:@".html"] || [newpath hasSuffix:@".js"] || [newpath hasSuffix:@".css"] || [newpath hasSuffix:@".json"])) {
     NSURL *url = [NSURL fileURLWithPath:newpath];
     NSData *data = [TiUtils loadAppResource:url];
     if (data != nil) {

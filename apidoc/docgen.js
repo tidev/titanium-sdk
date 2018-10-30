@@ -327,7 +327,7 @@ function generateAccessors(apis, className) {
 			rv.push({
 				name: 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				summary: 'Gets the value of the <' + className + '.' + api.name + '> property.',
-				deprecated: api.deprecated || null,
+				deprecated: api.deprecated || { since: '8.0.0', notes: 'Access <' + className + '.' + api.name + '> instead.' },
 				platforms: api.platforms,
 				since: api.since,
 				returns: { type: api.type, __subtype: 'return' },
@@ -343,7 +343,7 @@ function generateAccessors(apis, className) {
 			rv.push({
 				name: 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				summary: 'Sets the value of the <' + className + '.' + api.name + '> property.',
-				deprecated: api.deprecated || null,
+				deprecated: api.deprecated || { since: '8.0.0', notes: 'Set the value using <' + className + '.' + api.name + '> instead.'  },
 				platforms: api.platforms,
 				since: api.since,
 				parameters: [ {
@@ -576,9 +576,7 @@ function addOnMerge(baseObj, addObj) {
 					baseObj[key] = addOnMerge(base, add);
 					break;
 				case 'string':
-					if (!~[ 'name', 'since', '__file' ].indexOf(key)) {
-						baseObj[key] += ' ' + add;
-					} else if (key === 'since') {
+					if (key === 'since') {
 						const platforms = baseObj.platforms || Object.keys(common.DEFAULT_VERSIONS);
 						const since = {};
 
@@ -598,7 +596,6 @@ function addOnMerge(baseObj, addObj) {
 							common.log(common.LOG_WARN, 'Cannot set since version.  Set since as a dictionary or add the platforms property.');
 							break;
 						}
-
 						baseObj[key] = since;
 					}
 					break;
@@ -992,6 +989,7 @@ formats.forEach(function (format) {
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
 			output = pathMod.join(outputPath, 'api_solr.json');
+			break;
 		case 'typescript':
 			render = exportData;
 			output = pathMod.join(outputPath, 'index.d.ts');

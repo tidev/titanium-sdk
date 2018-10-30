@@ -111,6 +111,13 @@ Android.prototype.package = function (packager, next) {
 		function (cb) {
 			const moduleDirs = fs.readdirSync(path.join(ANDROID_ROOT, 'modules'));
 			async.each(moduleDirs, function (dir, callback) {
+
+				// skip geolocation
+				if ([ 'geolocation' ].includes(dir)) {
+					callback();
+					return;
+				}
+
 				const moduleLibDir = path.join(ANDROID_ROOT, 'modules', dir, 'lib');
 				if (fs.existsSync(moduleLibDir)) {
 					globCopy('*.jar', moduleLibDir, ANDROID_DEST, callback);
@@ -122,7 +129,7 @@ Android.prototype.package = function (packager, next) {
 		// Copy over module resources
 		function (cb) {
 			const filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium-(.+)?.(jar|res.zip|respackage))?$'); // eslint-disable-line security/detect-non-literal-regexp
-			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: filterRegExp }, cb);
+			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: src => filterRegExp.test(src) }, cb);
 		}
 	], next);
 };

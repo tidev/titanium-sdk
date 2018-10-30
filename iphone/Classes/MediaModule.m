@@ -1,24 +1,23 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIA
 
 #import "MediaModule.h"
-#import "Mimetypes.h"
-#import "SCListener.h"
-#import "Ti2DMatrix.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiFile.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
-#import "TiMediaTypes.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/Ti2DMatrix.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
@@ -244,7 +243,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPl
 
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
-
 #endif
 
 // Constants for VideoPlayer.playbackState
@@ -252,6 +250,17 @@ MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_INTERRUPTED, TiVideoPlayerPlaybackStateInt
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PAUSED, TiVideoPlayerPlaybackStatePaused);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PLAYING, TiVideoPlayerPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_STOPPED, TiVideoPlayerPlaybackStateStopped);
+
+// Constants for AudioPlayer
+MAKE_SYSTEM_PROP(AUDIO_STATE_INITIALIZED, TiAudioPlayerStateInitialized);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STARTING, TiAudioPlayerStateStartingFileThread);
+MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_DATA, TiAudioPlayerStateWaitingForData);
+MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_QUEUE, TiAudioPlayerStateWaitingForQueueToStart);
+MAKE_SYSTEM_PROP(AUDIO_STATE_PLAYING, TiAudioPlayerStatePlaying);
+MAKE_SYSTEM_PROP(AUDIO_STATE_BUFFERING, TiAudioPlayerStateBuffering);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPING, TiAudioPlayerStateStopping);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPED, TiAudioPlayerStateStopped);
+MAKE_SYSTEM_PROP(AUDIO_STATE_PAUSED, TiAudioPlayerStatePaused);
 
 //Constants for Camera
 #if defined(USE_TI_MEDIACAMERA_FRONT) || defined(USE_TI_MEDIACAMERA_REAR) || defined(USE_TI_MEDIACAMERA_FLASH_OFF) || defined(USE_TI_MEDIACAMERA_FLASH_AUTO) || defined(USE_TI_MEDIACAMERA_FLASH_ON)
@@ -627,12 +636,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS)
+#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS) || defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
 - (id)hasAudioRecorderPermissions:(id)unused
 {
   NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !microphonePermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !microphonePermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
@@ -670,28 +679,75 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)startMicrophoneMonitor:(id)args
 {
-  [[SCListener sharedListener] listen];
+  if (_microphoneRecorder != nil) {
+    DebugLog(@"[ERROR] Trying to start new microphone monitoring while the old one is still active. Call \"stopMicrophoneMonitor()\" before and try again.");
+    return;
+  }
+
+  if (![TiUtils boolValue:[self hasAudioRecorderPermissions:nil]]) {
+    DebugLog(@"[ERROR] Microphone permissions are required to use the microphone monitoring API.");
+  }
+
+  NSURL *url = [NSURL fileURLWithPath:@"/dev/null"];
+  NSDictionary *settings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                             [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
+                                         [NSNumber numberWithInt:kAudioFormatAppleLossless], AVFormatIDKey,
+                                         [NSNumber numberWithInt:1], AVNumberOfChannelsKey,
+                                         [NSNumber numberWithInt:AVAudioQualityMax], AVEncoderAudioQualityKey,
+                                         nil];
+
+  NSError *error;
+
+  _microphoneRecorder = [[AVAudioRecorder alloc] initWithURL:url settings:settings error:&error];
+
+  if (_microphoneRecorder == nil) {
+    DebugLog(@"[ERROR] Error starting audio monitoring: %@", [error description]);
+    return;
+  }
+
+  [_microphoneRecorder prepareToRecord];
+  _microphoneRecorder.meteringEnabled = YES;
+  [_microphoneRecorder record];
+  _microphoneTimer = [NSTimer scheduledTimerWithTimeInterval:0.03
+                                                      target:self
+                                                    selector:@selector(_microphoneTimerChanged:)
+                                                    userInfo:nil
+                                                     repeats:YES];
+}
+
+- (void)_microphoneTimerChanged:(NSTimer *)timer
+{
+  [_microphoneRecorder updateMeters];
 }
 
 - (void)stopMicrophoneMonitor:(id)args
 {
-  [[SCListener sharedListener] stop];
+  if (_microphoneRecorder == nil) {
+    DebugLog(@"[ERROR] Trying to stop microphone monitoring which is not active. Call \"startMicrophoneMonitor()\" before and try again.");
+    return;
+  }
+
+  [_microphoneRecorder stop];
+  [_microphoneTimer invalidate];
+  _microphoneTimer = nil;
+
+  RELEASE_TO_NIL(_microphoneRecorder);
 }
 
 - (NSNumber *)peakMicrophonePower
 {
-  if ([[SCListener sharedListener] isListening]) {
-    return NUMFLOAT([[SCListener sharedListener] peakPower]);
+  if (_microphoneRecorder != nil && [_microphoneRecorder isRecording]) {
+    return @([_microphoneRecorder peakPowerForChannel:0]);
   }
-  return NUMFLOAT(-1);
+  return @(-1);
 }
 
 - (NSNumber *)averageMicrophonePower
 {
-  if ([[SCListener sharedListener] isListening]) {
-    return NUMFLOAT([[SCListener sharedListener] averagePower]);
+  if (_microphoneRecorder != nil && [_microphoneRecorder isRecording]) {
+    return @([_microphoneRecorder averagePowerForChannel:0]);
   }
-  return NUMFLOAT(-1);
+  return @(-1);
 }
 
 #endif
@@ -902,16 +958,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     if (cameraView != nil) {
       [cameraView windowWillClose];
     }
-    if (popover != nil) {
-      [popover dismissPopoverAnimated:animatedPicker];
-      RELEASE_TO_NIL(popover);
 
-      //Unregister for interface change notification
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-    } else {
-      [[TiApp app] hideModalController:picker animated:animatedPicker];
-      [[TiApp controller] repositionSubviews];
-    }
+    [[TiApp app] hideModalController:picker animated:animatedPicker];
+    [[TiApp controller] repositionSubviews];
+
     if (cameraView != nil) {
       [cameraView windowDidClose];
       [self forgetProxy:cameraView];
@@ -1023,7 +1073,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !cameraPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !cameraPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
   }
 
@@ -1058,12 +1108,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
   // Reading (!) from gallery permissions are required on iOS 10 and later.
-  if ([TiUtils isIOS10OrGreater] && !readFromGalleryPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !readFromGalleryPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. It will be ignored on devices < iOS 10. Please add the key and re-run the application.");
   }
 
   // Writing (!) to gallery permissions are required on iOS 11 and later.
-  if ([TiUtils isIOS11OrGreater] && !addToGalleryPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && !addToGalleryPermission) {
     NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
   }
 
@@ -1167,7 +1217,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (NSNumber *)hasMusicLibraryPermissions:(id)unused
 {
   // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
-  return NUMBOOL([TiUtils isIOS9_3OrGreater] == NO || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
+  return NUMBOOL(![TiUtils isIOSVersionOrGreater:@"9.3"] || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
 }
 #endif
 
@@ -1176,14 +1226,14 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !musicPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
   ENSURE_SINGLE_ARG(args, KrollCallback);
   KrollCallback *callback = args;
 
-  if ([TiUtils isIOS9_3OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
     TiThreadPerformOnMainThread(^() {
       [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
         BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
@@ -1212,11 +1262,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if ([TiUtils isIOS9_3OrGreater] && [MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
     NSLog(@"[ERROR] It looks like you are accessing the music-library without sufficient permissions. Please use the Ti.Media.hasMusicLibraryPermissions() method to validate the permissions and only call this method if permissions are granted.");
   }
 
-  if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !musicPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
@@ -1335,7 +1385,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)destroyPicker
 {
-  RELEASE_TO_NIL(popover);
   [self forgetProxy:cameraView];
   RELEASE_TO_NIL(cameraView);
   RELEASE_TO_NIL(editorSuccessCallback);
@@ -1369,11 +1418,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
   [pool release];
 
-#ifndef TI_USE_KROLL_THREAD
   //TIMOB-24389: Force the heap to be GC'd to avoid Ti.Blob references to be dumped.
   KrollContext *krollContext = [self.pageContext krollContext];
   [krollContext forceGarbageCollectNow];
-#endif
 }
 
 - (void)sendPickerError:(int)code
@@ -1382,14 +1429,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self destroyPicker];
   if (listener != nil) {
     NSDictionary *event = [TiUtils dictionaryWithCode:code message:nil];
-
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"error", event, listener, nil]];
-#else
     [self dispatchCallback:@[ @"error", event, listener ]];
-#endif
   }
 }
 
@@ -1399,14 +1439,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self destroyPicker];
   if (listener != nil) {
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled the picker"];
-
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"cancel", event, listener, nil]];
-#else
     [self dispatchCallback:@[ @"cancel", event, listener ]];
-#endif
   }
 }
 
@@ -1417,13 +1450,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     [self destroyPicker];
   }
   if (listener != nil) {
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"success", event, listener, nil]];
-#else
     [self dispatchCallback:@[ @"success", event, listener ]];
-#endif
   }
 }
 
@@ -1464,10 +1491,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)displayModalPicker:(UIViewController *)picker_ settings:(NSDictionary *)args
 {
   TiApp *tiApp = [TiApp app];
-  if ([TiUtils isIPad] == NO) {
+  if (![TiUtils isIPad]) {
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
-    RELEASE_TO_NIL(popover);
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
 
     if (![popoverViewProxy isKindOfClass:[TiViewProxy class]]) {
@@ -1481,13 +1507,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self updatePopoverNow:picker_];
     },
         YES);
-  }
-}
-
-- (void)updatePopover:(NSNotification *)notification
-{
-  if (popover) {
-    [self performSelector:@selector(updatePopoverNow:) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
   }
 }
 
@@ -1508,13 +1527,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (cameraView != nil) {
     [cameraView windowWillClose];
   }
-  if (popover) {
-    [(UIPopoverController *)popover dismissPopoverAnimated:animatedPicker];
-    RELEASE_TO_NIL(popover);
-  } else {
-    [[TiApp app] hideModalController:picker_ animated:animatedPicker];
-    [[TiApp controller] repositionSubviews];
-  }
+
+  [[TiApp app] hideModalController:picker_ animated:animatedPicker];
+  [[TiApp controller] repositionSubviews];
+
   if (cameraView != nil) {
     [cameraView windowDidClose];
     [self forgetProxy:cameraView];
@@ -1589,20 +1605,20 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
 
     // if we require movie but not image and we don't support movie, bail...
-    if (movieRequired == YES && imageRequired == NO && ![sourceTypes containsObject:(NSString *)kUTTypeMovie]) {
+    if (movieRequired && !imageRequired && ![sourceTypes containsObject:(NSString *)kUTTypeMovie]) {
       // no movie type supported...
       [self sendPickerError:MediaModuleErrorNoCamera];
       return;
     }
 
     // iOS 10 requires a certain number of additional permissions declared in the Info.plist (<ios><plist/></ios>)
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
       NSString *readFromGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
       NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
       // Microphone permissions are required when using the video-camera
-      if (movieRequired == YES && !microphonePermission) {
+      if (movieRequired && !microphonePermission) {
         NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera to take videos. Please add the key and re-run the application.");
       }
 
@@ -1612,7 +1628,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       }
 
       // Writing (!) to gallery permissions are also required on iOS 11 and later.
-      if ([TiUtils isIOS11OrGreater] && saveToRoll && !addToGalleryPermission) {
+      if ([TiUtils isIOSVersionOrGreater:@"11.0"] && saveToRoll && !addToGalleryPermission) {
         NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
       }
     }
@@ -1704,14 +1720,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     if (errorCallback != nil) {
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
       [event setObject:blob forKey:@"image"];
-
-#ifdef TI_USE_KROLL_THREAD
-      [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                               toTarget:self
-                             withObject:[NSArray arrayWithObjects:@"error", event, errorCallback, nil]];
-#else
       [self dispatchCallback:@[ @"error", event, errorCallback ]];
-#endif
     }
     return;
   }
@@ -1720,14 +1729,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (successCallback != nil) {
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:blob forKey:@"image"];
-
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"success", event, successCallback, nil]];
-#else
     [self dispatchCallback:@[ @"success", event, successCallback ]];
-#endif
   }
 }
 
@@ -1739,14 +1741,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     if (errorCallback != nil) {
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
       [event setObject:path forKey:@"path"];
-
-#ifdef TI_USE_KROLL_THREAD
-      [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                               toTarget:self
-                             withObject:[NSArray arrayWithObjects:@"error", event, errorCallback, nil]];
-#else
       [self dispatchCallback:@[ @"error", event, errorCallback ]];
-#endif
     }
     return;
   }
@@ -1755,14 +1750,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (successCallback != nil) {
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:path forKey:@"path"];
-
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"success", event, successCallback, nil]];
-#else
     [self dispatchCallback:@[ @"success", event, successCallback ]];
-#endif
   }
 
   // This object was retained for use in this callback; release it.
@@ -1785,22 +1773,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#pragma mark UIPopoverControllerDelegate
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
-{
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
-  if ([popoverController contentViewController] == musicPicker) {
-    RELEASE_TO_NIL(musicPicker);
-  }
-#endif
-
-  RELEASE_TO_NIL(popover);
-  [self sendPickerCancel];
-  //Unregister for interface change notification
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-}
-
 #pragma mark UIPopoverPresentationControllerDelegate
+
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
   if (self.popoverView != nil) {
@@ -1871,7 +1845,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   BOOL isVideo = [mediaType isEqualToString:(NSString *)kUTTypeMovie];
-  BOOL isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]);
+  BOOL isLivePhoto = ([TiUtils isIOSVersionOrGreater:@"9.1"] && [mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]);
 
   NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 
@@ -2080,14 +2054,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:NUMBOOL(NO) forKey:@"cancel"];
     [event setObject:media forKey:@"media"];
-
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"error", event, listener, nil]];
-#else
     [self dispatchCallback:@[ @"error", event, listener ]];
-#endif
   }
 }
 
@@ -2100,14 +2067,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (listener != nil) {
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled"];
     [event setObject:NUMBOOL(YES) forKey:@"cancel"];
-
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"error", event, listener, nil]];
-#else
     [self dispatchCallback:@[ @"error", event, listener ]];
-#endif
   }
 }
 
@@ -2120,14 +2080,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (listener != nil) {
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
     [event setObject:NUMBOOL(NO) forKey:@"cancel"];
-
-#ifdef TI_USE_KROLL_THREAD
-    [NSThread detachNewThreadSelector:@selector(dispatchCallback:)
-                             toTarget:self
-                           withObject:[NSArray arrayWithObjects:@"error", event, listener, nil]];
-#else
     [self dispatchCallback:@[ @"error", event, listener ]];
-#endif
   }
 }
 #endif

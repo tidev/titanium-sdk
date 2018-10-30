@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_UIIOSMENUPOPUP
 #import "TiUIiOSMenuPopup.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 
 @interface TiUIiOSMenuPopup ()
 @property (nonatomic, readonly) TiUIiOSMenuPopupProxy *menuPopupProxy;

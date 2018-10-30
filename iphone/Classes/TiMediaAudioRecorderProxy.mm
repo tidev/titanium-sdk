@@ -7,11 +7,11 @@
 #ifdef USE_TI_MEDIAAUDIORECORDER
 
 #import "TiMediaAudioRecorderProxy.h"
-#import "TiFile.h"
-#import "TiFilesystemFileProxy.h"
 #import "TiMediaAudioSession.h"
-#import "TiUtils.h"
 #import <AudioToolbox/AudioFile.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiFilesystemFileProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaAudioRecorderProxy
 
@@ -179,6 +179,13 @@
     }
 
     file = [[TiUtils createTempFile:extension] retain];
+
+    // Grant temporary permission on the specified file
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObject:NSFileProtectionNone
+                                                           forKey:NSFileProtectionKey];
+    [fileManager setAttributes:attributes ofItemAtPath:[file path] error:nil];
+
     NSURL *url = [NSURL URLWithString:[file path]];
 
     NSMutableDictionary *recordSettings = [[NSMutableDictionary alloc] initWithCapacity:6];

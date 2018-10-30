@@ -7,15 +7,15 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewRowProxy.h"
-#import "ImageLoader.h"
-#import "TiLayoutQueue.h"
 #import "TiSelectedCellbackgroundView.h"
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiLayoutQueue.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 #import <libkern/OSAtomic.h>
 
 NSString *const defaultRowTableClass = @"_default_";
@@ -150,16 +150,11 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 - (void)_destroy
 {
   RELEASE_TO_NIL(tableClass);
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadRemoveFromSuperviewOnMainThread(rowContainerView, NO);
-  TiThreadReleaseOnMainThread(rowContainerView, NO);
-#else
   TiThreadPerformOnMainThread(^{
     [rowContainerView removeFromSuperview];
     RELEASE_TO_NIL(rowContainerView);
   },
       YES);
-#endif
   rowContainerView = nil;
   [callbackCell setProxy:nil];
   callbackCell = nil;
@@ -398,7 +393,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (bgImage != nil) {
     NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.backgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.backgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.backgroundView = view_;
     }
@@ -413,7 +408,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (selBgImage != nil) {
     NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.selectedBackgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.selectedBackgroundView = view_;
     }
@@ -784,7 +779,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (void)contentsWillChange
 {
-  if (attaching == NO) {
+  if (!attaching) {
     [self triggerUpdateIfHeightChanged];
   }
 }

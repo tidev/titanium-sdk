@@ -266,6 +266,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PAUSED = "paused";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PINCH = "pinch";
 
 	/**
@@ -406,7 +411,67 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_TIME = "time";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FOCUS_X = "focusX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FOCUS_Y = "focusY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN = "currentSpan";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN_X = "currentSpanX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN_Y = "currentSpanY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN = "previousSpan";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN_X = "previousSpanX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN_Y = "previousSpanY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_TIME_DELTA = "timeDelta";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_IN_PROGRESS = "inProgress";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_SEARCH_MODE = "searchMode";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_SHORTCUT = "shortcut";
 
 	/**
 	 * @module.api
@@ -490,6 +555,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_RESUMED = "resumed";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_RETURN = "return";
 
 	/**
@@ -511,6 +581,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_SCROLLSTART = "scrollstart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SHORTCUT_ITEM_CLICK = "shortcutitemclick";
 
 	/**
 	 * @module.api
@@ -626,6 +701,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_INTERACTION = "userinteraction";
 
 	/**
 	 * @module.api
@@ -1081,6 +1161,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BUTTON_CLICK_REQUIRED = "buttonClickRequired";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
 
 	/**
@@ -1222,6 +1307,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CLEAR_ON_EDIT = "clearOnEdit";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CLIP_VIEWS = "clipViews";
 
 	/**
 	 * @module.api
@@ -1532,6 +1622,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_EXTEND_BACKGROUND = "extendBackground";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EXTEND_SAFE_AREA = "extendSafeArea";
 
 	/**
 	 * @module.api
@@ -2192,6 +2287,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MIXED_CONTENT_MODE = "mixedContentMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MOBILE = "mobile";
 
 	/**
@@ -2343,6 +2443,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ONLOAD = "onload";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_LINK = "onlink";
 
 	/**
 	 * @module.api
@@ -3428,4 +3533,5 @@ public class TiC
 	public static final String URL_APP_SCHEME = "app";
 	public static final String URL_APP_JS = "app://app.js";
 	public static final String URL_ANDROID_ASSET_RESOURCES = "file:///android_asset/Resources/";
+	public static final String PATH_APP_JS = "Resources/app.js";
 }

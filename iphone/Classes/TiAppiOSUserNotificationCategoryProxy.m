@@ -7,7 +7,7 @@
 
 #import "TiAppiOSUserNotificationCategoryProxy.h"
 #import "TiAppiOSUserNotificationActionProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
 
@@ -27,26 +27,31 @@
 - (void)_initWithProperties:(NSDictionary *)properties
 {
   if (_notificationCategory == nil) {
-
     NSString *identifier = [properties valueForKey:@"identifier"];
     NSArray *actionsForDefaultContext = [properties valueForKey:@"actionsForDefaultContext"];
     NSArray *actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
     NSArray *intentIdentifiers = [properties valueForKey:@"intentIdentifiers"] ?: @[];
     NSString *hiddenPreviewsBodyPlaceholder = [properties valueForKey:@"hiddenPreviewsBodyPlaceholder"];
     UNNotificationCategoryOptions options = [self categoryOptionsFromArray:[properties valueForKey:@"options"] ?: @[]];
+#if IS_XCODE_10
+    NSString *categorySummaryFormat = [properties valueForKey:@"categorySummaryFormat"];
+#endif
 
     NSMutableArray *defaultActions = [NSMutableArray new];
     NSMutableArray *minimalActions = [NSMutableArray new];
 
+    // Prepare default actions
     for (TiAppiOSUserNotificationActionProxy *action in actionsForDefaultContext) {
       [defaultActions addObject:[action notificationAction]];
     }
 
+    // Prepare minimal actions (iOS < 10 only)
     for (TiAppiOSUserNotificationActionProxy *action in actionsForMinimalContext) {
       [minimalActions addObject:[action notificationAction]];
     }
 
-    if (intentIdentifiers) {
+    // Pre-validate intent identifiers to be a String
+    if (intentIdentifiers != nil) {
       for (id intentIdentifier in intentIdentifiers) {
         if (![intentIdentifier isKindOfClass:[NSString class]]) {
           DebugLog(@"[ERROR] All elements in \"intentIdentifiers\" must be a String, \"%@\" is not!", intentIdentifier);
@@ -55,14 +60,29 @@
     }
 
     // For iOS 10+, use the UserNotifications framerwork
-    if ([TiUtils isIOS10OrGreater]) {
-      // For iOS 11+, use the "hiddenPreviewsBodyPlaceholder" constructor
-      if (hiddenPreviewsBodyPlaceholder != nil && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
-        _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
-                                                                       actions:defaultActions
-                                                             intentIdentifiers:intentIdentifiers
-                                                 hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                                       options:options];
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+      // For iOS 11+, offer new constructors
+      if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+#if IS_XCODE_10
+        // For iOS 12+, use the "hiddenPreviewsBodyPlaceholder" and "categorySummaryFormat" constructor
+        if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+          _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
+                                                                          actions:defaultActions
+                                                                intentIdentifiers:intentIdentifiers
+                                                    hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                            categorySummaryFormat:categorySummaryFormat
+                                                                          options:options] retain];
+        } else {
+#endif
+          // For iOS 11, use the "hiddenPreviewsBodyPlaceholder" constructor
+          _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
+                                                                         actions:defaultActions
+                                                               intentIdentifiers:intentIdentifiers
+                                                   hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                                         options:options];
+#if IS_XCODE_10
+        }
+#endif
       } else {
         // For iOS < 11, use the default constructor
         _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier

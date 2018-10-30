@@ -8,9 +8,9 @@
 #import "TiUITextArea.h"
 #import "TiUITextAreaProxy.h"
 
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
@@ -90,21 +90,17 @@
 {
   if (textWidgetView == nil) {
     TiUITextViewImpl *textViewImpl = [[TiUITextViewImpl alloc] initWithFrame:CGRectZero];
-    textViewImpl.delaysContentTouches = NO;
     [textViewImpl setTouchHandler:self];
+    textViewImpl.delaysContentTouches = NO;
     textViewImpl.delegate = self;
+    textViewImpl.text = @"";
+
     [self addSubview:textViewImpl];
     [textViewImpl setContentInset:UIEdgeInsetsZero];
     self.clipsToBounds = YES;
 
     lastSelectedRange.location = 0;
     lastSelectedRange.length = 0;
-    //Temporarily setting text to a blank space, to set the editable property [TIMOB-10295]
-    //This is a workaround for a Apple Bug.
-    textViewImpl.text = @" ";
-    textViewImpl.editable = YES;
-
-    textViewImpl.text = @""; //Setting TextArea text to empty string
 
     textWidgetView = textViewImpl;
   }
@@ -203,12 +199,8 @@
 
 - (void)setShowUndoRedoActions:(id)value
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
-
   UITextView *tv = (UITextView *)[self textWidgetView];
-  if ([TiUtils boolValue:value] == YES) {
+  if ([TiUtils boolValue:value]) {
 
     tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
     tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
@@ -364,7 +356,6 @@
     }
   }
 
-  [(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
   return TRUE;
 }
 

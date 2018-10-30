@@ -14,7 +14,7 @@
 
 - (void)_initWithProperties:(NSDictionary *)properties
 {
-  if ([TiUtils forceTouchSupported] == NO) {
+  if (![TiUtils forceTouchSupported]) {
     NSLog(@"[WARN] 3DTouch is not available on this device.");
     return;
   }
