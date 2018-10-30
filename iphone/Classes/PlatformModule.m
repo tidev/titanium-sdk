@@ -7,7 +7,7 @@
 #ifdef USE_TI_PLATFORM
 
 #import "PlatformModule.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 
 #import <mach/mach.h>
 #import <sys/sysctl.h>
@@ -121,7 +121,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 {
   UIDevice *device = [UIDevice currentDevice];
   // set a flag to temporarily turn on battery enablement
-  if (batteryEnabled == NO && device.batteryMonitoringEnabled == NO) {
+  if (!batteryEnabled && !device.batteryMonitoringEnabled) {
     batteryEnabled = YES;
     [device setBatteryMonitoringEnabled:YES];
   }
@@ -288,7 +288,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   }
 
   if (newUrl != nil) {
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [[UIApplication sharedApplication] openURL:newUrl
                                          options:options
                                completionHandler:^(BOOL success) {

@@ -12,6 +12,24 @@ const path = require('path'),
 	util = require('util'),
 	Utils = {};
 
+function leftpad(str, len, ch) {
+	str = String(str);
+	let i = -1;
+	if (!ch && ch !== 0) {
+		ch = ' ';
+	}
+	len -= str.length;
+	while (++i < len) {
+		str = ch + str;
+	}
+	return str;
+}
+
+Utils.timestamp = function () {
+	const date = new Date();
+	return '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
+};
+
 Utils.copyFile = function (srcFolder, destFolder, filename, next) {
 	fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename), next);
 };
@@ -28,6 +46,20 @@ Utils.globCopy = function (pattern, srcFolder, destFolder, next) {
 			return next(err);
 		}
 		Utils.copyFiles(srcFolder, destFolder, files, next);
+	});
+};
+
+Utils.globCopyFlat = function (pattern, srcFolder, destFolder, next) {
+	glob(pattern, { cwd: srcFolder }, function (err, files) {
+		if (err) {
+			console.error(err);
+			return next(err);
+		}
+
+		async.each(files, function (filename, cb) {
+			const filenameWithoutDirectory = filename.split('/')[1]; // TODO: Refactor to simply copy without it's source directory
+			fs.copy(path.join(srcFolder, filename), path.join(destFolder, filenameWithoutDirectory), cb);
+		}, next);
 	});
 };
 
@@ -138,6 +170,15 @@ function cachedDownloadPath(url) {
 }
 
 Utils.generateSSRIHashFromURL = function (url, callback) {
+	if (url.startsWith('file://')) {
+		// Generate integrity hash!
+		ssri.fromStream(fs.createReadStream(url.slice(7))).then(integrity => {
+			callback(null, integrity.toString());
+		}).catch(e => {
+			callback(e);
+		});
+		return;
+	}
 	const downloadPath = cachedDownloadPath(url);
 	fs.removeSync(downloadPath);
 	download(url, downloadPath, function (err, file) {
@@ -154,11 +195,23 @@ Utils.generateSSRIHashFromURL = function (url, callback) {
 };
 
 Utils.downloadURL = function downloadURL(url, integrity, callback) {
-	const downloadPath = cachedDownloadPath(url);
+	if (url.startsWith('file://')) {
+		if (!fs.existsSync(url.slice(7))) {
+			return callback(new Error('File URL does not exist on disk: %s', url));
+		}
+		// if it passes integrity check, we're all good, return path to file
+		ssri.checkStream(fs.createReadStream(url.slice(7)), integrity).then(() => {
+			// cached copy is still valid, integrity hash matches
+			callback(null, url.slice(7));
+		}).catch(e => callback(e));
+		return;
+	}
 
 	if (!integrity) {
 		return callback(new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url));
 	}
+
+	const downloadPath = cachedDownloadPath(url);
 	// Check if file already exists and passes integrity check!
 	if (fs.existsSync(downloadPath)) {
 		// if it passes integrity check, we're all good, return path to file

@@ -9,15 +9,15 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiFile.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaVideoPlayer.h"
 #import "TiMediaVideoPlayerProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 
 /**
  * Design Notes:
@@ -91,7 +91,7 @@ NSArray *moviePlayerKeys = nil;
 
   // The AVPlayer does not properly support state management on iOS < 10.
   // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     // iOS 10+: For playbackState property / playbackstate event
     [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
   } else {
@@ -124,7 +124,7 @@ NSArray *moviePlayerKeys = nil;
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
   } else {
     [movie removeObserver:self forKeyPath:@"player.rate"];
@@ -453,14 +453,12 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)pictureInPictureEnabled
 {
-  return NUMBOOL([TiUtils isIOS9OrGreater] && [movie allowsPictureInPicturePlayback]);
+  return @([movie allowsPictureInPicturePlayback]);
 }
 
 - (void)setPictureInPictureEnabled:(NSNumber *)value
 {
-  if ([TiUtils isIOS9OrGreater] == YES) {
-    [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
-  }
+  [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
 }
 
 - (NSNumber *)showsControls
@@ -745,7 +743,7 @@ NSArray *moviePlayerKeys = nil;
   playing = YES;
   AVPlayer *player = [[self ensurePlayer] player];
 
-  if (seekToZeroBeforePlay == YES) {
+  if (seekToZeroBeforePlay) {
     seekToZeroBeforePlay = NO;
     [player seekToTime:kCMTimeZero];
   }
@@ -893,7 +891,7 @@ NSArray *moviePlayerKeys = nil;
       }
 
       // Start the video if autoplay is enabled
-      if ([TiUtils boolValue:[loadProperties valueForKey:@"autoplay"]] == YES) {
+      if ([TiUtils boolValue:[loadProperties valueForKey:@"autoplay"]]) {
         [self play:nil];
       }
     } else {
@@ -997,7 +995,7 @@ NSArray *moviePlayerKeys = nil;
   if ([keyPath isEqualToString:@"videoBounds"]) {
     [self handleNaturalSizeAvailableNotification:nil];
   }
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
       [self handleTimeControlStatusNotification:nil];
     }

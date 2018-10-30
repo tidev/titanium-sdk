@@ -8,9 +8,9 @@
 #import "TiUITextArea.h"
 #import "TiUITextAreaProxy.h"
 
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
@@ -199,12 +199,8 @@
 
 - (void)setShowUndoRedoActions:(id)value
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
-
   UITextView *tv = (UITextView *)[self textWidgetView];
-  if ([TiUtils boolValue:value] == YES) {
+  if ([TiUtils boolValue:value]) {
 
     tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
     tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;

@@ -155,7 +155,7 @@
 
 - (void)removeView:(id)args
 { //TODO: Refactor this properly.
-#if defined(TI_USE_AUTOLAYOUT) || defined(TI_USE_KROLL_THREAD)
+#if defined(TI_USE_AUTOLAYOUT)
   ENSURE_UI_THREAD(removeView, args)
 #endif
   ENSURE_SINGLE_ARG(args, NSObject);

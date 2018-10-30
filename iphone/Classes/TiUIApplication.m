@@ -6,7 +6,7 @@
  */
 
 #import "TiUIApplication.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiUIApplication
 

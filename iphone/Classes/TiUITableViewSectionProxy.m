@@ -10,7 +10,7 @@
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewRowProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITableViewSectionProxy
 
