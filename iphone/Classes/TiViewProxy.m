@@ -2946,57 +2946,57 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 + (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context
 {
   TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
-  if (viewTemplate == nil) {
+  if (viewTemplate == nil || viewTemplate.type == nil) {
     return nil;
   }
 
-  if (viewTemplate.type != nil) {
-    TiViewProxy *proxy = nil; // A proxy can be constructed either
-
+  TiViewProxy *proxy = nil;
+  @try {
     // First try a native proxy class...
-    if ([viewTemplate.type hasPrefix:@"Ti."] || [viewTemplate.type hasPrefix:@"Titanium."]) {
-      proxy = (TiViewProxy *)[[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
-      [context.krollContext invokeBlockOnThread:^{
-        [context registerProxy:proxy];
-        [proxy rememberSelf];
-      }];
+    proxy = (TiViewProxy *)[[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+    [context.krollContext invokeBlockOnThread:^{
+      [context registerProxy:proxy];
+      [proxy rememberSelf];
+    }];
+  } @catch (NSException *exception) {
+    // No such class exists, so fall back to trying to load an Alloy widget or CommonJS module
+    // TODO Cache by name? Otherwise it seems to keep trying to load native class repeatedly (and failing) and has to re-eval this below!
+    // TODO eval once and pass in the controller name and props as args?
+    DebugLog(@"[DEBUG] Failed to load native class %@, trying Alloy widget / CommonJS module", viewTemplate.type);
+    NSString *code = [NSString stringWithFormat:@"var result;"
+                                                 "try {"
+                                                 "  var jsModule = require('/alloy/widgets/%@/controllers/widget');"
+                                                 "  if (!jsModule) {"
+                                                 "    jsModule = require('%@');"
+                                                 "  }"
+                                                 "  if (jsModule) {"
+                                                 "    result = function (parameters) {"
+                                                 "      const obj = new jsModule(parameters);"
+                                                 "      return obj.getView();"
+                                                 "    };"
+                                                 "  }"
+                                                 "} catch (e) {"
+                                                 "  Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
+                                                 "}"
+                                                 "result;",
+                               viewTemplate.type, viewTemplate.type, viewTemplate.type];
+    id result = [context evalJSAndWait:code];
+    if (result != nil) {
+      KrollCallback *func = (KrollCallback *)result;
+      id contructResult = [func call:@[ viewTemplate.properties ] thisObject:nil]; // TODO: Do some error-handling here if the widget contructor fails?
+      proxy = (TiViewProxy *)contructResult;
     } else {
-      // No such class exists, so fall back to trying to load an Alloy widget or CommonJS module
-      // TODO Cache by name? Otherwise it seems to keep trying to load native class repeatedly (and failing) and has to re-eval this below!
-      // TODO eval once and pass in the controller name and props as args?
-      NSString *code = [NSString stringWithFormat:@"var result;"
-                                                   "try {"
-                                                   "  var jsModule = require('/alloy/widgets/%@/controllers/widget');"
-                                                   "  if (!jsModule) {"
-                                                   "    jsModule = require('%@');"
-                                                   "  }"
-                                                   "  if (jsModule) {"
-                                                   "    result = function (parameters) {"
-                                                   "      const obj = new jsModule(parameters);"
-                                                   "      return obj.getView();"
-                                                   "    };"
-                                                   "  }"
-                                                   "} catch (e) {"
-                                                   "  Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
-                                                   "}"
-                                                   "result;",
-                                 viewTemplate.type, viewTemplate.type, viewTemplate.type];
-      id result = [context evalJSAndWait:code];
-      if (result != nil) {
-        KrollCallback *func = (KrollCallback *)result;
-        id contructResult = [func call:@[ viewTemplate.properties ] thisObject:nil]; // TODO: Do some error-handling here if the widget contructor fails?
-        proxy = (TiViewProxy *)contructResult;
-      } else {
-        [self throwException:@"Invalid item template type provided"
-                   subreason:@"The item template type provided cannot be resolved."
-                    location:CODELOCATION];
-      }
+      [self throwException:@"Invalid item template type provided"
+                 subreason:@"The item template type provided cannot be resolved."
+                  location:CODELOCATION];
     }
+  } @finally {
     if (proxy != nil) {
       [proxy unarchiveFromTemplate:viewTemplate];
       return proxy;
     }
   }
+
   return nil;
 }
 
