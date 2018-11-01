@@ -18,13 +18,13 @@
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
 	"v8": {
-		"version": "7.0.276.13",
+		"version": "7.0.276.32",
 		"mode": "release"
 	},
 	"minSDKVersion": "16",
 	"compileSDKVersion": "28",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=27.x",
+		"android sdk": ">=23.x <=28.x",
 		"android build tools": ">=25.x <=28.x",
 		"android platform tools": "28.x",
 		"android tools": "<=26.x",

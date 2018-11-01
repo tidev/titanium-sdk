@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -105,7 +105,7 @@
   ENSURE_SINGLE_ARG(itemtype, NSString);
 
   if ([TiUtils stringValue:itemtype] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
     return;
   }
 
@@ -133,7 +133,7 @@
   NSString *key = [TiUtils stringValue:itemtype];
 
   if (key == nil) {
-    NSLog(@"[ERROR] The itemtype property is required.");
+    NSLog(@"[ERROR] The \"itemtype\" property is required.");
     return;
   }
 
@@ -157,12 +157,12 @@
   ENSURE_SINGLE_ARG(args, NSDictionary);
 
   if ([args objectForKey:@"itemtype"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
     return;
   }
 
   if ([args objectForKey:@"title"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The title property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"title\" property is required.");
     return;
   }
 

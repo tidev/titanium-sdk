@@ -49,6 +49,7 @@ typedef NS_ENUM(NSInteger, APSRequestError) {
 @property (nonatomic, assign, readwrite) BOOL validatesSecureCertificate;
 @property (nonatomic, assign, readwrite) BOOL cancelled;
 @property (nonatomic, assign, readwrite) NSURLRequestCachePolicy cachePolicy;
+@property (nonatomic, assign, readonly, getter=isReady) BOOL ready;
 
 /*!
  @discussion Set to YES to block the caller's thread for the duration
@@ -60,14 +61,14 @@ typedef NS_ENUM(NSInteger, APSRequestError) {
 /*!
  @discussion An optional NSOperationQueue for delegate callbacks.
  The default value is nil, which means delegate callbakcs occur on
- the caller's thread if the synchronous property is NO. If the 
+ the caller's thread if the synchronous property is NO. If the
  synchronous property is YES then this property is ignored.
  */
 @property (nonatomic, strong, readwrite) NSOperationQueue *theQueue;
 
 /*!
  @discussion An optioanl array of run loop modes for delegate calllbacks
- on the run loop of the caller's thread. The default is one element 
+ on the run loop of the caller's thread. The default is one element
  array containing NSDefaultRunLoopMode. This is an advanced property,
  and is ignored if synchronous is YES or theQueue is not nil. It is
  the caller's responsibility to keep the thread and the run loop alive.

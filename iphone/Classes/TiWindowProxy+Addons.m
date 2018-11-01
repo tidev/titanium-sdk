@@ -9,11 +9,11 @@
 
 @implementation TiWindowProxy (Addons)
 
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-- (TiUIiOSNavWindowProxy *)navigationWindow
+#if defined(USE_TI_UIIOSNAVIGATIONWINDOW) || defined(USE_TI_UINAVIGATIONWINDOW)
+- (TiUINavigationWindowProxy *)navigationWindow
 {
-  if (parentController != nil && [parentController isKindOfClass:[TiUIiOSNavWindowProxy class]]) {
-    return (TiUIiOSNavWindowProxy *)parentController;
+  if (parentController != nil && [parentController isKindOfClass:[TiUINavigationWindowProxy class]]) {
+    return (TiUINavigationWindowProxy *)parentController;
   }
 
   NSLog(@"[ERROR] Trying to receive a Ti.UI.NavigationWindow instance that does not exist in this context!");

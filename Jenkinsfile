@@ -12,7 +12,7 @@ def isGreenKeeper = env.BRANCH_NAME.startsWith('greenkeeper/') || 'greenkeeper[b
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of windows SDK to use and test suite to test with
-def targetBranch = isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master')
+def targetBranch = isGreenKeeper ? 'master' : (isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master'))
 def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline branch, by default
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
@@ -78,6 +78,8 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 							if ('ios'.equals(os)) {
 								// Gather the crash report(s)
 								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								// wait 1 minute, sometimes it's delayed in writing out crash reports to disk...
+								sleep time: 1, unit: 'MINUTES'
 								def crashFiles = sh(returnStdout: true, script: "ls -1 ${home}/Library/Logs/DiagnosticReports/").trim().readLines()
 								for (int i = 0; i < crashFiles.size(); i++) {
 									def crashFile = crashFiles[i]
@@ -119,7 +121,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-10') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -154,14 +156,7 @@ timestamps {
 
 					// Install dependencies
 					timeout(5) {
-						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						if (isGreenKeeper) {
-							sh 'npm install'
-							sh 'npm install -g sgtcoolguy/greenkeeper-lockfile#jenkins-multibranch'
-							sh 'greenkeeper-lockfile-update'
-						} else {
-							sh 'npm ci'
-						}
+						sh 'npm ci'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
 					if (fileExists('npm_test.log')) {
@@ -177,8 +172,6 @@ timestamps {
 						stash allowEmpty: true, name: 'test-report-ios'
 						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
-					} else if (isGreenKeeper) {
-						sh 'greenkeeper-lockfile-upload' // FIXME: This will get pushed up even if unit tests on sims fails later...
 					}
 				}
 
@@ -457,10 +450,10 @@ timestamps {
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
-						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
+						withEnv(["ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}","DANGER_JS_APP_INSTALL_ID=''"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existing build status.
+							sh returnStatus: true, script: 'npx danger ci --verbose' // Don't fail build if danger fails. We want to retain existing build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()
