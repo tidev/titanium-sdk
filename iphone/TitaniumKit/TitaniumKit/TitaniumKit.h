@@ -51,5 +51,6 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/UIImage+RoundedCorner.h>
 #import <TitaniumKit/WebColor.h>
 #import <TitaniumKit/WebFont.h>
+#import <TitaniumKit/SBJSON.h>
 
 #define TISDK_VERSION_STRING @"8.0.0"
