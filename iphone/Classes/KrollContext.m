@@ -7,7 +7,9 @@
 #import "KrollContext.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
 #import "KrollTimer.h"
+#endif
 #import "TiLocale.h"
 #import "TiUtils.h"
 
@@ -145,6 +147,7 @@ TiValueRef ThrowException(TiContextRef ctx, NSString *message, TiValueRef *excep
   return TiValueMakeUndefined(ctx);
 }
 
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
 static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValueRef fnRef, TiObjectRef jsThis, TiValueRef durationRef, BOOL onetime)
 {
   static dispatch_once_t timerInitializer;
@@ -227,6 +230,7 @@ static TiValueRef SetTimeoutCallback(TiContextRef jsContext, TiObjectRef jsFunct
 
   return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, YES);
 }
+#endif
 
 static TiValueRef CommonJSRequireCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
@@ -765,9 +769,11 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     lock = [[NSRecursiveLock alloc] init];
     [lock setName:[NSString stringWithFormat:@"%@ Lock", [self threadName]]];
 #endif
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
     timerLock = [[NSRecursiveLock alloc] init];
     NSString *timerName = [NSString stringWithFormat:@"%@ Timer Lock", [self threadName]];
     [timerLock setName:timerName];
+#endif
     stopped = YES;
     KrollContextCount++;
     debugger = NULL;
@@ -798,6 +804,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   RELEASE_TO_NIL(queue);
   RELEASE_TO_NIL(krollContextId);
   RELEASE_TO_NIL(lock);
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
   if (timerLock != nil) {
     [timerLock lock];
     if (timers != nil) {
@@ -806,14 +813,18 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     [timerLock unlock];
   }
   RELEASE_TO_NIL(timerLock);
+#endif
 #else
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
   if (timers != nil) {
     [timers removeAllObjects];
   }
 #endif
-  RELEASE_TO_NIL(timers);
+#endif
 #if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
   RELEASE_TO_NIL(timerManager);
+#else
+  RELEASE_TO_NIL(timers);
 #endif
 }
 
@@ -855,6 +866,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 }
 #endif
 
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
 - (void)registerTimer:(id)timer timerId:(double)timerId
 {
   [timerLock lock];
@@ -884,6 +896,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
   [timerLock unlock];
 }
+#endif
 
 - (void)start
 {
@@ -1183,7 +1196,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 #if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
-  timerManager = [[JSTimerManager alloc] initInContext:jsContext];
+  timerManager = [[KrollTimerManager alloc] initInContext:jsContext];
 #else
   [self bindCallback:@"setTimeout"
             callback:&SetTimeoutCallback];
@@ -1547,7 +1560,13 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 #if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
 
-@implementation JSTimerManager
+@interface KrollTimerManager ()
+
+@property NSUInteger nextTimerIdentifier;
+
+@end
+
+@implementation KrollTimerManager
 
 - (instancetype)initInContext:(JSContext *)context
 {
@@ -1556,14 +1575,15 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     return nil;
   }
 
+  self.nextTimerIdentifier = 0;
   self.timers = [NSMutableDictionary new];
 
-  int (^setInterval)(void) = ^() {
+  NSUInteger (^setInterval)(void) = ^() {
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
 
-  int (^setTimeout)(void) = ^() {
+  NSUInteger (^setTimeout)(void) = ^() {
     return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
@@ -1591,18 +1611,18 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (void)invalidateAllTimers
 {
   for (NSNumber *timerIdentifier in self.timers.allKeys) {
-    [self clearIntervalWithIdentifier:timerIdentifier.intValue];
+    [self clearIntervalWithIdentifier:timerIdentifier.unsignedIntegerValue];
   }
 }
 
-- (int)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
+- (NSUInteger)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
 {
   NSMutableArray *callbackArgs = [arguments.mutableCopy autorelease];
   JSValue *callbackFunction = [callbackArgs objectAtIndex:0];
   [callbackArgs removeObjectAtIndex:0];
   double interval = [[callbackArgs objectAtIndex:0] toDouble] / 1000;
   [callbackArgs removeObjectAtIndex:0];
-  NSNumber *timerIdentifier = [NSNumber numberWithUnsignedInteger:[[[[NSUUID alloc] init] autorelease] hash]];
+  NSNumber *timerIdentifier = @(self.nextTimerIdentifier++);
   NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                    repeats:shouldRepeat
                                                      block:^(NSTimer *_Nonnull timer) {
@@ -1612,12 +1632,12 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
                                                        }
                                                      }];
   self.timers[timerIdentifier] = timer;
-  return [timerIdentifier intValue];
+  return [timerIdentifier unsignedIntegerValue];
 }
 
-- (void)clearIntervalWithIdentifier:(int)identifier
+- (void)clearIntervalWithIdentifier:(NSUInteger)identifier
 {
-  NSNumber *timerIdentifier = [NSNumber numberWithInteger:identifier];
+  NSNumber *timerIdentifier = @(identifier);
   [self.timers[timerIdentifier] invalidate];
   [self.timers removeObjectForKey:timerIdentifier];
 }
