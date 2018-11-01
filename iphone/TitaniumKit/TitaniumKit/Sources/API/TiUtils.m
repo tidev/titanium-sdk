@@ -1204,9 +1204,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (NSDictionary *)touchPropertiesToDictionary:(UITouch *)touch andView:(UIView *)view
 {
   if ([self forceTouchSupported] || [self validatePencilWithTouch:touch]) {
+    CGFloat xValue = convertDipToDefaultUnit([touch locationInView:view].x);
+    CGFloat yValue = convertDipToDefaultUnit([touch locationInView:view].y);
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                         [NSNumber numberWithDouble:[touch locationInView:view].x], @"x",
-                                                     [NSNumber numberWithDouble:[touch locationInView:view].y], @"y",
+                                                         [NSNumber numberWithFloat:xValue], @"x",
+                                                     [NSNumber numberWithFloat:yValue], @"y",
                                                      [NSNumber numberWithFloat:touch.force], @"force",
                                                      [NSNumber numberWithFloat:touch.maximumPossibleForce], @"maximumPossibleForce",
                                                      [NSNumber numberWithDouble:touch.timestamp], @"timestamp",
