@@ -17,8 +17,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -99,9 +99,8 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		}
 		// Set the icon.
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
-			Drawable iconDrawable =
-				TiDrawableReference.fromObject(getProxy(), tabProxy.getProperty(TiC.PROPERTY_ICON)).getDrawable();
-			newTab.setIcon(iconDrawable);
+			Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
+			newTab.setIcon(drawable);
 		}
 		// Add the new tab to the TabLayout.
 		this.mTabLayout.addTab(newTab);
