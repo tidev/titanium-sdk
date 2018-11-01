@@ -1741,8 +1741,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
-					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double) event.getX());
-					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
+					TiDimension xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
+					TiDimension yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
+					lastUpEvent.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(view));
+					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(view));
 				}
 
 				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
