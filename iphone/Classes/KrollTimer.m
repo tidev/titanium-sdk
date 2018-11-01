@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
+
 #import "KrollTimer.h"
 #import "KrollContext.h"
 #import "KrollObject.h"
@@ -108,7 +110,7 @@
       TiThreadPerformOnMainThread(^{
         [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
       },
-          NO);
+          YES);
     } else
 #endif
     {
@@ -139,3 +141,5 @@
 }
 
 @end
+
+#endif
