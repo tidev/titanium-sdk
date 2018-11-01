@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#if !(defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD))
+
 #import "KrollContext.h"
 #import "TiToJS.h"
 #import <Foundation/Foundation.h>
@@ -29,3 +31,5 @@
 - (void)cancel;
 
 @end
+
+#endif
