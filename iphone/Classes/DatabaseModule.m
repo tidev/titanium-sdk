@@ -23,14 +23,14 @@
 
 - (JSValue *)open:(NSString *)path
 {
-  TiDatabaseProxy *db = [[[TiDatabaseProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
+  TiDatabaseProxy *db = [[[TiDatabaseProxy alloc] init] autorelease];
   [db open:path];
   return [self NativeToJSValue:db];
 }
 
 - (JSValue *)install:(NSString *)path withName:(NSString *)dbName
 {
-  TiDatabaseProxy *db = [[[TiDatabaseProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
+  TiDatabaseProxy *db = [[[TiDatabaseProxy alloc] init] autorelease];
   [db install:path name:dbName];
   return [self NativeToJSValue:db];
 }
