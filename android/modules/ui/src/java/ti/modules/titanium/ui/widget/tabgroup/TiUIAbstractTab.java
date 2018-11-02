@@ -63,11 +63,12 @@ public abstract class TiUIAbstractTab extends TiUIView
 
 	private TiWindowProxy getWindowProxy()
 	{
-		Object windowProxy = proxy.getProperty(TiC.PROPERTY_WINDOW);
-		if (windowProxy instanceof TiWindowProxy) {
-			return (TiWindowProxy) windowProxy;
+		if (proxy != null) {
+			Object windowProxy = proxy.getProperty(TiC.PROPERTY_WINDOW);
+			if (windowProxy instanceof TiWindowProxy) {
+				return (TiWindowProxy) windowProxy;
+			}
 		}
-
 		return null;
 	}
 }
