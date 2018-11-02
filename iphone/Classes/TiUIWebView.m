@@ -41,6 +41,14 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)dealloc
 {
+  RELEASE_TO_NIL(_pageToken);
+  RELEASE_TO_NIL(_loadingIndicator);
+  [super dealloc];
+}
+
+- (void)viewDidClose
+{
+  _isViewDetached = YES;
   if (_webView != nil) {
     [_webView setUIDelegate:nil];
     [_webView setNavigationDelegate:nil];
@@ -48,16 +56,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       [_webView stopLoading];
     }
   }
-
-  RELEASE_TO_NIL(_pageToken);
+  [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
+  [_webView removeFromSuperview];
   RELEASE_TO_NIL(_webView);
-  RELEASE_TO_NIL(_loadingIndicator);
-  [super dealloc];
-}
-
-- (void)viewDidDetach
-{
-  _isViewDetached = YES;
 }
 
 #pragma mark Internal API's

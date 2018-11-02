@@ -31,7 +31,7 @@
 
 // Used from the proxy
 - (void)setHtml_:(id)args;
-- (void)viewDidDetach;
+- (void)viewDidClose;
 
 - (WKWebView *)webView;
 

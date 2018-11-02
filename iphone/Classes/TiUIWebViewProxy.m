@@ -70,11 +70,6 @@
                              }];
 }
 
-- (void)viewDidDetach
-{
-  [(TiUIWebView *)[self view] viewDidDetach];
-}
-
 - (void)windowWillClose
 {
 }
@@ -85,6 +80,9 @@
     [[self host] unregisterContext:(id<TiEvaluator>)self forToken:_pageToken];
     _pageToken = nil;
   }
+
+  [(TiUIWebView *)[self view] viewDidClose];
+
   NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
   WARN_IF_BACKGROUND_THREAD_OBJ;
   [[NSNotificationCenter defaultCenter] postNotification:notification];
