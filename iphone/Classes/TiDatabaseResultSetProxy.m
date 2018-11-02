@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,35 +9,20 @@
 #import "TiDatabaseResultSetProxy.h"
 #import "DatabaseModule.h"
 #import "TiDatabaseProxy.h"
-#import <TitaniumKit/TiBlob.h>
-#import <TitaniumKit/TiUtils.h>
+@import TitaniumKit.TiBlob;
+@import TitaniumKit.TiUtils;
 
 @implementation TiDatabaseResultSetProxy
 
 - (void)dealloc
 {
-  if (database != nil && results != nil) {
-    [database removeStatement:results];
-  }
-  RELEASE_TO_NIL(database);
-  if (results != nil) {
-    [results close];
-  }
-  RELEASE_TO_NIL(results);
+  [self close];
   [super dealloc];
 }
 
-- (void)_destroy
+- (id)initWithResults:(PLSqliteResultSet *)results_ database:(TiDatabaseProxy *)database_
 {
-  if (database != nil) {
-    [self performSelector:@selector(close:) withObject:nil];
-  }
-  [super _destroy];
-}
-
-- (id)initWithResults:(PLSqliteResultSet *)results_ database:(TiDatabaseProxy *)database_ pageContext:(id<TiEvaluator>)context
-{
-  if (self = [self _initWithPageContext:context]) {
+  if (self = [self init]) {
     results = [results_ retain];
     database = [database_ retain];
     validRow = [results next];
@@ -112,7 +97,7 @@
 
 #pragma mark Public API
 
-- (void)close:(id)args
+- (void)close
 {
   if (database != nil && results != nil) {
     [database removeStatement:results];
@@ -122,64 +107,65 @@
     [results close];
   }
   RELEASE_TO_NIL(results);
-  [self _destroy];
   validRow = NO;
 }
 
-- (id)next:(id)args
+- (BOOL)next
 {
   if (results != nil) {
     validRow = [results next];
     if (!validRow) {
-      [self close:nil];
+      [self close];
     }
-    return NUMBOOL(validRow);
+    return validRow;
   }
-  return NUMBOOL(NO);
+  return NO;
 }
 
-- (id)field:(id)args
+- (JSValue *)field:(NSInteger)index withType:(JSValue *)optionalType
 {
-  ENSURE_ARRAY(args);
   if (results != nil) {
-    id result = [results objectForColumnIndex:[TiUtils intValue:[args objectAtIndex:0]]];
+    id result = [results objectForColumnIndex:index];
     if ([result isKindOfClass:[NSData class]]) {
       result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
     }
-
-    if ([args count] > 1) {
-      //cast result on the way out if type constant was passed
-      NSNumber *type = (NSNumber *)[args objectAtIndex:1];
-      result = [self _transformObject:result toType:[type intValue]];
+    // If user specified a type that we can coerce to Number, try and use it
+    if ([optionalType isNumber] || [optionalType isString]) {
+      DatabaseFieldType type = [optionalType toInt32];
+      if (type != FieldTypeUnknown) {
+        //cast result on the way out if type constant was passed
+        result = [self _transformObject:result toType:type];
+      }
     }
     return result;
   }
   return nil;
 }
 
-- (id)fieldByName:(id)args
+- (JSValue *)fieldByName:(NSString *)name withType:(JSValue *)optionalType
 {
-  ENSURE_ARRAY(args);
   if (results != nil) {
-    id result = [results objectForColumn:[TiUtils stringValue:[args objectAtIndex:0]]];
+    id result = [results objectForColumn:[TiUtils stringValue:name]];
     if ([result isKindOfClass:[NSData class]]) {
       result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
     }
-    if ([args count] > 1) {
-      //cast result on the way out if type constant was passed
-      NSNumber *type = (NSNumber *)[args objectAtIndex:1];
-      result = [self _transformObject:result toType:[type intValue]];
+    // If user specified a type that we can coerce to Number, try and use it
+    if ([optionalType isNumber] || [optionalType isString]) {
+      DatabaseFieldType type = [optionalType toInt32];
+      if (type != FieldTypeUnknown) {
+        //cast result on the way out if type constant was passed
+        result = [self _transformObject:result toType:type];
+      }
     }
     return result;
   }
   return nil;
 }
 
-- (id)fieldName:(id)args
+- (NSString *)fieldName:(NSInteger)requestedIndex
 {
-  ENSURE_SINGLE_ARG(args, NSObject);
   if (results != nil) {
-    int requestedIndex = [TiUtils intValue:args def:INT_MAX];
+    // FIXME: How do we determine if the index was left blank/undefined?
     if (requestedIndex == INT_MAX) {
       [self throwException:TiExceptionInvalidType subreason:nil location:CODELOCATION];
     }
@@ -192,15 +178,15 @@
   return nil;
 }
 
-- (NSNumber *)fieldCount
+- (NSInteger)fieldCount
 {
   if (results != nil) {
-    return NUMUINTEGER([[results fieldNames] count]);
+    return [[results fieldNames] count];
   }
-  return NUMINT(0);
+  return 0;
 }
 
-- (NSNumber *)rowCount
+- (NSInteger)rowCount
 {
   if (results != nil) {
     BOOL reset = NO;
@@ -212,22 +198,23 @@
       reset = YES;
     }
     if (!reset) {
-      return NUMINT(rowCount);
+      return rowCount;
     }
     // we cache it
     rowCount = [results fullCount];
     [results next];
-    return NUMINT(rowCount);
+    return rowCount;
   }
-  return NUMINT(0);
+  return 0;
 }
 
-- (NSNumber *)validRow
+- (BOOL)validRow
 {
-  return NUMBOOL(validRow);
+  return validRow;
 }
+GETTER_IMPL(BOOL, validRow, ValidRow);
 
-- (NSNumber *)isValidRow:(id)args
+- (BOOL)isValidRow
 {
   return [self validRow];
 }
