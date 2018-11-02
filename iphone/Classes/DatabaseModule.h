@@ -16,6 +16,8 @@ typedef enum {
   FieldTypeDouble
 } DatabaseFieldType;
 
+@class TiDatabaseProxy; // forward declare
+
 @protocol DatabaseModuleExports <JSExport>
 
 // Constants
@@ -25,13 +27,11 @@ CONSTANT(DatabaseFieldType, FIELD_TYPE_INT);
 CONSTANT(DatabaseFieldType, FIELD_TYPE_STRING);
 
 // Methods
-// TODO: Change JSValue* return type to TiDatabaseProxy* when it's moved to obj-c API
 JSExportAs(install,
-           -(JSValue *)install
+           -(TiDatabaseProxy *)install
            : (NSString *)path withName
            : (NSString *)dbName);
-// TODO: Change JSValue* return type to TiDatabaseProxy* when it's moved to obj-c API
-- (JSValue *)open:(NSString *)dbName;
+- (TiDatabaseProxy *)open:(NSString *)dbName;
 
 @end
 
