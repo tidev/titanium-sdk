@@ -974,6 +974,12 @@
 
 - (void)processForSafeArea
 {
+  [self setValue:@{ @"top" : NUMFLOAT(0.0),
+    @"left" : NUMFLOAT(0.0),
+    @"bottom" : NUMFLOAT(0.0),
+    @"right" : NUMFLOAT(0.0) }
+          forKey:@"safeAreaPadding"];
+
   if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return;
   }
@@ -998,12 +1004,6 @@
             forKey:@"safeAreaPadding"];
     return;
   }
-
-  [self setValue:@{ @"top" : NUMFLOAT(0.0),
-    @"left" : NUMFLOAT(0.0),
-    @"bottom" : NUMFLOAT(0.0),
-    @"right" : NUMFLOAT(0.0) }
-          forKey:@"safeAreaPadding"];
 
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
   CGFloat oldTop = [[safeAreaProxy valueForKey:@"top"] floatValue];

@@ -166,8 +166,6 @@ static NSArray *touchEventsArray;
 
 - (void)add:(id)arg
 {
-#if IS_XCODE_9
-#ifdef USE_TI_UIWINDOW
   TiUIWindowProxy *windowProxy = nil;
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     windowProxy = (TiUIWindowProxy *)self;
@@ -176,25 +174,15 @@ static NSArray *touchEventsArray;
       windowProxy = nil;
     }
   }
-#endif
-#endif
 
   // allow either an array of arrays or an array of single proxy
   if ([arg isKindOfClass:[NSArray class]]) {
     for (id a in arg) {
-#if IS_XCODE_9
-#ifdef USE_TI_UIWINDOW
       if (windowProxy.safeAreaViewProxy) {
         [windowProxy.safeAreaViewProxy add:a];
       } else {
-#endif
-#endif
         [self add:a];
-#if IS_XCODE_9
-#ifdef USE_TI_UIWINDOW
       }
-#endif
-#endif
     }
     return;
   }
@@ -209,14 +197,10 @@ static NSArray *touchEventsArray;
     nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
 #endif
   if ([arg isKindOfClass:[NSDictionary class]]) {
-#if IS_XCODE_9
-#ifdef USE_TI_UIWINDOW
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy add:arg];
       return;
     }
-#endif
-#endif
     childView = [arg objectForKey:@"view"];
     position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
   } else if ([arg isKindOfClass:[TiViewProxy class]]) {
@@ -376,8 +360,6 @@ static NSArray *touchEventsArray;
 
 - (void)removeAllChildren:(id)arg
 {
-#if IS_XCODE_9
-#ifdef USE_TI_UIWINDOW
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
@@ -385,8 +367,6 @@ static NSArray *touchEventsArray;
       return;
     }
   }
-#endif
-#endif
 
   ENSURE_UI_THREAD_1_ARG(arg);
   pthread_rwlock_wrlock(&childrenLock);
