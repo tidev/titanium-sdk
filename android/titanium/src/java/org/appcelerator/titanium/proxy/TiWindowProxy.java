@@ -38,9 +38,10 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
-import android.util.Pair;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -640,15 +641,18 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
+		ActivityOptionsCompat options = null;
 		if (hasActivityTransitions()) {
-			Bundle b = ActivityOptions
-						   .makeSceneTransitionAnimation(
-							   activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]))
-						   .toBundle();
-			return b;
+			if (!sharedElementPairs.isEmpty()) {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+					activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
+			} else {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity);
+			}
 		} else {
-			return null;
+			options = ActivityOptionsCompat.makeBasic();
 		}
+		return options.toBundle();
 	}
 
 	/**
