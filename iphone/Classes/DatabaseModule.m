@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,26 +21,24 @@
   return @"Ti.Database";
 }
 
-- (id)open:(id)path
+- (JSValue *)open:(NSString *)path
 {
-  ENSURE_SINGLE_ARG(path, NSString);
   TiDatabaseProxy *db = [[[TiDatabaseProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
   [db open:path];
-  return db;
+  return [self NativeToJSValue:db];
 }
 
-- (id)install:(id)args
+- (JSValue *)install:(NSString *)path withName:(NSString *)dbName
 {
-  ENSURE_ARG_COUNT(args, 2);
   TiDatabaseProxy *db = [[[TiDatabaseProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
-  [db install:[args objectAtIndex:0] name:[args objectAtIndex:1]];
-  return db;
+  [db install:path name:dbName];
+  return [self NativeToJSValue:db];
 }
 
 #define DB_CONSTANT(name, num) \
-  -(id)name                    \
+  -(DatabaseFieldType)name     \
   {                            \
-    return NUMINT(num);        \
+    return num;                \
   }
 
 DB_CONSTANT(FIELD_TYPE_UNKNOWN, FieldTypeUnknown)
