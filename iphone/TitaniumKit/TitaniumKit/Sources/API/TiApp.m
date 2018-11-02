@@ -537,7 +537,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if (showInForeground) {
     completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
   } else {
-    [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:notification.request.content.userInfo];
+    if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+      [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:notification.request.content.userInfo];
+    }
     completionHandler(UNNotificationPresentationOptionNone);
   }
 }
@@ -546,14 +548,16 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler
 {
-  if ([[[[[response notification] request] content] userInfo] valueForKey:@"aps"] != nil) {
+  if ([response.notification.request.content.userInfo valueForKey:@"aps"] != nil) {
     NSMutableDictionary *responseInfo = nil;
     if ([response isKindOfClass:[UNTextInputNotificationResponse class]]) {
       responseInfo = [NSMutableDictionary dictionary];
       [responseInfo setValue:((UNTextInputNotificationResponse *)response).userText forKey:UIUserNotificationActionResponseTypedTextKey];
     }
     if ([UNNotificationDefaultActionIdentifier isEqualToString:response.actionIdentifier]) {
-      [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:response.notification.request.content.userInfo];
+      if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+        [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:response.notification.request.content.userInfo];
+      }
       completionHandler();
     } else {
       [self application:[UIApplication sharedApplication] handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
