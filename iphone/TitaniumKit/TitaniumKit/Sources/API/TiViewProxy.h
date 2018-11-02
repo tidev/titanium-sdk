@@ -102,7 +102,6 @@ enum {
   int vzIndex;
   BOOL hidden; // This is the boolean version of ![TiUtils boolValue:visible def:YES]
   BOOL safeAreaProxyAdded;
-  BOOL didSafeAreaUpdated;
 
 #pragma mark Parent/Children relationships
   TiViewProxy *parent;

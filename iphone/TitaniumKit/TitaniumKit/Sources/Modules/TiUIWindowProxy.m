@@ -245,12 +245,7 @@
   [self performSelector:@selector(processForSafeArea)
              withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-<<<<<<< HEAD:iphone/TitaniumKit/TitaniumKit/Sources/Modules/TiUIWindowProxy.m
 
-=======
-  didSafeAreaUpdated = YES;
-#endif
->>>>>>> [TIMOB - 26461] : iOS: Add "safeAreaPadding" property to Ti.UI.Window:iphone/Classes/TiUIWindowProxy.m
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
   [self willChangeSize];
@@ -979,7 +974,7 @@
 
 - (void)processForSafeArea
 {
-  if (![TiUtils TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return;
   }
 
@@ -1001,11 +996,6 @@
       @"bottom" : NUMFLOAT(edgeInsets.bottom),
       @"right" : NUMFLOAT(edgeInsets.right) }
             forKey:@"safeAreaPadding"];
-    if (didSafeAreaUpdated) {
-      // postlayout event has already fired while rotating device. So forcefully fire event again
-      [self relayout];
-      didSafeAreaUpdated = NO;
-    }
     return;
   }
 
