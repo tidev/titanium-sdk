@@ -24,8 +24,6 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Message;
 import android.text.InputType;
 import android.text.util.Linkify;
 import android.view.View;
@@ -35,7 +33,7 @@ import android.widget.Toast;
 // clang-format off
 @Kroll.module
 @Kroll.dynamicApis(properties = { "currentWindow" })
-public class UIModule extends KrollModule implements Handler.Callback
+public class UIModule extends KrollModule
 // clang-format on
 {
 	private static final String TAG = "TiUIModule";
@@ -393,9 +391,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int HIDDEN_BEHAVIOR_INVISIBLE = View.INVISIBLE;
 
-	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
-	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
-	protected static final int MSG_LAST_ID = MSG_SET_BACKGROUND_IMAGE;
+	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
 	public UIModule()
 	{
@@ -408,13 +404,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public void setBackgroundColor(String color)
 	// clang-format off
 	{
-		if (TiApplication.isUIThread()) {
-			doSetBackgroundColor(color);
-
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_COLOR, color);
-			message.sendToTarget();
-		}
+		doSetBackgroundColor(color);
 	}
 
 	protected void doSetBackgroundColor(String color)
@@ -431,13 +421,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public void setBackgroundImage(Object image)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			doSetBackgroundImage(image);
-
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_IMAGE, image);
-			message.sendToTarget();
-		}
+		doSetBackgroundImage(image);
 	}
 
 	protected void doSetBackgroundImage(Object image)
@@ -514,24 +498,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 				windowProxy.setOrientationModes(orientationModes);
 			}
 		}
-	}
-
-	public boolean handleMessage(Message message)
-	{
-		switch (message.what) {
-			case MSG_SET_BACKGROUND_COLOR: {
-				doSetBackgroundColor((String) message.obj);
-
-				return true;
-			}
-			case MSG_SET_BACKGROUND_IMAGE: {
-				doSetBackgroundImage(message.obj);
-
-				return true;
-			}
-		}
-
-		return super.handleMessage(message);
 	}
 
 	@Override
