@@ -45,7 +45,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavigationWindowProxy.h"
+#import "TiUIiOSNavWindowProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSPLITWINDOW
@@ -501,7 +501,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 - (id)createNavigationWindow:(id)args
 {
-  return [[[TiUIiOSNavigationWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 

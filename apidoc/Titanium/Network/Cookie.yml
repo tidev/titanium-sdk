@@ -83,7 +83,7 @@ description: |
              }
            ]
          };
-         var navigationController = Ti.UI.createNavigationWindow();
+         var navigationController = Ti.UI.iOS.createNavigationWindow();
 
          function LoadCookiesWindow() {
            var close = Ti.UI.createButton({
@@ -94,7 +94,7 @@ description: |
              // rightNavButton: close
              backgroundColor: '#ccc'
            });
-           var nav = Ti.UI.createNavigationWindow({
+           var nav = Ti.UI.iOS.createNavigationWindow({
              window: win
            });
            var webview = Ti.UI.createWebView({
@@ -434,7 +434,7 @@ description: |
 
          navigationController.window = MainWindow();
          navigationController.open();
-
+         
 extends: Titanium.Proxy
 since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 platforms: [android, iphone, ipad]
