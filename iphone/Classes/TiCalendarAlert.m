@@ -1,22 +1,21 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_CALENDAR
 
 #import "TiCalendarAlert.h"
-#import "TiCalendarEvent.h"
-#import <TitaniumKit/TiUtils.h>
+@import TitaniumKit.TiUtils;
+@import EventKit;
 
 @implementation TiCalendarAlert
 
-- (id)_initWithPageContext:(id<TiEvaluator>)context
-                     alert:(EKAlarm *)alert_
-                    module:(CalendarModule *)module_
+- (id)initWithAlert:(EKAlarm *)alert_
+             module:(CalendarModule *)module_
 {
-  if (self = [super _initWithPageContext:context]) {
+  if (self = [super init]) {
     module = [module_ retain];
     alert = [alert_ retain];
   }
@@ -44,21 +43,22 @@
 {
   return [self alert].absoluteDate;
 }
+READWRITE_IMPL(NSDate *, absoluteDate, AbsoluteDate);
 
-- (NSNumber *)relativeOffset
+- (double)relativeOffset
 {
-  return NUMDOUBLE([self alert].relativeOffset * 1000);
+  return [self alert].relativeOffset * 1000;
+}
+READWRITE_IMPL(double, relativeOffset, RelativeOffset);
+
+- (void)setAbsoluteDate:(NSDate *)absoluteDate
+{
+  alert.absoluteDate = absoluteDate;
 }
 
-- (void)setAbsoluteDate:(id)arg
+- (void)setRelativeOffset:(double)relativeOffset
 {
-  ENSURE_CLASS(arg, [NSDate class]);
-  alert.absoluteDate = [TiUtils dateForUTCDate:arg];
-}
-
-- (void)setRelavtiveOffset:(id)arg
-{
-  alert.relativeOffset = [TiUtils doubleValue:arg] / 1000;
+  alert.relativeOffset = relativeOffset / 1000;
 }
 
 @end
