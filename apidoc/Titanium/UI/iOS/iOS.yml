@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.iOS
 summary: |
-    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will
+    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will 
     only work on Apple iOS devices.
 extends: Titanium.Module
 since: "1.4"
@@ -11,7 +11,7 @@ methods:
   - name: createTransitionAnimation
     summary: |
         Creates a transition animation when opening or closing windows in a
-        <Titanium.UI.NavigationWindow> or <Titanium.UI.Tab>.
+        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
     description: |
         Use the object returned by this method with the Window's
         [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
@@ -26,7 +26,7 @@ methods:
 
   - name: createLivePhotoBadge
     summary: |
-        Creates a live photo badge to be used together with the
+        Creates a live photo badge to be used together with the 
         <Titanium.UI.iOS.LivePhotoView> API.
     description: |
         Supported on iOS 9.1 and later.
@@ -39,34 +39,34 @@ methods:
       - type: Titanium.Blob
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
-
+    
 properties:
   - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     summary: |
         Automatically use the large out-of-line title based on the state of the p
         revious item in the navigation bar.
     description: |
-        Use with <Titanium.UI.Window.largeTitleDisplayMode>. An item with this
-        constant will show or hide the large title based on the request of the
-        previous navigation item. If the first item pushed is set to Automatic,
+        Use with <Titanium.UI.Window.largeTitleDisplayMode>. An item with this 
+        constant will show or hide the large title based on the request of the 
+        previous navigation item. If the first item pushed is set to Automatic, 
         then it will show the large title if the navigation bar has the property
         <Titanium.UI.Window.largeTitleEnabled> set to `true`.
     type: Number
     since: "6.3.0"
     osver: {ios: {min: "11.0"}}
-    permission: read-only
+    permission: read-only 
 
   - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
     summary: Always use a larger title when this item is top most.
-    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
     type: Number
     since: "6.3.0"
     osver: {ios: {min: "11.0"}}
     permission: read-only
-
+    
   - name: LARGE_TITLE_DISPLAY_MODE_NEVER
     summary:  Never use a larger title when this item is top most.
-    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
     type: Number
     since: "6.3.0"
     osver: {ios: {min: "11.0"}}
@@ -74,7 +74,7 @@ properties:
 
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
     summary: |
-        Include treatments so this image can be shown directly over the content
+        Include treatments so this image can be shown directly over the content 
         of the Live Photo.
     description: |
         Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
@@ -83,10 +83,10 @@ properties:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
     permission: read-only
-
+    
   - name: LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
-    summary: |
-        To indicate that the Live Photo aspect is turned off and it will
+    summary: | 
+        To indicate that the Live Photo aspect is turned off and it will 
         be treated as a still (e.g. for sharing).
     description: |
         Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
@@ -102,7 +102,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly and speeds up.
     type: Number
     permission: read-only
@@ -113,7 +113,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
@@ -124,7 +124,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_OUT> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
@@ -135,7 +135,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_LINEAR> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
         at a constant rate.
     type: Number
     permission: read-only
@@ -242,7 +242,7 @@ properties:
         removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
-
+ 
         See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
@@ -638,7 +638,7 @@ properties:
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
     summary: |
-        Use with <Attribute.value> to use the
+        Use with <Attribute.value> to use the 
         [Unicode Bidirection Algorithm rules P2 and P3](http://www.unicode.org/reports/tr9/#The_Paragraph_Level)
         to determine which direction to use.
     deprecated:
@@ -890,7 +890,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_HUE
     deprecated:
         since: "7.3.0"
@@ -967,7 +967,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_PLUS_LIGHTER
     deprecated:
         since: "7.3.0"
@@ -1070,7 +1070,7 @@ properties:
     summary: |
         Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
     description: |
-        Creates a blurring effect in the view. The area of the view is the same approximate hue
+        Creates a blurring effect in the view. The area of the view is the same approximate hue 
         of the underlying view.
     type: Number
     permission: read-only
@@ -1252,7 +1252,7 @@ properties:
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
     summary: |
-        Plays back the entire motion and sound content of the Live Photo, including transition
+        Plays back the entire motion and sound content of the Live Photo, including transition 
         effects at the start and end.
     description: This style matches the effect seen when pressing on a photo in the Photos app.
     type: Number
@@ -1263,7 +1263,7 @@ properties:
   - name: LIVEPHOTO_PLAYBACK_STYLE_HINT
     summary: Plays back only a brief section of the motion content of the Live Photo, without sound.
     description: |
-        This style matches the effect seen in various iOS interface elements for hinting to the user
+        This style matches the effect seen in various iOS interface elements for hinting to the user 
         when an asset contains Live Photo content.
     type: Number
     since: "5.2.0"
@@ -1274,22 +1274,22 @@ properties:
     summary: An arrow that points upward.
     type: Number
     permission: read-only
-
+    
   - name: MENU_POPUP_ARROW_DIRECTION_DOWN
     summary: An arrow that points downward.
     type: Number
     permission: read-only
-
+    
   - name: MENU_POPUP_ARROW_DIRECTION_LEFT
     summary: An arrow that points toward the left.
     type: Number
     permission: read-only
-
+    
   - name: MENU_POPUP_ARROW_DIRECTION_RIGHT
     summary: An arrow that points toward the right.
     type: Number
     permission: read-only
-
+    
   - name: MENU_POPUP_ARROW_DIRECTION_DEFAULT
     summary: An arrow that is automatically aligned.
     type: Number
@@ -1299,13 +1299,13 @@ properties:
     summary: View presented with the same style as its parent window.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
+        
         One of the group of modal window presentation style constants
         [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
         [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     since: "5.4.0"
@@ -1314,89 +1314,89 @@ properties:
     summary: View presented over its parent window.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window presentation style constants
+        
+        One of the group of modal window presentation style constants 
         [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
         [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     since: "7.3.0"
 
   - name: MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN
-    summary: Presented view covers the screen.
+    summary: Presented view covers the screen. 
     description: |
         The views beneath the presented content are not removed from the view hierarchy when the presentation finishes. So if the presented view controller does not fill the screen with opaque content, the underlying content shows through.
-
+        
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window presentation style constants
+        
+        One of the group of modal window presentation style constants 
         [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
         [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     since: "7.3.0"
 
   - name: MODAL_PRESENTATION_FORMSHEET
     summary: |
-        Window width and height are smaller than those of the screen and the view is centered on
+        Window width and height are smaller than those of the screen and the view is centered on 
         the screen.
     description: |
-        If the system is in a landscape orientation and the keyboard is visible, the position of the
-        view is adjusted upward so that the view remains visible. All uncovered areas are dimmed
+        If the system is in a landscape orientation and the keyboard is visible, the position of the 
+        view is adjusted upward so that the view remains visible. All uncovered areas are dimmed 
         and do not respond to touch to prevent the user from interacting with them.
-
+        
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window presentation style constants
+        
+        One of the group of modal window presentation style constants 
         [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
         [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     permission: read-only
     since: "5.4.0"
-
+    
   - name: MODAL_PRESENTATION_FULLSCREEN
     summary: Window covers the screen.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window presentation style constants
+        
+        One of the group of modal window presentation style constants 
         [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
         [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     permission: read-only
     since: "5.4.0"
-
+    
   - name: MODAL_PRESENTATION_PAGESHEET
     summary: |
-        Window height is the height of the screen and width is equal to screen width in a portrait
+        Window height is the height of the screen and width is equal to screen width in a portrait 
         orientation.
     description: |
-        Any uncovered areas are dimmed and do not respond to touch, to prevent the user from
-        interacting with them. In portrait orientations, this option is essentially the same as
+        Any uncovered areas are dimmed and do not respond to touch, to prevent the user from 
+        interacting with them. In portrait orientations, this option is essentially the same as 
         <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN>.
-
+        
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window presentation style constants
+        
+        One of the group of modal window presentation style constants 
         [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
         [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     permission: read-only
@@ -1404,70 +1404,70 @@ properties:
 
   - name: MODAL_TRANSITION_STYLE_COVER_VERTICAL
     summary: |
-        When the window is presented, its view slides up from the bottom of the screen. On dismissal,
+        When the window is presented, its view slides up from the bottom of the screen. On dismissal, 
         the view slides back down (default.)
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window transition style constants
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
     since: "5.4.0"
-
+   
   - name: MODAL_TRANSITION_STYLE_CROSS_DISSOLVE
     summary: |
-        When the window is presented, the current view fades out while the new view fades in at the
+        When the window is presented, the current view fades out while the new view fades in at the 
         same time. On dismissal, a similar type of cross-fade is used to return to the original view.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window transition style constants
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
     since: "5.4.0"
-
+    
   - name: MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL
     summary: |
-        When the window is presented, the current view initiates a horizontal 3D flip from
-        right-to-left, resulting in the revealing of the new view as if it were on the back of the
-        previous view. On dismissal, the flip occurs from left-to-right, returning to the original
+        When the window is presented, the current view initiates a horizontal 3D flip from 
+        right-to-left, resulting in the revealing of the new view as if it were on the back of the 
+        previous view. On dismissal, the flip occurs from left-to-right, returning to the original 
         view.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window transition style constants
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
     since: "5.4.0"
-
+    
   - name: MODAL_TRANSITION_STYLE_PARTIAL_CURL
     summary: |
-        When the window is presented, one corner of the current view curls up to reveal the modal
-        view underneath. On dismissal, the curled up page unfurls itself back on top of the modal
+        When the window is presented, one corner of the current view curls up to reveal the modal 
+        view underneath. On dismissal, the curled up page unfurls itself back on top of the modal 
         view.
     description: |
-        A modal view presented using this transition is itself prevented from presenting any
-        additional modal views. This transition style is supported only if the window is presenting
+        A modal view presented using this transition is itself prevented from presenting any 
+        additional modal views. This transition style is supported only if the window is presenting 
         a <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN> modal presentation style.
-
+        
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-
-        One of the group of modal window transition style constants
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
@@ -1553,7 +1553,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.3"
-
+    
   - name: SCROLL_DECELERATION_RATE_NORMAL
     summary: |
         Use with <Titanium.UI.ScrollView.decelerationRate> to control deceleration rate.
@@ -1581,7 +1581,7 @@ properties:
     summary: |
         Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
     description: |
-        The keyboard follows the dragging touch offscreen, and can be pulled
+        The keyboard follows the dragging touch offscreen, and can be pulled 
         upward again to cancel the dismiss.
     type: Number
     permission: read-only
@@ -1595,7 +1595,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-
+  
   - name: SEARCH_BAR_STYLE_MINIMAL
     summary: |
         Use with <Titanium.UI.SearchBar.style> to change the search bar style.
@@ -1926,7 +1926,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.1"}}
     since: "5.1.0"
-
+ 
   - name: SHORTCUT_ICON_TYPE_UPDATE
     summary: Number that represents the icon used for the application shortcut
     description: |
@@ -2014,7 +2014,7 @@ examples:
             });
             win1.add(button1);
 
-            var nav = Ti.UI.createNavigationWindow({
+            var nav = Ti.UI.iOS.createNavigationWindow({
                 window: win1
             });
             nav.open();
