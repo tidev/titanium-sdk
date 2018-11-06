@@ -9,6 +9,7 @@
 
 @class KrollContext;
 @class KrollCallback;
+@class KrollTimerManager;
 
 @protocol KrollDelegate <NSObject>
 
@@ -39,8 +40,7 @@
   BOOL suspended;
 #endif
   JSGlobalContextRef context;
-  NSMutableDictionary *timers;
-  NSRecursiveLock *timerLock;
+  KrollTimerManager *timerManager;
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
@@ -61,9 +61,6 @@
 - (id)evalJSAndWait:(NSString *)code;
 
 - (void)enqueue:(id)obj;
-
-- (void)registerTimer:(id)timer timerId:(double)timerId;
-- (void)unregisterTimer:(double)timerId;
 
 - (int)forceGarbageCollectNow;
 
