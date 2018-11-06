@@ -8,6 +8,7 @@
 package org.appcelerator.titanium.view;
 
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -92,6 +93,13 @@ public class TiActionBarStyleHandler
 			if (view instanceof Toolbar) {
 				// Toolbar found. Set up a Toolbar style handler.
 				toolbarStyleHandler = new TiToolbarStyleHandler((Toolbar) view);
+				int styleAttributeId = TiRHelper.getResource("attr.actionBarStyle");
+				int[] idArray = new int[] { TiRHelper.getResource("attr.titleTextStyle"),
+											TiRHelper.getResource("attr.subtitleTextStyle") };
+				TypedArray typedArray = activity.obtainStyledAttributes(null, idArray, styleAttributeId, 0);
+				toolbarStyleHandler.setTitleTextAppearanceId(typedArray.getResourceId(0, 0));
+				toolbarStyleHandler.setSubtitleTextAppearanceId(typedArray.getResourceId(1, 0));
+				typedArray.recycle();
 			}
 		} catch (Exception ex) {
 			Log.d(TAG, ex.getMessage(), ex);
