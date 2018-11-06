@@ -127,6 +127,7 @@ timestamps {
 				dir('..') {
 					if (fileExists('titanium_mobile.git')) {
 						dir('titanium_mobile.git') {
+							sh 'git gc'
 							sh 'git remote update -p' // update the clone
 							sh 'git prune' // prune to avoid "warning: There are too many unreachable loose objects"
 						}
