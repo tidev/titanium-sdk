@@ -198,10 +198,10 @@ KrollContext *GetKrollContext(TiContextRef context);
 /**
  * Map of timer identifiers and the underlying native NSTimer.
  */
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSTimer *> *timers;
+@property (nonatomic, strong) NSMapTable<NSNumber *, NSTimer *> *timers;
 
 /**
- * Initailizes the timer manager in the given JS context. Exposes the global set/clear
+ * Initializes the timer manager in the given JS context. Exposes the global set/clear
  * functions for creating and clearing intervals/timeouts.
  *
  * @param context The JSContext where timer function should be made available to.
