@@ -31,6 +31,12 @@ public class TiToolbarStyleHandler
 	/** The toolbar to be updated with the newest style/size. */
 	private Toolbar toolbar;
 
+	/** Custom TextAppearance resource ID to be used by toolbar's title. Set zero to use default style. */
+	private int titleTextAppearanceId;
+
+	/** Custom TextAppearance resource ID to be used by toolbar's subtitle. Set zero to use default style. */
+	private int subtitleTextAppearanceId;
+
 	/**
 	 * Creates a new handler for the given toolbar.
 	 * @param toolbar The toolbar to be resized by this handler. Cannot be null.
@@ -54,6 +60,50 @@ public class TiToolbarStyleHandler
 	}
 
 	/**
+	 * Gets the custom TextAppearance resource ID assigned to the setTitleTextAppearanceId() method.
+	 * @return Returns the assigned resource ID. Returns 0 if using the default toolbar TextAppearance style.
+	 */
+	public int getTitleTextAppearanceId(int resourceId)
+	{
+		return this.titleTextAppearanceId;
+	}
+
+	/**
+	 * Sets the custom TextAppearance resource ID that the toolbar title should use when handler updates its style.
+	 * This defines the font color, size, and bold/italic/underline style it will use.
+	 * @param resourceId
+	 * Integer ID to the TextAppearance style resource providing the custom style.
+	 * <p>
+	 * Set to zero to use the toolbar's default TextAppearance style.
+	 */
+	public void setTitleTextAppearanceId(int resourceId)
+	{
+		this.titleTextAppearanceId = resourceId;
+	}
+
+	/**
+	 * Gets the custom TextAppearance resource ID assigned to the setSubtitleTextAppearanceId() method.
+	 * @return Returns the assigned resource ID. Returns 0 if using the default toolbar TextAppearance style.
+	 */
+	public int getSubtitleTextAppearanceId(int resourceId)
+	{
+		return this.subtitleTextAppearanceId;
+	}
+
+	/**
+	 * Sets the custom TextAppearance resource ID that the toolbar subtitle should use when handler updates its style.
+	 * This defines the font color, size, and bold/italic/underline style it will use.
+	 * @param resourceId
+	 * Integer ID to the TextAppearance style resource providing the custom style.
+	 * <p>
+	 * Set to zero to use the toolbar's default TextAppearance style.
+	 */
+	public void setSubtitleTextAppearanceId(int resourceId)
+	{
+		this.subtitleTextAppearanceId = resourceId;
+	}
+
+	/**
 	 * To be called by the owner when the activity/view's overridden onConfigurationChanged() method has been called.
 	 * Updates the toolbar's height and font size base on the given configuration.
 	 * @param newConfig The updated configuration applied to the activity/view.
@@ -65,26 +115,34 @@ public class TiToolbarStyleHandler
 			TypedArray typedArray = null;
 
 			// Fetch the toolbar's theme resource ID.
-			// TODO: We shouldn't assume the toolbar theme. We may want to make this settable in the future.
-			int styleResourceId = TiRHelper.getResource("style.Widget_AppCompat_Toolbar");
+			int styleAttributeId = TiRHelper.getResource("attr.toolbarStyle");
+			typedArray = context.obtainStyledAttributes(new int[] { styleAttributeId });
+			int styleResourceId = typedArray.getResourceId(0, 0);
+			typedArray.recycle();
 
 			// Update the title font size and other styles.
-			int titleAttributeId = TiRHelper.getResource("attr.titleTextAppearance");
-			typedArray = context.obtainStyledAttributes(styleResourceId, new int[] { titleAttributeId });
-			int titleResourceId = typedArray.getResourceId(0, 0);
+			int titleResourceId = this.titleTextAppearanceId;
+			if (titleResourceId == 0) {
+				int titleAttributeId = TiRHelper.getResource("attr.titleTextAppearance");
+				typedArray = context.obtainStyledAttributes(styleResourceId, new int[] { titleAttributeId });
+				titleResourceId = typedArray.getResourceId(0, 0);
+				typedArray.recycle();
+			}
 			if (titleResourceId != 0) {
 				this.toolbar.setTitleTextAppearance(context, titleResourceId);
 			}
-			typedArray.recycle();
 
 			// Update the subtitle font size and other styles.
-			int subtitleAttributeId = TiRHelper.getResource("attr.subtitleTextAppearance");
-			typedArray = context.obtainStyledAttributes(styleResourceId, new int[] { subtitleAttributeId });
-			int subtitleResourceId = typedArray.getResourceId(0, 0);
+			int subtitleResourceId = this.subtitleTextAppearanceId;
+			if (subtitleResourceId == 0) {
+				int subtitleAttributeId = TiRHelper.getResource("attr.subtitleTextAppearance");
+				typedArray = context.obtainStyledAttributes(styleResourceId, new int[] { subtitleAttributeId });
+				subtitleResourceId = typedArray.getResourceId(0, 0);
+				typedArray.recycle();
+			}
 			if (subtitleResourceId != 0) {
 				this.toolbar.setSubtitleTextAppearance(context, subtitleResourceId);
 			}
-			typedArray.recycle();
 
 			// Update the toolbar height.
 			int barSizeAttributeId = TiRHelper.getResource("attr.actionBarSize");
