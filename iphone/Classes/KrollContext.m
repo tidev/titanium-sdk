@@ -1560,6 +1560,82 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 #if defined(USE_JSCORE_FRAMEWORK) && !defined(TI_USE_KROLL_THREAD)
 
+@class KrollTimerManager;
+
+/**
+ * Object acting as the target that receives a message when a timer fires.
+ */
+@interface KrollTimerTarget : NSObject
+
+/**
+ * Identifier of the timer this object is a target for. Required to invalidate the timer.
+ */
+@property (strong, nonatomic) NSNumber *timerId;
+
+/**
+ * The JS function to call when the timer fires.
+ */
+@property (strong, nonatomic) JSValue *callback;
+
+/**
+ * Additional arugments to pass to the callback function
+ */
+@property (strong, nonatomic) NSArray<JSValue *> *arguments;
+
+/**
+ * Reference to the timer manager to be able to invalidate one-off timers
+ */
+@property (assign, nonatomic) KrollTimerManager *timerManager;
+
+- (instancetype)initWithCallback:(id)callback arguments:(NSArray<NSValue *> *)arguments timerId:(NSNumber *)timerId timerManager:(KrollTimerManager *)timerManager;
+
+/**
+ * The method that will be triggered when a timer fires.
+ */
+- (void)timerFired:(NSTimer *)timer;
+
+@end
+
+@implementation KrollTimerTarget
+
+- (instancetype)initWithCallback:(id)callback arguments:(NSArray<NSValue *> *)arguments timerId:(NSNumber *)timerId timerManager:(KrollTimerManager *)timerManager
+{
+  self = [super init];
+  if (!self) {
+    return nil;
+  }
+
+  self.callback = callback;
+  self.arguments = arguments;
+  self.timerId = timerId;
+  self.timerManager = timerManager;
+
+  return self;
+}
+
+- (void)dealloc
+{
+  [_callback release];
+  _callback = nil;
+  [_arguments release];
+  _arguments = nil;
+  [_timerId release];
+  _timerId = nil;
+  _timerManager = nil;
+
+  [super dealloc];
+}
+
+- (void)timerFired:(NSTimer *)timer
+{
+  [self.callback callWithArguments:self.arguments];
+  if ([timer.userInfo[@"repeats"] isEqualToNumber:@(NO)]) {
+    [self.timerManager clearIntervalWithIdentifier:self.timerId.unsignedIntegerValue];
+  }
+}
+
+@end
+
 @interface KrollTimerManager ()
 
 @property NSUInteger nextTimerIdentifier;
@@ -1599,10 +1675,11 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 - (void)dealloc
 {
-  if (self.timers != nil) {
-    [self.timers removeAllObjects];
-    [self.timers release];
-    self.timers = nil;
+  if (_timers != nil) {
+    [self invalidateAllTimers];
+    [_timers removeAllObjects];
+    [_timers release];
+    _timers = nil;
   }
 
   [super dealloc];
@@ -1617,28 +1694,36 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 - (NSUInteger)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
 {
-  NSMutableArray *callbackArgs = [arguments.mutableCopy autorelease];
+  NSMutableArray<JSValue *> *callbackArgs = [arguments.mutableCopy autorelease];
   JSValue *callbackFunction = [callbackArgs objectAtIndex:0];
   [callbackArgs removeObjectAtIndex:0];
-  double interval = [[callbackArgs objectAtIndex:0] toDouble] / 1000;
-  [callbackArgs removeObjectAtIndex:0];
+  // interval is optional, should default to 0
+  double interval = 0;
+  if ([arguments count] > 1) {
+    JSValue *intervalValue = [callbackArgs objectAtIndex:0];
+    interval = [intervalValue toDouble] / 1000;
+    [callbackArgs removeObjectAtIndex:0];
+  }
+
   NSNumber *timerIdentifier = @(self.nextTimerIdentifier++);
-  NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval
-                                                   repeats:shouldRepeat
-                                                     block:^(NSTimer *_Nonnull timer) {
-                                                       [callbackFunction callWithArguments:callbackArgs];
-                                                       if (!shouldRepeat) {
-                                                         [self.timers removeObjectForKey:timerIdentifier];
-                                                       }
-                                                     }];
-  self.timers[timerIdentifier] = timer;
+  KrollTimerTarget *timerTarget = [[KrollTimerTarget alloc] initWithCallback:callbackFunction arguments:callbackArgs timerId:timerIdentifier timerManager:self];
+  NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:timerTarget selector:@selector(timerFired:) userInfo:@{ @"repeats" : @(shouldRepeat) } repeats:shouldRepeat];
+  [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+
+  self.timers[timerIdentifier] = @[ timer, timerTarget ];
   return [timerIdentifier unsignedIntegerValue];
 }
 
 - (void)clearIntervalWithIdentifier:(NSUInteger)identifier
 {
   NSNumber *timerIdentifier = @(identifier);
-  [self.timers[timerIdentifier] invalidate];
+  if (self.timers[timerIdentifier] == nil) {
+    return;
+  }
+
+  NSArray *timerAndTargetPair = self.timers[timerIdentifier];
+  NSTimer *timer = timerAndTargetPair[0];
+  [timer invalidate];
   [self.timers removeObjectForKey:timerIdentifier];
 }
 
