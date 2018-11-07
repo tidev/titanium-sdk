@@ -69,7 +69,7 @@
     "css-parse": "2.0.0",
     "ejs": "^2.6.1",
     "fields": "0.1.24",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "glob": "^7.1.2",
     "humanize": "0.0.9",
     "ioslib": "^1.7.5",
