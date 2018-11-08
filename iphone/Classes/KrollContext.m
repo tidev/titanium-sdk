@@ -1566,6 +1566,40 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 @end
 
+@implementation KrollTimerTarget
+
+- (instancetype)initWithCallback:(JSValue *)callback arguments:(NSArray<NSValue *> *)arguments
+{
+  self = [super init];
+  if (!self) {
+    return nil;
+  }
+
+  self.callback = callback;
+  self.arguments = arguments;
+
+  return self;
+}
+
+- (void)dealloc
+{
+  [_callback release];
+  _callback = nil;
+  if (_arguments != nil) {
+    [_arguments release];
+    _arguments = nil;
+  }
+
+  [super dealloc];
+}
+
+- (void)timerFired:(NSTimer *_Nonnull)timer
+{
+  [self.callback callWithArguments:self.arguments];
+}
+
+@end
+
 @implementation KrollTimerManager
 
 - (instancetype)initInContext:(JSContext *)context
@@ -1604,7 +1638,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     }
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exc]];
   }];
-
   return self;
 }
 
@@ -1637,28 +1670,19 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   interval = interval / 1000.0; // convert from ms to seconds
 
   // Handle additional arguments being passed in
-  NSMutableArray<JSValue *> *callbackArgs = [[JSContext currentArguments].mutableCopy autorelease];
-  if ([callbackArgs count] > 1) {
-    [callbackArgs removeObjectAtIndex:1]; // drop interval
+  NSArray<JSValue *> *args = [JSContext currentArguments];
+  NSUInteger argCount = [args count];
+  NSArray<JSValue *> *callbackArgs = nil;
+  if (argCount > 2) {
+    callbackArgs = [args subarrayWithRange:NSMakeRange(2, argCount - 2)];
   }
   NSNumber *timerIdentifier = @(self.nextTimerIdentifier++);
-  NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(callJsCallback:) userInfo:callbackArgs repeats:shouldRepeat];
+  KrollTimerTarget *timerTarget = [[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs];
+  NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:timerTarget selector:@selector(timerFired:) userInfo:timerTarget repeats:shouldRepeat];
   [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
 
   [self.timers setObject:timer forKey:timerIdentifier];
   return [timerIdentifier unsignedIntegerValue];
-}
-
-- (void)callJsCallback:(NSTimer *_Nonnull)timer
-{
-  NSArray<JSValue *> *args = [timer userInfo];
-  JSValue *callback = [args objectAtIndex:0];
-  NSUInteger argCount = [args count];
-  NSArray<JSValue *> *varargs = nil;
-  if (argCount > 1) {
-    varargs = [args subarrayWithRange:NSMakeRange(1, argCount - 1)];
-  }
-  [callback callWithArguments:varargs];
 }
 
 - (void)clearIntervalWithIdentifier:(NSUInteger)identifier
