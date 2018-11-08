@@ -82,4 +82,10 @@ public class NavigationWindowProxy extends WindowProxy
 		window.close(arg);
 		window.setNavigationWindow(null);
 	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.NavigationWindow";
+	}
 }
