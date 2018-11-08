@@ -9,6 +9,30 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 
 /**
+ * Object acting as the target that receives a message when a timer fires.
+ */
+@interface KrollTimerTarget : NSObject
+
+/**
+ * The JS function to call when the timer fires.
+ */
+@property (strong, nonatomic, nonnull) JSValue *callback;
+
+/**
+ * Additional arugments to pass to the callback function
+ */
+@property (strong, nonatomic, nullable) NSArray<JSValue *> *arguments;
+
+- (instancetype)initWithCallback:(nonnull JSValue *)callback arguments:(nullable NSArray<NSValue *> *)arguments;
+
+/**
+ * The method that will be triggered when a timer fires.
+ */
+- (void)timerFired:(nonnull NSTimer *)timer;
+
+@end
+
+/**
  * Handles creating and clearing timers
  */
 @interface KrollTimerManager : NSObject
@@ -24,7 +48,7 @@
  *
  * @param context The JSContext where timer function should be made available to.
  */
-- (instancetype)initInContext:(JSContext *)context;
+- (instancetype)initInContext:(nonnull JSContext *)context;
 
 /**
  * Invalidates all timers.
