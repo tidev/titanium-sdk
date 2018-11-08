@@ -70,7 +70,8 @@
 
 - (void)invalidateAllTimers
 {
-  for (NSNumber *timerIdentifier in self.timers) {
+  NSArray<NSNumber *> *keys = [[self.timers keyEnumerator] allObjects];
+  for (NSNumber *timerIdentifier in keys) {
     [self clearIntervalWithIdentifier:timerIdentifier.unsignedIntegerValue];
   }
 }
