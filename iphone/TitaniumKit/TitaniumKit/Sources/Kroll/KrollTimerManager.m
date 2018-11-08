@@ -6,10 +6,46 @@
  */
 
 #import "KrollTimerManager.h"
+#import "TiExceptionHandler.h"
+#import "TiUtils.h"
 
 @interface KrollTimerManager ()
 
 @property NSUInteger nextTimerIdentifier;
+
+@end
+
+@implementation KrollTimerTarget
+
+- (instancetype)initWithCallback:(JSValue *)callback arguments:(NSArray<NSValue *> *)arguments
+{
+  self = [super init];
+  if (!self) {
+    return nil;
+  }
+
+  self.callback = callback;
+  self.arguments = arguments;
+
+  return self;
+}
+
+- (void)dealloc
+{
+  [_callback release];
+  _callback = nil;
+  if (_arguments != nil) {
+    [_arguments release];
+    _arguments = nil;
+  }
+
+  [super dealloc];
+}
+
+- (void)timerFired:(NSTimer *_Nonnull)timer
+{
+  [self.callback callWithArguments:self.arguments];
+}
 
 @end
 
@@ -23,30 +59,41 @@
   }
 
   self.nextTimerIdentifier = 0;
-  self.timers = [NSMutableDictionary new];
+  self.timers = [NSMapTable strongToWeakObjectsMapTable];
 
-  NSUInteger (^setInterval)(void) = ^() {
-    return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:YES];
+  NSUInteger (^setInterval)(JSValue *, double) = ^(JSValue *callback, double interval) {
+    return [self setInterval:interval withCallback:callback shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
 
-  NSUInteger (^setTimeout)(void) = ^() {
-    return [self setIntervalFromArguments:JSContext.currentArguments shouldRepeat:NO];
+  NSUInteger (^setTimeout)(JSValue *, double) = ^(JSValue *callback, double interval) {
+    return [self setInterval:interval withCallback:callback shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
 
-  void (^clearInterval)(JSValue *) = ^(JSValue *value) {
-    return [self clearIntervalWithIdentifier:value.toInt32];
+  void (^clearInterval)(NSUInteger) = ^(NSUInteger value) {
+    return [self clearIntervalWithIdentifier:value];
   };
   context[@"clearInterval"] = clearInterval;
   context[@"clearTimeout"] = clearInterval;
 
+  // This is more useful than just in timers, should be registered in some better place like KrollBridge?
+  [context setExceptionHandler:^(JSContext *context, JSValue *exception) {
+    id exc;
+    if ([exception isObject]) {
+      exc = [exception toObject]; // Hope it becomes an NSDictionary?
+    } else {
+      exc = [exception toString];
+    }
+    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exc]];
+  }];
   return self;
 }
 
 - (void)dealloc
 {
   if (self.timers != nil) {
+    [self invalidateAllTimers];
     [self.timers removeAllObjects];
     [self.timers release];
     self.timers = nil;
@@ -57,36 +104,46 @@
 
 - (void)invalidateAllTimers
 {
-  for (NSNumber *timerIdentifier in self.timers.allKeys) {
+  NSArray<NSNumber *> *keys = [[self.timers keyEnumerator] allObjects];
+  for (NSNumber *timerIdentifier in keys) {
     [self clearIntervalWithIdentifier:timerIdentifier.unsignedIntegerValue];
   }
 }
 
-- (NSUInteger)setIntervalFromArguments:(NSArray<JSValue *> *)arguments shouldRepeat:(BOOL)shouldRepeat
+- (NSUInteger)setInterval:(double)interval withCallback:(JSValue *)callback shouldRepeat:(BOOL)shouldRepeat
 {
-  NSMutableArray *callbackArgs = [arguments.mutableCopy autorelease];
-  JSValue *callbackFunction = [callbackArgs objectAtIndex:0];
-  [callbackArgs removeObjectAtIndex:0];
-  double interval = [[callbackArgs objectAtIndex:0] toDouble] / 1000;
-  [callbackArgs removeObjectAtIndex:0];
+  // interval is optional, should default to 0 per spec, but let's enforce at least 1 ms minimum (like Node)
+  if (isnan(interval) || interval < 1) {
+    interval = 1; // defaults to 1ms
+  }
+  interval = interval / 1000.0; // convert from ms to seconds
+
+  // Handle additional arguments being passed in
+  NSArray<JSValue *> *args = [JSContext currentArguments];
+  NSUInteger argCount = [args count];
+  NSArray<JSValue *> *callbackArgs = nil;
+  if (argCount > 2) {
+    callbackArgs = [args subarrayWithRange:NSMakeRange(2, argCount - 2)];
+  }
   NSNumber *timerIdentifier = @(self.nextTimerIdentifier++);
-  NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval
-                                                   repeats:shouldRepeat
-                                                     block:^(NSTimer *_Nonnull timer) {
-                                                       [callbackFunction callWithArguments:callbackArgs];
-                                                       if (!shouldRepeat) {
-                                                         [self.timers removeObjectForKey:timerIdentifier];
-                                                       }
-                                                     }];
-  self.timers[timerIdentifier] = timer;
+  KrollTimerTarget *timerTarget = [[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs];
+  NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:timerTarget selector:@selector(timerFired:) userInfo:timerTarget repeats:shouldRepeat];
+  [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+
+  [self.timers setObject:timer forKey:timerIdentifier];
   return [timerIdentifier unsignedIntegerValue];
 }
 
 - (void)clearIntervalWithIdentifier:(NSUInteger)identifier
 {
   NSNumber *timerIdentifier = @(identifier);
-  [self.timers[timerIdentifier] invalidate];
-  [self.timers removeObjectForKey:timerIdentifier];
+  NSTimer *timer = [self.timers objectForKey:timerIdentifier];
+  if (timer != nil) {
+    if ([timer isValid]) {
+      [timer invalidate];
+    }
+    [self.timers removeObjectForKey:timerIdentifier];
+  }
 }
 
 @end
