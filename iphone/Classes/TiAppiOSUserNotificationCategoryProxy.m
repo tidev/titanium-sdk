@@ -73,11 +73,11 @@
         } else {
 #endif
           // For iOS 11, use the "hiddenPreviewsBodyPlaceholder" constructor
-          _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
-                                                                         actions:defaultActions
-                                                               intentIdentifiers:intentIdentifiers
-                                                   hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                                         options:options];
+          _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
+                                                                          actions:defaultActions
+                                                                intentIdentifiers:intentIdentifiers
+                                                    hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                                          options:options] retain];
 #if IS_XCODE_10
         }
 #endif
