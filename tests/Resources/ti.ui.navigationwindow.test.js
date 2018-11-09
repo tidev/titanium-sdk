@@ -59,7 +59,9 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 			});
 
 		window.addEventListener('open', function () {
-			navigation.close();
+			setTimeout(function () {
+				navigation.close();
+			}, 1);
 		});
 		window.addEventListener('close', function () {
 			finish();
@@ -75,16 +77,22 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 			});
 
 		rootWindow.addEventListener('open', function () {
-			navigation.openWindow(window2);
+			setTimeout(function () {
+				navigation.openWindow(window2);
+			}, 1);
 		});
 		window2.addEventListener('open', function () {
-			navigation.closeWindow(window2);
+			setTimeout(function () {
+				navigation.closeWindow(window2);
+			}, 1);
 		});
 		rootWindow.addEventListener('close', function () {
 			finish();
 		});
 		window2.addEventListener('close', function () {
-			navigation.close();
+			setTimeout(function () {
+				navigation.close();
+			}, 1);
 		});
 		navigation.open();
 	});
@@ -97,25 +105,29 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 		});
 
 		rootWindow.addEventListener('open', function () {
-			try {
-				nav.openWindow(subWindow);
-				should(subWindow.navigationWindow).eql(nav);
-			} catch (err) {
-				finish(err);
-			}
+			setTimeout(function () {
+				try {
+					nav.openWindow(subWindow);
+					should(subWindow.navigationWindow).eql(nav);
+				} catch (err) {
+					finish(err);
+				}
+			}, 1);
 		});
 
 		subWindow.addEventListener('open', function () {
-			try {
+			setTimeout(function () {
 				nav.closeWindow(subWindow);
-				should(subWindow.navigationWindow).not.be.ok; // null or undefined
-			} catch (err) {
-				finish(err);
-			}
+			}, 1);
 		});
 
 		subWindow.addEventListener('close', function () {
-			finish();
+			try {
+				should(subWindow.navigationWindow).not.be.ok; // null or undefined
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		nav.open();
@@ -131,7 +143,9 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 		should(nav.popToRootWindow).be.a.function;
 
 		rootWindow.addEventListener('open', function () {
-			nav.openWindow(subWindow);
+			setTimeout(function () {
+				nav.openWindow(subWindow);
+			}, 1);
 		});
 
 		subWindow.addEventListener('close', function () {
@@ -147,7 +161,9 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 		});
 
 		subWindow.addEventListener('open', function () {
-			nav.popToRootWindow();
+			setTimeout(function () {
+				nav.popToRootWindow();
+			}, 1);
 		});
 
 		nav.open();
