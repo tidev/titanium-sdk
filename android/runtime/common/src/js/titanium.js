@@ -188,6 +188,25 @@ Object.defineProperty(Titanium.TiView.prototype, 'toJSON', {
 	enumerable: false
 });
 
+Object.defineProperty(Titanium.UI.NavigationWindow.prototype, 'toJSON', {
+	value: function () {
+		var keys = Object.keys(this);
+		var keyCount = keys.length;
+		var serialized = {};
+
+		for (var i = 0; i < keyCount; i++) {
+			var k = keys[i];
+			if (k === 'parent' || k === 'window') {
+				continue;
+			}
+			serialized[k] = this[k];
+		}
+
+		return serialized;
+	},
+	enumerable: false
+});
+
 Object.defineProperty(Titanium.Activity.prototype, 'toJSON', {
 	value: function () {
 		var keys = Object.keys(this);

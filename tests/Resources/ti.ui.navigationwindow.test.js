@@ -16,7 +16,7 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 	this.timeout(10000);
 
 	afterEach(function () {
-		if (nav !== null) {
+		if (nav) {
 			nav.close();
 		}
 		nav = null;
@@ -57,11 +57,9 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 			navigation = Ti.UI.createNavigationWindow({
 				window: window
 			});
-		this.timeout(5000);
+
 		window.addEventListener('open', function () {
-			setTimeout(function () {
-				navigation.close();
-			});
+			navigation.close();
 		});
 		window.addEventListener('close', function () {
 			finish();
@@ -70,52 +68,50 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 	});
 
 	it('basic open/close navigation', function (finish) {
-		var window1 = Ti.UI.createWindow(),
+		var rootWindow = Ti.UI.createWindow(),
 			window2 = Ti.UI.createWindow(),
 			navigation = Ti.UI.createNavigationWindow({
-				window: window1
+				window: rootWindow
 			});
-		this.timeout(5000);
-		window1.addEventListener('open', function () {
-			setTimeout(function () {
-				navigation.openWindow(window2);
-			});
+
+		rootWindow.addEventListener('open', function () {
+			navigation.openWindow(window2);
 		});
 		window2.addEventListener('open', function () {
-			setTimeout(function () {
-				navigation.closeWindow(window2);
-			});
+			navigation.closeWindow(window2);
 		});
-		window1.addEventListener('close', function () {
+		rootWindow.addEventListener('close', function () {
 			finish();
 		});
 		window2.addEventListener('close', function () {
-			setTimeout(function () {
-				navigation.close();
-			});
+			navigation.close();
 		});
 		navigation.open();
 	});
 
 	it('#openWindow, #closeWindow', function (finish) {
-		var win = Ti.UI.createWindow();
+		var rootWindow = Ti.UI.createWindow();
 		var subWindow = Ti.UI.createWindow();
 		nav = Ti.UI.createNavigationWindow({
-			window: win
+			window: rootWindow
 		});
 
-		win.addEventListener('open', function () {
-			setTimeout(function () {
+		rootWindow.addEventListener('open', function () {
+			try {
 				nav.openWindow(subWindow);
 				should(subWindow.navigationWindow).eql(nav);
-			});
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		subWindow.addEventListener('open', function () {
-			setTimeout(function () {
+			try {
 				nav.closeWindow(subWindow);
 				should(subWindow.navigationWindow).not.be.ok; // null or undefined
-			});
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		subWindow.addEventListener('close', function () {
@@ -126,25 +122,32 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 	});
 
 	it('#popToRootWindow', function (finish) {
-		var win = Ti.UI.createWindow();
+		var rootWindow = Ti.UI.createWindow();
 		var subWindow = Ti.UI.createWindow();
 
 		nav = Ti.UI.createNavigationWindow({
-			window: win
+			window: rootWindow
 		});
 		should(nav.popToRootWindow).be.a.function;
 
-		win.addEventListener('open', function () {
-			setTimeout(function () {
-				nav.openWindow(subWindow);
-			});
+		rootWindow.addEventListener('open', function () {
+			nav.openWindow(subWindow);
+		});
+
+		subWindow.addEventListener('close', function () {
+			try {
+				should(subWindow.navigationWindow).not.be.ok; // null or undefined
+				// how else can we tell it got closed? I don't think a visible check is right...
+				// win should not be closed!
+				should(rootWindow.navigationWindow).eql(nav);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		subWindow.addEventListener('open', function () {
-			setTimeout(function () {
-				nav.popToRootWindow();
-				finish();
-			});
+			nav.popToRootWindow();
 		});
 
 		nav.open();
@@ -164,20 +167,16 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it.windowsMissing('.navigationWindow', function (finish) {
-		var win = Ti.UI.createWindow();
+		var rootWindow = Ti.UI.createWindow();
 		nav = Ti.UI.createNavigationWindow({
-			window: win
+			window: rootWindow
 		});
 
-		win.addEventListener('open', function () {
+		rootWindow.addEventListener('open', function () {
 			try {
 				should(nav).not.be.undefined;
-				should(win.navigationWindow).not.be.undefined;
-
-				should(win.navigationWindow).eql(nav);
-
-				should(nav.openWindow).be.a.function;
-				should(win.navigationWindow.openWindow).be.a.function;
+				should(rootWindow.navigationWindow).eql(nav);
+				should(rootWindow.navigationWindow.apiName).eql('Ti.UI.NavigationWindow');
 
 				finish();
 			} catch (err) {
