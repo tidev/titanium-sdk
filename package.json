@@ -18,7 +18,11 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "test": "grunt"
+    "test": "grunt",
+    "android": "./build/scons cleanbuild android",
+    "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s android && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s android",
+    "ios": "./build/scons cleanbuild ios",
+    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s ios"
   },
   "dependencies": {
     "adm-zip": "^0.4.11",

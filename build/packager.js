@@ -67,9 +67,10 @@ function unzip(zipfile, dest, next) {
  * @param {string} moduleApiVersion module api version
  * @param {string} gitHash git commit SHA
  * @param {string} timestamp build date/timestamp
+ * @param {boolean} [skipZip] Optionally skip zipping up the result
  * @constructor
  */
-function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApiVersion, gitHash, timestamp) {
+function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApiVersion, gitHash, timestamp, skipZip) {
 	this.srcDir = ROOT_DIR;
 	this.outputDir = outputDir; // root folder where output is placed
 	this.targetOS = targetOS;
@@ -79,15 +80,16 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.moduleApiVersion = moduleApiVersion;
 	this.gitHash = gitHash;
 	this.timestamp = timestamp;
-	this.zipFile = path.join(this.outputDir, 'mobilesdk-' + this.versionTag + '-' + this.targetOS + '.zip');
+	this.zipFile = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}.zip`);
 	this.packagers = {
 		android: this.zipAndroid.bind(this),
 		ios: this.zipIOS.bind(this),
 		windows: this.zipWindows.bind(this)
 	};
 	// Location where we build up the zip file contents
-	this.zipDir = path.join(this.outputDir, 'ziptmp');
+	this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 	this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
+	this.skipZip = skipZip;
 }
 
 /**
@@ -231,6 +233,9 @@ Packager.prototype.copy = function (files, next) {
  * @param {Function} next callback function
  */
 Packager.prototype.zip = function (next) {
+	if (this.skipZip) {
+		return next();
+	}
 	zip(this.zipDir, this.zipFile, function (err) {
 		if (err) {
 			return next(err);
