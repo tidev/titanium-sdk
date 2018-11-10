@@ -208,7 +208,9 @@ public class AnalyticsModule extends KrollModule
 	// clang-format on
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			return analytics.getLastEvent().toString();
+			if (analytics.getLastEvent() != null) {
+				return analytics.getLastEvent().toString();
+			}
 		} else {
 			Log.e(
 				TAG,
