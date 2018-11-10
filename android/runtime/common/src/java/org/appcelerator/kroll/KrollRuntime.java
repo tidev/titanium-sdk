@@ -43,8 +43,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
 
-	public interface OnDisposingListener
-	{
+	public interface OnDisposingListener {
 		void onDisposing(KrollRuntime runtime);
 	}
 
