@@ -29,9 +29,8 @@ bootstrap.bootstrap(Titanium);
 // Custom JS extensions to Java modules
 require('ui').bootstrap(Titanium);
 require('network').bootstrap(Titanium);
-
-var Properties = require('properties');
-Properties.bootstrap(Titanium);
+require('properties').bootstrap(Titanium);
+require('locale').bootstrap(Titanium);
 
 // Custom native modules
 bootstrap.defineLazyBinding(Titanium, 'API');
