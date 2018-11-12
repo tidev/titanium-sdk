@@ -24,7 +24,7 @@
     "devDependencies": {
         "@ngtools/webpack": "^6.2.5",
         "@types/titanium": "^7.1.0",
-        "clean-webpack-plugin": "^0.1.18",
+        "clean-webpack-plugin": "^1.0.0",
         "copy-webpack-plugin": "^4.3.1",
         "raw-loader": "^0.5.1",
         "webpack": "^4.20.2",
