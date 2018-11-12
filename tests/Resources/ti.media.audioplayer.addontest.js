@@ -21,7 +21,7 @@ describe('Titanium.Media.AudioPlayer', function () {
 	});
 
 	it.ios('TIMOB-26533', function (finish) {
-		//Ti.Media.Audio player without url set is crashing while registering for event listener
+		//	Ti.Media.Audio player without url set is crashing while registering for event listener
 		audioPlayer = null;
 		audioPlayer = Ti.Media.createAudioPlayer();
 
