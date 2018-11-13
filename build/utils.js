@@ -251,10 +251,20 @@ Utils.installSDK = function (versionTag, next) {
 		dest = path.join(process.env.HOME, '.titanium');
 	}
 
-	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
-	console.log('Installing %s...', zipfile);
+	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
+	if (fs.existsSync(zipDir)) {
+		console.log('Installing %s...', zipDir);
+		fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true })
+			.then(() => {
+				fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'), next);
+			})
+			.catch(err => next(err));
+	} else {
+		const zipfile = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}.zip`);
+		console.log('Installing %s...', zipfile);
 
-	appc.zip.unzip(zipfile, dest, {}, next);
+		appc.zip.unzip(zipfile, dest, {}, next);
+	}
 };
 
 module.exports = Utils;
