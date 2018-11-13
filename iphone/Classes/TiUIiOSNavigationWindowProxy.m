@@ -17,7 +17,7 @@
 
 - (void)_configure
 {
-  DEPRECATED_REPLACED(@"UI.iOS.NavigationWindow", @"7.4.0", @"UI.NavigationWindow");
+  DEPRECATED_REPLACED(@"UI.iOS.NavigationWindow", @"8.0.0", @"UI.NavigationWindow");
   [super _configure];
 }
 

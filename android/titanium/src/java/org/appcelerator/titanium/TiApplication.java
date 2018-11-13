@@ -409,23 +409,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		deployData = new TiDeployData(this);
 
+		String deployType = this.appProperties.getString("ti.deploytype", "unknown");
+		if ("unknown".equals(deployType)) {
+			deployType = this.appInfo.getDeployType();
+		}
+
+		String buildType = this.appInfo.getBuildType();
+		if (buildType != null && !buildType.equals("")) {
+			APSAnalyticsMeta.setBuildType(buildType);
+		}
+
+		APSAnalyticsMeta.setAppId(this.appInfo.getId());
+		APSAnalyticsMeta.setAppName(this.appInfo.getName());
+		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
+		APSAnalyticsMeta.setDeployType(deployType);
+		APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
+		APSAnalytics.getInstance().setMachineId(this);
+
 		if (isAnalyticsEnabled()) {
-			String deployType = this.appProperties.getString("ti.deploytype", "unknown");
-			if ("unknown".equals(deployType)) {
-				deployType = this.appInfo.getDeployType();
-			}
-
-			String buildType = this.appInfo.getBuildType();
-			if (buildType != null && !buildType.equals("")) {
-				APSAnalyticsMeta.setBuildType(buildType);
-			}
-
-			APSAnalyticsMeta.setAppId(this.appInfo.getId());
-			APSAnalyticsMeta.setAppName(this.appInfo.getName());
-			APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
-			APSAnalyticsMeta.setDeployType(deployType);
-			APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
-
 			APSAnalytics.getInstance().initialize(getAppGUID(), this);
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
