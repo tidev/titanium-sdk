@@ -2503,7 +2503,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 
 			function die(error) {
 				client && client.destroy();
-				if (error.code === 'ENOTFOUND') {
+				if (error && error.code === 'ENOTFOUND') {
 					_t.logger.error(__('Unable to connect to log server on localhost'));
 					_t.logger.error(__('Please ensure your /etc/hosts file contains a valid entry for `localhost`'));
 				} else {
