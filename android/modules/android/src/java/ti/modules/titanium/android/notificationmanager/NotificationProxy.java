@@ -384,10 +384,16 @@ public class NotificationProxy extends KrollProxy
 	public void setSound(String url)
 	// clang-format on
 	{
+		if (Build.VERSION.SDK_INT >= 26) {
+			Log.w(TAG, "Notification 'sound' property is not supported on Android 8.0 and higher. "
+						   + "You must assign sound to its NotificationChannel instead.");
+		}
+
 		if (url == null) {
 			Log.e(TAG, "Url is null");
 			return;
 		}
+
 		sound = Uri.parse(resolveUrl(null, url));
 		notificationBuilder.setSound(sound, audioStreamType);
 		setProperty(TiC.PROPERTY_SOUND, url);

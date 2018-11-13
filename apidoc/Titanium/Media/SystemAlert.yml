@@ -14,6 +14,9 @@ description: |
     Know more about [System Sound Services](https://developer.apple.com/reference/audiotoolbox/1657326-system_sound_services).
 extends: Titanium.Proxy
 since: "6.1.0"
+deprecated:
+    since: "8.0.0"
+    notes: This iOS-only API has been deprecated and moved to the [Ti.SystemAlert](https://github.com/appcelerator-modules/ti.systemalert) module in 8.0.0.
 platforms: [iphone, ipad]
 methods:
   - name: play

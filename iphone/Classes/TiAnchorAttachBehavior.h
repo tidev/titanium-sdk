@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIOSANIMATOR
 #ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
 #import "TiAnimatorProxy.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 @interface TiAnchorAttachBehavior : TiProxy <TiBehaviorProtocol> {
   CGFloat _damping;
   CGFloat _frequency;

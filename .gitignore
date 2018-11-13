@@ -10,7 +10,6 @@
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
-anvil/driver/config.js
 ._*
 npm-debug.log
 
@@ -18,8 +17,6 @@ node_modules/
 
 retirejs.output.json
 
-anvil/driver/titanium_mobile
-anvil/hub/config.js
 support/ti_mocha_script/testApp
 
 /titanium-mobile-mocha-suite
@@ -38,3 +35,7 @@ android/.idea/modules.xml
 android/.idea/scopes/scope_settings.xml
 android/.idea/vcs.xml
 *.iml
+/iphone/TitaniumKit/Carthage
+/iphone/TitaniumKit/docs
+/iphone/TitaniumKit/build
+/iphone/lib/libTiCore.a

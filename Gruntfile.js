@@ -5,7 +5,13 @@ const async = require('async'),
 
 module.exports = function (grunt) {
 
-	const iosSrc = [ 'iphone/Classes/*.h', 'iphone/Classes/*.m' ];
+	const iosSrc = [
+		'iphone/Classes/*.h',
+		'iphone/Classes/*.m',
+		'iphone/TitaniumKit/TitaniumKit/*.h',
+		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.h',
+		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.m'
+	];
 	const androidSrc = [
 		'android/build/src/**/*.java',
 		'android/kroll-apt/src/**/*.java',
