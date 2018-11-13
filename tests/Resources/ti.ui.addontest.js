@@ -12,7 +12,7 @@ var should = require('./utilities/assertions');
 
 describe('Titanium.UI', function () {
 
-	it('#constants', function () {
+	it.androidMissing('TEXT_STYLE_* constants', function () {
 		should(Ti.UI.TEXT_STYLE_HEADLINE).be.a.String;
 		should(Ti.UI.TEXT_STYLE_SUBHEADLINE).be.a.String;
 		should(Ti.UI.TEXT_STYLE_BODY).be.a.String;
