@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #ifdef TI_USE_AUTOLAYOUT
 #import "TiLayoutDimension.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
 
 NSString *const kTiBehaviorSize = @"SIZE";
@@ -114,7 +115,7 @@ TiDimension TiDimensionFromObject(id object)
     }
   }
   if ([object respondsToSelector:@selector(floatValue)]) {
-    id val = @"dpi";
+    id val = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
     if (val == nil) {
       return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
     }
