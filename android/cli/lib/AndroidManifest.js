@@ -488,9 +488,24 @@ function AndroidManifest(filename) {
 					case 'permission-tree':
 					case 'uses-feature':
 					case 'uses-library':
-						this[tag] || (this[tag] = {});
-						Object.keys(src[tag]).forEach(function (name) {
-							this[tag][name] = src[tag][name];
+						this[tag] || (this[tag] = []);
+						src[tag].forEach(function (tagItem) {
+							// Default the skip flag to false
+							let skip = false;
+							// Check for already added items after at least one has been added
+							if (this[tag].length > 0) {
+								this[tag].forEach(function (alreadyAddedItem) {
+									// First check for identical nodes and after that
+									// for identical names to preserve the value from tiapp.xml.
+									if (alreadyAddedItem === tagItem || 
+										alreadyAddedItem.name === tagItem.name ) {
+										skip = true;
+									}
+								});
+							}
+							if (!skip) {
+								this[tag].push(tagItem);
+							}
 						}, this);
 						break;
 
