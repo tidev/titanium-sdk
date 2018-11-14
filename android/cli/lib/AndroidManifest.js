@@ -497,8 +497,8 @@ function AndroidManifest(filename) {
 								this[tag].forEach(function (alreadyAddedItem) {
 									// First check for identical nodes and after that
 									// for identical names to preserve the value from tiapp.xml.
-									if (alreadyAddedItem === tagItem || 
-										alreadyAddedItem.name === tagItem.name ) {
+									if (alreadyAddedItem === tagItem
+										|| alreadyAddedItem.name === tagItem.name) {
 										skip = true;
 									}
 								});
