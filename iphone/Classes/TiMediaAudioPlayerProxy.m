@@ -68,11 +68,6 @@
 - (AVPlayer *)player
 {
   if (_player == nil) {
-    if (_url == nil) {
-      [self throwException:NSLocalizedString(@"Invalid URL passed to the audio-player", nil)
-                 subreason:NSLocalizedString(@"The \"url\" probably has not been set to a valid value.", nil)
-                  location:CODELOCATION];
-    }
     _player = [AVPlayer playerWithURL:_url];
     [self addNotificationObserver];
     _state = TiAudioPlayerStateInitialized;
@@ -265,6 +260,12 @@
 
 - (void)start:(id)unused
 {
+  if (_url == nil) {
+    [self throwException:NSLocalizedString(@"Invalid URL passed to the audio-player", nil)
+               subreason:NSLocalizedString(@"The \"url\" probably has not been set to a valid value.", nil)
+                location:CODELOCATION];
+  }
+
   if (![NSThread isMainThread]) {
     TiThreadPerformOnMainThread(^{
       [self start:unused];
