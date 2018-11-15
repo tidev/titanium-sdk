@@ -846,12 +846,14 @@ events:
       - name: threadIdentifier
         summary: |
           The unique identifier for the thread or conversation related to this notification request.
-          It will be used to visually group notifications together. Available in Titanium SDK 7.4.0+ and iOS 10+.
+          It will be used to visually group notifications together. Available in Titanium SDK 7.5.0+ and iOS 10+.
         type: String
+        since: { ios: "7.5.0" }
 
       - name: category
-        summary: The identifier of the app-defined [category object](Titanium.App.iOS.UserNotificationCategory). Available in Titanium SDK 7.4.0+ and iOS 10+.
+        summary: The identifier of the app-defined [category object](Titanium.App.iOS.UserNotificationCategory). Available in Titanium SDK 7.5.0+ and iOS 10+.
         type: String
+        since: { ios: "7.5.0" }
 
   - name: localnotificationaction
     summary: Fired when a user selects an action for an interactive local notification.
@@ -912,12 +914,14 @@ events:
       - name: threadIdentifier
         summary: |
           The unique identifier for the thread or conversation related to this notification request.
-          It will be used to visually group notifications together. Available in Titanium SDK 7.4.0+ and iOS 10+.
+          It will be used to visually group notifications together. Available in Titanium SDK 7.5.0+ and iOS 10+.
         type: String
+        since: { ios: "7.5.0" }
 
       - name: category
-        summary: The identifier of the app-defined [category object](Titanium.App.iOS.UserNotificationCategory). Available in Titanium SDK 7.4.0+ and iOS 10+.
+        summary: The identifier of the app-defined [category object](Titanium.App.iOS.UserNotificationCategory). Available in Titanium SDK 7.5.0+ and iOS 10+.
         type: String
+        since: { ios: "7.5.0" }
 
   - name: remotenotificationaction
     summary: Fired when a user selects an action for an interactive remote notification.
