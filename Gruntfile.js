@@ -8,6 +8,8 @@ module.exports = function (grunt) {
 	const iosSrc = [
 		'iphone/Classes/*.h',
 		'iphone/Classes/*.m',
+		'iphone/Classes/Layout/*.h',
+		'iphone/Classes/Layout/*.m',
 		'iphone/TitaniumKit/TitaniumKit/*.h',
 		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.h',
 		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.m'
