@@ -205,7 +205,7 @@ KrollContext *GetKrollContext(TiContextRef context);
  */
 @property (strong, nonatomic, nullable) NSArray<JSValue *> *arguments;
 
-- (instancetype)initWithCallback:(nonnull JSValue *)callback arguments:(nullable NSArray<NSValue *> *)arguments;
+- (instancetype)initWithCallback:(nonnull JSValue *)callback arguments:(nullable NSArray<JSValue *> *)arguments;
 
 /**
  * The method that will be triggered when a timer fires.
