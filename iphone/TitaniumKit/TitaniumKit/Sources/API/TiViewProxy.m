@@ -424,6 +424,13 @@ static NSArray *touchEventsArray;
       NO);
 }
 
+- (void)clearMotionEffects:(id)unused
+{
+  [self.view.motionEffects enumerateObjectsUsingBlock:^(__kindof UIMotionEffect * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [self.view removeMotionEffect:obj];
+  }];
+}
+
 - (id)getViewById:(id)arg
 {
   ENSURE_SINGLE_ARG(arg, NSString);

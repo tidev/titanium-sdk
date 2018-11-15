@@ -207,6 +207,12 @@ enum {
 - (void)hide:(id)arg;
 
 /**
+ Clears all previously created motion effects (if set).
+ @param unused An unused parameter for proxy swizzling.
+ */
+- (void)clearMotionEffects:(id)unused;
+
+/**
  Returns the view by the given ID.
  @param arg The ID of the view to receive.
  */
