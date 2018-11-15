@@ -490,25 +490,17 @@ function AndroidManifest(filename) {
 					case 'uses-library':
 						this[tag] || (this[tag] = []);
 						src[tag].forEach(function (tagItem) {
-							// Default the skip flag to false
-							let skip = false;
-							// Check for already added items after at least one has been added
-							if (this[tag].length > 0) {
-								this[tag].forEach(function (alreadyAddedItem) {
-									// First check for identical nodes and after that
-									// for identical names to preserve the value from tiapp.xml.
-									if (alreadyAddedItem === tagItem
-										|| alreadyAddedItem.name === tagItem.name) {
-										skip = true;
-									}
-								});
-							}
-							if (!skip) {
+							// Check for already added items.
+							let duplicateItem = this[tag].find(function (nextItem) {
+								// Compare them directly or by name.
+								return (nextItem === tagItem) || (nextItem.name === tagItem.name);
+							});
+							if (!duplicateItem) {
+								console.log('pushing tagItem that is ' + JSON.stringify(tagItem));
 								this[tag].push(tagItem);
 							}
 						}, this);
 						break;
-
 					case 'supports-screens':
 					case 'uses-sdk':
 						this[tag] || (this[tag] = {});
