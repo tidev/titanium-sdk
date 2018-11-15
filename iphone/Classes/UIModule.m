@@ -382,9 +382,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   DEPRECATED_REPLACED(@"UI.2DMatrix", @"8.0.0", @"UI.Matrix2D");
   return [self createMatrix2D:args];
 }
-#endif
 
-#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
 - (id)createMatrix3D:(id)args
 {
   if (args == nil || [args count] == 0) {
