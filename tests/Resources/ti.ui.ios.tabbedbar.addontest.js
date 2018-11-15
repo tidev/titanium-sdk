@@ -22,20 +22,20 @@ describe.ios('Titanium.UI.iOS.TabbedBar', function () {
 
 	it('#labels', function () {
 		var tabbedBar = Ti.UI.iOS.createTabbedBar({
-    	labels: ["One", "Two", "Three"],
+			labels: [ 'One', 'Two', 'Three' ],
 		});
 		should(tabbedBar.labels).be.an.Array;
 		should(tabbedBar.getLabels).be.a.Function;
 		should(tabbedBar.labels.length).be.eql(3);
 		should(tabbedBar.getLabels().length).eql(3);
-		tabbedBar.labels = ["Four", "Five"];
+		tabbedBar.labels = [ 'Four', 'Five'];
 		should(tabbedBar.labels.length).be.eql(2);
 	});
 
 	it('#index', function () {
 		var tabbedBar = Ti.UI.iOS.createTabbedBar({
-    	labels: ["One", "Two", "Three"],
-    	index: 1
+			labels: [ 'One', 'Two', 'Three' ],
+			index: 1
 		});
 		should(tabbedBar.index).be.a.Number;
 		should(tabbedBar.getIndex).be.a.Function;
