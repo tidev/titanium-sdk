@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_UIIOS
 
@@ -230,7 +230,7 @@
 - (id)createBlurView:(id)args;
 #endif
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
-- (id)createApplicationShortcuts:(id)args;
+- (id)createApplicationShortcuts:(id)args; // Deprecated in 7.1.0 in favor of API on Ti.UI namespace
 #endif
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 - (id)createFeedbackGenerator:(id)args;

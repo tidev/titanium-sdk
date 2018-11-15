@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_PLATFORM
 
-#import "TiModule.h"
 #import "TiPlatformDisplayCaps.h"
+#import <TitaniumKit/TiModule.h>
 
 @interface PlatformModule : TiModule {
   NSString *name;

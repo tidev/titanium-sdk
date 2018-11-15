@@ -39,24 +39,6 @@ public class NotificationProxy extends TiViewProxy
 		n.show(options);
 	}
 
-	// clang-format off
-	@Kroll.method
-	@Kroll.setProperty
-	public void setMessage(String message)
-	// clang-format on
-	{
-		setPropertyAndFire(TiC.PROPERTY_MESSAGE, message);
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.getProperty
-	public String getMessage()
-	// clang-format on
-	{
-		return TiConvert.toString(getProperty(TiC.PROPERTY_MESSAGE));
-	}
-
 	@Override
 	public String getApiName()
 	{

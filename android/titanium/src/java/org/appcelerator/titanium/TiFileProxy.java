@@ -233,12 +233,12 @@ public class TiFileProxy extends KrollProxy
 		return tbf.isHidden();
 	}
 
-	// clang-format off
 	@Kroll.method
-	@Kroll.getProperty
 	public String[] getDirectoryListing()
-	// clang-format on
 	{
+		if (!isDirectory()) {
+			return null;
+		}
 		List<String> dl = tbf.getDirectoryListing();
 		return dl != null ? dl.toArray(new String[0]) : null;
 	}

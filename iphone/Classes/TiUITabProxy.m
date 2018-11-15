@@ -7,11 +7,11 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiProxy.h"
 #import "TiUITabGroupProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 //NOTE: this proxy is a little different than normal Proxy/View pattern
 //since it's not really backed by a view in the normal way.  It's given
@@ -256,10 +256,6 @@
   [window setTab:self];
   [window setParentOrientationController:self];
 
-  TiUIView *view = [window view];
-  TiViewController *controller = (TiViewController *)[window hostingController];
-  [view setFrame:controller.view.bounds];
-
   //Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
@@ -267,6 +263,10 @@
       args = [NSArray arrayWithObject:args];
     }
     [window open:args];
+
+    TiUIView *view = [window view];
+    TiViewController *controller = (TiViewController *)[window hostingController];
+    [view setFrame:controller.view.bounds];
     return;
   }
 
@@ -514,7 +514,7 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-    if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+    if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
 
@@ -577,12 +577,12 @@
   }
 
   if (iconInsets != nil) {
-    if (UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
+    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets])) {
       [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
     }
   }
 
-  if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+  if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
 

@@ -7,9 +7,9 @@
 #ifdef USE_TI_UIIPADPOPOVER
 
 #import "TiUIiPadPopoverProxy.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "TiWindowProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiWindowProxy.h>
 #import <libkern/OSAtomic.h>
 
 #ifdef USE_TI_UITABLEVIEW
@@ -53,7 +53,6 @@ static NSArray *popoverSequence;
     currentPopover = nil;
   }
   RELEASE_TO_NIL(viewController);
-  RELEASE_TO_NIL(popoverController);
   RELEASE_TO_NIL(popoverView);
   RELEASE_TO_NIL(closingCondition);
   RELEASE_TO_NIL(contentViewProxy);
@@ -305,7 +304,6 @@ static NSArray *popoverSequence;
   [self forgetSelf];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
-  RELEASE_TO_NIL_AUTORELEASE(popoverController);
   [self performSelector:@selector(release) withObject:nil afterDelay:0.5];
   [closingCondition lock];
   isDismissing = NO;
@@ -423,17 +421,6 @@ static NSArray *popoverSequence;
   return viewController;
 }
 
-- (UIPopoverController *)popoverController
-{
-  if (popoverController == nil) {
-    popoverController = [[UIPopoverController alloc] initWithContentViewController:[self viewController]];
-    [popoverController setDelegate:self];
-
-    [self updateContentSize];
-  }
-  return popoverController;
-}
-
 #pragma mark Delegate methods
 
 - (void)proxyDidRelayout:(id)sender
@@ -500,22 +487,6 @@ static NSArray *popoverSequence;
   }
 
   popoverPresentationController.sourceRect = *rect;
-}
-
-- (BOOL)popoverControllerShouldDismissPopover:(UIPopoverController *)thisPopoverController
-{
-  if (thisPopoverController.contentViewController.presentedViewController != nil) {
-    return NO;
-  }
-  [contentViewProxy windowWillClose];
-  return YES;
-}
-
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)thisPopoverController
-{
-  if (thisPopoverController == popoverController) {
-    [self cleanup];
-  }
 }
 
 @end

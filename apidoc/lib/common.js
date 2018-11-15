@@ -38,7 +38,7 @@ exports.PRETTY_PLATFORM = {
 	iphone: 'iPhone',
 	ipad: 'iPad',
 	tizen: 'Tizen',
-	windowsphone: 'Windows Phone'
+	windowsphone: 'Windows'
 };
 
 // Matches FOO_CONSTANT

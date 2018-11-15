@@ -73,22 +73,17 @@
 
 - (void)setSearchBar:(UISearchBar *)searchBar
 {
-  // We need to manually handle this property as it will be overwritten
-  // by the search controller otherwise (TIMOB-10368)
-  if ([self valueForKey:@"color"] != nil) {
-    UIView *searchContainerView = [[searchBar subviews] firstObject];
-    UIColor *color = [TiUtils colorValue:[self valueForKey:@"color"]].color;
-
-    [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-      if ([obj isKindOfClass:[UITextField class]]) {
-        [(UITextField *)obj setTextColor:color];
-        *stop = YES;
-      }
-    }];
-  }
-
   // In UISearchController searchbar is readonly. We have to replace that search bar with existing search bar of proxy.
   [(TiUISearchBar *)[self view] setSearchBar:searchBar];
+
+  // Set search bar properties to new search bar
+  NSDictionary *properties = [self allProperties];
+  for (NSString *key in properties.allKeys) {
+    SEL selector = SetterForKrollProperty(key);
+    if ([(TiUISearchBar *)[self view] respondsToSelector:selector]) {
+      [(TiUISearchBar *)[self view] performSelector:selector withObject:[properties objectForKey:key]];
+    }
+  }
 }
 
 - (void)ensureSearchBarHierarchy
@@ -111,6 +106,85 @@
 - (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
   return TiDimensionAutoSize;
+}
+
+#pragma mark getters
+
+- (NSString *)value
+{
+  return [[self searchBar] text];
+}
+
+- (NSNumber *)showBookmark
+{
+  return NUMBOOL([[self searchBar] showsBookmarkButton]);
+}
+
+- (NSNumber *)showCancel
+{
+  return NUMBOOL([[self searchBar] showsCancelButton]);
+}
+
+- (NSString *)hintText
+{
+  return [[self searchBar] placeholder];
+}
+
+- (id)hintTextColor
+{
+  return [self valueForUndefinedKey:@"hintTextColor"];
+}
+
+- (id)color
+{
+  return [self valueForUndefinedKey:@"color"];
+}
+
+- (NSNumber *)keyboardType
+{
+  return NUMINT([[self searchBar] keyboardType]);
+}
+
+- (NSNumber *)keyboardAppearance
+{
+  return NUMINT([[self searchBar] keyboardAppearance]);
+}
+
+- (NSString *)prompt
+{
+  return [[self searchBar] prompt];
+}
+
+- (NSNumber *)autocorrect
+{
+  UITextAutocorrectionType autocorrectionType = [[self searchBar] autocorrectionType];
+  if (autocorrectionType == UITextAutocorrectionTypeYes) {
+    return NUMBOOL(YES);
+  } else if (autocorrectionType == UITextAutocorrectionTypeNo) {
+    return NUMBOOL(NO);
+  } else {
+    return nil;
+  }
+}
+
+- (NSNumber *)autocapitalization
+{
+  return NUMINT([[self searchBar] autocapitalizationType]);
+}
+
+- (id)tintColor
+{
+  return [self valueForUndefinedKey:@"tintColor"];
+}
+
+- (id)barColor
+{
+  return [self valueForUndefinedKey:@"barColor"];
+}
+
+- (NSNumber *)style
+{
+  return NUMINT([[self searchBar] searchBarStyle]);
 }
 
 USE_VIEW_FOR_CONTENT_HEIGHT

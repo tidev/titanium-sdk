@@ -10,7 +10,7 @@
 #import "TIDOMDocumentTypeProxy.h"
 #import "TiDOMDocumentProxy.h"
 #import "TiDOMValidator.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TIDOMDOMImplementation
 

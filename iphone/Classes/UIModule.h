@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiModule.h"
+#import <TitaniumKit/TiModule.h>
 
 #ifdef USE_TI_UI
 
@@ -199,15 +199,10 @@
 @property (nonatomic, readonly) NSString *TEXT_STYLE_TITLE3;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_CALLOUT;
 
-#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
 - (id)createMatrix2D:(id)args; // Deprecated since 8.0.0
 - (id)create2DMatrix:(id)args;
-#endif
-
-#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
 - (id)createMatrix3D:(id)args; // Deprecated since 8.0.0
 - (id)create3DMatrix:(id)args;
-#endif
 
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args;
