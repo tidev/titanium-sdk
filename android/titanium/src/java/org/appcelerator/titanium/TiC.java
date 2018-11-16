@@ -3215,6 +3215,11 @@ public class TiC
 	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
 
 	/**
+	 * module.api
+	 */
+	public static final String PROPERTY_TRACK_TINT_COLOR = "trackTintColor";
+
+	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSFORM = "transform";
