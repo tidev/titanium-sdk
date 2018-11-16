@@ -69,8 +69,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 	@Kroll.constant
 	public static final int KEYBOARD_APPEARANCE_DEFAULT = -1; // Not supported
-	@Kroll.constant
-	public static final int KEYBOARD_APPEARANCE_ALERT = -1; // Not supported
 
 	@Kroll.constant
 	public static final int KEYBOARD_TYPE_ASCII = 0;
