@@ -30,6 +30,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-ui"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-utils"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-xml"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/titanium-yahoo"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

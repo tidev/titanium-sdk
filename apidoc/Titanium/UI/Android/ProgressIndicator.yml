@@ -16,7 +16,7 @@ description:  |
     <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR>.
 
     Calling <Titanium.UI.Android.ProgressIndicator.show> displays the indicator, 
-    and calling <Titanium.UI.Android.ProgressIndicator.hide>  removes it.
+    and calling <Titanium.UI.Android.ProgressIndicator.hide> removes it.
 
     To display a horizontal progress bar in the title of a heavyweight window,
     wait for the window to open before creating the progress bar.
@@ -29,14 +29,14 @@ excludes:
     events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
     methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
-    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
-                 anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
-                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
-                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
-                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
-                 children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
-                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
-                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
+    properties: [accessibilityHidden, accessibilityHint, accessibilityLabel, accessibilityValue,
+                 anchorPoint, animatedCenter, backgroundColor, backgroundDisabledColor,
+                 backgroundDisabledImage, backgroundFocusedColor, backgroundFocusedImage, backgroundGradient,
+                 backgroundImage, backgroundLeftCap, backgroundRepeat, backgroundSelectedColor,
+                 backgroundSelectedImage, backgroundTopCap, borderColor, borderRadius, borderWidth, bottom,center,
+                 children, clipMode, focusable, height, horizontalWrap, keepScreenOn, layout, left, opacity,overrideCurrentAnimation,
+                 pullBackgroundColor, rect, right, size, softKeyboardOnFocus, tintColor, top, touchEnabled, transform,
+                 viewShadowColor, viewShadowOffset, viewShadowRadius, visible, width, zIndex]
 
 methods:
   - name: hide

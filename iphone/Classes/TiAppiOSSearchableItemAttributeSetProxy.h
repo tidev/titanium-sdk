@@ -6,8 +6,8 @@
  */
 #if defined(USE_TI_APPIOSSEARCHQUERY) || defined(USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET)
 
-#import "TiProxy.h"
 #import <CoreSpotlight/CoreSpotlight.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiAppiOSSearchableItemAttributeSetProxy : TiProxy {
   @private

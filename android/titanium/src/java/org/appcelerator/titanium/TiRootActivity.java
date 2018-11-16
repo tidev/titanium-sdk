@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -82,6 +83,12 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		TiRootActivity rootActivity = tiApp.getRootActivity();
 
 		if (intent != null) {
+
+			// remove 'singleTop' flag and reset window stack count
+			if ((intent.getFlags() & Intent.FLAG_ACTIVITY_SINGLE_TOP) == Intent.FLAG_ACTIVITY_SINGLE_TOP) {
+				intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				resetTotalWindowStack();
+			}
 			if (rootActivity != null) {
 
 				// TIMOB-24527: FLAG_ACTIVITY_NEW_DOCUMENT creates a new activity instance
@@ -95,6 +102,10 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 					KrollRuntime.incrementActivityRefCount();
 					activityOnCreate(savedInstanceState);
 					return;
+				}
+				// TIMOB-25048: fix shortcut intents when application is already running
+				if (intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT)) {
+					intent.setAction(Intent.ACTION_MAIN);
 				}
 				rootActivity.setIntent(intent);
 			} else {
@@ -207,6 +218,13 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 		if (finishing2373) {
 			return;
+		}
+		TiApplication tiApp = TiApplication.getInstance();
+		if (tiApp != null) {
+			KrollModule appModule = tiApp.getModuleByName("App");
+			if (appModule != null) {
+				appModule.fireEvent(TiC.EVENT_CLOSE, null);
+			}
 		}
 
 		Log.d(TAG, "root activity onDestroy, activity = " + this, Log.DEBUG_MODE);

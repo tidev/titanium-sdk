@@ -9,10 +9,10 @@
 #import "TiUIButton.h"
 #import "TiUIButtonProxy.h"
 
-#import "ImageLoader.h"
 #import "TiButtonUtil.h"
-#import "TiUIView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"

@@ -7,16 +7,16 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableView.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiLayoutQueue.h"
-#import "TiProxy.h"
 #import "TiUITableViewProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "TiWindowProxy.h"
-#import "WebFont.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiLayoutQueue.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindowProxy.h>
+#import <TitaniumKit/WebFont.h>
+#import <TitaniumKit/Webcolor.h>
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0
@@ -453,12 +453,10 @@
 
     defaultSeparatorInsets = [tableview separatorInset];
 
-    [tableview setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      tableview.cellLayoutMarginsFollowReadableWidth = NO;
-    }
+    tableview.layoutMargins = UIEdgeInsetsZero;
+    tableview.cellLayoutMarginsFollowReadableWidth = NO;
   }
+
   if ([tableview superview] != self) {
     [self addSubview:tableview];
   }
@@ -1269,7 +1267,7 @@
         return;
       }
     }
-    if (allowsSelectionSet == NO || [ourTableView allowsSelection] == NO) {
+    if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
       [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
     }
     [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"longpress"];
@@ -1546,7 +1544,7 @@
   UIView *searchView = [searchField view];
 
   if (tableHeaderView == nil) {
-    CGFloat wrapperHeight = [TiUtils isIOS11OrGreater] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
+    CGFloat wrapperHeight = [TiUtils isIOSVersionOrGreater:@"11.0"] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
     CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
     tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
     [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
@@ -1986,7 +1984,7 @@
   if (args != nil) {
     _refreshControlProxy = [args retain];
 
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [[self tableView] setRefreshControl:_refreshControlProxy.control];
     } else {
       [[self tableView] addSubview:[_refreshControlProxy control]];
@@ -2276,7 +2274,7 @@
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
 {
   RETURN_IF_SEARCH_TABLE_VIEW(nil);
-  if (sectionIndex != nil && editing == NO) {
+  if (sectionIndex != nil && !editing) {
     return sectionIndex;
   }
   return nil;
@@ -2411,7 +2409,7 @@
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   BOOL search = NO;
-  if (allowsSelectionSet == NO || [ourTableView allowsSelection] == NO) {
+  if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
   if ([searchController isActive]) {
@@ -2472,7 +2470,7 @@
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
   BOOL search = NO;
-  if (allowsSelectionSet == NO || [ourTableView allowsSelection] == NO) {
+  if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
   if ([searchController isActive]) {
@@ -2711,7 +2709,7 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-  if (decelerate == NO) {
+  if (!decelerate) {
     // resume image loader when we're done scrolling
     [[ImageLoader sharedLoader] resume];
   }
@@ -2805,10 +2803,8 @@
   }
   searchControllerPresenter.definesPresentationContext = YES;
 
-  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
-
   [searchControllerPresenter presentViewController:controller
-                                          animated:shouldAnimate
+                                          animated:NO
                                         completion:^{
                                           isSearched = YES;
                                           [self showDimmingView];

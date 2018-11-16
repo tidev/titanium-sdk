@@ -98,7 +98,8 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_TOUCH_FEEDBACK,
 	TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
 	TiC.PROPERTY_TRANSITION_NAME,
-	TiC.PROPERTY_HIDDEN_BEHAVIOR
+	TiC.PROPERTY_HIDDEN_BEHAVIOR,
+	TiC.PROPERTY_ANCHOR_POINT
 })
 // clang-format on
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback

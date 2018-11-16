@@ -71,7 +71,7 @@ public class PlatformModule extends KrollModule
 	public String getName()
 	// clang-format on
 	{
-		return "android";
+		return APSAnalyticsMeta.getPlatform();
 	}
 
 	// clang-format off
@@ -80,7 +80,7 @@ public class PlatformModule extends KrollModule
 	public String getOsname()
 	// clang-format on
 	{
-		return "android";
+		return APSAnalyticsMeta.getPlatform();
 	}
 
 	// clang-format off
@@ -129,7 +129,7 @@ public class PlatformModule extends KrollModule
 	public String getVersion()
 	// clang-format on
 	{
-		return APSAnalyticsMeta.getAppVersion();
+		return APSAnalyticsMeta.getOsVersion();
 	}
 
 	// clang-format off
@@ -165,7 +165,7 @@ public class PlatformModule extends KrollModule
 	public String getOstype()
 	// clang-format on
 	{
-		return "32bit";
+		return APSAnalyticsMeta.getOsType();
 	}
 
 	// clang-format off

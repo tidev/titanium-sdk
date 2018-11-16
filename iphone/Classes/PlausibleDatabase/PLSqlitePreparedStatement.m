@@ -28,7 +28,7 @@
  */
 
 #import "PlausibleDatabase.h"
-#import "TiBlob.h"
+#import <TitaniumKit/TiBlob.h>
 
 #pragma mark Parameter Strategy
 

@@ -8,7 +8,7 @@
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 
 #import "TiUIiOSFeedbackGeneratorProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiOSFeedbackGeneratorProxy
 
