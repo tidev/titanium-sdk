@@ -33,7 +33,7 @@ function fetchScriptsFromJson() {
 
 	try {
 		jsonFile = Ti.Filesystem.getFile(
-			Ti.Filesystem.getResourcesDirectory(), 'ti.internal/' + JSON_FILE_NAME);
+			Ti.Filesystem.resourcesDirectory, 'ti.internal/' + JSON_FILE_NAME);
 		if (jsonFile.exists()) {
 			settings = JSON.parse(jsonFile.read().text);
 			if (Array.isArray(settings.scripts)) {
@@ -55,7 +55,7 @@ function fetchScriptsFromJson() {
  * Returns an empty array if no bootstrap files were found.
  */
 function fetchScriptsFromResourcesDirectory() {
-	var resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory()),
+	var resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory),
 		resourceDirectoryPath = resourceDirectory.nativePath,
 		bootstrapScripts = [];
 

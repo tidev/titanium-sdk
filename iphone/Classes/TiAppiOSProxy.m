@@ -825,16 +825,17 @@
       if (summaryArgument != nil) {
         [content setSummaryArgument:summaryArgument];
       }
-      // Set a number that indicates how many items in the summary are represented in the summary.
+      // Set a number that indicates how many items are represented in the summary.
       if (summaryArgumentCount != nil) {
         [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
       }
-      // Set the thread identifier to enable grouped notifications
-      if (threadIdentifier != nil) {
-        [content setThreadIdentifier:threadIdentifier];
-      }
     }
 #endif
+
+    // Set the thread identifier to enable grouped notifications
+    if (threadIdentifier != nil) {
+      [content setThreadIdentifier:threadIdentifier];
+    }
 
     // Construct a new notiication request using our content and trigger (e.g. date or location)
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
