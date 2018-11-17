@@ -27,7 +27,6 @@ import android.app.Activity;
 		TiC.PROPERTY_TEXT,
 		TiC.PROPERTY_TEXT_ALIGN,
 		TiC.PROPERTY_TEXTID,
-		TiC.PROPERTY_WORD_WRAP,
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_SHADOW_OFFSET,
 		TiC.PROPERTY_SHADOW_COLOR,
@@ -48,7 +47,6 @@ public class LabelProxy extends TiViewProxy
 	{
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
 		defaultValues.put(TiC.PROPERTY_ELLIPSIZE, UIModule.TEXT_ELLIPSIZE_TRUNCATE_END);
-		defaultValues.put(TiC.PROPERTY_WORD_WRAP, true);
 		defaultValues.put(TiC.PROPERTY_SHADOW_RADIUS, 1f);
 	}
 
