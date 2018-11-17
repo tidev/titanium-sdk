@@ -454,10 +454,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   ENSURE_ARG_COUNT(args, 2);
 
-  NSString *convertFromValue = nil;
+  id convertFromValue = [args objectAtIndex:0];
+  if (![convertFromValue isKindOfClass:[NSNumber class]] && ![convertFromValue isKindOfClass:[NSString class]]) {
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected fromValue to be String or Number, was: %@", OBJTYPE2JS(convertFromValue)] location:CODELOCATION];
+  }
   NSString *convertToUnits = nil;
-
-  ENSURE_ARG_AT_INDEX(convertFromValue, args, 0, NSString);
   ENSURE_ARG_AT_INDEX(convertToUnits, args, 1, NSString);
 
   float result = 0.0;
