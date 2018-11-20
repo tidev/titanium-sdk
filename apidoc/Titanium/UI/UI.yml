@@ -1738,6 +1738,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.4.0"
+        removed: "8.0.0"
     platforms: [iphone, ipad]
 
   - name: KEYBOARD_APPEARANCE_DEFAULT
@@ -1770,6 +1771,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
 
   - name: KEYBOARD_DECIMAL_PAD
@@ -1784,6 +1786,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
 
   - name: KEYBOARD_DEFAULT
@@ -1795,6 +1798,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
 
   - name: KEYBOARD_EMAIL
@@ -1806,6 +1810,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
 
   - name: KEYBOARD_NAMEPHONE_PAD
@@ -1818,6 +1823,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
@@ -1830,6 +1836,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
 
   - name: KEYBOARD_NUMBER_PAD
@@ -1843,6 +1850,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
 
   - name: KEYBOARD_PHONE_PAD
@@ -1856,6 +1864,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
 
   - name: KEYBOARD_URL
@@ -1867,6 +1876,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
