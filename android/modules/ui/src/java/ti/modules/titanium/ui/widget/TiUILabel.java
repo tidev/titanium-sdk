@@ -394,9 +394,6 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_LINES)) {
 			this.viewHeightInLines = TiConvert.toInt(d.get(TiC.PROPERTY_LINES), 0);
 		}
-		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
-			logWordWrapWarning();
-		}
 		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
 			int value = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LINES), Integer.MAX_VALUE);
 			if (value < 1) {
@@ -554,8 +551,6 @@ public class TiUILabel extends TiUIView
 				}
 			}
 			updateLabelText();
-		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
-			logWordWrapWarning();
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			this.autoLinkFlags = TiConvert.toInt(newValue, 0) & Linkify.ALL;
 			updateLabelText();
@@ -604,13 +599,6 @@ public class TiUILabel extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
-	}
-
-	private void logWordWrapWarning()
-	{
-		String message = "Property '" + TiC.PROPERTY_WORD_WRAP + "' is deprecated. "
-						 + "If setting false, then set property '" + TiC.PROPERTY_MAX_LINES + "' to 1 instead.";
-		Log.w(TAG, message);
 	}
 
 	public void setClickable(boolean clickable)
