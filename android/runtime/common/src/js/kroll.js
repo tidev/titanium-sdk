@@ -6,6 +6,11 @@
  */
 'use strict';
 
+/**
+ * main bootstrapping function
+ * @param  {object} kroll [description]
+ * @return {void}       [description]
+ */
 (function (kroll) { // eslint-disable-line no-unused-expressions
 	var global = this;
 
