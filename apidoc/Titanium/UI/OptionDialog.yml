@@ -285,7 +285,7 @@ examples:
         var dialog;
         win.addEventListener('click', function() {
           dialog = Ti.UI.createOptionDialog(opts);
-          
+
           dialog.addEventListener('click', onSelectDialog);
           dialog.addEventListener('cancel', function(e) {
             alert('Dialog canceled! e.cancel = ' + e.cancel + ', e.index = ' + e.index);
@@ -299,11 +299,9 @@ examples:
             if (e.button === false && e.index === 0) {
               alert('Confirm option selected! e.index = ' + e.index);
             }
-
             if (e.button === false && eventeindex === 1) {
               alert('Cancel option selected! e.index = ' + e.index);
             }
-
             if (e.button === true && e.index === 0) {
               alert('Help Button clicked! e.index = ' + e.index);
             }
