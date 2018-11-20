@@ -596,8 +596,8 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		// Create a shallow copy of all listeners to be iterated down below.
 		// We do this because an invoked listener can add/remove listeners in main collection.
-		ArrayList<OnDisposingListener> clonedListeners = null;
-		clonedListeners = (ArrayList<OnDisposingListener>) KrollRuntime.disposingListeners.clone();
+		ArrayList<OnDisposingListener> clonedListeners =
+			(ArrayList<OnDisposingListener>) KrollRuntime.disposingListeners.clone();
 		if (clonedListeners == null) {
 			return;
 		}
