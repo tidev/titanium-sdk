@@ -25,6 +25,7 @@ program
 	.option('-a, --all', 'Build a zipfile for every OS')
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
+	.option('-s, --skip-zip', 'Do not zip up the package')
 	.parse(process.argv);
 
 let platforms = program.args;
@@ -73,7 +74,7 @@ git.getHash(path.join(__dirname, '..'), function (err, hash) {
 				}
 			}
 
-			new Packager(outputDir, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, hash).package(next);
+			new Packager(outputDir, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, hash, program.skipZip).package(next);
 		}, function (err) {
 			if (err) {
 				console.error(err);
