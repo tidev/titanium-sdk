@@ -46,14 +46,14 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
-	private static final String ERROR_TITLE = "title";
-	private static final String ERROR_MESSAGE = "message";
-	private static final String ERROR_SOURCENAME = "sourceName";
-	private static final String ERROR_LINE = "line";
-	private static final String ERROR_LINESOURCE = "lineSource";
-	private static final String ERROR_LINEOFFSET = "lineOffset";
-	private static final String ERROR_JS_STACK = "javascriptStack";
-	private static final String ERROR_JAVA_STACK = "javaStack";
+	public static final String ERROR_TITLE = "title";
+	public static final String ERROR_MESSAGE = "message";
+	public static final String ERROR_SOURCENAME = "sourceName";
+	public static final String ERROR_LINE = "line";
+	public static final String ERROR_LINESOURCE = "lineSource";
+	public static final String ERROR_LINEOFFSET = "lineOffset";
+	public static final String ERROR_JS_STACK = "javascriptStack";
+	public static final String ERROR_JAVA_STACK = "javaStack";
 
 	private static final String fill(int count)
 	{
