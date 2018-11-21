@@ -158,7 +158,7 @@ public class TiWebViewBinding
 			returnSemaphore.drainPermits();
 			synchronized (codeSnippets)
 			{
-				codeSnippets.push(code);
+				codeSnippets.add(0, code);
 			}
 			try {
 				if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
@@ -212,7 +212,7 @@ public class TiWebViewBinding
 			String code = "Ti.executeListener(" + id + dataString + ");";
 			synchronized (codeSnippets)
 			{
-				codeSnippets.push(code);
+				codeSnippets.add(0, code);
 			}
 		}
 	}

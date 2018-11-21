@@ -34,6 +34,11 @@ public class AndroidModule extends KrollModule
 	private static final String TAG = "UIAndroidModule";
 
 	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_NAVIGATION = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_STATUS = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+
+	@Kroll.constant
 	public static final int PIXEL_FORMAT_A_8 = PixelFormat.A_8;
 	@Kroll.constant
 	public static final int PIXEL_FORMAT_LA_88 = PixelFormat.LA_88;
@@ -251,7 +256,7 @@ public class AndroidModule extends KrollModule
 				Activity currentActivity = TiApplication.getAppCurrentActivity();
 				if (currentActivity != null) {
 					TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
-				} else if (activity != null) {
+				} else if (getActivity() != null) {
 					TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
 				} else {
 					Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);

@@ -4,24 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 #ifdef USE_TI_UI
 
-#import "TiDimension.h"
-#import "TiProxy.h"
 #import "UIModule.h"
 
-#ifdef USE_TI_UI2DMATRIX
-#import "Ti2DMatrix.h"
-#endif
-
-#ifdef USE_TI_UI3DMATRIX
-#import "Ti3DMatrix.h"
-#endif
+#import <TitaniumKit/Ti2DMatrix.h>
+#import <TitaniumKit/Ti3DMatrix.h>
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_UIANIMATION
-#import "TiAnimation.h"
+#import <TitaniumKit/TiAnimation.h>
 #endif
 #ifdef USE_TI_UIIPAD
 #import "TiUIiPadProxy.h"
@@ -39,10 +34,10 @@
 #import "TiUIToolbarProxy.h"
 #endif
 
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation UIModule
 
@@ -251,7 +246,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #pragma mark Factory methods
 
-#ifdef USE_TI_UI2DMATRIX
 - (id)create2DMatrix:(id)args
 {
   if (args == nil || [args count] == 0) {
@@ -261,7 +255,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
   Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
   return [matrix autorelease];
 }
-#endif
 
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args
@@ -333,35 +326,19 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 - (NSString *)TEXT_STYLE_TITLE1
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleTitle1;
-  } else {
-    return UIFontTextStyleBody;
-  }
+  return UIFontTextStyleTitle1;
 }
 - (NSString *)TEXT_STYLE_TITLE2
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleTitle2;
-  } else {
-    return UIFontTextStyleBody;
-  }
+  return UIFontTextStyleTitle2;
 }
 - (NSString *)TEXT_STYLE_TITLE3
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleTitle3;
-  } else {
-    return UIFontTextStyleBody;
-  }
+  return UIFontTextStyleTitle3;
 }
 - (NSString *)TEXT_STYLE_CALLOUT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleCallout;
-  } else {
-    return UIFontTextStyleBody;
-  }
+  return UIFontTextStyleCallout;
 }
 - (NSNumber *)isLandscape:(id)args
 {
@@ -404,8 +381,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 #endif
 
-#ifdef USE_TI_UI3DMATRIX
-- (id)create3DMatrix:(id)args
+- (Ti3DMatrix *)create3DMatrix:(id)args
 {
   if (args == nil || [args count] == 0) {
     return [[[Ti3DMatrix alloc] init] autorelease];
@@ -414,7 +390,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
   return [matrix autorelease];
 }
-#endif
 
 #ifdef USE_TI_UICLIPBOARD
 - (id)Clipboard
@@ -479,10 +454,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   ENSURE_ARG_COUNT(args, 2);
 
-  NSString *convertFromValue = nil;
+  id convertFromValue = [args objectAtIndex:0];
+  if (![convertFromValue isKindOfClass:[NSNumber class]] && ![convertFromValue isKindOfClass:[NSString class]]) {
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected fromValue to be String or Number, was: %@", OBJTYPE2JS(convertFromValue)] location:CODELOCATION];
+  }
   NSString *convertToUnits = nil;
-
-  ENSURE_ARG_AT_INDEX(convertFromValue, args, 0, NSString);
   ENSURE_ARG_AT_INDEX(convertToUnits, args, 1, NSString);
 
   float result = 0.0;
@@ -529,7 +505,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
-MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak); // deprecated
 
 - (NSNumber *)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
@@ -585,11 +561,11 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 }
 - (NSNumber *)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
 {
-  return NUMINTEGER(NSTextWritingDirectionEmbedding);
+  return NUMINTEGER(NSWritingDirectionEmbedding);
 }
 - (NSNumber *)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
 {
-  return NUMINTEGER(NSTextWritingDirectionOverride);
+  return NUMINTEGER(NSWritingDirectionOverride);
 }
 - (NSString *)ATTRIBUTE_LETTERPRESS_STYLE
 {
@@ -650,12 +626,16 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 #endif
+#if IS_XCODE_10
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_NEW_PASSWORD, UITextContentTypeNewPassword);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
+#endif
 #endif
 
 #ifdef USE_TI_UICLIPBOARD
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return UIPasteboardOptionLocalOnly;
   } else {
     return @"";
@@ -663,7 +643,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 }
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return UIPasteboardOptionExpirationDate;
   } else {
     return @"";

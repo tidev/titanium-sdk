@@ -13,13 +13,14 @@
 	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
-		"Chris Barber <cbarber@appcelerator.com>"
+		"Chris Barber <cbarber@axway.com>",
+		"Hans Knöchel <cbarber@axway.com>"
 	],
 	"minIosVersion": "8.0",
-	"minWatchosVersion": "1.0",
+	"minWatchosVersion": "2.0",
 	"vendorDependencies": {
 		"xcode": ">=8.0 <=10.x",
-		"ios sdk": ">=8.0 <=12.x",
+		"ios sdk": ">=9.0 <=12.x",
 		"node": ">=4.0 <=8.x"
 	},
 	"repository": {

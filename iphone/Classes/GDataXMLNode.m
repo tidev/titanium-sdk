@@ -839,7 +839,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
           int result = xmlXPathRegisterNs(xpathCtx, prefixChars, uriChars);
           if (result != 0) {
 #if DEBUG
-            NSCAssert1(result == 0, @"GDataXMLNode XPath namespace %@ issue",
+            NSCAssert1(result == noErr, @"GDataXMLNode XPath namespace %@ issue",
                 prefix);
 #endif
           }
@@ -870,7 +870,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
             int result = xmlXPathRegisterNs(xpathCtx, prefix, nsPtr->href);
             if (result != 0) {
 #if DEBUG
-              NSCAssert1(result == 0, @"GDataXMLNode XPath namespace %s issue",
+              NSCAssert1(result == noErr, @"GDataXMLNode XPath namespace %s issue",
                   prefix);
 #endif
             }
@@ -2009,7 +2009,7 @@ static Boolean StringCacheKeyEqualCallBack(const void *str1, const void *str2)
     return true;
 
   int result = xmlStrcmp(str1, str2);
-  return (result == 0);
+  return result == noErr;
 }
 
 static CFHashCode StringCacheKeyHashCallBack(const void *str)

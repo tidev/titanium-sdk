@@ -122,6 +122,7 @@ class FrameworkManager {
 			path.join(this._builder.projectDir, 'platform', 'iphone')
 		];
 		for (let module of this._builder.modules) {
+			pathsToScan.push(path.join(module.modulePath));
 			pathsToScan.push(path.join(module.modulePath, 'platform'));
 			pathsToScan.push(path.join(module.modulePath, 'Resources'));
 		}

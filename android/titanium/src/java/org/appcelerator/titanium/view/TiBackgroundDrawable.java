@@ -171,6 +171,11 @@ public class TiBackgroundDrawable extends StateListDrawable
 		this.alpha = alpha;
 	}
 
+	public Drawable getBackground()
+	{
+		return background;
+	}
+
 	@Override
 	public Drawable getCurrent()
 	{

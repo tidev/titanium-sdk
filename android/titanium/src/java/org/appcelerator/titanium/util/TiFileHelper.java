@@ -30,38 +30,33 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.webkit.URLUtil;
 
 @SuppressWarnings("deprecation")
-public class TiFileHelper implements Handler.Callback
+public class TiFileHelper
 {
 	private static final String TAG = "TiFileHelper";
 
 	public static final String TI_DIR = "tiapp";
 	public static final String TI_DIR_JS = "tijs";
 	private static final String MACOSX_PREFIX = "__MACOSX";
+	private static final String CONTENT_URL_PREFIX = ContentResolver.SCHEME_CONTENT + ":";
+	private static final String ANDROID_RESOURCE_URL_PREFIX = ContentResolver.SCHEME_ANDROID_RESOURCE + ":";
 	private static final String TI_RESOURCE_PREFIX = "ti:";
-
-	private static final int MSG_NETWORK_URL = 100;
-
 	public static final String RESOURCE_ROOT_ASSETS = "file:///android_asset/Resources";
 	public static final String SD_CARD_PREFIX = "/sdcard/Ti.debug";
-
-	protected Handler runtimeHandler = null;
 
 	static HashMap<String, Integer> systemIcons;
 
@@ -127,14 +122,6 @@ public class TiFileHelper implements Handler.Callback
 		}
 	}
 
-	private Handler getRuntimeHandler()
-	{
-		if (runtimeHandler == null) {
-			runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
-		}
-		return runtimeHandler;
-	}
-
 	/**
 	 * Creates or retrieves the TiFileHelper instance.
 	 * @return the TiFileHelper instance.
@@ -179,12 +166,7 @@ public class TiFileHelper implements Handler.Callback
 					Log.e(TAG, "Unknown section identifier: " + section);
 				}
 			} else if (URLUtil.isNetworkUrl(path)) {
-				if (TiApplication.isUIThread()) {
-					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(
-						getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), path);
-				} else {
-					is = handleNetworkURL(path);
-				}
+				is = handleNetworkURL(path);
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
 				path = path.substring(len);
@@ -220,6 +202,9 @@ public class TiFileHelper implements Handler.Callback
 			} else if (URLUtil.isFileUrl(path)) {
 				URL u = new URL(path);
 				is = u.openStream();
+			} else if (path.startsWith(ANDROID_RESOURCE_URL_PREFIX) || path.startsWith(CONTENT_URL_PREFIX)) {
+				ContentResolver contentResolver = context.getContentResolver();
+				is = contentResolver.openInputStream(Uri.parse(path));
 			} else {
 				path = joinPaths("Resources", path);
 				is = context.getAssets().open(path);
@@ -231,56 +216,20 @@ public class TiFileHelper implements Handler.Callback
 
 	private InputStream handleNetworkURL(String path) throws IOException
 	{
-		InputStream is = null;
-		try {
-			URI uri = new URI(path);
-			if (TiResponseCache.peek(uri)) {
-				InputStream stream = TiResponseCache.openCachedStream(uri);
-				if (stream != null) {
-					// Fallback to actual download when null
-					return stream;
-				}
-			}
-		} catch (URISyntaxException uriException) {
+		// Validate argument.
+		if ((path == null) || path.isEmpty()) {
+			return null;
 		}
 
-		URL u = new URL(path);
-		InputStream lis = u.openStream();
-		ByteArrayOutputStream bos = null;
+		// Do a blocking download.
+		// Note: The download manager will attempt to read from TiResponseCache first before sending an HTTP request.
+		InputStream inputStream = null;
 		try {
-			bos = new ByteArrayOutputStream(8192);
-			int count = 0;
-			byte[] buf = new byte[8192];
-
-			while ((count = lis.read(buf)) != -1) {
-				bos.write(buf, 0, count);
-			}
-
-			is = new ByteArrayInputStream(bos.toByteArray());
-
-		} catch (IOException e) {
-
-			Log.e(TAG, "Problem pulling image data from " + path, e);
-			throw e;
-		} finally {
-			if (lis != null) {
-				try {
-					lis.close();
-					lis = null;
-				} catch (Exception e) {
-					// Ignore
-				}
-			}
-			if (bos != null) {
-				try {
-					bos.close();
-					bos = null;
-				} catch (Exception e) {
-					// ignore
-				}
-			}
+			inputStream = TiDownloadManager.getInstance().blockingDownload(URI.create(path));
+		} catch (Exception ex) {
+			Log.e(TAG, "Problem pulling image data from " + path, ex);
 		}
-		return is;
+		return inputStream;
 	}
 
 	/**
@@ -772,20 +721,5 @@ public class TiFileHelper implements Handler.Callback
 			}
 		}
 		return root;
-	}
-
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_NETWORK_URL:
-				AsyncResult result = (AsyncResult) msg.obj;
-				try {
-					result.setResult(handleNetworkURL(TiConvert.toString(result.getArg())));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				return true;
-		}
-		return false;
 	}
 }

@@ -6,6 +6,7 @@ const path = require('path'),
 	program = require('commander'),
 	version = require('../package.json').version,
 	git = require('./git'),
+	utils = require('./utils'),
 	ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
 
 program
@@ -26,8 +27,9 @@ if (!platforms.length || (platforms.length === 1 && platforms[0] === 'full')) {
 async.series([
 	function (next) {
 		git.getHash(path.join(__dirname, '..'), function (err, hash) {
-			program.githash = hash || 'n/a';
-			console.log('Building MobileSDK version %s, githash %s', program.sdkVersion, program.githash);
+			program.gitHash = hash || 'n/a';
+			program.timestamp = utils.timestamp();
+			console.log('Building MobileSDK version %s, githash %s', program.sdkVersion, program.gitHash);
 			next();
 		});
 	}
