@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -97,12 +98,13 @@ public class FilesystemModule extends KrollModule
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
+
 		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-			== PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
+
+		return ((context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+				 == PackageManager.PERMISSION_GRANTED)
+				&& (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+					== PackageManager.PERMISSION_GRANTED));
 	}
 
 	@Kroll.method
@@ -112,7 +114,8 @@ public class FilesystemModule extends KrollModule
 			return;
 		}
 
-		String[] permissions = new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE };
+		String[] permissions = new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE,
+											  android.Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback,
 														 getKrollObject());
