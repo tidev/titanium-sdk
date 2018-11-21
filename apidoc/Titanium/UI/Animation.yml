@@ -105,7 +105,7 @@ properties:
     type: Number
     constants: Titanium.UI.ANIMATION_CURVE_*
     platforms: [android, iphone, ipad]
-    since: { android: "8.0.0", iphone: "0.8", ipad: "0.8" }
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: delay
     summary: Delay, in milliseconds before starting the animation.

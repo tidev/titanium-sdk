@@ -16,10 +16,10 @@ import android.view.animation.LinearInterpolator;
  * Enum type indicating which animation easing/curve/interpolation type to use.
  * <p>
  * Provides methods to acquire its unique Titanium integer ID used in JavaScript
- * and to acquire the Android interplator object used to animate with this type.
+ * and to acquire the Android interpolator object used to animate with this type.
  */
 public enum TiAnimationCurve {
-	/** Animation type which starts slowy and then speeds up when reaching the end. */
+	/** Animation type which starts slowly and then speeds up when reaching the end. */
 	EASE_IN(new AccelerateInterpolator()),
 
 	/** Animation type which starts slowly, speeds up in the middle, and then slows down at the end. */
@@ -60,7 +60,7 @@ public enum TiAnimationCurve {
 	/**
 	 * Gets the unique integer ID that Titanium uses to represent this animation curve type in JavaScript
 	 * such as Ti.UI.ANIMATION_CURVE_LINEAR, Ti.UI.ANIMATION_CURVE_EASE_IN, etc.
-	 * @return Returns the animation cureve type's unique integer identifier.
+	 * @return Returns the animation curve type's unique integer identifier.
 	 */
 	public int toTiIntId()
 	{
@@ -91,7 +91,7 @@ public enum TiAnimationCurve {
 	 * Fetches an animation curve type matching the given unique Titanium integer ID.
 	 * <p>
 	 * This ID matches the value returned by TiAnimationCurve.toTiIntId().
-	 * It also matches the animation cruve IDs Titanium uses in JavaScript such as
+	 * It also matches the animation curve IDs Titanium uses in JavaScript such as
 	 * Ti.UI.ANIMATION_CURVE_LINEAR, Ti.UI.ANIMATION_CURVE_EASE_IN, etc.
 	 * @param value The unique integer ID of the animation curve type to search for.
 	 * @return Returns a matching curve type object. Returns null if given an invalid ID.
