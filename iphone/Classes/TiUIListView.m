@@ -946,8 +946,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [_footerViewProxy windowWillClose];
   }
 
-  if ([searchController isActive]) {
-    [searchController setActive:NO];
+  if (searchController.isActive) {
+    searchController.active = NO;
   }
 }
 
@@ -2369,8 +2369,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)dismissSearchController
 {
-  if ([searchController isActive]) {
-    [searchController setActive:NO];
+  if (searchController.isActive) {
+    searchController.active = NO;
   }
 }
 
