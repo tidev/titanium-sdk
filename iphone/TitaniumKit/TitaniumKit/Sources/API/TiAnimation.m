@@ -416,10 +416,10 @@
         [reverseAnimation setDelay:[NSNumber numberWithInt:0]];
         switch ([curve intValue]) {
         case UIViewAnimationOptionCurveEaseIn:
-          [reverseAnimation setCurve:[NSNumber numberWithInt: UIViewAnimationOptionCurveEaseOut]];
+          [reverseAnimation setCurve:[NSNumber numberWithInt:UIViewAnimationOptionCurveEaseOut]];
           break;
         case UIViewAnimationOptionCurveEaseOut:
-          [reverseAnimation setCurve:[NSNumber numberWithInt: UIViewAnimationOptionCurveEaseIn]];
+          [reverseAnimation setCurve:[NSNumber numberWithInt:UIViewAnimationOptionCurveEaseIn]];
           break;
         default:
           [reverseAnimation setCurve:curve];
