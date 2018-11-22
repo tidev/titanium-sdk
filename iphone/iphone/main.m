@@ -52,8 +52,17 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
-  
-  NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
+  UIColor *defaultBgColor = [UIColor blackColor];
+#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
+  defaultBgColor = [UIColor colorWithRed:DEFAULT_BGCOLOR_RED
+                                   green:DEFAULT_BGCOLOR_GREEN
+                                    blue:DEFAULT_BGCOLOR_BLUE
+                                   alpha:1.0f];
+#endif
+  [[TiSharedConfig defaultConfig] setDefaultBackgroundColor:defaultBgColor];
+
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
   [pool release];
   return retVal;

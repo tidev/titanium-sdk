@@ -9,6 +9,7 @@
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiLayoutQueue.h"
+#import "TiSharedConfig.h"
 #import "TiUtils.h"
 
 #ifdef FORCE_WITH_MODAL
@@ -209,14 +210,10 @@
   UIColor *chosenColor = bgColor;
 
   if (chosenColor == nil) {
-#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
-    chosenColor = [UIColor colorWithRed:DEFAULT_BGCOLOR_RED
-                                  green:DEFAULT_BGCOLOR_GREEN
-                                   blue:DEFAULT_BGCOLOR_BLUE
-                                  alpha:1.0f];
-#else
-    chosenColor = [UIColor blackColor];
-#endif
+    chosenColor = [[TiSharedConfig defaultConfig] defaultBackgroundColor];
+    if (chosenColor == nil) {
+      chosenColor = [UIColor blackColor];
+    }
   }
 
   [ourView setBackgroundColor:chosenColor];
