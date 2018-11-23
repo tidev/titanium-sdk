@@ -56,6 +56,9 @@ JSValueRef KrollCallAsFunction(JSContextRef jsContext, JSObjectRef func, JSObjec
 #endif
     *exception = [KrollObject toValue:[o context] value:ex];
   }
+  @catch (NSString *ex) {
+    *exception = [KrollObject toValue:[o context] value:ex];
+  }
   @finally {
     [pool release];
     pool = nil;
@@ -117,6 +120,9 @@ JSValueRef KrollCallAsNamedFunction(JSContextRef jsContext, JSObjectRef func, JS
 #if KMETHOD_DEBUG == 1
     NSLog(@"[ERROR] method invoked exception: %@", ex);
 #endif
+    *exception = [KrollObject toValue:[o context] value:ex];
+  }
+  @catch (NSString *ex) {
     *exception = [KrollObject toValue:[o context] value:ex];
   }
   @finally {
