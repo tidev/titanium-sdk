@@ -106,7 +106,7 @@ public class V8Object extends KrollObject
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
 
-	private static native boolean nativeRelease(long ptr);
+	protected native boolean nativeRelease(long ptr);
 
 	private native Object nativeCallProperty(long ptr, String propertyName, Object[] args);
 

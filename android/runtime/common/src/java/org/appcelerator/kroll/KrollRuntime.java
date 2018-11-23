@@ -19,6 +19,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
@@ -264,7 +266,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * Equivalent to <pre>evalString(source, SOURCE_ANONYMOUS)</pre>
 	 * @see #evalString(String, String)
 	 * @param source A string containing Javascript source
-	 * @return The Java representation of the return value of {@link source}, as long as Kroll supports the return value
+	 * @return The Java representation of the return value of {@code source}, as long as Kroll supports the return value
 	 */
 	public Object evalString(String source)
 	{
@@ -284,8 +286,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * <li>Any Proxy type that extends {@link org.appcelerator.kroll.KrollProxy}</li>
 	 * </ul>
 	 * @param source A string containing Javascript source
-	 * @param filename The name of the filename represented by {@link source}
-	 * @return The Java representation of the return value of {@link source}, as long as Kroll supports the return value
+	 * @param filename The name of the filename represented by {@code source}
+	 * @return The Java representation of the return value of {@code source}, as long as Kroll supports the return value
 	 */
 	public Object evalString(String source, String filename)
 	{
@@ -608,4 +610,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	public abstract String getRuntimeName();
 	public abstract void initRuntime();
 	public abstract void initObject(KrollProxySupport proxy);
+	@NonNull
+	public abstract KrollPromise createPromise();
 }
