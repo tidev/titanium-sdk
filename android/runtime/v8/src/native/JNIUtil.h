@@ -95,6 +95,7 @@ public:
 	static jclass nullPointerException;
 
 	// Titanium classes
+	static jclass v8PromiseClass;
 	static jclass v8ObjectClass;
 	static jclass v8FunctionClass;
 	static jclass krollRuntimeClass;
@@ -134,6 +135,7 @@ public:
 
 	// Titanium methods and fields
 	static jfieldID v8ObjectPtrField;
+	static jmethodID v8PromiseInitMethod;
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
 
