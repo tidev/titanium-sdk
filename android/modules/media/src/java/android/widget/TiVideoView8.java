@@ -421,7 +421,14 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			mTargetState = STATE_ERROR;
 			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
 			return;
+		} catch (IllegalStateException ex) {
+			Log.e(TAG, "Unable to open content: " + mUri, ex);
+			mCurrentState = STATE_ERROR;
+			mTargetState = STATE_ERROR;
+			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
+			return;
 		}
+		
 	}
 
 	public void setMediaController(MediaController controller)
