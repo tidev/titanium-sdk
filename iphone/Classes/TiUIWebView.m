@@ -983,7 +983,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   // Use "onlink" callback property to decide the navigation policy
   KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
   if (onLink != nil) {
-    JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : webView.URL.absoluteString } ]];
+    JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : navigationAction.request.URL.absoluteString } ]];
     if (functionResult != NULL && JSValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
       if (JSValueToBoolean([onLink.bridge.krollContext context], functionResult)) {
         decisionHandler(WKNavigationActionPolicyAllow);
