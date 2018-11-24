@@ -13,6 +13,7 @@ import java.util.Iterator;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -560,7 +561,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("NewApi")
 	@Kroll.method
 	public void requestLocationPermissions(@Kroll.argument(optional = true) Object type,
-										   @Kroll.argument(optional = true) KrollFunction permissionCallback)
+										   @Kroll.argument(optional = true) KrollFunction permissionCallback,
+										   KrollPromise promise)
 	{
 		if (hasLocationPermissions()) {
 			return;
@@ -573,7 +575,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			permissionCB = permissionCallback;
 		}
 
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB, getKrollObject());
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB, getKrollObject(),
+														 promise);
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		currentActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
 										   TiC.PERMISSION_CODE_LOCATION);
