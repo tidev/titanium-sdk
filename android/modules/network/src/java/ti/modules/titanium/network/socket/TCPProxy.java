@@ -470,7 +470,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Override
-	public void release() {
+	public void release()
+	{
 		try {
 			close();
 		} catch (Exception e) {
