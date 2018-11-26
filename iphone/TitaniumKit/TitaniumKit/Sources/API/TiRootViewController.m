@@ -212,7 +212,7 @@
   if (chosenColor == nil) {
     chosenColor = [[TiSharedConfig defaultConfig] defaultBackgroundColor];
     if (chosenColor == nil) {
-      chosenColor = [UIColor blackColor];
+      chosenColor = UIColor.blackColor;
     }
   }
 
