@@ -21,6 +21,7 @@
   UIImageView *barImageView;
   NSURL *oldBaseURL;
   id latch;
+  UIEdgeInsets oldSafeAreaInsets;
 }
 
 - (void)refreshBackButton;
@@ -29,5 +30,6 @@
 
 @property (nonatomic, assign) TiViewProxy *safeAreaViewProxy;
 @property (nonatomic) BOOL shouldExtendSafeArea;
+@property (nonatomic) BOOL safeAreaInsetsUpdated;
 
 @end

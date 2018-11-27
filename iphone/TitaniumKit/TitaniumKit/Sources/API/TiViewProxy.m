@@ -2287,7 +2287,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     }
 
     if ([self respondsToSelector:@selector(processForSafeArea)]) {
-      [(TiUIWindowProxy *)self processForSafeArea];
+      TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+
+      [windowProxy processForSafeArea];
+      layoutChanged = layoutChanged || windowProxy.safeAreaInsetsUpdated;
+      windowProxy.safeAreaInsetsUpdated = NO;
     }
 
     if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {

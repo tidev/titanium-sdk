@@ -1002,6 +1002,11 @@
       @"bottom" : NUMFLOAT(edgeInsets.bottom),
       @"right" : NUMFLOAT(edgeInsets.right) }
             forKey:@"safeAreaPadding"];
+
+    if (!UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets)) {
+      self.safeAreaInsetsUpdated = YES;
+    }
+    oldSafeAreaInsets = edgeInsets;
     return;
   }
 
