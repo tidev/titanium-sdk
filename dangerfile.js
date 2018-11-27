@@ -138,13 +138,13 @@ async function addMissingLabels() {
 	const teamSlugs = existingReviewers.teams.map(t => t.slug);
 	const teamsToReview = [];
 	if (filteredLabels.includes(Label.IOS)) {
-		teamsToReview.push('@appcelerator/ios');
+		teamsToReview.push('appcelerator/ios');
 	}
 	if (filteredLabels.includes(Label.ANDROID)) {
-		teamsToReview.push('@appcelerator/android');
+		teamsToReview.push('appcelerator/android');
 	}
 	if (filteredLabels.includes(Label.DOCS)) {
-		teamsToReview.push('@appcelerator/docs');
+		teamsToReview.push('appcelerator/docs');
 	}
 	// filter to the set of teams not already assigned to review (add only those missing)
 	teamsToReview.filter(t => !teamSlugs.includes(t));
