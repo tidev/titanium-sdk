@@ -133,8 +133,8 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
-        This method requests `Manifest.permission.READ_EXTERNAL_STORAGE`. If you require other permissions, you can also
-        use <Titanium.Android.requestPermissions>.
+        This method requests `Manifest.permission.READ_EXTERNAL_STORAGE` and `Manifest.permission.WRITE_EXTERNAL_STORAGE`.
+        If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant storage access

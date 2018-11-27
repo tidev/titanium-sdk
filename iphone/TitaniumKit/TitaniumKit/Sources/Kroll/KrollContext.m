@@ -523,7 +523,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
     id excm = [KrollObject toID:context value:exception];
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
     pthread_mutex_unlock(&KrollEntryLock);
-    @throw excm;
   }
   pthread_mutex_unlock(&KrollEntryLock);
 }
@@ -538,7 +537,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
     id excm = [KrollObject toID:context value:exception];
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
     pthread_mutex_unlock(&KrollEntryLock);
-    @throw excm;
   }
   pthread_mutex_unlock(&KrollEntryLock);
 
