@@ -132,7 +132,7 @@ async function addMissingLabels() {
 		return;
 	}
 	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
-	const existingReviewers = github.api.pulls.listReviewRequests({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number });
+	const existingReviewers = github.pr.requested_teams;
 	console.log(`Existing review requests for this PR: ${JSON.stringify(existingReviewers)}`);
 	// Now based on the labels, auto-assign reviewers!
 	const teamSlugs = existingReviewers.teams.map(t => t.slug);
