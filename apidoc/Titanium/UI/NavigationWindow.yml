@@ -15,7 +15,7 @@ description: |
     This object is not meant to be added to other windows. However, it can be used within a <Titanium.UI.iPad.SplitWindow>.
 platforms: [iphone, ipad]
 extends: Titanium.UI.Window
-since: "7.4.0"
+since: "8.0.0"
 excludes:
     methods: [removeAllChildren, setToolbar, hideTabBar]
     properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
