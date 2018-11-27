@@ -1,8 +1,9 @@
-/* global danger, schedule, fail, warn, markdown, message */
+/* global danger, fail, warn, markdown, message */
 
 // requires
 const fs = require('fs-extra');
 const path = require('path');
+const packageJSON = require('./package.json');
 const DOMParser = require('xmldom').DOMParser;
 // Due to bug in danger, we hack env variables in build process.
 const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
@@ -16,7 +17,9 @@ const Label = {
 	IOS: 'ios',
 	ANDROID: 'android',
 	COMMUNITY: 'community 🔥',
-	DOCS: 'docs 📔'
+	DOCS: 'docs 📔',
+	MERGE_CONFLICTS: 'merge conflicts 🚨',
+	IN_QE_TESTING: 'in-qe-testing 🕵'
 };
 // Sets of existing labels, labels we want to add/exist, labels we want to remove (if they exist)
 const existingLabelNames = new Set(github.issue.labels.map(l => l.name));
@@ -106,8 +109,22 @@ async function checkChangedFileLocations() {
 	}
 }
 
+// Does the PR have merge conflicts?
+async function checkMergeable() {
+	if (github.pr.mergeable_state === 'dirty') {
+		labelsToAdd.add(Label.MERGE_CONFLICTS);
+	} else {
+		// assume it has no conflicts
+		labelsToRemove.add(Label.MERGE_CONFLICTS);
+	}
+}
+
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
+	// Don't give special thanks to the greenkeeper bot account
+	if (github.pr.user.login === 'greenkeeper[bot]') {
+		return;
+	}
 	if (github.pr.author_association === 'FIRST_TIMER') {
 		labelsToAdd.add(Label.COMMUNITY);
 		// Thank them profusely! This is their first ever github commit!
@@ -132,24 +149,62 @@ async function addMissingLabels() {
 		return;
 	}
 	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
+}
+
+async function requestReviews() {
+	// someone already started reviewing this PR, move along...
+	if (github.pr.review_comments !== 0) {
+		return;
+	}
+
+	// Based on the labels, auto-assign review requests if there's been no review comments yet
 	const existingReviewers = github.pr.requested_teams;
 	console.log(`Existing review requests for this PR: ${JSON.stringify(existingReviewers)}`);
 	// Now based on the labels, auto-assign reviewers!
-	const teamSlugs = existingReviewers.teams.map(t => t.slug);
+	const teamSlugs = existingReviewers.map(t => t.slug);
 	const teamsToReview = [];
-	if (filteredLabels.includes(Label.IOS)) {
+	if (labelsToAdd.includes(Label.IOS)) {
 		teamsToReview.push('appcelerator/ios');
 	}
-	if (filteredLabels.includes(Label.ANDROID)) {
+	if (labelsToAdd.includes(Label.ANDROID)) {
 		teamsToReview.push('appcelerator/android');
 	}
-	if (filteredLabels.includes(Label.DOCS)) {
+	if (labelsToAdd.includes(Label.DOCS)) {
 		teamsToReview.push('appcelerator/docs');
 	}
 	// filter to the set of teams not already assigned to review (add only those missing)
 	teamsToReview.filter(t => !teamSlugs.includes(t));
 	console.log(`Assigning PR reviews to teams: ${teamsToReview}`);
-	github.api.pulls.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: teamsToReview });
+	await github.api.pulls.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: teamsToReview });
+}
+
+// If a PR has a completed review that is approved, and does not have the in-qe-testing label, add it
+async function checkPRisApproved() {
+	if (github.pr.review_comments === 0) {
+		return;
+	}
+
+	const reviews = await github.api.pulls.listReviews({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number });
+	const blockers = reviews.filter(r => r.state === 'CHANGES_REQUESTED' || r.state === 'PENDING');
+	const good = reviews.filter(r => r.state === 'APPROVED' || r.state === 'DISMISSED');
+	if (good.length > 0 && blockers.length === 0) {
+		labelsToAdd.add(Label.IN_QE_TESTING);
+	}
+}
+
+// Auto assign milestone based on version in package.json
+async function updateMilestone() {
+	if (github.pr.milestone) {
+		return;
+	}
+	const expected_milestone = packageJSON.version;
+	const milestones = await github.api.issues.listMilestonesForRepo({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
+	const milestone_match = milestones.find(m => m.title === expected_milestone);
+	if (!milestone_match) {
+		console.log('Unable to find a Github milestone matching the version in package.json');
+		return;
+	}
+	await github.api.issues.update({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
 }
 
 /**
@@ -265,9 +320,13 @@ async function main() {
 		checkForIOSCrash(),
 		handleTestResults(),
 		checkChangedFileLocations(),
-		checkCommunity()
+		checkCommunity(),
+		checkMergeable(),
+		checkPRisApproved(),
+		updateMilestone()
 	]);
 	// ...once we've gathered what labels to add/remove, do that last
+	await requestReviews();
 	await removeLabels();
 	await addMissingLabels();
 }
