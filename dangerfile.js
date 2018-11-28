@@ -151,10 +151,14 @@ async function addMissingLabels() {
 	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
 }
 
+function debug(msg) {
+	message(msg);
+}
+
 async function requestReviews() {
 	// someone already started reviewing this PR, move along...
 	if (github.reviews.length !== 0) {
-		console.log('Already has a review, skipping auto-assignment of requests');
+		debug('Already has a review, skipping auto-assignment of requests');
 		return;
 	}
 
@@ -170,18 +174,18 @@ async function requestReviews() {
 		teamsToReview.push('appcelerator/docs');
 	}
 	if (teamsToReview.length === 0) {
-		console.log('Does not appear to have changes to iOS, Android or docs. Not auto-assigning reviews to teams');
+		debug('Does not appear to have changes to iOS, Android or docs. Not auto-assigning reviews to teams');
 		return;
 	}
 
 	const existingReviewers = github.requested_reviewers.teams;
-	console.log(`Existing review requests for this PR: ${JSON.stringify(existingReviewers)}`);
+	debug(`Existing review requests for this PR: ${JSON.stringify(existingReviewers)}`);
 	const teamSlugs = existingReviewers.map(t => t.slug);
 
 	// filter to the set of teams not already assigned to review (add only those missing)
 	const filtered = teamsToReview.filter(t => !teamSlugs.includes(t));
 	if (filtered.length > 0) {
-		console.log(`Assigning PR reviews to teams: ${filtered}`);
+		debug(`Assigning PR reviews to teams: ${filtered}`);
 		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: filtered });
 	}
 }
@@ -190,7 +194,7 @@ async function requestReviews() {
 async function checkPRisApproved() {
 	const reviews = github.reviews;
 	if (reviews.length === 0) {
-		console.log('There are no reviews, skipping auto-assignment check for in-qe-testing label');
+		debug('There are no reviews, skipping auto-assignment check for in-qe-testing label');
 		return;
 	}
 
@@ -211,7 +215,7 @@ async function updateMilestone() {
 	const milestones = await github.api.issues.getMilestones({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
 	const milestone_match = milestones.data.find(m => m.title === expected_milestone);
 	if (!milestone_match) {
-		console.log('Unable to find a Github milestone matching the version in package.json');
+		debug('Unable to find a Github milestone matching the version in package.json');
 		return;
 	}
 	await github.api.issues.edit({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
