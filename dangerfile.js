@@ -152,7 +152,7 @@ async function addMissingLabels() {
 }
 
 function debug(msg) {
-	message(msg);
+	// message(msg); // uncomment when running locally, or having issues and need to know why something is failing
 }
 
 async function requestReviews() {
@@ -165,13 +165,13 @@ async function requestReviews() {
 	// Based on the labels, auto-assign review requests to given teams
 	const teamsToReview = [];
 	if (labelsToAdd.has(Label.IOS)) {
-		teamsToReview.push('appcelerator/ios');
+		teamsToReview.push('ios');
 	}
 	if (labelsToAdd.has(Label.ANDROID)) {
-		teamsToReview.push('appcelerator/android');
+		teamsToReview.push('android');
 	}
 	if (labelsToAdd.has(Label.DOCS)) {
-		teamsToReview.push('appcelerator/docs');
+		teamsToReview.push('docs');
 	}
 	if (teamsToReview.length === 0) {
 		debug('Does not appear to have changes to iOS, Android or docs. Not auto-assigning reviews to teams');
@@ -347,7 +347,7 @@ async function main() {
 main()
 	.then(() => process.exit(0))
 	.catch(err => {
-		console.error(err);
+		fail(err.toString());
 		process.exit(1);
 	});
 // TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
