@@ -153,15 +153,12 @@ async function addMissingLabels() {
 
 async function requestReviews() {
 	// someone already started reviewing this PR, move along...
-	if (github.pr.review_comments !== 0) {
+	if (github.reviews.length !== 0) {
+		console.log('Already has a review, skipping auto-assignment of requests');
 		return;
 	}
 
-	// Based on the labels, auto-assign review requests if there's been no review comments yet
-	const existingReviewers = github.pr.requested_teams;
-	console.log(`Existing review requests for this PR: ${JSON.stringify(existingReviewers)}`);
-	// Now based on the labels, auto-assign reviewers!
-	const teamSlugs = existingReviewers.map(t => t.slug);
+	// Based on the labels, auto-assign review requests to given teams
 	const teamsToReview = [];
 	if (labelsToAdd.has(Label.IOS)) {
 		teamsToReview.push('appcelerator/ios');
@@ -172,19 +169,32 @@ async function requestReviews() {
 	if (labelsToAdd.has(Label.DOCS)) {
 		teamsToReview.push('appcelerator/docs');
 	}
+	if (teamsToReview.length === 0) {
+		console.log('Does not appear to have changes to iOS, Android or docs. Not auto-assigning reviews to teams');
+		return;
+	}
+
+	const existingReviewers = github.requested_reviewers.teams;
+	console.log(`Existing review requests for this PR: ${JSON.stringify(existingReviewers)}`);
+	const teamSlugs = existingReviewers.map(t => t.slug);
+
 	// filter to the set of teams not already assigned to review (add only those missing)
-	teamsToReview.filter(t => !teamSlugs.includes(t));
-	console.log(`Assigning PR reviews to teams: ${teamsToReview}`);
-	await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: teamsToReview });
+	const filtered = teamsToReview.filter(t => !teamSlugs.includes(t));
+	if (filtered.length > 0) {
+		console.log(`Assigning PR reviews to teams: ${filtered}`);
+		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: filtered });
+	}
 }
 
 // If a PR has a completed review that is approved, and does not have the in-qe-testing label, add it
 async function checkPRisApproved() {
-	if (github.pr.review_comments === 0) {
+	const reviews = github.reviews;
+	if (reviews.length === 0) {
+		console.log('There are no reviews, skipping auto-assignment check for in-qe-testing label');
 		return;
 	}
 
-	const reviews = github.reviews;
+	// What about 'COMMENT' reviews?
 	const blockers = reviews.filter(r => r.state === 'CHANGES_REQUESTED' || r.state === 'PENDING');
 	const good = reviews.filter(r => r.state === 'APPROVED' || r.state === 'DISMISSED');
 	if (good.length > 0 && blockers.length === 0) {
