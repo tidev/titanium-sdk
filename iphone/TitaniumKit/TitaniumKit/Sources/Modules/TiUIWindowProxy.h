@@ -30,6 +30,5 @@
 
 @property (nonatomic, assign) TiViewProxy *safeAreaViewProxy;
 @property (nonatomic) BOOL shouldExtendSafeArea;
-@property (nonatomic) BOOL safeAreaInsetsUpdated;
 
 @end
