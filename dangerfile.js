@@ -199,8 +199,7 @@ async function updateMilestone() {
 	}
 	const expected_milestone = packageJSON.version;
 	const milestones = await github.api.issues.getMilestones({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
-	console.log(JSON.stringify(milestones));
-	const milestone_match = milestones.find(m => m.title === expected_milestone);
+	const milestone_match = milestones.data.find(m => m.title === expected_milestone);
 	if (!milestone_match) {
 		console.log('Unable to find a Github milestone matching the version in package.json');
 		return;
