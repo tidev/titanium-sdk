@@ -163,13 +163,13 @@ async function requestReviews() {
 	// Now based on the labels, auto-assign reviewers!
 	const teamSlugs = existingReviewers.map(t => t.slug);
 	const teamsToReview = [];
-	if (labelsToAdd.includes(Label.IOS)) {
+	if (labelsToAdd.has(Label.IOS)) {
 		teamsToReview.push('appcelerator/ios');
 	}
-	if (labelsToAdd.includes(Label.ANDROID)) {
+	if (labelsToAdd.has(Label.ANDROID)) {
 		teamsToReview.push('appcelerator/android');
 	}
-	if (labelsToAdd.includes(Label.DOCS)) {
+	if (labelsToAdd.has(Label.DOCS)) {
 		teamsToReview.push('appcelerator/docs');
 	}
 	// filter to the set of teams not already assigned to review (add only those missing)
