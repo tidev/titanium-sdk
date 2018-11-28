@@ -175,7 +175,7 @@ async function requestReviews() {
 	// filter to the set of teams not already assigned to review (add only those missing)
 	teamsToReview.filter(t => !teamSlugs.includes(t));
 	console.log(`Assigning PR reviews to teams: ${teamsToReview}`);
-	await github.api.pulls.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: teamsToReview });
+	await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: teamsToReview });
 }
 
 // If a PR has a completed review that is approved, and does not have the in-qe-testing label, add it
@@ -204,7 +204,7 @@ async function updateMilestone() {
 		console.log('Unable to find a Github milestone matching the version in package.json');
 		return;
 	}
-	await github.api.issues.update({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
+	await github.api.issues.edit({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
 }
 
 /**
