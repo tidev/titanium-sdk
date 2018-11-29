@@ -9,7 +9,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 
-describe('Titanium.Media.AudioPlayer', function () {
+describe.only('Titanium.Media.AudioPlayer', function () {
 	var audioPlayer;
 
 	beforeEach(function () {
