@@ -95,9 +95,17 @@ exports.bootstrap = function(Titanium) {
 	
 		// handle Alloy widgets
 		} else {
-			let widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
-			if (!widget) {
-					Module.main.require(namespace);
+			let widget;
+			try {
+				// attempt to load alloy widget
+				widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
+			} catch (e) {
+				try {
+					// widget does not exist, attempt to load namespace
+					widget = Module.main.require(namespace);
+				} catch (e) {
+					// do nothing...
+				}
 			}
 			if (widget) {
 				return function (parameters) {
