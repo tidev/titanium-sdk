@@ -266,19 +266,25 @@ Creator.prototype.configOptionCodeBase = function configCodeBase(order) {
 
 	return {
 		abbr: 'c',
-		desc: __('the code base of the project'),
+		desc: __('the code base of the iOS project'),
 		order: order,
 		default: !cli.argv.prompt ? 'objc' : undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
 		prompt: function (callback) {
 			callback(fields.text({
-				promptLabel: __('Code base (' + validTypes.join('|') + ')'),
+				promptLabel: __('iOS code base (' + validTypes.join('|') + ')'),
 				default: 'objc',
 				validate: validate
 			}));
 		},
 		required: true,
 		validate: validate,
-		values: validTypes
+		values: validTypes,
+		verifyIfRequired: function (callback) {
+			if (cli.argv.platforms.includes('ios') || cli.argv.platforms.includes('iphone') || cli.argv.platforms.includes('ipad')) {
+				return callback(true);
+			}
+			return callback();
+		}
 	};
 };
 
