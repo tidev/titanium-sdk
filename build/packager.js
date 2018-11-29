@@ -231,6 +231,7 @@ Packager.prototype.copy = function (files, next) {
 /**
  * Zip it all up and wipe the zip dir
  * @param {Function} next callback function
+ * @returns {void}
  */
 Packager.prototype.zip = function (next) {
 	if (this.skipZip) {
