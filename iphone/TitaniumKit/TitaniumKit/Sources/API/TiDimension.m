@@ -59,6 +59,23 @@ CGFloat convertDipToInch(CGFloat value)
   return value / [TiUtils dpi];
 }
 
+CGFloat convertDipToDefaultUnit(CGFloat value)
+{
+  id unit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+  if (unit != nil) {
+    if ([unit caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {
+      value = convertDipToInch(value) * INCH_IN_CM;
+    } else if ([unit caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
+      value = convertDipToInch(value);
+    } else if ([unit caseInsensitiveCompare:kTiUnitMm] == NSOrderedSame) {
+      value = convertDipToInch(value) * INCH_IN_MM;
+    } else if ([unit caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
+      value = convertDipToPixels(value);
+    }
+  }
+  return value;
+}
+
 CGFloat convertDipToPixels(CGFloat value)
 {
   if ([TiUtils is3xRetina]) {
