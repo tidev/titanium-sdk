@@ -285,7 +285,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 				activity.setSupportActionBar(toolbar);
 			}
-			activity.getSupportActionBar().setHomeButtonEnabled(true);
+			activity.getSupportActionBar().setHomeButtonEnabled(
+				!getProperties().optBoolean(TiC.PROPERTY_HIDES_BACK_BUTTON, false));
 			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 
@@ -416,6 +417,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				if (activity != null) {
 					Intent intent = activity.getIntent();
 					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
+				}
+			} else if (TiC.PROPERTY_HIDES_BACK_BUTTON.equals(name)) {
+				if (windowActivity != null && windowActivity.get() != null
+					&& windowActivity.get().getSupportActionBar() != null) {
+					windowActivity.get().getSupportActionBar().setHomeButtonEnabled(!TiConvert.toBoolean(value));
 				}
 			}
 		}
