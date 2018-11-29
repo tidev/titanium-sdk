@@ -32,6 +32,7 @@ module.exports = function (grunt) {
 				'build/**/*.js',
 				'cli/!(locales)/**/*.js',
 				'android/cli/!(locales)/**/*.js',
+				'android/runtime/common/src/js/**/*.js',
 				'iphone/cli/!(locales)/**/*.js',
 				'tests/Resources/**/*test.js'
 			]
