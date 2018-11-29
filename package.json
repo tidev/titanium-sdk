@@ -58,6 +58,7 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
+    "@seadub/danger-plugin-eslint": "^0.3.0",
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
     "danger": "^6.1.8",

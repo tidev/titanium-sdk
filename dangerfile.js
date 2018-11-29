@@ -1,8 +1,10 @@
 /* global danger, fail, warn, markdown, message */
 
 // requires
+const debug = require('debug')('dangerfile');
 const fs = require('fs-extra');
 const path = require('path');
+const eslint = require('@seadub/danger-plugin-eslint').default;
 const packageJSON = require('./package.json');
 const DOMParser = require('xmldom').DOMParser;
 // Due to bug in danger, we hack env variables in build process.
@@ -149,10 +151,6 @@ async function addMissingLabels() {
 		return;
 	}
 	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
-}
-
-function debug(msg) {
-	// message(msg); // uncomment when running locally, or having issues and need to know why something is failing
 }
 
 async function requestReviews() {
@@ -337,7 +335,8 @@ async function main() {
 		checkCommunity(),
 		checkMergeable(),
 		checkPRisApproved(),
-		updateMilestone()
+		updateMilestone(),
+		eslint()
 	]);
 	// ...once we've gathered what labels to add/remove, do that last
 	await requestReviews();
