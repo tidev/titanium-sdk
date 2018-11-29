@@ -60,7 +60,7 @@
   "devDependencies": {
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
-    "danger": "github:sgtcoolguy/danger-js#github-issue-status-fix",
+    "danger": "^6.1.8",
     "eslint-config-axway": "^4.0.0",
     "eslint-plugin-mocha": "^5.0.0",
     "grunt": "^1.0.3",
