@@ -373,6 +373,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		tempFileHelper = new TiTempFileHelper(this);
 
 		deployData = new TiDeployData(this);
+
+		registerActivityLifecycleCallbacks(new TiApplicationLifecycle());
 	}
 
 	@Override
