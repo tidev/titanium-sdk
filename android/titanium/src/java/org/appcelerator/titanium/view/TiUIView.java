@@ -1555,9 +1555,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected KrollDict dictFromEvent(MotionEvent e)
 	{
+		TiDimension xDimension = new TiDimension((double) e.getX(), TiDimension.TYPE_LEFT);
+		TiDimension yDimension = new TiDimension((double) e.getY(), TiDimension.TYPE_TOP);
+
 		KrollDict data = new KrollDict();
-		data.put(TiC.EVENT_PROPERTY_X, (double) e.getX());
-		data.put(TiC.EVENT_PROPERTY_Y, (double) e.getY());
+		data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(this.nativeView));
+		data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(this.nativeView));
 		data.put(TiC.EVENT_PROPERTY_FORCE, (double) e.getPressure());
 		data.put(TiC.EVENT_PROPERTY_SIZE, (double) e.getSize());
 		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
@@ -1738,8 +1741,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
-					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double) event.getX());
-					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
+					TiDimension xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
+					TiDimension yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
+					lastUpEvent.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(view));
+					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(view));
 				}
 
 				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
