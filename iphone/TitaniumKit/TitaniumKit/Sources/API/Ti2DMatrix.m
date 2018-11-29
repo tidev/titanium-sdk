@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -118,26 +118,24 @@ MAKE_PROP(B, b)
 MAKE_PROP(C, c)
 MAKE_PROP(D, d)
 
-- (void)setTx : (NSNumber *)value
+- (void)setTx:(NSNumber *)value
 {
   matrix.tx = TiDimensionFromObject(value).value;
 }
 
 - (NSNumber *)tx
 {
-  //TODO: Convert to matrix value from dips to default unit.
-  return [NSNumber numberWithFloat:matrix.tx];
+  return [NSNumber numberWithFloat:convertDipToDefaultUnit(matrix.tx)];
 }
 
-- (void)setTy : (NSNumber *)value
+- (void)setTy:(NSNumber *)value
 {
   matrix.ty = TiDimensionFromObject(value).value;
 }
 
 - (NSNumber *)ty
 {
-  //TODO: Convert to matrix value from dips to default unit.
-  return [NSNumber numberWithFloat:matrix.ty];
+  return [NSNumber numberWithFloat:convertDipToDefaultUnit(matrix.ty)];
 }
 
 - (id)description
