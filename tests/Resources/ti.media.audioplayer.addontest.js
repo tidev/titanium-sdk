@@ -26,8 +26,7 @@ describe('Titanium.Media.AudioPlayer', function () {
 		audioPlayer = Ti.Media.createAudioPlayer();
 
 		try {
-			audioPlayer.addEventListener('progress', function (e) {
-			});
+			audioPlayer.addEventListener('progress', function () {});
 			finish();
 		} catch (e) {
 			finish(e);

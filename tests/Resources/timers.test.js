@@ -10,7 +10,7 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-describe.only('Timers', function () {
+describe('Timers', function () {
 	describe('#setTimeout', function () {
 		it('is a function', function () {
 			should(setTimeout).be.a.Function;

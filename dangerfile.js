@@ -1,8 +1,10 @@
 /* global danger, fail, warn, markdown, message */
 
 // requires
+const debug = require('debug')('dangerfile');
 const fs = require('fs-extra');
 const path = require('path');
+const eslint = require('@seadub/danger-plugin-eslint').default;
 const packageJSON = require('./package.json');
 const DOMParser = require('xmldom').DOMParser;
 // Due to bug in danger, we hack env variables in build process.
@@ -151,10 +153,6 @@ async function addMissingLabels() {
 	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
 }
 
-function debug(msg) {
-	// message(msg); // uncomment when running locally, or having issues and need to know why something is failing
-}
-
 async function requestReviews() {
 	// someone already started reviewing this PR, move along...
 	if (github.reviews.length !== 0) {
@@ -212,13 +210,13 @@ async function updateMilestone() {
 		return;
 	}
 	const expected_milestone = packageJSON.version;
-	const milestones = await github.api.issues.getMilestones({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
+	const milestones = await github.api.issues.listMilestonesForRepo({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
 	const milestone_match = milestones.data.find(m => m.title === expected_milestone);
 	if (!milestone_match) {
 		debug('Unable to find a Github milestone matching the version in package.json');
 		return;
 	}
-	await github.api.issues.edit({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
+	await github.api.issues.update({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
 }
 
 /**
@@ -337,7 +335,8 @@ async function main() {
 		checkCommunity(),
 		checkMergeable(),
 		checkPRisApproved(),
-		updateMilestone()
+		updateMilestone(),
+		eslint()
 	]);
 	// ...once we've gathered what labels to add/remove, do that last
 	await requestReviews();
