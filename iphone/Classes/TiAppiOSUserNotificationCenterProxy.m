@@ -47,7 +47,7 @@
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
     for (UILocalNotification *notification in notifications) {
-      [result addObject:[TiApp dictionaryWithLocalNotification:notification withIdentifier:nil]];
+      [result addObject:[TiApp dictionaryWithLocalNotification:notification]];
     }
 
     NSDictionary *propertiesDict = @{
@@ -90,7 +90,7 @@
 
 - (void)removePendingNotifications:(id)args
 {
-  ENSURE_TYPE_OR_NIL(args, NSArray);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSArray);
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -101,17 +101,16 @@
       }
 
       [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        // Loop through current notification requests
+        NSMutableArray<NSString *> *identifiers = [NSArray new];
         for (UNNotificationRequest *request in requests) {
-
-          // Loop through provided notifications
           for (id notification in args) {
-            ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
-
-            if ([request content] == [(TiAppiOSLocalNotificationProxy *)notification notification]) {
-              [center removePendingNotificationRequestsWithIdentifiers:@[ [request identifier] ]];
+            if ([request.identifier isEqual:notification[@"identifier"]]) {
+              [identifiers addObject:request.identifier];
             }
           }
+        }
+        if (identifiers.count > 0) {
+          [center removePendingNotificationRequestsWithIdentifiers:identifiers];
         }
       }];
     },
@@ -123,9 +122,13 @@
         return;
       }
 
-      for (id notification in args) {
-        ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
-        [[UIApplication sharedApplication] cancelLocalNotification:[(TiAppiOSLocalNotificationProxy *)notification notification]];
+      for (UILocalNotification *scheduledNotification in UIApplication.sharedApplication.scheduledLocalNotifications) {
+        for (id notification in args) {
+          if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]])
+            [UIApplication.sharedApplication cancelLocalNotification:scheduledNotification];
+            break;
+          }
+        }
       }
     },
         NO);
