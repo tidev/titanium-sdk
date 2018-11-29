@@ -459,6 +459,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		Context context = TiApplication.getInstance().getApplicationContext();
 		if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 			&& context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+				   == PackageManager.PERMISSION_GRANTED
+			&& context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 				   == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
@@ -496,11 +498,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return true;
 		}
 		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-			== PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
+
+		return (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+					== PackageManager.PERMISSION_GRANTED
+				&& context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+					   == PackageManager.PERMISSION_GRANTED);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -538,11 +540,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		String[] permissions = null;
 		if (!hasCameraPermission() && !hasStoragePermission()) {
-			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE };
+			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
+										 Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		} else if (!hasCameraPermission()) {
 			permissions = new String[] { Manifest.permission.CAMERA };
 		} else {
-			permissions = new String[] { Manifest.permission.READ_EXTERNAL_STORAGE };
+			permissions =
+				new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionCallback,
