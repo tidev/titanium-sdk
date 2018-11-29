@@ -661,13 +661,13 @@
   NSNumber *summaryArgumentCount = [args objectForKey:@"summaryArgumentCount"];
   NSString *threadIdentifier = [TiUtils stringValue:@"threadIdentifier" properties:args];
   NSString *timezone = [TiUtils stringValue:@"timezone" properties:args];
+  NSString *identifier = [TiUtils stringValue:@"identifier" properties:args def:NSUUID.UUID.UUIDString];
 
   // Construct a new local notification proxy from our current context
   TiAppiOSLocalNotificationProxy *notification = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 
   // For iOS 10+, use the UserNotifications framework to manage notification
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    NSString *identifier = [TiUtils stringValue:@"identifier" properties:args def:NSUUID.UUID.UUIDString];
     NSString *alertSubtitle = [TiUtils stringValue:@"alertSubtitle" properties:args];
     NSString *category = [TiUtils stringValue:@"category" properties:args];
     NSArray<NSDictionary<NSString *, id> *> *attachments = [args objectForKey:@"attachments"];
@@ -754,20 +754,7 @@
     }
 
     // Set additional user-info
-    if (userInfo != nil) {
-      // If user-info exists, but the "id" field does not, inject it
-      if ([userInfo objectForKey:@"id"] == nil) {
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:userInfo];
-        [dict setObject:identifier forKey:@"id"];
-        [content setUserInfo:dict];
-      } else {
-        // If user-info and "id" field exist, simply assign
-        [content setUserInfo:userInfo];
-      }
-    } else {
-      // If no user-info exists at all, inject the "id" field
-      [content setUserInfo:@{ @"id" : identifier }];
-    }
+    [self assignUserInfo:userInfo toContent:content ensureIdentifier:identifier];
 
     // Set attachments
     if (attachments != nil) {
@@ -928,9 +915,8 @@
       }
     }
 
-    if (userInfo) {
-      content.userInfo = userInfo;
-    }
+    // Set additional user-info
+    [self assignUserInfo:userInfo toContent:content ensureIdentifier:identifier];
 
     id category = [args objectForKey:@"category"];
     if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
@@ -952,6 +938,26 @@
     [content release];
 
     return notification;
+  }
+}
+
+/**
+ Assign custom user info to notification content and make sure it has an identifier.
+
+ @param userInfo User info dictionary to assign to the notification content
+ @param content Notification content, can either be UNNotificationContent or UILocalNotification
+ @param notificationIdentifier The unique idenitifer for a notification.
+ */
+- (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString)notificationIdentifier {
+  NSMutableDictionary *userInfoWithId = userInfo == nil ? @{ @"id" : notificationIdentifier } : userInfo.mutableCopy;
+  if (userInfoWithId[@"id"] == nil) {
+    userInfoWithId[@"id"] = notificationIdentifier;
+  }
+
+  if ([content isKindOfClass:UNNotificationContent.class]) {
+    ((UNNotificationContent *)content).userInfo = userInfoWithId;
+  } else if ([content isKindOfClass:UILocalNotification.class]) {
+    ((UILocalNotification *)content).userInfo = userInfoWithId;
   }
 }
 
