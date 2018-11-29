@@ -5,6 +5,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global kroll */
 'use strict';
 
 var tiBinding = kroll.binding('Titanium'),
