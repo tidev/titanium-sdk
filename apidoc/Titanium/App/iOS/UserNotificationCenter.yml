@@ -39,7 +39,7 @@ methods:
         Removes the specified pending notifications to prevent them from being triggered.
         If no notifications are specified, all pending notifications will be removed.
     description: |
-        Pending notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications> 
+        Pending notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getPendingNotifications>
         method.
     since: "7.3.0"
     parameters:
@@ -47,14 +47,23 @@ methods:
         summary: |
             The pending notification to remove. If none specified, all pending notifications
             will be removed.
-        type: Array<Titanium.App.iOS.LocalNotification>
+        type: Array<UserNotificationDictionary>
 
   - name: removeDeliveredNotifications
     summary: |
         Removes the specified delivered notifications from the notification-center.
         If no notifications are specified, all delivered notifications will be removed.
+    description: |
+        Delivered notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications>
+        method.
     osver: {ios: {min: "10.0"}}
     since: "7.3.0"
+    parameters:
+      - name: notifications
+        summary: |
+            The delivered notification to remove. If none specified, all pending notifications
+            will be removed.
+        type: Array<UserNotificationDictionary>
 
   - name: requestUserNotificationSettings
     summary: |
@@ -138,9 +147,9 @@ properties:
   - name: identifier
     summary: The notification identifier.
     description: |
-        This property is required in iOS 10+ and will fallback to a generated 
-        UUID-string if not set. It is recommended to manage the identifier 
-        yourself, but you can also get the generated UUID by accessing via 
+        This property is required in iOS 10+ and will fallback to a generated
+        UUID-string if not set. It is recommended to manage the identifier
+        yourself, but you can also get the generated UUID by accessing via
         the "userInfo.id" field for parity with older iOS versions.
     optional: false
     since: "7.3.0"

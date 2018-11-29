@@ -1674,7 +1674,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 }
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
 {
-  return [self dictionaryWithLocalNotification:notification withIdentifier:nil];
+  return [self dictionaryWithLocalNotification:notification withIdentifier:notification.userInfo[@"id"]];
 }
 
 // Returns an NSDictionary with the properties from tiapp.xml
