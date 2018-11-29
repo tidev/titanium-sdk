@@ -414,7 +414,17 @@
         [reverseAnimation setIsReverse:YES];
         [reverseAnimation setDuration:duration];
         [reverseAnimation setDelay:[NSNumber numberWithInt:0]];
-        [reverseAnimation setCurve:curve];
+        switch ([curve intValue]) {
+        case UIViewAnimationOptionCurveEaseIn:
+          [reverseAnimation setCurve:[NSNumber numberWithInt:UIViewAnimationOptionCurveEaseOut]];
+          break;
+        case UIViewAnimationOptionCurveEaseOut:
+          [reverseAnimation setCurve:[NSNumber numberWithInt:UIViewAnimationOptionCurveEaseIn]];
+          break;
+        default:
+          [reverseAnimation setCurve:curve];
+          break;
+        }
         repeatCount -= 0.5;
 
         // A repeat count of 0 means the animation cycles once.
@@ -447,6 +457,18 @@
             transformMatrix = [[[Ti2DMatrix alloc] init] autorelease];
           }
           [reverseAnimation setTransform:transformMatrix];
+        }
+        if ([transform isKindOfClass:[Ti2DMatrix class]]) {
+          // Special handling if matrix does an exact 180 or -180 degree rotation.
+          // Forward animation and final reverse animation will never rotate counter-clockwise in this case.
+          // Work-around is to slightly offset the rotation. (This won't affect rotation back to 0 degrees.)
+          const float ROTATION_EPSILON = 0.01f;
+          Ti2DMatrix *transformMatrix = (Ti2DMatrix *)transform;
+          float degrees = radiansToDegrees(atan2f([[transformMatrix b] floatValue], [[transformMatrix a] floatValue]));
+          if ((fabsf(degrees) + ROTATION_EPSILON) >= 180.0f) {
+            NSNumber *degreeOffset = [NSNumber numberWithFloat:((degrees > 0) ? -ROTATION_EPSILON : ROTATION_EPSILON)];
+            [self setTransform:[transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]]];
+          }
         }
         [(TiUIView *)view_ setTransform_:transform];
       }
