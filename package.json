@@ -18,7 +18,11 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "test": "grunt"
+    "test": "grunt",
+    "android": "./build/scons cleanbuild android",
+    "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s android && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s android",
+    "ios": "./build/scons cleanbuild ios",
+    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s ios"
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
@@ -36,11 +40,12 @@
     "glob": "^7.1.2",
     "humanize": "0.0.9",
     "ioslib": "^1.7.5",
+    "liveview": "1.4.0",
     "lodash.defaultsdeep": "^4.6.0",
     "markdown": "0.5.0",
     "moment": "^2.22.2",
     "node-appc": "^0.2.47",
-    "node-titanium-sdk": "^0.6.4",
+    "node-titanium-sdk": "^1.0.2",
     "node-uuid": "1.4.8",
     "pngjs": "^3.3.3",
     "request": "^2.87.0",

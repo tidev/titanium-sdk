@@ -75,8 +75,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 
-import com.appcelerator.aps.APSAnalytics;
-
 /**
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
@@ -99,7 +97,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners =
 		new TiWeakList<OnPrepareOptionsMenuEvent>();
-	private APSAnalytics analytics = APSAnalytics.getInstance();
 	private boolean sustainMode = false;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
@@ -1406,11 +1403,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
-
-		// Checkpoint for ti.background event
-		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
-			analytics.sendAppBackgroundEvent();
-		}
 	}
 
 	@Override
@@ -1481,12 +1473,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		isResumed = true;
-
-		// Checkpoint for ti.foreground event
-		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			analytics.sendAppForegroundEvent();
-		}
 	}
 
 	@Override
