@@ -1,12 +1,11 @@
-/* global danger, fail, warn, markdown, message */
+/* global danger, fail, warn, message */
 
 // requires
 const debug = require('debug')('dangerfile');
 const fs = require('fs-extra');
-const path = require('path');
 const eslint = require('@seadub/danger-plugin-eslint').default;
+const junit = require('@seadub/danger-plugin-junit').default;
 const packageJSON = require('./package.json');
-const DOMParser = require('xmldom').DOMParser;
 // Due to bug in danger, we hack env variables in build process.
 const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
 // constants
@@ -240,78 +239,6 @@ async function checkForIOSCrash() {
 	}
 }
 
-// Report test failures
-async function gatherFailedTestcases(reportPath) {
-	const exists = await fs.pathExists(reportPath);
-	if (!exists) {
-		return [];
-	}
-	const contents = await fs.readFile(reportPath, 'utf8');
-	const doc = new DOMParser().parseFromString(contents, 'text/xml');
-	const suite_root = doc.documentElement.firstChild.tagName === 'testsuites' ? doc.documentElement.firstChild : doc.documentElement;
-	const suites = Array.from(suite_root.getElementsByTagName('testsuite'));
-
-	// We need to get the 'testcase' elements that have an 'error' or 'failure' child node
-	const failed_suites = suites.filter(suite => {
-		const hasFailures = suite.hasAttribute('failures') && parseInt(suite.getAttribute('failures')) !== 0;
-		const hasErrors = suite.hasAttribute('errors') && parseInt(suite.getAttribute('errors')) !== 0;
-		return hasFailures || hasErrors;
-	});
-	// Gather all the testcase nodes from each failed suite properly.
-	let failed_suites_all_tests = [];
-	failed_suites.forEach(function (suite) {
-		failed_suites_all_tests = failed_suites_all_tests.concat(Array.from(suite.getElementsByTagName('testcase')));
-	});
-	return failed_suites_all_tests.filter(function (test) {
-		return test.hasChildNodes() && (test.getElementsByTagName('failure').length > 0 || test.getElementsByTagName('error').length > 0);
-	});
-}
-
-async function handleTestResults() {
-	// Give details on failed mocha suite tests
-	const failed = await Promise.all([
-		gatherFailedTestcases(path.join(__dirname, 'junit.android.xml')),
-		gatherFailedTestcases(path.join(__dirname, 'junit.ios.xml'))
-	]);
-	const failures_and_errors = [ ...failed[0], ...failed[1] ];
-	if (failures_and_errors.length === 0) {
-		return;
-	}
-
-	fail('Tests have failed, see below for more information.');
-	let message = '### Tests: \n\n';
-	const keys = Array.from(failures_and_errors[0].attributes).map(attr => attr.nodeName);
-	const attributes = keys.map(key => {
-		return key.substr(0, 1).toUpperCase() + key.substr(1).toLowerCase();
-	});
-	attributes.push('Error');
-
-	// TODO Include stderr/stdout too?
-	// Create the headers
-	message += '| ' + attributes.join(' | ') + ' |\n';
-	message += '| ' + attributes.map(() => '---').join(' | ') + ' |\n';
-
-	// Map out the keys to the tests
-	failures_and_errors.forEach(test => {
-		const row_values = keys.map(key => test.getAttribute(key));
-		// push error/failure message too
-		const errors = test.getElementsByTagName('error');
-		if (errors.length !== 0) {
-			row_values.push(errors.item(0).getAttribute('message') + errors.item(0).getAttribute('stack'));
-		} else {
-			const failures = test.getElementsByTagName('failure');
-			if (failures.length !== 0) {
-				row_values.push(failures.item(0).getAttribute('message') + failures.item(0).getAttribute('stack'));
-			} else {
-				row_values.push(''); // This shouldn't ever happen
-			}
-		}
-		message += '| ' + row_values.join(' | ') + ' |\n';
-	});
-
-	markdown(message);
-}
-
 // Add link to built SDK zipfile!
 async function linkToSDK() {
 	if (ENV.BUILD_STATUS === 'SUCCESS' || ENV.BUILD_STATUS === 'UNSTABLE') {
@@ -330,7 +257,7 @@ async function main() {
 		checkPackageJSONInSync(),
 		linkToSDK(),
 		checkForIOSCrash(),
-		handleTestResults(),
+		junit({ pathToReport: './junit.*.xml' }),
 		checkChangedFileLocations(),
 		checkCommunity(),
 		checkMergeable(),
@@ -349,6 +276,3 @@ main()
 		fail(err.toString());
 		process.exit(1);
 	});
-// TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
-// May need to edit Jenkinsfile to do a try/catch to spit out the npm test output to some file this dangerfile can consume?
-// Or port https://github.com/leonhartX/danger-eslint/blob/master/lib/eslint/plugin.rb to JS - have it run on any edited/added JS files?
