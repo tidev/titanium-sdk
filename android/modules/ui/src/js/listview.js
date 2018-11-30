@@ -95,7 +95,7 @@ exports.bootstrap = function (Titanium) {
 			// Build up reference to parent proxy without using eval
 			const segments = parentNamespace.split('.');
 			// drop first segment, which is Ti/Titanium
-			let parentProxy = Ti;
+			let parentProxy = Titanium;
 			for (let i = 1; i < segments.length; i++) {
 				parentProxy = parentProxy[segments[i]];
 			}
