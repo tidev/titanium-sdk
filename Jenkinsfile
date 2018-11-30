@@ -169,7 +169,7 @@ timestamps {
 					}
 					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
 					if (runDanger) { // Stash files for danger.js later
-						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,npm_test.log,android/**/*.java', name: 'danger'
+						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
 					// was it a failure?
 					if (npmTestResult != 0) {
