@@ -948,7 +948,8 @@
  @param content Notification content, can either be UNNotificationContent or UILocalNotification
  @param notificationIdentifier The unique idenitifer for a notification.
  */
-- (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString)notificationIdentifier {
+- (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString)notificationIdentifier
+{
   NSMutableDictionary *userInfoWithId = userInfo == nil ? @{ @"id" : notificationIdentifier } : userInfo.mutableCopy;
   if (userInfoWithId[@"id"] == nil) {
     userInfoWithId[@"id"] = notificationIdentifier;
