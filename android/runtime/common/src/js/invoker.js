@@ -92,6 +92,10 @@ exports.genInvoker = genInvoker;
 /**
  * Creates and returns a single invoker function that wraps
  * a delegate function, thisObj, and scopeVars
+ * @param {object} thisObj The `this` object to use when invoking the `delegate` function
+ * @param {function} delegate The function to wrap/delegate to under the hood
+ * @param {object} scopeVars The scope variables to splice into the arguments when calling the delegate
+ * @return {function}
  */
 function createInvoker(thisObj, delegate, scopeVars) {
 	var urlInvoker = function invoker() { // eslint-disable-line func-style
