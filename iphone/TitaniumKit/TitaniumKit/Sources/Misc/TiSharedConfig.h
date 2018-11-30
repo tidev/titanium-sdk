@@ -6,6 +6,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 /**
  Contains information about the app and build-related meta data.
@@ -99,6 +100,14 @@ NS_ASSUME_NONNULL_BEGIN
  CLI parameter.
  */
 @property (nonatomic, assign) BOOL showErrorController;
+
+/**
+ Default background color from tiapp.xml
+   <ios>
+       <default-background-color>#ff0000</default-background-color>
+   </ios>
+ */
+@property (nonatomic, strong, nullable) UIColor *defaultBackgroundColor;
 
 + (TiSharedConfig *)defaultConfig;
 
