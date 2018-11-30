@@ -1,25 +1,20 @@
 /**
  * Appcelerator Titanium Mobile
-
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
 
 var tiBinding = kroll.binding('Titanium'),
 	Titanium = tiBinding.Titanium,
 	Proxy = tiBinding.Proxy,
-	assets = kroll.binding('assets'),
-	Script = kroll.binding('evals').Script,
 	bootstrap = require('bootstrap'),
-	path = require('path'),
-	url = require('url'),
 	invoker = require('invoker');
 
-var TAG = "Titanium";
-
 // The app entry point
-Titanium.sourceUrl = "app://ti.main.js";
+Titanium.sourceUrl = 'app://ti.main.js';
 
 // A list of java APIs that need an invocation-specific URL
 // passed in as the first argument
@@ -32,14 +27,14 @@ Titanium.externalModules = [];
 bootstrap.bootstrap(Titanium);
 
 // Custom JS extensions to Java modules
-require("ui").bootstrap(Titanium);
-require("network").bootstrap(Titanium);
+require('ui').bootstrap(Titanium);
+require('network').bootstrap(Titanium);
 
-var Properties = require("properties");
+var Properties = require('properties');
 Properties.bootstrap(Titanium);
 
 // Custom native modules
-bootstrap.defineLazyBinding(Titanium, "API")
+bootstrap.defineLazyBinding(Titanium, 'API');
 
 // Context-bound modules -------------------------------------------------
 //
@@ -108,49 +103,53 @@ Titanium.initScopeVars = initScopeVars;
 // This loops through all known APIs that require an
 // Invocation object and wraps them so we can pass a
 // source URL as the first argument
-Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
+Titanium.bindInvocationAPIs = function (wrapperTi, scopeVars) {
 	var len = Titanium.invocationAPIs.length;
 	for (var i = 0; i < len; ++i) {
 		// separate each invoker into it's own private scope
 		invoker.genInvoker(wrapperTi, tiBinding.Titanium,
-			"Titanium", Titanium.invocationAPIs[i], scopeVars);
+			'Titanium', Titanium.invocationAPIs[i], scopeVars);
 	}
-}
+};
 
 Titanium.Proxy = Proxy;
 
-Proxy.defineProperties = function(proxyPrototype, names) {
+Proxy.defineProperties = function (proxyPrototype, names) {
 	var properties = {};
 	var len = names.length;
 
 	for (var i = 0; i < len; ++i) {
 		var name = names[i];
 		properties[name] = {
-			get: function() { return this.getProperty(name); },
-			set: function(value) { this.setPropertyAndFire(name, value); },
+			get: function () { // eslint-disable-line no-loop-func
+				return this.getProperty(name);
+			},
+			set: function (value) { // eslint-disable-line no-loop-func
+				this.setPropertyAndFire(name, value);
+			},
 			enumerable: true
 		};
 	}
 
 	Object.defineProperties(proxyPrototype, properties);
-}
+};
 
-Object.defineProperty(Proxy.prototype, "getProperty", {
-	value: function(property) {
+Object.defineProperty(Proxy.prototype, 'getProperty', {
+	value: function (property) {
 		return this._properties[property];
 	},
 	enumerable: false
 });
 
-Object.defineProperty(Proxy.prototype, "setProperty", {
-	value: function(property, value) {
+Object.defineProperty(Proxy.prototype, 'setProperty', {
+	value: function (property, value) {
 		return this._properties[property] = value;
 	},
 	enumerable: false
 });
 
-Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
-	value: function(properties) {
+Object.defineProperty(Proxy.prototype, 'setPropertiesAndFire', {
+	value: function (properties) {
 		var ownNames = Object.getOwnPropertyNames(properties);
 		var len = ownNames.length;
 		var changes = [];
@@ -159,13 +158,15 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 			var property = ownNames[i];
 			var value = properties[property];
 
-			if (!property) continue;
+			if (!property) {
+				continue;
+			}
 
 			var oldValue = this._properties[property];
 			this._properties[property] = value;
 
-			if (value != oldValue) {
-				changes.push([property, oldValue, value]);
+			if (value !== oldValue) {
+				changes.push([ property, oldValue, value ]);
 			}
 		}
 
@@ -177,11 +178,11 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 });
 
 // Custom native modules
-bootstrap.defineLazyBinding(Titanium, "API");
+bootstrap.defineLazyBinding(Titanium, 'API');
 
 // Do not serialize the parent view. Doing so will result
 // in a circular reference loop.
-Object.defineProperty(Titanium.TiView.prototype, "toJSON", {
+Object.defineProperty(Titanium.TiView.prototype, 'toJSON', {
 	value: function () {
 		var keys = Object.keys(this);
 		var keyCount = keys.length;
@@ -189,7 +190,7 @@ Object.defineProperty(Titanium.TiView.prototype, "toJSON", {
 
 		for (var i = 0; i < keyCount; i++) {
 			var k = keys[i];
-			if (k === "parent") {
+			if (k === 'parent') {
 				continue;
 			}
 			serialized[k] = this[k];
@@ -200,7 +201,7 @@ Object.defineProperty(Titanium.TiView.prototype, "toJSON", {
 	enumerable: false
 });
 
-Object.defineProperty(Titanium.Activity.prototype, "toJSON", {
+Object.defineProperty(Titanium.Activity.prototype, 'toJSON', {
 	value: function () {
 		var keys = Object.keys(this);
 		var keyCount = keys.length;
@@ -208,7 +209,7 @@ Object.defineProperty(Titanium.Activity.prototype, "toJSON", {
 
 		for (var i = 0; i < keyCount; i++) {
 			var k = keys[i];
-			if (k === "activity" || k === "window" || k === "intent") {
+			if (k === 'activity' || k === 'window' || k === 'intent') {
 				continue;
 			}
 			serialized[k] = this[k];
