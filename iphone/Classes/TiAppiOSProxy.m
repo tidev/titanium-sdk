@@ -945,18 +945,17 @@
  Assign custom user info to notification content and make sure it has an identifier.
 
  @param userInfo User info dictionary to assign to the notification content
- @param content Notification content, can either be UNNotificationContent or UILocalNotification
+ @param content Notification content, can either be UNMutableNotificationContent or UILocalNotification
  @param notificationIdentifier The unique idenitifer for a notification.
  */
-- (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString)notificationIdentifier
-{
+- (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString *)notificationIdentifier {
   NSMutableDictionary *userInfoWithId = userInfo == nil ? @{ @"id" : notificationIdentifier } : userInfo.mutableCopy;
   if (userInfoWithId[@"id"] == nil) {
     userInfoWithId[@"id"] = notificationIdentifier;
   }
 
-  if ([content isKindOfClass:UNNotificationContent.class]) {
-    ((UNNotificationContent *)content).userInfo = userInfoWithId;
+  if ([content isKindOfClass:UNMutableNotificationContent.class]) {
+    ((UNMutableNotificationContent *)content).userInfo = userInfoWithId;
   } else if ([content isKindOfClass:UILocalNotification.class]) {
     ((UILocalNotification *)content).userInfo = userInfoWithId;
   }
