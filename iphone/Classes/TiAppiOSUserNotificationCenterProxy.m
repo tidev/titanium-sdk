@@ -124,7 +124,7 @@
 
       for (UILocalNotification *scheduledNotification in UIApplication.sharedApplication.scheduledLocalNotifications) {
         for (id notification in args) {
-          if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]])
+          if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]]) {
             [UIApplication.sharedApplication cancelLocalNotification:scheduledNotification];
             break;
           }
