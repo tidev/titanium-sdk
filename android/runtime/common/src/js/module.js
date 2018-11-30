@@ -576,7 +576,6 @@ Module.prototype._runScript = function (source, filename) {
 	// to go this route. So added currentActivity check. (bill)
 	if (self.id === '.' && self.context.currentActivity) {
 		global.require = require;
-		Titanium.Android.currentActivity = self.context.currentActivity;
 
 		// check if we have an inspector binding...
 		var inspector = kroll.binding('inspector');

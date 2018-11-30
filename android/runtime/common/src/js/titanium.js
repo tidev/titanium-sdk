@@ -40,7 +40,7 @@ bootstrap.defineLazyBinding(Titanium, 'API');
 //
 // Specialized modules that require binding context specific data
 // within a script execution scope. This is how Ti.UI.currentWindow,
-// Ti.Android.currentActivity, and others are implemented.
+// Ti.Android.currentService, and others are implemented.
 function TitaniumWrapper(context) {
 	var sourceUrl = this.sourceUrl = context.sourceUrl;
 
@@ -53,7 +53,6 @@ function TitaniumWrapper(context) {
 	var scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
 		module: context.module,
-		currentActivity: this.Android.currentActivity,
 		currentService: this.Android.currentService
 	});
 	Titanium.bindInvocationAPIs(this, scopeVars);
@@ -73,19 +72,7 @@ function UIWrapper(context, Android) {
 UIWrapper.prototype = Titanium.UI;
 
 function AndroidWrapper(context) {
-	this.currentActivity = context.currentActivity;
 	this.currentService = context.currentService;
-	var currentWindow = context.currentWindow;
-
-	if (!this.currentActivity) {
-		var topActivity;
-		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
-			this.currentActivity = currentWindow.activity;
-
-		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
-			this.currentActivity = topActivity;
-		}
-	}
 }
 AndroidWrapper.prototype = Titanium.Android;
 
