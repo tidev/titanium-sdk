@@ -3726,7 +3726,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 		// clean up TitaniumKit project references
 		xcodeProject.removeFramework('TitaniumKit.framework', { customFramework: true, embed: true });
-		xcodeProject.addFramework(path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework'), { customFramework: true, embed: true });
+		xcodeProject.addFramework(path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework'), { customFramework: true, embed: true, sign: true });
 
 		const contents = xcodeProject.writeSync(),
 			dest = xcodeProject.filepath,
