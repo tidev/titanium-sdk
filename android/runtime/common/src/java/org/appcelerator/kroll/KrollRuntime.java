@@ -7,6 +7,7 @@
 package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -39,11 +40,15 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_DISPOSE = 101;
 	private static final int MSG_RUN_MODULE = 102;
 	private static final int MSG_EVAL_STRING = 103;
-
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
 
+	public interface OnDisposingListener {
+		void onDisposing(KrollRuntime runtime);
+	}
+
 	private static KrollRuntime instance;
+	private static ArrayList<OnDisposingListener> disposingListeners = new ArrayList<>();
 	private static int activityRefCount = 0;
 	private static int serviceReceiverRefCount = 0;
 
@@ -373,30 +378,43 @@ public abstract class KrollRuntime implements Handler.Callback
 		waitForInit();
 	}
 
-	// The runtime instance keeps an internal reference count of all Titanium activities
-	// and all Titanium services that have been opened/started by the application.
-	// When the ref counts for both of them drop to 0, then we know there is nothing left
-	// to execute on the runtime, and we can therefore dispose of it.
+	/**
+	 * This method is expected to be called for every Titanium activity that has been created.
+	 * This will startup the JavaScript runtime when the activity count is 1 (the first activity created).
+	 * <p>
+	 * You must call the decrementActivityRefCount() when the Titanium activity is being destroyed.
+	 */
 	public static void incrementActivityRefCount()
 	{
 		waitForInit();
 
+		// Increment the activity count.
 		activityRefCount++;
-		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
+
+		// If this is the 1st activity, then start up the runtime, if not done already.
+		if ((activityRefCount == 1) && (instance != null)) {
 			syncInit();
 		}
 	}
 
 	public static void decrementActivityRefCount(boolean willDisposeRuntime)
 	{
-		activityRefCount--;
-		if (!willDisposeRuntime) {
-			return;
-		}
-		if ((activityRefCount + serviceReceiverRefCount) > 0 || instance == null) {
+		// Validate.
+		if (activityRefCount <= 0) {
+			Log.e(TAG, "The decrementActivityRefCount() method was called while count is zero.");
 			return;
 		}
 
+		// Decrement the activity count.
+		activityRefCount--;
+
+		// Terminate the runtime if activity count is zero.
+		if (!willDisposeRuntime) {
+			return;
+		}
+		if ((activityRefCount > 0) || (instance == null)) {
+			return;
+		}
 		instance.dispose();
 	}
 
@@ -408,22 +426,16 @@ public abstract class KrollRuntime implements Handler.Callback
 	// Similar to {@link #incrementActivityRefCount} but for a Titanium Service.
 	public static void incrementServiceReceiverRefCount()
 	{
-		waitForInit();
-
 		serviceReceiverRefCount++;
-		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
-			syncInit();
-		}
 	}
 
 	public static void decrementServiceReceiverRefCount()
 	{
-		serviceReceiverRefCount--;
-		if ((activityRefCount + serviceReceiverRefCount) > 0 || instance == null) {
-			return;
+		if (serviceReceiverRefCount > 0) {
+			serviceReceiverRefCount--;
+		} else {
+			Log.e(TAG, "The decrementServiceReceiverRefCount() method was called while count is zero.");
 		}
-
-		instance.dispose();
 	}
 
 	public static int getServiceReceiverRefCount()
@@ -448,8 +460,13 @@ public abstract class KrollRuntime implements Handler.Callback
 			runtimeState = State.DISPOSED;
 		}
 
+		// Invoke all OnDisposingListener objects before disposing this runtime.
+		onDisposing(this);
+
+		// Dispose/terminate the runtime.
 		doDispose();
 
+		// Request the application to dispose its native resources.
 		KrollApplication app = krollApplication.get();
 		if (app != null) {
 			app.dispose();
@@ -538,6 +555,59 @@ public abstract class KrollRuntime implements Handler.Callback
 
 			// Handle exception with defaultExceptionHandler
 			instance.primaryExceptionHandler.handleException(exceptionMessage);
+		}
+	}
+
+	/**
+	 * Adds a listener to be invoked just before a Titanium JavaScript runtime instance has been terminated.
+	 * <p>
+	 * You cannot add the same listener instance twice. Duplicate listener instances will be ignored.
+	 * @param listener The listener to be added. Null references will be ignored.
+	 */
+	public static void addOnDisposingListener(KrollRuntime.OnDisposingListener listener)
+	{
+		if ((listener != null) && (disposingListeners.contains(listener) == false)) {
+			disposingListeners.add(listener);
+		}
+	}
+
+	/**
+	 * Removes the given listener by reference that was added via the addOnDisposingListener() method.
+	 * @param listener The listener to be removed by reference. Can be null.
+	 */
+	public static void removeOnDisposingListener(KrollRuntime.OnDisposingListener listener)
+	{
+		if (listener != null) {
+			disposingListeners.remove(listener);
+		}
+	}
+
+	/**
+	 * This method is intended to be called just before the given runtime's doDispose() method has been called.
+	 * Invokes all "OnDisposingListener" objects, allowing them to perform final cleanup operations.
+	 * @param runtime The runtime instance that is about to be disposed of. Can be null.
+	 */
+	private static void onDisposing(KrollRuntime runtime)
+	{
+		// Validate.
+		if (runtime == null) {
+			return;
+		}
+
+		// Create a shallow copy of all listeners to be iterated down below.
+		// We do this because an invoked listener can add/remove listeners in main collection.
+		ArrayList<OnDisposingListener> clonedListeners =
+			(ArrayList<OnDisposingListener>) KrollRuntime.disposingListeners.clone();
+		if (clonedListeners == null) {
+			return;
+		}
+
+		// Notify all listeners.
+		for (OnDisposingListener listener : clonedListeners) {
+			if (KrollRuntime.disposingListeners.contains(listener)) {
+				// Previous listener did not remove this listener. Invoke it.
+				listener.onDisposing(runtime);
+			}
 		}
 	}
 

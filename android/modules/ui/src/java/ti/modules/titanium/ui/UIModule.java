@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -109,6 +110,15 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public static final int KEYBOARD_TYPE_DEFAULT = 7;
 	@Kroll.constant
 	public static final int KEYBOARD_TYPE_DECIMAL_PAD = 8;
+
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_EASE_IN = TiAnimationCurve.EASE_IN.toTiIntId();
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_EASE_IN_OUT = TiAnimationCurve.EASE_IN_OUT.toTiIntId();
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_EASE_OUT = TiAnimationCurve.EASE_OUT.toTiIntId();
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_LINEAR = TiAnimationCurve.LINEAR.toTiIntId();
 
 	@Kroll.constant
 	public static final int AUTOLINK_ALL = Linkify.ALL;
