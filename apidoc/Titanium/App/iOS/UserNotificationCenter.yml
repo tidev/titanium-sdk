@@ -53,8 +53,17 @@ methods:
     summary: |
         Removes the specified delivered notifications from the notification-center.
         If no notifications are specified, all delivered notifications will be removed.
+    description: |
+        Delivered notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications>
+        method.
     osver: {ios: {min: "10.0"}}
     since: "7.3.0"
+    parameters:
+      - name: notifications
+        summary: |
+            The delivered notification to remove. If none specified, all pending notifications
+            will be removed.
+        type: Array<UserNotificationDictionary>
 
   - name: requestUserNotificationSettings
     summary: |
