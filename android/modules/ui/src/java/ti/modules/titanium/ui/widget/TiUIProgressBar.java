@@ -154,8 +154,8 @@ public class TiUIProgressBar extends TiUIView
 
 	protected void handleSetTintColor(int color)
 	{
-		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
 			progress.setProgressTintList(singleColorStateList);
 		}
 	}
