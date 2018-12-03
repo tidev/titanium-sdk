@@ -72,7 +72,7 @@ function runTests(platforms, branch, next) {
 			// Load up the main script
 			const tests = require(MOCHA_TESTS_DIR); // eslint-disable-line security/detect-non-literal-require
 			// Run the tests
-			tests.test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, undefined, function (err, results) {
+			tests.test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, undefined, undefined, function (err, results) {
 				if (err) {
 					return cb(err);
 				}

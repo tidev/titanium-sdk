@@ -47,6 +47,7 @@
 +(NSString *)stringFromHexString:(NSString *)hexString;
 +(NSString*)jsonStringify:(id)value error:(NSError**)error;
 +(id)jsonParse:(NSString*)value error:(NSError**)error;
++(void) mergeDictionary:(NSDictionary *) source destination:(NSMutableDictionary *) destination;
 +(NSString *) UTCDate;
 +(NSString *)UTCDateForDate:(NSDate*)date;
 +(NSString*)createUUID;
