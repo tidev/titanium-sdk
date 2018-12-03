@@ -101,9 +101,11 @@
       }
 
       [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        NSMutableArray<NSString *> *identifiers = [NSArray new];
+        NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
         for (UNNotificationRequest *request in requests) {
           for (id notification in args) {
+            ENSURE_TYPE(notification, NSDictionary);
+
             if ([request.identifier isEqual:notification[@"identifier"]]) {
               [identifiers addObject:request.identifier];
             }
@@ -124,6 +126,8 @@
 
       for (UILocalNotification *scheduledNotification in UIApplication.sharedApplication.scheduledLocalNotifications) {
         for (id notification in args) {
+          ENSURE_TYPE(notification, NSDictionary);
+
           if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]]) {
             [UIApplication.sharedApplication cancelLocalNotification:scheduledNotification];
             break;
@@ -137,7 +141,7 @@
 
 - (void)removeDeliveredNotifications:(id)args
 {
-  ENSURE_TYPE_OR_NIL(args, NSArray);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSArray);
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
@@ -148,18 +152,19 @@
         return;
       }
 
-      [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        // Loop through current notification requests
+      [center getDeliveredNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+        NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
         for (UNNotificationRequest *request in requests) {
-
-          // Loop through provided notifications
           for (id notification in args) {
-            ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
+            ENSURE_TYPE(notification, NSDictionary);
 
-            if ([request content] == [(TiAppiOSLocalNotificationProxy *)notification notification]) {
-              [center removeDeliveredNotificationsWithIdentifiers:@[ [request identifier] ]];
+            if ([request.identifier isEqual:notification[@"identifier"]]) {
+              [identifiers addObject:request.identifier];
             }
           }
+        }
+        if (identifiers.count > 0) {
+          [center removeDeliveredNotificationsWithIdentifiers:identifiers];
         }
       }];
     },
