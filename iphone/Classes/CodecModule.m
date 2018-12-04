@@ -15,6 +15,7 @@
 - (NSStringEncoding)constantToEncodingType:(NSString *)type;
 - (TiDataType)constantToType:(NSString *)type;
 @end
+
 @implementation CodecModule
 
 // iOS is 32-bit, so we need to make sure that we convert NSNumbers to the right end type based on the number of bytes.
@@ -34,13 +35,15 @@
 
 - (NSNumber *)encodeNumber:(JSValue *)dict
 {
+  ENSURE_PROPERTY_EXISTS(dict, @"dest")
+  ENSURE_PROPERTY_EXISTS(dict, @"source")
+  ENSURE_PROPERTY_EXISTS(dict, @"type")
+
   TiBuffer *dest = [self JSValueToNative:dict[@"dest"]];
+  ENSURE_TYPE(dest, TiBuffer)
 
-  BOOL hasPosition = [dict hasProperty:@"position"];
-  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
-
-  BOOL hasByteOrder = [dict hasProperty:@"byteOrder"];
-  CFByteOrder byteOrder = (hasByteOrder) ? [dict[@"byteOrder"] toUInt32] : CFByteOrderGetCurrent();
+  int position = ENSURE_UINT32_OR_DEFAULT(dict, @"position", 0);
+  CFByteOrder byteOrder = ENSURE_UINT32_OR_DEFAULT(dict, @"byteOrder", CFByteOrderGetCurrent());
 
   NSNumber *data = [dict[@"source"] toNumber];
   NSString *type = [dict[@"type"] toString];
@@ -82,13 +85,14 @@
 
 - (NSNumber *)decodeNumber:(JSValue *)dict
 {
+  ENSURE_PROPERTY_EXISTS(dict, @"source")
+  ENSURE_PROPERTY_EXISTS(dict, @"type")
+
   TiBuffer *src = [self JSValueToNative:dict[@"source"]];
+  ENSURE_TYPE(src, TiBuffer)
 
-  BOOL hasPosition = [dict hasProperty:@"position"];
-  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
-
-  BOOL hasByteOrder = [dict hasProperty:@"byteOrder"];
-  CFByteOrder byteOrder = (hasByteOrder) ? [dict[@"byteOrder"] toUInt32] : CFByteOrderGetCurrent();
+  int position = ENSURE_UINT32_OR_DEFAULT(dict, @"position", 0);
+  CFByteOrder byteOrder = ENSURE_UINT32_OR_DEFAULT(dict, @"byteOrder", CFByteOrderGetCurrent());
 
   NSString *type = [dict[@"type"] toString];
 
@@ -202,26 +206,18 @@
 
 - (NSNumber *)encodeString:(JSValue *)dict
 {
+  ENSURE_PROPERTY_EXISTS(dict, @"dest")
+  ENSURE_PROPERTY_EXISTS(dict, @"source")
+
   TiBuffer *dest = [self JSValueToNative:dict[@"dest"]];
+  ENSURE_TYPE(dest, TiBuffer)
 
   NSString *string = [dict[@"source"] toString];
-
-  BOOL hasPosition = [dict hasProperty:@"position"];
-  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
-
-  BOOL hasDestPosition = [dict hasProperty:@"destPosition"];
-  NSUInteger destPosition = (hasDestPosition) ? [dict[@"destPosition"] toUInt32] : 0;
-
-  BOOL hasSrcPosition = [dict hasProperty:@"sourcePosition"];
-  NSUInteger srcPosition = (hasSrcPosition) ? [dict[@"sourcePosition"] toUInt32] : 0;
-
-  BOOL hasSrcLength = [dict hasProperty:@"sourceLength"];
-  NSUInteger srcLength = (hasSrcLength) ? [dict[@"sourceLength"] toUInt32] : [string length];
-
-  NSString *charset = [self CHARSET_UTF8];
-  if ([dict hasProperty:@"charset"]) {
-    charset = [dict[@"charset"] toString];
-  }
+  int position = ENSURE_UINT32_OR_DEFAULT(dict, @"position", 0);
+  NSUInteger destPosition = ENSURE_UINT32_OR_DEFAULT(dict, @"destPosition", 0);
+  NSUInteger srcPosition = ENSURE_UINT32_OR_DEFAULT(dict, @"sourcePosition", 0);
+  NSUInteger srcLength = ENSURE_UINT32_OR_DEFAULT(dict, @"sourceLength", [string length]);
+  NSString *charset = ENSURE_STRING_OR_DEFAULT(dict, @"charset", [self CHARSET_UTF8]);
 
   int result = [TiUtils encodeString:string toBuffer:dest charset:charset offset:destPosition sourceOffset:srcPosition length:srcLength];
 
@@ -254,18 +250,14 @@
 
 - (NSString *)decodeString:(JSValue *)dict
 {
+  ENSURE_PROPERTY_EXISTS(dict, @"source")
+
   TiBuffer *src = [self JSValueToNative:dict[@"source"]];
+  ENSURE_TYPE(src, TiBuffer)
 
-  BOOL hasPosition = [dict hasProperty:@"position"];
-  int position = hasPosition ? [dict[@"position"] toUInt32] : 0;
-
-  BOOL hasLength = [dict hasProperty:@"length"];
-  NSUInteger length = (hasLength) ? [dict[@"length"] toUInt32] : [[src length] intValue];
-
-  NSString *charset = [self CHARSET_UTF8];
-  if ([dict hasProperty:@"charset"]) {
-    charset = [dict[@"charset"] toString];
-  }
+  int position = ENSURE_UINT32_OR_DEFAULT(dict, @"position", 0);
+  NSUInteger length = ENSURE_UINT32_OR_DEFAULT(dict, @"length", [[src length] intValue]);
+  NSString *charset = ENSURE_STRING_OR_DEFAULT(dict, @"charset", [self CHARSET_UTF8]);
 
   NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
   if (encoding == 0) {
