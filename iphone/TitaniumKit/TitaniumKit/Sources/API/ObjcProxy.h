@@ -58,6 +58,18 @@
     NEW_NAME = [ARG_NAME unsignedIntegerValue];             \
   }
 
+// Methods for grabbing properties from a JSValue object argument
+#define ENSURE_PROPERTY_EXISTS(dict, name)                                                                                                                 \
+  if (![dict hasProperty:name]) {                                                                                                                          \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"required property \"%@\" is missing", name] location:CODELOCATION]; \
+  }
+
+#define ENSURE_UINT32_OR_DEFAULT(dict, name, fallback) \
+  ([dict hasProperty:name]) ? [dict[name] toUInt32] : fallback;
+
+#define ENSURE_STRING_OR_DEFAULT(dict, name, fallback) \
+  ([dict hasProperty:name]) ? [dict[name] toString] : fallback;
+
 @protocol ProxyExports <JSExport>
 
 // Properties (and accessors)
