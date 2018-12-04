@@ -211,13 +211,12 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		final OnClickListener clickListener = new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which)
 			{
+				dialogShowing = false;
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					Process.killProcess(Process.myPid());
 				}
 				if (!errorMessages.isEmpty()) {
 					handleOpenErrorDialog(errorMessages.removeFirst());
-				} else {
-					dialogShowing = false;
 				}
 			}
 		};
