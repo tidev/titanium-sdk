@@ -19,8 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// Modifications Copyright 2011 Appcelerator, Inc.
-
+// Modifications Copyright 2011-Present Appcelerator, Inc.
+'use strict';
 
 // resolves . and .. elements in a path array with directory names there
 // must be no slashes, empty elements, or device names (c:\) in the array
@@ -29,9 +29,9 @@
 function normalizeArray(parts, allowAboveRoot) {
 	// if the path tries to go above the root, `up` ends up > 0
 	var up = 0;
-	for ( var i = parts.length - 1; i >= 0; i--) {
+	for (var i = parts.length - 1; i >= 0; i--) {
 		var last = parts[i];
-		if (last == '.') {
+		if (last === '.') {
 			parts.splice(i, 1);
 		} else if (last === '..') {
 			parts.splice(i, 1);
@@ -55,18 +55,18 @@ function normalizeArray(parts, allowAboveRoot) {
 // Split a filename into [root, dir, basename, ext], unix version
 // 'root' is just a slash, or nothing.
 var splitPathRe = /^(\/?)([\s\S]+\/(?!$)|\/)?((?:[\s\S]+?)?(\.[^.]*)?)$/;
-var splitPath = function(filename) {
+function splitPath(filename) {
 	var result = splitPathRe.exec(filename);
-	return [result[1] || '', result[2] || '', result[3] || '', result[4] || ''];
-};
+	return [ result[1] || '', result[2] || '', result[3] || '', result[4] || '' ];
+}
 
 // path.resolve([from ...], to)
-exports.resolve = function() {
+exports.resolve = function () {
 	var resolvedPath = '',
 		resolvedAbsolute = false;
 
-	for (var i = arguments.length-1; i >= -1 && !resolvedAbsolute; i--) {
-		//var path = (i >= 0) ? arguments[i] : process.cwd();
+	for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+		// var path = (i >= 0) ? arguments[i] : process.cwd();
 		var path = arguments[i];
 
 		// Skip empty and invalid entries
@@ -82,7 +82,7 @@ exports.resolve = function() {
 	// handle relative paths to be safe (might happen when process.cwd() fails)
 
 	// Normalize the path
-	resolvedPath = normalizeArray(resolvedPath.split('/').filter(function(p) {
+	resolvedPath = normalizeArray(resolvedPath.split('/').filter(function (p) {
 		return !!p;
 	}), !resolvedAbsolute).join('/');
 
@@ -90,12 +90,12 @@ exports.resolve = function() {
 };
 
 // path.normalize(path)
-exports.normalize = function(path) {
+exports.normalize = function (path) {
 	var isAbsolute = path.charAt(0) === '/',
 		trailingSlash = path.slice(-1) === '/';
 
 	// Normalize the path
-	path = normalizeArray(path.split('/').filter(function(p) {
+	path = normalizeArray(path.split('/').filter(function (p) {
 		return !!p;
 	}), !isAbsolute).join('/');
 
@@ -109,30 +109,34 @@ exports.normalize = function(path) {
 	return (isAbsolute ? '/' : '') + path;
 };
 
-exports.join = function() {
+exports.join = function () {
 	var paths = Array.prototype.slice.call(arguments, 0);
-	return exports.normalize(paths.filter(function(p, index) {
-		return p && typeof p === 'string';
-	}).join('/'));
+	return exports.normalize(paths.filter(p => p && typeof p === 'string').join('/'));
 };
 
 // path.relative(from, to)
-exports.relative = function(from, to) {
+exports.relative = function (from, to) {
 	from = exports.resolve(from).substr(1);
 	to = exports.resolve(to).substr(1);
 
 	function trim(arr) {
 		var start = 0;
 		for (; start < arr.length; start++) {
-			if (arr[start] !== '') break;
+			if (arr[start] !== '') {
+				break;
+			}
 		}
 
 		var end = arr.length - 1;
 		for (; end >= 0; end--) {
-			if (arr[end] !== '') break;
+			if (arr[end] !== '') {
+				break;
+			}
 		}
 
-		if (start > end) return [];
+		if (start > end) {
+			return [];
+		}
 		return arr.slice(start, end - start + 1);
 	}
 
@@ -141,7 +145,7 @@ exports.relative = function(from, to) {
 
 	var length = Math.min(fromParts.length, toParts.length);
 	var samePartsLength = length;
-	for (var i = 0; i < length; i++) {
+	for (let i = 0; i < length; i++) {
 		if (fromParts[i] !== toParts[i]) {
 			samePartsLength = i;
 			break;
@@ -149,7 +153,7 @@ exports.relative = function(from, to) {
 	}
 
 	var outputParts = [];
-	for (var i = samePartsLength; i < fromParts.length; i++) {
+	for (let i = samePartsLength; i < fromParts.length; i++) {
 		outputParts.push('..');
 	}
 
@@ -158,8 +162,7 @@ exports.relative = function(from, to) {
 	return outputParts.join('/');
 };
 
-
-exports.dirname = function(path) {
+exports.dirname = function (path) {
 	var result = splitPath(path),
 		root = result[0],
 		dir = result[1];
@@ -177,8 +180,7 @@ exports.dirname = function(path) {
 	return root + dir;
 };
 
-
-exports.basename = function(path, ext) {
+exports.basename = function (path, ext) {
 	var f = splitPath(path)[2];
 	if (ext && f.substr(-1 * ext.length) === ext) {
 		f = f.substr(0, f.length - ext.length);
@@ -186,8 +188,6 @@ exports.basename = function(path, ext) {
 	return f;
 };
 
-
-exports.extname = function(path) {
+exports.extname = function (path) {
 	return splitPath(path)[3];
 };
-
