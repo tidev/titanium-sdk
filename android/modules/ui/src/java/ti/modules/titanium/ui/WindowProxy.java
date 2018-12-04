@@ -68,7 +68,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
-	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private WeakReference<TiBaseActivity> windowActivity;
@@ -430,11 +429,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
 			if (shouldFireChange(current, width)) {
 				Object height = getProperty(TiC.PROPERTY_HEIGHT);
-				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(width, height);
-				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[] { width, height }).sendToTarget();
-				}
+				setWindowWidthHeight(width, height);
 			}
 		}
 		super.setWidth(width);
@@ -451,11 +446,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);
 			if (shouldFireChange(current, height)) {
 				Object width = getProperty(TiC.PROPERTY_WIDTH);
-				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(width, height);
-				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[] { width, height }).sendToTarget();
-				}
+				setWindowWidthHeight(width, height);
 			}
 		}
 		super.setHeight(height);
@@ -481,11 +472,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				if (activity != null) {
 					activity.setTitle(TiConvert.toString((Object) (msg.obj), ""));
 				}
-				return true;
-			}
-			case MSG_SET_WIDTH_HEIGHT: {
-				Object[] obj = (Object[]) msg.obj;
-				setWindowWidthHeight(obj[0], obj[1]);
 				return true;
 			}
 		}
