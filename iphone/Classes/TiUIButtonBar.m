@@ -94,7 +94,7 @@
 {
   selectedIndex = [TiUtils intValue:value def:-1];
   if ([[self segmentedControl] isMomentary]) {
-    DEPRECATED_REMOVED(@"UI.ButtonBar.index", @"8.0.0", @"8.0.0");
+    DEPRECATED_REMOVED(@"UI.ButtonBar.index", @"8.0.0", @"9.0.0");
     selectedIndex = -1;
     [self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
   } else {
