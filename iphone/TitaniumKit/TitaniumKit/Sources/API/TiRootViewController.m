@@ -1364,7 +1364,7 @@
     [self updateStatusBar];
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
