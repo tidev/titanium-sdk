@@ -1441,6 +1441,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CURVE = "curve";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DATA = "data";
 
 	/**
@@ -1744,6 +1749,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HIDES_BACK_BUTTON = "hidesBackButton";
 
 	/**
 	 * @module.api

@@ -59,6 +59,7 @@
   },
   "devDependencies": {
     "@seadub/danger-plugin-eslint": "^0.3.0",
+    "@seadub/danger-plugin-junit": "0.0.1",
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
     "danger": "^6.1.8",

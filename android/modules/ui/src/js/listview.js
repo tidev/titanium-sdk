@@ -1,98 +1,109 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global Module */
+'use strict';
 
-exports.bootstrap = function(Titanium) {
+exports.bootstrap = function (Titanium) {
 	var ListView = Titanium.UI.ListView;
-	var Ti = Titanium;
+
 	function createListView(scopeVars, options) {
-		if (options !== void 0) {
+		if (options !== undefined) {
 			var templates = options.templates;
-			if (templates !== void 0) {
+			if (templates !== undefined) {
 				for (var binding in templates) {
 					var currentTemplate = templates[binding];
-					//process template
+					// process template
 					processTemplate(currentTemplate);
-					//process child templates
+					// process child templates
 					processChildTemplates(currentTemplate);
 				}
 			}
 		}
 		var listView = new ListView(options);
-		
+
 		return listView;
 	}
-	
-	//Create ListItemProxy, add events, then store it in 'tiProxy' property
+
+	// Create ListItemProxy, add events, then store it in 'tiProxy' property
 	function processTemplate(properties) {
-	   	var cellProxy = Titanium.UI.createListItem();
+		var cellProxy = Titanium.UI.createListItem();
 		properties.tiProxy = cellProxy;
 		var events = properties.events;
 		addEventListeners(events, cellProxy);
 	}
 
-	//Recursive function that process childTemplates and append corresponding proxies to
-	//property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
+	// Recursive function that process childTemplates and append corresponding proxies to
+	// property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
 	function processChildTemplates(properties) {
-		if (!properties.hasOwnProperty('childTemplates')) return;
-		
+		if (!properties.hasOwnProperty('childTemplates')) {
+			return;
+		}
+
 		var childProperties = properties.childTemplates;
-		if (childProperties === void 0 || childProperties === null) return;
-		
+		if (childProperties === undefined || childProperties === null) {
+			return;
+		}
+
 		for (var i = 0; i < childProperties.length; i++) {
 			var child = childProperties[i];
 			var proxyType = child.type;
-			if (proxyType !== void 0) {
+			if (proxyType !== undefined) {
 				var creationProperties = child.properties;
 				var creationFunction = lookup(proxyType);
 				var childProxy;
-				//create the proxy
-				if (creationProperties !== void 0) {
+				// create the proxy
+				if (creationProperties !== undefined) {
 					childProxy = creationFunction(creationProperties);
 				} else {
 					childProxy = creationFunction();
 				}
-				//add event listeners
+				// add event listeners
 				var events = child.events;
 				addEventListeners(events, childProxy);
-				//append proxy to tiProxy property
+				// append proxy to tiProxy property
 				child.tiProxy = childProxy;
 			}
 
 			processChildTemplates(child);
-			
+
 		}
-		
-		
+
 	}
-	
-	//add event listeners
+
+	// add event listeners
 	function addEventListeners(events, proxy) {
-		if (events !== void 0) {
+		if (events !== undefined) {
 			for (var eventName in events) {
 				proxy.addEventListener(eventName, events[eventName]);
 			}
 		}
 	}
-	
-	//convert name of UI elements into a constructor function.
-	//I.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function
+
+	// convert name of UI elements into a constructor function.
+	// I.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function
 	function lookup(namespace) {
 
 		// handle Titanium widgets
 		if (/^(Ti|Titanium)/.test(namespace)) {
 			const namespaceIndex = namespace.lastIndexOf('.'),
-				  proxyName = namespace.slice(namespaceIndex + 1),
-				  parentNamespace = namespace.substring(0, namespaceIndex),
-				  parentProxy = eval(parentNamespace);
-	
+				proxyName = namespace.slice(namespaceIndex + 1),
+				parentNamespace = namespace.substring(0, namespaceIndex);
+			// Build up reference to parent proxy without using eval
+			const segments = parentNamespace.split('.');
+			// drop first segment, which is Ti/Titanium
+			let parentProxy = Titanium;
+			for (let i = 1; i < segments.length; i++) {
+				parentProxy = parentProxy[segments[i]];
+			}
+
 			if (parentProxy) {
 				return parentProxy['create' + proxyName];
 			}
-	
+
 		// handle Alloy widgets
 		} else {
 			let widget;
@@ -103,7 +114,7 @@ exports.bootstrap = function(Titanium) {
 				try {
 					// widget does not exist, attempt to load namespace
 					widget = Module.main.require(namespace);
-				} catch (e) {
+				} catch (err) {
 					// do nothing...
 				}
 			}
@@ -116,8 +127,7 @@ exports.bootstrap = function(Titanium) {
 		}
 	}
 
-	//overwrite list view constructor function with our own.
+	// overwrite list view constructor function with our own.
 	Titanium.UI.createListView = createListView;
 
-}
-
+};
