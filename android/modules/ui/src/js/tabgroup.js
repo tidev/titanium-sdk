@@ -59,7 +59,7 @@ exports.bootstrap = function(Titanium) {
 		}
 	}
 
-	_removeTab = TabGroup.prototype.removeTab;
+	var _removeTab = TabGroup.prototype.removeTab;
 	TabGroup.prototype.removeTab = function(options) {
 		if (this.currentState != this.state.opened) {
 			var index = this._tabs.indexOf(options);
