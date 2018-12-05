@@ -59,9 +59,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
-	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
-	private static final int MSG_GET_SAFE_AREA_PADDING = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
@@ -76,6 +73,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	protected List<Pair<View, String>> sharedElementPairs;
+	public TiWindowProxy navigationWindow;
 
 	public static interface PostOpenListener {
 		public void onPostOpen(TiWindowProxy window);
@@ -100,33 +98,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		throw new IllegalStateException("Windows are created during open");
-	}
-
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_OPEN: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleOpen((KrollDict) result.getArg());
-				result.setResult(null); // signal opened
-				return true;
-			}
-			case MSG_CLOSE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleClose((KrollDict) result.getArg());
-				result.setResult(null); // signal closed
-				return true;
-			}
-			case MSG_GET_SAFE_AREA_PADDING: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleGetSafeAreaPadding());
-				return true;
-			}
-			default: {
-				return super.handleMessage(msg);
-			}
-		}
 	}
 
 	@Kroll.method
@@ -158,12 +129,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			options = new KrollDict();
 		}
 
-		if (TiApplication.isUIThread()) {
-			handleOpen(options);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
+		handleOpen(options);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -187,12 +153,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			options = new KrollDict();
 		}
 
-		if (TiApplication.isUIThread()) {
-			handleClose(options);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
+		handleClose(options);
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -447,18 +408,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public KrollDict getSafeAreaPadding()
 	// clang-format on
 	{
-		KrollDict dictionary;
-		if (TiApplication.isUIThread()) {
-			dictionary = handleGetSafeAreaPadding();
-		} else {
-			dictionary = (KrollDict) TiMessenger.sendBlockingMainMessage(
-				getMainHandler().obtainMessage(MSG_GET_SAFE_AREA_PADDING), getActivity());
-		}
-		return dictionary;
-	}
-
-	private KrollDict handleGetSafeAreaPadding()
-	{
 		// Initialize safe-area padding to zero. (ie: no padding)
 		double paddingLeft = 0;
 		double paddingTop = 0;
@@ -603,6 +552,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (LOLLIPOP_OR_GREATER) {
 			sharedElementPairs.clear();
 		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public TiWindowProxy getNavigationWindow()
+	// clang-format on
+	{
+		return navigationWindow;
+	}
+
+	public void setNavigationWindow(TiWindowProxy navigationWindow)
+	{
+		this.navigationWindow = navigationWindow;
 	}
 
 	/**
