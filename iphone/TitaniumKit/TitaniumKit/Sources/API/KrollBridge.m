@@ -69,7 +69,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
       if (buildType != nil || buildType.length > 0) {
         [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
       }
-      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];
+      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
       [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
     }
   }

@@ -50,6 +50,7 @@ TiDimension TiDimensionFromObject(id object);
 CGFloat convertInchToPixels(CGFloat value);
 CGFloat convertPixelsToDip(CGFloat value);
 CGFloat convertDipToInch(CGFloat value);
+CGFloat convertDipToDefaultUnit(CGFloat value);
 
 CGFloat convertDipToPixels(CGFloat value);
 
