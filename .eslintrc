@@ -6,8 +6,10 @@
   },
   "globals": {
     "Ti": false,
+    "Titanium": false,
     "__filename": false,
     "__dirname": false,
+    "kroll": false
   },
   "rules": {
     "strict": ["error", "global"]
@@ -20,5 +22,19 @@
         "sourceType": "module"
       },
     },
+    {
+      "files": [ "dangerfile.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
+      },
+    },
+    {
+      "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "script"
+      }
+    }
   ]
 }

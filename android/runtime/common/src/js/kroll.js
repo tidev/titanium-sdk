@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-(function (kroll) {
-	var TAG = 'kroll';
+'use strict';
+
+(function (kroll) { // eslint-disable-line no-unused-expressions
 	var global = this;
 
 	// Works identical to Object.hasOwnProperty, except
@@ -62,8 +63,7 @@
 		global.console = NativeModule.require('console'); // Convenience toplevel alias for logging facilities
 	};
 
-	startup.runMain = function (mainModuleID) {
-	};
+	startup.runMain = function () {};
 
 	var runInThisContext = kroll.binding('evals').Script.runInThisContext;
 
