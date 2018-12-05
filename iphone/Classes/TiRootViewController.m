@@ -1380,7 +1380,7 @@
   }
 
 #if IS_XCODE_9
-  if ([TiUtils isIOS11OrGreater]) {
+  if ([TiUtils isIOS11OrGreater] && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 #endif
