@@ -76,6 +76,12 @@ extern NSString * const APSDeployTypeProduction;
                    payload:(NSDictionary *)payload;
 
 /**
+ * Sends a crash event.
+ * @param payload crash data to send.
+ */
+- (void)sendAppCrashEvent:(NSDictionary *)payload;
+
+/**
  * Enables Analytics with a given app-key and deploy-type.
  * @param appKey The APSAnalytics app-key.
  * @param deployType The deploy-type of the application.

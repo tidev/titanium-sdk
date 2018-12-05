@@ -50,7 +50,6 @@ public class TiUILabel extends TiUIView
 	private static final float FONT_SIZE_EPSILON = 0.1f;
 
 	private int defaultColor;
-	private boolean wordWrap = true;
 	private TruncateAt ellipsize = TruncateAt.END;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -215,7 +214,7 @@ public class TiUILabel extends TiUIView
 		tv.setPadding(0, 0, 0, 0);
 		tv.setFocusable(false);
 		tv.setEllipsize(this.ellipsize);
-		tv.setSingleLine(!this.wordWrap);
+		tv.setSingleLine(false);
 		TiUIHelper.styleText(tv, null);
 		this.unscaledFontSizeInPixels = tv.getTextSize();
 		this.defaultColor = tv.getCurrentTextColor();
@@ -395,9 +394,6 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_LINES)) {
 			this.viewHeightInLines = TiConvert.toInt(d.get(TiC.PROPERTY_LINES), 0);
 		}
-		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
-			this.wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
-		}
 		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
 			int value = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LINES), Integer.MAX_VALUE);
 			if (value < 1) {
@@ -555,9 +551,6 @@ public class TiUILabel extends TiUIView
 				}
 			}
 			updateLabelText();
-		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
-			this.wordWrap = TiConvert.toBoolean(newValue, true);
-			updateLabelText();
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			this.autoLinkFlags = TiConvert.toInt(newValue, 0) & Linkify.ALL;
 			updateLabelText();
@@ -658,11 +651,6 @@ public class TiUILabel extends TiUIView
 	 */
 	private boolean isSingleLine()
 	{
-		// We're single-line if word wrapping (aka: line wrapping) is disabled.
-		if (this.wordWrap == false) {
-			return true;
-		}
-
 		// We're single-line if font auto-scaling is enabled.
 		if (this.minimumFontSizeInPixels >= FONT_SIZE_EPSILON) {
 			return true;

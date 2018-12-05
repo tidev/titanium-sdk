@@ -44,7 +44,6 @@ import android.view.ViewParent;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -110,7 +109,8 @@ public class TiAnimationBuilder
 
 	// Views on which animations are currently running.
 	private static ArrayList<WeakReference<View>> sRunningViews = new ArrayList<WeakReference<View>>();
-	private static final boolean PRE_LOLLIPOP = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+	private static final boolean PRE_LOLLIPOP = (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP);
+	private static final TiAnimationCurve DEFAULT_CURVE = TiAnimationCurve.EASE_IN_OUT;
 
 	protected float anchorX;
 	protected float anchorY;
@@ -124,6 +124,7 @@ public class TiAnimationBuilder
 	protected String centerX = null, centerY = null;
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
+	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
@@ -167,6 +168,16 @@ public class TiAnimationBuilder
 
 		if (options.containsKey(TiC.PROPERTY_DURATION)) {
 			duration = TiConvert.toDouble(options, TiC.PROPERTY_DURATION);
+		}
+
+		this.curve = TiAnimationBuilder.DEFAULT_CURVE;
+		if (options.containsKey(TiC.PROPERTY_CURVE)) {
+			TiAnimationCurve newCurve = TiAnimationCurve.fromTiIntId(TiConvert.toInt(options, TiC.PROPERTY_CURVE));
+			if (newCurve != null) {
+				this.curve = newCurve;
+			} else {
+				Log.e(TAG, "Invalid value assigned to the '" + TiC.PROPERTY_CURVE + "' property.");
+			}
 		}
 
 		if (options.containsKey(TiC.PROPERTY_OPACITY)) {
@@ -654,7 +665,7 @@ public class TiAnimationBuilder
 
 	private void addAnimator(List<Animator> list, ValueAnimator animator)
 	{
-		animator.setInterpolator(new LinearInterpolator());
+		animator.setInterpolator(this.curve.toInterpolator());
 
 		// repeatCount is ignored at the AnimatorSet level, so it needs to
 		// be set for each member animator manually. Same with
@@ -900,7 +911,7 @@ public class TiAnimationBuilder
 				sizeAnimation.setDuration(duration.longValue());
 			}
 
-			sizeAnimation.setInterpolator(new LinearInterpolator());
+			sizeAnimation.setInterpolator(this.curve.toInterpolator());
 			sizeAnimation.setAnimationListener(animationListener);
 			addAnimation(as, sizeAnimation);
 
