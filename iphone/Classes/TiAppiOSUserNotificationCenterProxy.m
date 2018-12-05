@@ -152,14 +152,14 @@
         return;
       }
 
-      [center getDeliveredNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+      [center getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
         NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
-        for (UNNotificationRequest *request in requests) {
+        for (UNNotification *deliveredNotification in notifications) {
           for (id notification in args) {
             ENSURE_TYPE(notification, NSDictionary);
 
-            if ([request.identifier isEqual:notification[@"identifier"]]) {
-              [identifiers addObject:request.identifier];
+            if ([deliveredNotification.request.identifier isEqual:notification[@"identifier"]]) {
+              [identifiers addObject:deliveredNotification.request.identifier];
             }
           }
         }
