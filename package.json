@@ -26,18 +26,16 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {
-    "iphone/**/*.{m,h}": [
-      "npx clang-format -style=file -i",
-      "git add"
-    ],
-    "*.java": [
-      "npx clang-format -style=file -i",
-      "git add"
-    ]
+    "iphone/**/*.{m,h}": [ "npx clang-format -style=file -i", "git add" ],
+    "*.java": [ "npx clang-format -style=file -i", "git add" ]
+  },
+  "commitlint": {
+    "extends": [ "@commitlint/config-conventional" ]
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
@@ -73,6 +71,8 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
+    "@commitlint/cli": "^7.2.1",
+    "@commitlint/config-conventional": "^7.1.2",
     "@seadub/danger-plugin-eslint": "^0.3.0",
     "@seadub/danger-plugin-junit": "0.0.1",
     "clang-format": "^1.2.3",
