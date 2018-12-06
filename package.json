@@ -24,6 +24,21 @@
     "ios": "./build/scons cleanbuild ios",
     "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s ios"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "iphone/**/*.{m,h}": [
+      "npx clang-format -style=file -i",
+      "git add"
+    ],
+    "*.java": [
+      "npx clang-format -style=file -i",
+      "git add"
+    ]
+  },
   "dependencies": {
     "adm-zip": "^0.4.11",
     "appc-aar-tools": "^1.1.5",
@@ -71,7 +86,9 @@
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-mocha-test": "^0.13.3",
+    "husky": "^1.2.0",
     "js-yaml": "^3.12.0",
+    "lint-staged": "^8.1.0",
     "mocha": "^5.2.0",
     "pagedown": "~1.1.0",
     "ssri": "^6.0.1"
