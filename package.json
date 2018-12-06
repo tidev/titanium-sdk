@@ -22,7 +22,8 @@
     "android": "./build/scons cleanbuild android",
     "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s android && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s android",
     "ios": "./build/scons cleanbuild ios",
-    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s ios"
+    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s ios",
+    "commit": "git-cz"
   },
   "husky": {
     "hooks": {
@@ -32,14 +33,29 @@
   },
   "lint-staged": {
     "linters": {
-      "iphone/**/*.{m,h}": [ "npx clang-format -style=file -i", "git add" ],
-      "*.java": [ "npx clang-format -style=file -i", "git add" ],
+      "iphone/**/*.{m,h}": [
+        "npx clang-format -style=file -i",
+        "git add"
+      ],
+      "*.java": [
+        "npx clang-format -style=file -i",
+        "git add"
+      ],
       "*.js": "eslint"
     },
-    "ignore": ["**/locales/**/*.js"]
+    "ignore": [
+      "**/locales/**/*.js"
+    ]
   },
   "commitlint": {
-    "extends": [ "@commitlint/config-conventional" ]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
@@ -81,6 +97,8 @@
     "@seadub/danger-plugin-junit": "0.0.1",
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
+    "commitizen": "^3.0.5",
+    "cz-conventional-changelog": "^2.1.0",
     "danger": "^6.1.8",
     "eslint-config-axway": "^4.0.0",
     "eslint-plugin-mocha": "^5.0.0",
