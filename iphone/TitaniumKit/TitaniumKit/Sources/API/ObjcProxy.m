@@ -13,7 +13,33 @@
 
 @synthesize bubbleParent;
 
-DEFINE_EXCEPTIONS
+- (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
+{
+  NSString *exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];
+  JSContext *context = [JSContext currentContext];
+  NSDictionary *details = @{
+    kTiExceptionSubreason : subreason,
+    kTiExceptionLocation : location
+  };
+  NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
+  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
+  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
+  [context setException:[JSValue valueWithJSValueRef:jsValueRef inContext:context]];
+}
+
++ (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
+{
+  NSString *exceptionName = @"org.appcelerator";
+  JSContext *context = [JSContext currentContext];
+  NSDictionary *details = @{
+    kTiExceptionSubreason : subreason,
+    kTiExceptionLocation : location
+  };
+  NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
+  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
+  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
+  [context setException:[JSValue valueWithJSValueRef:jsValueRef inContext:context]];
+}
 
 // Conversion methods for interacting with "old" KrollObject style proxies
 - (id)JSValueToNative:(JSValue *)jsValue
