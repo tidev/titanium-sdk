@@ -62,6 +62,7 @@
 #define ENSURE_PROPERTY_EXISTS(dict, name)                                                                                                                 \
   if (![dict hasProperty:name]) {                                                                                                                          \
     [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"required property \"%@\" is missing", name] location:CODELOCATION]; \
+    return nil;                                                                                                                                            \
   }
 
 #define ENSURE_UINT32_OR_DEFAULT(dict, name, fallback) \
