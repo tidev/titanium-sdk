@@ -1669,7 +1669,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		releaseDialogs(true);
 
 		// Stop listening for safe-area inset changes.
-		this.safeAreaMonitor.stop();
+		if (this.safeAreaMonitor != null) {
+			this.safeAreaMonitor.stop();
+		}
 
 		if (tiApp.isRestartPending()) {
 			super.onDestroy();
