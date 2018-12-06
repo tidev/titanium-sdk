@@ -31,8 +31,12 @@
     }
   },
   "lint-staged": {
-    "iphone/**/*.{m,h}": [ "npx clang-format -style=file -i", "git add" ],
-    "*.java": [ "npx clang-format -style=file -i", "git add" ]
+    "linters": {
+      "iphone/**/*.{m,h}": [ "npx clang-format -style=file -i", "git add" ],
+      "*.java": [ "npx clang-format -style=file -i", "git add" ],
+      "*.js": "eslint"
+    },
+    "ignore": ["**/locales/**/*.js"]
   },
   "commitlint": {
     "extends": [ "@commitlint/config-conventional" ]
