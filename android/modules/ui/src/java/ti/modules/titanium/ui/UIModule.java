@@ -68,27 +68,6 @@ public class UIModule extends KrollModule
 
 	@Kroll.constant
 	public static final int KEYBOARD_APPEARANCE_DEFAULT = -1; // Not supported
-	@Kroll.constant
-	public static final int KEYBOARD_APPEARANCE_ALERT = -1; // Not supported
-
-	@Kroll.constant
-	public static final int KEYBOARD_ASCII = 0;
-	@Kroll.constant
-	public static final int KEYBOARD_NUMBERS_PUNCTUATION = 1;
-	@Kroll.constant
-	public static final int KEYBOARD_URL = 2;
-	@Kroll.constant
-	public static final int KEYBOARD_NUMBER_PAD = 3;
-	@Kroll.constant
-	public static final int KEYBOARD_PHONE_PAD = 4;
-	@Kroll.constant
-	public static final int KEYBOARD_EMAIL = 5;
-	@Kroll.constant
-	public static final int KEYBOARD_NAMEPHONE_PAD = 6;
-	@Kroll.constant
-	public static final int KEYBOARD_DEFAULT = 7;
-	@Kroll.constant
-	public static final int KEYBOARD_DECIMAL_PAD = 8;
 
 	@Kroll.constant
 	public static final int KEYBOARD_TYPE_ASCII = 0;
