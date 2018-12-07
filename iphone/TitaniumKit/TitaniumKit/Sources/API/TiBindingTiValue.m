@@ -291,12 +291,19 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
 
     // Add "nativeStack" key
     NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
+    NSInteger startIndex = 3; // Starting at index = 4 to not include the script-error API's
+    if (nativeStack == nil) { // the exception was created, but never thrown, so grab the current stack frames
+      nativeStack = [NSThread callStackSymbols]; // this happens when we construct an exception manually in our ENSURE macros for obj-c proxies
+      startIndex = 2; // drop ObjcProxy.throwException and this method from frames
+    }
     if (nativeStack != nil) {
       NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
       NSUInteger exceptionStackTraceLength = [nativeStack count];
+      NSUInteger twentiethIndex = 20 + startIndex; // keep up to 20 frames
+      NSUInteger endIndex = (exceptionStackTraceLength >= twentiethIndex ? twentiethIndex : exceptionStackTraceLength);
 
-      // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
-      for (NSInteger i = 3; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+      // re-size stack trace and format results
+      for (NSUInteger i = startIndex; i < endIndex; i++) {
         NSString *line = [[nativeStack objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
         [formattedStackTrace addObject:line];
       }
