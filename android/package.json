@@ -21,7 +21,7 @@
 		"version": "7.0.276.32",
 		"mode": "release"
 	},
-	"minSDKVersion": "16",
+	"minSDKVersion": "19",
 	"compileSDKVersion": "28",
 	"vendorDependencies": {
 		"android sdk": ">=23.x <=28.x",
