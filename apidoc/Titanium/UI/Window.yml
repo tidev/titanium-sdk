@@ -542,10 +542,10 @@ properties:
     summary: Set this to true to hide the back button of navigation bar.
     description: |
         When this property is set to `true`, the navigation window hides its back button.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     type: Boolean
     default: false
-    since: 7.5.0
+    since: {android: "8.0.0", iphone: "7.5.0", ipad: "7.5.0"}
 
   - name: largeTitleEnabled
     summary: A Boolean value indicating whether the title should be displayed in a large format.
