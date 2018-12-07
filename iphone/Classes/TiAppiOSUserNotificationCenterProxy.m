@@ -47,7 +47,7 @@
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
     for (UILocalNotification *notification in notifications) {
-      [result addObject:[TiApp dictionaryWithLocalNotification:notification]];
+      [result addObject:[TiApp dictionaryWithLocalNotification:notification withIdentifier:notification.userInfo[@"id"]]];
     }
 
     NSDictionary *propertiesDict = @{
