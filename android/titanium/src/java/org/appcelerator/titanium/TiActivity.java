@@ -13,18 +13,13 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 
+/** The activity that is shown when opening a Titanium "Ti.UI.Window" in JavaScript. */
 public class TiActivity extends TiBaseActivity
 {
-	Intent intent = null;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		Intent intent = getIntent();
-		if (intent == null) {
-			return;
-		}
 	}
 
 	@Override
@@ -37,32 +32,6 @@ public class TiActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
-		TiRootActivity rootActivity = getTiApp().getRootActivity();
-		if (rootActivity != null) {
-			Intent rootIntent = rootActivity.getIntent();
-
-			// merge root intent extras
-			if (rootIntent != null) {
-				if (intent == null) {
-					intent = getIntent();
-				}
-				if (intent.getComponent().getClassName().equals(TiActivity.class.getName())) {
-					Intent newIntent = new Intent(intent);
-					newIntent.putExtras(rootIntent);
-					newIntent.setData(rootIntent.getData());
-					setIntent(newIntent);
-
-					// fire 'newintent'
-					ActivityProxy activityProxy = rootActivity.getActivityProxy();
-					if (activityProxy != null) {
-						IntentProxy intentProxy = new IntentProxy(newIntent);
-						KrollDict data = new KrollDict();
-						data.put(TiC.PROPERTY_INTENT, intentProxy);
-						activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
-					}
-				}
-			}
-		}
 		// handle shortcut intents
 		Intent intent = getIntent();
 		String shortcutId =
@@ -76,26 +45,5 @@ public class TiActivity extends TiBaseActivity
 			}
 		}
 		super.onResume();
-		if (getTiApp().isRestartPending()) {
-			return;
-		}
-	}
-
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-
-		TiApplication tiApp = getTiApp();
-		TiRootActivity rootActivity = tiApp.getRootActivity();
-		if (rootActivity != null) {
-			Intent rootIntent = rootActivity.getIntent();
-			if (rootIntent != null) {
-				rootIntent.replaceExtras((Bundle) null);
-			}
-		}
-		if (tiApp.isRestartPending()) {
-			return;
-		}
 	}
 }

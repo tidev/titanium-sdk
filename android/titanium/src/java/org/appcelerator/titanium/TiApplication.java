@@ -85,7 +85,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	// "ti.android.useLegacyWindow" property.
 	public static boolean USE_LEGACY_WINDOW = false;
 
-	private boolean restartPending = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -100,7 +99,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private BroadcastReceiver localeReceiver;
 	private BroadcastReceiver externalStorageReceiver;
 	private AccessibilityManager accessibilityManager = null;
-	private boolean forceFinishRootActivity = false;
 
 	protected TiDeployData deployData;
 	protected TiTempFileHelper tempFileHelper;
@@ -135,7 +133,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
 	}
-	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
 	public TiApplication()
 	{
@@ -470,7 +467,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
 		this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
-		rootActivityLatch.countDown();
+		if (rootActivity == null) {
+			return;
+		}
 
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
@@ -630,11 +629,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 	}
 
-	public boolean intentFilterNewTask()
-	{
-		return getAppProperties().getBool("intent-filter-new-task", false);
-	}
-
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;
@@ -735,24 +729,20 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return false;
 	}
 
-	public void scheduleRestart(int delay)
-	{
-		Log.w(TAG, "Scheduling application restart");
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG,
-				  "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
-			(new Exception()).printStackTrace();
-		}
-		this.restartPending = true;
-		TiRootActivity rootActivity = getRootActivity();
-		if (rootActivity != null) {
-			rootActivity.restartActivity(delay);
-		}
-	}
-
 	public void softRestart()
 	{
-		KrollRuntime runtime = KrollRuntime.getInstance();
+		// Fetch the root activity hosting the JavaScript runtime.
+		TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity == null) {
+			return;
+		}
+
+		// Fetch a path to the main script that was last loaded.
+		String appPath = rootActivity.getUrl();
+		if (appPath == null) {
+			return;
+		}
+		appPath = "Resources/" + appPath;
 
 		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
 		TiBaseActivity.canFinishRoot = false;
@@ -764,17 +754,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiBaseActivity.canFinishRoot = true;
 
 		// restart kroll runtime
+		KrollRuntime runtime = KrollRuntime.getInstance();
 		runtime.doDispose();
 		runtime.initRuntime();
 
 		// manually re-launch app
-		runtime.doRunModule(KrollAssetHelper.readAsset(TiC.PATH_APP_JS), TiC.URL_APP_JS,
-							((TiBaseActivity) getRootOrCurrentActivity()).getActivityProxy());
-	}
-
-	public boolean isRestartPending()
-	{
-		return restartPending;
+		runtime.doRunModule(KrollAssetHelper.readAsset(appPath), appPath, rootActivity.getActivityProxy());
 	}
 
 	public TiTempFileHelper getTempFileHelper()
@@ -894,40 +879,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TitaniumModule.cancelTimers();
 	}
 
-	/**
-	 * Our forced restarts (for conditions such as android bug 2373, TIMOB-1911 and TIMOB-7293)
-	 * don't create new processes or pass through TiApplication() (the ctor). We need to reset
-	 * some state to better mimic a complete application restart.
-	 */
-	public void beforeForcedRestart()
-	{
-		restartPending = false;
-		currentActivity = null;
-		TiApplication.isActivityTransition.set(false);
-		if (TiApplication.activityTransitionListeners != null) {
-			TiApplication.activityTransitionListeners.clear();
-		}
-		if (TiApplication.activityStack != null) {
-			TiApplication.activityStack.clear();
-		}
-	}
-
 	public AccessibilityManager getAccessibilityManager()
 	{
 		if (accessibilityManager == null) {
 			accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
 		}
 		return accessibilityManager;
-	}
-
-	public void setForceFinishRootActivity(boolean forced)
-	{
-		forceFinishRootActivity = forced;
-	}
-
-	public boolean getForceFinishRootActivity()
-	{
-		return forceFinishRootActivity;
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);
