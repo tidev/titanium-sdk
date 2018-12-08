@@ -1229,14 +1229,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		super.onNewIntent(intent);
 		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);
 
-		// Store the new intent. Makes it accessible to ActivityProxy.
+		// Store the new intent.
 		setIntent(intent);
 
-		// Fire a Titanium "newintent" event.
-		if (activityProxy != null) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.PROPERTY_INTENT, new IntentProxy(intent));
-			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+		// Update proxy's "intent" property and fire a "newintent" event.
+		if (this.activityProxy != null) {
+			this.activityProxy.onNewIntent(intent);
 		}
 	}
 

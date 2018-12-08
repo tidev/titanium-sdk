@@ -8,7 +8,6 @@ package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -18,6 +17,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Window;
 
 public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
@@ -98,29 +99,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		// Determine if this activity was created via startActivityForResult().
 		// In this case, this activity needs to respond with setResult() and finish().
 		boolean isActivityForResult = (getCallingActivity() != null);
-		if (isActivityForResult) {
-// TODO: Re-add support for this feature later. (Below code doesn't fully support it yet.)
-			this.isDuplicateInstance = true;
-			finish();
-			return;
-		}
-
-		// Do not continue if this is the only root activity instance, but previous JS runtime is still running.
-		// This happens if previously destroyed root activity hasn't finished terminating its JS runtime yet.
-		if ((this.isDuplicateInstance == false) && (KrollRuntime.isDisposed() == false)) {
-			this.isDuplicateInstance = true;
-			activityOnCreate(savedInstanceState);
-			finish();
-			overridePendingTransition(0, 0);
-			if (newIntent == null) {
-				newIntent = mainIntent;
-			}
-			if (isActivityForResult) {
-				newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-			}
-			startActivity(newIntent);
-			return;
-		}
 
 		// Handle the duplicate root activity instance case. (Only 1 is allowed at a time.)
 		if (this.isDuplicateInstance) {
@@ -128,32 +106,56 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			activityOnCreate(savedInstanceState);
 
 			// Handle the existing Titanium activity instance.
-			if (isActivityForResult) {
-				// We need to tear down the existing Titanium activity task first.
-				// Afterwards, receate a new Titanium activity on the same task as the parent that wants a response.
-				rootActivity.finish();
-				if (newIntent == null) {
-					newIntent = Intent.makeMainActivity(getComponentName());
+			if (isActivityForResult || (rootActivity.getCallingActivity() != null)) {
+				// At least 1 root activity instance was created via the startActiviyForResult() method.
+				try {
+					// Attempt to tear down the other Titanium activity task.
+					// Note: The finish() method won't do anything if it's not the top-most task in the app.
+					if (rootActivity.getCallingActivity() != null) {
+						rootActivity.setResult(RESULT_CANCELED, null);
+					}
+					rootActivity.finishAffinity();
+					TiApplication.terminateActivityStack();
+
+					// Recreate this activity on the current task.
+					if (isActivityForResult) {
+						// This activtiy was created via startActiviyForResult().
+						// "Forward" the result handling to the next activity we're about to start-up.
+						Intent relaunchIntent = newIntent;
+						if (relaunchIntent == null) {
+							relaunchIntent = Intent.makeMainActivity(getComponentName());
+						}
+						relaunchIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+						startActivity(relaunchIntent);
+					} else {
+						// Delay recreation of this activity. Need to wait for above finished activity to be destroyed.
+						// Note: Only an issue when destroying activities created via startActiviyForResult().
+						final Intent relaunchIntent = mainIntent;
+						if (newIntent != null) {
+							relaunchIntent.putExtra(EXTRA_TI_NEW_INTENT, newIntent);
+						}
+						Runnable restartRunnable = new Runnable() {
+							@Override
+							public void run()
+							{
+								startActivity(relaunchIntent);
+							}
+						};
+						Handler mainHandler = new Handler(Looper.getMainLooper());
+						mainHandler.postDelayed(restartRunnable, 100);
+					}
+				} catch (Exception ex) {
+					Log.e(TAG, "Failed to close existing Titanium root activity.", ex);
 				}
-				newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-				startActivity(newIntent);
-			} else if (rootActivity.getCallingActivity() != null) {
-				// The other Titanium activity instance was created via startActivityForResult().
-				// We need to terminate the existing instance first then recreate a new root activity.
-				rootActivity.finish();
-				if (newIntent != null) {
-					mainIntent.putExtra(EXTRA_TI_NEW_INTENT, newIntent);
-				}
-				startActivity(mainIntent);
 			} else {
-				// Simulate "singleTask" handling by updating root activity's intent with received one.
+				// Simulate "singleTask" handling by updating existing root activity's intent with received one.
 				if (newIntent == null) {
 					newIntent = mainIntent;
 				}
 				rootActivity.onNewIntent(newIntent);
 
-				// Resume the pre-existing Titanium activity task stack.
-				// Note: On Android, you resume an existing activity by using its initial launch intent.
+				// Resume the pre-existing Titanium root activity.
+				// Note: On Android, you resume a backgrounded activity by using its initial launch intent.
 				Intent resumeIntent = rootActivity.getLaunchIntent();
 				if (resumeIntent == null) {
 					resumeIntent = mainIntent;
@@ -173,7 +175,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		// *** This is the only Titanium root activity instance. ***
 
 		// If this is a normal activity (not launched via startActivityForResult() method),
-		// then make sure it was launched via main intent. Relaunch it if not.
+		// then make sure it was launched via main launcher intent. Relaunch it if not.
 		if (!isActivityForResult) {
 			if ((newIntent == null) || (newIntent.filterEquals(mainIntent) == false)) {
 				this.isDuplicateInstance = true;
@@ -188,7 +190,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			}
 		}
 
-		// No Titanium activities are currently shown.
 		// Initialize this activity and start up the Titanium JavaScript runtime.
 		tiApp.setCurrentActivity(this, this);
 		tiApp.setRootActivity(this);
@@ -196,15 +197,27 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		tiApp.verifyCustomModules(this);
 
 		// Invoke activity's onNewIntent() behavior if above code bundled an extra intent into it.
-		// This happens if activity was created with a non-main launcher intent, such as a URL scheme.
+		// This happens if activity was initially created with a non-main launcher intent, such as a URL scheme.
 		if ((newIntent != null) && newIntent.hasExtra(EXTRA_TI_NEW_INTENT)) {
 			try {
 				Object object = newIntent.getParcelableExtra(EXTRA_TI_NEW_INTENT);
 				if (object instanceof Intent) {
-					onNewIntent((Intent) object);
+					// Acquire the bundled intent.
+					Intent bundledIntent = (Intent) object;
+
+					// Close all child activities if clear-top flag was set.
+					if ((bundledIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
+						boolean canFinishRoot = TiBaseActivity.canFinishRoot;
+						TiBaseActivity.canFinishRoot = false;
+						TiApplication.terminateActivityStack();
+						TiBaseActivity.canFinishRoot = canFinishRoot;
+					}
+
+					// Simulate "singleTask" handling by updating root activity's intent with received one.
+					onNewIntent(bundledIntent);
 				}
 			} catch (Exception ex) {
-				Log.e(TAG, "Failed to parse intent extra: " + EXTRA_TI_NEW_INTENT, ex);
+				Log.e(TAG, "Failed to parse: " + EXTRA_TI_NEW_INTENT, ex);
 			}
 		}
 	}

@@ -745,19 +745,20 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		// Fetch a path to the main script that was last loaded.
 		String appPath = rootActivity.getUrl();
-		if (appPath == null) {
+		if ((appPath == null) || appPath.isEmpty()) {
 			return;
 		}
 		appPath = "Resources/" + appPath;
 
-		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
+		// Prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity() method.
+		boolean canFinishRoot = TiBaseActivity.canFinishRoot;
 		TiBaseActivity.canFinishRoot = false;
 
 		// terminate all activities excluding root
 		TiApplication.terminateActivityStack();
 
-		// allow termination again
-		TiBaseActivity.canFinishRoot = true;
+		// Restore previous "canFinishRoot" setting.
+		TiBaseActivity.canFinishRoot = canFinishRoot;
 
 		// restart kroll runtime
 		KrollRuntime runtime = KrollRuntime.getInstance();

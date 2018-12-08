@@ -301,6 +301,17 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		}
 	}
 
+	public void onNewIntent(Intent newIntent)
+	{
+		// Replace previously stored intent with the given one.
+		this.intentProxy = new IntentProxy(newIntent);
+
+		// Fire a Titanium "newintent" event.
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_INTENT, this.intentProxy);
+		fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+	}
+
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		IntentProxy intent = null;
