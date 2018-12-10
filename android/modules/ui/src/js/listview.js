@@ -103,8 +103,19 @@ exports.bootstrap = function(Titanium) {
 				try {
 					// widget does not exist, attempt to load namespace
 					widget = Module.main.require(namespace);
-				} catch (e) {
-					// do nothing...
+				} catch (err) {
+					// namespace does not exist, fall back to legacy behaviour
+					const namespaceIndex = namespace.lastIndexOf('.');
+					const proxyName = namespace.slice(namespaceIndex + 1);
+					const parentNamespace = namespace.substring(0, namespaceIndex);
+					const segments = parentNamespace.split('.');
+					let parentProxy = global;
+					for (let i = 0; i < segments.length; i++) {
+						parentProxy = parentProxy[segments[i]];
+					}
+					if (parentProxy) {
+						return parentProxy['create' + proxyName];
+					}
 				}
 			}
 			if (widget) {
