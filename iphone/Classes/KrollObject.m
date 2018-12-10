@@ -854,54 +854,54 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 - (BOOL)hasProperty:(NSString *)propertyName
 {
   if (statics != nil && statics[propertyName] != nil) {
-    return true;
+    return YES;
   }
 
   if (properties != nil && properties[propertyName] != nil) {
-    return true;
+    return YES;
   }
 
   if (([propertyName hasPrefix:@"get"] || [propertyName hasPrefix:@"set"]) && (propertyName.length >= 4) &&
       [NSCharacterSet.uppercaseLetterCharacterSet characterIsMember:[propertyName characterAtIndex:3]]) {
-    return true;
+    return YES;
   }
 
   objc_property_t p = class_getProperty([target class], propertyName.UTF8String);
   if (p != NULL) {
-    return true;
+    return YES;
   }
 
   if ([propertyName isEqualToString:@"toString"] || [propertyName isEqualToString:@"valueOf"]) {
-    return true;
+    return YES;
   }
 
   if ([propertyName isEqualToString:@"className"]) {
-    return true;
+    return YES;
   }
 
   SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", propertyName]);
   if ([target respondsToSelector:selector]) {
-    return true;
+    return YES;
   }
 
   selector = NSSelectorFromString([NSString stringWithFormat:@"%@", propertyName]);
   if ([target respondsToSelector:selector]) {
-    return true;
+    return YES;
   }
 
   id result = [target valueForKey:propertyName];
   if (result != nil) {
-    return true;
+    return YES;
   }
 
   if ([propertyName hasPrefix:@"create"]) {
     SEL selector = @selector(createProxy:forName:context:);
     if ([target respondsToSelector:selector]) {
-      return true;
+      return YES;
     }
   }
 
-  return false;
+  return NO;
 }
 
 - (id)valueForKey:(NSString *)key

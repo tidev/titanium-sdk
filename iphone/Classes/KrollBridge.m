@@ -103,16 +103,16 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 - (BOOL)hasProperty:(NSString *)propertyName
 {
   if (dynprops != nil && dynprops[propertyName] != nil) {
-    return true;
+    return YES;
   }
 
   id module = modules[propertyName];
   if (module != nil) {
-    return true;
+    return YES;
   }
   module = [host moduleNamed:propertyName context:pageContext];
   if (module != nil) {
-    return true;
+    return YES;
   }
 
   return [super hasProperty:propertyName];
