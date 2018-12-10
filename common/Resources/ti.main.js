@@ -33,6 +33,7 @@ require('./ti.internal/extensions/process');
 const addBinding = require('./ti.internal/extensions/binding');
 // FIXME Use require.resolve to resolve the path, once we support it!
 addBinding('path', '/ti.internal/extensions/path');
+addBinding('os', '/ti.internal/extensions/os');
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
