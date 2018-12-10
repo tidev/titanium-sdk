@@ -29,10 +29,19 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.SystemClock;
 
 import com.appcelerator.aps.APSAnalytics;
 import com.appcelerator.aps.APSAnalyticsMeta;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Kroll.module
@@ -50,6 +59,8 @@ public class PlatformModule extends KrollModule
 	public static final int BATTERY_STATE_FULL = 3;
 
 	protected DisplayCapsProxy displayCaps;
+
+	private List<Processor> processors;
 
 	protected int batteryState;
 	protected double batteryLevel;
@@ -139,6 +150,15 @@ public class PlatformModule extends KrollModule
 	// clang-format on
 	{
 		return Runtime.getRuntime().freeMemory();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getTotalMemory()
+	// clang-format on
+	{
+		return Runtime.getRuntime().totalMemory();
 	}
 
 	// clang-format off
@@ -337,6 +357,83 @@ public class PlatformModule extends KrollModule
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getUptime()
+	// clang-format on
+	{
+		return SystemClock.uptimeMillis() / 1000.0;
+	}
+
+	// clang-format off
+	@Kroll.method
+	public Object[] cpus()
+	// clang-format on
+	{
+		List<Processor> processors = getProcessors();
+		List<KrollDict> result = new ArrayList<KrollDict>(processors.size());
+		for (Processor p : processors) {
+			result.add(p.toKrollDict());
+		}
+		return result.toArray();
+	}
+
+	private synchronized List<Processor> getProcessors()
+	{
+		if (this.processors != null) {
+			return this.processors;
+		}
+		final int processorCount = getProcessorCount();
+		processors = new ArrayList<Processor>(processorCount);
+
+		// Now read in their details
+		BufferedReader in = null;
+		List<Map> groups = new ArrayList<Map>();
+		Map<String, String> current = new HashMap<String, String>();
+		try {
+			String[] args = { "/system/bin/cat", "/proc/cpuinfo" };
+			ProcessBuilder cmd = new ProcessBuilder(args);
+			Process process = cmd.start();
+			InputStream inStream = process.getInputStream();
+			in = new BufferedReader(new InputStreamReader(inStream));
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				if (line.length() == 0) {
+					// new group!
+					groups.add(current);
+					current = new HashMap<String, String>();
+				} else {
+					// entry, split by ':'
+					int colonIndex = line.indexOf(':');
+					String key = line.substring(0, colonIndex).trim();
+					String value = line.substring(colonIndex + 1).trim();
+					current.put(key, value);
+				}
+			}
+			for (Map<String, String> group : groups) {
+				processors.add(new Processor(group));
+			}
+			// TODO Sort processors by index, fill in model name by preceding if unknown
+
+		} catch (IOException ex) {
+			// somethign went wrong, create "default" set of processors?
+			this.processors = new ArrayList<Processor>(processorCount);
+			for (int i = 0; i < processorCount; i++) {
+				this.processors.add(Processor.unknown(i));
+			}
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		return processors;
+	}
+
 	protected void registerBatteryStateReceiver()
 	{
 		batteryStateReceiver = new BroadcastReceiver() {
@@ -452,5 +549,124 @@ public class PlatformModule extends KrollModule
 	public String getApiName()
 	{
 		return "Ti.Platform";
+	}
+
+	private static class Processor
+	{
+		private Map<String, String> details;
+		private Double speed;
+		private Integer index;
+		private String model;
+
+		public Processor(Map<String, String> details)
+		{
+			this.details = details;
+		}
+
+		// Used for error case when we have processor count but can't get any details on them
+		private Processor(int index)
+		{
+			this.index = index;
+			this.model = "unknown";
+		}
+
+		public synchronized int getIndex()
+		{
+			if (this.index != null) {
+				return this.index;
+			}
+			this.index = Integer.valueOf(this.details.get("processor"));
+			return this.index;
+		}
+		// TODO: try to group key/value pairs per-processor?
+		// What we really want here is to pull out "model name" and "cpu MHz" for each grouping
+		// We need to fallback for "model name" to "Processor", (or "cpu model") (if former is not available and latter is)
+		// https://github.com/libuv/libuv/blob/0813f5b97afe086a7b4d827774605b1f2e99191c/src/unix/linux-core.c
+		// No fallback for cpuMHz, ignore BogoMIPs as that's meaningless
+		// Instead need to *try* and read "/sys/devices/system/cpu/cpu%u/cpufreq/scaling_cur_freq" and divide by 1000.0
+
+		public synchronized double getSpeed()
+		{
+			if (this.speed != null) {
+				return this.speed;
+			}
+			if (details.containsKey("cpu MHz")) {
+				this.speed = Double.parseDouble(details.get("cpu MHz"));
+				return this.speed;
+			}
+			Long freq = readCPUFrequency();
+			if (freq != null) {
+				this.speed = freq / 1000.0;
+			} else {
+				this.speed = 0.0;
+			}
+			return this.speed;
+		}
+
+		private Long readCPUFrequency()
+		{
+			BufferedReader in = null;
+			try {
+				String[] args = { "/system/bin/cat",
+								  "/sys/devices/system/cpu/cpu" + getIndex() + "/cpufreq/scaling_cur_freq" };
+				ProcessBuilder cmd = new ProcessBuilder(args);
+				Process process = cmd.start();
+				InputStream inStream = process.getInputStream();
+				in = new BufferedReader(new InputStreamReader(inStream));
+				String line = in.readLine();
+				if (line != null) {
+					return Long.parseLong(line);
+				}
+			} catch (IOException ex) {
+				// ignore
+			} finally {
+				try {
+					if (in != null) {
+						in.close();
+					}
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+			return null;
+		}
+
+		public synchronized String getModel()
+		{
+			if (this.model != null) {
+				return this.model;
+			}
+			if (details.containsKey("model name")) {
+				this.model = details.get("model name");
+			} else if (details.containsKey("Processor")) {
+				this.model = details.get("Processor");
+			} else if (details.containsKey("cpu model")) {
+				this.model = details.get("cpu model");
+			} else {
+				// FIXME We can also infer same model as preceding cpu!
+				this.model = "unknown";
+			}
+			return this.model;
+		}
+
+		public KrollDict toKrollDict()
+		{
+			KrollDict dict = new KrollDict();
+			dict.put("model", getModel());
+			dict.put("speed", getSpeed());
+			KrollDict times = new KrollDict();
+			times.put("user", 0);
+			times.put("nice", 0);
+			times.put("sys", 0);
+			times.put("idle", 0);
+			times.put("irq", 0);
+			dict.put("times", times);
+			return dict;
+		}
+
+		public static Processor unknown(int index)
+		{
+			return new Processor(index);
+		}
 	}
 }
