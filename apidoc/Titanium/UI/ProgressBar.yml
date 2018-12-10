@@ -61,8 +61,9 @@ properties:
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: String
-    platforms: [iphone, ipad]
-    since: "5.2.0"
+    platforms: [iphone, ipad, android]
+    since: {iphone: "5.2.0", ipad: "5.2.0", android: "8.0.0"}
+    osver: {android: {min: "5.0"}}
 
   - name: min
     summary: Minimum value of the progress bar.
