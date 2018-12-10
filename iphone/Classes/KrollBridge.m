@@ -100,6 +100,24 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 {
 }
 
+- (BOOL)hasProperty:(NSString *)propertyName
+{
+  if (dynprops != nil && dynprops[propertyName] != nil) {
+    return true;
+  }
+
+  id module = modules[propertyName];
+  if (module != nil) {
+    return true;
+  }
+  module = [host moduleNamed:propertyName context:pageContext];
+  if (module != nil) {
+    return true;
+  }
+
+  return [super hasProperty:propertyName];
+}
+
 - (id)valueForKey:(NSString *)key
 {
   // allow dynprops to override built-in modules
