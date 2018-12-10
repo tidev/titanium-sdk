@@ -7,7 +7,7 @@
 # Entry point Makefile for ndk-build
 
 APP_BUILD_SCRIPT = src/native/Android.mk
-APP_PLATFORM := android-16
+APP_PLATFORM := android-19
 APP_CPPFLAGS += -std=c++11
 APP_STL := c++_shared
 ifeq ($(BUILD_X86), 1)
