@@ -849,7 +849,7 @@ properties:
     type: Array<Titanium.UI.View>
 
   - name: safeAreaPadding
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     summary: The padding needed to safely display content without it being overlapped by the screen insets and notches.
     description: |
         When setting [Window.extendSafeArea](Titanium.UI.Window.extendSafeArea) to `true`, the system's insets
@@ -891,7 +891,7 @@ properties:
 
     type: Dimension
     permission: read-only
-    since: "7.5.0"
+    since: {android: "7.5.0", iphone: "8.0.0", ipad: "8.0.0"}
 
   - name: shadowImage
     summary: Shadow image for the navigation bar, specified as a URL to a local image..
