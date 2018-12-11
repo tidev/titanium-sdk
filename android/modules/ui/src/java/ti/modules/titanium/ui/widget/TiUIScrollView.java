@@ -17,6 +17,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
@@ -1119,6 +1120,15 @@ public class TiUIScrollView extends TiUIView
 	{
 		if (this.scrollView != null) {
 			registerForKeyPress(this.scrollView);
+		}
+	}
+
+	@Override
+	public KrollDict toImage() {
+		if (scrollView instanceof TiVerticalScrollView) {
+			return TiUIHelper.viewToImage(proxy.getProperties(), ((TiVerticalScrollView) scrollView).getLayout());
+		} else {
+			return TiUIHelper.viewToImage(proxy.getProperties(), ((TiHorizontalScrollView) scrollView).getLayout());
 		}
 	}
 }
