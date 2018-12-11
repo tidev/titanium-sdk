@@ -823,6 +823,20 @@ properties:
     permission: read-only
     since: "5.2.0"
 
+  - name: TABS_STYLE_DEFAULT
+    summary: The default TabGroup style that places the Tabs bellow the ActionBar and above the Window content.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "7.5.0"
+
+  - name: TABS_STYLE_BOTTOM_NAVIGATION
+    summary: TabGroup style taking advantage of a bottom navigation controller for switching between tabs.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "7.5.0"
+
 examples:
   - title: Android Preferences Example
     example: |
