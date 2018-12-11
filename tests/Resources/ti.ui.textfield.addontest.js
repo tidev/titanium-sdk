@@ -8,8 +8,7 @@
 /* global Ti, Titanium */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TextField', function () {
 	var win;
@@ -23,27 +22,26 @@ describe('Titanium.UI.TextField', function () {
 
 	it.ios('hasText', function (finish) {
 		win = Ti.UI.createWindow();
-		 
 		var textFieldA = Ti.UI.createTextField({
-		  top: '60dip',
-		  value: 0
+			top: '60dip',
+			value: 0
 		});
-		 
+
 		win.add(textFieldA);
-		 
+
 		var textFieldB = Ti.UI.createTextField({
-		  top: '120dip',
-		  value: 0
+			top: '120dip',
+			value: 0
 		});
-		 
+
 		win.add(textFieldB);
-		 
+
 		textFieldA.addEventListener('change', function() {
-		  should(textFieldA.hasText()).be.true;
-		  should(textFieldB.hasText()).be.true;
-		  finish();
+			should(textFieldA.hasText()).be.true;
+			should(textFieldB.hasText()).be.true;
+			finish();
 		});
-		 
+
 		win.open();
 	});
 
