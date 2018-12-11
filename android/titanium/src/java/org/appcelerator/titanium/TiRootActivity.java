@@ -202,19 +202,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			try {
 				Object object = newIntent.getParcelableExtra(EXTRA_TI_NEW_INTENT);
 				if (object instanceof Intent) {
-					// Acquire the bundled intent.
-					Intent bundledIntent = (Intent) object;
-
-					// Close all child activities if clear-top flag was set.
-					if ((bundledIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
-						boolean canFinishRoot = TiBaseActivity.canFinishRoot;
-						TiBaseActivity.canFinishRoot = false;
-						TiApplication.terminateActivityStack();
-						TiBaseActivity.canFinishRoot = canFinishRoot;
-					}
-
-					// Simulate "singleTask" handling by updating root activity's intent with received one.
-					onNewIntent(bundledIntent);
+					onNewIntent((Intent) object);
 				}
 			} catch (Exception ex) {
 				Log.e(TAG, "Failed to parse: " + EXTRA_TI_NEW_INTENT, ex);

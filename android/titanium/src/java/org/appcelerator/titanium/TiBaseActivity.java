@@ -662,11 +662,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
 
-		// create the activity proxy here so that it is accessible from the activity in all cases
-		activityProxy = new ActivityProxy(this);
-
-		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
+		// Increment the Titanium activity reference count. To be decremented in onDestroy() method.
+		// Titanium's JavaScript runtime is created when we have at least 1 activity and destroyed when we have 0.
 		KrollRuntime.incrementActivityRefCount();
+
+		// We must create activity proxy after incrementing the activity reference count above.
+		// This is because proxy needs the JS runtime to exist when created.
+		this.activityProxy = new ActivityProxy(this);
 
 		Intent intent = this.launchIntent;
 		if (intent != null) {
