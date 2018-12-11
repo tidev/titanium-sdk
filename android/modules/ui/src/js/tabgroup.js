@@ -60,6 +60,18 @@ exports.bootstrap = function (Titanium) {
 		}
 	};
 
+	var _removeTab = TabGroup.prototype.removeTab;
+	TabGroup.prototype.removeTab = function (options) {
+		if (this.currentState !== this.state.opened) {
+			var index = this._tabs.indexOf(options);
+			if (index > -1) {
+				this._tabs.splice(index, 1);
+			}
+		} else {
+			_removeTab.call(this, options);
+		}
+	};
+
 	var _open = TabGroup.prototype.open;
 	TabGroup.prototype.open = function (options) {
 
