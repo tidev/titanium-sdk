@@ -93,6 +93,7 @@ public class TiUIHelper
 {
 	private static final String TAG = "TiUIHelper";
 	private static final String customFontPath = "Resources/fonts";
+	private static final String DEFAULT_FONT_SIZE_STRING = "15dp";
 
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 	public static final String MIME_TYPE_PNG = "image/png";
@@ -338,9 +339,8 @@ public class TiUIHelper
 
 	public static void styleText(TextView tv, HashMap<String, Object> d)
 	{
-
-		if (d == null) {
-			TiUIHelper.styleText(tv, null, null, null);
+		if ((d == null) || d.isEmpty()) {
+			TiUIHelper.styleText(tv, null, DEFAULT_FONT_SIZE_STRING, null);
 			return;
 		}
 
@@ -456,7 +456,7 @@ public class TiUIHelper
 
 	public static String getDefaultFontSize(Context context)
 	{
-		String size = "15.0px";
+		String size = DEFAULT_FONT_SIZE_STRING;
 		TextView tv = new TextView(context);
 		if (tv != null) {
 			size = String.valueOf(tv.getTextSize()) + "px";

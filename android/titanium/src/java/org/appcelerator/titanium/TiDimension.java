@@ -286,25 +286,28 @@ public class TiDimension
 
 	protected double getPercentPixels(View parent)
 	{
-		int dimension = -1;
+		if (parent == null) {
+			return -1;
+		}
+
+		int dimension;
 		switch (valueType) {
 			case TYPE_TOP:
 			case TYPE_BOTTOM:
 			case TYPE_CENTER_Y:
 			case TYPE_HEIGHT:
-				dimension = parent.getHeight();
+				dimension = Math.max(parent.getHeight(), 0);
 				break;
 			case TYPE_LEFT:
 			case TYPE_RIGHT:
 			case TYPE_CENTER_X:
 			case TYPE_WIDTH:
-				dimension = parent.getWidth();
+				dimension = Math.max(parent.getWidth(), 0);
 				break;
+			default:
+				return -1;
 		}
-		if (dimension != -1) {
-			return ((this.value / 100.0) * dimension);
-		}
-		return -1;
+		return ((this.value / 100.0) * dimension);
 	}
 
 	protected static DisplayMetrics getDisplayMetrics(View parent)

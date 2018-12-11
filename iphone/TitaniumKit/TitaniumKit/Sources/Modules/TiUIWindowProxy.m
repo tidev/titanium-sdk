@@ -974,7 +974,21 @@
 
 - (void)processForSafeArea
 {
-  if (self.shouldExtendSafeArea || ![TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  [self setValue:@{ @"top" : NUMFLOAT(0.0),
+    @"left" : NUMFLOAT(0.0),
+    @"bottom" : NUMFLOAT(0.0),
+    @"right" : NUMFLOAT(0.0) }
+          forKey:@"safeAreaPadding"];
+
+  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    if (self.shouldExtendSafeArea && !hidesStatusBar) {
+      [self setValue:@{ @"top" : NUMFLOAT(20.0),
+        @"left" : NUMFLOAT(0.0),
+        @"bottom" : NUMFLOAT(0.0),
+        @"right" : NUMFLOAT(0.0) }
+              forKey:@"safeAreaPadding"];
+    }
+
     return;
   }
 
@@ -988,6 +1002,20 @@
     edgeInsets = [self navigationGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
   } else {
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
+  }
+
+  if (self.shouldExtendSafeArea) {
+    [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
+      @"left" : NUMFLOAT(edgeInsets.left),
+      @"bottom" : NUMFLOAT(edgeInsets.bottom),
+      @"right" : NUMFLOAT(edgeInsets.right) }
+            forKey:@"safeAreaPadding"];
+
+    if (!UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets)) {
+      self.safeAreaInsetsUpdated = YES;
+    }
+    oldSafeAreaInsets = edgeInsets;
+    return;
   }
 
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
