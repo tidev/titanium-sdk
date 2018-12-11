@@ -75,6 +75,15 @@ describe('Core', () => {
 						view.should.have.property('foo');
 						view.foo.should.be.equal('bar');
 					});
+
+					it('should properly handle properties with value of nil (TIMOB-26452)', () => {
+						should(Ti.Geolocation).have.property('lastGeolocation');
+						if (Ti.Platform.osname === 'android') {
+							should(Ti.Geolocation.lastGeolocation).be.equal('{}');
+						} else {
+							should.not.exist(Ti.Geolocation.lastGeolocation);
+						}
+					});
 				});
 
 				describe('toString/valueOf', () => {
