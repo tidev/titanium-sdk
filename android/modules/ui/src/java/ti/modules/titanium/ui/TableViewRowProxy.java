@@ -201,9 +201,14 @@ public class TableViewRowProxy extends TiViewProxy
 			if (tableViewItem != null) {
 				tableViewItem.setRowData(this);
 				// update/refresh table view when a row's data changed.
-				TiUITableView table = getTable().getTableView();
-				table.setModelDirty();
-				table.updateView();
+				TableViewProxy proxy = getTable();
+				if (proxy != null) {
+					TiUITableView table = (TiUITableView) proxy.peekView();
+					if (table != null) {
+						table.setModelDirty();
+						table.updateView();
+					}
+				}
 			}
 			return true;
 		}
