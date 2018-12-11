@@ -16,10 +16,10 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
-public abstract class TiUIAbstractTab extends TiUIView
+public class TiUITab extends TiUIView
 {
 
-	public TiUIAbstractTab(TabProxy proxy)
+	public TiUITab(TabProxy proxy)
 	{
 		super(proxy);
 		proxy.setView(this);

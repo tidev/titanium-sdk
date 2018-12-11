@@ -40,12 +40,12 @@ description: |
     If using tab groups on iOS, see
     [iOS UI Element Usage Guidelines](https://developer.apple.com/ios/human-interface-guidelines/bars/tab-bars/).
 
-extends: Titanium.UI.View
+extends: Titanium.UI.Window
 since: "0.9"
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
-                 anchorPoint,animatedCenter,backgroundColor,backgroundDisabledColor,backgroundDisabledImage,
+                 anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
                  backgroundRepeat,backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,
                  borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
@@ -396,6 +396,44 @@ properties:
     type: Number
     constants: Titanium.UI.Android.SOFT_INPUT_ADJUST_*
     availability: creation
+    platforms: [android]
+
+  - name: shiftMode
+    summary: Determines whether the BOTTOM_NAVIGATION_VIEW_STYLE uses shiftMode.
+    description: |
+        In Android BottomNavigationView uses shiftMode by default. This mode changes
+        unselected tabs' properties - makes the title invisible and reduces the icon's
+        dimensions by half.
+
+        This property allows the user to choose whether they would use this design
+        behavior.
+
+        NOTE: This property only affects TabGroups with the BOTTOM_NAVIGATION_VIEW_STYLE.
+    type: Boolean
+    default: true
+    since: "7.5.0"
+    platforms: [android]
+
+  - name: style
+    summary: Property defining which style for the TabGroup to be used.
+    description: |
+        Since 7.5.0 Titanium has introduce a new style to be used for the TabGroup component.
+
+        For backwards compatibility not taking advantage of this property results in using the default style
+        which is similar to the ActionBar Tabs style but sticking to the Material design Guidelines.
+
+        [TABS_STYLE_BOTTOM_DEFAULT](Titanium.UI.Android.TABS_STYLE_DEFAULT) is the style that was used in Titanium
+        prior to 7.5.0.GA. It displays the TabGroup with a list of Tabs at the top of the screen.
+
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) is a style that displays
+        the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this 
+        style is for items count between three and five: (https://material.io/design/components/bottom-navigation.html#usage) 
+        In Android it is limited to supporting a maximum number of five tabs.
+
+    availability: creation
+    constants: Titanium.UI.Android.TABS_STYLE_*
+    since: "7.5.0"
+    type: Number
     platforms: [android]
 
   - name: tabsBackgroundColor
