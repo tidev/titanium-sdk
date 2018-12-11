@@ -36,7 +36,7 @@ describe('Titanium.UI.TextField', function () {
 
 		win.add(textFieldB);
 
-		textFieldA.addEventListener('change', function() {
+		textFieldA.addEventListener('change', function () {
 			should(textFieldA.hasText()).be.true;
 			should(textFieldB.hasText()).be.true;
 			finish();
