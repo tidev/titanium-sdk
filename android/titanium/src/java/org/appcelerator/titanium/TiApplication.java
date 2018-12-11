@@ -97,6 +97,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	private String defaultUnit;
 	private TiResponseCache responseCache;
+	private BroadcastReceiver localeReceiver;
 	private BroadcastReceiver externalStorageReceiver;
 	private AccessibilityManager accessibilityManager = null;
 	private boolean forceFinishRootActivity = false;
@@ -372,11 +373,14 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		tempFileHelper = new TiTempFileHelper(this);
 
 		deployData = new TiDeployData(this);
+
+		registerActivityLifecycleCallbacks(new TiApplicationLifecycle());
 	}
 
 	@Override
 	public void onTerminate()
 	{
+		stopLocaleMonitor();
 		stopExternalStorageMonitor();
 		accessibilityManager = null;
 		super.onTerminate();
@@ -407,23 +411,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		deployData = new TiDeployData(this);
 
+		String deployType = this.appProperties.getString("ti.deploytype", "unknown");
+		if ("unknown".equals(deployType)) {
+			deployType = this.appInfo.getDeployType();
+		}
+
+		String buildType = this.appInfo.getBuildType();
+		if (buildType != null && !buildType.equals("")) {
+			APSAnalyticsMeta.setBuildType(buildType);
+		}
+
+		APSAnalyticsMeta.setAppId(this.appInfo.getId());
+		APSAnalyticsMeta.setAppName(this.appInfo.getName());
+		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
+		APSAnalyticsMeta.setDeployType(deployType);
+		APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
+		APSAnalytics.getInstance().setMachineId(this);
+
 		if (isAnalyticsEnabled()) {
-			String deployType = this.appProperties.getString("ti.deploytype", "unknown");
-			if ("unknown".equals(deployType)) {
-				deployType = this.appInfo.getDeployType();
-			}
-
-			String buildType = this.appInfo.getBuildType();
-			if (buildType != null && !buildType.equals("")) {
-				APSAnalyticsMeta.setBuildType(buildType);
-			}
-
-			APSAnalyticsMeta.setAppId(this.appInfo.getId());
-			APSAnalyticsMeta.setAppName(this.appInfo.getName());
-			APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
-			APSAnalyticsMeta.setDeployType(deployType);
-			APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
-
 			APSAnalytics.getInstance().initialize(getAppGUID(), this);
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
@@ -443,6 +448,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
+		startLocaleMonitor();
 		startExternalStorageMonitor();
 
 		// Register the default cache handler
@@ -619,9 +625,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppInfo().isAnalyticsEnabled();
 	}
 
+	/**
+	 * Determines if Titanium's JavaScript runtime should run on the main UI thread or not
+	 * based on the "tiapp.xml" property "run-on-main-thread".
+	 * @return
+	 * Always returns true as of Titanium 8.0.0. The "run-on-main-thread" property is no longer supported.
+	 */
 	public boolean runOnMainThread()
 	{
-		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
+		return true;
 	}
 
 	public boolean intentFilterNewTask()
@@ -744,6 +756,28 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public void softRestart()
+	{
+		KrollRuntime runtime = KrollRuntime.getInstance();
+
+		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
+		TiBaseActivity.canFinishRoot = false;
+
+		// terminate all activities excluding root
+		TiApplication.terminateActivityStack();
+
+		// allow termination again
+		TiBaseActivity.canFinishRoot = true;
+
+		// restart kroll runtime
+		runtime.doDispose();
+		runtime.initRuntime();
+
+		// manually re-launch app
+		runtime.doRunModule(KrollAssetHelper.readAsset(TiC.PATH_APP_JS), TiC.URL_APP_JS,
+							((TiBaseActivity) getRootOrCurrentActivity()).getActivityProxy());
+	}
+
 	public boolean isRestartPending()
 	{
 		return restartPending;
@@ -794,6 +828,29 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isDebuggerEnabled()
 	{
 		return getDeployData().isDebuggerEnabled();
+	}
+
+	private void startLocaleMonitor()
+	{
+		localeReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				final KrollModule locale = getModuleByName("Locale");
+				if (!locale.hasListeners(TiC.EVENT_CHANGE)) {
+					TiApplication.getInstance().softRestart();
+				} else {
+					locale.fireEvent(TiC.EVENT_CHANGE, null);
+				}
+			}
+		};
+
+		registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+	}
+
+	private void stopLocaleMonitor()
+	{
+		unregisterReceiver(localeReceiver);
 	}
 
 	private void startExternalStorageMonitor()

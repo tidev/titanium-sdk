@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.telephony.PhoneNumberUtils;
 
 @Kroll.module
@@ -26,7 +27,7 @@ public class LocaleModule extends KrollModule
 
 	public LocaleModule()
 	{
-		super();
+		super("Locale");
 	}
 
 	// clang-format off
@@ -108,9 +109,13 @@ public class LocaleModule extends KrollModule
 			Locale.setDefault(locale);
 
 			Configuration config = new Configuration();
-			config.locale = locale;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				config.setLocale(locale);
+			} else {
+				config.locale = locale;
+			}
 
-			Context ctx = TiApplication.getInstance().getBaseContext();
+			Context ctx = TiApplication.getAppRootOrCurrentActivity().getBaseContext();
 			ctx.getResources().updateConfiguration(config, ctx.getResources().getDisplayMetrics());
 		} catch (Exception e) {
 			Log.e(TAG, "Error trying to set language '" + language + "':", e);
@@ -123,6 +128,10 @@ public class LocaleModule extends KrollModule
 	public String getString(String key, @Kroll.argument(optional = true) String defaultValue)
 	// clang-format on
 	{
+		if (defaultValue == null) {
+			defaultValue = key;
+		}
+
 		try {
 			int resid = TiRHelper.getResource("string." + key.replace(".", "_"));
 			if (resid != 0) {

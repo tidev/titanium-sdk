@@ -46,7 +46,8 @@ async.series([
 	function (next) {
 		git.getHash(path.join(__dirname, '..'), function (err, hash) {
 			program.gitHash = hash;
-			console.log('Building MobileSDK version %s, githash %s', program.sdkVersion, program.gitHash);
+			program.timestamp = utils.timestamp();
+			console.log('Building MobileSDK version %s, githash %s, buildDate %s', program.sdkVersion, program.gitHash, program.timestamp);
 			next(err);
 		});
 	}
@@ -93,7 +94,7 @@ async.series([
 						}
 					}
 
-					new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.gitHash).package(next);
+					new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.gitHash, program.timestamp).package(next);
 				}, function (err) {
 					if (err) {
 						console.error(err);

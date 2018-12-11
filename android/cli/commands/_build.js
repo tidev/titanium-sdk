@@ -1270,13 +1270,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// determine the abis to support
 	this.abis = this.validABIs;
-	if (this.deployType === 'production') {
-		// by default, remove 'x86' from production builds
-		// 'x86' devices are scarce; this is predominantly used for emulators
+	const customABIs = cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1;
+	if (!customABIs && this.deployType === 'production') {
+		// If a users has not specified the abi tag in the tiapp,
+		// remove 'x86' from production builds 'x86' devices are scarce;
+		// this is predominantly used for emulators
 		// we can save 16MB+ by removing this from release builds
 		this.abis.splice(this.abis.indexOf('x86'), 1);
 	}
-	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1) {
+	if (customABIs) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
 			if (this.validABIs.indexOf(abi) === -1) {
@@ -2755,7 +2757,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									targets: {
 										chrome: this.chromeVersion
 									},
-									resourcesDir: this.buildBinAssetsResourcesDir
+									resourcesDir: this.buildBinAssetsResourcesDir,
+									logger: this.logger
 								});
 								const newContents = modified.contents;
 
@@ -4375,7 +4378,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				'-Pconfiguration=' + quotePath(baserules) + pathArraySeparator + quotePath(mainDexProGuardFilePath)
 			], { shell: true, windowsHide: true }, function (code, out, err) {
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to run gradle:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();
@@ -4394,7 +4397,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to generate main class for dexer:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();

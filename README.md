@@ -13,6 +13,9 @@ see the LICENSE file for specific details.
 *[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
 # Table of Contents
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/appcelerator/titanium_mobile.svg)](https://greenkeeper.io/)
+
 1. [Features](#features)
 2. [Hyperloop](#hyperloop)
 3. [Alloy](#alloy)
@@ -117,7 +120,7 @@ Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-e
 
 ## Alloy
 
-[Alloy](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Quick_Start) is the MVC application framework built
+[Alloy](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Getting_Started) is the MVC application framework built
 on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
 It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
 
@@ -164,7 +167,7 @@ Please visit the official documentation site at [http://docs.appcelerator.com/](
 
 ### Developer Community
 
-[Appcelerator Developer](http://developer.appcelerator.com) is our developer community.
+[Appcelerator Developer](https://developer.axway.com/) is our developer community.
 
 ### Video Tutorials
 

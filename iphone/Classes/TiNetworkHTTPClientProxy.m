@@ -8,11 +8,11 @@
 #ifdef USE_TI_NETWORK
 
 #import "TiNetworkHTTPClientProxy.h"
-#import "Mimetypes.h"
 #import "NetworkModule.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiUtils.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
 
@@ -110,7 +110,7 @@ extern NSString *const TI_APPLICATION_GUID;
   }
   if ([httpRequest response] != nil) {
     APSHTTPResponseState curState = [[httpRequest response] readyState];
-    if (curState != APSHTTPResponseStateUnsent) {
+    if (curState != APSHTTPResponseStateUnsent && curState != APSHTTPResponseStateDone) {
       NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ", curState);
       return;
     }

@@ -943,6 +943,14 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			if (getOuterView() != null) {
 				ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(newValue));
 			}
+		} else if (key.equals(TiC.PROPERTY_ANCHOR_POINT)) {
+			if (getOuterView() != null) {
+				if (newValue instanceof HashMap) {
+					setAnchor((HashMap) newValue);
+				} else {
+					Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
+				}
+			}
 		} else if (key.equals(TiC.PROPERTY_TRANSLATION_X)) {
 			if (getOuterView() != null) {
 				ViewCompat.setTranslationX(getOuterView(), TiConvert.toFloat(newValue));
@@ -1085,6 +1093,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(d, TiC.PROPERTY_ELEVATION));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ANCHOR_POINT) && !nativeViewNull) {
+			Object value = d.get(TiC.PROPERTY_ANCHOR_POINT);
+			if (value instanceof HashMap) {
+				setAnchor((HashMap) d);
+			} else {
+				Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_ROTATION) && !nativeViewNull) {
 			ViewCompat.setRotation(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION));
 		}
@@ -1120,6 +1137,19 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (LOLLIPOP_OR_GREATER && !nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
+	}
+
+	private void setAnchor(HashMap point)
+	{
+		View outerView = getOuterView();
+		if (outerView == null) {
+			return;
+		}
+		float pivotX = TiConvert.toFloat(point.get(TiC.PROPERTY_X), 0.5f);
+		float pivotY = TiConvert.toFloat(point.get(TiC.PROPERTY_Y), 0.5f);
+
+		ViewCompat.setPivotX(outerView, pivotX * outerView.getWidth());
+		ViewCompat.setPivotY(outerView, pivotY * outerView.getHeight());
 	}
 
 	// TODO dead code?
@@ -1455,8 +1485,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
 				}
 
-				//Have a default border width of 1
-				Object borderWidth = "1";
+				//Have a default border width of 1 if the border has defined color.
+				Object borderWidth = d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) ? "1" : "0";
 				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
 				} else {
@@ -1525,9 +1555,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected KrollDict dictFromEvent(MotionEvent e)
 	{
+		TiDimension xDimension = new TiDimension((double) e.getX(), TiDimension.TYPE_LEFT);
+		TiDimension yDimension = new TiDimension((double) e.getY(), TiDimension.TYPE_TOP);
+
 		KrollDict data = new KrollDict();
-		data.put(TiC.EVENT_PROPERTY_X, (double) e.getX());
-		data.put(TiC.EVENT_PROPERTY_Y, (double) e.getY());
+		data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(this.nativeView));
+		data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(this.nativeView));
 		data.put(TiC.EVENT_PROPERTY_FORCE, (double) e.getPressure());
 		data.put(TiC.EVENT_PROPERTY_SIZE, (double) e.getSize());
 		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
@@ -1708,8 +1741,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
-					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double) event.getX());
-					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
+					TiDimension xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
+					TiDimension yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
+					lastUpEvent.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(view));
+					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(view));
 				}
 
 				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {

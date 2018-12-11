@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIDASHBOARDVIEW
 
 #import "TiUIDashboardItemProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIDashboardItemProxy
 

@@ -39,6 +39,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
 import android.transition.ChangeImageTransform;
@@ -48,6 +49,7 @@ import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -57,8 +59,7 @@ import android.view.WindowManager;
 	propertyAccessors = {
 		TiC.PROPERTY_MODAL,
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-		TiC.PROPERTY_FLAG_SECURE,
-		TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE
+		TiC.PROPERTY_FLAG_SECURE
 })
 // clang-format on
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -69,8 +70,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
-	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
+
+	private static int id_toolbar;
 
 	private WeakReference<TiBaseActivity> windowActivity;
 
@@ -267,6 +269,26 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
+		// add toolbar to NavigationWindow
+		if (this.getNavigationWindow() != null && !(this instanceof NavigationWindowProxy)) {
+			if (activity.getSupportActionBar() == null) {
+				try {
+					if (id_toolbar == 0) {
+						id_toolbar = TiRHelper.getResource("layout.titanium_ui_toolbar");
+					}
+				} catch (TiRHelper.ResourceNotFoundException e) {
+					android.util.Log.e(TAG, "XML resources could not be found!!!");
+				}
+				LayoutInflater inflater = LayoutInflater.from(activity);
+				Toolbar toolbar = (Toolbar) inflater.inflate(id_toolbar, null, false);
+
+				activity.setSupportActionBar(toolbar);
+			}
+			activity.getSupportActionBar().setHomeButtonEnabled(
+				!getProperties().optBoolean(TiC.PROPERTY_HIDES_BACK_BUTTON, false));
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
+
 		activity.getActivityProxy().getDecorView().add(this);
 		activity.addWindowToStack(this);
 
@@ -350,6 +372,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT), PixelFormat.UNKNOWN));
 		}
+		if (hasProperty(TiC.PROPERTY_EXTEND_SAFE_AREA)) {
+			boolean value = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXTEND_SAFE_AREA), false);
+			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
+		}
 
 		// Set the theme property
 		if (hasProperty(TiC.PROPERTY_THEME)) {
@@ -391,6 +417,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					Intent intent = activity.getIntent();
 					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
 				}
+			} else if (TiC.PROPERTY_HIDES_BACK_BUTTON.equals(name)) {
+				if (windowActivity != null && windowActivity.get() != null
+					&& windowActivity.get().getSupportActionBar() != null) {
+					windowActivity.get().getSupportActionBar().setHomeButtonEnabled(!TiConvert.toBoolean(value));
+				}
 			}
 		}
 
@@ -427,11 +458,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
 			if (shouldFireChange(current, width)) {
 				Object height = getProperty(TiC.PROPERTY_HEIGHT);
-				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(width, height);
-				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[] { width, height }).sendToTarget();
-				}
+				setWindowWidthHeight(width, height);
 			}
 		}
 		super.setWidth(width);
@@ -448,11 +475,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);
 			if (shouldFireChange(current, height)) {
 				Object width = getProperty(TiC.PROPERTY_WIDTH);
-				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(width, height);
-				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[] { width, height }).sendToTarget();
-				}
+				setWindowWidthHeight(width, height);
 			}
 		}
 		super.setHeight(height);
@@ -478,11 +501,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				if (activity != null) {
 					activity.setTitle(TiConvert.toString((Object) (msg.obj), ""));
 				}
-				return true;
-			}
-			case MSG_SET_WIDTH_HEIGHT: {
-				Object[] obj = (Object[]) msg.obj;
-				setWindowWidthHeight(obj[0], obj[1]);
 				return true;
 			}
 		}

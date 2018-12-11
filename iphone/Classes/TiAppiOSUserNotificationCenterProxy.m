@@ -23,7 +23,7 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
@@ -64,13 +64,13 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
+      [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
-        for (UNNotificationRequest *request in requests) {
-          [result addObject:[self dictionaryWithUserNotificationRequest:request]];
+        for (UNNotification *notification in notifications) {
+          [result addObject:[self dictionaryWithUserNotificationRequest:[notification request]]];
         }
 
         NSDictionary *propertiesDict = @{
@@ -92,7 +92,7 @@
 {
   ENSURE_TYPE_OR_NIL(args, NSArray);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     TiThreadPerformOnMainThread(^{
       if (args == nil || [args count] == 0) {
@@ -136,7 +136,7 @@
 {
   ENSURE_TYPE_OR_NIL(args, NSArray);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
       UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
@@ -170,7 +170,7 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
         NSMutableDictionary *propertiesDict = [@{

@@ -600,7 +600,7 @@ class FunctionNode {
 		}
 		this.parameters = [];
 		this.parseParameters(functionDoc.parameters);
-		this.summary = functionDoc.summary.trim();
+		this.summary = functionDoc.summary ? functionDoc.summary.trim() : '';
 		this.optional = functionDoc.optional || false;
 	}
 
