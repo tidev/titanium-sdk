@@ -17,17 +17,16 @@ describe('Core', () => {
 		describe('hasProperty', () => {
 			describe('Top-Module', () => {
 				describe('Submodules', () => {
-					it('should check for sub-module', () => {
+					// @fixme the not.have.property check throws an error on android
+					it.androidBroken('should check for sub-module', () => {
 						Ti.should.have.property('UI');
-						// @fixme this check throws an error on android
-						if (Ti.Platform.osname !== 'android') {
-							Ti.should.not.have.property('Foo');
-						}
+						Ti.should.not.have.property('Foo');
 					});
 				});
 
 				describe('Custom properties', () => {
-					it.ios('should check for custom properties', () => {
+					// @fixme the not.have.property check throws an error on android
+					it.androidBroken('should check for custom properties', () => {
 						Ti.should.not.have.property('custom');
 						Ti.custom = {};
 						Ti.should.have.property('custom');
