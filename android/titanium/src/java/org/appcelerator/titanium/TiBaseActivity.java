@@ -1731,8 +1731,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// then close all Titanium child activities too.
 		boolean isTiRootActivity = (this instanceof TiRootActivity);
 		if (isTiRootActivity && (getTiApp().getRootActivity() == this)) {
-			TiApplication.removeFromActivityStack(this);
 			TiApplication.terminateActivityStack();
+			TiApplication.removeFromActivityStack(this);
 		}
 
 		// Close this activity.
