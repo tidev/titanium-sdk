@@ -183,6 +183,11 @@ public class AndroidModule extends KrollModule
 	public static final int GRAVITY_VERTICAL_GRAVITY_MASK = Gravity.VERTICAL_GRAVITY_MASK;
 
 	@Kroll.constant
+	public static final int TABS_STYLE_DEFAULT = 0;
+	@Kroll.constant
+	public static final int TABS_STYLE_BOTTOM_NAVIGATION = 1;
+
+	@Kroll.constant
 	public static final int TRANSITION_NONE = TiUIView.TRANSITION_NONE;
 	@Kroll.constant
 	public static final int TRANSITION_EXPLODE = TiUIView.TRANSITION_EXPLODE;
