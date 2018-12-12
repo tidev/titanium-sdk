@@ -20,7 +20,7 @@ describe('Titanium.UI.TextField', function () {
 		win = null;
 	});
 
-	it.ios('hasText', function (finish) {
+	it.ios('hasText', function () {
 		win = Ti.UI.createWindow();
 		var textFieldA = Ti.UI.createTextField({
 			top: '60dip',
@@ -36,11 +36,8 @@ describe('Titanium.UI.TextField', function () {
 
 		win.add(textFieldB);
 
-		textFieldA.addEventListener('change', function () {
-			should(textFieldA.hasText()).be.true;
-			should(textFieldB.hasText()).be.true;
-			finish();
-		});
+		should(textFieldA.hasText()).be.true;
+		should(textFieldB.hasText()).be.true;
 
 		win.open();
 	});
