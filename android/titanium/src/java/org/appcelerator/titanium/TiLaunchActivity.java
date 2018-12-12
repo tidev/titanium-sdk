@@ -122,7 +122,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		super.windowCreated(savedInstanceState);
 		loadActivityScript();
 		scriptLoaded();
-		TiApplication.getInstance().postAppInfo();
 	}
 
 	public boolean isJSActivity()
