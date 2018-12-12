@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -107,7 +106,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 			// Handle the existing Titanium activity instance.
 			if (isActivityForResult || (rootActivity.getCallingActivity() != null)) {
-				// At least 1 root activity instance was created via the startActiviyForResult() method.
+				// At least 1 root activity instance was created via the startActivityForResult() method.
 				try {
 					// Attempt to tear down the other Titanium activity task.
 					// Note: The finish() method won't do anything if it's not the top-most task in the app.
@@ -119,7 +118,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 					// Recreate this activity on the current task.
 					if (isActivityForResult) {
-						// This activtiy was created via startActiviyForResult().
+						// This activtiy was created via startActivityForResult().
 						// "Forward" the result handling to the next activity we're about to start-up.
 						Intent relaunchIntent = newIntent;
 						if (relaunchIntent == null) {
@@ -129,7 +128,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 						startActivity(relaunchIntent);
 					} else {
 						// Delay recreation of this activity. Need to wait for above finished activity to be destroyed.
-						// Note: Only an issue when destroying activities created via startActiviyForResult().
+						// Note: Only an issue when destroying activities created via startActivityForResult().
 						final Intent relaunchIntent = mainIntent;
 						if (newIntent != null) {
 							relaunchIntent.putExtra(EXTRA_TI_NEW_INTENT, newIntent);

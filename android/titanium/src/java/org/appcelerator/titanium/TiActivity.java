@@ -10,8 +10,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
 
 /** The activity that is shown when opening a Titanium "Ti.UI.Window" in JavaScript. */
 public class TiActivity extends TiBaseActivity
