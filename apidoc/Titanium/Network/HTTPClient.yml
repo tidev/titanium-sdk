@@ -369,7 +369,7 @@ properties:
     description: |
         This property can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
-    type: String
+    type: [String, Titanium.Filesystem.File]
     platforms: [android, iphone, ipad]
     since: {android: 3.4.0}
 
