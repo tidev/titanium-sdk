@@ -23,10 +23,11 @@ using namespace v8;
 Utf8Value::Utf8Value(v8::Local<v8::Value> value) : length_(0), str_(str_st_)
 {
 	if (value.IsEmpty()) return;
-	v8::isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	Local<Context> context = isolate->GetCurrentContext();
-	v8::Local<v8::String> string = value->ToString(context);
-	if (string.IsEmpty()) return;
+	v8::MaybeLocal<v8::String> maybeString = value->ToString(context);
+	if (maybeString.IsEmpty()) return;
+	Local<String> string = maybeString.ToLocalChecked();
 	// Allocate enough space to include the null terminator
 	size_t len = (3 * string->Length()) + 1;
 	if (len > sizeof(str_st_)) {
