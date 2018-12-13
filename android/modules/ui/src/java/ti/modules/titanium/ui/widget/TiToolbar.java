@@ -5,8 +5,6 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -16,8 +14,6 @@ import android.view.WindowManager;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -29,41 +25,18 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiToolbarStyleHandler;
 import org.appcelerator.titanium.view.TiUIView;
 
-public class TiToolbar extends TiUIView implements Handler.Callback
+public class TiToolbar extends TiUIView
 {
 	//region private primitive fields
 	private final int BACKGROUND_TRANSLUCENT_VALUE = 92;
 	private final int BACKGROUND_SOLID_VALUE = 255;
 	//endregion
 	//region private Object fields
-	private Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 	private Toolbar toolbar;
 	private Object logo = null;
 	private Object navigationIcon = null;
 	private Object overflowMenuIcon = null;
 	private TiViewProxy[] viewProxiesArray;
-	//endregion
-	//region common message types
-	private final int TOOLBAR_SET_COLOR = 10001;
-	private final int TOOLBAR_SET_TRANSLUCENCY = 10002;
-	private final int TOOLBAR_SET_BACKGROUND_EXTENDED = 10003;
-	//endregion
-	//region Android only message types
-	private final int TOOLBAR_SHOW_OVERFLOW_MENU = 10004;
-	private final int TOOLBAR_HIDE_OVERFLOW_MENU = 10005;
-	private final int TOOLBAR_SET_LOGO = 10006;
-	private final int TOOLBAR_SET_NAVIGATION_ICON = 10007;
-	private final int TOOLBAR_SET_OVERFLOW_MENU_ICON = 10008;
-	private final int TOOLBAR_DISMISS_POPUP_MENUS = 10009;
-	private final int TOOLBAR_SET_TITLE = 10010;
-	private final int TOOLBAR_SET_TITLE_TEXT_COLOR = 10011;
-	private final int TOOLBAR_SET_SUBTITLE = 10012;
-	private final int TOOLBAR_SET_SUBTITLE_TEXT_COLOR = 10013;
-	private final int TOOLBAR_COLLAPSE_ACTION_VEIW = 10014;
-	private final int TOOLBAR_SET_CONTENT_INSET_END_WITH_ACTIONS = 10015;
-	private final int TOOLBAR_SET_CONTENT_INSET_START_WITH_NAVIGATION = 10016;
-	private final int TOOLBAR_SET_CONTENT_INSETS_ABSOLUTE = 10017;
-	private final int TOOLBAR_SET_CONTENT_INSETS_RELATIVE = 10018;
 	//endregion
 
 	/**
@@ -158,19 +131,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	public void setToolbarColor(String color)
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_COLOR), color);
-		} else {
-			handleBackgroundColor(color);
-		}
-	}
-
-	/**
-	 * Handler for background color change.
-	 * @param color String in Titanium color format
-	 */
-	private void handleBackgroundColor(String color)
-	{
 		toolbar.setBackgroundColor((TiColorHelper.parseColor(color)));
 		if (proxy.hasProperty(TiC.PROPERTY_TRANSLUCENT)) {
 			if ((Boolean) proxy.getProperty(TiC.PROPERTY_TRANSLUCENT)) {
@@ -185,18 +145,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 * and it positioned at the very top of it.
 	 */
 	public void setToolbarExtendBackground()
-	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_BACKGROUND_EXTENDED));
-		} else {
-			handleBackgroundExtended();
-		}
-	}
-
-	/**
-	 * Handler for extending the background.
-	 */
-	private void handleBackgroundExtended()
 	{
 		// This feature is only supported on Android 4.4 or higher.
 		if (Build.VERSION.SDK_INT < 19) {
@@ -252,19 +200,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	public void setTranslucent(boolean value)
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TRANSLUCENCY), value);
-		} else {
-			handleTranslucency(value);
-		}
-	}
-
-	/**
-	 * Handler for translucency change
-	 * @param value Boolean value to set to translucency.
-	 */
-	private void handleTranslucency(boolean value)
-	{
 		toolbar.getBackground().setAlpha(value ? BACKGROUND_TRANSLUCENT_VALUE : BACKGROUND_SOLID_VALUE);
 	}
 
@@ -291,18 +226,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	public void showOverFlowMenu()
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SHOW_OVERFLOW_MENU));
-		} else {
-			handleShowOverFlowMenu();
-		}
-	}
-
-	/**
-	 * Handles overflow menu show.
-	 */
-	private void handleShowOverFlowMenu()
-	{
 		((Toolbar) getNativeView()).showOverflowMenu();
 	}
 
@@ -310,18 +233,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 * Hides the overflow menu if there is one.
 	 */
 	public void hideOverFlowMenu()
-	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_HIDE_OVERFLOW_MENU));
-		} else {
-			handleHideOverFlowMenu();
-		}
-	}
-
-	/**
-	 * Handles overflow menu hide.
-	 */
-	private void handleHideOverFlowMenu()
 	{
 		((Toolbar) getNativeView()).hideOverflowMenu();
 	}
@@ -331,19 +242,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 * @param object Image to load. It can be passed as a Blob, File or path to a resource.
 	 */
 	public void setLogo(Object object)
-	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_LOGO), object);
-		} else {
-			handleSetLogo(object);
-		}
-	}
-
-	/**
-	 * Handles the logo change.
-	 * @param object
-	 */
-	private void handleSetLogo(Object object)
 	{
 		logo = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
@@ -365,19 +263,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	public void setNavigationIcon(Object object)
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_NAVIGATION_ICON), object);
-		} else {
-			handleSetNavigationIcon(object);
-		}
-	}
-
-	/**
-	 * Handles the navigation icon change.
-	 * @param object
-	 */
-	private void handleSetNavigationIcon(Object object)
-	{
 		navigationIcon = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setNavigationIcon(tiDrawableReference.getDrawable());
@@ -398,19 +283,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	public void setOverflowMenuIcon(Object object)
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_OVERFLOW_MENU_ICON), object);
-		} else {
-			handleSetOverflowMenuIcon(object);
-		}
-	}
-
-	/**
-	 * Handles overflow menu icon change
-	 * @param object
-	 */
-	private void handleSetOverflowMenuIcon(Object object)
-	{
 		overflowMenuIcon = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setOverflowIcon(tiDrawableReference.getDrawable());
@@ -430,18 +302,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	public void dismissPopupMenus()
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage((TOOLBAR_DISMISS_POPUP_MENUS)));
-		} else {
-			handleDismissPopupMenus();
-		}
-	}
-
-	/**
-	 * Handles closing all action views expanded and hiding overflow menu.
-	 */
-	private void handleDismissPopupMenus()
-	{
 		((Toolbar) getNativeView()).dismissPopupMenus();
 	}
 
@@ -450,19 +310,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 * @param value String to be used as title.
 	 */
 	private void setTitle(String value)
-	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE), value);
-		} else {
-			handleSetTitle(value);
-		}
-	}
-
-	/**
-	 * Handles title change
-	 * @param value
-	 */
-	private void handleSetTitle(String value)
 	{
 		toolbar.setTitle(value);
 	}
@@ -473,19 +320,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	private void setTitleTextColor(String value)
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE_TEXT_COLOR), value);
-		} else {
-			handleSetTitleTextColor(value);
-		}
-	}
-
-	/**
-	 * Handles title's text color change.
-	 * @param value
-	 */
-	private void handleSetTitleTextColor(String value)
-	{
 		toolbar.setTitleTextColor(TiColorHelper.parseColor(value));
 	}
 
@@ -495,19 +329,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	private void setSubtitle(String value)
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE), value);
-		} else {
-			handleSetSubtitle(value);
-		}
-	}
-
-	/**
-	 * Handles subtitle change.
-	 * @param value
-	 */
-	private void handleSetSubtitle(String value)
-	{
 		toolbar.setSubtitle(value);
 	}
 
@@ -516,19 +337,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 * @param value Color in any format supported by Titanium.
 	 */
 	private void setSubtitleTextColor(String value)
-	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE_TEXT_COLOR), value);
-		} else {
-			handleSetSubtitleTextColor(value);
-		}
-	}
-
-	/**
-	 * Handles subtitle's text color change.
-	 * @param value
-	 */
-	private void handleSetSubtitleTextColor(String value)
 	{
 		toolbar.setSubtitleTextColor(TiColorHelper.parseColor(value));
 	}
@@ -552,47 +360,15 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 */
 	public void collapseActionView()
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_COLLAPSE_ACTION_VEIW));
-		} else {
-			handleCollapseActionView();
-		}
-	}
-
-	/**
-	 * Handles closing custom view.
-	 */
-	private void handleCollapseActionView()
-	{
 		toolbar.collapseActionView();
 	}
 
 	public void setContentInsetEndWithActions(int value)
 	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSET_END_WITH_ACTIONS),
-												value);
-		} else {
-			handleSetContentInsetEndWithActions(value);
-		}
-	}
-
-	private void handleSetContentInsetEndWithActions(int value)
-	{
 		toolbar.setContentInsetEndWithActions(value);
 	}
 
 	public void setContentInsetStartWithNavigation(int value)
-	{
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(
-				mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSET_START_WITH_NAVIGATION), value);
-		} else {
-			handleSetContentInsetStartWithNavigation(value);
-		}
-	}
-
-	private void handleSetContentInsetStartWithNavigation(int value)
 	{
 		toolbar.setContentInsetStartWithNavigation(value);
 	}
@@ -600,30 +376,12 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	public void setContentInsetsAbsolute(int insetLeft, int insetRight)
 	{
 		Integer[] values = new Integer[] { insetLeft, insetRight };
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSETS_ABSOLUTE), values);
-		} else {
-			handleSetContentInsetsAbsolute(values);
-		}
-	}
-
-	private void handleSetContentInsetsAbsolute(Integer values[])
-	{
 		toolbar.setContentInsetsAbsolute(values[0], values[1]);
 	}
 
 	public void setContentInsetsRelative(int insetLeft, int insetRight)
 	{
 		Integer[] values = new Integer[] { insetLeft, insetRight };
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSETS_RELATIVE), values);
-		} else {
-			handleSetContentInsetsRelative(values);
-		}
-	}
-
-	private void handleSetContentInsetsRelative(Integer values[])
-	{
 		toolbar.setContentInsetsAbsolute(values[0], values[1]);
 	}
 
@@ -724,105 +482,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 		}
 		if (key.equals(TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION)) {
 			setContentInsetStartWithNavigation((Integer) newValue);
-		}
-	}
-
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case TOOLBAR_SET_COLOR:
-				AsyncResult resultBackgroundColor = (AsyncResult) msg.obj;
-				handleBackgroundColor((String) resultBackgroundColor.getArg());
-				resultBackgroundColor.setResult(null);
-				return true;
-			case TOOLBAR_SET_TRANSLUCENCY:
-				AsyncResult resultTranslucency = (AsyncResult) msg.obj;
-				handleTranslucency((Boolean) resultTranslucency.getArg());
-				resultTranslucency.setResult(null);
-				return true;
-			case TOOLBAR_SET_BACKGROUND_EXTENDED:
-				AsyncResult resultBackgroundExtended = (AsyncResult) msg.obj;
-				handleBackgroundExtended();
-				resultBackgroundExtended.setResult(null);
-				return true;
-			case TOOLBAR_SHOW_OVERFLOW_MENU:
-				AsyncResult resultShowOverflow = (AsyncResult) msg.obj;
-				handleShowOverFlowMenu();
-				resultShowOverflow.setResult(null);
-				return true;
-			case TOOLBAR_HIDE_OVERFLOW_MENU:
-				AsyncResult resultHideOverflow = (AsyncResult) msg.obj;
-				handleHideOverFlowMenu();
-				resultHideOverflow.setResult(null);
-				return true;
-			case TOOLBAR_SET_LOGO:
-				AsyncResult resultSetLogo = (AsyncResult) msg.obj;
-				handleSetLogo(resultSetLogo.getArg());
-				resultSetLogo.setResult(null);
-				return true;
-			case TOOLBAR_SET_NAVIGATION_ICON:
-				AsyncResult resultSetNavigationIcon = (AsyncResult) msg.obj;
-				handleSetNavigationIcon(resultSetNavigationIcon.getArg());
-				resultSetNavigationIcon.setResult(null);
-				return true;
-			case TOOLBAR_SET_OVERFLOW_MENU_ICON:
-				AsyncResult resultSetOverflowMenuIcon = (AsyncResult) msg.obj;
-				handleSetOverflowMenuIcon(resultSetOverflowMenuIcon.getArg());
-				resultSetOverflowMenuIcon.setResult(null);
-				return true;
-			case TOOLBAR_DISMISS_POPUP_MENUS:
-				AsyncResult resultDismissPopupMenus = ((AsyncResult) msg.obj);
-				handleDismissPopupMenus();
-				resultDismissPopupMenus.setResult(null);
-				return true;
-			case TOOLBAR_SET_TITLE:
-				AsyncResult setTitleResult = ((AsyncResult) msg.obj);
-				handleSetTitle(((String) setTitleResult.getArg()));
-				setTitleResult.setResult(null);
-				return true;
-			case TOOLBAR_SET_TITLE_TEXT_COLOR:
-				AsyncResult setTitleTextColorResult = ((AsyncResult) msg.obj);
-				handleSetTitleTextColor(((String) setTitleTextColorResult.getArg()));
-				setTitleTextColorResult.setResult(null);
-				return true;
-			case TOOLBAR_SET_SUBTITLE:
-				AsyncResult setSubtitleResult = ((AsyncResult) msg.obj);
-				handleSetSubtitle(((String) setSubtitleResult.getArg()));
-				setSubtitleResult.setResult(null);
-				return true;
-			case TOOLBAR_SET_SUBTITLE_TEXT_COLOR:
-				AsyncResult setSubtitleTextColorResult = ((AsyncResult) msg.obj);
-				handleSetSubtitleTextColor(((String) setSubtitleTextColorResult.getArg()));
-				setSubtitleTextColorResult.setResult(null);
-				return true;
-			case TOOLBAR_COLLAPSE_ACTION_VEIW:
-				AsyncResult collapseActionViewResult = ((AsyncResult) msg.obj);
-				handleCollapseActionView();
-				collapseActionViewResult.setResult(null);
-				return true;
-			case TOOLBAR_SET_CONTENT_INSET_END_WITH_ACTIONS:
-				AsyncResult setContentInsetEndWithActionResult = ((AsyncResult) msg.obj);
-				handleSetContentInsetEndWithActions((Integer) setContentInsetEndWithActionResult.getArg());
-				setContentInsetEndWithActionResult.setResult(null);
-				return true;
-			case TOOLBAR_SET_CONTENT_INSET_START_WITH_NAVIGATION:
-				AsyncResult setContentInsetStartWithNavigationResult = ((AsyncResult) msg.obj);
-				handleSetContentInsetStartWithNavigation((Integer) setContentInsetStartWithNavigationResult.getArg());
-				setContentInsetStartWithNavigationResult.setResult(null);
-				return true;
-			case TOOLBAR_SET_CONTENT_INSETS_ABSOLUTE:
-				AsyncResult setContentInsetsAbsoluteResult = ((AsyncResult) msg.obj);
-				handleSetContentInsetsAbsolute((Integer[]) setContentInsetsAbsoluteResult.getArg());
-				setContentInsetsAbsoluteResult.setResult(null);
-				return true;
-			case TOOLBAR_SET_CONTENT_INSETS_RELATIVE:
-				AsyncResult setContentInsetsRelativeResult = ((AsyncResult) msg.obj);
-				handleSetContentInsetsRelative(((Integer[]) setContentInsetsRelativeResult.getArg()));
-				setContentInsetsRelativeResult.setResult(null);
-				return true;
-			default:
-				return false;
 		}
 	}
 }

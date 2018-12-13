@@ -625,9 +625,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppInfo().isAnalyticsEnabled();
 	}
 
+	/**
+	 * Determines if Titanium's JavaScript runtime should run on the main UI thread or not
+	 * based on the "tiapp.xml" property "run-on-main-thread".
+	 * @return
+	 * Always returns true as of Titanium 8.0.0. The "run-on-main-thread" property is no longer supported.
+	 */
 	public boolean runOnMainThread()
 	{
-		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
+		return true;
 	}
 
 	public boolean intentFilterNewTask()

@@ -57,17 +57,9 @@ public class TableViewProxy extends TiViewProxy
 	private static final int INSERT_SECTION_BEFORE = 0;
 	private static final int INSERT_SECTION_AFTER = 1;
 
-	private static final int MSG_UPDATE_VIEW = TiViewProxy.MSG_LAST_ID + 5001;
 	private static final int MSG_SCROLL_TO_INDEX = TiViewProxy.MSG_LAST_ID + 5002;
-	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5003;
-	private static final int MSG_DELETE_ROW = TiViewProxy.MSG_LAST_ID + 5004;
-	private static final int MSG_INSERT_ROW = TiViewProxy.MSG_LAST_ID + 5005;
-	private static final int MSG_APPEND_ROW = TiViewProxy.MSG_LAST_ID + 5006;
 	private static final int MSG_SCROLL_TO_TOP = TiViewProxy.MSG_LAST_ID + 5007;
 	private static final int MSG_SELECT_ROW = TiViewProxy.MSG_LAST_ID + 5008;
-	private static final int MSG_APPEND_SECTION = TiViewProxy.MSG_LAST_ID + 5009;
-	private static final int MSG_DELETE_SECTION = TiViewProxy.MSG_LAST_ID + 5010;
-	private static final int MSG_INSERT_SECTION = TiViewProxy.MSG_LAST_ID + 5011;
 
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
@@ -260,17 +252,6 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void appendRow(Object rows, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleAppendRow(rows);
-
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
-	}
-
-	private void handleAppendRow(Object rows)
-	{
 		Object[] rowList = null;
 
 		if (rows instanceof Object[]) {
@@ -301,16 +282,6 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void appendSection(Object sections, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleAppendSection(sections);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_SECTION), sections);
-	}
-
-	private void handleAppendSection(Object sections)
-	{
 		Object[] sectionList = null;
 
 		if (sections instanceof Object[]) {
@@ -334,29 +305,6 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void deleteRow(Object row, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleDeleteRow(row);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_ROW), row);
-
-		if (asyncResult instanceof IllegalStateException) {
-			throw(IllegalStateException) asyncResult;
-		}
-	}
-
-	private void setModelDirtyIfNecessary()
-	{
-		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
-		if (nativeTableViewReference != null) {
-			nativeTableViewReference.setModelDirty();
-		}
-	}
-
-	private void handleDeleteRow(Object row) throws IllegalStateException
-	{
-
 		if (row instanceof Integer) {
 			int index = (Integer) row;
 			RowResult rr = new RowResult();
@@ -380,23 +328,16 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
-	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict options)
+	private void setModelDirtyIfNecessary()
 	{
-		if (TiApplication.isUIThread()) {
-			handleDeleteSection(index);
-			return;
-		}
-
-		Object asyncResult =
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_SECTION), index);
-
-		if (asyncResult instanceof IllegalStateException) {
-			Log.e(TAG, ((IllegalStateException) asyncResult).getMessage());
+		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
+		if (nativeTableViewReference != null) {
+			nativeTableViewReference.setModelDirty();
 		}
 	}
 
-	private void handleDeleteSection(int index) throws IllegalStateException
+	@Kroll.method
+	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict options)
 	{
 		ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
 		try {
@@ -438,21 +379,6 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertRowBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleInsertRowBefore(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_ROW, INSERT_ROW_BEFORE, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			throw(IllegalStateException) asyncResult;
-		}
-	}
-
-	private void handleInsertRowBefore(int index, Object data) throws IllegalStateException
-	{
 		if (getSectionsArray().size() > 0) {
 			if (index < 0) {
 				index = 0;
@@ -477,21 +403,6 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertSectionBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleInsertSectionBefore(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_SECTION, INSERT_SECTION_BEFORE, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			Log.e(TAG, ((IllegalStateException) asyncResult).getMessage());
-		}
-	}
-
-	private void handleInsertSectionBefore(int index, Object data) throws IllegalStateException
-	{
 		TableViewSectionProxy sectionProxy = sectionProxyFor(data);
 		if (sectionProxy == null) {
 			throw new IllegalStateException("Unable to insert section. Invalid type for section: " + data);
@@ -511,21 +422,6 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertRowAfter(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleInsertRowAfter(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_ROW, INSERT_ROW_AFTER, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			throw(IllegalStateException) asyncResult;
-		}
-	}
-
-	private void handleInsertRowAfter(int index, Object data) throws IllegalStateException
-	{
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
 			// TODO check for section
@@ -539,21 +435,6 @@ public class TableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void insertSectionAfter(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		if (TiApplication.isUIThread()) {
-			handleInsertSectionAfter(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_SECTION, INSERT_SECTION_AFTER, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			Log.e(TAG, ((IllegalStateException) asyncResult).getMessage());
-		}
-	}
-
-	private void handleInsertSectionAfter(int index, Object data) throws IllegalStateException
 	{
 		TableViewSectionProxy sectionProxy = sectionProxyFor(data);
 		if (sectionProxy == null) {
@@ -691,12 +572,7 @@ public class TableViewProxy extends TiViewProxy
 		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
 			data = (Object[]) args[0];
 		}
-		if (TiApplication.isUIThread()) {
-			handleSetData(data);
-
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_DATA), data);
-		}
+		handleSetData(data);
 	}
 
 	// clang-format off
@@ -715,11 +591,7 @@ public class TableViewProxy extends TiViewProxy
 				return;
 			}
 		}
-		if (TiApplication.isUIThread()) {
-			handleSetData(data);
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_DATA), data);
-		}
+		handleSetData(data);
 	}
 
 	private void handleSetData(Object[] data)
@@ -859,12 +731,7 @@ public class TableViewProxy extends TiViewProxy
 
 	public void updateView()
 	{
-		if (TiApplication.isUIThread()) {
-			setModelDirtyIfNecessary();
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_UPDATE_VIEW));
+		setModelDirtyIfNecessary();
 	}
 
 	@Kroll.method
@@ -902,76 +769,11 @@ public class TableViewProxy extends TiViewProxy
 		AsyncResult result = null;
 		Object asyncResult = null;
 		switch (msg.what) {
-			case MSG_UPDATE_VIEW:
-				setModelDirtyIfNecessary();
-				result = (AsyncResult) msg.obj;
-				if (tableNativeViewCreated) {
-					tableNativeView.updateView();
-				}
-				break;
 			case MSG_SCROLL_TO_INDEX:
 				if (tableNativeViewCreated) {
 					tableNativeView.scrollToIndex(msg.arg1);
 				}
 				return true;
-			case MSG_SET_DATA:
-				result = ((AsyncResult) msg.obj);
-				Object[] data = (Object[]) result.getArg();
-				handleSetData(data);
-				break;
-			case MSG_INSERT_ROW:
-				result = ((AsyncResult) msg.obj);
-				try {
-					if (msg.arg1 == INSERT_ROW_AFTER) {
-						handleInsertRowAfter(msg.arg2, result.getArg());
-					} else {
-						handleInsertRowBefore(msg.arg2, result.getArg());
-					}
-					result = (AsyncResult) msg.obj;
-				} catch (IllegalStateException e) {
-					asyncResult = e;
-					e.printStackTrace();
-				}
-				break;
-			case MSG_APPEND_ROW:
-				result = ((AsyncResult) msg.obj);
-				handleAppendRow(result.getArg());
-				break;
-			case MSG_DELETE_ROW:
-				result = ((AsyncResult) msg.obj);
-				try {
-					handleDeleteRow(result.getArg());
-				} catch (IllegalStateException e) {
-					asyncResult = e;
-					e.printStackTrace();
-				}
-				break;
-			case MSG_INSERT_SECTION:
-				result = ((AsyncResult) msg.obj);
-				try {
-					if (msg.arg1 == INSERT_SECTION_AFTER) {
-						handleInsertSectionAfter(msg.arg2, result.getArg());
-					} else {
-						handleInsertSectionBefore(msg.arg2, result.getArg());
-					}
-				} catch (IllegalStateException e) {
-					asyncResult = e;
-					e.printStackTrace();
-				}
-				break;
-			case MSG_APPEND_SECTION:
-				result = ((AsyncResult) msg.obj);
-				handleAppendSection(result.getArg());
-				break;
-			case MSG_DELETE_SECTION:
-				result = ((AsyncResult) msg.obj);
-				try {
-					handleDeleteSection((Integer) result.getArg());
-				} catch (IllegalStateException e) {
-					asyncResult = e;
-					e.printStackTrace();
-				}
-				break;
 			case MSG_SCROLL_TO_TOP:
 				if (tableNativeViewCreated) {
 					tableNativeView.scrollToTop(msg.arg1);
