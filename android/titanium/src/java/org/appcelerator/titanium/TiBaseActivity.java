@@ -1732,7 +1732,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		boolean isTiRootActivity = (this instanceof TiRootActivity);
 		if (isTiRootActivity && (getTiApp().getRootActivity() == this)) {
 			TiApplication.terminateActivityStack();
-			TiApplication.removeFromActivityStack(this);
 		}
 
 		// Close this activity.

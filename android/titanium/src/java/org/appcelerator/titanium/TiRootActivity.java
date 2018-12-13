@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -174,17 +175,36 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		// *** This is the only Titanium root activity instance. ***
 
 		// If this is a normal activity (not launched via startActivityForResult() method),
-		// then make sure it was launched via main launcher intent. Relaunch it if not.
+		// then make sure it was launched via main intent and the Titanium runtime is not still active.
 		if (!isActivityForResult) {
-			if ((newIntent == null) || (newIntent.filterEquals(mainIntent) == false)) {
+			boolean isRuntimeActive = (KrollRuntime.getActivityRefCount() > 0);
+			boolean isNotMainIntent = (newIntent == null) || !newIntent.filterEquals(mainIntent);
+			if (isRuntimeActive || isNotMainIntent) {
 				this.isDuplicateInstance = true;
 				activityOnCreate(savedInstanceState);
 				finish();
 				overridePendingTransition(0, 0);
-				if (newIntent != null) {
-					mainIntent.putExtra(EXTRA_TI_NEW_INTENT, newIntent);
+				final Intent relaunchIntent = isNotMainIntent ? mainIntent : newIntent;
+				if (isNotMainIntent && (newIntent != null)) {
+					relaunchIntent.putExtra(EXTRA_TI_NEW_INTENT, newIntent);
 				}
-				startActivity(mainIntent);
+				if (isRuntimeActive) {
+					// Wait for previous Titanium JavaScirpt runtime to be destroyed before relaunching.
+					// Note: This happens if previous root activity is missing, but all child activities still exist.
+					//       Launching with FLAG_ACTIVITY_CLEAR_TOP while app is backgrounded will always do this.
+					TiApplication.terminateActivityStack();
+					KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+						@Override
+						public void onDisposing(KrollRuntime runtime)
+						{
+							KrollRuntime.removeOnDisposingListener(this);
+							startActivity(relaunchIntent);
+						}
+					});
+				} else {
+					// Immediately relaunch with main intent.
+					startActivity(relaunchIntent);
+				}
 				return;
 			}
 		}

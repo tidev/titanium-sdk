@@ -160,12 +160,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public static void addToActivityStack(Activity activity)
 	{
-		activityStack.add(new WeakReference<Activity>(activity));
+		if (activity != null) {
+			activityStack.add(new WeakReference<Activity>(activity));
+		}
 	}
 
 	public static void removeFromActivityStack(Activity activity)
 	{
-		activityStack.remove(activity);
+		if (activity != null) {
+			activityStack.remove(activity);
+		}
 	}
 
 	// Calls finish on the list of activities in the stack. This should only be called when we want to terminate the
@@ -176,20 +180,17 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			return;
 		}
 
+		// Remove all activities from the stack and finish/destroy them.
+		// Note: The finish() method can add/remove activities to the stack.
 		WeakReference<Activity> activityRef;
 		Activity currentActivity;
-
-		for (int i = activityStack.size() - 1; i > 0; i--) {
-			// We need to check the stack size here again. Since we call finish(), that could potentially
-			// change the activity stack while we are looping through them. TIMOB-12487
-			if (i < activityStack.size()) {
-				activityRef = activityStack.get(i);
-				if (activityRef != null) {
-					currentActivity = activityRef.get();
-					if (currentActivity != null && !currentActivity.isFinishing()) {
-						currentActivity.finish();
-						activityStack.remove(activityRef);
-					}
+		while (activityStack.size() > 0) {
+			activityRef = activityStack.get(activityStack.size() - 1);
+			activityStack.remove(activityRef);
+			if (activityRef != null) {
+				currentActivity = activityRef.get();
+				if (currentActivity != null && !currentActivity.isFinishing()) {
+					currentActivity.finish();
 				}
 			}
 		}
@@ -749,15 +750,17 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 		appPath = "Resources/" + appPath;
 
-		// Prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity() method.
+		// Prevent termination of root activity.
 		boolean canFinishRoot = TiBaseActivity.canFinishRoot;
 		TiBaseActivity.canFinishRoot = false;
+		removeFromActivityStack(rootActivity);
 
-		// terminate all activities excluding root
+		// Terminate all other activities.
 		TiApplication.terminateActivityStack();
 
-		// Restore previous "canFinishRoot" setting.
+		// Restore previous "canFinishRoot" setting and re-add root activity.
 		TiBaseActivity.canFinishRoot = canFinishRoot;
+		addToActivityStack(rootActivity);
 
 		// restart kroll runtime
 		KrollRuntime runtime = KrollRuntime.getInstance();
