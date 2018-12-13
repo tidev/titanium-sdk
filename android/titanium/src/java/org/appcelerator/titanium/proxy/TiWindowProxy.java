@@ -24,6 +24,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Build;
@@ -41,6 +43,7 @@ import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.ViewParent;
 
 // clang-format off
@@ -512,6 +515,57 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// to force the view to be drawn due to TIMOB-7685
 		if (nativeView != null) {
 			nativeView.postInvalidate();
+		}
+	}
+
+	protected void fillIntent(Activity activity, Intent intent)
+	{
+		int windowFlags = 0;
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
+		}
+
+		//Set the fullscreen flag
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			}
+		}
+
+		//Set the secure flag
+		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
+			}
+		}
+
+		//Stuff flags in intent
+		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
+
+		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
+							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
+		}
+		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
+							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+		} else {
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
+		}
+
+		// Set the theme property
+		if (hasProperty(TiC.PROPERTY_THEME)) {
+			String theme = TiConvert.toString(getProperty(TiC.PROPERTY_THEME));
+			if (theme != null) {
+				try {
+					intent.putExtra(TiC.PROPERTY_THEME,
+									TiRHelper.getResource("style." + theme.replaceAll("[^A-Za-z0-9_]", "_")));
+				} catch (Exception e) {
+					Log.w(TAG, "Cannot find the theme: " + theme);
+				}
+			}
 		}
 	}
 

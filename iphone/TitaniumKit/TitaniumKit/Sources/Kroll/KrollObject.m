@@ -178,12 +178,7 @@ bool KrollHasProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
 
   NSString *name = (NSString *)JSStringCopyCFString(kCFAllocatorDefault, propertyName);
   [name autorelease];
-  id result = [o valueForKey:name];
-  if (result != nil) {
-    return true;
-  }
-
-  return false;
+  return [o hasProperty:name];
 }
 
 //
@@ -780,6 +775,82 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
     }
   }
   return nil;
+}
+
+/**
+ Checks if a property with the given name exists on our target.
+
+ Contains all the magic of valueForKey withouth trying to retrieve any actual
+ value.
+
+ The checks for property existance are done in the following order:
+  * The Kroll object's own statics and properties cache
+  * Dynamic getter and setter in the form of getSomeProperty or setSomeProperty
+  * Property on the actual target
+  * "toString" and "valueOf" are always available on all objects
+  * "className" has a special handling with valueForUndefinedKey, return true
+    for the sake of simplicity
+  * Method with the same name on the target and single parameter
+  * Method with the same name on the target and no parameter
+  * Create factory method
+
+ As soon as one of the above checks passes this method returns true, meaning
+ the property exists. If none of the checks passed the property does not exists
+ and the method returns false.
+
+ @param propertyName The property name to check for.
+ */
+- (BOOL)hasProperty:(NSString *)propertyName
+{
+  if (statics != nil && statics[propertyName] != nil) {
+    return YES;
+  }
+
+  if (properties != nil && properties[propertyName] != nil) {
+    return YES;
+  }
+
+  if (([propertyName hasPrefix:@"get"] || [propertyName hasPrefix:@"set"]) && (propertyName.length >= 4) &&
+      [NSCharacterSet.uppercaseLetterCharacterSet characterIsMember:[propertyName characterAtIndex:3]]) {
+    return YES;
+  }
+
+  objc_property_t p = class_getProperty([target class], propertyName.UTF8String);
+  if (p != NULL) {
+    return YES;
+  }
+
+  if ([propertyName isEqualToString:@"toString"] || [propertyName isEqualToString:@"valueOf"]) {
+    return YES;
+  }
+
+  if ([propertyName isEqualToString:@"className"]) {
+    return YES;
+  }
+
+  SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", propertyName]);
+  if ([target respondsToSelector:selector]) {
+    return YES;
+  }
+
+  selector = NSSelectorFromString([NSString stringWithFormat:@"%@", propertyName]);
+  if ([target respondsToSelector:selector]) {
+    return YES;
+  }
+
+  id result = [target valueForKey:propertyName];
+  if (result != nil) {
+    return YES;
+  }
+
+  if ([propertyName hasPrefix:@"create"]) {
+    SEL selector = @selector(createProxy:forName:context:);
+    if ([target respondsToSelector:selector]) {
+      return YES;
+    }
+  }
+
+  return NO;
 }
 
 - (id)valueForKey:(NSString *)key
