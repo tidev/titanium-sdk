@@ -11,7 +11,7 @@
 var should = require('./utilities/assertions');
 
 describe.ios('Titanium.UI.iOS', function () {
-	
+
 	it('#createWebViewProcessPool()', function () {
 		should(Ti.UI.iOS.createWebViewProcessPool).not.be.undefined;
 		should(Ti.UI.iOS.createWebViewProcessPool).be.a.Function;
@@ -119,7 +119,7 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 			url: 'https://google.com',
 			configuration: configuration
 		});
-		
+
 		should(webview.preferences).be.an.Object;
 		should(webview.preferences.minimumFontSize).be.a.Number;
 		should(webview.preferences.minimumFontSize).eql(20.0);
