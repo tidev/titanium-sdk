@@ -23,7 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ti.modules.titanium.ui.TabbedBarProxy;
+import ti.modules.titanium.ui.android.AndroidModule;
 
 public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickListener, TabLayout.OnTabSelectedListener
 {
@@ -47,10 +47,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		super(proxy);
 		this.style = ((Integer) getProxy().getProperty(TiC.PROPERTY_STYLE));
 		switch (this.style) {
-			case TabbedBarProxy.TABBED_BAR_STYLE_DEFAULT:
+			case AndroidModule.TABS_STYLE_DEFAULT:
 				createTabLayout();
 				break;
-			case TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION:
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
 				createBottomNavigationView();
 				break;
 				// end of switch
@@ -104,7 +104,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		}
 
 		// BottomNavigationView only supports up to 5 menu items
-		if (style == TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION && labels.length > 5) {
+		if (style == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION && labels.length > 5) {
 			Log.e(TAG, "Bottom Navigation style supports up to five items in the menu.");
 			return;
 		}
@@ -139,7 +139,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			drawable = TiDrawableReference.fromObject(getProxy(), value).getDrawable();
 		}
 		switch (this.style) {
-			case TabbedBarProxy.TABBED_BAR_STYLE_DEFAULT:
+			case AndroidModule.TABS_STYLE_DEFAULT:
 				TabLayout.Tab tab = this.tabLayout.newTab();
 				if (drawable != null) {
 					tab.setIcon(drawable);
@@ -148,7 +148,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				}
 				this.tabLayout.addTab(tab);
 				break;
-			case TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION:
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
 				MenuItem menuItem = this.bottomNavigationView.getMenu().add(null);
 				menuItem.setOnMenuItemClickListener(this);
 				this.bottomNavigationMenuItems.add(menuItem);
@@ -165,18 +165,18 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public void setNewStyle(int newStyle)
 	{
 		// If the new style value equals the currently set do nothing
-		if ((newStyle == TabbedBarProxy.TABBED_BAR_STYLE_DEFAULT && tabLayout != null)
-			|| (newStyle == TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION && bottomNavigationView != null)) {
+		if ((newStyle == AndroidModule.TABS_STYLE_DEFAULT && tabLayout != null)
+			|| (newStyle == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION && bottomNavigationView != null)) {
 			return;
 		}
 		this.style = newStyle;
 		// Labels are not changed at this very moment
 		// so recreate the native view with the proper style.
 		switch (newStyle) {
-			case TabbedBarProxy.TABBED_BAR_STYLE_DEFAULT:
+			case AndroidModule.TABS_STYLE_DEFAULT:
 				// Reset everything related to the TABBED_BAR_STYLE_BOTTOM_NAVIGATION style
 				break;
-			case TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION:
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
 				// Reset everything related to the DEFAULT_VIEW style
 				break;
 		} // end of switch
@@ -186,12 +186,12 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public void setNewLabels()
 	{
 		switch (((int) getProxy().getProperty(TiC.PROPERTY_STYLE))) {
-			case TabbedBarProxy.TABBED_BAR_STYLE_DEFAULT:
+			case AndroidModule.TABS_STYLE_DEFAULT:
 				if (this.tabLayout != null) {
 					this.tabLayout.removeAllTabs();
 				}
 				break;
-			case TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION:
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
 				if (bottomNavigationView != null) {
 					// Reset the default index
 					// This may be changed to persist the selected index in the future
@@ -207,10 +207,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public void setSelectedIndex(int i)
 	{
 		switch (this.style) {
-			case TabbedBarProxy.TABBED_BAR_STYLE_DEFAULT:
+			case AndroidModule.TABS_STYLE_DEFAULT:
 				this.tabLayout.getTabAt(i).select();
 				break;
-			case TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION:
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
 				this.bottomNavigationView.getMenu().getItem(i).setChecked(true);
 				this.bottomNavigationIndex = i;
 				break;
@@ -220,9 +220,9 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public int getSelectedIndex()
 	{
 		switch (style) {
-			case TabbedBarProxy.TABBED_BAR_STYLE_DEFAULT:
+			case AndroidModule.TABS_STYLE_DEFAULT:
 				return tabLayout.getSelectedTabPosition();
-			case TabbedBarProxy.TABBED_BAR_STYLE_BOTTOM_NAVIGATION:
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
 				return bottomNavigationIndex;
 			default:
 				return -1;

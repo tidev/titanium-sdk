@@ -18,6 +18,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiUITabbedBar;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors =
@@ -28,11 +29,6 @@ import ti.modules.titanium.ui.widget.TiUITabbedBar;
 													 })
 public class TabbedBarProxy extends TiViewProxy
 {
-
-	@Kroll.constant
-	public static final int TABBED_BAR_STYLE_DEFAULT = 0;
-	@Kroll.constant
-	public static final int TABBED_BAR_STYLE_BOTTOM_NAVIGATION = 1;
 
 	private static final int MSG_CHANGE_INDEX = 3001;
 	private static final int MSG_CHANGE_LABELS = 3002;
@@ -54,7 +50,7 @@ public class TabbedBarProxy extends TiViewProxy
 		super.handleCreationDict(options);
 		// If a style is not set in the creation dictionary use the default one
 		if (!options.containsKeyAndNotNull(TiC.PROPERTY_STYLE)) {
-			this.setProperty(TiC.PROPERTY_STYLE, TABBED_BAR_STYLE_DEFAULT);
+			this.setProperty(TiC.PROPERTY_STYLE, AndroidModule.TABS_STYLE_DEFAULT);
 		}
 	}
 
