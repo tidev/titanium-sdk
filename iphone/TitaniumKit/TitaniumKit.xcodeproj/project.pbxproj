@@ -21,6 +21,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
+		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
 		4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */; };
 		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
@@ -47,8 +49,6 @@
 		DB15FC3E1F0A833100A82C45 /* KrollObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC2E1F0A833100A82C45 /* KrollObject.m */; };
 		DB15FC3F1F0A833100A82C45 /* KrollPropertyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC2F1F0A833100A82C45 /* KrollPropertyDelegate.h */; };
 		DB15FC401F0A833100A82C45 /* KrollPropertyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC301F0A833100A82C45 /* KrollPropertyDelegate.m */; };
-		DB15FC411F0A833100A82C45 /* KrollTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC311F0A833100A82C45 /* KrollTimer.h */; };
-		DB15FC421F0A833100A82C45 /* KrollTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC321F0A833100A82C45 /* KrollTimer.m */; };
 		DB15FC451F0A838E00A82C45 /* TiColor.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC431F0A838E00A82C45 /* TiColor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FC461F0A838E00A82C45 /* TiColor.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC441F0A838E00A82C45 /* TiColor.m */; };
 		DB15FC491F0A83A700A82C45 /* WebFont.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC471F0A83A700A82C45 /* WebFont.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -179,6 +179,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4A175274218B64E70094C7B6 /* KrollTimerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollTimerManager.h; sourceTree = "<group>"; };
+		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
 		DB1596572075389000292B19 /* APIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIModule.m; sourceTree = "<group>"; };
 		DB1596582075389000292B19 /* APIModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIModule.h; sourceTree = "<group>"; };
 		DB15965C2075458A00292B19 /* XHRBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XHRBridge.h; sourceTree = "<group>"; };
@@ -203,8 +205,6 @@
 		DB15FC2E1F0A833100A82C45 /* KrollObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollObject.m; sourceTree = "<group>"; };
 		DB15FC2F1F0A833100A82C45 /* KrollPropertyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollPropertyDelegate.h; sourceTree = "<group>"; };
 		DB15FC301F0A833100A82C45 /* KrollPropertyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollPropertyDelegate.m; sourceTree = "<group>"; };
-		DB15FC311F0A833100A82C45 /* KrollTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollTimer.h; sourceTree = "<group>"; };
-		DB15FC321F0A833100A82C45 /* KrollTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimer.m; sourceTree = "<group>"; };
 		DB15FC431F0A838E00A82C45 /* TiColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiColor.h; sourceTree = "<group>"; };
 		DB15FC441F0A838E00A82C45 /* TiColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiColor.m; sourceTree = "<group>"; };
 		DB15FC471F0A83A700A82C45 /* WebFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebFont.h; sourceTree = "<group>"; };
@@ -433,8 +433,8 @@
 				DB15FC2E1F0A833100A82C45 /* KrollObject.m */,
 				DB15FC2F1F0A833100A82C45 /* KrollPropertyDelegate.h */,
 				DB15FC301F0A833100A82C45 /* KrollPropertyDelegate.m */,
-				DB15FC311F0A833100A82C45 /* KrollTimer.h */,
-				DB15FC321F0A833100A82C45 /* KrollTimer.m */,
+				4A175274218B64E70094C7B6 /* KrollTimerManager.h */,
+				4A175275218B64E70094C7B6 /* KrollTimerManager.m */,
 				DBE66A34210F92FD00095F1E /* KrollWrapper.h */,
 				DBE66A35210F92FD00095F1E /* KrollWrapper.m */,
 			);
@@ -683,7 +683,6 @@
 				DB15FBEE1F0A80E400A82C45 /* TiDimension.h in Headers */,
 				DB15FC7F1F0A855F00A82C45 /* UIImage+Alpha.h in Headers */,
 				DB15965A2075389000292B19 /* APIModule.h in Headers */,
-				DB15FC411F0A833100A82C45 /* KrollTimer.h in Headers */,
 				DB15FD201F0A8A5E00A82C45 /* TiComplexValue.h in Headers */,
 				DB15965E2075458A00292B19 /* XHRBridge.h in Headers */,
 				DB5813E72075FCF200CA1437 /* TiDefines.h in Headers */,
@@ -695,6 +694,7 @@
 				DB15FCB81F0A874F00A82C45 /* TopTiModule.h in Headers */,
 				DB15FC3B1F0A833100A82C45 /* KrollMethodDelegate.h in Headers */,
 				DB15FC391F0A833100A82C45 /* KrollMethod.h in Headers */,
+				4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */,
 				DB258CD21F09757E000D0D8D /* TitaniumKit.h in Headers */,
 				DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */,
 				DB15FCCC1F0A87A400A82C45 /* TiErrorController.h in Headers */,
@@ -811,6 +811,7 @@
 				DB15FD1B1F0A89A400A82C45 /* TiUIWindow.m in Sources */,
 				DB15FD151F0A897B00A82C45 /* TiViewController.m in Sources */,
 				DB15FCAD1F0A86D400A82C45 /* TiLogServer.m in Sources */,
+				4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */,
 				DB258D6C1F097680000D0D8D /* TiBase.m in Sources */,
 				DB15FC4A1F0A83A700A82C45 /* WebFont.m in Sources */,
 				DB15FC701F0A84FD00A82C45 /* TiBlob.m in Sources */,
@@ -825,7 +826,6 @@
 				DB258D621F097680000D0D8D /* Bridge.m in Sources */,
 				DB15FD071F0A892500A82C45 /* Ti2DMatrix.m in Sources */,
 				DB15FC3E1F0A833100A82C45 /* KrollObject.m in Sources */,
-				DB15FC421F0A833100A82C45 /* KrollTimer.m in Sources */,
 				DBE66A37210F92FD00095F1E /* KrollWrapper.m in Sources */,
 				DB1596592075389000292B19 /* APIModule.m in Sources */,
 				DB258D641F097680000D0D8D /* KrollBridge.m in Sources */,

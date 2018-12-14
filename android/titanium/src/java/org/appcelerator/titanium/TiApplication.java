@@ -373,6 +373,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		tempFileHelper = new TiTempFileHelper(this);
 
 		deployData = new TiDeployData(this);
+
+		registerActivityLifecycleCallbacks(new TiApplicationLifecycle());
 	}
 
 	@Override
@@ -409,23 +411,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		deployData = new TiDeployData(this);
 
+		String deployType = this.appProperties.getString("ti.deploytype", "unknown");
+		if ("unknown".equals(deployType)) {
+			deployType = this.appInfo.getDeployType();
+		}
+
+		String buildType = this.appInfo.getBuildType();
+		if (buildType != null && !buildType.equals("")) {
+			APSAnalyticsMeta.setBuildType(buildType);
+		}
+
+		APSAnalyticsMeta.setAppId(this.appInfo.getId());
+		APSAnalyticsMeta.setAppName(this.appInfo.getName());
+		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
+		APSAnalyticsMeta.setDeployType(deployType);
+		APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
+		APSAnalytics.getInstance().setMachineId(this);
+
 		if (isAnalyticsEnabled()) {
-			String deployType = this.appProperties.getString("ti.deploytype", "unknown");
-			if ("unknown".equals(deployType)) {
-				deployType = this.appInfo.getDeployType();
-			}
-
-			String buildType = this.appInfo.getBuildType();
-			if (buildType != null && !buildType.equals("")) {
-				APSAnalyticsMeta.setBuildType(buildType);
-			}
-
-			APSAnalyticsMeta.setAppId(this.appInfo.getId());
-			APSAnalyticsMeta.setAppName(this.appInfo.getName());
-			APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
-			APSAnalyticsMeta.setDeployType(deployType);
-			APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
-
 			APSAnalytics.getInstance().initialize(getAppGUID(), this);
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
@@ -622,9 +625,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppInfo().isAnalyticsEnabled();
 	}
 
+	/**
+	 * Determines if Titanium's JavaScript runtime should run on the main UI thread or not
+	 * based on the "tiapp.xml" property "run-on-main-thread".
+	 * @return
+	 * Always returns true as of Titanium 8.0.0. The "run-on-main-thread" property is no longer supported.
+	 */
 	public boolean runOnMainThread()
 	{
-		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
+		return true;
 	}
 
 	public boolean intentFilterNewTask()

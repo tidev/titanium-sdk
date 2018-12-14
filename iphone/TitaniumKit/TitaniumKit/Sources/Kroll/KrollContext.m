@@ -7,7 +7,7 @@
 #import "KrollContext.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
-#import "KrollTimer.h"
+#import "KrollTimerManager.h"
 #import "TiApp.h"
 #import "TiLocale.h"
 #import "TiUtils.h"
@@ -134,66 +134,6 @@ JSValueRef ThrowException(JSContextRef ctx, NSString *message, JSValueRef *excep
   return JSValueMakeUndefined(ctx);
 }
 
-static JSValueRef MakeTimer(JSContextRef context, JSObjectRef jsFunction, JSValueRef fnRef, JSObjectRef jsThis, JSValueRef durationRef, BOOL onetime)
-{
-  static double kjsNextTimer = 0;
-  double timerID = ++kjsNextTimer;
-
-  KrollContext *ctx = GetKrollContext(context);
-  JSGlobalContextRef globalContext = JSContextGetGlobalContext(context);
-  JSValueRef exception = NULL;
-  double duration = JSValueToNumber(context, durationRef, &exception);
-  if (exception != NULL) {
-    DebugLog(@"[ERROR] Conversion of timer duration to number failed.");
-    return JSValueMakeUndefined(context);
-  }
-  KrollTimer *timer = [[KrollTimer alloc] initWithContext:globalContext function:fnRef jsThis:jsThis duration:duration onetime:onetime kroll:ctx timerId:timerID];
-  [ctx registerTimer:timer timerId:timerID];
-  [timer start];
-  [timer release];
-  return JSValueMakeNumber(context, timerID);
-}
-
-static JSValueRef ClearTimerCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
-    const JSValueRef args[], JSValueRef *exception)
-{
-
-  if (argCount != 1) {
-    return ThrowException(jsContext, @"invalid number of arguments", exception);
-  }
-
-  KrollContext *ctx = GetKrollContext(jsContext);
-  [ctx unregisterTimer:JSValueToNumber(jsContext, args[0], NULL)];
-
-  return JSValueMakeUndefined(jsContext);
-}
-static JSValueRef SetIntervalCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
-    const JSValueRef args[], JSValueRef *exception)
-{
-  // NOTE: function can be either Function or String object type
-  if (argCount != 2) {
-    return ThrowException(jsContext, @"invalid number of arguments", exception);
-  }
-
-  JSValueRef fnRef = args[0];
-  JSValueRef durationRef = args[1];
-
-  return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, NO);
-}
-
-static JSValueRef SetTimeoutCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
-    const JSValueRef args[], JSValueRef *exception)
-{
-  if (argCount != 2) {
-    return ThrowException(jsContext, @"invalid number of arguments", exception);
-  }
-
-  JSValueRef fnRef = args[0];
-  JSValueRef durationRef = args[1];
-
-  return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, YES);
-}
-
 static JSValueRef CommonJSRequireCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
     const JSValueRef args[], JSValueRef *exception)
 {
@@ -221,7 +161,14 @@ static JSValueRef LCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSOb
 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *key = [KrollObject toID:ctx value:args[0]];
-  NSString *comment = argCount > 1 ? [KrollObject toID:ctx value:args[1]] : nil;
+  NSString *comment = nil;
+  // ignore non-String default values
+  if (argCount > 1) {
+    id defaultValue = [KrollObject toID:ctx value:args[1]];
+    if ([defaultValue isKindOfClass:[NSString class]]) {
+      comment = (NSString *)defaultValue;
+    }
+  }
   @try {
     id result = [TiLocale getString:key comment:comment];
     return [KrollObject toValue:ctx value:result];
@@ -241,8 +188,14 @@ static JSValueRef AlertCallback(JSContextRef jsContext, JSObjectRef jsFunction, 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *message = [KrollObject toID:ctx value:args[0]];
 
+  [[[TiApp app] controller] incrementActiveAlertControllerCount];
+
   UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:UIAlertControllerStyleAlert];
-  [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil]];
+  [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
+                                            style:UIAlertActionStyleDefault
+                                          handler:^(UIAlertAction *_Nonnull action) {
+                                            [[[TiApp app] controller] decrementActiveAlertControllerCount];
+                                          }]];
   [[TiApp app] showModalController:alert animated:YES];
 
   return JSValueMakeUndefined(jsContext);
@@ -583,7 +536,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
     id excm = [KrollObject toID:context value:exception];
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
     pthread_mutex_unlock(&KrollEntryLock);
-    @throw excm;
   }
   pthread_mutex_unlock(&KrollEntryLock);
 }
@@ -598,7 +550,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
     id excm = [KrollObject toID:context value:exception];
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
     pthread_mutex_unlock(&KrollEntryLock);
-    @throw excm;
   }
   pthread_mutex_unlock(&KrollEntryLock);
 
@@ -682,9 +633,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 #if CONTEXT_MEMORY_DEBUG == 1
     NSLog(@"[DEBUG] INIT: %@", self);
 #endif
-    timerLock = [[NSRecursiveLock alloc] init];
-    NSString *timerName = [NSString stringWithFormat:@"%@ Timer Lock", [self threadName]];
-    [timerLock setName:timerName];
     stopped = YES;
     KrollContextCount++;
 
@@ -699,10 +647,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   NSLog(@"[DEBUG] DESTROY: %@", self);
 #endif
   [self stop];
-  if (timers != nil) {
-    [timers removeAllObjects];
-  }
-  RELEASE_TO_NIL(timers);
+  RELEASE_TO_NIL(timerManager);
 }
 
 #if CONTEXT_MEMORY_DEBUG == 1
@@ -734,36 +679,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   [self destroy];
   KrollContextCount--;
   [super dealloc];
-}
-
-- (void)registerTimer:(id)timer timerId:(double)timerId
-{
-  [timerLock lock];
-  if (timers == nil) {
-    timers = [[NSMutableDictionary alloc] init];
-  }
-  NSString *key = [[NSNumber numberWithDouble:timerId] stringValue];
-  [timers setObject:timer forKey:key];
-  [timerLock unlock];
-}
-
-- (void)unregisterTimer:(double)timerId
-{
-  [timerLock lock];
-  if (timers != nil) {
-    NSString *timer = [[NSNumber numberWithDouble:timerId] stringValue];
-    KrollTimer *t = [timers objectForKey:timer];
-    if (t != nil) {
-      [[t retain] autorelease];
-      [timers removeObjectForKey:timer];
-      [t cancel];
-    }
-    if ([timers count] == 0) {
-      // don't waste memory if we don't have any timers
-      RELEASE_TO_NIL(timers);
-    }
-  }
-  [timerLock unlock];
 }
 
 - (void)start
@@ -915,11 +830,11 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   [kroll release];
   JSStringRelease(prop);
 
-  [self bindCallback:@"setTimeout" callback:&SetTimeoutCallback];
-  [self bindCallback:@"setInterval" callback:&SetIntervalCallback];
-  [self bindCallback:@"clearTimeout" callback:&ClearTimerCallback];
-  [self bindCallback:@"clearInterval" callback:&ClearTimerCallback];
-  [self bindCallback:@"require" callback:&CommonJSRequireCallback];
+  JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
+  timerManager = [[KrollTimerManager alloc] initInContext:jsContext];
+
+  [self bindCallback:@"require"
+            callback:&CommonJSRequireCallback];
   [self bindCallback:@"L" callback:&LCallback];
   [self bindCallback:@"alert" callback:&AlertCallback];
 
