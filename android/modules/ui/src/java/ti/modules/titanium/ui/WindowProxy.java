@@ -315,42 +315,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		return (windowActivity != null) ? windowActivity.get() : null;
 	}
 
-	private void fillIntent(Activity activity, Intent intent)
+	protected void fillIntent(Activity activity, Intent intent)
 	{
-		int windowFlags = 0;
-		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
-		}
-
-		//Set the fullscreen flag
-		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
-			}
-		}
-
-		//Set the secure flag
-		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
-			}
-		}
-
-		//Stuff flags in intent
-		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
-
-		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
-			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
-							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
-		}
-		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
-							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
-		} else {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
-		}
+		super.fillIntent(activity, intent);
 
 		boolean modal = false;
 		if (hasProperty(TiC.PROPERTY_MODAL)) {
@@ -375,19 +342,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (hasProperty(TiC.PROPERTY_EXTEND_SAFE_AREA)) {
 			boolean value = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXTEND_SAFE_AREA), false);
 			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
-		}
-
-		// Set the theme property
-		if (hasProperty(TiC.PROPERTY_THEME)) {
-			String theme = TiConvert.toString(getProperty(TiC.PROPERTY_THEME));
-			if (theme != null) {
-				try {
-					intent.putExtra(TiC.PROPERTY_THEME,
-									TiRHelper.getResource("style." + theme.replaceAll("[^A-Za-z0-9_]", "_")));
-				} catch (Exception e) {
-					Log.w(TAG, "Cannot find the theme: " + theme);
-				}
-			}
 		}
 
 		// Set the splitActionBar property
