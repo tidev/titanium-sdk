@@ -652,6 +652,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return selectorDrawable;
 	}
 
+	public TiCompositeLayout getContentView()
+	{
+		return this.content;
+	}
+
 	@Override
 	public void release()
 	{

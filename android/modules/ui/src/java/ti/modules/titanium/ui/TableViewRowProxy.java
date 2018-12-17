@@ -25,6 +25,8 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
+import android.view.View;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -169,6 +171,16 @@ public class TableViewRowProxy extends TiViewProxy
 			// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
 			message.sendToTarget();
 		}
+	}
+
+	@Override
+	public KrollDict getRect()
+	{
+		View v = null;
+		if (tableViewItem != null) {
+			v = tableViewItem.getContentView();
+		}
+		return getViewRect(v);
 	}
 
 	public void setTableViewItem(TiTableViewRowProxyItem item)
