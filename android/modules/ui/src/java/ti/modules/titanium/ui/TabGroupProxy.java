@@ -25,10 +25,14 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
-import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Message;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -37,7 +41,6 @@ import android.view.WindowManager;
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TABS_BACKGROUND_COLOR,
-		TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR,
 		TiC.PROPERTY_SWIPEABLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
@@ -150,7 +153,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void handleDisableTabNavigation(boolean disable)
 	{
-		TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.disableTabNavigation(disable);
 		}
@@ -204,12 +207,17 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	public void handleRemoveTab(TabProxy tab)
 	{
+		int indexToRemove = tabs.indexOf(tab);
+		// Guard for trying to remove a Tab that has not been added.
+		if (indexToRemove < 0) {
+			return;
+		}
+		tabs.remove(tab);
+
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
-			tabGroup.removeTab(tab);
+			tabGroup.removeTabAt(indexToRemove);
 		}
-
-		tabs.remove(tab);
 	}
 
 	@Kroll.method
@@ -237,7 +245,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// Once the change is completed onTabSelected() will be
 			// called to fire events and update the active tab.
 			tabGroup.selectTab(tab);
-
 		} else {
 			// Mark this tab to be selected when the tab group opens.
 			selectedTab = tab;
@@ -280,7 +287,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void handleSetTabs(Object obj)
 	{
-		tabs.clear();
+		if (tabs != null) {
+			tabs.clear();
+		} else {
+			tabs = new ArrayList<TabProxy>();
+		}
 		if (obj instanceof Object[]) {
 			Object[] objArray = (Object[]) obj;
 			for (Object tabProxy : objArray) {
@@ -364,7 +375,24 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-		topActivity.startActivity(intent);
+		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+		if (!animated) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			topActivity.startActivity(intent);
+			topActivity.overridePendingTransition(0, 0);
+		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
+				   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			topActivity.startActivity(intent);
+			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+		} else {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
+			} else {
+				topActivity.startActivity(intent);
+			}
+		}
 	}
 
 	@Override
@@ -375,11 +403,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		if (activity.getSupportActionBar() != null) {
-			view = new TiUIActionBarTabGroup(this, activity, savedInstanceState);
+		// Currently only two styles. Introducing new ones will work with a switch statement.
+		if (getProperty(TiC.PROPERTY_STYLE) == null
+			|| ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_DEFAULT) {
+			view = new TiUITabLayoutTabGroup(this, activity);
 		} else {
-			Log.e(TAG, "ActionBar not available for TabGroup");
-			return;
+			view = new TiUIBottomNavigationTabGroup(this, activity);
 		}
 
 		setModelListener(view);
@@ -416,7 +445,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		TabProxy activeTab = handleGetActiveTab();
 		if (activeTab != null) {
-			selectedTab = null;
+			selectedTab = activeTab;
 			// If tabHost's selected tab is same as the active tab, we need
 			// to invoke onTabSelected so focus/blur event fire appropriately
 			if (tg.getSelectedTab() == activeTab) {
@@ -456,7 +485,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		for (TabProxy tab : tabs) {
 			tab.close(activityIsFinishing);
 		}
-
+		tabs.clear();
 		// Call super to fire the close event on the tab group.
 		// This event must fire after each tab has been closed.
 		super.closeFromActivity(activityIsFinishing);
@@ -485,6 +514,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// since no tab selection actually occurred. This should only
 		// happen if the activity is paused or the window stack changed.
 		selectedTab.onFocusChanged(focused, null);
+	}
+
+	public void onTabSelected(int position)
+	{
+		onTabSelected(tabs.get(position));
 	}
 
 	/**
@@ -519,50 +553,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		selectedTab.onSelectionChanged(true);
 		selectedTab.onFocusChanged(true, focusEventData);
-	}
 
-	private void fillIntent(Activity activity, Intent intent)
-	{
-		int windowFlags = 0;
-		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
-		}
-
-		//Set the fullscreen flag
-		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
-			}
-		}
-
-		//Set the secure flag
-		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
-			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
-			if (flagVal) {
-				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
-			}
-		}
-
-		//Stuff flags in intent
-		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
-
-		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
-			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
-							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
-		}
-
-		if (hasProperty(TiC.PROPERTY_EXTEND_SAFE_AREA)) {
-			boolean value = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXTEND_SAFE_AREA), false);
-			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
-		}
-
-		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
-							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
-		} else {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
-		}
+		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
 	}
 
 	@Override

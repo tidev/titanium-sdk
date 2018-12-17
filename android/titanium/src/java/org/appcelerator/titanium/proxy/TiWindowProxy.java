@@ -24,6 +24,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Build;
@@ -41,6 +43,7 @@ import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.ViewParent;
 
 // clang-format off
@@ -59,9 +62,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
-	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
-	private static final int MSG_GET_SAFE_AREA_PADDING = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
@@ -76,6 +76,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	protected List<Pair<View, String>> sharedElementPairs;
+	public TiWindowProxy navigationWindow;
 
 	public static interface PostOpenListener {
 		public void onPostOpen(TiWindowProxy window);
@@ -100,33 +101,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		throw new IllegalStateException("Windows are created during open");
-	}
-
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_OPEN: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleOpen((KrollDict) result.getArg());
-				result.setResult(null); // signal opened
-				return true;
-			}
-			case MSG_CLOSE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleClose((KrollDict) result.getArg());
-				result.setResult(null); // signal closed
-				return true;
-			}
-			case MSG_GET_SAFE_AREA_PADDING: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleGetSafeAreaPadding());
-				return true;
-			}
-			default: {
-				return super.handleMessage(msg);
-			}
-		}
 	}
 
 	@Kroll.method
@@ -158,12 +132,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			options = new KrollDict();
 		}
 
-		if (TiApplication.isUIThread()) {
-			handleOpen(options);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
+		handleOpen(options);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -187,12 +156,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			options = new KrollDict();
 		}
 
-		if (TiApplication.isUIThread()) {
-			handleClose(options);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
+		handleClose(options);
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -447,18 +411,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public KrollDict getSafeAreaPadding()
 	// clang-format on
 	{
-		KrollDict dictionary;
-		if (TiApplication.isUIThread()) {
-			dictionary = handleGetSafeAreaPadding();
-		} else {
-			dictionary = (KrollDict) TiMessenger.sendBlockingMainMessage(
-				getMainHandler().obtainMessage(MSG_GET_SAFE_AREA_PADDING), getActivity());
-		}
-		return dictionary;
-	}
-
-	private KrollDict handleGetSafeAreaPadding()
-	{
 		// Initialize safe-area padding to zero. (ie: no padding)
 		double paddingLeft = 0;
 		double paddingTop = 0;
@@ -566,6 +518,57 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
+	protected void fillIntent(Activity activity, Intent intent)
+	{
+		int windowFlags = 0;
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
+		}
+
+		//Set the fullscreen flag
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			}
+		}
+
+		//Set the secure flag
+		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
+			}
+		}
+
+		//Stuff flags in intent
+		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
+
+		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
+							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
+		}
+		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
+							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+		} else {
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
+		}
+
+		// Set the theme property
+		if (hasProperty(TiC.PROPERTY_THEME)) {
+			String theme = TiConvert.toString(getProperty(TiC.PROPERTY_THEME));
+			if (theme != null) {
+				try {
+					intent.putExtra(TiC.PROPERTY_THEME,
+									TiRHelper.getResource("style." + theme.replaceAll("[^A-Za-z0-9_]", "_")));
+				} catch (Exception e) {
+					Log.w(TAG, "Cannot find the theme: " + theme);
+				}
+			}
+		}
+	}
+
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
@@ -603,6 +606,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (LOLLIPOP_OR_GREATER) {
 			sharedElementPairs.clear();
 		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public TiWindowProxy getNavigationWindow()
+	// clang-format on
+	{
+		return navigationWindow;
+	}
+
+	public void setNavigationWindow(TiWindowProxy navigationWindow)
+	{
+		this.navigationWindow = navigationWindow;
 	}
 
 	/**

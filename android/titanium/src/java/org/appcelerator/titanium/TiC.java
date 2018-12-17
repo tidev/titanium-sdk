@@ -802,6 +802,11 @@ public class TiC
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
+	 * @module.ape
+	 */
+	public static final String PROPERTY_ACTIVE_TITLE_COLOR = "activeTitleColor";
+
+	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_SWIPEABLE = "swipeable";
@@ -810,11 +815,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK = "smoothScrollOnTabClick";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR = "activeTabBackgroundColor";
 
 	/**
 	 * @module.api
@@ -1631,6 +1631,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FAST_SCROLL = "fastScroll";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_EXTEND_SAFE_AREA = "extendSafeArea";
 
 	/**
@@ -1749,6 +1754,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HIDES_BACK_BUTTON = "hidesBackButton";
 
 	/**
 	 * @module.api
@@ -2894,6 +2904,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHIFT_MODE = "shiftMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
 
 	/**
@@ -3159,6 +3174,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TITLE_COLOR = "titleColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	/**
 	 * @module.api
@@ -3218,6 +3238,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
+
+	/**
+	 * module.api
+	 */
+	public static final String PROPERTY_TRACK_TINT_COLOR = "trackTintColor";
 
 	/**
 	 * @module.api
