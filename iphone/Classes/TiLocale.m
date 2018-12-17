@@ -35,10 +35,11 @@
   if (l.currentLocale == nil) {
     NSArray *languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
     NSString *preferredLang = [languages objectAtIndex:0];
-    [TiLocale setLocale:preferredLang];
     if ([TiUtils isIOS9OrGreater]) {
-      [l setCurrentLocale:[[l currentLocale] substringToIndex:2]];
+      preferredLang = [preferredLang substringToIndex:2];
     }
+
+    return preferredLang;
   }
   return l.currentLocale;
 }
