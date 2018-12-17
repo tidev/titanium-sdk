@@ -144,6 +144,14 @@ extern NSString *const TI_APPLICATION_GUID;
     BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
     NSMutableDictionary *revisedEvent = [TiUtils dictionaryWithCode:success ? 0 : -1 message:success ? nil : @"error reverse geocoding"];
     [revisedEvent setValuesForKeysWithDictionary:event];
+    // TODO: Remove the zipcode and country_code values after on SDK 9.0.0!
+    NSArray<NSMutableDictionary *> *places = (NSArray<NSMutableDictionary *> *)revisedEvent[@"places"];
+    for (NSMutableDictionary *dict in places) {
+      dict[@"postalCode"] = dict[@"zipcode"];
+      dict[@"countryCode"] = dict[@"country_code"];
+    }
+    NSLog(@"[WARN] GeocodedAddress properties country_code and zipcode are deprecated in SDK 8.0.0 and will be removed in 9.0.0");
+    NSLog(@"[WARN] Please replace usage with the respective properties: countryCode and postalCode");
     [context fireEvent:callback withObject:revisedEvent remove:NO thisObject:nil];
   }
 }
