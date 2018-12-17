@@ -1485,8 +1485,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
 				}
 
-				//Have a default border width of 1
-				Object borderWidth = "1";
+				//Have a default border width of 1 if the border has defined color.
+				Object borderWidth = d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) ? "1" : "0";
 				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
 				} else {

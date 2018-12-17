@@ -69,7 +69,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
       if (buildType != nil || buildType.length > 0) {
         [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
       }
-      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];
+      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
       [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
     }
   }
@@ -99,6 +99,24 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 
 - (void)gc
 {
+}
+
+- (BOOL)hasProperty:(NSString *)propertyName
+{
+  if (dynprops != nil && dynprops[propertyName] != nil) {
+    return YES;
+  }
+
+  id module = modules[propertyName];
+  if (module != nil) {
+    return YES;
+  }
+  module = [host moduleNamed:propertyName context:pageContext];
+  if (module != nil) {
+    return YES;
+  }
+
+  return [super hasProperty:propertyName];
 }
 
 - (id)valueForKey:(NSString *)key

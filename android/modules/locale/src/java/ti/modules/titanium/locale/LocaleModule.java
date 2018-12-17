@@ -128,6 +128,10 @@ public class LocaleModule extends KrollModule
 	public String getString(String key, @Kroll.argument(optional = true) String defaultValue)
 	// clang-format on
 	{
+		if (defaultValue == null) {
+			defaultValue = key;
+		}
+
 		try {
 			int resid = TiRHelper.getResource("string." + key.replace(".", "_"));
 			if (resid != 0) {
