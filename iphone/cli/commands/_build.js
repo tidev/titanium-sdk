@@ -6397,7 +6397,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				const file = path.join(dir, name);
 				if (fs.existsSync(file)) {
 					if (fs.statSync(file).isDirectory()) {
-						walk(file);
+						walk(file, ignore);
 					} else if (name === 'InfoPlist.strings' || name === 'Localizable.strings' || plistRegExp.test(name)) {
 						add(plists, name, file);
 					} else if (pngRegExp.test(name)) {
@@ -6406,7 +6406,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				}
 			}
 		});
-	}(this.xcodeAppDir, /^(PlugIns|Watch)$/i));
+	}(this.xcodeAppDir, /^(PlugIns|Watch|TitaniumKit\.framework)$/i));
 
 	parallel(this, [
 		function (next) {
