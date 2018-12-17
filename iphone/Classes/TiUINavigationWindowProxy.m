@@ -292,6 +292,9 @@
 
   if (window == current) {
     BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+    if (animated && !transitionWithGesture) {
+      transitionIsAnimating = YES;
+    }
     [navController popViewControllerAnimated:animated];
   } else {
     [self closeWindow:window animated:NO];
