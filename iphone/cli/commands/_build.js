@@ -3764,7 +3764,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	copyFilesBuildPhase.files.push({
 		value: embedFrameworkBuildFileUuid,
 		comment: xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment']
-	})
+	});
 
 	frameworksGroup.children.push({
 		value: frameworkFileRefUuid,
