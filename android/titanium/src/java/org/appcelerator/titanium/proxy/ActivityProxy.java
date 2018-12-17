@@ -47,10 +47,6 @@ import android.support.v7.app.AppCompatActivity;
 public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 {
 	private static final String TAG = "ActivityProxy";
-	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-	private static final int MSG_INVALIDATE_OPTIONS_MENU = MSG_FIRST_ID + 100;
-	private static final int MSG_OPEN_OPTIONS_MENU = MSG_FIRST_ID + 101;
-	private static final int MSG_GET_ACTIONBAR = MSG_FIRST_ID + 102;
 
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
@@ -271,29 +267,28 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	public ActionBarProxy getActionBar()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return handleGetActionBar();
+		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
+		if (actionBarProxy == null && activity != null) {
+			actionBarProxy = new ActionBarProxy(activity);
 		}
-		return (ActionBarProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ACTIONBAR));
+		return actionBarProxy;
 	}
 
 	@Kroll.method
 	public void openOptionsMenu()
 	{
-		if (TiApplication.isUIThread()) {
-			handleOpenOptionsMenu();
-		} else {
-			getMainHandler().obtainMessage(MSG_OPEN_OPTIONS_MENU).sendToTarget();
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.openOptionsMenu();
 		}
 	}
 
 	@Kroll.method
 	public void invalidateOptionsMenu()
 	{
-		if (TiApplication.isUIThread()) {
-			handleInvalidateOptionsMenu();
-		} else {
-			getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
+		Activity activity = getWrappedActivity();
+		if (activity != null && activity instanceof AppCompatActivity) {
+			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
 		}
 	}
 
@@ -304,31 +299,6 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		if (activity != null) {
 			activity.setSupportActionBar((Toolbar) tiToolbarProxy.getToolbarInstance());
 		}
-	}
-
-	private void handleOpenOptionsMenu()
-	{
-		Activity activity = getWrappedActivity();
-		if (activity != null) {
-			activity.openOptionsMenu();
-		}
-	}
-
-	private void handleInvalidateOptionsMenu()
-	{
-		Activity activity = getWrappedActivity();
-		if (activity != null && activity instanceof AppCompatActivity) {
-			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
-		}
-	}
-
-	private ActionBarProxy handleGetActionBar()
-	{
-		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
-		if (actionBarProxy == null && activity != null) {
-			actionBarProxy = new ActionBarProxy(activity);
-		}
-		return actionBarProxy;
 	}
 
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
@@ -371,27 +341,6 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 			actionBarProxy.release();
 			actionBarProxy = null;
 		}
-	}
-
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_INVALIDATE_OPTIONS_MENU: {
-				handleInvalidateOptionsMenu();
-				return true;
-			}
-			case MSG_OPEN_OPTIONS_MENU: {
-				handleOpenOptionsMenu();
-				return true;
-			}
-			case MSG_GET_ACTIONBAR: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleGetActionBar());
-				return true;
-			}
-		}
-		return super.handleMessage(msg);
 	}
 
 	@Override

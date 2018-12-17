@@ -53,7 +53,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static int serviceReceiverRefCount = 0;
 
 	private WeakReference<KrollApplication> krollApplication;
-	private KrollRuntimeThread thread;
 	private long threadId;
 	private CountDownLatch initLatch = new CountDownLatch(1);
 	private KrollEvaluator evaluator;
@@ -78,80 +77,36 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024;
 	public static final String SOURCE_ANONYMOUS = "<anonymous>";
 
-	public static class KrollRuntimeThread extends Thread
-	{
-		private static final String TAG = "KrollRuntimeThread";
-
-		private KrollRuntime runtime = null;
-		private boolean runOnMain;
-
-		public KrollRuntimeThread(KrollRuntime runtime, int stackSize, boolean onMainThread)
-		{
-			super(null, null, TAG, stackSize);
-			this.runtime = runtime;
-			this.runOnMain = onMainThread;
-		}
-
-		public void run()
-		{
-			Looper looper;
-			if (runOnMain) {
-				looper = Looper.getMainLooper();
-			} else {
-				Looper.prepare();
-				synchronized (this)
-				{
-					looper = Looper.myLooper();
-					notifyAll();
-				}
-			}
-
-			// initialize the runtime instance
-			runtime.threadId = looper.getThread().getId();
-			runtime.handler = new Handler(looper, runtime);
-
-			// initialize the TiMessenger instance for the runtime thread
-			// NOTE: this must occur after threadId is set and before initRuntime() is called
-			TiMessenger.getMessenger();
-
-			// initialize the runtime
-			runtime.doInit();
-
-			if (!runOnMain) {
-				// start handling messages for this thread
-				Looper.loop();
-			}
-		}
-	}
-
 	public static void init(Context context, KrollRuntime runtime)
 	{
+		// Initialize asset helper, if not done already.
 		KrollAssetHelper.init(context);
-		// Initialized the runtime if it isn't already initialized
-		if (runtimeState != State.INITIALIZED) {
-			boolean onMainThread = runtime.runOnMainThread(context);
-			int stackSize = runtime.getThreadStackSize(context);
-			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
-			runtime.thread = new KrollRuntimeThread(runtime, stackSize, onMainThread);
-			runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
 
-			instance = runtime; // make sure this is set before the runtime thread is started
-			if (onMainThread) {
-				runtime.thread.run();
-			} else {
-				runtime.thread.start();
-			}
+		// Do not continue if already initialized.
+		if (runtimeState == State.INITIALIZED) {
+			return;
 		}
-	}
 
-	private boolean runOnMainThread(Context context)
-	{
-		if (context instanceof KrollApplication) {
-			KrollApplication ka = (KrollApplication) context;
-			ka.loadAppProperties();
-			return ka.runOnMainThread();
-		}
-		return KrollApplication.DEFAULT_RUN_ON_MAIN_THREAD;
+		// Keep a reference to the given runtime.
+		// Must be done before calling doInit() below.
+		instance = runtime;
+
+		// Load all application properties.
+		((KrollApplication) context).loadAppProperties();
+
+		// Set up runtime member variables.
+		Looper looper = Looper.getMainLooper();
+		runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
+		runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
+		runtime.threadId = looper.getThread().getId();
+		runtime.handler = new Handler(looper, runtime);
+
+		// Initialize the TiMessenger instance for the current thread.
+		// NOTE: This must occur after "threadId" is set and before doInit() is called.
+		TiMessenger.getMessenger();
+
+		// Initialize the given runtime.
+		runtime.doInit();
 	}
 
 	public static KrollRuntime getInstance()

@@ -5,6 +5,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global kroll */
 'use strict';
 
 var tiBinding = kroll.binding('Titanium'),
@@ -177,6 +178,25 @@ Object.defineProperty(Titanium.TiView.prototype, 'toJSON', {
 		for (var i = 0; i < keyCount; i++) {
 			var k = keys[i];
 			if (k === 'parent') {
+				continue;
+			}
+			serialized[k] = this[k];
+		}
+
+		return serialized;
+	},
+	enumerable: false
+});
+
+Object.defineProperty(Titanium.UI.NavigationWindow.prototype, 'toJSON', {
+	value: function () {
+		var keys = Object.keys(this);
+		var keyCount = keys.length;
+		var serialized = {};
+
+		for (var i = 0; i < keyCount; i++) {
+			var k = keys[i];
+			if (k === 'parent' || k === 'window') {
 				continue;
 			}
 			serialized[k] = this[k];
