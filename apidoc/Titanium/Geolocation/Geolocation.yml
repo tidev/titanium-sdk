@@ -1279,14 +1279,16 @@ properties:
     platforms: [android]
 
   - name: postalCode
-    summary: Postal code. On iOS, use `zipcode`.
+    summary: Postal code
     type: String
-    platforms: [android]
+    platforms: [android, iphone, ipad]
 
   - name: zipcode
-    summary: Postal code. On Android, use `postalCode`.
+    summary: Postal code. To be replaced by `postalCode`
     type: String
     platforms: [iphone, ipad]
+    deprecated:
+        since: {iphone: "8.0.0", ipad: "8.0.0"}
 
   - name: country
     summary: Country name.
@@ -1294,29 +1296,33 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: countryCode
-    summary: Country code. On iOS, use `country_code`.
-    type: String
-    platforms: [android]
-
-  - name: country_code
-    summary: Country code. Same as `country_code`.
+    summary: Country code.
     type: String
     platforms: [android, iphone, ipad]
 
+  - name: country_code
+    summary: Country code. To be replaced by `countryCode`.
+    type: String
+    platforms: [android, iphone, ipad]
+    deprecated:
+        since: {android: "8.0.0", iphone: "8.0.0", ipad: "8.0.0"}
+
   - name: longitude
     summary: Longitude of the geocoded point.
-    type: String
+    type: Number
     platforms: [android, iphone, ipad]
 
   - name: latitude
     summary: Latitude of the geocoded point.
-    type: String
+    type: Number
     platforms: [android, iphone, ipad]
 
   - name: displayAddress
     summary: Display address. Identical to `address`.
     type: String
     platforms: [android]
+    deprecated:
+        since: {android: "8.0.0"}
 
   - name: address
     summary: Full address.
