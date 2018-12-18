@@ -49,11 +49,11 @@ properties:
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
         For Android:
-        [Titanium.UI.TabbedBar.TABBED_BAR_STYLE_*](Titanium.UI.TABBED_BAR_STYLE.*)
+        [Titanium.UI.TABS_STYLE_*]
         In Android [style](Ti.UI.TabbedBar.style) is only supported in the creation dictionary 
         of the proxy.
     type: Number
-    default: Titanium.UI.iOS.SystemButtonStyle.PLAIN for iOS, Ti.UI.TabbedBar.TABBED_BAR_STYLES_DEFAULT for Android
+    default: Titanium.UI.iOS.SystemButtonStyle.PLAIN for iOS, Ti.UI.TABS_STYLE_DEFAULT for Android
 examples:
   - title: Simple Tabbed Bar with 3 items
     example: |
