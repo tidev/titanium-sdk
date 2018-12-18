@@ -135,7 +135,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it('#getLastGeolocation()', function () {
 		should(Ti.Geolocation).have.a.property('getLastGeolocation').which.is.a.Function;
-		const returnValue = Ti.Geolocation.getLastGeolocation();
+		// const returnValue = Ti.Geolocation.getLastGeolocation();
 		// should(returnValue).be.a.Object; // FIXME How do we test return type? Docs say String. May be null or undefined, as well!
 	});
 

@@ -164,16 +164,20 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		tiCompass = new TiCompass(this, tiLocation);
 
 		simpleLocationProviders.put(AndroidModule.PROVIDER_NETWORK,
-									new LocationProviderProxy(AndroidModule.PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE,
+									new LocationProviderProxy(AndroidModule.PROVIDER_NETWORK,
+															  SIMPLE_LOCATION_NETWORK_DISTANCE,
 															  SIMPLE_LOCATION_NETWORK_TIME, this));
 		simpleLocationProviders.put(AndroidModule.PROVIDER_PASSIVE,
-									new LocationProviderProxy(AndroidModule.PROVIDER_PASSIVE, SIMPLE_LOCATION_PASSIVE_DISTANCE,
+									new LocationProviderProxy(AndroidModule.PROVIDER_PASSIVE,
+															  SIMPLE_LOCATION_PASSIVE_DISTANCE,
 															  SIMPLE_LOCATION_PASSIVE_TIME, this));
 
 		// create these now but we don't want to include these in the rule set unless the simple GPS provider is enabled
-		simpleLocationGpsRule = new LocationRuleProxy(AndroidModule.PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null);
-		simpleLocationNetworkRule = new LocationRuleProxy(AndroidModule.PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE,
-														  SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
+		simpleLocationGpsRule =
+			new LocationRuleProxy(AndroidModule.PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null);
+		simpleLocationNetworkRule =
+			new LocationRuleProxy(AndroidModule.PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE,
+								  SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
 	}
 
 	/**
