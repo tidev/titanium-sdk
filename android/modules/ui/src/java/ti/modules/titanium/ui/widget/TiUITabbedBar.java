@@ -113,7 +113,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		// Data set is simple labels
 		if (labels[0] instanceof String) {
 			for (int i = 0; i < labels.length; i++) {
-				addItem(labels[i].toString(), false);
+				addItem(labels[i].toString());
 			}
 			return;
 		}
@@ -122,29 +122,42 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		for (int i = 0; i < labels.length; i++) {
 			// Create a map record from BarItemType
 			HashMap item = ((HashMap) labels[i]);
+			// The proxy has an "image" property
 			if (item.containsKey(TiC.PROPERTY_IMAGE)) {
-				addItem(item.get(TiC.PROPERTY_IMAGE), true);
-			} else {
-				if (item.containsKey(TiC.PROPERTY_TITLE)) {
-					addItem(item.get(TiC.PROPERTY_TITLE), false);
+				// Try to load a drawable from the property
+				Drawable drawable =
+					TiDrawableReference.fromObject(getProxy(), item.get(TiC.PROPERTY_IMAGE)).getDrawable();
+				// If a drawable is successfully loaded add it as an icon and proceed to the next item.
+				if (drawable != null) {
+					addItem(drawable);
+					continue;
 				}
+				// If drawable was not loaded successfully try to fallback to a title.
+				// If we have a title - use it.
+				if (item.containsKey(TiC.PROPERTY_TITLE)) {
+					addItem(item.get(TiC.PROPERTY_TITLE));
+					continue;
+				}
+				// Otherwise add an empty button (parity with iOS)
+				addItem(null);
+			}
+			if (item.containsKey(TiC.PROPERTY_TITLE)) {
+				addItem(item.get(TiC.PROPERTY_TITLE));
 			}
 		}
 	}
 
-	private void addItem(Object value, boolean isImage)
+	private void addItem(Object value)
 	{
-		Drawable drawable = null;
-		if (isImage) {
-			drawable = TiDrawableReference.fromObject(getProxy(), value).getDrawable();
-		}
 		switch (this.style) {
 			case AndroidModule.TABS_STYLE_DEFAULT:
 				TabLayout.Tab tab = this.tabLayout.newTab();
-				if (drawable != null) {
-					tab.setIcon(drawable);
-				} else {
-					tab.setText(value.toString());
+				if (value != null) {
+					if (value instanceof Drawable) {
+						tab.setIcon(((Drawable) value));
+					} else {
+						tab.setText(value.toString());
+					}
 				}
 				this.tabLayout.addTab(tab);
 				break;
@@ -152,10 +165,12 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				MenuItem menuItem = this.bottomNavigationView.getMenu().add(null);
 				menuItem.setOnMenuItemClickListener(this);
 				this.bottomNavigationMenuItems.add(menuItem);
-				if (drawable != null) {
-					menuItem.setIcon(drawable);
-				} else {
-					menuItem.setTitle(value.toString());
+				if (value != null) {
+					if (value instanceof Drawable) {
+						menuItem.setIcon(((Drawable) value));
+					} else {
+						menuItem.setTitle(value.toString());
+					}
 				}
 				break;
 		}
