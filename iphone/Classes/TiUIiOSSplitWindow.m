@@ -108,6 +108,7 @@
 {
   CGSize refSize = self.bounds.size;
   BOOL isPortrait = UIInterfaceOrientationIsPortrait(orientation);
+  BOOL isRunningInFullScreen = CGRectEqualToRect([UIApplication sharedApplication].delegate.window.frame, [UIApplication sharedApplication].delegate.window.screen.bounds);
 
   CGRect masterRect = CGRectZero;
   CGRect detailRect = CGRectZero;
@@ -119,7 +120,18 @@
   CGSize oldMasterSize = masterViewWrapper.bounds.size;
   CGSize oldDetailSize = detailViewWrapper.bounds.size;
 
-  if (isPortrait) {
+  if (!isPortrait && isRunningInFullScreen) {
+      /*
+       * Side by side. Master+Detail occupy visible area
+       */
+      CGFloat masterWidth = roundf(splitRatioLandscape * refSize.width);
+      detailSize = CGSizeMake(refSize.width - masterWidth, refSize.height);
+      masterSize = CGSizeMake(masterWidth, refSize.height);
+      masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
+      masterCenter = CGPointMake(masterSize.width / 2, masterSize.height / 2);
+      detailRect = CGRectMake(0, 0, detailSize.width, detailSize.height);
+      detailCenter = CGPointMake(masterSize.width + (detailSize.width / 2), detailSize.height / 2);
+  } else {
     CGFloat masterWidth = roundf(splitRatioPortrait * refSize.width);
     if (showMasterInPortrait) {
       if (masterIsOverlayed) {
@@ -155,17 +167,6 @@
       detailRect = CGRectMake(0, 0, detailSize.width, detailSize.height);
       detailCenter = CGPointMake(detailSize.width / 2, detailSize.height / 2);
     }
-  } else {
-    /*
-         * Side by side. Master+Detail occupy visible area
-         */
-    CGFloat masterWidth = roundf(splitRatioLandscape * refSize.width);
-    detailSize = CGSizeMake(refSize.width - masterWidth, refSize.height);
-    masterSize = CGSizeMake(masterWidth, refSize.height);
-    masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
-    masterCenter = CGPointMake(masterSize.width / 2, masterSize.height / 2);
-    detailRect = CGRectMake(0, 0, detailSize.width, detailSize.height);
-    detailCenter = CGPointMake(masterSize.width + (detailSize.width / 2), detailSize.height / 2);
   }
 
   [detailViewWrapper setBounds:detailRect];
