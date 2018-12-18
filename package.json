@@ -101,7 +101,7 @@
     "commitizen": "^3.0.5",
     "cz-conventional-changelog": "^2.1.0",
     "danger": "^7.0.1",
-    "eslint-config-axway": "^4.0.0",
+    "eslint-config-axway": "^4.2.1",
     "eslint-plugin-mocha": "^5.2.1",
     "grunt": "^1.0.3",
     "grunt-appc-js": "^2.1.0",
