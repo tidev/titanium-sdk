@@ -21,6 +21,9 @@
 		15CB44131C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44121C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m */; };
 		15CB44151C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44141C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m */; };
 		15CB44191C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */; };
+		1923696220E48C2A00567508 /* TiUIiOSWebViewConfigurationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1923695E20E48C2900567508 /* TiUIiOSWebViewConfigurationProxy.m */; };
+		1923696320E48C2A00567508 /* TiUIiOSWebViewDecisionHandlerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1923695F20E48C2900567508 /* TiUIiOSWebViewDecisionHandlerProxy.m */; };
+		1923696620E48D4300567508 /* TiUIiOSWebViewProcessPoolProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1923696420E48D4300567508 /* TiUIiOSWebViewProcessPoolProxy.m */; };
 		1953DD631E0A5E6E00414348 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1953DD621E0A5E6E00414348 /* TiAppiOSUserActivityProxy.m */; };
 		197EC88C2199730800F5A077 /* TiMediaAudioPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
@@ -322,6 +325,12 @@
 		15CB44161C4ED55B00D81480 /* TiUIiOSSystemButtonProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSystemButtonProxy.h; sourceTree = "<group>"; };
 		15CB44171C4EEFDD00D81480 /* TiUIiOSSystemIconProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSystemIconProxy.h; sourceTree = "<group>"; };
 		15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSystemIconProxy.m; sourceTree = "<group>"; };
+		1923695E20E48C2900567508 /* TiUIiOSWebViewConfigurationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSWebViewConfigurationProxy.m; sourceTree = "<group>"; };
+		1923695F20E48C2900567508 /* TiUIiOSWebViewDecisionHandlerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSWebViewDecisionHandlerProxy.m; sourceTree = "<group>"; };
+		1923696020E48C2900567508 /* TiUIiOSWebViewConfigurationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSWebViewConfigurationProxy.h; sourceTree = "<group>"; };
+		1923696120E48C2900567508 /* TiUIiOSWebViewDecisionHandlerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSWebViewDecisionHandlerProxy.h; sourceTree = "<group>"; };
+		1923696420E48D4300567508 /* TiUIiOSWebViewProcessPoolProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSWebViewProcessPoolProxy.m; sourceTree = "<group>"; };
+		1923696520E48D4300567508 /* TiUIiOSWebViewProcessPoolProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSWebViewProcessPoolProxy.h; sourceTree = "<group>"; };
 		1953DD611E0A5E6E00414348 /* TiAppiOSUserActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserActivityProxy.h; sourceTree = "<group>"; };
 		1953DD621E0A5E6E00414348 /* TiAppiOSUserActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserActivityProxy.m; sourceTree = "<group>"; };
 		1D19459413FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIDOMDOMImplementationProxy.h; sourceTree = "<group>"; };
@@ -1460,6 +1469,12 @@
 				15CB44161C4ED55B00D81480 /* TiUIiOSSystemButtonProxy.h */,
 				15CB44171C4EEFDD00D81480 /* TiUIiOSSystemIconProxy.h */,
 				15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */,
+				1923696020E48C2900567508 /* TiUIiOSWebViewConfigurationProxy.h */,
+				1923695E20E48C2900567508 /* TiUIiOSWebViewConfigurationProxy.m */,
+				1923696120E48C2900567508 /* TiUIiOSWebViewDecisionHandlerProxy.h */,
+				1923695F20E48C2900567508 /* TiUIiOSWebViewDecisionHandlerProxy.m */,
+				1923696520E48D4300567508 /* TiUIiOSWebViewProcessPoolProxy.h */,
+				1923696420E48D4300567508 /* TiUIiOSWebViewProcessPoolProxy.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -2080,7 +2095,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../common/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\ncp -Rf \"$PROJECT_DIR/../Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/dev/localecompiler.py\" \"$PROJECT_DIR/..\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../common/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\ncp -Rf \"$PROJECT_DIR/../Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/dev/localecompiler.py\" \"$PROJECT_DIR/..\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2131,6 +2146,7 @@
 				24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */,
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */,
+				1923696620E48D4300567508 /* TiUIiOSWebViewProcessPoolProxy.m in Sources */,
 				DBF4B13B200FD93400777136 /* TiUIApplicationShortcutsProxy.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8B8C111161FE0084E2DE /* TiUISwitchProxy.m in Sources */,
@@ -2256,9 +2272,11 @@
 				2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
 				3A0E54371BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m in Sources */,
+				1923696320E48C2A00567508 /* TiUIiOSWebViewDecisionHandlerProxy.m in Sources */,
 				24F29F83122105C70099351D /* LocaleModule.m in Sources */,
 				D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
 				DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */,
+				1923696220E48C2A00567508 /* TiUIiOSWebViewConfigurationProxy.m in Sources */,
 				24ADC5121299F60C0014DB75 /* TiAppiOSProxy.m in Sources */,
 				24ADC5161299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
 				24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
