@@ -3048,15 +3048,17 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		pbxProject = xobjs.PBXProject[projectUuid],
 		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment.replace(/^"/, '').replace(/"$/, '') === appName; })[0].value,
 		mainGroupChildren = xobjs.PBXGroup[pbxProject.mainGroup].children,
+		buildPhases = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases,
 		extensionsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Extensions'; })[0].value],
 		frameworksGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value],
 		resourcesGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Resources'; })[0].value],
 		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value],
+		// we lazily find the frameworks and embed frameworks uuids by working our way backwards so we don't have to compare comments
 		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[
-			xobjs.PBXNativeTarget[mainTargetUuid].buildPhases
-				.filter(function (phase) {
-					return xobjs.PBXFrameworksBuildPhase[phase.value];
-				})[0].value
+			buildPhases.filter(phase => xobjs.PBXFrameworksBuildPhase[phase.value])[0].value
+		],
+		copyFilesBuildPhase = xobjs.PBXCopyFilesBuildPhase[
+			buildPhases.filter(phase => xobjs.PBXCopyFilesBuildPhase[phase.value])[0].value
 		],
 		resourcesBuildPhase = xobjs.PBXResourcesBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXResourcesBuildPhase[phase.value]; })[0].value],
 		caps = this.tiapp.ios.capabilities,
@@ -3067,7 +3069,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
 			SDKROOT: 'iphoneos',
-			CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"'
+			CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"',
+			FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"Frameworks"' ]
 		},
 		legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
@@ -3722,12 +3725,54 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		return product.comment;
 	});
 
+	// add TitaniumKit.framework
+	xcodeProject.removeFramework('TitaniumKit.framework', { customFramework: true, embed: true });
+
+	const frameworkFileRefUuid = this.generateXcodeUuid(xcodeProject);
+	const frameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+	const embedFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+	xobjs.PBXFileReference[frameworkFileRefUuid] = {
+		isa: 'PBXFileReference',
+		lastKnownFileType: 'wrapper.framework',
+		name: '"TitaniumKit.framework"',
+		path: '"Frameworks/TitaniumKit.framework"',
+		sourceTree: '"<group>"'
+	};
+	xobjs.PBXFileReference[frameworkFileRefUuid + '_comment'] = 'TitaniumKit.framework';
+
+	xobjs.PBXBuildFile[frameworkBuildFileUuid] = {
+		isa: 'PBXBuildFile',
+		fileRef: frameworkFileRefUuid,
+		fileRef_comment: 'TitaniumKit.framework'
+	};
+	xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment'] = 'TitaniumKit.framework in Frameworks';
+
+	frameworksBuildPhase.files.push({
+		value: frameworkBuildFileUuid,
+		comment: xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment']
+	});
+
+	xobjs.PBXBuildFile[embedFrameworkBuildFileUuid] = {
+		isa: 'PBXBuildFile',
+		fileRef: frameworkFileRefUuid,
+		fileRef_comment: 'TitaniumKit.framework',
+		settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
+	};
+	xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment'] = 'TitaniumKit.framework in Embed Frameworks';
+
+	copyFilesBuildPhase.files.push({
+		value: embedFrameworkBuildFileUuid,
+		comment: xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment']
+	});
+
+	frameworksGroup.children.push({
+		value: frameworkFileRefUuid,
+		comment: 'TitaniumKit.framework'
+	});
+
+	// run the xcode project hook
 	const hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
-
-		// clean up TitaniumKit project references
-		xcodeProject.removeFramework('TitaniumKit.framework', { customFramework: true, embed: true });
-		xcodeProject.addFramework(path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework'), { customFramework: true, embed: true });
-
 		const contents = xcodeProject.writeSync(),
 			dest = xcodeProject.filepath,
 			parent = path.dirname(dest);
@@ -6352,7 +6397,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				const file = path.join(dir, name);
 				if (fs.existsSync(file)) {
 					if (fs.statSync(file).isDirectory()) {
-						walk(file);
+						walk(file, ignore);
 					} else if (name === 'InfoPlist.strings' || name === 'Localizable.strings' || plistRegExp.test(name)) {
 						add(plists, name, file);
 					} else if (pngRegExp.test(name)) {
@@ -6361,7 +6406,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				}
 			}
 		});
-	}(this.xcodeAppDir, /^(PlugIns|Watch)$/i));
+	}(this.xcodeAppDir, /^(PlugIns|Watch|TitaniumKit\.framework)$/i));
 
 	parallel(this, [
 		function (next) {
