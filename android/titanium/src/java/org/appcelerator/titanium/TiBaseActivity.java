@@ -37,6 +37,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -643,6 +644,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		overridenLayout = true;
 		super.setContentView(view, params);
+	}
+
+	@Override
+	protected void attachBaseContext(Context newBase)
+	{
+		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
 	}
 
 	@Override
