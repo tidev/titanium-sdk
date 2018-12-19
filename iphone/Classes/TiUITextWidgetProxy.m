@@ -63,7 +63,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
         YES);
     return [NSNumber numberWithBool:viewHasText];
   } else {
-    NSString *value = [self valueForKey:@"value"];
+    NSString *value = [TiUtils stringValue:[self valueForKey:@"value"]];
     BOOL viewHasText = value != nil && [value length] > 0;
     return [NSNumber numberWithBool:viewHasText];
   }
