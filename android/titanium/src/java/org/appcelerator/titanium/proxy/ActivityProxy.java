@@ -87,6 +87,14 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	}
 
 	@Kroll.method
+	public void recreate()
+	{
+		if (activity.get() != null) {
+			activity.get().recreate();
+		}
+	}
+
+	@Kroll.method
 	public DecorViewProxy getDecorView()
 	{
 		if (savedDecorViewProxy == null) {
