@@ -576,7 +576,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// Remove translucent StatusBar/NavigationBar flags if window is not set up to extend beneath them.
 		// Not doing so will cause window to stretch beneath them anyways, but will fail to render there.
-		if (this.layout.getFitsSystemWindows()) {
+		if (this.layout.getFitsSystemWindows() && !(this instanceof TiLaunchActivity)) {
 			int mask = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 			mask |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
 			if ((getWindow().getAttributes().flags & mask) != 0) {
