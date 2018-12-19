@@ -5,6 +5,7 @@ const debug = require('debug')('dangerfile');
 const fs = require('fs-extra');
 const eslint = require('@seadub/danger-plugin-eslint').default;
 const junit = require('@seadub/danger-plugin-junit').default;
+const dependencies = require('@seadub/danger-plugin-dependencies').default;
 const packageJSON = require('./package.json');
 // Due to bug in danger, we hack env variables in build process.
 const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
@@ -57,15 +58,6 @@ async function checkJIRA() {
 		warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
 	} else {
 		labelsToRemove.add(Label.NEEDS_JIRA);
-	}
-}
-
-// Check that package.json and package-lock.json stay in-sync
-async function checkPackageJSONInSync() {
-	const hasPackageChanges = danger.git.modified_files.indexOf('package.json') !== -1;
-	const hasLockfileChanges = danger.git.modified_files.indexOf('package-lock.json') !== -1;
-	if (hasPackageChanges && !hasLockfileChanges) {
-		warn(':lock: Changes were made to package.json, but not to package-lock.json - <i>Perhaps you need to run `npm install`?</i>');
 	}
 }
 
@@ -254,7 +246,6 @@ async function main() {
 		checkNPMTestOutput(),
 		checkStats(github.pr),
 		checkJIRA(),
-		checkPackageJSONInSync(),
 		linkToSDK(),
 		checkForIOSCrash(),
 		junit({ pathToReport: './junit.*.xml' }),
@@ -263,7 +254,8 @@ async function main() {
 		checkMergeable(),
 		checkPRisApproved(),
 		updateMilestone(),
-		eslint()
+		eslint(),
+		dependencies({ type: 'npm' }),
 	]);
 	// ...once we've gathered what labels to add/remove, do that last
 	await requestReviews();
