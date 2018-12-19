@@ -129,12 +129,7 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 				geolocationModule.enableLocationProviders(manualLocationProviders);
 
 			} else {
-				if (geolocationModule.legacyModeActive) {
-					geolocationModule.enableLocationProviders(geolocationModule.legacyLocationProviders);
-
-				} else {
-					geolocationModule.enableLocationProviders(geolocationModule.simpleLocationProviders);
-				}
+				geolocationModule.enableLocationProviders(geolocationModule.simpleLocationProviders);
 			}
 		}
 	}
