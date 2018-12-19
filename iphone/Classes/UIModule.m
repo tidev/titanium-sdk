@@ -33,6 +33,9 @@
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
+#ifdef USE_TI_UIWEBVIEW
+#import <WebKit/WebKit.h>
+#endif
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
