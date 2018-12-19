@@ -330,6 +330,12 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
     return [NSNumber numberWithInt:map]; \
   }
 
+#define MAKE_SYSTEM_PROP_UINTEGER(name, map)         \
+  -(NSNumber *)name                                  \
+  {                                                  \
+    return [NSNumber numberWithUnsignedInteger:map]; \
+  }
+
 #define MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(name, map, api, in, newapi) \
   -(NSNumber *)name                                                      \
   {                                                                      \
