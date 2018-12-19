@@ -19,7 +19,7 @@ public class _2DMatrixProxy extends Ti2DMatrix
 	{
 		super();
 
-		Log.w(TAG, "Ti.UI.2DMatrix DEPRECATED in 8.0.0, in favor of Ti.UI.Matrix3D");
+		Log.w(TAG, "Ti.UI.2DMatrix DEPRECATED in 8.0.0, in favor of Ti.UI.Matrix2D");
 	}
 
 	@Override
