@@ -395,7 +395,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			{
 				// Remove this listener.
 				KrollRuntime.removeOnDisposingListener(this);
-				
+
 				// Remove any queued runnables since their assigned runtime is about to be terminated.
 				pendingRuntimeRunnables.clear();
 
