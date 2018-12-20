@@ -38,7 +38,8 @@
 
       TiThreadPerformOnMainThread(^{
         [callback call:invocationArray thisObject:self];
-      }, YES);
+      },
+          YES);
       [invocationArray release];
     }];
   } else {
@@ -78,7 +79,8 @@
 
       TiThreadPerformOnMainThread(^{
         [callback call:invocationArray thisObject:self];
-      }, YES);
+      },
+          YES);
       [invocationArray release];
     }];
   } else {
@@ -189,7 +191,8 @@
       NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
       TiThreadPerformOnMainThread(^{
         [callback call:invocationArray thisObject:self];
-      }, YES);
+      },
+          YES);
       [invocationArray release];
     }];
   } else {

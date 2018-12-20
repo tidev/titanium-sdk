@@ -843,12 +843,11 @@
                                                                           trigger:trigger];
 
     [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                            withCompletionHandler:^(NSError *error) {
-                                                              if (error) {
-                                                                DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
-                                                              }
-                                                            }];
-
+                                                           withCompletionHandler:^(NSError *error) {
+                                                             if (error) {
+                                                               DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+                                                             }
+                                                           }];
 
     notification.notification = content;
     [content release];
