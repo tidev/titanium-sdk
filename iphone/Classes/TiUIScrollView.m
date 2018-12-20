@@ -316,7 +316,7 @@
 - (void)scrollToBottom
 {
   /*
-     * Calculate the bottom height & width and, sets the offset from the 
+     * Calculate the bottom height & width and, sets the offset from the
      * content view’s origin that corresponds to the receiver’s origin.
      */
   UIScrollView *currScrollView = [self scrollView];
@@ -362,6 +362,7 @@
 
 - (void)setRefreshControl_:(id)args
 {
+#ifdef USE_TI_UIREFRESHCONTROL
   ENSURE_SINGLE_ARG_OR_NIL(args, TiUIRefreshControlProxy);
   [[refreshControl control] removeFromSuperview];
   RELEASE_TO_NIL(refreshControl);
@@ -374,6 +375,7 @@
       [[self scrollView] addSubview:refreshControl.control];
     }
   }
+#endif
 }
 
 - (void)setShowHorizontalScrollIndicator_:(id)value

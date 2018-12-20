@@ -19,6 +19,8 @@
   NSString *address;
   NSString *ostype;
   NSNumber *availableMemory;
+  NSNumber *totalMemory;
+  NSNumber *uptime;
   TiPlatformDisplayCaps *capabilities;
   BOOL batteryEnabled;
 }
@@ -35,6 +37,8 @@
 @property (readonly, nonatomic) NSString *address;
 @property (readonly, nonatomic) NSString *ostype;
 @property (readonly, nonatomic) NSNumber *availableMemory;
+@property (readonly, nonatomic) NSNumber *totalMemory;
+@property (readonly, nonatomic) NSNumber *uptime;
 @property (readonly, nonatomic) TiPlatformDisplayCaps *displayCaps;
 @property (readonly, nonatomic) NSNumber *batteryState;
 @property (readonly, nonatomic) NSNumber *batteryLevel;
