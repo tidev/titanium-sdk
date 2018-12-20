@@ -189,7 +189,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		super.windowCreated(savedInstanceState);
 		loadActivityScript();
 		scriptLoaded();
-		TiApplication.getInstance().postAppInfo();
 	}
 
 	protected boolean checkInvalidLaunch(Bundle savedInstanceState)

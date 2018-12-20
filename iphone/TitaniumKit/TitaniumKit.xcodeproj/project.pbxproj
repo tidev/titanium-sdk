@@ -27,9 +27,7 @@
 		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
 		DB15965A2075389000292B19 /* APIModule.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596582075389000292B19 /* APIModule.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15965E2075458A00292B19 /* XHRBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15965C2075458A00292B19 /* XHRBridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15965F2075458A00292B19 /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15965D2075458A00292B19 /* XHRBridge.m */; };
-		DB1596622075461400292B19 /* SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596602075461400292B19 /* SBJSON.h */; };
+		DB1596622075461400292B19 /* SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596602075461400292B19 /* SBJSON.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB1596632075461400292B19 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596612075461400292B19 /* SBJSON.m */; };
 		DB15FBEE1F0A80E400A82C45 /* TiDimension.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FBEA1F0A80E400A82C45 /* TiDimension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FBEF1F0A80E400A82C45 /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FBEB1F0A80E400A82C45 /* TiDimension.m */; };
@@ -183,8 +181,6 @@
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
 		DB1596572075389000292B19 /* APIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIModule.m; sourceTree = "<group>"; };
 		DB1596582075389000292B19 /* APIModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIModule.h; sourceTree = "<group>"; };
-		DB15965C2075458A00292B19 /* XHRBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XHRBridge.h; sourceTree = "<group>"; };
-		DB15965D2075458A00292B19 /* XHRBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XHRBridge.m; sourceTree = "<group>"; };
 		DB1596602075461400292B19 /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
 		DB1596612075461400292B19 /* SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJSON.m; sourceTree = "<group>"; };
 		DB15FBEA1F0A80E400A82C45 /* TiDimension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDimension.h; sourceTree = "<group>"; };
@@ -552,8 +548,6 @@
 				DB15FC5E1F0A84C900A82C45 /* Webcolor.m */,
 				DB15FC471F0A83A700A82C45 /* WebFont.h */,
 				DB15FC481F0A83A700A82C45 /* WebFont.m */,
-				DB15965C2075458A00292B19 /* XHRBridge.h */,
-				DB15965D2075458A00292B19 /* XHRBridge.m */,
 			);
 			name = API;
 			path = Sources/API;
@@ -619,6 +613,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB1596622075461400292B19 /* SBJSON.h in Headers */,
 				DB3908652075228900AE31EC /* APSAnalytics.h in Headers */,
 				DB15FCAC1F0A86D400A82C45 /* TiLogServer.h in Headers */,
 				DBE66A36210F92FD00095F1E /* KrollWrapper.h in Headers */,
@@ -633,7 +628,6 @@
 				DB15FC981F0A862000A82C45 /* TiPoint.h in Headers */,
 				DB15FC3F1F0A833100A82C45 /* KrollPropertyDelegate.h in Headers */,
 				DB15FC671F0A84E000A82C45 /* TiStylesheet.h in Headers */,
-				DB1596622075461400292B19 /* SBJSON.h in Headers */,
 				DB15FBF01F0A80E400A82C45 /* TiThreading.h in Headers */,
 				DB258D9B1F097680000D0D8D /* TiToolbar.h in Headers */,
 				DB15FCB01F0A86E600A82C45 /* TiBindingTiValue.h in Headers */,
@@ -684,7 +678,6 @@
 				DB15FC7F1F0A855F00A82C45 /* UIImage+Alpha.h in Headers */,
 				DB15965A2075389000292B19 /* APIModule.h in Headers */,
 				DB15FD201F0A8A5E00A82C45 /* TiComplexValue.h in Headers */,
-				DB15965E2075458A00292B19 /* XHRBridge.h in Headers */,
 				DB5813E72075FCF200CA1437 /* TiDefines.h in Headers */,
 				DB24E0502076824C0033B2B1 /* TiSharedConfig.h in Headers */,
 				DB15FC3D1F0A833100A82C45 /* KrollObject.h in Headers */,
@@ -857,7 +850,6 @@
 				DB15FD211F0A8A5E00A82C45 /* TiComplexValue.m in Sources */,
 				DB258D8D1F097680000D0D8D /* TiProxy.m in Sources */,
 				DB15FC541F0A849D00A82C45 /* TiBindingRunLoop.m in Sources */,
-				DB15965F2075458A00292B19 /* XHRBridge.m in Sources */,
 				DB15FCFC1F0A88B100A82C45 /* TiLocale.m in Sources */,
 				DB15FCF81F0A889100A82C45 /* TiLayoutQueue.m in Sources */,
 				DB15FBF11F0A80E400A82C45 /* TiThreading.m in Sources */,

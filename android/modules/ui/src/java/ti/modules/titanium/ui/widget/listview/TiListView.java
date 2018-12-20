@@ -646,6 +646,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			this.listView.setTouchScrollable(TiConvert.toBoolean(d.get(TiC.PROPERTY_CAN_SCROLL), true));
 		}
 
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FAST_SCROLL)) {
+			listView.setFastScrollEnabled(TiConvert.toBoolean(d.get(TiC.PROPERTY_FAST_SCROLL), false));
+		}
 		// Have to add header and footer before setting adapter
 		listView.addHeaderView(headerView, null, false);
 		listView.addFooterView(footerView, null, false);
@@ -808,6 +811,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			}
 		} else if (key.equals(TiC.PROPERTY_CAN_SCROLL)) {
 			this.listView.setTouchScrollable(TiConvert.toBoolean(newValue, true));
+		} else if (key.equals(TiC.PROPERTY_FAST_SCROLL)) {
+			listView.setFastScrollEnabled(TiConvert.toBoolean(newValue, false));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

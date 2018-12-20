@@ -159,13 +159,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   UIWindow *currentKeyWindow_ = [[UIApplication sharedApplication] keyWindow];
   return [[currentKeyWindow_ subviews] lastObject];
 }
-- (void)attachXHRBridgeIfRequired
-{
-  if (xhrBridge == nil) {
-    xhrBridge = [[XHRBridge alloc] initWithHost:self];
-    [xhrBridge boot:self url:nil preload:nil];
-  }
-}
 
 - (void)registerApplicationDelegate:(id)applicationDelegate
 {
@@ -998,8 +991,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
   NSCondition *condition = [[NSCondition alloc] init];
 
-  [xhrBridge shutdown:nil];
-
   // These shutdowns return immediately, yes, but the main will still run the close that's in their queue.
   [kjsBridge shutdown:condition];
 
@@ -1020,7 +1011,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
-  RELEASE_TO_NIL(xhrBridge);
   RELEASE_TO_NIL(remoteNotification);
   RELEASE_TO_NIL(pendingCompletionHandlers);
   RELEASE_TO_NIL(backgroundTransferCompletionHandlers);
@@ -1034,8 +1024,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   applicationInMemoryPanic = YES;
   [Webcolor flushCache];
-  // don't worry about KrollBridge since he's already listening
-  [xhrBridge gc];
+
   [self performSelector:@selector(clearMemoryPanic)
              withObject:nil
              afterDelay:0.0];
@@ -1054,7 +1043,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   // suspend any image loading
   [[ImageLoader sharedLoader] suspend];
   [kjsBridge gc];
-  [xhrBridge gc];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -1260,7 +1248,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)dealloc
 {
   RELEASE_TO_NIL(kjsBridge);
-  RELEASE_TO_NIL(xhrBridge);
   RELEASE_TO_NIL(loadView);
   RELEASE_TO_NIL(window);
   RELEASE_TO_NIL(launchOptions);
