@@ -6,11 +6,11 @@
  */
 package org.appcelerator.titanium;
 
-import org.appcelerator.kroll.KrollDict;
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
@@ -25,8 +25,16 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 {
 	private static final String TAG = "TiLaunchActivity";
 
-	protected TiUrl url;
-	protected boolean alloyIntent = false;
+	/**
+	 * Hash table of TiJSActivity derived class names and their assigned JavaScript URLs.
+	 * <p>
+	 * The key is the Java package name and class name of the TiJSActivity derived class.
+	 * The value is the JavaScript file URL assigned to it.
+	 */
+	private static HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
+
+	/** JavaScript file URL to be loaded by loadScript() method. This URL is assigned in onCreate() method. */
+	private TiUrl url;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -34,11 +42,17 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	public abstract String getUrl();
 
 	/**
-	 * @return is this an alloy activity that has been launched from an intent
+	 * The JavaScript URL that should be ran for the given TiJSActivity derived class name.
+	 * Will only return a result if given activity class was launched at least once.
+	 * @param className Java package and class name of the TiJSActivity query. Can be null.
+	 * @return Returns the JSActivity's assigned JavaScript URL if found. Returns null if given unknown class name.
 	 */
-	public boolean isAlloyIntent()
+	protected String getUrlForJSActivitClassName(String className)
 	{
-		return this.alloyIntent;
+		if (className == null) {
+			return null;
+		}
+		return TiLaunchActivity.jsActivityClassScriptMap.get(className);
 	}
 
 	/**
@@ -76,22 +90,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		return resolveUrl(url.url);
 	}
 
-	protected void loadActivityScript()
+	protected void loadScript()
 	{
 		try {
-			String fullUrl = resolveUrl(url);
-
-			// TIMOB-20502: if Alloy app and root activity is not available then
-			// run root activity first to initialize Alloy global variables etc...
-			// NOTE: this will only occur when launching from an intent or shortcut
-			this.alloyIntent = isJSActivity() && KrollAssetHelper.assetExists("Resources/alloy.js");
-			if (this.alloyIntent && !getTiApp().isRootActivityAvailable()) {
-				String rootUrl = resolveUrl("app.js");
-				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(rootUrl), rootUrl, activityProxy);
-				KrollRuntime.getInstance().evalString(KrollAssetHelper.readAsset(fullUrl), fullUrl);
-			} else {
-				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
-			}
+			String fullUrl = resolveUrl(this.url);
+			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
 		} finally {
 			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
 		}
@@ -100,12 +103,60 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		url = TiUrl.normalizeWindowUrl(getUrl());
+		TiApplication tiApp = getTiApp();
+
+		// If this is a TiJSActivity derived class created via "tiapp.xml" <activity/> tags,
+		// then destroy it now and launch the root activity instead with the JSActivity's intent.
+		// Note: This feature used to bypass loading of "ti.main.js" and "app.js" which was problematic.
+		//       Titanium 8 resolved all "newintent" resume handling, making this feature obsolete.
+		if (isJSActivity()) {
+			// First, store the JSActivity class' script URL to hash table.
+			// To be retrieved later by root activity so that it knows which script to load when resumed.
+			TiLaunchActivity.jsActivityClassScriptMap.put(getClass().getName(), getUrl());
+
+			// Call this instance's Activity.onCreate() method, bypassing TiBaseActivity.onCreate() method.
+			activityOnCreate(savedInstanceState);
+
+			// Destroy this activity and launch/resume the root activity.
+			boolean isActivityForResult = (getCallingActivity() != null);
+			TiRootActivity rootActivity = tiApp.getRootActivity();
+			if (!isActivityForResult && (rootActivity != null)) {
+				// Copy the JSActivity's intent to the existing root activity and resume it.
+				rootActivity.onNewIntent(getIntent());
+				Intent resumeIntent = rootActivity.getLaunchIntent();
+				if (resumeIntent == null) {
+					resumeIntent = Intent.makeMainActivity(rootActivity.getComponentName());
+					resumeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					resumeIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+				}
+				startActivity(resumeIntent);
+				finish();
+				overridePendingTransition(0, 0);
+			} else {
+				// Launch a new root activity instance with JSActivity's intent embedded within launch intent.
+				Intent mainIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+				mainIntent.setPackage(null);
+				if (isActivityForResult) {
+					mainIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+				} else {
+					mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					mainIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+				}
+				if (getIntent() != null) {
+					mainIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, getIntent());
+				}
+				finish();
+				overridePendingTransition(0, 0);
+				startActivity(mainIntent);
+			}
+			return;
+		}
+
+		this.url = TiUrl.normalizeWindowUrl(getUrl());
 
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily
 		// so we don't run into problems when we bind the current activity
-		TiApplication tiApp = getTiApp();
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
@@ -120,8 +171,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		super.windowCreated(savedInstanceState);
-		loadActivityScript();
-		scriptLoaded();
+		loadScript();
 	}
 
 	public boolean isJSActivity()
@@ -130,18 +180,15 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	}
 
 	@Override
-	protected void onResume()
+	protected void onDestroy()
 	{
-		// handle 'onIntent' event for both TiRootActivity and TiJSActivity
-		if ((this.activityProxy != null) && (getTiApp().isRootActivityAvailable() == false)) {
-			Intent intent = getIntent();
-			if (intent != null) {
-				KrollDict data = new KrollDict();
-				data.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(intent));
-				activityProxy.fireEvent(TiC.PROPERTY_ON_INTENT, data);
-			}
+		if (isJSActivity()) {
+			// Call Activity.onDestroy() directly, bypassing TiBaseActivity.onDestroy() method.
+			// All JSActivity instances are destroyed upon onCreate(). It's an obsolete feature now.
+			activityOnDestroy();
+		} else {
+			// Call TiBaseActivity.onDestroy() normally for root activity.
+			super.onDestroy();
 		}
-
-		super.onResume();
 	}
 }

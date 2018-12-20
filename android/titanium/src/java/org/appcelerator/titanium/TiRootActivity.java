@@ -6,11 +6,21 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollEventCallback;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
@@ -23,9 +33,36 @@ import android.view.Window;
 
 public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
 {
+	/**
+	 * Listener used to detect when the TiRootActivity's onNewIntent() method has been called.
+	 * Instances are to be passed to TiRootActivity's addOnNewIntentListener() method.
+	 */
+	public interface OnNewIntentListener {
+		void onNewIntent(TiRootActivity activity, Intent intent);
+	}
+
 	private static final String TAG = "TiRootActivity";
+
+	private ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
+	private LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
 	private Drawable[] backgroundLayers = { null, null };
+	private int runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
+	private boolean wasRuntimeStarted;
 	private boolean isDuplicateInstance;
+
+	public void addOnNewIntentListener(TiRootActivity.OnNewIntentListener listener)
+	{
+		if ((listener != null) && (this.newIntentListeners.contains(listener) == false)) {
+			this.newIntentListeners.add(listener);
+		}
+	}
+
+	public void removeOnNewIntentListener(TiRootActivity.OnNewIntentListener listener)
+	{
+		if (listener != null) {
+			this.newIntentListeners.remove(listener);
+		}
+	}
 
 	public void setBackgroundColor(int color)
 	{
@@ -76,8 +113,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		final String EXTRA_TI_NEW_INTENT = "ti.intent.extra.NEW_INTENT";
-
 		Log.checkpoint(TAG, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 
 		// Create the main launcher intent expected to launch this root activity.
@@ -132,7 +167,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 						// Note: Only an issue when destroying activities created via startActivityForResult().
 						final Intent relaunchIntent = mainIntent;
 						if (newIntent != null) {
-							relaunchIntent.putExtra(EXTRA_TI_NEW_INTENT, newIntent);
+							relaunchIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, newIntent);
 						}
 						Runnable restartRunnable = new Runnable() {
 							@Override
@@ -186,7 +221,17 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				overridePendingTransition(0, 0);
 				final Intent relaunchIntent = isNotMainIntent ? mainIntent : newIntent;
 				if (isNotMainIntent && (newIntent != null)) {
-					relaunchIntent.putExtra(EXTRA_TI_NEW_INTENT, newIntent);
+					// Embed this destroyed activity's intent within the new launch intent.
+					if (newIntent.hasExtra(TiC.EXTRA_TI_NEW_INTENT)) {
+						try {
+							Object extraIntent = newIntent.getParcelableExtra(TiC.EXTRA_TI_NEW_INTENT);
+							relaunchIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, (Intent) extraIntent);
+						} catch (Exception ex) {
+						}
+					}
+					if (!relaunchIntent.hasExtra(TiC.EXTRA_TI_NEW_INTENT)) {
+						relaunchIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, newIntent);
+					}
 				}
 				if (isRuntimeActive) {
 					// Wait for previous Titanium JavaScirpt runtime to be destroyed before relaunching.
@@ -217,14 +262,14 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 		// Invoke activity's onNewIntent() behavior if above code bundled an extra intent into it.
 		// This happens if activity was initially created with a non-main launcher intent, such as a URL scheme.
-		if ((newIntent != null) && newIntent.hasExtra(EXTRA_TI_NEW_INTENT)) {
+		if ((newIntent != null) && newIntent.hasExtra(TiC.EXTRA_TI_NEW_INTENT)) {
 			try {
-				Object object = newIntent.getParcelableExtra(EXTRA_TI_NEW_INTENT);
+				Object object = newIntent.getParcelableExtra(TiC.EXTRA_TI_NEW_INTENT);
 				if (object instanceof Intent) {
 					onNewIntent((Intent) object);
 				}
 			} catch (Exception ex) {
-				Log.e(TAG, "Failed to parse: " + EXTRA_TI_NEW_INTENT, ex);
+				Log.e(TAG, "Failed to parse: " + TiC.EXTRA_TI_NEW_INTENT, ex);
 			}
 		}
 	}
@@ -239,9 +284,151 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	}
 
 	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		// Let base class handle the new intent first.
+		// Will update activity proxy's "intent" property and fire a Titanium "newintent" event.
+		super.onNewIntent(intent);
+
+		// Notify all onNewIntent() listeners.
+		// Note: Use a shallow copy of collection since invoked listener can add/remove to main collection.
+		ArrayList<OnNewIntentListener> clonedListeners =
+			(ArrayList<OnNewIntentListener>) this.newIntentListeners.clone();
+		if (clonedListeners != null) {
+			for (OnNewIntentListener listener : clonedListeners) {
+				if (this.newIntentListeners.contains(listener)) {
+					listener.onNewIntent(this, intent);
+				}
+			}
+		}
+
+		// Handle the intent if set.
+		if (intent != null) {
+			// If this is a shortcut intent, then fire a Titanium App "shortcutitemclick" event.
+			String shortcutId = intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT);
+			if (shortcutId != null) {
+				KrollModule appModule = getTiApp().getModuleByName("App");
+				if (appModule != null) {
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_ID, shortcutId);
+					appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
+				}
+			}
+
+			// If this is a JSActivity intent, then execute its JavaScript file after "app.js" has been executed.
+			try {
+				ComponentName componentName = intent.getComponent();
+				String className = (componentName != null) ? componentName.getClassName() : null;
+				if ((className != null) && !className.equals(getClass().getName())) {
+					if (TiLaunchActivity.class.isAssignableFrom(Class.forName(className))) {
+						// The intent's class name is a TiJSActivity derived class. Fetch its script URL.
+						String url = getUrlForJSActivitClassName(className);
+						if (url != null) {
+							url = resolveUrl(url);
+						}
+						final String scriptUrl = url;
+						if (scriptUrl != null) {
+							// JavaScript file URL was found. Execute it, but only after "app.js" has been execute.
+							// Needed for Alloy apps which add their Alloy globals via generated "app.js".
+							Runnable runnable = new Runnable() {
+								@Override
+								public void run()
+								{
+									if (activityProxy == null) {
+										return;
+									}
+									String scriptSource = KrollAssetHelper.readAsset(scriptUrl);
+									KrollRuntime.getInstance().runModule(scriptSource, scriptUrl, activityProxy);
+								}
+							};
+							if (this.wasRuntimeStarted) {
+								runnable.run();
+							} else {
+								this.pendingRuntimeRunnables.add(runnable);
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				Log.e(TAG, "Error in onNewIntent() scanning for JSActivity.", ex);
+			}
+		}
+	}
+
+	protected void loadScript()
+	{
+		// Add a Titanium App module "started" event listener. Will be fired after "app.js" has been executed.
+		KrollModule appModule = getTiApp().getModuleByName("App");
+		if (appModule != null) {
+			this.runtimeStartedListenerId = appModule.addEventListener(TiC.EVENT_STARTED, new KrollEventCallback() {
+				@Override
+				public void call(Object data)
+				{
+					// Flag that the Titanium runtime was started.
+					TiRootActivity.this.wasRuntimeStarted = true;
+
+					// Remove this listener from the "Ti.App" module.
+					KrollModule appModule = getTiApp().getModuleByName("App");
+					if (appModule != null) {
+						appModule.removeEventListener(TiC.EVENT_STARTED, runtimeStartedListenerId);
+					}
+					runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
+
+					// Execute any pending runnables that are waiting for the runtime to be ready.
+					// Note: A runnable can destroy the root activity and terminate runtime.
+					Runnable nextRunnable;
+					while ((nextRunnable = pendingRuntimeRunnables.poll()) != null) {
+						if (getTiApp().isRootActivityAvailable() == false) {
+							pendingRuntimeRunnables.clear();
+							break;
+						}
+						nextRunnable.run();
+					}
+				}
+			});
+		}
+
+		// Add a listener to be invoked just before the Titanium runtime has been disposed/terminated.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				// Remove this listener.
+				KrollRuntime.removeOnDisposingListener(this);
+				
+				// Remove any queued runnables since their assigned runtime is about to be terminated.
+				pendingRuntimeRunnables.clear();
+
+				// Remove the Ti.App "started" event listener in case it was not fired.
+				if (runtimeStartedListenerId != KrollProxy.INVALID_EVENT_LISTENER_ID) {
+					KrollModule appModule = getTiApp().getModuleByName("App");
+					if (appModule != null) {
+						appModule.removeEventListener(TiC.EVENT_STARTED, runtimeStartedListenerId);
+					}
+					runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
+				}
+			}
+		});
+
+		// Load the main Titanium script.
+		super.loadScript();
+	}
+
+	@Override
 	protected void onResume()
 	{
 		Log.checkpoint(TAG, "checkpoint, on root activity resume. activity = " + this);
+
+		// Fire a Titanium "onIntent" event the first time the root activity was brought to the foreground.
+		if ((this.activityProxy != null) && (getTiApp().isRootActivityAvailable() == false)) {
+			Intent intent = getIntent();
+			if (intent != null) {
+				KrollDict data = new KrollDict();
+				data.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(intent));
+				activityProxy.fireEvent(TiC.PROPERTY_ON_INTENT, data);
+			}
+		}
+
 		super.onResume();
 	}
 
