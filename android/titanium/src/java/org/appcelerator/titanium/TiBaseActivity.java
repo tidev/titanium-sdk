@@ -75,8 +75,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 
-import com.appcelerator.aps.APSAnalytics;
-
 /**
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
@@ -99,7 +97,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners =
 		new TiWeakList<OnPrepareOptionsMenuEvent>();
-	private APSAnalytics analytics = APSAnalytics.getInstance();
 	private boolean sustainMode = false;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
@@ -579,7 +576,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// Remove translucent StatusBar/NavigationBar flags if window is not set up to extend beneath them.
 		// Not doing so will cause window to stretch beneath them anyways, but will fail to render there.
-		if (this.layout.getFitsSystemWindows()) {
+		if (this.layout.getFitsSystemWindows() && !(this instanceof TiLaunchActivity)) {
 			int mask = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 			mask |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
 			if ((getWindow().getAttributes().flags & mask) != 0) {
@@ -1187,6 +1184,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
 						if (onHomeIconItemSelected != null) {
 							onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+
+							// handle NavigationWindow back press
+						} else if (window.getNavigationWindow() != null) {
+							onBackPressed();
 						}
 					}
 				}
@@ -1406,11 +1407,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
-
-		// Checkpoint for ti.background event
-		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
-			analytics.sendAppBackgroundEvent();
-		}
 	}
 
 	@Override
@@ -1481,12 +1477,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		isResumed = true;
-
-		// Checkpoint for ti.foreground event
-		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			analytics.sendAppForegroundEvent();
-		}
 	}
 
 	@Override
@@ -1679,7 +1669,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		releaseDialogs(true);
 
 		// Stop listening for safe-area inset changes.
-		this.safeAreaMonitor.stop();
+		if (this.safeAreaMonitor != null) {
+			this.safeAreaMonitor.stop();
+		}
 
 		if (tiApp.isRestartPending()) {
 			super.onDestroy();

@@ -159,13 +159,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   UIWindow *currentKeyWindow_ = [[UIApplication sharedApplication] keyWindow];
   return [[currentKeyWindow_ subviews] lastObject];
 }
-- (void)attachXHRBridgeIfRequired
-{
-  if (xhrBridge == nil) {
-    xhrBridge = [[XHRBridge alloc] initWithHost:self];
-    [xhrBridge boot:self url:nil preload:nil];
-  }
-}
 
 - (void)registerApplicationDelegate:(id)applicationDelegate
 {
@@ -532,12 +525,25 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 // iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  // For backwards compatibility with iOS < 10, we do not show notifications in-app, but make it configurable
+  // For backwards compatibility with iOS < 10, we do not show notifications while the app is in foreground, but make it configurable
+  // @fixme this is not documented and was silently introduced in TIMOB-26399
   BOOL showInForeground = [TiUtils boolValue:notification.request.content.userInfo[@"showInForeground"] def:NO];
+  BOOL isRemote = [notification.request.trigger isKindOfClass:UNPushNotificationTrigger.class];
+
+  if (isRemote) {
+    if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+      [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:notification.request.content.userInfo];
+    }
+  } else {
+    RELEASE_TO_NIL(localNotification);
+    localNotification = [[TiApp dictionaryWithUserNotification:notification
+                                                withIdentifier:notification.request.identifier] retain];
+    [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
+  }
+
   if (showInForeground) {
     completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
   } else {
-    [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:notification.request.content.userInfo];
     completionHandler(UNNotificationPresentationOptionNone);
   }
 }
@@ -546,14 +552,17 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler
 {
-  if ([[[[[response notification] request] content] userInfo] valueForKey:@"aps"] != nil) {
+  BOOL isRemote = [response.notification.request.trigger isKindOfClass:UNPushNotificationTrigger.class];
+  if (isRemote) {
     NSMutableDictionary *responseInfo = nil;
     if ([response isKindOfClass:[UNTextInputNotificationResponse class]]) {
       responseInfo = [NSMutableDictionary dictionary];
       [responseInfo setValue:((UNTextInputNotificationResponse *)response).userText forKey:UIUserNotificationActionResponseTypedTextKey];
     }
     if ([UNNotificationDefaultActionIdentifier isEqualToString:response.actionIdentifier]) {
-      [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:response.notification.request.content.userInfo];
+      if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+        [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:response.notification.request.content.userInfo];
+      }
       completionHandler();
     } else {
       [self application:[UIApplication sharedApplication] handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
@@ -982,8 +991,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
   NSCondition *condition = [[NSCondition alloc] init];
 
-  [xhrBridge shutdown:nil];
-
   // These shutdowns return immediately, yes, but the main will still run the close that's in their queue.
   [kjsBridge shutdown:condition];
 
@@ -1004,7 +1011,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
-  RELEASE_TO_NIL(xhrBridge);
   RELEASE_TO_NIL(remoteNotification);
   RELEASE_TO_NIL(pendingCompletionHandlers);
   RELEASE_TO_NIL(backgroundTransferCompletionHandlers);
@@ -1018,8 +1024,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   applicationInMemoryPanic = YES;
   [Webcolor flushCache];
-  // don't worry about KrollBridge since he's already listening
-  [xhrBridge gc];
+
   [self performSelector:@selector(clearMemoryPanic)
              withObject:nil
              afterDelay:0.0];
@@ -1038,7 +1043,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   // suspend any image loading
   [[ImageLoader sharedLoader] suspend];
   [kjsBridge gc];
-  [xhrBridge gc];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -1244,7 +1248,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)dealloc
 {
   RELEASE_TO_NIL(kjsBridge);
-  RELEASE_TO_NIL(xhrBridge);
   RELEASE_TO_NIL(loadView);
   RELEASE_TO_NIL(window);
   RELEASE_TO_NIL(launchOptions);
@@ -1468,16 +1471,17 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
   NSMutableDictionary *event = [NSMutableDictionary dictionary];
 
-  [event setObject:NULL_IF_NIL([notification date]) forKey:@"date"];
-  [event setObject:[[NSTimeZone defaultTimeZone] name] forKey:@"timezone"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] body]) forKey:@"alertBody"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] title]) forKey:@"alertTitle"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] subtitle]) forKey:@"alertSubtitle"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] launchImageName]) forKey:@"alertLaunchImage"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] badge]) forKey:@"badge"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] userInfo]) forKey:@"userInfo"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] categoryIdentifier]) forKey:@"category"];
-  [event setObject:NULL_IF_NIL([[notification request] identifier]) forKey:@"identifier"];
+  [event setObject:NULL_IF_NIL(notification.date) forKey:@"date"];
+  [event setObject:NSTimeZone.defaultTimeZone.name forKey:@"timezone"];
+  [event setObject:NULL_IF_NIL(notification.request.content.body) forKey:@"alertBody"];
+  [event setObject:NULL_IF_NIL(notification.request.content.title) forKey:@"alertTitle"];
+  [event setObject:NULL_IF_NIL(notification.request.content.subtitle) forKey:@"alertSubtitle"];
+  [event setObject:NULL_IF_NIL(notification.request.content.launchImageName) forKey:@"alertLaunchImage"];
+  [event setObject:NULL_IF_NIL(notification.request.content.badge) forKey:@"badge"];
+  [event setObject:NULL_IF_NIL(notification.request.content.userInfo) forKey:@"userInfo"];
+  [event setObject:NULL_IF_NIL(notification.request.content.categoryIdentifier) forKey:@"category"];
+  [event setObject:NULL_IF_NIL(notification.request.content.threadIdentifier) forKey:@"threadIdentifier"];
+  [event setObject:NULL_IF_NIL(notification.request.identifier) forKey:@"identifier"];
 
   // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
   // a sound in the APS dictionary, we can provide that one for parity

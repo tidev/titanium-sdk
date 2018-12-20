@@ -235,5 +235,8 @@
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 - (id)createFeedbackGenerator:(id)args;
 #endif
-
+#ifdef USE_TI_UIWEBVIEW
+- (id)createWebViewConfiguration:(id)args;
+- (id)createWebViewProcessPool:(id)args;
+#endif
 @end
