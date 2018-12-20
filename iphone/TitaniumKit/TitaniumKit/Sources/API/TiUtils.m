@@ -2138,8 +2138,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
   static BOOL isHyperloopAvailable = NO;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-      Class cls = NSClassFromString(@"Hyperloop");
-      isHyperloopAvailable = cls != nil;
+    Class cls = NSClassFromString(@"Hyperloop");
+    isHyperloopAvailable = cls != nil;
   });
   return isHyperloopAvailable;
 }
