@@ -273,6 +273,9 @@
     [self performSelector:_cmd withObject:args afterDelay:0.1];
     return;
   }
+  if (!transitionWithGesture) {
+    transitionIsAnimating = YES;
+  }
   TiWindowProxy *window = [args objectAtIndex:0];
   BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
 
@@ -289,6 +292,9 @@
 
   if (window == current) {
     BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+    if (animated && !transitionWithGesture) {
+      transitionIsAnimating = YES;
+    }
     [navController popViewControllerAnimated:animated];
   } else {
     [self closeWindow:window animated:NO];

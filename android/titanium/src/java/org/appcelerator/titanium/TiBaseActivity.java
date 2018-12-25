@@ -576,7 +576,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// Remove translucent StatusBar/NavigationBar flags if window is not set up to extend beneath them.
 		// Not doing so will cause window to stretch beneath them anyways, but will fail to render there.
-		if (this.layout.getFitsSystemWindows()) {
+		if (this.layout.getFitsSystemWindows() && !(this instanceof TiLaunchActivity)) {
 			int mask = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 			mask |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
 			if ((getWindow().getAttributes().flags & mask) != 0) {
@@ -1184,6 +1184,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
 						if (onHomeIconItemSelected != null) {
 							onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+
+							// handle NavigationWindow back press
+						} else if (window.getNavigationWindow() != null) {
+							onBackPressed();
 						}
 					}
 				}
@@ -1665,7 +1669,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		releaseDialogs(true);
 
 		// Stop listening for safe-area inset changes.
-		this.safeAreaMonitor.stop();
+		if (this.safeAreaMonitor != null) {
+			this.safeAreaMonitor.stop();
+		}
 
 		if (tiApp.isRestartPending()) {
 			super.onDestroy();

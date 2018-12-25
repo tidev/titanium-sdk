@@ -26,6 +26,14 @@ try {
 
 // Load all JavaScript extensions.
 require('./ti.internal/extensions/Error');
+require('./ti.internal/extensions/process');
+
+// When registering a binding, need to resolve the path *now* versus whenever the call actually gets made
+// i.e. we want absolute paths
+const addBinding = require('./ti.internal/extensions/binding');
+// FIXME Use require.resolve to resolve the path, once we support it!
+addBinding('path', '/ti.internal/extensions/path');
+addBinding('os', '/ti.internal/extensions/os');
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
