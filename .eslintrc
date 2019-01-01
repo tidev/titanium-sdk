@@ -20,6 +20,10 @@
       "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"
+      },
+      "rules": {
+        "node/no-deprecated-api": "off",
+        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
       }
     },
     {
@@ -50,7 +54,9 @@
         "sourceType": "module"
       },
       "rules": {
-        "node/no-unsupported-features/es-syntax": "off"
+        "node/no-deprecated-api": "off",
+        "node/no-unsupported-features/es-syntax": "off",
+        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
       }
     },
     {

@@ -1007,7 +1007,7 @@ describe('util', () => {
 				return Promise.reject(null);
 			}
 			const callbackified = util.callbackify(original);
-			callbackified((err, result) => {
+			callbackified((err, _result) => {
 				try {
 					should(err).be.ok;
 					should(err instanceof Error).eql(true);
