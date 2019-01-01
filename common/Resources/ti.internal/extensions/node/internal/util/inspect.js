@@ -354,9 +354,9 @@ function getEmptyFormatArray() {
 	return [];
 }
 
-function getConstructorName(obj, ctx) {
+function getConstructorName(obj, _ctx) {
 	let firstProto;
-	const tmp = obj;
+	// const tmp = obj;
 	while (obj) {
 		const descriptor = Object.getOwnPropertyDescriptor(obj, 'constructor');
 		if (descriptor !== undefined
@@ -994,7 +994,7 @@ function formatError(err, constructor, tag, ctx) {
 	return stack;
 }
 
-function formatPromise(ctx, value, recurseTimes) {
+function formatPromise(ctx, _value, _recurseTimes) {
 	// Node calls into native to get promise details which we can't do
 	return [ ctx.stylize('<unknown>', 'special') ];
 }
@@ -1421,17 +1421,17 @@ function formatWeakCollection(ctx) {
 	return [ ctx.stylize('<items unknown>', 'special') ];
 }
 
-function formatWeakSet(ctx, value, recurseTimes) {
+function formatWeakSet(ctx, _value, _recurseTimes) {
 	// Node calls into native to get a preview of actual values which we can't do
 	return formatWeakCollection(ctx);
 }
 
-function formatWeakMap(ctx, value, recurseTimes) {
+function formatWeakMap(ctx, _value, _recurseTimes) {
 	// Node calls into native to get a preview of actual values which we can't do
 	return formatWeakCollection(ctx);
 }
 
-function formatIterator(ctx, value, recurseTimes, keys, braces) {
+function formatIterator(ctx, value, recurseTimes, _keys, braces) {
 	const entries = [];
 	let isKeyValue = false;
 	let result = value.next();
