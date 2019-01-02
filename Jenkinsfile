@@ -169,7 +169,7 @@ timestamps {
 					}
 					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
 					if (runDanger) { // Stash files for danger.js later
-						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
+						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
 					// was it a failure?
 					if (npmTestResult != 0) {
@@ -452,6 +452,7 @@ timestamps {
 							unstash 'test-report-android' // junit.android.report.xml
 						} catch (e) {}
 						ensureNPM(npmVersion)
+						sh 'npm ci'
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
