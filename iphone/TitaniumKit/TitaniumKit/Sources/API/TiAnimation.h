@@ -86,7 +86,6 @@
   NSNumber *dampingRatio;
   NSNumber *springVelocity;
 
-
   // this is a temporary function passed in
   ListenerEntry *callback;
 
