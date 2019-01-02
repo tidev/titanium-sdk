@@ -23,11 +23,10 @@
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
-@synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
+@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity;
 @synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
-- (id)initWithDictionary:(NSDictionary *)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
-{
+- (id)initWithDictionary:(NSDictionary *)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_ {
   if (self = [super _initWithPageContext:context_]) {
 #define SET_FLOAT_PROP(p, d)                                      \
   {                                                               \
@@ -95,6 +94,8 @@
     SET_FLOAT_PROP(duration, properties);
     SET_FLOAT_PROP(opacity, properties);
     SET_FLOAT_PROP(delay, properties);
+    SET_FLOAT_PROP(dampingRatio, properties);
+    SET_FLOAT_PROP(springVelocity, properties);
     SET_INT_PROP(curve, properties);
     SET_INT_PROP(repeat, properties);
     SET_BOOL_PROP(visible, properties);
@@ -114,23 +115,20 @@
   return self;
 }
 
-- (id)initWithDictionary:(NSDictionary *)properties context:(id<TiEvaluator>)context_
-{
+- (id)initWithDictionary:(NSDictionary *)properties context:(id<TiEvaluator>)context_ {
   if (self = [self initWithDictionary:properties context:context_ callback:nil]) {
   }
   return self;
 }
 
-- (void)setCallBack:(KrollCallback *)callback_ context:(id<TiEvaluator>)context_
-{
+- (void)setCallBack:(KrollCallback *)callback_ context:(id<TiEvaluator>)context_ {
   RELEASE_TO_NIL(callback);
   if (context_ != nil) {
     callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self];
   }
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
   RELEASE_TO_NIL(zIndex);
   RELEASE_TO_NIL(left);
   RELEASE_TO_NIL(right);
@@ -153,17 +151,17 @@
   RELEASE_TO_NIL(transition);
   RELEASE_TO_NIL(callback);
   RELEASE_TO_NIL(view);
+  RELEASE_TO_NIL(dampingRatio);
+  RELEASE_TO_NIL(springVelocity);
   [animatedViewProxy release];
   [super dealloc];
 }
 
-- (NSString *)apiName
-{
+- (NSString *)apiName {
   return @"Ti.UI.Animation";
 }
 
-+ (TiAnimation *)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn
-{
++ (TiAnimation *)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn {
   id arg = nil;
   BOOL isArray = NO;
 
@@ -212,26 +210,22 @@
   return nil;
 }
 
-- (void)setCenter:(id)center_
-{
+- (void)setCenter:(id)center_ {
   if (center != center_) {
     [center release];
     center = [[TiPoint alloc] initWithPoint:[TiUtils pointValue:center_]];
   }
 }
 
-- (TiPoint *)center
-{
+- (TiPoint *)center {
   return center;
 }
 
-- (id)description
-{
+- (id)description {
   return [NSString stringWithFormat:@"[object TiAnimation<%lu>]", (unsigned long)[self hash]];
 }
 
-- (void)animationStarted:(NSString *)animationID context:(void *)context
-{
+- (void)animationStarted:(NSString *)animationID context:(void *)context {
 #if ANIMATION_DEBUG == 1
   NSLog(@"[DEBUG] ANIMATION: STARTING %@, %@", self, (id)context);
 #endif
@@ -251,8 +245,7 @@
   }
 }
 
-- (void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
-{
+- (void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
 #if ANIMATION_DEBUG == 1
   NSLog(@"[DEBUG] ANIMATION: COMPLETED %@, %@", self, (id)context);
 #endif
@@ -295,8 +288,7 @@
   RELEASE_TO_NIL_AUTORELEASE(animatedView);
 }
 
-- (BOOL)isTransitionAnimation
-{
+- (BOOL)isTransitionAnimation {
   if (transition != nil) {
     UIViewAnimationTransition t = [transition intValue];
     if (t != 0 && t != UIViewAnimationTransitionNone) {
@@ -306,8 +298,7 @@
   return NO;
 }
 
-- (NSTimeInterval)animationDuration
-{
+- (NSTimeInterval)animationDuration {
   NSTimeInterval animationDuration = ([self isTransitionAnimation]) ? 1 : 0.2;
   if (duration != nil) {
     animationDuration = [duration doubleValue] / 1000;
@@ -315,8 +306,7 @@
   return animationDuration;
 }
 
-- (CAMediaTimingFunction *)timingFunction
-{
+- (CAMediaTimingFunction *)timingFunction {
   switch ([curve intValue]) {
   case UIViewAnimationOptionCurveEaseInOut:
     return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
@@ -331,8 +321,7 @@
   }
 }
 
-- (void)animate:(id)args
-{
+- (void)animate:(id)args {
   ENSURE_UI_THREAD(animate, args);
 
 #if ANIMATION_DEBUG == 1
@@ -414,6 +403,10 @@
         [reverseAnimation setIsReverse:YES];
         [reverseAnimation setDuration:duration];
         [reverseAnimation setDelay:[NSNumber numberWithInt:0]];
+        if (dampingRatio != nil || springVelocity != nil) {
+          [reverseAnimation setDampingRatio:dampingRatio];
+          [reverseAnimation setSpringVelocity:springVelocity];
+        }
         switch ([curve intValue]) {
         case UIViewAnimationOptionCurveEaseIn:
           [reverseAnimation setCurve:[NSNumber numberWithInt:UIViewAnimationOptionCurveEaseOut]];
@@ -616,12 +609,22 @@
         [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
       }
     };
+    if (dampingRatio != nil || springVelocity != nil) {
+      [UIView animateWithDuration:animationDuration
+                            delay:([delay doubleValue] / 1000)
+           usingSpringWithDamping:[dampingRatio floatValue]
+            initialSpringVelocity:[springVelocity floatValue]
+                          options:options
+                       animations:animation
+                       completion:complete];
+    } else {
+      [UIView animateWithDuration:animationDuration
+                            delay:([delay doubleValue] / 1000)
+                          options:options
+                       animations:animation
+                       completion:complete];
+    }
 
-    [UIView animateWithDuration:animationDuration
-                          delay:([delay doubleValue] / 1000)
-                        options:options
-                     animations:animation
-                     completion:complete];
   } else {
     BOOL perform = YES;
 
