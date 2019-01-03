@@ -298,16 +298,20 @@ Packager.prototype.package = function (next) {
 			const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
 			// Now pull out min IOS target
 			const minSupportedIosSdk = version.parseMin(require('../iphone/package.json').vendorDependencies['ios sdk']);
+			// TODO: filter to only targets relevant for platforms we're building?
+			const options = {
+				targets: {
+					chrome: chromeVersion,
+					ios: minSupportedIosSdk
+				}
+			};
+			// pull out windows target (if it exists)
+			if (fs.pathExistsSync('../windows/package.json')) {
+				const windowsSafariVersion = require('../windows/package.json').safari;
+				options.targets.safari = windowsSafariVersion;
+			}
 			this.transpile(path.join(this.srcDir, 'common'), destDir, {
-				presets: [
-					[ '@babel/env', {
-						targets: {
-							// TODO: filter to only targets relevant for platforms we're building?
-							ios: minSupportedIosSdk,
-							chrome: chromeVersion
-						}
-					} ]
-				]
+				presets: [ [ '@babel/env', options ] ]
 			})
 				.then(() => cb())
 				.catch(err => cb(err));
