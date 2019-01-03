@@ -273,6 +273,57 @@ Packager.prototype.transpile = async function (srcDir, destDir, options) {
 };
 
 /**
+ * Given an npm module id, this will copy it and it's dependencies to a
+ * destination "node_modules" folder.
+ * Note that all of the packages are copied to the top-level of "node_modules",
+ * not nested!
+ * Also, to shortcut the logic, if the original package has been copied to the
+ * destination we will *not* attempt to read it's dependencies and ensure those
+ * are copied as well! So if the modules version changes or something goes
+ * haywire and the copies aren't full finished due to a failure, the only way to
+ * get right is to clean the destination "node_modules" dir before rebuilding.
+ *
+ * @param  {String} moduleId           The npm package/module to copy (along with it's dependencies)
+ * @param  {String} destNodeModulesDir path to the destination "node_modules" folder
+ * @param  {Array}  [paths=[]]         Array of additional paths to pass to require.resolve() (in addition to those from require.resolve.paths(moduleId))
+ */
+function copyPackageAndDependencies(moduleId, destNodeModulesDir, paths = []) {
+	const destPackage = path.join(destNodeModulesDir, moduleId);
+	if (fs.existsSync(path.join(destPackage, 'package.json'))) {
+		return; // if the module seems to exist in the destination, just skip it.
+	}
+
+	// copy the dependency's folder over
+	let pkgJSONPath;
+	if (require.resolve.paths) {
+		const thePaths = require.resolve.paths(moduleId);
+		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'), { paths: thePaths.concat(paths) });
+	} else {
+		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'));
+	}
+	const srcPackage = path.dirname(pkgJSONPath);
+	const srcPackageNodeModulesDir = path.join(srcPackage, 'node_modules');
+	for (let i = 0; i < 3; i++) {
+		fs.copySync(srcPackage, destPackage, {
+			preserveTimestamps: true,
+			filter: src => !src.startsWith(srcPackageNodeModulesDir)
+		});
+
+		// Quickly verify package copied, I've experienced occurences where it does not.
+		// Retry up to three times if it did not copy correctly.
+		if (fs.existsSync(path.join(destPackage, 'package.json'))) {
+			break;
+		}
+	}
+
+	// Now read it's dependencies and recurse on them
+	const packageJSON = fs.readJSONSync(pkgJSONPath);
+	for (const dependency in packageJSON.dependencies) {
+		copyPackageAndDependencies(dependency, destNodeModulesDir, [ srcPackageNodeModulesDir ]);
+	}
+}
+
+/**
  * [package description]
  * @param {Function} next callback function
  */
@@ -304,7 +355,8 @@ Packager.prototype.package = function (next) {
 				targets: {
 					chrome: chromeVersion,
 					ios: minSupportedIosSdk
-				}
+				},
+				useBuiltIns: 'entry'
 			};
 			// pull out windows target (if it exists)
 			if (fs.pathExistsSync('../windows/package.json')) {
@@ -314,8 +366,16 @@ Packager.prototype.package = function (next) {
 			this.transpile(path.join(this.srcDir, 'common'), destDir, {
 				presets: [ [ '@babel/env', options ] ]
 			})
-				.then(() => cb()) // eslint-disable-line promise/no-callback-in-promise
-				.catch(err => cb(err)); // eslint-disable-line promise/no-callback-in-promise
+				// copy over polyfill and its dependencies
+				.then(() => {  // eslint-disable-line promise/no-callback-in-promise
+					const modulesDir = path.join(destDir, 'Resources/node_modules');
+					// make sure our 'node_modules' directory exists
+					fs.ensureDirSync(modulesDir);
+
+					copyPackageAndDependencies('@babel/polyfill', modulesDir);
+					cb();
+				})
+				.catch(err => cb(err));  // eslint-disable-line promise/no-callback-in-promise
 		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {
