@@ -6,12 +6,16 @@ const exec = require('child_process').exec; // eslint-disable-line security/dete
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const async = require('async');
 const fs = require('fs-extra');
+const babel = require('@babel/core');
+const appc = require('node-appc');
+const version = appc.version;
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
 const downloadURL = utils.downloadURL;
 const ROOT_DIR = path.join(__dirname, '..');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
+const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 /**
  * Given a folder we'd like to zip up and the destination filename, this will zip up the directory contents.
@@ -246,6 +250,27 @@ Packager.prototype.zip = function (next) {
 	}.bind(this));
 };
 
+Packager.prototype.transpile = async function (srcDir, destDir, options) {
+	const files = await fs.readdir(srcDir);
+	await Promise.all(files.map(file => {
+		const srcPath = path.join(srcDir, file);
+		const destPath = path.join(destDir, file);
+		const stats = fs.statSync(srcPath);
+		if (stats.isDirectory()) {
+			// recurse!
+			return fs.ensureDir(destPath).then(() => this.transpile(srcPath, destPath, options));
+		}
+
+		// read file in (if JS), transpile, write it out
+		if (file.endsWith('.js')) {
+			return babel.transformFileAsync(srcPath, options)
+				.then(result => fs.writeFile(destPath, result.code));
+		}
+		// just copy it
+		return fs.copy(srcPath, destPath);
+	}));
+};
+
 /**
  * [package description]
  * @param {Function} next callback function
@@ -261,8 +286,35 @@ Packager.prototype.package = function (next) {
 		}.bind(this),
 		function (cb) {
 			console.log('Copying SDK files');
-			// Copy some root files, cli/, common/, templates/, node_modules minus .bin sub-dir
-			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'common', 'node_modules', 'templates' ], cb);
+			// Copy some root files, cli/, templates/, node_modules
+			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates' ], cb);
+		}.bind(this),
+		function (cb) {
+			console.log('Transpiling common SDK JS');
+			const destDir = path.join(this.zipSDKDir, 'common');
+			// Pull out android's V8 target (and transform into equivalent chrome version)
+			const v8Version = require('../android/package.json').v8.version;
+			const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+			const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
+			// Now pull out min IOS target
+			const minSupportedIosSdk = version.parseMin(require('../iphone/package.json').vendorDependencies['ios sdk']);
+			// TODO: filter to only targets relevant for platforms we're building?
+			const options = {
+				targets: {
+					chrome: chromeVersion,
+					ios: minSupportedIosSdk
+				}
+			};
+			// pull out windows target (if it exists)
+			if (fs.pathExistsSync('../windows/package.json')) {
+				const windowsSafariVersion = require('../windows/package.json').safari;
+				options.targets.safari = windowsSafariVersion;
+			}
+			this.transpile(path.join(this.srcDir, 'common'), destDir, {
+				presets: [ [ '@babel/env', options ] ]
+			})
+				.then(() => cb())
+				.catch(err => cb(err));
 		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {
