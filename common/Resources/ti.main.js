@@ -24,6 +24,9 @@ try {
 	// Could not load module, silently ignore exception.
 }
 
+// Load JS language polyfills
+require('@babel/polyfill');
+
 // Load all JavaScript extensions.
 require('./ti.internal/extensions/Error');
 require('./ti.internal/extensions/process');
