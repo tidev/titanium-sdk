@@ -2718,6 +2718,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
+		const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				const from = jsFiles[id];
@@ -2757,10 +2758,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							const source = r.contents;
 							// Analyze Ti API usage, possibly also minify/transpile
 							try {
+								// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
+								const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
 								const modified = jsanalyze.analyzeJs(source, {
 									filename: from,
 									minify: this.minifyJS,
-									transpile: this.transpile,
+									transpile: transpile,
 									sourceMap: this.sourceMaps || this.deployType === 'development',
 									targets: {
 										chrome: this.chromeVersion

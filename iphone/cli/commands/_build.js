@@ -5815,6 +5815,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			series(this, [
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
+					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 
 					async.eachSeries(Object.keys(jsFiles), function (file, next) {
 						setImmediate(function () {
@@ -5853,10 +5854,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 										// Read the possibly modified file contents
 										const source = r.contents;
 										// Analyze Ti API usage, possibly also minify/transpile
+										// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
+										const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
 										const analyzeOptions = {
 											filename: from,
 											minify: this.minifyJS,
-											transpile: this.transpile,
+											transpile: transpile,
 											sourceMap: this.sourceMaps || this.deployType === 'development',
 											resourcesDir: this.xcodeAppDir,
 											logger: this.logger,
