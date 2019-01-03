@@ -24,13 +24,13 @@ describe('Titanium.UI.TabbedBar', function () {
 		win = null;
 	});
 
-	it.android('apiName', function () {
+	it('apiName', function () {
 		var tabbedBar = Ti.UI.createTabbedBar();
 		should(tabbedBar).have.readOnlyProperty('apiName').which.is.a.String;
 		should(tabbedBar.apiName).be.eql('Ti.UI.TabbedBar');
 	});
 
-	it.android('Labels from Strings', function (finish) {
+	it('Labels from Strings', function (finish) {
 		var tabbedBar = Ti.UI.createTabbedBar({
 			labels: [ 'A', 'B', 'C' ]
 		});
@@ -41,7 +41,7 @@ describe('Titanium.UI.TabbedBar', function () {
 		win.open();
 	});
 
-	it.android('Labels from BarItemType', function (finish) {
+	it('Labels from BarItemType', function (finish) {
 		var item1 = { title: 'A' },
 			item2 = { title: 'B' },
 			item3 = { title: 'C' };
@@ -55,7 +55,7 @@ describe('Titanium.UI.TabbedBar', function () {
 		win.open();
 	});
 
-	it.android('Labels update', function () {
+	it('Labels update', function () {
 		var tabbedBar = Ti.UI.createTabbedBar({
 			labels: [ 'A', 'B', 'C' ]
 		});
@@ -67,7 +67,7 @@ describe('Titanium.UI.TabbedBar', function () {
 		win.open();
 	});
 
-	it.android('Index - direct change', function () {
+	it('Index - direct change', function () {
 		var win = Ti.UI.createWindow();
 		var tabbedBar = Ti.UI.createTabbedBar({
 			labels: [ 'A', 'B', 'C' ],
@@ -81,7 +81,7 @@ describe('Titanium.UI.TabbedBar', function () {
 		win.open();
 	});
 
-	it.android('Index - setter change', function () {
+	it('Index - setter change', function () {
 		var tabbedBar = Ti.UI.createTabbedBar({
 			labels: [ 'A', 'B', 'C' ],
 			index: 1
@@ -94,7 +94,7 @@ describe('Titanium.UI.TabbedBar', function () {
 		win.open();
 	});
 
-	it.android('Index - getter read', function () {
+	it('Index - getter read', function () {
 		var tabbedBar = Ti.UI.createTabbedBar({
 			labels: [ 'A', 'B', 'C' ],
 			index: 1
