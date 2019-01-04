@@ -143,7 +143,7 @@ describe('Titanium.UI.TabGroup', () => {
 		tabGroup.open();
 	});
 
-	it.android('#disableTabNavigation()', finish => {
+	it.android('#disableTabNavigation()', function (finish) {
 		var winA = Ti.UI.createWindow(),
 			tabA = Ti.UI.createTab({
 				title: 'Tab A',
@@ -154,6 +154,7 @@ describe('Titanium.UI.TabGroup', () => {
 				title: 'Tab B',
 				window: winB
 			});
+		this.timeout(5000);
 		tabGroup = Ti.UI.createTabGroup();
 
 		// does windows fire this event?
