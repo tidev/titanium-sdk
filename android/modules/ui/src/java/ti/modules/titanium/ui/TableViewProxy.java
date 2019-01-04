@@ -26,6 +26,8 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 
 import android.app.Activity;
 import android.os.Message;
+import android.widget.RelativeLayout;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -137,6 +139,13 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public void release()
 	{
+		// Release search bar proxy if there is one
+		if (getTableView().getNativeView() instanceof RelativeLayout) {
+			((RelativeLayout) getTableView().getNativeView()).removeAllViews();
+			TiViewProxy searchView = (TiViewProxy) (getProperty(TiC.PROPERTY_SEARCH));
+			searchView.release();
+		}
+
 		super.release();
 
 		releaseViews();
