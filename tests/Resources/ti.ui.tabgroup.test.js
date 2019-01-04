@@ -190,8 +190,8 @@ describe('Titanium.UI.TabGroup', () => {
 		should(tabGroup.getTitle()).eql('My title');
 	});
 
-	describe('events', function () => {
-		this,timeout(5000);
+	describe('events', function () {
+		this.timeout(5000);
 
 		// FIXME Windows doesn't fire open/close events
 		it.windowsMissing('close', finish => {
