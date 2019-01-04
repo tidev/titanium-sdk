@@ -178,6 +178,7 @@
 		502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D716EEAA7500661EF6 /* TiUIListView.m */; };
 		502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		673144D6211DBAD7001BDBF2 /* TiUIApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 673144D5211DBAD7001BDBF2 /* TiUIApplication.m */; };
+		6CF8E95921CDA58800519245 /* TiUITabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CF8E95821CDA58800519245 /* TiUITabbedBarProxy.m */; };
 		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
 		83A749EF1BE7EB1D00757383 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 83A749EE1BE7EB1D00757383 /* LaunchScreen.storyboard */; };
@@ -638,6 +639,8 @@
 		502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListViewProxy.m; sourceTree = "<group>"; };
 		673144D4211DBAD7001BDBF2 /* TiUIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIApplication.h; path = ../Classes/TiUIApplication.h; sourceTree = "<group>"; };
 		673144D5211DBAD7001BDBF2 /* TiUIApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIApplication.m; path = ../Classes/TiUIApplication.m; sourceTree = "<group>"; };
+		6CF8E95721CDA58700519245 /* TiUITabbedBarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITabbedBarProxy.h; sourceTree = "<group>"; };
+		6CF8E95821CDA58800519245 /* TiUITabbedBarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITabbedBarProxy.m; sourceTree = "<group>"; };
 		823CC8AA1B7F0E4D00D220C7 /* WatchSessionModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchSessionModule.h; sourceTree = "<group>"; };
 		823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchSessionModule.m; sourceTree = "<group>"; };
 		838159EC1B7C3EFA002EE811 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1192,6 +1195,7 @@
 		24CA8C591111653B0084E2DE /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
+				6CF8E95521CDA54200519245 /* TabbedBar */,
 				24CA8C72111167590084E2DE /* Label */,
 				24CA8C701111672E0084E2DE /* Button */,
 				24CA8C6F111167140084E2DE /* ButtonBar */,
@@ -1741,6 +1745,15 @@
 			name = ListView;
 			sourceTree = "<group>";
 		};
+		6CF8E95521CDA54200519245 /* TabbedBar */ = {
+			isa = PBXGroup;
+			children = (
+				6CF8E95721CDA58700519245 /* TiUITabbedBarProxy.h */,
+				6CF8E95821CDA58800519245 /* TiUITabbedBarProxy.m */,
+			);
+			name = TabbedBar;
+			sourceTree = "<group>";
+		};
 		823AE1DF1B82E85A00E7044C /* WatchSession */ = {
 			isa = PBXGroup;
 			children = (
@@ -2155,6 +2168,7 @@
 				24CA8B90111161FE0084E2DE /* TiUISlider.m in Sources */,
 				24CA8B91111161FE0084E2DE /* TiUISearchBarProxy.m in Sources */,
 				24CA8B92111161FE0084E2DE /* TiUISearchBar.m in Sources */,
+				6CF8E95921CDA58800519245 /* TiUITabbedBarProxy.m in Sources */,
 				84DEE9171815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */,
 				159C599B1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m in Sources */,
 				24CA8B95111161FE0084E2DE /* TiUIProgressBarProxy.m in Sources */,
