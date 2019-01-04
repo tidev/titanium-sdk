@@ -12,7 +12,7 @@ var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
 
-	it('SearchView persistence', function (finish) {
+	it.android('SearchView persistence', function (finish) {
 		var	tableData = [ { title: 'Apples' }, { title: 'Bananas' }, { title: 'Carrots' }, { title: 'Potatoes' } ],
 			searchView = Ti.UI.Android.createSearchView(),
 			table = Ti.UI.createTableView({
