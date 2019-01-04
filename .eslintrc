@@ -20,14 +20,21 @@
       "parserOptions": {
         "ecmaVersion": 2015,
         "sourceType": "module"
-      },
+      }
     },
     {
       "files": [ "dangerfile.js" ],
       "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"
-      },
+      }
+    },
+    {
+      "files": [ "build/**/*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "script"
+      }
     },
     {
       "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
