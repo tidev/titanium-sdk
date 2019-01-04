@@ -143,7 +143,7 @@ describe('Titanium.UI.TabGroup', () => {
 		tabGroup.open();
 	});
 
-	it.windowsBroken('#disableTabNavigation()', finish => {
+	it.android('#disableTabNavigation()', finish => {
 		var winA = Ti.UI.createWindow(),
 			tabA = Ti.UI.createTab({
 				title: 'Tab A',
@@ -200,7 +200,9 @@ describe('Titanium.UI.TabGroup', () => {
 				window: win
 			});
 
-			tabGroup.addEventListener('open', () => tabGroup.close());
+			tabGroup.addEventListener('open', () => {
+				setTimeout(() => tabGroup.close(), 1);
+			});
 			tabGroup.addEventListener('close', () => finish());
 
 			tabGroup.addTab(tab);
@@ -233,7 +235,9 @@ describe('Titanium.UI.TabGroup', () => {
 			});
 
 			tabGroup.addEventListener('blur', () => finish());
-			tab.addEventListener('open', () => tabGroup.close());
+			tab.addEventListener('open', () => {
+				setTimeout(() => tabGroup.close(), 1);
+			});
 
 			tabGroup.addTab(tab);
 			tabGroup.open();
