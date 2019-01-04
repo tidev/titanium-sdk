@@ -390,7 +390,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	{
 		try {
 			return TiStreamHelper.read(clientSocket.getInputStream(), (BufferProxy) bufferProxy, offset, length);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			String message = e.getMessage();
 			if (message == null) {
@@ -422,7 +422,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	{
 		try {
 			return TiStreamHelper.write(clientSocket.getOutputStream(), (BufferProxy) buffer, offset, length);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			String message = e.getMessage();
 			if (message == null) {
@@ -467,6 +467,17 @@ public class TCPProxy extends KrollProxy implements TiStream
 			e.printStackTrace();
 			throw new IOException("Error occured when closing socket");
 		}
+	}
+
+	@Override
+	public void release()
+	{
+		try {
+			close();
+		} catch (Exception e) {
+			// do nothing...
+		}
+		super.release();
 	}
 
 	@Override
