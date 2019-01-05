@@ -45,6 +45,7 @@ import org.appcelerator.titanium.view.TiActionBarStyleHandler;
 import org.appcelerator.titanium.view.TiActivitySafeAreaMonitor;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
@@ -1928,5 +1929,33 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			return null;
 		}
 		return this.safeAreaMonitor.getSafeAreaRect();
+	}
+
+	/**
+	 * Adds an object used to provide custom insets to be excldued from the safe-area returned
+	 * by this activity's getSafeAreaRect() method.
+	 * <p>
+	 * For example, Titanium's TabGroup will use this method to add its tab bar as a custom inset.
+	 * <p>
+	 * The provider's insets are expected to be relative to this activity's root decor view.
+	 * @param provider Object used to provide custom insets. If given null, then this method will no-op.
+	 */
+	public void addCustomInsetsProvider(TiInsetsProvider provider)
+	{
+		if (this.safeAreaMonitor != null) {
+			this.safeAreaMonitor.addInsetsProvider(provider);
+		}
+	}
+
+	/**
+	 * Removes the provider added via the addCustomInsetsProvider() method by reference.
+	 * Once removed, the provider's insets will no longer apply to this activity's safe-area.
+	 * @param provider The insets provider to be removed by reference. Can be null.
+	 */
+	public void removeCustomInsetsProvider(TiInsetsProvider provider)
+	{
+		if (this.safeAreaMonitor != null) {
+			this.safeAreaMonitor.removeInsetsProvider(provider);
+		}
 	}
 }
