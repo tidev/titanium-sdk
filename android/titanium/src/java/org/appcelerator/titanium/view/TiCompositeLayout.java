@@ -514,11 +514,11 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			}
 
 			// Fetch the child view's new measurements, minus the padding.
-			int childWidth = child.getMeasuredWidth();
-			int childHeight = child.getMeasuredHeight();
+			int childWidth = 0;
+			int childHeight = 0;
 			if (child.getVisibility() != View.GONE) {
-				childWidth += getViewWidthPadding(child, w);
-				childHeight += getViewHeightPadding(child, h);
+				childWidth = child.getMeasuredWidth() + getViewWidthPadding(child, w);
+				childHeight = child.getMeasuredHeight() + getViewHeightPadding(child, h);
 			}
 
 			if (isHorizontalArrangement()) {
