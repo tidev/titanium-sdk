@@ -411,19 +411,19 @@ properties:
         NOTE: This property only affects TabGroups with the BOTTOM_NAVIGATION_VIEW_STYLE.
     type: Boolean
     default: true
-    since: "7.5.0"
+    since: "8.0.0"
     platforms: [android]
 
   - name: style
     summary: Property defining which style for the TabGroup to be used.
     description: |
-        Since 7.5.0 Titanium has introduce a new style to be used for the TabGroup component.
+        Since 8.0.0 Titanium has introduce a new style to be used for the TabGroup component.
 
         For backwards compatibility not taking advantage of this property results in using the default style
         which is similar to the ActionBar Tabs style but sticking to the Material design Guidelines.
 
         [TABS_STYLE_BOTTOM_DEFAULT](Titanium.UI.Android.TABS_STYLE_DEFAULT) is the style that was used in Titanium
-        prior to 7.5.0.GA. It displays the TabGroup with a list of Tabs at the top of the screen.
+        prior to 8.0.0.GA. It displays the TabGroup with a list of Tabs at the top of the screen.
 
         [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) is a style that displays
         the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this 
@@ -432,7 +432,7 @@ properties:
 
     availability: creation
     constants: Titanium.UI.Android.TABS_STYLE_*
-    since: "7.5.0"
+    since: "8.0.0"
     type: Number
     platforms: [android]
 
