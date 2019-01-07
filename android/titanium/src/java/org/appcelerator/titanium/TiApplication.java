@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,7 +84,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	// "ti.android.useLegacyWindow" property.
 	public static boolean USE_LEGACY_WINDOW = false;
 
-	private boolean restartPending = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -100,7 +98,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private BroadcastReceiver localeReceiver;
 	private BroadcastReceiver externalStorageReceiver;
 	private AccessibilityManager accessibilityManager = null;
-	private boolean forceFinishRootActivity = false;
 
 	protected TiDeployData deployData;
 	protected TiTempFileHelper tempFileHelper;
@@ -135,7 +132,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
 	}
-	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
 	public TiApplication()
 	{
@@ -164,12 +160,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public static void addToActivityStack(Activity activity)
 	{
-		activityStack.add(new WeakReference<Activity>(activity));
+		if (activity != null) {
+			activityStack.add(new WeakReference<Activity>(activity));
+		}
 	}
 
 	public static void removeFromActivityStack(Activity activity)
 	{
-		activityStack.remove(activity);
+		if (activity != null) {
+			activityStack.remove(activity);
+		}
 	}
 
 	// Calls finish on the list of activities in the stack. This should only be called when we want to terminate the
@@ -180,20 +180,17 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			return;
 		}
 
+		// Remove all activities from the stack and finish/destroy them.
+		// Note: The finish() method can add/remove activities to the stack.
 		WeakReference<Activity> activityRef;
 		Activity currentActivity;
-
-		for (int i = activityStack.size() - 1; i > 0; i--) {
-			// We need to check the stack size here again. Since we call finish(), that could potentially
-			// change the activity stack while we are looping through them. TIMOB-12487
-			if (i < activityStack.size()) {
-				activityRef = activityStack.get(i);
-				if (activityRef != null) {
-					currentActivity = activityRef.get();
-					if (currentActivity != null && !currentActivity.isFinishing()) {
-						currentActivity.finish();
-						activityStack.remove(activityRef);
-					}
+		while (activityStack.size() > 0) {
+			activityRef = activityStack.get(activityStack.size() - 1);
+			activityStack.remove(activityRef);
+			if (activityRef != null) {
+				currentActivity = activityRef.get();
+				if (currentActivity != null && !currentActivity.isFinishing()) {
+					currentActivity.finish();
 				}
 			}
 		}
@@ -470,7 +467,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
 		this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
-		rootActivityLatch.countDown();
+		if (rootActivity == null) {
+			return;
+		}
 
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
@@ -636,11 +635,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return true;
 	}
 
-	public boolean intentFilterNewTask()
-	{
-		return getAppProperties().getBool("intent-filter-new-task", false);
-	}
-
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;
@@ -741,46 +735,40 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return false;
 	}
 
-	public void scheduleRestart(int delay)
-	{
-		Log.w(TAG, "Scheduling application restart");
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG,
-				  "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
-			(new Exception()).printStackTrace();
-		}
-		this.restartPending = true;
-		TiRootActivity rootActivity = getRootActivity();
-		if (rootActivity != null) {
-			rootActivity.restartActivity(delay);
-		}
-	}
-
 	public void softRestart()
 	{
-		KrollRuntime runtime = KrollRuntime.getInstance();
+		// Fetch the root activity hosting the JavaScript runtime.
+		TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity == null) {
+			return;
+		}
 
-		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
+		// Fetch a path to the main script that was last loaded.
+		String appPath = rootActivity.getUrl();
+		if ((appPath == null) || appPath.isEmpty()) {
+			return;
+		}
+		appPath = "Resources/" + appPath;
+
+		// Prevent termination of root activity.
+		boolean canFinishRoot = TiBaseActivity.canFinishRoot;
 		TiBaseActivity.canFinishRoot = false;
+		removeFromActivityStack(rootActivity);
 
-		// terminate all activities excluding root
+		// Terminate all other activities.
 		TiApplication.terminateActivityStack();
 
-		// allow termination again
-		TiBaseActivity.canFinishRoot = true;
+		// Restore previous "canFinishRoot" setting and re-add root activity.
+		TiBaseActivity.canFinishRoot = canFinishRoot;
+		addToActivityStack(rootActivity);
 
 		// restart kroll runtime
+		KrollRuntime runtime = KrollRuntime.getInstance();
 		runtime.doDispose();
 		runtime.initRuntime();
 
 		// manually re-launch app
-		runtime.doRunModule(KrollAssetHelper.readAsset(TiC.PATH_APP_JS), TiC.URL_APP_JS,
-							((TiBaseActivity) getRootOrCurrentActivity()).getActivityProxy());
-	}
-
-	public boolean isRestartPending()
-	{
-		return restartPending;
+		runtime.doRunModule(KrollAssetHelper.readAsset(appPath), appPath, rootActivity.getActivityProxy());
 	}
 
 	public TiTempFileHelper getTempFileHelper()
@@ -900,40 +888,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TitaniumModule.cancelTimers();
 	}
 
-	/**
-	 * Our forced restarts (for conditions such as android bug 2373, TIMOB-1911 and TIMOB-7293)
-	 * don't create new processes or pass through TiApplication() (the ctor). We need to reset
-	 * some state to better mimic a complete application restart.
-	 */
-	public void beforeForcedRestart()
-	{
-		restartPending = false;
-		currentActivity = null;
-		TiApplication.isActivityTransition.set(false);
-		if (TiApplication.activityTransitionListeners != null) {
-			TiApplication.activityTransitionListeners.clear();
-		}
-		if (TiApplication.activityStack != null) {
-			TiApplication.activityStack.clear();
-		}
-	}
-
 	public AccessibilityManager getAccessibilityManager()
 	{
 		if (accessibilityManager == null) {
 			accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
 		}
 		return accessibilityManager;
-	}
-
-	public void setForceFinishRootActivity(boolean forced)
-	{
-		forceFinishRootActivity = forced;
-	}
-
-	public boolean getForceFinishRootActivity()
-	{
-		return forceFinishRootActivity;
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);
