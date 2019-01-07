@@ -1811,7 +1811,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	/**
-	 * Adds an object used to provide custom insets to be excldued from the safe-area returned
+	 * Adds an object used to provide custom insets to be excluded from the safe-area returned
 	 * by this activity's getSafeAreaRect() method.
 	 * <p>
 	 * For example, Titanium's TabGroup will use this method to add its tab bar as a custom inset.

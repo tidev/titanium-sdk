@@ -173,7 +173,7 @@ public class TiActivitySafeAreaMonitor
 	}
 
 	/**
-	 * Adds an object used to provide custom insets to be excldued from the safe-area returned
+	 * Adds an object used to provide custom insets to be excluded from the safe-area returned
 	 * by this monitor's getSafeAreaRect() method.
 	 * <p>
 	 * For example, Titanium's TabGroup will use this feature to add its tab bar as a custom inset.
