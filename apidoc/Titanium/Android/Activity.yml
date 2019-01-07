@@ -238,10 +238,6 @@ methods:
         type: String
         optional: true
 
-  - name: recreate
-    summary: Recreates the activity.
-    since: "8.0.0"
-
 events:
 
   - name: create
