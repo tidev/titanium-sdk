@@ -54,15 +54,6 @@ public class AndroidModule extends KrollModule
 		}
 		TiApplication tiApp = TiApplication.getInstance();
 		Activity activity = tiApp.getCurrentActivity();
-		if (activity == null || !(activity instanceof TiBaseActivity)) {
-			try {
-				tiApp.rootActivityLatch.await();
-				activity = tiApp.getRootActivity();
-			} catch (InterruptedException e) {
-				Log.e(TAG, "Interrupted awaiting rootActivityLatch");
-			}
-		}
-
 		if (activity instanceof TiBaseActivity) {
 			return ((TiBaseActivity) activity).getActivityProxy();
 		} else {
@@ -88,14 +79,11 @@ public class AndroidModule extends KrollModule
 	public IntentProxy getLaunchIntent()
 	// clang-format on
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			TiBaseActivity rootActivity = app.getRootActivity();
-			if (rootActivity != null) {
-				Intent intent = rootActivity.getIntent();
-				if (intent != null) {
-					return new IntentProxy(intent);
-				}
+		TiBaseActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity != null) {
+			Intent intent = rootActivity.getLaunchIntent();
+			if (intent != null) {
+				return new IntentProxy(intent);
 			}
 		}
 		return null;
