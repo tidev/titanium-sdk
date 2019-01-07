@@ -98,6 +98,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners =
 		new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private boolean sustainMode = false;
+	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 
@@ -654,44 +655,22 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
-		inForeground = true;
-		TiApplication tiApp = getTiApp();
+		this.inForeground = true;
+		this.launchIntent = getIntent();
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
 
-		if (tiApp.isRestartPending()) {
-			super.onCreate(savedInstanceState);
-			if (!isFinishing()) {
-				finish();
-			}
-			return;
-		}
-
-		// If all the activities has been killed and the runtime has been disposed or the app's hosting process has
-		// been killed, we cannot recover one specific activity because the info of the top-most view proxy has been
-		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
-		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-			Log.w(TAG, "Runtime has been disposed or app has been killed. Finishing.");
-			activityOnCreate(savedInstanceState);
-			TiApplication.terminateActivityStack();
-			if (Build.VERSION.SDK_INT < 23) {
-				finish();
-				tiApp.scheduleRestart(300);
-				return;
-			}
-			KrollRuntime.incrementActivityRefCount();
-			finishAndRemoveTask();
-			return;
-		}
-
+		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
 
-		// create the activity proxy here so that it is accessible from the activity in all cases
-		activityProxy = new ActivityProxy(this);
-
-		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
+		// Increment the Titanium activity reference count. To be decremented in onDestroy() method.
+		// Titanium's JavaScript runtime is created when we have at least 1 activity and destroyed when we have 0.
 		KrollRuntime.incrementActivityRefCount();
 
-		Intent intent = getIntent();
+		// We must create activity proxy after incrementing the activity reference count above.
+		// This is because proxy needs the JS runtime to exist when created.
+		this.activityProxy = new ActivityProxy(this);
+
+		Intent intent = this.launchIntent;
 		if (intent != null) {
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
@@ -842,6 +821,22 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				finish();
 			}
 		}
+	}
+
+	/**
+	 * Gets the intent that originally created and launched this activity.
+	 * <p>
+	 * This intent is assigned within this activity's onCreate() method.
+	 * It is intended to be used to resume this activity via startActivity().
+	 * <p>
+	 * The returned intent will not change when onNewIntent() or setIntent() has been called. Those methods
+	 * are typically called when tapping a notification or when a custom URL scheme has been invoked.
+	 * The activity's getIntent() method will return the updated intent, if changed.
+	 * @return The intent used to create/launch this activity.
+	 */
+	public Intent getLaunchIntent()
+	{
+		return this.launchIntent;
 	}
 
 	public int getOriginalOrientationMode()
@@ -1142,10 +1137,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// If targetSdkVersion is set to 11+, Android will invoke this function
-		// to initialize the menu (since it's part of the action bar). Due
-		// to the fix for Android bug 2373, activityProxy won't be initialized b/c the
-		// activity is expected to restart, so we will ignore it.
 		if (activityProxy == null) {
 			return false;
 		}
@@ -1238,16 +1229,14 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-
 		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);
 
-		if (activityProxy != null) {
-			IntentProxy ip = new IntentProxy(intent);
-			KrollDict data = new KrollDict();
-			data.put(TiC.PROPERTY_INTENT, ip);
-			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
-			// TODO: Deprecate old event
-			activityProxy.fireSyncEvent("newIntent", data);
+		// Store the new intent.
+		setIntent(intent);
+
+		// Update proxy's "intent" property and fire a "newintent" event.
+		if (this.activityProxy != null) {
+			this.activityProxy.onNewIntent(intent);
 		}
 	}
 
@@ -1363,20 +1352,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
-		TiApplication tiApp = getTiApp();
-		if (tiApp.isRestartPending()) {
-			releaseDialogs(true);
-			if (!isFinishing()) {
-				finish();
-			}
-			return;
-		}
-
 		if (!windowStack.empty()) {
 			windowStack.peek().onWindowFocusChange(false);
 		}
 
 		TiApplication.updateActivityTransitionState(true);
+		TiApplication tiApp = getTiApp();
 		tiApp.setCurrentActivity(this, null);
 		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 
@@ -1427,18 +1408,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onResume", Log.DEBUG_MODE);
 
-		TiApplication tiApp = getTiApp();
-		if (tiApp.isRestartPending()) {
-			if (!isFinishing()) {
-				finish();
-			}
-			return;
-		}
-
 		if (!windowStack.empty()) {
 			windowStack.peek().onWindowFocusChange(true);
 		}
 
+		TiApplication tiApp = getTiApp();
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
 
@@ -1502,21 +1476,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onStart", Log.DEBUG_MODE);
 
-		TiApplication tiApp = getTiApp();
-
-		if (tiApp.isRestartPending()) {
-			if (!isFinishing()) {
-				finish();
-			}
-			return;
-		}
-
 		updateTitle();
 
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily
 			// so we don't run into problems when we give the proxy the event
+			TiApplication tiApp = getTiApp();
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
@@ -1554,13 +1520,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
-		if (getTiApp().isRestartPending()) {
-			if (!isFinishing()) {
-				finish();
-			}
-			return;
-		}
-
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_STOP, null);
 		}
@@ -1575,44 +1534,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
-		}
-	}
-
-	@Override
-	/**
-	 * When this activity restarts, this method updates the current activity to this and fires javascript 'restart'
-	 * event.
-	 */
-	protected void onRestart()
-	{
-		inForeground = true;
-		if (activityProxy != null) {
-			dispatchCallback(TiC.PROPERTY_ON_RESTART, null);
-		}
-		super.onRestart();
-
-		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
-
-		TiApplication tiApp = getTiApp();
-		if (tiApp.isRestartPending()) {
-			if (!isFinishing()) {
-				finish();
-			}
-
-			return;
-		}
-
-		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily
-			// so we don't run into problems when we give the proxy the event
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
-			activityProxy.fireEvent(TiC.EVENT_RESTART, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
 	}
 
@@ -1637,13 +1558,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		Log.d(TAG, "Activity " + this + " onUserLeaveHint", Log.DEBUG_MODE);
 
-		if (getTiApp().isRestartPending()) {
-			if (!isFinishing()) {
-				finish();
-			}
-			return;
-		}
-
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_USER_LEAVE_HINT, null);
 		}
@@ -1663,22 +1577,15 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
 		}
 
-		inForeground = false;
-		TiApplication tiApp = getTiApp();
-		//Clean up dialogs when activity is destroyed.
+		// Flag that this activity is no longer in the foreground.
+		this.inForeground = false;
+
+		// Release the dialogs owned by this activity.
 		releaseDialogs(true);
 
 		// Stop listening for safe-area inset changes.
 		if (this.safeAreaMonitor != null) {
 			this.safeAreaMonitor.stop();
-		}
-
-		if (tiApp.isRestartPending()) {
-			super.onDestroy();
-			if (!isFinishing()) {
-				finish();
-			}
-			return;
 		}
 
 		synchronized (lifecycleListeners.synchronizedList())
@@ -1815,83 +1722,48 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	public void finish()
 	{
+		// Do not continue if already called.
+		if (isFinishing()) {
+			return;
+		}
+
+		// If the root activity that is hosting the JS runtime is being closed,
+		// then close all Titanium child activities too.
+		boolean isTiRootActivity = (this instanceof TiRootActivity);
+		if (isTiRootActivity && (getTiApp().getRootActivity() == this)) {
+			TiApplication.terminateActivityStack();
+		}
+
+		// Close this activity.
 		super.finish();
 
-		if (shouldFinishRootActivity()) {
-			TiApplication app = getTiApp();
-			if (app != null) {
-				TiRootActivity rootActivity = app.getRootActivity();
-				if (rootActivity != null && !(rootActivity.equals(this)) && !rootActivity.isFinishing()) {
-					rootActivity.finish();
-				} else if (rootActivity == null && !app.isRestartPending()) {
-					// When the root activity has been killed and garbage collected and the app is not scheduled to restart,
-					// we need to force finish the root activity while this activity has an intent to finish root.
-					// This happens when the "Don't keep activities" option is enabled and the user stays in some activity
-					// (eg. heavyweight window, tabgroup) other than the root activity for a while and then he wants to back
-					// out the app.
-					app.setForceFinishRootActivity(true);
-				}
+		// If this is the 1st child activity below root activity, then close root activity too if configured.
+		// Note: Setting Ti.UI.Window property "exitOnClose" to false will prevent this.
+		if (!isTiRootActivity && shouldFinishRootActivity()) {
+			TiRootActivity rootActivity = getTiApp().getRootActivity();
+			if (rootActivity != null) {
+				rootActivity.finish();
 			}
 		}
 	}
 
-	// These activityOnXxxx are all used by TiLaunchActivity when
-	// the android bug 2373 is detected and the app is being re-started.
-	// By calling these from inside its on onXxxx handlers, TiLaunchActivity
-	// can avoid calling super.onXxxx (super being TiBaseActivity), which would
-	// result in a bunch of Titanium-specific code running when we don't need it
-	// since we are restarting the app as fast as possible. Calling these methods
-	// allows TiLaunchActivity to fulfill the requirement that the Android built-in
-	// Activity's onXxxx must be called. (Think of these as something like super.super.onXxxx
-	// from inside TiLaunchActivity.)
-	protected void activityOnPause()
-	{
-		super.onPause();
-	}
-	protected void activityOnRestart()
-	{
-		super.onRestart();
-	}
-	protected void activityOnResume()
-	{
-		super.onResume();
-	}
-	protected void activityOnStop()
-	{
-		super.onStop();
-	}
-	protected void activityOnStart()
-	{
-		super.onStart();
-	}
-	protected void activityOnDestroy()
-	{
-		super.onDestroy();
-	}
-
-	public void activityOnCreate(Bundle savedInstanceState)
+	/**
+	 * Internal method used to call Google's Activity.onCreate() method, bypassing this class' onCreate().
+	 * Only intended to be called by a 2nd instance of TiRootActivity class. (Only 1 instance is allowed at a time.)
+	 * @param savedInstanceState Bundle to be passed to the Activity.onCreate() method.
+	 */
+	void activityOnCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 	}
 
 	/**
-	 * Called by the onCreate methods of TiBaseActivity to determine if an unsupported application
-	 * re-launch appears to be occurring.
-	 * @param activity The Activity getting the onCreate
-	 * @param savedInstanceState The argument passed to the onCreate. A non-null value is a "tell"
-	 * that the system is re-starting a killed application.
+	 * Internal method used to call Google's Activity.onDestroy() method, bypassing this class' onDestroy().
+	 * Only intended to be called by a 2nd instance of TiRootActivity class. (Only 1 instance is allowed at a time.)
 	 */
-	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
+	void activityOnDestroy()
 	{
-		// We have to relaunch the app if
-		// 1. all the activities have been killed and the runtime has been disposed or
-		// 2. the app's hosting process has been killed. In this case, onDestroy or any other method
-		// is not called. We can check the status of the root activity to detect this situation.
-		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity)
-			&& (KrollRuntime.isDisposed() || TiApplication.getInstance().rootActivityLatch.getCount() != 0)) {
-			return true;
-		}
-		return false;
+		super.onDestroy();
 	}
 
 	public boolean hasSustainMode()
