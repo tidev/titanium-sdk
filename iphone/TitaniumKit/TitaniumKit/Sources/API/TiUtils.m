@@ -1490,7 +1490,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
       if ([appurlstr characterAtIndex:0] == '/') {
         appurlstr = [appurlstr substringFromIndex:1];
       }
+#if DEBUG_RESOURCE_PATHS
       DebugLog(@"[DEBUG] Loading: %@, Resource: %@", urlstring, appurlstr);
+#endif
       return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
     }
   }
