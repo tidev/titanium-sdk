@@ -107,7 +107,6 @@
         }
       }
     }];
-  }
   } else {
     TiThreadPerformOnMainThread(^{
       if (args == nil || [args count] == 0) {
