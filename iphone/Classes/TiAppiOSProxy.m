@@ -842,12 +842,15 @@
                                                                           content:content
                                                                           trigger:trigger];
 
-    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                           withCompletionHandler:^(NSError *error) {
-                                                             if (error) {
-                                                               DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
-                                                             }
-                                                           }];
+    TiThreadPerformOnMainThread(^{
+      [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
+                                                             withCompletionHandler:^(NSError *error) {
+                                                               if (error) {
+                                                                 DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+                                                               }
+                                                             }];
+    },
+        NO);
 
     notification.notification = content;
     [content release];
