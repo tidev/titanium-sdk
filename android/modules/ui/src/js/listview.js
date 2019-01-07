@@ -89,19 +89,19 @@ exports.bootstrap = function (Titanium) {
 
 		// handle Titanium widgets
 		if (/^(Ti|Titanium)/.test(namespace)) {
-			const namespaceIndex = namespace.lastIndexOf('.'),
-				proxyName = namespace.slice(namespaceIndex + 1),
-				parentNamespace = namespace.substring(0, namespaceIndex);
-			// Build up reference to parent proxy without using eval
+			const namespaceIndex = namespace.lastIndexOf('.');
+			const proxyName = namespace.slice(namespaceIndex + 1);
+			const parentNamespace = namespace.substring(0, namespaceIndex);
 			const segments = parentNamespace.split('.');
-			// drop first segment, which is Ti/Titanium
-			let parentProxy = Titanium;
-			for (let i = 1; i < segments.length; i++) {
+			let parentProxy = global;
+			for (let i = 0; i < segments.length; i++) {
 				parentProxy = parentProxy[segments[i]];
 			}
-
-			if (parentProxy) {
-				return parentProxy['create' + proxyName];
+			const method = parentProxy['create' + proxyName];
+			if (parentProxy && method) {
+				return method;
+			} else {
+				throw new Error('Could not lookup namespace: "' + namespace + '"');
 			}
 
 		// handle Alloy widgets
@@ -124,8 +124,11 @@ exports.bootstrap = function (Titanium) {
 					for (let i = 0; i < segments.length; i++) {
 						parentProxy = parentProxy[segments[i]];
 					}
-					if (parentProxy) {
-						return parentProxy['create' + proxyName];
+					const method = parentProxy['create' + proxyName];
+					if (parentProxy && method) {
+						return method;
+					} else {
+						throw new Error('Could not lookup namespace: "' + namespace + '"');
 					}
 				}
 			}
