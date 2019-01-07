@@ -72,8 +72,7 @@ methods:
         sections of wikipedia for reference.
 
         In case the new language is with different layout direction the activity from where the change is called
-        and all activities currently opened will need to recreated in order to be properly shown. You can do that
-        with [recreate](Ti.Android.Activity.recreate).
+        and all activities currently opened will need to be recreated in order to be properly shown.
 
     platforms: [iphone, ipad, android]
     parameters: 
