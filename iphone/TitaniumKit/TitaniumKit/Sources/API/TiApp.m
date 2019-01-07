@@ -468,7 +468,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
   [launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
-  
+
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
   } else {
