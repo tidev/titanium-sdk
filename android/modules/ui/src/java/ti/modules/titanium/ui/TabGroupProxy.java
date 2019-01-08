@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -325,7 +325,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		if (opening || opened) {
 			if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
-				Activity activity = (tabGroupActivity != null) ? (Activity) (tabGroupActivity.get()) : null;
+				Activity activity = getWindowActivity();
 				if (activity != null) {
 					Intent intent = activity.getIntent();
 					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
@@ -472,7 +472,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		AppCompatActivity activity = tabGroupActivity.get();
+		AppCompatActivity activity = getWindowActivity();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}

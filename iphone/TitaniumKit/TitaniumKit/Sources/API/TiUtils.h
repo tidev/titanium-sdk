@@ -20,7 +20,7 @@
  *	The following 4 imports will be going away as it's better to simply
  *	forward-declare the classes in headers. If you've been relying on TiUtils
  *	to do the including of TiProxy for you, please fix this. However, to
- *	avoid breaking modules 
+ *	avoid breaking modules
  */
 #import "TiBuffer.h"
 #import "TiColor.h"
@@ -184,7 +184,7 @@ typedef enum {
 
 /**
  Loads and returns image for the provided object.
- 
+
  If the _object_ parameter type is <TiBlob>, it will be converted to image and returned.
  Otherwise if the _object_ type is NSString, it will be first converted to URL using _proxy_ as a base, then the image will be loaded from the URL.
 
@@ -845,5 +845,12 @@ typedef enum {
  @return _YES_ if launch-screen storyboard are used.
  */
 + (BOOL)isUsingLaunchScreenStoryboard;
+
+/**
+ Checks if Hyperloop is available in this app.
+
+ @return _YES_ if Hyperloop is available, _NO_ otherwise.
+ */
++ (BOOL)isHyperloopAvailable;
 
 @end
