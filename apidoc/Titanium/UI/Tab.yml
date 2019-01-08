@@ -265,7 +265,7 @@ properties:
     description: |
         The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
     type: String
-    since: {iphone: "4.1.0", ipad: "4.1.0", android: "7.5.0"}
+    since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android]
 
@@ -274,7 +274,7 @@ properties:
     description: |
         The color of the title of the tab when it's active. If not defined, it will use the default tint color.
     type: String
-    since: {iphone: "4.1.0", ipad: "4.1.0", android: "7.5.0"}
+    since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android]
 

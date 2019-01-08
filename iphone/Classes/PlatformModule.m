@@ -27,7 +27,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory;
+@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory, totalMemory, uptime;
 
 #pragma mark Internal
 
@@ -37,7 +37,16 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     UIDevice *theDevice = [UIDevice currentDevice];
     name = [[theDevice systemName] retain];
     version = [[theDevice systemVersion] retain];
-    processorCount = [[NSNumber numberWithInt:1] retain];
+
+    // grab logical CPUs
+    int cores = 1;
+    size_t sizeof_cores = sizeof(cores);
+    sysctlbyname("hw.logicalcpu_max", &cores, &sizeof_cores, NULL, 0);
+    if (cores <= 0) {
+      cores = 1;
+    }
+    processorCount = [[NSNumber numberWithInt:cores] retain];
+
     username = [[theDevice name] retain];
 #ifdef __LP64__
     ostype = [@"64bit" retain];
@@ -59,33 +68,9 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     struct utsname u;
     uname(&u);
 
-    // detect iPhone 3G model
-    if (!strcmp(u.machine, "iPhone1,2")) {
-      model = [[NSString stringWithFormat:@"%@ 3G", themodel] retain];
-    }
-    // detect iPhone 3Gs model
-    else if (!strcmp(u.machine, "iPhone2,1")) {
-      model = [[NSString stringWithFormat:@"%@ 3GS", themodel] retain];
-    }
-    // detect iPhone 4 model
-    else if (!strcmp(u.machine, "iPhone3,1")) {
-      model = [[NSString stringWithFormat:@"%@ 4", themodel] retain];
-    }
-    // detect iPod Touch 2G model
-    else if (!strcmp(u.machine, "iPod2,1")) {
-      model = [[NSString stringWithFormat:@"%@ 2G", themodel] retain];
-    }
-    // detect iPad 2 model
-    else if (!strcmp(u.machine, "iPad2,1")) {
-      model = [[NSString stringWithFormat:@"%@ 2", themodel] retain];
-    }
-    // detect simulator for i386
-    else if (!strcmp(u.machine, "i386")) {
-      model = [@"Simulator" retain];
-    }
-    // detect simulator for x86_64
-    else if (!strcmp(u.machine, "x86_64")) {
-      model = [@"Simulator" retain];
+    // detect simulator
+    if (strcmp(u.machine, "i386") == 0 || strcmp(u.machine, "x86_64") == 0) {
+      model = [[NSString stringWithFormat:@"%s (Simulator)", getenv("SIMULATOR_MODEL_IDENTIFIER")] retain];
     } else {
       model = [[NSString alloc] initWithUTF8String:u.machine];
     }
@@ -108,6 +93,8 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   RELEASE_TO_NIL(address);
   RELEASE_TO_NIL(ostype);
   RELEASE_TO_NIL(availableMemory);
+  RELEASE_TO_NIL(totalMemory);
+  RELEASE_TO_NIL(uptime);
   RELEASE_TO_NIL(capabilities);
   [super dealloc];
 }
@@ -214,6 +201,11 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   return [TiUtils appIdentifier];
 }
 
+- (NSNumber *)uptime
+{
+  return [NSNumber numberWithDouble:[[NSProcessInfo processInfo] systemUptime]];
+}
+
 - (NSString *)identifierForVendor
 {
   return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
@@ -263,7 +255,24 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     return [NSNumber numberWithDouble:-1];
   }
 
-  return [NSNumber numberWithDouble:((vm_page_size * vmStats.free_count) / 1024.0) / 1024.0];
+  return [NSNumber numberWithUnsignedLong:(vm_page_size * vmStats.free_count)];
+}
+
+- (NSNumber *)totalMemory
+{
+  vm_statistics_data_t vmStats;
+  mach_msg_type_number_t infoCount = HOST_VM_INFO_COUNT;
+  kern_return_t kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
+
+  if (kernReturn != KERN_SUCCESS) {
+    return [NSNumber numberWithDouble:-1];
+  }
+
+  unsigned long mem_used = (vmStats.active_count + vmStats.inactive_count + vmStats.wire_count) * vm_page_size;
+  unsigned long mem_free = vmStats.free_count * vm_page_size;
+  unsigned long mem_total = mem_used + mem_free;
+
+  return [NSNumber numberWithUnsignedLong:mem_total];
 }
 
 - (NSNumber *)openURL:(NSArray *)args

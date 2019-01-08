@@ -482,11 +482,24 @@ function AndroidManifest(filename) {
 						}, this);
 						break;
 
+					case 'uses-feature':
+						this[tag] || (this[tag] = []);
+						src[tag].forEach(function (tagItem) {
+							// Check for already added features.
+							let duplicateItem = this[tag].find(function (nextItem) {
+								// Compare them directly or by name.
+								return (nextItem === tagItem) || (nextItem.name === tagItem.name);
+							});
+							if (!duplicateItem) {
+								this[tag].push(tagItem);
+							}
+						}, this);
+						break;
+
 					case 'instrumentation':
 					case 'permission':
 					case 'permission-group':
 					case 'permission-tree':
-					case 'uses-feature':
 					case 'uses-library':
 						this[tag] || (this[tag] = {});
 						Object.keys(src[tag]).forEach(function (name) {

@@ -373,8 +373,10 @@ methods:
   - name: getArguments
     summary: Returns the arguments passed to the application on startup.
     description : |
-        On Android, use the [intent](Titanium.Android.Activity.intent) property of the activity to
-        retrieve the parameters passed to launch the application activity.
+        On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
+        read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
+        to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
+        will change when a ["newintent"](Titanium.Android.Activity.newintent) event has been fired.
     platforms: [iphone, ipad]
     returns:
         type: launchOptions

@@ -19,6 +19,7 @@
 
 		<activity android:name=".<%- classname %>Activity"
 			android:label="@string/app_name" android:theme="@style/Theme.Titanium"
+			android:alwaysRetainTaskState="true"
 			android:configChanges="keyboardHidden|orientation|fontScale|screenSize|smallestScreenSize|screenLayout">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
