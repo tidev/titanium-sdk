@@ -606,6 +606,19 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public ActivityProxy getRootActivity()
+	// clang-format on
+	{
+		TiBaseActivity activity = TiApplication.getInstance().getRootActivity();
+		if (activity != null) {
+			return activity.getActivityProxy();
+		}
+		return null;
+	}
+
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
 	{
