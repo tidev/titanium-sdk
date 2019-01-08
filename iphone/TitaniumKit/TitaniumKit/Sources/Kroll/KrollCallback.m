@@ -115,7 +115,8 @@ static NSLock *callbackLock;
     __block id result = nil;
     TiThreadPerformOnMainThread(^{
       result = [self call:args thisObject:thisObject_];
-    }, YES);
+    },
+        YES);
     return result;
   }
 
