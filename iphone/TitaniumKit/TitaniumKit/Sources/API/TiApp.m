@@ -448,7 +448,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   [launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+  if (appBooted) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+  } else {
+    [[self queuedBootEvents] setObject:launchOptions forKey:kTiApplicationLaunchedFromURL];
+  }
 
   return YES;
 }
@@ -465,7 +469,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   [launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+  if (appBooted) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+  } else {
+    [[self queuedBootEvents] setObject:launchOptions forKey:kTiApplicationLaunchedFromURL];
+  }
 
   return YES;
 }
