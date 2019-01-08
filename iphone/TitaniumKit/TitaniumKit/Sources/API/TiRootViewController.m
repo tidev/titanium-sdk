@@ -685,7 +685,6 @@
   }
 }
 
-#if defined(DEBUG) || defined(DEVELOPER)
 - (void)shutdownUi:(id)arg
 {
   //FIRST DISMISS ALL MODAL WINDOWS
@@ -724,7 +723,6 @@
     DebugLog(@"[WARN] Could not resume. No selector _resumeRestart: found for arg");
   }
 }
-#endif
 
 #pragma mark - TiControllerContainment
 - (BOOL)canHostWindows
