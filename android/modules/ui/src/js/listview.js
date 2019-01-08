@@ -92,8 +92,11 @@ exports.bootstrap = function (Titanium) {
 		for (let i = 0; i < segments.length; i++) {
 			parentProxy = parentProxy[segments[i]];
 		}
-		const method = parentProxy['create' + proxyName];
-		if (parentProxy && method) {
+		let method = null;
+		if (parentProxy) {
+			method = parentProxy['create' + proxyName];
+		}
+		if (method) {
 			return method;
 		} else {
 			throw new Error('Could not lookup constructor for namespace: "' + namespace + '"');
