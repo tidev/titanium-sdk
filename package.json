@@ -78,7 +78,7 @@
     "markdown": "0.5.0",
     "moment": "^2.22.2",
     "node-appc": "^0.2.47",
-    "node-titanium-sdk": "^1.0.3",
+    "node-titanium-sdk": "^1.0.4",
     "node-uuid": "1.4.8",
     "pngjs": "^3.3.3",
     "request": "^2.87.0",
@@ -124,10 +124,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": "6.x || 8.x || 10.x"
+    "node": "8.x || 10.x"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "license": "Apache-2.0"
 }
