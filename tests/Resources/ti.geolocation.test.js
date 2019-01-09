@@ -19,12 +19,11 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		should(Ti.Geolocation.apiName).be.eql('Ti.Geolocation');
 	});
 
-	it('.ACCURACY_BEST', function () {
+	it.ios('.ACCURACY_BEST', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_BEST').which.is.a.Number;
 	});
 
-	// Intentionally skip for Android, doesn't exist
-	it.androidMissing('.ACCURACY_BEST_FOR_NAVIGATION', function () {
+	it.ios('.ACCURACY_BEST_FOR_NAVIGATION', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_BEST_FOR_NAVIGATION').which.is.a.Number;
 	});
 
@@ -32,11 +31,11 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_HIGH').which.is.a.Number;
 	});
 
-	it('.ACCURACY_HUNDRED_METERS', function () {
+	it.ios('.ACCURACY_HUNDRED_METERS', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_HUNDRED_METERS').which.is.a.Number;
 	});
 
-	it('.ACCURACY_KILOMETER', function () {
+	it.ios('.ACCURACY_KILOMETER', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_KILOMETER').which.is.a.Number;
 	});
 
@@ -44,11 +43,11 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_LOW').which.is.a.Number;
 	});
 
-	it('.ACCURACY_NEAREST_TEN_METERS', function () {
+	it.ios('.ACCURACY_NEAREST_TEN_METERS', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_NEAREST_TEN_METERS').which.is.a.Number;
 	});
 
-	it('.ACCURACY_THREE_KILOMETERS', function () {
+	it.ios('.ACCURACY_THREE_KILOMETERS', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_THREE_KILOMETERS').which.is.a.Number;
 	});
 
@@ -62,10 +61,6 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it.androidMissing('.ERROR_*', function () {
 		should(Ti.Geolocation).have.enumeration('Number', [ 'ERROR_DENIED', 'ERROR_HEADING_FAILURE', 'ERROR_LOCATION_UNKNOWN', 'ERROR_NETWORK', 'ERROR_REGION_MONITORING_DELAYED', 'ERROR_REGION_MONITORING_DENIED', 'ERROR_REGION_MONITORING_FAILURE' ]);
-	});
-
-	it.iosMissing('.PROVIDER_*', function () {
-		should(Ti.Geolocation).have.enumeration('String', [ 'PROVIDER_GPS', 'PROVIDER_NETWORK', 'PROVIDER_PASSIVE' ]);
 	});
 
 	// FIXME Get working on Android
