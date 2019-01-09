@@ -298,6 +298,13 @@ events:
         URL-handling anymore. Instead, use the `handleurl` event in <Titanium.App.iOS>.
     platforms: [iphone, ipad]
 
+  - name: started
+    summary: Fired after the "app.js" or "alloy.js" gets executed during application startup.
+    description: |
+        The intention of this event is for modules to defer firing their own startup related events
+        until the app developer's main script has had a chance to add listeners for them.
+    since: '8.0.0'
+
   - name: keyboardframechanged
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
