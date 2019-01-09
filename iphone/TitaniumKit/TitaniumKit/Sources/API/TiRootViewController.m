@@ -687,6 +687,9 @@
 
 - (void)shutdownUi:(id)arg
 {
+  if (![TiSharedConfig defaultConfig].debugEnabled) {
+    return;
+  }
   //FIRST DISMISS ALL MODAL WINDOWS
   UIViewController *topVC = [self topPresentedController];
   if (topVC != self) {
@@ -1185,9 +1188,9 @@
 
   if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
     forcingRotation = YES;
-#if defined(DEBUG) || defined(DEVELOPER)
-    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
-#endif
+    if ([TiSharedConfig defaultConfig].debugEnabled) {
+      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
+    }
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
