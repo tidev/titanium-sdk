@@ -109,6 +109,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong, nullable) UIColor *defaultBackgroundColor;
 
+/**
+ Indicates whether debug is enabled or not.
+ */
+
+@property (nonatomic, assign) BOOL debugEnabled;
+
 + (TiSharedConfig *)defaultConfig;
 
 NS_ASSUME_NONNULL_END
