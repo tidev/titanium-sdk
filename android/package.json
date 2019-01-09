@@ -28,9 +28,7 @@
 		"android build tools": ">=25.x <=28.x",
 		"android platform tools": "28.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r11c <=r17b",
-		"node": ">=4.0 <=8.x",
-		"java": ">=1.8.x"
+		"android ndk": ">=r11c <=r17b"
 	},
 	"repository": {
 		"type": "git",
