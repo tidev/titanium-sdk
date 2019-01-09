@@ -124,10 +124,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": "6.x || 8.x || 10.x"
+    "node": "8.x || 10.x"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "license": "Apache-2.0"
 }
