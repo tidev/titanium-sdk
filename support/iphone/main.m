@@ -56,6 +56,10 @@ int main(int argc, char *argv[])
 #endif
   [[TiSharedConfig defaultConfig] setDefaultBackgroundColor:defaultBgColor];
   
+#if defined(DEBUG) || defined(DEVELOPER)
+  [[TiSharedConfig defaultConfig] setDebugEnabled:YES];
+#endif
+  
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
   int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
   [pool release];
