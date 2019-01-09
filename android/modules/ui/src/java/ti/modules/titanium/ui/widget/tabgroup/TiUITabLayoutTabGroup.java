@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -186,7 +188,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void onTabUnselected(TabLayout.Tab tab)
 	{
-		((TabGroupProxy) getProxy()).getTabList().get(tab.getPosition()).fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		int position = tab.getPosition();
+		// skip invalid position tabs
+		if (position < 0) {
+			return;
+		}
+
+		List<TabProxy> list = ((TabGroupProxy) getProxy()).getTabList();
+		if (position >= list.size()) { // skip if past end of list
+			return;
+		}
+		list.get(position).fireEvent(TiC.EVENT_UNSELECTED, null, false);
 	}
 
 	@Override
