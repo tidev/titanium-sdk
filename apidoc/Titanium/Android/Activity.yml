@@ -237,6 +237,7 @@ methods:
         summary: Name of the permission that the receiver should hold in order to receive the broadcast.
         type: String
         optional: true
+
 events:
 
   - name: create
