@@ -12,12 +12,10 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
-import android.content.Context;
-import android.content.res.Configuration;
-import android.os.Build;
 import android.telephony.PhoneNumberUtils;
 
 @Kroll.module
@@ -106,17 +104,8 @@ public class LocaleModule extends KrollModule
 				locale = new Locale(parts[0]);
 			}
 
-			Locale.setDefault(locale);
+			TiLocaleManager.setLocale(locale);
 
-			Configuration config = new Configuration();
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				config.setLocale(locale);
-			} else {
-				config.locale = locale;
-			}
-
-			Context ctx = TiApplication.getAppRootOrCurrentActivity().getBaseContext();
-			ctx.getResources().updateConfiguration(config, ctx.getResources().getDisplayMetrics());
 		} catch (Exception e) {
 			Log.e(TAG, "Error trying to set language '" + language + "':", e);
 		}
