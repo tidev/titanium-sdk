@@ -199,10 +199,10 @@
 @property (nonatomic, readonly) NSString *TEXT_STYLE_TITLE3;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_CALLOUT;
 
-- (id)createMatrix2D:(id)args; // Deprecated since 8.0.0
-- (id)create2DMatrix:(id)args;
-- (id)createMatrix3D:(id)args; // Deprecated since 8.0.0
-- (id)create3DMatrix:(id)args;
+- (id)createMatrix2D:(id)args;
+- (id)create2DMatrix:(id)args; // Deprecated since 8.0.0
+- (id)createMatrix3D:(id)args;
+- (id)create3DMatrix:(id)args; // Deprecated since 8.0.0
 
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args;
