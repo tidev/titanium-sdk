@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "TiSharedConfig.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
@@ -522,16 +523,12 @@ enum {
   }
 #endif
 
-#if defined(DEBUG) || defined(DEVELOPER)
-#define DebugLog(...)   \
-  {                     \
-    NSLog(__VA_ARGS__); \
+#define DebugLog(...)                                  \
+  {                                                    \
+    if ([TiSharedConfig defaultConfig].debugEnabled) { \
+      NSLog(__VA_ARGS__);                              \
+    }                                                  \
   }
-#else
-#define DebugLog(...) \
-  {                   \
-  }
-#endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
 

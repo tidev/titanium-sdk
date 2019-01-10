@@ -8,8 +8,7 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 // FIXME This pops a prompt on Windows 10 and will hang tests. We can log on and allow manually...
 // Skip on Windows 10 Mobile device family due to prompt,
@@ -20,12 +19,36 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		should(Ti.Geolocation.apiName).be.eql('Ti.Geolocation');
 	});
 
+	it.ios('.ACCURACY_BEST', function () {
+		should(Ti.Geolocation).have.constant('ACCURACY_BEST').which.is.a.Number;
+	});
+
+	it.ios('.ACCURACY_BEST_FOR_NAVIGATION', function () {
+		should(Ti.Geolocation).have.constant('ACCURACY_BEST_FOR_NAVIGATION').which.is.a.Number;
+	});
+
 	it('.ACCURACY_HIGH', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_HIGH').which.is.a.Number;
 	});
 
+	it.ios('.ACCURACY_HUNDRED_METERS', function () {
+		should(Ti.Geolocation).have.constant('ACCURACY_HUNDRED_METERS').which.is.a.Number;
+	});
+
+	it.ios('.ACCURACY_KILOMETER', function () {
+		should(Ti.Geolocation).have.constant('ACCURACY_KILOMETER').which.is.a.Number;
+	});
+
 	it('.ACCURACY_LOW', function () {
 		should(Ti.Geolocation).have.constant('ACCURACY_LOW').which.is.a.Number;
+	});
+
+	it.ios('.ACCURACY_NEAREST_TEN_METERS', function () {
+		should(Ti.Geolocation).have.constant('ACCURACY_NEAREST_TEN_METERS').which.is.a.Number;
+	});
+
+	it.ios('.ACCURACY_THREE_KILOMETERS', function () {
+		should(Ti.Geolocation).have.constant('ACCURACY_THREE_KILOMETERS').which.is.a.Number;
 	});
 
 	it.androidMissing('.ACTIVITYTYPE_*', function () {
@@ -135,6 +158,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it('#getLastGeolocation()', function () {
 		should(Ti.Geolocation).have.a.property('getLastGeolocation').which.is.a.Function;
+		Ti.Geolocation.getLastGeolocation();
 		// const returnValue = Ti.Geolocation.getLastGeolocation();
 		// should(returnValue).be.a.Object; // FIXME How do we test return type? Docs say String. May be null or undefined, as well!
 	});
@@ -256,16 +280,11 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 				// FIXME error property is missing altogether on success for iOS...
 				// should(data).have.property('error'); // undefined on success, holds error message as String otherwise.
 				should(data).have.property('places').which.is.an.Array;
-				// FIXME Parity issues!
-				if (utilities.isAndroid()) {
-					should(data.places[0].postalCode).be.eql('94043');
-					should(data.places[0]).have.property('latitude').which.is.a.String;
-					should(data.places[0]).have.property('longitude').which.is.a.String;
-				} else {
-					should(data.places[0].zipcode).be.eql('94043');
-					should(data.places[0]).have.property('latitude').which.is.a.Number; // docs say String!
-					should(data.places[0]).have.property('longitude').which.is.a.Number; // docs say String!
-				}
+
+				should(data.places[0].postalCode).be.eql('94043');
+				should(data.places[0].zipcode).be.eql('94043');
+				should(data.places[0]).have.property('latitude').which.is.a.Number; // docs say String!
+				should(data.places[0]).have.property('longitude').which.is.a.Number; // docs say String!
 				should(data.places[0].country).be.eql('USA');
 				should(data.places[0].state).be.eql('California');
 				should(data.places[0].country_code).be.eql('US');
