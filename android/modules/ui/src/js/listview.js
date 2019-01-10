@@ -83,26 +83,33 @@ exports.bootstrap = function (Titanium) {
 		}
 	}
 
+	function lookupProxyConstructor(namespace) {
+		const namespaceIndex = namespace.lastIndexOf('.');
+		const proxyName = namespace.slice(namespaceIndex + 1);
+		const parentNamespace = namespace.substring(0, namespaceIndex);
+		const segments = parentNamespace.split('.');
+		let parentProxy = global;
+		for (let i = 0; i < segments.length; i++) {
+			parentProxy = parentProxy[segments[i]];
+		}
+		let method = null;
+		if (parentProxy) {
+			method = parentProxy['create' + proxyName];
+		}
+		if (method) {
+			return method;
+		} else {
+			throw new Error('Could not lookup constructor for namespace: "' + namespace + '"');
+		}
+	}
+
 	// convert name of UI elements into a constructor function.
 	// I.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function
 	function lookup(namespace) {
 
 		// handle Titanium widgets
 		if (/^(Ti|Titanium)/.test(namespace)) {
-			const namespaceIndex = namespace.lastIndexOf('.'),
-				proxyName = namespace.slice(namespaceIndex + 1),
-				parentNamespace = namespace.substring(0, namespaceIndex);
-			// Build up reference to parent proxy without using eval
-			const segments = parentNamespace.split('.');
-			// drop first segment, which is Ti/Titanium
-			let parentProxy = Titanium;
-			for (let i = 1; i < segments.length; i++) {
-				parentProxy = parentProxy[segments[i]];
-			}
-
-			if (parentProxy) {
-				return parentProxy['create' + proxyName];
-			}
+			return lookupProxyConstructor(namespace);
 
 		// handle Alloy widgets
 		} else {
@@ -116,17 +123,7 @@ exports.bootstrap = function (Titanium) {
 					widget = Module.main.require(namespace);
 				} catch (err) {
 					// namespace does not exist, fall back to legacy behaviour
-					const namespaceIndex = namespace.lastIndexOf('.');
-					const proxyName = namespace.slice(namespaceIndex + 1);
-					const parentNamespace = namespace.substring(0, namespaceIndex);
-					const segments = parentNamespace.split('.');
-					let parentProxy = global;
-					for (let i = 0; i < segments.length; i++) {
-						parentProxy = parentProxy[segments[i]];
-					}
-					if (parentProxy) {
-						return parentProxy['create' + proxyName];
-					}
+					return lookupProxyConstructor(namespace);
 				}
 			}
 			if (widget) {

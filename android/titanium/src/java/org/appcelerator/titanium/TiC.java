@@ -35,6 +35,8 @@ public class TiC
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
 
+	public static final String EXTRA_TI_NEW_INTENT = "ti.intent.extra.NEW_INTENT";
+
 	/**
 	 * ERROR_CODE constants are for values of the code property in
 	 * events and callback objects. When you can use a nonzero OS-provided
@@ -601,6 +603,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_START = "start";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_STARTED = "started";
 
 	/**
 	 * @module.api
@@ -1425,6 +1432,7 @@ public class TiC
 
 	/**
 	 * @module.api
+	 * @deprecated Value will be changed to "countryCode" in SDK 9.0.0
 	 */
 	public static final String PROPERTY_COUNTRY_CODE = "country_code";
 
@@ -1953,6 +1961,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INDEX = "index";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INCLUDE_FONT_PADDING = "includeFontPadding";
 
 	/**
@@ -2009,6 +2022,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_KIND = "kind";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LABELS = "labels";
 
 	/**
 	 * @module.api

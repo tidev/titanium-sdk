@@ -33,6 +33,7 @@ require('./ti.internal/extensions/process');
 const addBinding = require('./ti.internal/extensions/binding');
 // FIXME Use require.resolve to resolve the path, once we support it!
 addBinding('path', '/ti.internal/extensions/path');
+addBinding('os', '/ti.internal/extensions/os');
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
@@ -40,4 +41,9 @@ require('./ti.internal/bootstrap.loader').loadAsync(function () {
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
 	require('./app');
+
+	// This event is to be fired after "app.js" execution. Reasons:
+	// - Allow system to queue startup related events until "app.js" has had a chance to add listeners.
+	// - For Alloy apps, we now know that Alloy has been initialized and its globals were added.
+	Ti.App.fireEvent('started');
 });
