@@ -746,9 +746,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * 							for the specified address if available
 	 */
 	@Kroll.method
-	public void forwardGeocoder(String address, KrollFunction callback)
+	public void forwardGeocoder(String address, @Kroll.argument(optional = true) final KrollFunction callback,
+								final KrollPromise promise)
 	{
-		tiLocation.forwardGeocode(address, createGeocodeResponseHandler(callback));
+		tiLocation.forwardGeocode(address, createGeocodeResponseHandler(callback, promise));
 	}
 
 	/**
@@ -761,9 +762,11 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * 							for the specified latitude and longitude if available
 	 */
 	@Kroll.method
-	public void reverseGeocoder(double latitude, double longitude, KrollFunction callback)
+	public void reverseGeocoder(double latitude, double longitude,
+								@Kroll.argument(optional = true) final KrollFunction callback,
+								final KrollPromise promise)
 	{
-		tiLocation.reverseGeocode(latitude, longitude, createGeocodeResponseHandler(callback));
+		tiLocation.reverseGeocode(latitude, longitude, createGeocodeResponseHandler(callback, promise));
 	}
 
 	/**
@@ -774,7 +777,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * 							once the geocode response is ready
 	 * @return					the geocode response handler
 	 */
-	private GeocodeResponseHandler createGeocodeResponseHandler(final KrollFunction callback)
+	private GeocodeResponseHandler createGeocodeResponseHandler(final KrollFunction callback,
+																final KrollPromise promise)
 	{
 		final GeolocationModule geolocationModule = this;
 
@@ -783,6 +787,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			public void handleGeocodeResponse(KrollDict geocodeResponse)
 			{
 				geocodeResponse.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
+				promise.resolve(geocodeResponse);
+				if (callback == null) {
+					return;
+				}
 				callback.call(getKrollObject(), new Object[] { geocodeResponse });
 			}
 		};
