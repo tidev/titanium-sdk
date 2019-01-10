@@ -5,8 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
-
 #import "Ti3DMatrix.h"
 #import "TiBase.h"
 
@@ -135,5 +133,3 @@ MAKE_PROP(44)
 }
 
 @end
-
-#endif

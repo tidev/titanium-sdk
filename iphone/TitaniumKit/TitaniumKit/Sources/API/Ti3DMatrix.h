@@ -5,8 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
-
 #import "TiProxy.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -44,5 +42,3 @@
 @property (nonatomic, readwrite, retain) NSNumber *m44;
 
 @end
-
-#endif

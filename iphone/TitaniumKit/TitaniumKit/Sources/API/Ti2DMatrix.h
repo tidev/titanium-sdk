@@ -5,8 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
-
 #import "TiProxy.h"
 
 /**
@@ -49,5 +47,3 @@
 @property (nonatomic, readwrite, retain) NSNumber *ty;
 
 @end
-
-#endif

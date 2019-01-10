@@ -5,8 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
-
 #import "Ti2DMatrix.h"
 #import "TiBase.h"
 #import "TiDimension.h"
@@ -147,5 +145,3 @@ MAKE_PROP(D, d)
 }
 
 @end
-
-#endif

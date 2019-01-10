@@ -4,17 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import <TitaniumKit/TiBase.h>
 
 #ifdef USE_TI_UI
 
 #import "UIModule.h"
 
-#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
 #import <TitaniumKit/Ti2DMatrix.h>
-#endif
-#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
 #import <TitaniumKit/Ti3DMatrix.h>
-#endif
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
+
 #ifdef USE_TI_UIANIMATION
 #import <TitaniumKit/TiAnimation.h>
 #endif
@@ -38,13 +38,10 @@
 #endif
 #ifdef USE_TI_UIWEBVIEW
 #import <WebKit/WebKit.h>
-#endifs
+#endif
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBase.h>
-#import <TitaniumKit/TiDimension.h>
-#import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
 
@@ -370,7 +367,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 #endif
 
-#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
 - (id)createMatrix2D:(id)args
 {
   if (args == nil || [args count] == 0) {
@@ -386,9 +382,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   DEPRECATED_REPLACED(@"UI.2DMatrix", @"8.0.0", @"UI.Matrix2D");
   return [self createMatrix2D:args];
 }
-#endif
 
-#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
 - (id)createMatrix3D:(id)args
 {
   if (args == nil || [args count] == 0) {
@@ -404,7 +398,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   DEPRECATED_REPLACED(@"UI.3DMatrix", @"8.0.0", @"UI.Matrix3D");
   return [self createMatrix3D:args];
 }
-#endif
 
 #ifdef USE_TI_UICLIPBOARD
 - (id)Clipboard
