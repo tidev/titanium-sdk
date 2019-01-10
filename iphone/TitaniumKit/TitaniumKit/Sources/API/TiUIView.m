@@ -4,15 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #import "TiUIView.h"
 #import "ImageLoader.h"
+#import "Ti2DMatrix.h"
+#import "Ti3DMatrix.h"
+#import "TiApp.h"
 #import "TiBase.h"
 #import "TiColor.h"
 #import "TiRect.h"
 #import "TiUtils.h"
-#import "Ti2DMatrix.h"
-#import "Ti3DMatrix.h"
-#import "TiApp.h"
 #import "TiViewProxy.h"
 #import "UIImage+Resize.h"
 
