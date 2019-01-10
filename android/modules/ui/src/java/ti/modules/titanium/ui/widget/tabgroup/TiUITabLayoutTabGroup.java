@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2019 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2018-Present by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.graphics.drawable.Drawable;
+import android.graphics.Rect;
 import android.support.design.widget.TabLayout;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import java.util.List;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -54,17 +56,43 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
-		if (disable) {
-			this.mTabLayout.setVisibility(View.GONE);
-		} else {
-			this.mTabLayout.setVisibility(View.VISIBLE);
-		}
+
+		// Show/hide the tab bar.
+		this.mTabLayout.setVisibility(disable ? View.GONE : View.VISIBLE);
+		this.mTabLayout.requestLayout();
+
+		// Update top inset. (Will remove top inset if tab bar is "gone".)
+		this.insetsProvider.setTopBasedOn(this.mTabLayout);
 	}
 
 	@Override
 	public void addViews(TiBaseActivity activity)
 	{
-		this.mTabLayout = new TabLayout(activity);
+		// Create the top tab layout view.
+		this.mTabLayout = new TabLayout(activity) {
+			@Override
+			protected boolean fitSystemWindows(Rect insets)
+			{
+				// Remove bottom inset when top tab bar is to be extended beneath system insets.
+				// This prevents Google from blindly padding bottom of tab bar based on this inset.
+				if ((insets != null) && getFitsSystemWindows()) {
+					insets = new Rect(insets);
+					insets.bottom = 0;
+				}
+				super.fitSystemWindows(insets);
+				return false;
+			}
+
+			@Override
+			protected void onLayout(boolean hasChanged, int left, int top, int right, int bottom)
+			{
+				// Update top inset based on tab bar's height and position in window.
+				super.onLayout(hasChanged, left, top, right, bottom);
+				insetsProvider.setTopBasedOn(this);
+			}
+		};
+		this.mTabLayout.setFitsSystemWindows(true);
+
 		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			this.mTabLayout.setBackgroundColor(
@@ -72,19 +100,42 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		} else {
 			this.mTabLayout.setBackgroundColor(this.colorPrimaryInt);
 		}
+
 		// Set the OnTabSelected listener.
 		this.mTabLayout.addOnTabSelectedListener(this);
-		// Set the LayoutParams for the TabLayout instance.
-		TiCompositeLayout.LayoutParams tabLayoutLP = new TiCompositeLayout.LayoutParams();
-		tabLayoutLP.autoFillsWidth = true;
-		this.mTabLayout.setLayoutParams(tabLayoutLP);
-		// Set the LayoutParams for the ViewPager instance.
-		((TiCompositeLayout) activity.getLayout()).setLayoutArrangement(TiC.LAYOUT_VERTICAL);
-		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-		params.autoFillsWidth = true;
-		// Add the views to their container.
-		((ViewGroup) activity.getLayout()).addView(this.mTabLayout);
-		((ViewGroup) activity.getLayout()).addView(this.tabGroupViewPager, params);
+
+		// Add tab bar and view pager to the root Titanium view.
+		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
+		//       This means the top tab bar should overlap/overlay the view pager content.
+		TiCompositeLayout compositeLayout = (TiCompositeLayout) activity.getLayout();
+		if (compositeLayout.getFitsSystemWindows()) {
+			compositeLayout.setLayoutArrangement(TiC.LAYOUT_VERTICAL);
+			{
+				TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+				params.autoFillsWidth = true;
+				compositeLayout.addView(this.mTabLayout, params);
+			}
+			{
+				TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+				params.autoFillsWidth = true;
+				params.autoFillsHeight = true;
+				compositeLayout.addView(this.tabGroupViewPager, params);
+			}
+		} else {
+			{
+				TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+				params.autoFillsWidth = true;
+				params.autoFillsHeight = true;
+				compositeLayout.addView(this.tabGroupViewPager, params);
+			}
+			{
+				TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+				params.autoFillsWidth = true;
+				params.optionTop = new TiDimension(0, TiDimension.TYPE_TOP);
+				compositeLayout.addView(this.mTabLayout, params);
+			}
+		}
+
 		// Set the ViewPager as a native view.
 		setNativeView(this.tabGroupViewPager);
 	}
