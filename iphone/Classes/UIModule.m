@@ -4,27 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiBase.h>
 
 #ifdef USE_TI_UI
 
 #import "UIModule.h"
 
-<<<<<<< HEAD
-#import <TitaniumKit/Ti2DMatrix.h>
-#import <TitaniumKit/Ti3DMatrix.h>
-#import <TitaniumKit/TiDimension.h>
-#import <TitaniumKit/TiProxy.h>
-=======
 #if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
 #import "Ti2DMatrix.h"
 #endif
-
 #if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
 #import "Ti3DMatrix.h"
 #endif
->>>>>>> 91c5018804... Move 2DMatrix and 3DMatrix to Matrix2D and Matrix3D
-
 #ifdef USE_TI_UIANIMATION
 #import <TitaniumKit/TiAnimation.h>
 #endif
@@ -52,6 +42,9 @@
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
 
@@ -245,19 +238,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #pragma mark Factory methods
 
-<<<<<<< HEAD
-- (id)create2DMatrix:(id)args
-{
-  if (args == nil || [args count] == 0) {
-    return [[[Ti2DMatrix alloc] init] autorelease];
-  }
-  ENSURE_SINGLE_ARG(args, NSDictionary);
-  Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
-  return [matrix autorelease];
-}
-
-=======
->>>>>>> 91c5018804... Move 2DMatrix and 3DMatrix to Matrix2D and Matrix3D
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args
 {
