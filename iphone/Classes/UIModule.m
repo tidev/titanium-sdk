@@ -10,10 +10,10 @@
 #import "UIModule.h"
 
 #if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
-#import "Ti2DMatrix.h"
+#import <TitaniumKit/Ti2DMatrix.h>
 #endif
 #if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
-#import "Ti3DMatrix.h"
+#import <TitaniumKit/Ti3DMatrix.h>
 #endif
 #ifdef USE_TI_UIANIMATION
 #import <TitaniumKit/TiAnimation.h>
@@ -38,7 +38,7 @@
 #endif
 #ifdef USE_TI_UIWEBVIEW
 #import <WebKit/WebKit.h>
-#endif
+#endifs
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
