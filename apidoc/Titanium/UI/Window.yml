@@ -1535,16 +1535,16 @@ description: |
 
     `app/controllers/index.js`:
 
-        $.index.transform = Titanium.UI.create2DMatrix().scale(0);
+        $.index.transform = Titanium.UI.createMatrix2D().scale(0);
         $.index.open();
 
         var a = Ti.UI.createAnimation({
-            transform : Ti.UI.create2DMatrix().scale(1.1),
+            transform : Ti.UI.createMatrix2D().scale(1.1),
             duration : 2000,
         });
         a.addEventListener('complete', function() {
             $.index.animate({
-                transform: Ti.UI.create2DMatrix(),
+                transform: Ti.UI.createMatrix2D(),
                 duration: 200
             });
         });
@@ -1625,13 +1625,13 @@ description: |
             transitionTo: {
                 opacity: 1,
                 duration: 300,
-                transform: Ti.UI.create2DMatrix()
+                transform: Ti.UI.createMatrix2D()
             },
             // The hide transition makes the window transparent and rotates it upside down
             transitionFrom: {
                 opacity: 0,
                 duration: 300 / 2,
-                transform: Ti.UI.create2DMatrix().rotate(180),
+                transform: Ti.UI.createMatrix2D().rotate(180),
             }
         });
 
@@ -1657,17 +1657,17 @@ description: |
             transitionTo: {
                 opacity: 1,
                 duration: 300,
-                transform: Ti.UI.create2DMatrix()
+                transform: Ti.UI.createMatrix2D()
             },
             // The hide transition makes the window transparent and rotates it upside down
             transitionFrom: {
                 opacity: 0,
                 duration: 300 / 2,
-                transform: Ti.UI.create2DMatrix().rotate(180),
+                transform: Ti.UI.createMatrix2D().rotate(180),
             }
         });
 
-        $.bluewin.transform = Ti.UI.create2DMatrix().rotate(180);
+        $.bluewin.transform = Ti.UI.createMatrix2D().rotate(180);
 
     ### Android Platform Notes
 
