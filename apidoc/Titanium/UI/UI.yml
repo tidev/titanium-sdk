@@ -144,9 +144,21 @@ methods:
     parameters:
       - name: parameters
         summary: Initial transformation of the matrix.
-        type: MatrixCreationDict
+        type: Matrix2DCreationDict
         optional: true
+    deprecated:
+        since: "8.0.0"
+        notes: Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
 
+  - name: createMatrix2D
+    summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix2DCreationDict
+        optional: true
 
   - name: convertUnits
     summary: Converts one type of unit to another using the metrics of the main display.
