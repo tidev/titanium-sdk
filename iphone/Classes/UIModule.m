@@ -33,6 +33,9 @@
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
+#ifdef USE_TI_UITABBEDBAR
+#import "TiUITabbedBarProxy.h"
+#endif
 #ifdef USE_TI_UIWEBVIEW
 #import <WebKit/WebKit.h>
 #endif
@@ -46,10 +49,6 @@
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIPHONE
-  [self forgetProxy:iphone];
-  RELEASE_TO_NIL(iphone);
-#endif
 #ifdef USE_TI_UIIPAD
   [self forgetProxy:ipad];
   RELEASE_TO_NIL(ipad);
@@ -236,16 +235,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #pragma mark Factory methods
 
-- (id)create2DMatrix:(id)args
-{
-  if (args == nil || [args count] == 0) {
-    return [[[Ti2DMatrix alloc] init] autorelease];
-  }
-  ENSURE_SINGLE_ARG(args, NSDictionary);
-  Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
-  return [matrix autorelease];
-}
-
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args
 {
@@ -266,6 +255,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 - (id)createToolbar:(id)args
 {
   return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.Toolbar"] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UITABBEDBAR
+- (id)createTabbedBar:(id)args
+{
+  return [[[TiUITabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -371,7 +367,23 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 #endif
 
-- (Ti3DMatrix *)create3DMatrix:(id)args
+- (id)createMatrix2D:(id)args
+{
+  if (args == nil || [args count] == 0) {
+    return [[[Ti2DMatrix alloc] init] autorelease];
+  }
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
+  return [matrix autorelease];
+}
+
+- (id)create2DMatrix:(id)args
+{
+  DEPRECATED_REPLACED(@"UI.2DMatrix", @"8.0.0", @"UI.Matrix2D");
+  return [self createMatrix2D:args];
+}
+
+- (id)createMatrix3D:(id)args
 {
   if (args == nil || [args count] == 0) {
     return [[[Ti3DMatrix alloc] init] autorelease];
@@ -379,6 +391,12 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   ENSURE_SINGLE_ARG(args, NSDictionary);
   Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
   return [matrix autorelease];
+}
+
+- (id)create3DMatrix:(id)args
+{
+  DEPRECATED_REPLACED(@"UI.3DMatrix", @"8.0.0", @"UI.Matrix3D");
+  return [self createMatrix3D:args];
 }
 
 #ifdef USE_TI_UICLIPBOARD
@@ -396,9 +414,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
-#ifdef USE_TI_UIIPHONE
-  RELEASE_TO_NIL(iphone);
-#endif
 #ifdef USE_TI_UIIPAD
   RELEASE_TO_NIL(ipad);
 #endif

@@ -41,4 +41,9 @@ require('./ti.internal/bootstrap.loader').loadAsync(function () {
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
 	require('./app');
+
+	// This event is to be fired after "app.js" execution. Reasons:
+	// - Allow system to queue startup related events until "app.js" has had a chance to add listeners.
+	// - For Alloy apps, we now know that Alloy has been initialized and its globals were added.
+	Ti.App.fireEvent('started');
 });

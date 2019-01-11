@@ -90,6 +90,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	private boolean bubbleParent = true;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
+	public static final int INVALID_EVENT_LISTENER_ID = -1;
 
 	/**
 	 * The default KrollProxy constructor. Equivalent to <code>KrollProxy("")</code>
@@ -344,13 +345,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		try {
 			int resid = TiRHelper.getResource("string." + lookupId);
 			if (resid != 0) {
-				return getActivity().getString(resid);
+				return TiApplication.getInstance().getString(resid);
 			}
-			return null;
-
-		} catch (TiRHelper.ResourceNotFoundException e) {
-			return null;
+		} catch (Exception ex) {
 		}
+		return null;
 	}
 
 	/**
@@ -1303,7 +1302,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public int addEventListener(String eventName, KrollEventCallback callback)
 	{
-		int listenerId = -1;
+		int listenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
 
 		if (eventName == null) {
 			throw new IllegalStateException("addEventListener expects a non-null eventName");
@@ -1362,10 +1361,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	{
 		HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(event);
 		if (listeners != null) {
-			for (Integer listenerId : listeners.keySet()) {
-				KrollEventCallback callback = listeners.get(listenerId);
-				if (callback != null) {
-					callback.call(data);
+			Integer[] clonedKeys = listeners.keySet().toArray(new Integer[0]);
+			if (clonedKeys != null) {
+				for (Integer listenerId : clonedKeys) {
+					KrollEventCallback callback = listeners.get(listenerId);
+					if (callback != null) {
+						callback.call(data);
+					}
 				}
 			}
 		}
