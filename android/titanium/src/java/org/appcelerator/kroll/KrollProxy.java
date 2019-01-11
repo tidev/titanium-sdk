@@ -345,13 +345,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		try {
 			int resid = TiRHelper.getResource("string." + lookupId);
 			if (resid != 0) {
-				return getActivity().getString(resid);
+				return TiApplication.getInstance().getString(resid);
 			}
-			return null;
-
-		} catch (TiRHelper.ResourceNotFoundException e) {
-			return null;
+		} catch (Exception ex) {
 		}
+		return null;
 	}
 
 	/**
