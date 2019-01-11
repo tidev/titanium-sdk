@@ -189,15 +189,11 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	@Kroll.method
 	public String getString(int resId, Object[] formatArgs)
 	{
-		Activity activity = getWrappedActivity();
-		if (activity != null) {
-			if (formatArgs == null || formatArgs.length == 0) {
-				return activity.getString(resId);
-			} else {
-				return activity.getString(resId, formatArgs);
-			}
+		TiApplication application = TiApplication.getInstance();
+		if (formatArgs == null || formatArgs.length == 0) {
+			return application.getString(resId);
 		}
-		return null;
+		return application.getString(resId, formatArgs);
 	}
 
 	// clang-format off
