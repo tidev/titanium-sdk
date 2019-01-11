@@ -66,9 +66,7 @@
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
 @property (nonatomic, readonly) BOOL statusBarVisibilityChanged;
 @property (nonatomic, readonly) TiViewProxy<TiKeyboardFocusableView> *keyboardFocusedProxy;
-#if defined(DEBUG) || defined(DEVELOPER)
 - (void)shutdownUi:(id)arg;
-#endif
 - (UIImage *)defaultImageForOrientation:(UIDeviceOrientation)orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom *)imageIdiom;
 
 @end

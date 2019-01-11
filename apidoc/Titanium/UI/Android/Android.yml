@@ -828,14 +828,14 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
-    since: "7.5.0"
+    since: "8.0.0"
 
   - name: TABS_STYLE_BOTTOM_NAVIGATION
     summary: TabGroup style taking advantage of a bottom navigation controller for switching between tabs.
     type: Number
     permission: read-only
     platforms: [android]
-    since: "7.5.0"
+    since: "8.0.0"
 
 examples:
   - title: Android Preferences Example

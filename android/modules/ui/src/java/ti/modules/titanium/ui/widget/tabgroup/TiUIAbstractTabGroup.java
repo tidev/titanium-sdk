@@ -34,6 +34,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
 import java.util.ArrayList;
@@ -97,6 +98,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected int colorPrimaryInt;
 	protected PagerAdapter tabGroupPagerAdapter;
 	protected ViewPager tabGroupViewPager;
+	protected TiInsetsProvider insetsProvider = new TiInsetsProvider();
 	// endregion
 
 	// region private fields
@@ -146,6 +148,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		this.tabGroupViewPager.setId(android.R.id.tabcontent);
 		this.tabGroupViewPager.setAdapter(this.tabGroupPagerAdapter);
+
+		// Add the tab group's custom insets provider to the activity.
+		// This provides the tab bar as an inset so that it can be excluded from the activity's safe-area.
+		activity.addCustomInsetsProvider(this.insetsProvider);
 
 		addViews(activity);
 	}
