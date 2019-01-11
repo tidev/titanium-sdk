@@ -24,24 +24,21 @@
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
+    [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+      NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
 
-        for (UNNotificationRequest *request in requests) {
-          [result addObject:[self dictionaryWithUserNotificationRequest:request]];
-        }
+      for (UNNotificationRequest *request in requests) {
+        [result addObject:[self dictionaryWithUserNotificationRequest:request]];
+      }
 
-        NSDictionary *propertiesDict = @{
-          @"notifications" : result
-        };
-        NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+      NSDictionary *propertiesDict = @{
+        @"notifications" : result
+      };
+      NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-      }];
-    },
-        NO);
+      [callback call:invocationArray thisObject:self];
+      [invocationArray release];
+    }];
   } else {
     NSArray<UILocalNotification *> *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
@@ -65,24 +62,21 @@
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
+    [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+      NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
-        for (UNNotification *notification in notifications) {
-          [result addObject:[self dictionaryWithUserNotificationRequest:[notification request]]];
-        }
+      for (UNNotification *notification in notifications) {
+        [result addObject:[self dictionaryWithUserNotificationRequest:[notification request]]];
+      }
 
-        NSDictionary *propertiesDict = @{
-          @"notifications" : result
-        };
-        NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+      NSDictionary *propertiesDict = @{
+        @"notifications" : result
+      };
+      NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-      }];
-    },
-        NO);
+      [callback call:invocationArray thisObject:self];
+      [invocationArray release];
+    }];
   } else {
     DebugLog(@"[ERROR] Ti.App.iOS.UserNotificationCenter.getDeliveredNotifications() is only available in iOS 10 and later.");
   }
@@ -94,29 +88,26 @@
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    TiThreadPerformOnMainThread(^{
-      if (args == nil || [args count] == 0) {
-        [center removeAllPendingNotificationRequests];
-        return;
-      }
+    if (args == nil || [args count] == 0) {
+      [center removeAllPendingNotificationRequests];
+      return;
+    }
 
-      [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
-        for (UNNotificationRequest *request in requests) {
-          for (id notification in args) {
-            ENSURE_TYPE(notification, NSDictionary);
+    [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+      NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
+      for (UNNotificationRequest *request in requests) {
+        for (id notification in args) {
+          ENSURE_TYPE(notification, NSDictionary);
 
-            if ([request.identifier isEqual:notification[@"identifier"]]) {
-              [identifiers addObject:request.identifier];
-            }
+          if ([request.identifier isEqual:notification[@"identifier"]]) {
+            [identifiers addObject:request.identifier];
           }
         }
-        if (identifiers.count > 0) {
-          [center removePendingNotificationRequestsWithIdentifiers:identifiers];
-        }
-      }];
-    },
-        NO);
+      }
+      if (identifiers.count > 0) {
+        [center removePendingNotificationRequestsWithIdentifiers:identifiers];
+      }
+    }];
   } else {
     TiThreadPerformOnMainThread(^{
       if (args == nil || [args count] == 0) {
@@ -144,31 +135,28 @@
   ENSURE_SINGLE_ARG_OR_NIL(args, NSArray);
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    TiThreadPerformOnMainThread(^{
-      UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
-      if ([args count] == 0) {
-        [center removeAllDeliveredNotifications];
-        return;
-      }
+    if ([args count] == 0) {
+      [center removeAllDeliveredNotifications];
+      return;
+    }
 
-      [center getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
-        NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
-        for (UNNotification *deliveredNotification in notifications) {
-          for (id notification in args) {
-            ENSURE_TYPE(notification, NSDictionary);
+    [center getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+      NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
+      for (UNNotification *deliveredNotification in notifications) {
+        for (id notification in args) {
+          ENSURE_TYPE(notification, NSDictionary);
 
-            if ([deliveredNotification.request.identifier isEqual:notification[@"identifier"]]) {
-              [identifiers addObject:deliveredNotification.request.identifier];
-            }
+          if ([deliveredNotification.request.identifier isEqual:notification[@"identifier"]]) {
+            [identifiers addObject:deliveredNotification.request.identifier];
           }
         }
-        if (identifiers.count > 0) {
-          [center removeDeliveredNotificationsWithIdentifiers:identifiers];
-        }
-      }];
-    },
-        NO);
+      }
+      if (identifiers.count > 0) {
+        [center removeDeliveredNotificationsWithIdentifiers:identifiers];
+      }
+    }];
   } else {
     DebugLog(@"[ERROR] Ti.App.iOS.UserNotificationCenter.removeDeliveredNotifications() is only available in iOS 10 and later.");
   }
@@ -179,36 +167,33 @@
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-        NSMutableDictionary *propertiesDict = [@{
-          @"authorizationStatus" : @([settings authorizationStatus]),
-          @"soundSetting" : @([settings soundSetting]),
-          @"badgeSetting" : @([settings badgeSetting]),
-          @"alertSetting" : @([settings alertSetting]),
-          @"notificationCenterSetting" : @([settings notificationCenterSetting]),
-          @"lockScreenSetting" : @([settings lockScreenSetting]),
-          @"carPlaySetting" : @([settings carPlaySetting]),
-          @"alertStyle" : @([settings alertStyle])
-        } mutableCopy];
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+      NSMutableDictionary *propertiesDict = [@{
+        @"authorizationStatus" : @([settings authorizationStatus]),
+        @"soundSetting" : @([settings soundSetting]),
+        @"badgeSetting" : @([settings badgeSetting]),
+        @"alertSetting" : @([settings alertSetting]),
+        @"notificationCenterSetting" : @([settings notificationCenterSetting]),
+        @"lockScreenSetting" : @([settings lockScreenSetting]),
+        @"carPlaySetting" : @([settings carPlaySetting]),
+        @"alertStyle" : @([settings alertStyle])
+      } mutableCopy];
 #if IS_XCODE_9
-        if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-          propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
-        }
+      if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+        propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
+      }
 #endif
 #if IS_XCODE_10
-        if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-          propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
-          propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
-        }
+      if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+        propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
+        propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
+      }
 #endif
-        NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+      NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-      }];
-    },
-        NO);
+      [callback call:invocationArray thisObject:self];
+      [invocationArray release];
+    }];
   } else {
     TiThreadPerformOnMainThread(^{
       UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];

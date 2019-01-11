@@ -111,6 +111,15 @@ static NSLock *callbackLock;
     return nil;
   }
 
+  if (!NSThread.isMainThread) {
+    __block id result = nil;
+    TiThreadPerformOnMainThread(^{
+      result = [self call:args thisObject:thisObject_];
+    },
+        YES);
+    return result;
+  }
+
   [context retain];
 
   JSValueRef _args[[args count]];
