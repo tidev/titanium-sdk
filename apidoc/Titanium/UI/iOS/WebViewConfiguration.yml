@@ -1,0 +1,115 @@
+---
+name: Titanium.UI.iOS.WebViewConfiguration
+summary: A collection of properties used to initialize a web view.
+description: |
+    Use the <Titanium.UI.iOS.createWebViewConfiguration> method to create and use as a parameter of <Titanium.UI.WebView.configuration>.
+    Using this you can determine how soon a webpage is rendered, how media playback is handled, the granularity of items that the 
+    user can select, and many other options. This property can only be set when creating the webview and will be ignored when set afterwards.
+
+    See the example section "Usage of WebViewConfiguration with WebView in iOS".
+
+
+extends: Titanium.Proxy
+since: "8.0.0"
+platforms: [iphone, ipad]
+
+properties:
+
+  - name: preferences
+    summary: The preference settings to be used by the web view.
+    type: WebViewPreferencesObject
+
+  - name: selectionGranularity
+    summary: |
+        The level of granularity with which the user can interactively select content in the web view.
+    type: Number
+    constants: Titanium.UI.iOS.SELECTION_GRANULARITY_*
+    default: Titanium.UI.iOS.SELECTION_GRANULARITY_DYNAMIC
+
+  - name: mediaTypesRequiringUserActionForPlayback
+    summary: Determines which media types require a user gesture to begin playing.
+    type: Number
+    constants: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_*
+    osver: {ios: {min: "10.0"}}
+    default: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_NONE
+
+  - name: suppressesIncrementalRendering
+    summary: |
+        A Boolean value indicating whether the web view suppresses content rendering until it is fully 
+        loaded into memory.
+    type: Boolean
+    default: false
+
+  - name: allowsInlineMediaPlayback
+    summary: |
+        A Boolean value indicating whether HTML5 videos play inline or use the native full-screen controller.
+    description: |
+        You must set this property to play inline video. Set this property to true to play videos inline. 
+        Set this property to false to use the native full-screen controller. When adding a video element 
+        to a HTML document on the iPhone, you must also include the playsinline attribute.
+        The default value for iPhone is false and the default value for iPad is true.
+    type: Boolean
+    default: For iPhone false and for iPad true.
+
+  - name: allowsAirPlayMediaPlayback
+    summary: A Boolean value indicating whether AirPlay is allowed.
+    type: Boolean
+    default: true
+
+  - name: allowsPictureInPictureMediaPlayback
+    summary: A Boolean value indicating whether HTML5 videos can play picture-in-picture.
+    type: Boolean
+    default: true
+
+  - name: processPool
+    summary: The process pool from which to obtain the  Web Content process of view.
+    description: |
+        When a web view is initialized, either a new web content process is created for it from the 
+        specified pool or an existing process in that pool is used.
+    type: Titanium.UI.iOS.WebViewProcessPool
+    platforms: [iphone, ipad]
+
+---
+name: WebViewPreferencesObject
+summary: The parameter passed to the <Titanium.UI.iOS.WebViewConfiguration.preferences> method.
+platforms: [iphone, ipad]
+since: "8.0.0"
+properties:
+  - name: minimumFontSize
+    summary: The minimum font size in points.
+    type: Number
+    default: 0.0
+  - name: javaScriptEnabled
+    summary: A Boolean value indicating whether JavaScript is enabled.
+    description: |
+        Setting this property to false disables JavaScripts that are loaded or executed by the web page. 
+        This setting does not affect user scripts.
+    type: Boolean
+    default: true
+  - name: javaScriptCanOpenWindowsAutomatically
+    summary: |
+        A Boolean value indicating whether JavaScript can open windows without user interaction.
+    type: Boolean
+    default: false
+
+examples:
+  - title: Usage of WebViewConfiguration with WebView in iOS
+    example:  |
+        Creates a configuration object and use it as property of webview.
+        
+            var config = Ti.UI.iOS.createWebViewConfiguration({ 
+                allowsPictureInPictureMediaPlayback: true,
+                preferences: { 
+                    minimumFontSize : 20,
+                }, 
+            });
+
+            var webView = Ti.UI.createWebView({
+                configuration: config,
+                url: 'https://www.google.com'
+            });
+            var window = Ti.UI.createWindow();
+            window.add(webView);
+            window.open();
+
+

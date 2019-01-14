@@ -1,11 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #import "Ti2DMatrix.h"
 #import "TiBase.h"
+#import "TiDimension.h"
 
 @implementation Ti2DMatrix
 
@@ -52,8 +54,15 @@
 
 - (Ti2DMatrix *)translate:(id)args
 {
-  CGFloat tx = [[args objectAtIndex:0] floatValue];
-  CGFloat ty = [args count] == 2 ? [[args objectAtIndex:1] floatValue] : tx;
+  // Fetch given coordinates.
+  id xObject = [args objectAtIndex:0];
+  id yObject = [args count] == 2 ? [args objectAtIndex:1] : xObject;
+
+  // Convert coordinates from Titanium default unit to dip.
+  CGFloat tx = TiDimensionFromObject(xObject).value;
+  CGFloat ty = TiDimensionFromObject(yObject).value;
+
+  // Return a new matrix with the given translation applied to this matrix.
   CGAffineTransform newtransform = CGAffineTransformTranslate(matrix, tx, ty);
   return [[[Ti2DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
@@ -94,23 +103,41 @@
   return [[[Ti2DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
-#define MAKE_PROP(x, y)                         \
-  -(void)set##x : (NSNumber *)_##y              \
-  {                                             \
-    matrix.y = [_##y floatValue];               \
-  }                                             \
-                                                \
-  -(NSNumber *)y                                \
-  {                                             \
-    return [NSNumber numberWithFloat:matrix.y]; \
+#define MAKE_PROP(x, y)            \
+  -(void)set##x : (NSNumber *)_##y \
+  {                                \
+    matrix.y = [_##y floatValue];  \
+  }                                \
+                                   \
+  -(NSNumber *)y                   \
+  {                                \
+    return @(matrix.y);            \
   }
 
 MAKE_PROP(A, a)
 MAKE_PROP(B, b)
 MAKE_PROP(C, c)
 MAKE_PROP(D, d)
-MAKE_PROP(Tx, tx)
-MAKE_PROP(Ty, ty)
+
+- (void)setTx:(NSNumber *)value
+{
+  matrix.tx = TiDimensionFromObject(value).value;
+}
+
+- (NSNumber *)tx
+{
+  return [NSNumber numberWithFloat:convertDipToDefaultUnit(matrix.tx)];
+}
+
+- (void)setTy:(NSNumber *)value
+{
+  matrix.ty = TiDimensionFromObject(value).value;
+}
+
+- (NSNumber *)ty
+{
+  return [NSNumber numberWithFloat:convertDipToDefaultUnit(matrix.ty)];
+}
 
 - (id)description
 {

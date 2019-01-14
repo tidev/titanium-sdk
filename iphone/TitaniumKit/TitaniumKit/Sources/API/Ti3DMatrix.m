@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -99,15 +99,15 @@
   return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
-#define MAKE_PROP(x)                               \
-  -(void)setM##x : (NSNumber *)m##x                \
-  {                                                \
-    matrix.m##x = [m##x floatValue];               \
-  }                                                \
-                                                   \
-  -(NSNumber *)m##x                                \
-  {                                                \
-    return [NSNumber numberWithFloat:matrix.m##x]; \
+#define MAKE_PROP(x)                 \
+  -(void)setM##x : (NSNumber *)m##x  \
+  {                                  \
+    matrix.m##x = [m##x floatValue]; \
+  }                                  \
+                                     \
+  -(NSNumber *)m##x                  \
+  {                                  \
+    return @(matrix.m##x);           \
   }
 
 MAKE_PROP(11)

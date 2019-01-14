@@ -9,6 +9,7 @@
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiLayoutQueue.h"
+#import "TiSharedConfig.h"
 #import "TiUtils.h"
 
 #ifdef FORCE_WITH_MODAL
@@ -209,14 +210,10 @@
   UIColor *chosenColor = bgColor;
 
   if (chosenColor == nil) {
-#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
-    chosenColor = [UIColor colorWithRed:DEFAULT_BGCOLOR_RED
-                                  green:DEFAULT_BGCOLOR_GREEN
-                                   blue:DEFAULT_BGCOLOR_BLUE
-                                  alpha:1.0f];
-#else
-    chosenColor = [UIColor blackColor];
-#endif
+    chosenColor = [[TiSharedConfig defaultConfig] defaultBackgroundColor];
+    if (chosenColor == nil) {
+      chosenColor = UIColor.blackColor;
+    }
   }
 
   [ourView setBackgroundColor:chosenColor];
@@ -688,9 +685,11 @@
   }
 }
 
-#if defined(DEBUG) || defined(DEVELOPER)
 - (void)shutdownUi:(id)arg
 {
+  if (![TiSharedConfig defaultConfig].debugEnabled) {
+    return;
+  }
   //FIRST DISMISS ALL MODAL WINDOWS
   UIViewController *topVC = [self topPresentedController];
   if (topVC != self) {
@@ -727,7 +726,6 @@
     DebugLog(@"[WARN] Could not resume. No selector _resumeRestart: found for arg");
   }
 }
-#endif
 
 #pragma mark - TiControllerContainment
 - (BOOL)canHostWindows
@@ -1190,9 +1188,9 @@
 
   if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
     forcingRotation = YES;
-#if defined(DEBUG) || defined(DEVELOPER)
-    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
-#endif
+    if ([TiSharedConfig defaultConfig].debugEnabled) {
+      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
+    }
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
@@ -1367,7 +1365,7 @@
     [self updateStatusBar];
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
