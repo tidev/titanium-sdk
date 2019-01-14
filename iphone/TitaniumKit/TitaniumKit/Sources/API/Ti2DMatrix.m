@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #import "Ti2DMatrix.h"
 #import "TiBase.h"
 #import "TiDimension.h"
@@ -102,15 +103,15 @@
   return [[[Ti2DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
-#define MAKE_PROP(x, y)                         \
-  -(void)set##x : (NSNumber *)_##y              \
-  {                                             \
-    matrix.y = [_##y floatValue];               \
-  }                                             \
-                                                \
-  -(NSNumber *)y                                \
-  {                                             \
-    return [NSNumber numberWithFloat:matrix.y]; \
+#define MAKE_PROP(x, y)            \
+  -(void)set##x : (NSNumber *)_##y \
+  {                                \
+    matrix.y = [_##y floatValue];  \
+  }                                \
+                                   \
+  -(NSNumber *)y                   \
+  {                                \
+    return @(matrix.y);            \
   }
 
 MAKE_PROP(A, a)
