@@ -919,7 +919,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
-	this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
 	this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
@@ -1270,13 +1270,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// determine the abis to support
 	this.abis = this.validABIs;
-	if (this.deployType === 'production') {
-		// by default, remove 'x86' from production builds
-		// 'x86' devices are scarce; this is predominantly used for emulators
+	const customABIs = cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1;
+	if (!customABIs && this.deployType === 'production') {
+		// If a users has not specified the abi tag in the tiapp,
+		// remove 'x86' from production builds 'x86' devices are scarce;
+		// this is predominantly used for emulators
 		// we can save 16MB+ by removing this from release builds
 		this.abis.splice(this.abis.indexOf('x86'), 1);
 	}
-	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1) {
+	if (customABIs) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
 			if (this.validABIs.indexOf(abi) === -1) {

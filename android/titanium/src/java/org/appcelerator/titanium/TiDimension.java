@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,6 +30,7 @@ import android.view.WindowManager;
  * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
  * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
  * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
+ * <li> TiDimension.COMPLEX_UNIT_CM </li>
  * Refer to {@link android.util.TypedValue} for more details.
  *
  */
@@ -85,9 +86,24 @@ public class TiDimension
 	 */
 	public TiDimension(double value, int valueType)
 	{
+		this(value, valueType, COMPLEX_UNIT_UNDEFINED);
+	}
+
+	/**
+	 * Creates a TiDimension object.
+	 * @param value the value to set.
+	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT}, 
+	 * {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y}, {@link #TYPE_HEIGHT}.
+	 * {@link #TYPE_WIDTH}.
+	 * @param units the units this value is denominated in. Supported types include: {@link #COMPLEX_UNIT_UNDEFINED}, {@link #TYPE_RIGHT}, 
+	 * {@link #COMPLEX_UNIT_AUTO}, {@link #COMPLEX_UNIT_PERCENT}, {@link #COMPLEX_UNIT_CM}, {@link TypedValue#COMPLEX_UNIT_PX}, {@link TypedValue#COMPLEX_UNIT_PT}.
+	 * {@link TypedValue#COMPLEX_UNIT_DIP}, {@link TypedValue#COMPLEX_UNIT_SP}, {@link TypedValue#COMPLEX_UNIT_MM}, {@link TypedValue#COMPLEX_UNIT_IN}.
+	 */
+	public TiDimension(double value, int valueType, int units)
+	{
 		this.value = value;
 		this.valueType = valueType;
-		this.units = COMPLEX_UNIT_UNDEFINED;
+		this.units = units;
 	}
 
 	/**
@@ -286,25 +302,28 @@ public class TiDimension
 
 	protected double getPercentPixels(View parent)
 	{
-		int dimension = -1;
+		if (parent == null) {
+			return -1;
+		}
+
+		int dimension;
 		switch (valueType) {
 			case TYPE_TOP:
 			case TYPE_BOTTOM:
 			case TYPE_CENTER_Y:
 			case TYPE_HEIGHT:
-				dimension = parent.getHeight();
+				dimension = Math.max(parent.getHeight(), 0);
 				break;
 			case TYPE_LEFT:
 			case TYPE_RIGHT:
 			case TYPE_CENTER_X:
 			case TYPE_WIDTH:
-				dimension = parent.getWidth();
+				dimension = Math.max(parent.getWidth(), 0);
 				break;
+			default:
+				return -1;
 		}
-		if (dimension != -1) {
-			return ((this.value / 100.0) * dimension);
-		}
-		return -1;
+		return ((this.value / 100.0) * dimension);
 	}
 
 	protected static DisplayMetrics getDisplayMetrics(View parent)

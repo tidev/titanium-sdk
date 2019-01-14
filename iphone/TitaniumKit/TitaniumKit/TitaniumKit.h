@@ -20,6 +20,7 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/OperationQueue.h>
+#import <TitaniumKit/SBJSON.h>
 #import <TitaniumKit/Ti2DMatrix.h>
 #import <TitaniumKit/Ti3DMatrix.h>
 #import <TitaniumKit/TiApp.h>
@@ -51,6 +52,5 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/UIImage+RoundedCorner.h>
 #import <TitaniumKit/WebColor.h>
 #import <TitaniumKit/WebFont.h>
-#import <TitaniumKit/XHRBridge.h>
 
 #define TISDK_VERSION_STRING @"8.0.0"

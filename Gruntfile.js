@@ -8,6 +8,8 @@ module.exports = function (grunt) {
 	const iosSrc = [
 		'iphone/Classes/*.h',
 		'iphone/Classes/*.m',
+		'iphone/Classes/Layout/*.h',
+		'iphone/Classes/Layout/*.m',
 		'iphone/TitaniumKit/TitaniumKit/*.h',
 		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.h',
 		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.m'
@@ -30,6 +32,8 @@ module.exports = function (grunt) {
 				'build/**/*.js',
 				'cli/!(locales)/**/*.js',
 				'android/cli/!(locales)/**/*.js',
+				'android/modules/**/src/js/**/*.js',
+				'android/runtime/common/src/js/**/*.js',
 				'iphone/cli/!(locales)/**/*.js',
 				'tests/Resources/**/*test.js'
 			]

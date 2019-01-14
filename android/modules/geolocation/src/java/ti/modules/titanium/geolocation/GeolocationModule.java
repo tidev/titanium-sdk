@@ -48,33 +48,12 @@ import android.os.Message;
  * be exposed through this class as Android-only API points or types should be put in a Android module
  * under this module.
  *
- * The GeolocationModule provides management for 3 different location behavior modes (detailed
+ * The GeolocationModule provides management for 2 different location behavior modes (detailed
  * descriptions will follow below):
  * <ul>
- * 	<li>legacy - existing behavior found in Titanium Mobile 1.7 and 1.8. <b>DEPRECATED</b></li>
  * 	<li>simple - replacement for the old legacy mode that allows for better parity across platforms</li>
  * 	<li>manual - Android-specific mode that exposes full control over the providers and rules</li>
  * </ul>
- *
- * <p>
- * <b>Legacy location mode</b>:<br>
- * This mode operates on receiving location updates from a single active provider at a time.  Settings
- * used to pick and register a provider with the OS are pulled from the PROPERTY_ACCURACY, PROPERTY_FREQUENCY
- * and PROPERTY_PREFERRED_PROVIDER properties on the module.
- * <p>
- * The valid accuracy properties for this location mode are ACCURACY_BEST, ACCURACY_NEAREST_TEN_METERS,
- * ACCURACY_HUNDRED_METERS, ACCURACY_KILOMETER and ACCURACY_THREE_KILOMETERS.  The accuracy property is a
- * double value that will be used by the OS as a way to determine how many meters should change in location
- * before a new update is sent.  Accuracy properties other than this will either be ignored or change the
- * current location behavior mode.  The frequency property is a double value that is used by the OS to determine
- * how much time in milliseconds should pass before a new update is sent.
- * <p>
- * The OS uses some fuzzy logic to determine the update frequency and these values are treated as no more than
- * suggestions.  For example:  setting the frequency to 0 milliseconds and the accuracy to 10 meters may not
- * result in a update being sent as fast as possible which is what frequency of 0 ms indicates.  This is due to
- * the OS not sending updates till the accuracy property is satisfied.  If the desired behavior is to get updates
- * purely based on time then the suggested mechanism would be to set the accuracy to 0 meters and then set the
- * frequency to the desired update interval in milliseconds.
  *
  * <p>
  * <b>Simple location mode</b>:<br>
@@ -122,41 +101,10 @@ import android.os.Message;
 @Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY, TiC.PROPERTY_FREQUENCY, TiC.PROPERTY_PREFERRED_PROVIDER })
 public class GeolocationModule extends KrollModule implements Handler.Callback, LocationProviderListener
 {
-	// TODO: remove these constants, they are deprecated and have moved into the Android proxy
-	@Kroll.constant
-	@Deprecated
-	public static final String PROVIDER_PASSIVE = AndroidModule.PROVIDER_PASSIVE;
-	@Kroll.constant
-	@Deprecated
-	public static final String PROVIDER_NETWORK = AndroidModule.PROVIDER_NETWORK;
-	@Kroll.constant
-	@Deprecated
-	public static final String PROVIDER_GPS = AndroidModule.PROVIDER_GPS;
-
 	@Kroll.constant
 	public static final int ACCURACY_LOW = 0;
 	@Kroll.constant
 	public static final int ACCURACY_HIGH = 1;
-
-	// TODO: deprecate these iOS constants, these are for legacy mode
-	@Kroll.constant
-	@Deprecated
-	public static final int ACCURACY_BEST = 2;
-	@Kroll.constant
-	@Deprecated
-	public static final int ACCURACY_NEAREST_TEN_METERS = 3;
-	@Kroll.constant
-	@Deprecated
-	public static final int ACCURACY_HUNDRED_METERS = 4;
-	@Kroll.constant
-	@Deprecated
-	public static final int ACCURACY_KILOMETER = 5;
-	@Kroll.constant
-	@Deprecated
-	public static final int ACCURACY_THREE_KILOMETERS = 6;
-	@Kroll.constant
-	@Deprecated
-	public static final int ACCURACY_BEST_FOR_NAVIGATION = 7;
 
 	public TiLocation tiLocation;
 	public AndroidModule androidModule;
@@ -166,7 +114,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@Deprecated
 	public HashMap<String, LocationProviderProxy> legacyLocationProviders =
 		new HashMap<String, LocationProviderProxy>();
-	public boolean legacyModeActive = true;
 
 	protected static final int MSG_ENABLE_LOCATION_PROVIDERS = KrollModule.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_ENABLE_LOCATION_PROVIDERS;
@@ -196,11 +143,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@Deprecated
 	private HashMap<Integer, Double> legacyLocationAccuracyMap = new HashMap<Integer, Double>();
 	@Deprecated
-	private int legacyLocationAccuracyProperty = ACCURACY_NEAREST_TEN_METERS;
-	@Deprecated
 	private double legacyLocationFrequency = 5000;
 	@Deprecated
-	private String legacyLocationPreferredProvider = PROVIDER_NETWORK;
+	private String legacyLocationPreferredProvider = AndroidModule.PROVIDER_NETWORK;
 
 	private FusedLocationProvider fusedLocationProvider;
 
@@ -218,28 +163,21 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		tiLocation = new TiLocation();
 		tiCompass = new TiCompass(this, tiLocation);
 
-		// initialize the legacy location accuracy map
-		legacyLocationAccuracyMap.put(ACCURACY_BEST, 0.0); // this needs to be 0.0 to work for only time based updates
-		legacyLocationAccuracyMap.put(ACCURACY_BEST_FOR_NAVIGATION, 2.0);
-		legacyLocationAccuracyMap.put(ACCURACY_NEAREST_TEN_METERS, 10.0);
-		legacyLocationAccuracyMap.put(ACCURACY_HUNDRED_METERS, 100.0);
-		legacyLocationAccuracyMap.put(ACCURACY_KILOMETER, 1000.0);
-		legacyLocationAccuracyMap.put(ACCURACY_THREE_KILOMETERS, 3000.0);
-
-		legacyLocationProviders.put(PROVIDER_NETWORK,
-									new LocationProviderProxy(PROVIDER_NETWORK, 10.0f, legacyLocationFrequency, this));
-
-		simpleLocationProviders.put(PROVIDER_NETWORK,
-									new LocationProviderProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE,
+		simpleLocationProviders.put(AndroidModule.PROVIDER_NETWORK,
+									new LocationProviderProxy(AndroidModule.PROVIDER_NETWORK,
+															  SIMPLE_LOCATION_NETWORK_DISTANCE,
 															  SIMPLE_LOCATION_NETWORK_TIME, this));
-		simpleLocationProviders.put(PROVIDER_PASSIVE,
-									new LocationProviderProxy(PROVIDER_PASSIVE, SIMPLE_LOCATION_PASSIVE_DISTANCE,
+		simpleLocationProviders.put(AndroidModule.PROVIDER_PASSIVE,
+									new LocationProviderProxy(AndroidModule.PROVIDER_PASSIVE,
+															  SIMPLE_LOCATION_PASSIVE_DISTANCE,
 															  SIMPLE_LOCATION_PASSIVE_TIME, this));
 
 		// create these now but we don't want to include these in the rule set unless the simple GPS provider is enabled
-		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null);
-		simpleLocationNetworkRule = new LocationRuleProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE,
-														  SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
+		simpleLocationGpsRule =
+			new LocationRuleProxy(AndroidModule.PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null);
+		simpleLocationNetworkRule =
+			new LocationRuleProxy(AndroidModule.PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE,
+								  SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
 	}
 
 	/**
@@ -365,10 +303,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_ACCURACY)) {
-			// accuracy property is what triggers a shift between simple and legacy modes. the
-			// android only manual mode is indicated by the AndroidModule.manualMode value which
-			// has no impact on the legacyModeActive flag.  IE: when determining the current mode,
-			// both flags must be checked
 			propertyChangedAccuracy(newValue);
 
 		} else if (key.equals(TiC.PROPERTY_FREQUENCY)) {
@@ -387,54 +321,24 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("MissingPermission")
 	private void propertyChangedAccuracy(Object newValue)
 	{
-		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
-		boolean legacyModeEnabled = false;
-		if (legacyModeActive && (!getManualMode()) && (numLocationListeners > 0)) {
-			legacyModeEnabled = true;
-		}
-
 		// is simple mode enabled (registered with OS, not just selected via the accuracy property)
 		boolean simpleModeEnabled = false;
-		if (!legacyModeActive && !(getManualMode()) && (numLocationListeners > 0)) {
+		if (!(getManualMode()) && (numLocationListeners > 0)) {
 			simpleModeEnabled = true;
 		}
 
 		int accuracyProperty = TiConvert.toInt(newValue);
 
-		// is this a legacy accuracy property?
-		Double accuracyLookupResult = legacyLocationAccuracyMap.get(accuracyProperty);
-		if (accuracyLookupResult != null) {
-			// has the value changed from the last known good value?
-			if (accuracyProperty != legacyLocationAccuracyProperty) {
-				legacyLocationAccuracyProperty = accuracyProperty;
-
-				for (String providerKey : legacyLocationProviders.keySet()) {
-					LocationProviderProxy locationProvider = legacyLocationProviders.get(providerKey);
-					locationProvider.setProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE, accuracyLookupResult);
-				}
-
-				if (legacyModeEnabled) {
-					enableLocationProviders(legacyLocationProviders);
-				}
-			}
-
-			if (simpleModeEnabled) {
-				enableLocationProviders(legacyLocationProviders);
-			}
-
-			legacyModeActive = true;
-
-			// is this a simple accuracy property?
-		} else if ((accuracyProperty == ACCURACY_HIGH) || (accuracyProperty == ACCURACY_LOW)) {
+		if ((accuracyProperty == ACCURACY_HIGH) || (accuracyProperty == ACCURACY_LOW)) {
 			// has the value changed from the last known good value?
 			if (accuracyProperty != simpleLocationAccuracyProperty) {
 				simpleLocationAccuracyProperty = accuracyProperty;
-				LocationProviderProxy gpsProvider = simpleLocationProviders.get(PROVIDER_GPS);
+				LocationProviderProxy gpsProvider = simpleLocationProviders.get(AndroidModule.PROVIDER_GPS);
 
 				if ((accuracyProperty == ACCURACY_HIGH) && (gpsProvider == null)) {
-					gpsProvider = new LocationProviderProxy(PROVIDER_GPS, SIMPLE_LOCATION_GPS_DISTANCE,
+					gpsProvider = new LocationProviderProxy(AndroidModule.PROVIDER_GPS, SIMPLE_LOCATION_GPS_DISTANCE,
 															SIMPLE_LOCATION_GPS_TIME, this);
-					simpleLocationProviders.put(PROVIDER_GPS, gpsProvider);
+					simpleLocationProviders.put(AndroidModule.PROVIDER_GPS, gpsProvider);
 					simpleLocationRules.add(simpleLocationNetworkRule);
 					simpleLocationRules.add(simpleLocationGpsRule);
 
@@ -443,7 +347,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 					}
 
 				} else if ((accuracyProperty == ACCURACY_LOW) && (gpsProvider != null)) {
-					simpleLocationProviders.remove(PROVIDER_GPS);
+					simpleLocationProviders.remove(AndroidModule.PROVIDER_GPS);
 					simpleLocationRules.remove(simpleLocationNetworkRule);
 					simpleLocationRules.remove(simpleLocationGpsRule);
 
@@ -452,12 +356,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 					}
 				}
 			}
-
-			if (legacyModeEnabled) {
-				enableLocationProviders(simpleLocationProviders);
-			}
-
-			legacyModeActive = false;
 		}
 	}
 
@@ -468,12 +366,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 */
 	private void propertyChangedFrequency(Object newValue)
 	{
-		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
-		boolean legacyModeEnabled = false;
-		if (legacyModeActive && !getManualMode() && (numLocationListeners > 0)) {
-			legacyModeEnabled = true;
-		}
-
 		double frequencyProperty = TiConvert.toDouble(newValue) * 1000;
 		if (frequencyProperty != legacyLocationFrequency) {
 			legacyLocationFrequency = frequencyProperty;
@@ -482,10 +374,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			while (iterator.hasNext()) {
 				LocationProviderProxy locationProvider = legacyLocationProviders.get(iterator.next());
 				locationProvider.setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, legacyLocationFrequency);
-			}
-
-			if (legacyModeEnabled) {
-				enableLocationProviders(legacyLocationProviders);
 			}
 		}
 	}
@@ -498,15 +386,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("MissingPermission")
 	private void propertyChangedPreferredProvider(Object newValue)
 	{
-		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
-		boolean legacyModeEnabled = false;
-		if (legacyModeActive && !getManualMode() && (numLocationListeners > 0)) {
-			legacyModeEnabled = true;
-		}
-
 		String preferredProviderProperty = TiConvert.toString(newValue);
-		if (!(preferredProviderProperty.equals(PROVIDER_NETWORK))
-			&& (!(preferredProviderProperty.equals(PROVIDER_GPS)))) {
+		if (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_NETWORK))
+			&& (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_GPS)))) {
 			return;
 		}
 
@@ -516,21 +398,13 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 			if (oldProvider != null) {
 				legacyLocationProviders.remove(legacyLocationPreferredProvider);
-
-				if (legacyModeEnabled) {
-					unregisterLocationProvider(oldProvider);
-				}
 			}
 
 			if (newProvider == null) {
 				newProvider = new LocationProviderProxy(preferredProviderProperty,
-														legacyLocationAccuracyMap.get(legacyLocationAccuracyProperty),
+														legacyLocationAccuracyMap.get(simpleLocationAccuracyProperty),
 														legacyLocationFrequency, this);
 				legacyLocationProviders.put(preferredProviderProperty, newProvider);
-
-				if (legacyModeEnabled) {
-					registerLocationProvider(newProvider);
-				}
 			}
 
 			legacyLocationPreferredProvider = preferredProviderProperty;
@@ -552,13 +426,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners++;
 			if (numLocationListeners == 1) {
-				HashMap<String, LocationProviderProxy> locationProviders = legacyLocationProviders;
+				HashMap<String, LocationProviderProxy> locationProviders = simpleLocationProviders;
 
 				if (getManualMode()) {
 					locationProviders = androidModule.manualLocationProviders;
-
-				} else if (!legacyModeActive) {
-					locationProviders = simpleLocationProviders;
 				}
 				enableLocationProviders(locationProviders);
 
@@ -934,7 +805,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				for (LocationRuleProxy rule : androidModule.manualLocationRules) {
 					if (rule.check(currentLocation, newLocation)) {
 						passed = true;
-
 						break;
 					}
 				}
@@ -943,19 +813,13 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				passed = true; // no rules set, always accept
 			}
 
-		} else if (!legacyModeActive) {
+		} else {
 			for (LocationRuleProxy rule : simpleLocationRules) {
 				if (rule.check(currentLocation, newLocation)) {
 					passed = true;
-
 					break;
 				}
 			}
-
-			// TODO remove this block when legacy mode is removed
-		} else {
-			// the legacy mode will fall here, don't filter the results
-			passed = true;
 		}
 
 		return passed;

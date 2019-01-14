@@ -151,7 +151,15 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (NSString *)description
 {
   if (self.sourceURL != nil) {
-    NSString *source = [NSString stringWithContentsOfFile:[[NSURL URLWithString:self.sourceURL] path] encoding:NSUTF8StringEncoding error:NULL];
+    // attempt to load encrypted source code
+    NSURL *sourceURL = [NSURL URLWithString:self.sourceURL];
+    NSData *data = [TiUtils loadAppResource:sourceURL];
+    NSString *source = nil;
+    if (data == nil) {
+      source = [NSString stringWithContentsOfFile:[sourceURL path] encoding:NSUTF8StringEncoding error:NULL];
+    } else {
+      source = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+    }
     NSArray *lines = [source componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
     NSString *line = [lines objectAtIndex:self.lineNo - 1];
     NSString *linePointer = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];

@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.android;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.pm.PackageManager;
@@ -522,11 +523,29 @@ public class AndroidModule extends KrollModule
 	public static final int IMPORTANCE_UNSPECIFIED = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
 
 	protected RProxy r;
+	private LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
+
 	private static final int REQUEST_CODE = 99;
 
 	public AndroidModule()
 	{
 		super();
+
+		// Set up a listener to be invoked when the JavaScript runtime is about to be terminated/disposed.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				// Remove this listener from the runtime's static collection.
+				KrollRuntime.removeOnDisposingListener(this);
+
+				// Unregister all currently registerd broadcast receviers.
+				// They can no longer be handled by the terminating JavaScript runtime.
+				while (registeredBroadcastReceiverProxyList.isEmpty() == false) {
+					unregisterBroadcastReceiver(registeredBroadcastReceiverProxyList.pollFirst());
+				}
+			}
+		});
 	}
 
 	@Kroll.method
@@ -583,6 +602,19 @@ public class AndroidModule extends KrollModule
 		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity instanceof TiBaseActivity) {
 			return ((TiBaseActivity) activity).getActivityProxy();
+		}
+		return null;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public ActivityProxy getRootActivity()
+	// clang-format on
+	{
+		TiBaseActivity activity = TiApplication.getInstance().getRootActivity();
+		if (activity != null) {
+			return activity.getActivityProxy();
 		}
 		return null;
 	}
@@ -701,8 +733,10 @@ public class AndroidModule extends KrollModule
 				filter.addAction(TiConvert.toString(action));
 			}
 
-			TiApplication.getInstance().getApplicationContext().registerReceiver(receiverProxy.getBroadcastReceiver(),
-																				 filter);
+			TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			if (this.registeredBroadcastReceiverProxyList.contains(receiverProxy) == false) {
+				this.registeredBroadcastReceiverProxyList.add(receiverProxy);
+			}
 			KrollRuntime.incrementServiceReceiverRefCount();
 		}
 	}
@@ -712,8 +746,8 @@ public class AndroidModule extends KrollModule
 	{
 		if (receiverProxy != null) {
 			try {
-				TiApplication.getInstance().getApplicationContext().unregisterReceiver(
-					receiverProxy.getBroadcastReceiver());
+				TiApplication.getInstance().unregisterReceiver(receiverProxy.getBroadcastReceiver());
+				this.registeredBroadcastReceiverProxyList.remove(receiverProxy);
 				KrollRuntime.decrementServiceReceiverRefCount();
 			} catch (Exception e) {
 				Log.e(TAG, "Unable to unregister broadcast receiver: " + e.getMessage());

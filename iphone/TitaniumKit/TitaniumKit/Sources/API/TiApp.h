@@ -11,7 +11,6 @@
 #import "KrollBridge.h"
 #import "TiHost.h"
 #import "TiRootViewController.h"
-#import "XHRBridge.h"
 #import <JavaScriptCore/JavaScriptCore.h>
 
 extern BOOL applicationInMemoryPanic;
@@ -34,7 +33,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 
   JSContextGroupRef contextGroup;
   KrollBridge *kjsBridge;
-  XHRBridge *xhrBridge;
 
   NSMutableDictionary *launchOptions;
   NSTimeInterval started;
@@ -160,8 +158,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (BOOL)windowIsKeyWindow;
 
 - (UIView *)topMostView;
-
-- (void)attachXHRBridgeIfRequired;
 
 - (void)registerApplicationDelegate:(id)applicationDelegate;
 
