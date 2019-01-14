@@ -6361,7 +6361,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 			async.eachSeries([ 'x86_64', 'i386' ], function (architecture, next) {
 				const args = [ '-remove', architecture, titaniumKitPath, '-o', titaniumKitPath ];
 				this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
-				appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+				appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out) {
 					next();
 				});
 			}.bind(this), function () {
