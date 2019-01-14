@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,9 +20,6 @@
 @interface UIModule : TiModule {
 
   @private
-#ifdef USE_TI_UIIPHONE
-  TiProxy *iphone;
-#endif
 #ifdef USE_TI_UIIPAD
   TiProxy *ipad;
 #endif
@@ -202,15 +199,13 @@
 @property (nonatomic, readonly) NSString *TEXT_STYLE_TITLE3;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_CALLOUT;
 
-- (id)create2DMatrix:(id)args;
-- (id)create3DMatrix:(id)args;
+- (id)createMatrix2D:(id)args;
+- (id)create2DMatrix:(id)args; // Deprecated since 8.0.0
+- (id)createMatrix3D:(id)args;
+- (id)create3DMatrix:(id)args; // Deprecated since 8.0.0
 
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args;
-#endif
-
-#ifdef USE_TI_UIIPHONE
-@property (nonatomic, readonly) TiProxy *iPhone;
 #endif
 
 #ifdef USE_TI_UIIPAD

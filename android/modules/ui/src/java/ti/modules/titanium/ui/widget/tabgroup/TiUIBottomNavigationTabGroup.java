@@ -1,11 +1,19 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2018-Present by Axway, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.graphics.drawable.Drawable;
+import android.graphics.Rect;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewParent;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -48,7 +56,31 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 															   activity.getPackageName());
 		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
 
-		this.mBottomNavigationView = new BottomNavigationView(activity);
+		// Create the bottom tab navigation view.
+		this.mBottomNavigationView = new BottomNavigationView(activity) {
+			@Override
+			protected boolean fitSystemWindows(Rect insets)
+			{
+				// Remove top inset when bottom tab bar is to be extended beneath system insets.
+				// This prevents Google from blindly padding top of tab bar based on this inset.
+				if ((insets != null) && getFitsSystemWindows()) {
+					insets = new Rect(insets);
+					insets.top = 0;
+				}
+				super.fitSystemWindows(insets);
+				return false;
+			}
+
+			@Override
+			protected void onLayout(boolean hasChanged, int left, int top, int right, int bottom)
+			{
+				// Update bottom inset based on tab bar's height and position in window.
+				super.onLayout(hasChanged, left, top, right, bottom);
+				insetsProvider.setBottomBasedOn(this);
+			}
+		};
+		this.mBottomNavigationView.setFitsSystemWindows(true);
+
 		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			this.mBottomNavigationView.setBackgroundColor(
@@ -56,20 +88,28 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		} else {
 			this.mBottomNavigationView.setBackgroundColor(this.colorPrimaryInt);
 		}
-		// Set the LayoutParams for the ViewPager.
-		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-		params.autoFillsWidth = true;
-		params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
 
-		// Set the LayoutParams for the BottomNavigationView.
-		TiCompositeLayout.LayoutParams bottomNavigationParams = new TiCompositeLayout.LayoutParams();
-		bottomNavigationParams.autoFillsWidth = true;
-		bottomNavigationParams.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+		// Add tab bar and view pager to the root Titanium view.
+		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
+		//       This means the bottom tab bar should overlap/overlay the view pager content.
+		TiCompositeLayout compositeLayout = (TiCompositeLayout) activity.getLayout();
+		{
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.autoFillsHeight = true;
+			if (compositeLayout.getFitsSystemWindows()) {
+				params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+			}
+			compositeLayout.addView(this.tabGroupViewPager, params);
+		}
+		{
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			compositeLayout.addView(this.mBottomNavigationView, params);
+		}
 
-		// Add the views to their container.
-		((TiCompositeLayout) activity.getLayout()).addView(this.tabGroupViewPager, params);
-		((TiCompositeLayout) activity.getLayout()).addView(mBottomNavigationView, bottomNavigationParams);
-		// Set teh ViewPager as a native view.
+		// Set the ViewPager as a native view.
 		setNativeView(this.tabGroupViewPager);
 	}
 
@@ -81,16 +121,23 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
-		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-		params.autoFillsWidth = true;
-		if (disable) {
-			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
-			mBottomNavigationView.setVisibility(View.GONE);
-		} else {
-			params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			mBottomNavigationView.setVisibility(View.VISIBLE);
+
+		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
+		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(disable ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+			this.tabGroupViewPager.setLayoutParams(params);
 		}
-		this.tabGroupViewPager.setLayoutParams(params);
+
+		// Show/hide the tab bar.
+		this.mBottomNavigationView.setVisibility(disable ? View.GONE : View.VISIBLE);
+		this.mBottomNavigationView.requestLayout();
+
+		// Update top inset. (Will remove bottom inset if tab bar is "gone".)
+		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@Override
