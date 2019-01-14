@@ -37,7 +37,7 @@ description: |
     #### Android Platform Notes
 
     Android supports 2D matrix transformations. Note that the
-    [2DMatrix.rotate](Titanium.UI.2DMatrix.rotate) method operates differently on Android. Called
+    [Matrix2D.rotate](Titanium.UI.Matrix2D.rotate) method operates differently on Android. Called
     with a single argument, it rotates from zero to the specified angle. That is, it ignores any
     existing rotation. Called with two arguments, it interprets the first argument as a "from"
     angle and the second argument as a "to" angle.
@@ -62,7 +62,7 @@ properties:
         the view's top-left corner, `{0.5, 0.5}` at its center and `{1, 1}` at its bottom-right
         corner.
 
-        This property's value will overwrite the [anchorPoint](MatrixCreationDict.anchorPoint) used in the matrix's creation dictionary.
+        This property's value will overwrite the [anchorPoint](Ti.UI.Matrix2D.Matrix2DCreationDict.anchorPoint) used in the matrix's creation dictionary.
 
         See the "Using an anchorPoint" example for a demonstration.
     type: Point
@@ -154,7 +154,7 @@ properties:
         specified transform.
 
         3D transforms are only supported on iOS.
-    type: [Titanium.UI.2DMatrix, Titanium.UI.3DMatrix]
+    type: [Titanium.UI.Matrix2D, Titanium.UI.Matrix3D]
 
 
   - name: transition
@@ -229,7 +229,7 @@ examples:
             win.add(box);
 
             box.addEventListener('click', function() {
-              var matrix = Ti.UI.create2DMatrix();
+              var matrix = Ti.UI.createMatrix2D();
               matrix = matrix.rotate(180);
               matrix = matrix.scale(2, 2);
               var a = Ti.UI.createAnimation({
@@ -261,7 +261,7 @@ examples:
             var animationCount = 0;
             var animationTypePointer = 0;
 
-            var t = Ti.UI.create2DMatrix();
+            var t = Ti.UI.createMatrix2D();
             t = t.rotate(90);
 
             // animation properties
