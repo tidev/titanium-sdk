@@ -1466,7 +1466,7 @@ examples:
 
             function resetPullHeader(){
                 actInd.hide();
-                imageArrow.transform=Ti.UI.create2DMatrix();
+                imageArrow.transform=Ti.UI.createMatrix2D();
                 if (refreshCount < 2) {
                     imageArrow.show();
                     labelStatus.text = 'Pull down to refresh...';
@@ -1495,11 +1495,11 @@ examples:
             function pullListener(e){
                 eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
                 if (e.active == false) {
-                    var unrotate = Ti.UI.create2DMatrix();
+                    var unrotate = Ti.UI.createMatrix2D();
                     imageArrow.animate({transform:unrotate, duration:180});
                     labelStatus.text = 'Pull down to refresh...';
                 } else {
-                    var rotate = Ti.UI.create2DMatrix().rotate(180);
+                    var rotate = Ti.UI.createMatrix2D().rotate(180);
                     imageArrow.animate({transform:rotate, duration:180});
                     if (refreshCount == 0) {
                         labelStatus.text = 'Release to get Vegetables...';

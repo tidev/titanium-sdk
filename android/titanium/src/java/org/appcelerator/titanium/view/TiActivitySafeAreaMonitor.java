@@ -14,12 +14,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
+import java.util.ArrayList;
 
 /** Tracks safe-area inset changes for a given activity. */
 public class TiActivitySafeAreaMonitor
 {
 	/**
-	 * Listener which gets invoked by "TiActivitySafeAreaMonitor" when it's safe-area has changed.
+	 * Listener which gets invoked by "TiActivitySafeAreaMonitor" when its safe-area has changed.
 	 * The updated safe-area can be retrieved by calling the monitor's getSafeAreaRect() method.
 	 * <p>
 	 * An instance of this type is expected to be passed to the setOnChangedListener() method.
@@ -37,6 +38,9 @@ public class TiActivitySafeAreaMonitor
 	/** Set true to add ActionBar height to top inset and exclude from safe-area. */
 	private boolean isActionBarAddedAsInset;
 
+	/** Collection of custom insets providers, such as a TabGroup bar's insets. */
+	private ArrayList<TiInsetsProvider> insetsProviderCollection;
+
 	/** Safe-area change listener given by the owner of this monitor. */
 	private OnChangedListener changeListener;
 
@@ -45,6 +49,9 @@ public class TiActivitySafeAreaMonitor
 
 	/** Listens for the root decor view's inset changes. Will be null on Android 4.4 and older versions. */
 	private View.OnApplyWindowInsetsListener viewInsetListener;
+
+	/** Listens for custom insets changes from "TiInsetsProvider" objects. */
+	private TiInsetsProvider.OnChangedListener insetsProviderListener;
 
 	/** Pixel width of the inset overlapping the left side of the window's content. */
 	private int insetLeft;
@@ -75,6 +82,7 @@ public class TiActivitySafeAreaMonitor
 		// Initialize member variables.
 		this.activity = activity;
 		this.isActionBarAddedAsInset = true;
+		this.insetsProviderCollection = new ArrayList<>(8);
 
 		// Set up a listener for root decor view's layout changes.
 		this.viewLayoutListener = new View.OnLayoutChangeListener() {
@@ -113,6 +121,15 @@ public class TiActivitySafeAreaMonitor
 				}
 			};
 		}
+
+		// Set up a listener for custom TiInsetsProvider objects. (Used by Titanium TabGroups.)
+		this.insetsProviderListener = new TiInsetsProvider.OnChangedListener() {
+			@Override
+			public void onChanged(TiInsetsProvider provider)
+			{
+				updateUsingCachedInsets();
+			}
+		};
 	}
 
 	/**
@@ -153,6 +170,56 @@ public class TiActivitySafeAreaMonitor
 		// Store new setting and update safe-area.
 		this.isActionBarAddedAsInset = value;
 		update();
+	}
+
+	/**
+	 * Adds an object used to provide custom insets to be excluded from the safe-area returned
+	 * by this monitor's getSafeAreaRect() method.
+	 * <p>
+	 * For example, Titanium's TabGroup will use this feature to add its tab bar as a custom inset.
+	 * <p>
+	 * The provider's insets are expected to be relative to this activity's root decor view.
+	 * @param provider Object used to provide custom insets. If given null, then this method will no-op.
+	 */
+	public void addInsetsProvider(TiInsetsProvider provider)
+	{
+		// Do not continue if given provider is invalid or already added.
+		if ((provider == null) || this.insetsProviderCollection.contains(provider)) {
+			return;
+		}
+
+		// Add the provider to the collection.
+		this.insetsProviderCollection.add(provider);
+
+		// Start listening for inset changes if this monitor is currently running.
+		if (this.isRunning) {
+			provider.setOnChangedListener(this.insetsProviderListener);
+			updateUsingCachedInsets();
+		}
+	}
+
+	/**
+	 * Removes the provider added via the addInsetsProvider() method by reference.
+	 * Once removed, the provider's insets will no longer apply to the safe-area.
+	 * @param provider The insets provider to be removed by reference. Can be null.
+	 */
+	public void removeInsetsProvider(TiInsetsProvider provider)
+	{
+		// Remove the provider from the collection by reference.
+		boolean wasRemoved = this.insetsProviderCollection.remove(provider);
+		if (wasRemoved == false) {
+			return;
+		}
+
+		// Detach this monitor's listener from the insets provider.
+		if (provider.getOnChangedListener() == this.insetsProviderListener) {
+			provider.setOnChangedListener(null);
+		}
+
+		// Update the safe-area.
+		if (this.isRunning) {
+			updateUsingCachedInsets();
+		}
 	}
 
 	/**
@@ -263,6 +330,11 @@ public class TiActivitySafeAreaMonitor
 			rootView.setOnApplyWindowInsetsListener(this.viewInsetListener);
 		}
 
+		// Subscribe to custom inset providers.
+		for (TiInsetsProvider provider : this.insetsProviderCollection) {
+			provider.setOnChangedListener(this.insetsProviderListener);
+		}
+
 		// Fetch root view's current safe-area.
 		update();
 	}
@@ -279,17 +351,21 @@ public class TiActivitySafeAreaMonitor
 			return;
 		}
 
-		// Fetch the activity's root decor view, if still available.
-		View rootView = getDecorView();
-		if (rootView == null) {
-			return;
+		// Flag this monitor as stopped.
+		this.isRunning = false;
+
+		// Unsubscribe from custom inset providers.
+		for (TiInsetsProvider provider : this.insetsProviderCollection) {
+			provider.setOnChangedListener(null);
 		}
 
 		// Unsubscribe from root view's events.
-		this.isRunning = false;
-		rootView.removeOnLayoutChangeListener(this.viewLayoutListener);
-		if (this.viewInsetListener != null) {
-			rootView.setOnApplyWindowInsetsListener(null);
+		View rootView = getDecorView();
+		if (rootView != null) {
+			rootView.removeOnLayoutChangeListener(this.viewLayoutListener);
+			if (this.viewInsetListener != null) {
+				rootView.setOnApplyWindowInsetsListener(null);
+			}
 		}
 	}
 
@@ -360,14 +436,30 @@ public class TiActivitySafeAreaMonitor
 			return;
 		}
 
+		// Copy the system insets.
+		int maxInsetLeft = this.insetLeft;
+		int maxInsetTop = this.insetTop;
+		int maxInsetRight = this.insetRight;
+		int maxInsetBottom = this.insetBottom;
+
+		// Add the ActionBar height, if enabled.
+		maxInsetTop += getActionBarInsetHeight();
+
+		// Apply any custom insets, if provided.
+		// Ex: Used by Titanium TabGroups to provide top/bottom bar inset height.
+		for (TiInsetsProvider provider : this.insetsProviderCollection) {
+			maxInsetLeft = Math.max(provider.getLeft(), maxInsetLeft);
+			maxInsetTop = Math.max(provider.getTop(), maxInsetTop);
+			maxInsetRight = Math.max(provider.getRight(), maxInsetRight);
+			maxInsetBottom = Math.max(provider.getBottom(), maxInsetBottom);
+		}
+
 		// Calculate the safe-area, which is the region between the insets.
-		// Note: We must dynamically add ActionBar height here (if enabled) since its
-		//       visibility and height changes can only be detected via an onLayoutChange() event.
 		Rect rect = new Rect();
-		rect.left = this.insetLeft;
-		rect.top = this.insetTop + getActionBarInsetHeight();
-		rect.right = rootView.getWidth() - this.insetRight;
-		rect.bottom = rootView.getHeight() - this.insetBottom;
+		rect.left = maxInsetLeft;
+		rect.top = maxInsetTop;
+		rect.right = rootView.getWidth() - maxInsetRight;
+		rect.bottom = rootView.getHeight() - maxInsetBottom;
 
 		// Make sure safe-area does not have a negative width and height.
 		rect.bottom = Math.max(rect.top, rect.bottom);
