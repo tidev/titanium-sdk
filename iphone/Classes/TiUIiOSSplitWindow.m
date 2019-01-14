@@ -32,6 +32,14 @@
   [wrapper addSubview:[theProxy view]];
 }
 
+- (void)setMasterViewVisible_:(NSNumber *)value
+{
+  BOOL visible = [TiUtils boolValue:value def:YES];
+
+  masterViewVisible = visible;
+  masterViewWrapper.hidden = !visible;
+}
+
 - (void)cleanup
 {
   if (masterProxy != nil) {
@@ -94,6 +102,7 @@
       [self.proxy replaceValue:NUMFLOAT(splitRatioLandscape) forKey:@"landscapeSplit" notification:NO];
     }
     viewsInitialized = YES;
+    masterViewWrapper.hidden = !masterViewVisible;
   }
 }
 
@@ -107,7 +116,7 @@
 - (void)layoutSubviewsForOrientation:(UIInterfaceOrientation)orientation
 {
   CGSize refSize = self.bounds.size;
-  BOOL isPortrait = UIInterfaceOrientationIsPortrait(orientation);
+  BOOL isPortrait = UIApplication.sharedApplication.keyWindow.frame.size.height > UIApplication.sharedApplication.keyWindow.frame.size.width;
 
   CGRect masterRect = CGRectZero;
   CGRect detailRect = CGRectZero;
