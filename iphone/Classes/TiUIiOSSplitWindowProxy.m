@@ -14,6 +14,8 @@
 {
   [self initializeProperty:@"showMasterInPortrait" defaultValue:NUMBOOL(NO)];
   [self initializeProperty:@"masterIsOverlayed" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"masterViewVisible" defaultValue:NUMBOOL(YES)];
+
   [super _initWithProperties:properties];
 }
 
@@ -41,6 +43,18 @@
   if ([self viewInitialized]) {
     TiThreadPerformOnMainThread(^{
       [(TiUIiOSSplitWindow *)[self view] setMasterIsOverlayed_:value withObject:animated];
+    },
+        YES);
+  }
+}
+
+- (void)setMasterViewVisible:(NSNumber *)value
+{
+  [self replaceValue:value forKey:@"masterViewVisible" notification:NO];
+
+  if ([self viewInitialized]) {
+    TiThreadPerformOnMainThread(^{
+      [(TiUIiOSSplitWindow *)[self view] setMasterViewVisible_:value];
     },
         YES);
   }
