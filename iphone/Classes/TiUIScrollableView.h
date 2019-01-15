@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UISCROLLABLEVIEW
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIScrollableView : TiUIView <UIScrollViewDelegate> {
   @private

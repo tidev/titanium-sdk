@@ -6,8 +6,8 @@
  */
 
 #import "TiUIiOSProxy.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIIOS
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
@@ -25,7 +25,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiUIiOSTransitionAnimationProxy.h"
+#import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #endif
 
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
@@ -45,7 +45,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavWindowProxy.h"
+#import "TiUIiOSNavigationWindowProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSPLITWINDOW
@@ -95,6 +95,13 @@
 
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 #import "TiUIiOSFeedbackGeneratorProxy.h"
+#endif
+
+#ifdef USE_TI_UIWEBVIEW
+#import "TiUIiOSWebViewConfigurationProxy.h"
+#import "TiUIiOSWebViewDecisionHandlerProxy.h"
+#import "TiUIiOSWebViewProcessPoolProxy.h"
+#import <WebKit/WebKit.h>
 #endif
 
 @implementation TiUIiOSProxy
@@ -167,24 +174,15 @@
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 - (NSNumber *)PREVIEW_ACTION_STYLE_DEFAULT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleDefault);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleDefault);
 }
 - (NSNumber *)PREVIEW_ACTION_STYLE_DESTRUCTIVE
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleDestructive);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleDestructive);
 }
 - (NSNumber *)PREVIEW_ACTION_STYLE_SELECTED
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleSelected);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleSelected);
 }
 #endif
 
@@ -428,7 +426,7 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINTEGER(UIBlurEffectStyleRegular);
   }
   return [NSNull null];
@@ -436,7 +434,7 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINTEGER(UIBlurEffectStyleProminent);
   }
   return [NSNull null];
@@ -487,6 +485,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSTABBEDBAR
 - (id)createTabbedBar:(id)args
 {
+  DEPRECATED_REPLACED(@"UI.iOS.TabbedBar", @"8.0.0", @"UI.TabbedBar (parity with Android)")
   return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
@@ -501,7 +500,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 - (id)createNavigationWindow:(id)args
 {
-  return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  return [[[TiUIiOSNavigationWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -565,7 +564,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_FULL
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
   }
   return nil;
@@ -573,7 +572,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_HINT
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
   }
 
@@ -584,7 +583,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTOBADGE
 - (TiBlob *)createLivePhotoBadge:(id)value
 {
-  if ([TiUtils isIOS9_1OrGreater] == NO) {
+  if (![TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return nil;
   }
 
@@ -608,7 +607,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
   }
   return NUMINT(0);
@@ -618,7 +617,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 {
-  if ([TiUtils isIOS9_1OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
     return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
   }
   return NUMINT(0);
@@ -728,9 +727,12 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER, UIWebViewNavigationTypeOther);
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args
 {
+  DEPRECATED_REPLACED(@"UI.iOS.ApplicationShortcuts", @"7.5.0", @"UI.ApplicationShortcuts");
   return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+#endif
 
+#if defined(USE_TI_UIIOSAPPLICATIONSHORTCUTS) || defined(USE_TI_UIAPPLICATIONSHORTCUTS)
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE, UIApplicationShortcutIconTypeCompose);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY, UIApplicationShortcutIconTypePlay);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PAUSE, UIApplicationShortcutIconTypePause);
@@ -799,6 +801,43 @@ MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHea
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_AUTOMATIC, UINavigationItemLargeTitleDisplayModeAutomatic);
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_ALWAYS, UINavigationItemLargeTitleDisplayModeAlways);
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDisplayModeNever);
+#endif
+
+#ifdef USE_TI_UIWEBVIEW
+
+- (id)createWebViewConfiguration:(id)args
+{
+  return [[[TiUIiOSWebViewConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (id)createWebViewProcessPool:(id)args
+{
+  return [[[TiUIiOSWebViewProcessPoolProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_NONE, NSURLCredentialPersistenceNone);
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_FOR_SESSION, NSURLCredentialPersistenceForSession);
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_PERMANENT, NSURLCredentialPersistencePermanent);
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_SYNCHRONIZABLE, NSURLCredentialPersistenceSynchronizable);
+
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_NONE, WKAudiovisualMediaTypeNone);
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_AUDIO, WKAudiovisualMediaTypeAudio);
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_VIDEO, WKAudiovisualMediaTypeVideo);
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_ALL, WKAudiovisualMediaTypeAll);
+
+MAKE_SYSTEM_PROP(CACHE_POLICY_USE_PROTOCOL_CACHE_POLICY, NSURLRequestUseProtocolCachePolicy)
+MAKE_SYSTEM_PROP(CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA, NSURLRequestReloadIgnoringLocalCacheData)
+MAKE_SYSTEM_PROP(CACHE_POLICY_RETURN_CACHE_DATA_ELSE_LOAD, NSURLRequestReturnCacheDataElseLoad)
+MAKE_SYSTEM_PROP(CACHE_POLICY_RETURN_CACHE_DATA_DONT_LOAD, NSURLRequestReturnCacheDataDontLoad)
+
+MAKE_SYSTEM_PROP(SELECTION_GRANULARITY_DYNAMIC, WKSelectionGranularityDynamic);
+MAKE_SYSTEM_PROP(SELECTION_GRANULARITY_CHARACTER, WKSelectionGranularityCharacter);
+
+MAKE_SYSTEM_PROP(ACTION_POLICY_CANCEL, WKNavigationActionPolicyCancel);
+MAKE_SYSTEM_PROP(ACTION_POLICY_ALLOW, WKNavigationActionPolicyAllow);
+
+MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocumentStart);
+MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
 
 @end

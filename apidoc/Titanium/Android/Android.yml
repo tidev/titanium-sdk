@@ -64,11 +64,6 @@ description: |
     For more information about intent filters, see the
     [Android Intent Filters guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
-    #### Launch Modes
-
-    Defining launch modes using `android:launchMode` is not supported by Titanium Android.
-    However, `singleTask` behaviour can be accomplished when using [intent filters](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
-
     #### Notifications
 
     Notifications alert the user that something is happening to your application while it is
@@ -101,7 +96,9 @@ description: |
 
     The Titanium SDK gives you the ability to write your own Android Services using JavaScript.
     The service executes your JavaScript code at intervals you specify. Note that the service
-    may stop running if the application is killed.
+    will stop running when you back out of the app. So, if you want the service to continue running,
+    then it's recommended that you set the root window's [exitOnClose](Titanium.UI.Window.exitOnClose)
+    property to `false` so that the window will persist in the background like iOS.
 
     For more information about services, see the
     [Titanium.Android.Service API reference](Titanium.Android.Service).
@@ -2346,7 +2343,7 @@ properties:
     since: "7.0.0"
 
   - name: currentActivity
-    summary: Activity of the active context.
+    summary: References the top-most window's activity.
     type: Titanium.Android.Activity
     accessors: false
     permission: read-only
@@ -2356,6 +2353,23 @@ properties:
     type: Titanium.Android.Service
     accessors: false
     permission: read-only
+
+  - name: rootActivity
+    summary: The first activity launched by the application.
+    description : |
+        This is the main launcher activity defined in the "AndroidManifest.xml" which shows the splash screen.
+        All windows opened are child activities below this root activity.
+
+        Closing this root activity via its [finish()](Titanium.Android.Activity.finish) method will close
+        all of its child activity windows as well and exit out of the app.
+
+        When resuming the app via a data intent such as a URL, notification, shortcut, etc. the root activity
+        will fire a "newintent" event and update its [intent](Titanium.Android.Activity.intent) property with
+        the newly received intent.
+    type: Titanium.Android.Activity
+    accessors: false
+    permission: read-only
+    since: "8.0.0"
 
 ---
 name: ServiceIntentOptions

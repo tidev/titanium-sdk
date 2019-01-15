@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIBUTTON
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @class TiUIView;
 

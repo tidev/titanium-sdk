@@ -34,6 +34,11 @@ public class AndroidModule extends KrollModule
 	private static final String TAG = "UIAndroidModule";
 
 	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_NAVIGATION = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_STATUS = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+
+	@Kroll.constant
 	public static final int PIXEL_FORMAT_A_8 = PixelFormat.A_8;
 	@Kroll.constant
 	public static final int PIXEL_FORMAT_LA_88 = PixelFormat.LA_88;
@@ -176,6 +181,11 @@ public class AndroidModule extends KrollModule
 	public static final int GRAVITY_TOP = Gravity.TOP;
 	@Kroll.constant
 	public static final int GRAVITY_VERTICAL_GRAVITY_MASK = Gravity.VERTICAL_GRAVITY_MASK;
+
+	@Kroll.constant
+	public static final int TABS_STYLE_DEFAULT = 0;
+	@Kroll.constant
+	public static final int TABS_STYLE_BOTTOM_NAVIGATION = 1;
 
 	@Kroll.constant
 	public static final int TRANSITION_NONE = TiUIView.TRANSITION_NONE;

@@ -479,7 +479,8 @@
     result = [ourStore saveEvent:currEvent span:span error:&error];
   },
       YES);
-  if (result == NO || error != nil) {
+
+  if (!result || error != nil) {
     [self throwException:[NSString stringWithFormat:@"Failed to save event : %@", [TiUtils messageFromError:error]]
                subreason:nil
                 location:CODELOCATION];
@@ -502,7 +503,8 @@
     result = [ourStore removeEvent:[self event] span:span error:&error];
   },
       YES);
-  if (result == NO || error != nil) {
+
+  if (!result || error != nil) {
     [self throwException:[NSString stringWithFormat:@"Failed to remove event : %@", [TiUtils messageFromError:error]]
                subreason:nil
                 location:CODELOCATION];

@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
@@ -109,7 +110,7 @@ public class TiWebChromeClient extends WebChromeClient
 	@Override
 	public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg)
 	{
-		TiViewProxy proxy = tiWebView.getProxy();
+		WebViewProxy proxy = (WebViewProxy) tiWebView.getProxy();
 		if (proxy == null) {
 			return false;
 		}
@@ -117,6 +118,21 @@ public class TiWebChromeClient extends WebChromeClient
 		Object onCreateWindow = proxy.getProperty(TiC.PROPERTY_ON_CREATE_WINDOW);
 		if (!(onCreateWindow instanceof KrollFunction)) {
 			return false;
+		}
+
+		Message href = view.getHandler().obtainMessage();
+		view.requestFocusNodeHref(href);
+		String url = href.getData().getString("url");
+
+		Object onLink = proxy.getProperty(TiC.PROPERTY_ON_LINK);
+		if (onLink instanceof KrollFunction) {
+			KrollFunction onLinkFunction = (KrollFunction) onLink;
+			KrollDict args = new KrollDict();
+			args.put(TiC.EVENT_PROPERTY_URL, url);
+			Object result = onLinkFunction.call(proxy.getKrollObject(), args);
+			if (result == null || (result instanceof Boolean && ((Boolean) result) == false)) {
+				return false;
+			}
 		}
 
 		KrollFunction onCreateWindowFunction = (KrollFunction) onCreateWindow;
@@ -128,6 +144,7 @@ public class TiWebChromeClient extends WebChromeClient
 		if (result instanceof WebViewProxy) {
 			WebViewProxy newProxy = (WebViewProxy) result;
 			newProxy.setPostCreateMessage(resultMsg);
+			newProxy.getWebView().setProxy(proxy);
 			return true;
 		}
 

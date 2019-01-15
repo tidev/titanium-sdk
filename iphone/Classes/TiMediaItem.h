@@ -7,10 +7,10 @@
 
 #if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
 
-#import "TiBlob.h"
-#import "TiProxy.h"
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiProxy.h>
 
 // Not 'officially' a proxy since we don't want users being able to create these; they're
 // generated internally only for the media player.

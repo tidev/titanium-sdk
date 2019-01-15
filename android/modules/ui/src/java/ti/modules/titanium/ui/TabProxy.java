@@ -16,7 +16,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITab;
 import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -172,44 +172,6 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	/**
-	 * Get the color of the tab when it is active.
-	 *
-	 * @return the active color if specified, otherwise returns zero.
-	 */
-	public int getActiveTabColor()
-	{
-		Object color = getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
-		if (color == null) {
-			color = tabGroupProxy.getProperty(TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR);
-		}
-
-		if (color != null) {
-			return TiConvert.toColor(color.toString());
-		}
-
-		return 0;
-	}
-
-	/**
-	 * Get the color of the tab when it is inactive.
-	 *
-	 * @return the inactive color if specified, otherwise returns zero.
-	 */
-	public int getTabColor()
-	{
-		Object color = getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
-		if (color == null) {
-			color = tabGroupProxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR);
-		}
-
-		if (color != null) {
-			return TiConvert.toColor(color.toString());
-		}
-
-		return 0;
-	}
-
 	void onFocusChanged(boolean focused, KrollDict eventData)
 	{
 		// Windows are lazily opened when the tab is first focused.
@@ -255,7 +217,7 @@ public class TabProxy extends TiViewProxy
 			}
 		}
 
-		((TiUIAbstractTab) view).onSelectionChange(selected);
+		((TiUITab) view).onSelectionChange(selected);
 	}
 
 	@Override

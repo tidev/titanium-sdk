@@ -6,13 +6,13 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: 
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
-def MAINLINE_BRANCH_REGEXP = /master|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 def isGreenKeeper = env.BRANCH_NAME.startsWith('greenkeeper/') || 'greenkeeper[bot]'.equals(env.CHANGE_AUTHOR) // greenkeeper needs special handling to avoid using npm ci, and to use greenkeeper-lockfile
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of windows SDK to use and test suite to test with
-def targetBranch = isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master')
+def targetBranch = isGreenKeeper ? 'master' : (isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master'))
 def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline branch, by default
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
@@ -39,73 +39,85 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		}
 		node(labels) {
-			// Unarchive the osx build of the SDK (as a zip)
-			sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
-			unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
-			def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
-			// if our test suite already exists, delete it...
-			sh 'rm -rf titanium-mobile-mocha-suite'
-			// clone the tests suite fresh
-			// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
-			dir('titanium-mobile-mocha-suite') {
-				// TODO Do a shallow clone, using same credentials as from scm object
-				try {
-					timeout(5) {
-						git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+			try {
+				// Unarchive the osx build of the SDK (as a zip)
+				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
+				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
+				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
+				// if our test suite already exists, delete it...
+				sh 'rm -rf titanium-mobile-mocha-suite'
+				// clone the tests suite fresh
+				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
+				dir('titanium-mobile-mocha-suite') {
+					// TODO Do a shallow clone, using same credentials as from scm object
+					try {
+						timeout(5) {
+							git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+						}
+					} catch (e) {
+						def msg = "Failed to clone the titanium-mobile-mocha-suite test suite from branch ${testSuiteBranch}. Are you certain that the test suite repo has that branch created?"
+						echo msg
+						manager.addWarningBadge(msg)
+						throw e
 					}
-				} catch (e) {
-					def msg = "Failed to clone the titanium-mobile-mocha-suite test suite from branch ${testSuiteBranch}. Are you certain that the test suite repo has that branch created?"
-					echo msg
-					manager.addWarningBadge(msg)
-					throw e
-				}
+				} // dir
+				// copy over any overridden unit tests into this workspace
+				sh 'rm -rf tests'
+				unstash 'override-tests'
+				sh 'cp -R tests/ titanium-mobile-mocha-suite'
+				// Now run the unit test suite
+				dir('titanium-mobile-mocha-suite') {
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						ensureNPM(npmVersion)
+						sh 'npm ci'
+						dir('scripts') {
+							try {
+								timeout(20) {
+									sh "node test.js -b ../../${zipName} -p ${os}"
+								} // timeout
+							} catch (e) {
+								if ('ios'.equals(os)) {
+									// Gather the crash report(s)
+									def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+									// wait 1 minute, sometimes it's delayed in writing out crash reports to disk...
+									sleep time: 1, unit: 'MINUTES'
+									def crashFiles = sh(returnStdout: true, script: "ls -1 ${home}/Library/Logs/DiagnosticReports/").trim().readLines()
+									for (int i = 0; i < crashFiles.size(); i++) {
+										def crashFile = crashFiles[i]
+										if (crashFile =~ /^mocha_.*\.crash$/) {
+											sh "mv ${home}/Library/Logs/DiagnosticReports/${crashFile} ."
+										}
+									}
+									archiveArtifacts 'mocha_*.crash'
+									sh 'rm -f mocha_*.crash'
+								} else {
+									// gather crash reports/tombstones for Android
+									sh 'adb pull /data/tombstones'
+									archiveArtifacts 'tombstones/'
+									sh 'rm -f tombstones/'
+									// wipe tombstones and re-build dir with proper permissions/ownership on emulator
+									sh 'adb shell rm -rf /data/tombstones'
+									sh 'adb shell mkdir -m 771 /data/tombstones'
+									sh 'adb shell chown system:system /data/tombstones'
+								}
+								throw e
+							} finally {
+								// Kill the emulators!
+								if ('android'.equals(os)) {
+									sh 'adb shell am force-stop com.appcelerator.testApp.testing'
+									sh 'adb uninstall com.appcelerator.testApp.testing'
+									killAndroidEmulators()
+								} // if
+							} // finally
+							// save the junit reports as artifacts explicitly so danger.js can use them later
+							stash includes: 'junit.*.xml', name: "test-report-${os}"
+							junit 'junit.*.xml'
+						} // dir('scripts')
+					} // nodejs
+				} // dir('titanium-mobile-mocha-suite')
+			} finally {
+				deleteDir()
 			}
-			// copy over any overridden unit tests into this workspace
-			sh 'rm -rf tests'
-			unstash 'override-tests'
-			sh 'cp -R tests/ titanium-mobile-mocha-suite'
-			// Now run the unit test suite
-			dir('titanium-mobile-mocha-suite') {
-				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-					ensureNPM(npmVersion)
-					sh 'npm ci'
-					dir('scripts') {
-						try {
-							timeout(20) {
-								sh "node test.js -b ../../${zipName} -p ${os}"
-							} // timeout
-						} catch (e) {
-							if ('ios'.equals(os)) {
-								// Gather the crash report(s)
-								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
-								archiveArtifacts 'mocha_*.crash'
-								sh 'rm -f mocha_*.crash'
-							} else {
-								// gather crash reports/tombstones for Android
-								sh 'adb pull /data/tombstones'
-								archiveArtifacts 'tombstones/'
-								sh 'rm -f tombstones/'
-								// wipe tombstones and re-build dir with proper permissions/ownership on emulator
-								sh 'adb shell rm -rf /data/tombstones'
-								sh 'adb shell mkdir -m 771 /data/tombstones'
-								sh 'adb shell chown system:system /data/tombstones'
-							}
-							throw e
-						} finally {
-							// Kill the emulators!
-							if ('android'.equals(os)) {
-								sh 'adb shell am force-stop com.appcelerator.testApp.testing'
-								sh 'adb uninstall com.appcelerator.testApp.testing'
-								killAndroidEmulators()
-							} // if
-						} // finally
-						// save the junit reports as artifacts explicitly so danger.js can use them later
-						stash includes: 'junit.*.xml', name: "test-report-${os}"
-						junit 'junit.*.xml'
-					} // dir('scripts')
-				} // nodejs
-			} // dir('titanium-mobile-mocha-suite')
 		}
 	}
 }
@@ -113,12 +125,13 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-10') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
 					if (fileExists('titanium_mobile.git')) {
 						dir('titanium_mobile.git') {
+							sh 'git gc'
 							sh 'git remote update -p' // update the clone
 							sh 'git prune' // prune to avoid "warning: There are too many unreachable loose objects"
 						}
@@ -148,14 +161,7 @@ timestamps {
 
 					// Install dependencies
 					timeout(5) {
-						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						if (isGreenKeeper) {
-							sh 'npm install'
-							sh 'npm install -g sgtcoolguy/greenkeeper-lockfile#jenkins-multibranch'
-							sh 'greenkeeper-lockfile-update'
-						} else {
-							sh 'npm ci'
-						}
+						sh 'npm ci'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
 					if (fileExists('npm_test.log')) {
@@ -163,7 +169,7 @@ timestamps {
 					}
 					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
 					if (runDanger) { // Stash files for danger.js later
-						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,npm_test.log,android/**/*.java', name: 'danger'
+						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
 					// was it a failure?
 					if (npmTestResult != 0) {
@@ -171,8 +177,6 @@ timestamps {
 						stash allowEmpty: true, name: 'test-report-ios'
 						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
-					} else if (isGreenKeeper) {
-						sh 'greenkeeper-lockfile-upload' // FIXME: This will get pushed up even if unit tests on sims fails later...
 					}
 				}
 
@@ -222,7 +226,7 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions?
 					dir('build') {
 						timeout(15) {
-							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R12B} --android-sdk ${env.ANDROID_SDK}"
+							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 						} // timeout
 						ansiColor('xterm') {
 							timeout(15) {
@@ -448,13 +452,14 @@ timestamps {
 							unstash 'test-report-android' // junit.android.report.xml
 						} catch (e) {}
 						ensureNPM(npmVersion)
+						sh 'npm ci'
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
-						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
+						withEnv(["ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}","DANGER_JS_APP_INSTALL_ID=''"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existing build status.
+							sh returnStatus: true, script: 'npx danger ci --verbose' // Don't fail build if danger fails. We want to retain existing build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()

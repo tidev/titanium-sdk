@@ -13,10 +13,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
@@ -503,11 +505,18 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 	public int getIndexFromXY(double x, double y)
 	{
+		// Coordinates received are in the measurement unit defined in tiapp.xml.
+		// Convert them to pixels in order to define the item clicked.
+		final double xInPixels = (double) TiUIHelper.getRawSize(
+			TiUIHelper.getSizeUnits(TiApplication.getInstance().getDefaultUnit()), (float) x, getContext());
+		final double yInPixels = (double) TiUIHelper.getRawSize(
+			TiUIHelper.getSizeUnits(TiApplication.getInstance().getDefaultUnit()), (float) y, getContext());
+
 		int bound = listView.getLastVisiblePosition() - listView.getFirstVisiblePosition();
 		for (int i = 0; i <= bound; i++) {
 			View child = listView.getChildAt(i);
-			if (child != null && x >= child.getLeft() && x <= child.getRight() && y >= child.getTop()
-				&& y <= child.getBottom()) {
+			if (child != null && xInPixels >= child.getLeft() && xInPixels <= child.getRight()
+				&& yInPixels >= child.getTop() && yInPixels <= child.getBottom()) {
 				return listView.getFirstVisiblePosition() + i;
 			}
 		}

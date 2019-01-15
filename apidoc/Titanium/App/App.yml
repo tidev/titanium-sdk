@@ -298,6 +298,13 @@ events:
         URL-handling anymore. Instead, use the `handleurl` event in <Titanium.App.iOS>.
     platforms: [iphone, ipad]
 
+  - name: started
+    summary: Fired after the "app.js" or "alloy.js" gets executed during application startup.
+    description: |
+        The intention of this event is for modules to defer firing their own startup related events
+        until the app developer's main script has had a chance to add listeners for them.
+    since: '8.0.0'
+
   - name: keyboardframechanged
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
@@ -331,6 +338,15 @@ events:
     platforms: [iphone, ipad]
     since: '3.1.0'
 
+  - name: shortcutitemclick
+    summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
+    properties:
+      - name: id
+        summary: Identifier of the clicked shortcut item.
+        type: String
+    platforms: [iphone, ipad, android]
+    since: '7.5.0'
+    
   - name: userinteraction
     summary: Called whenever an interaction with the window occurred. To be used together with the <Titanium.App.trackUserInteraction> property.
     description: |
@@ -364,8 +380,10 @@ methods:
   - name: getArguments
     summary: Returns the arguments passed to the application on startup.
     description : |
-        On Android, use the [intent](Titanium.Android.Activity.intent) property of the activity to
-        retrieve the parameters passed to launch the application activity.
+        On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
+        read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
+        to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
+        will change when a ["newintent"](Titanium.Android.Activity.newintent) event has been fired.
     platforms: [iphone, ipad]
     returns:
         type: launchOptions

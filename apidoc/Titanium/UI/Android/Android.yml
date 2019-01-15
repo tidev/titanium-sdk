@@ -30,6 +30,32 @@ methods:
         format.
         
 properties:
+  - name: FLAG_TRANSLUCENT_NAVIGATION
+    summary: Window flag which makes the Android system's navigation bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's bottom navigation bar semi-transparent. This flag will only work if you also set the
+        [Window.extendSafeArea](Titanium.UI.Window.extendSafeArea) property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+        On Android 4.4, navigation bar can only be translucent in portrait mode while newer OS versions support
+        this flag for all orientations.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
+  - name: FLAG_TRANSLUCENT_STATUS
+    summary: Window flag which makes the Android system's top status bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's top status bar semi-transparent. This flag will only work if you also set the
+        <Titanium.UI.Window.extendSafeArea> property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
   - name: GRAVITY_AXIS_CLIP
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
     type: Number
@@ -796,6 +822,20 @@ properties:
     type: Number
     permission: read-only
     since: "5.2.0"
+
+  - name: TABS_STYLE_DEFAULT
+    summary: The default TabGroup style that places the Tabs bellow the ActionBar and above the Window content.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
+
+  - name: TABS_STYLE_BOTTOM_NAVIGATION
+    summary: TabGroup style taking advantage of a bottom navigation controller for switching between tabs.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
 
 examples:
   - title: Android Preferences Example

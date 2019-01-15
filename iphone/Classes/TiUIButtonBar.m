@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIButtonBar.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation TiUIButtonBar
 
@@ -93,7 +93,13 @@
 - (void)setIndex_:(id)value
 {
   selectedIndex = [TiUtils intValue:value def:-1];
-  [[self segmentedControl] setSelectedSegmentIndex:selectedIndex];
+  if ([[self segmentedControl] isMomentary]) {
+    DEPRECATED_REMOVED(@"UI.ButtonBar.index", @"8.0.0", @"9.0.0");
+    selectedIndex = -1;
+    [self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
+  } else {
+    [[self segmentedControl] setSelectedSegmentIndex:selectedIndex];
+  }
 }
 
 - (void)setStyle_:(id)value
@@ -165,14 +171,14 @@
 
   selectedIndex = newIndex;
 
-  if ([self.proxy _hasListeners:@"click"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINTEGER(selectedIndex) forKey:@"index"];
-    [self.proxy fireEvent:@"click" withObject:event];
-  }
-
   if ([(UISegmentedControl *)sender isMomentary]) {
     selectedIndex = -1;
     [self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
+  }
+
+  if ([self.proxy _hasListeners:@"click"]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINTEGER(newIndex) forKey:@"index"];
+    [self.proxy fireEvent:@"click" withObject:event];
   }
 }
 

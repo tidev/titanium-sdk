@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiStreamProxy.h"
 #import <Foundation/Foundation.h>
+#import <TitaniumKit/TiStreamProxy.h>
 
 // Generic stream for data; designed to encapsulate blobs and buffers.
 @interface TiDataStream : TiStreamProxy <TiStreamInternal> {
