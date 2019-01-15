@@ -1705,8 +1705,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
   } else {
     if ([TiUtils isIOS11OrGreater]) {
-      BOOL disableVideoCompression = [TiUtils boolValue:@"disableVideoCompression" properties:args def:NO];
-      if (disableVideoCompression) {
+      BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
+      if (!allowTranscoding) {
         picker.videoExportPreset = AVAssetExportPresetPassthrough;
       }
     }
