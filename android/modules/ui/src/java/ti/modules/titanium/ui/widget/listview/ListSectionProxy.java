@@ -902,9 +902,11 @@ public class ListSectionProxy extends ViewProxy
 		}
 
 		//process listItem properties
-		KrollDict listItemDiff = cellContent.getViewItem().generateDiffProperties(listItemProperties);
-		if (!listItemDiff.isEmpty()) {
-			listItem.processProperties(listItemDiff);
+		if (cellContent.getViewItem() != null) {
+			KrollDict listItemDiff = cellContent.getViewItem().generateDiffProperties(listItemProperties);
+			if (!listItemDiff.isEmpty()) {
+				listItem.processProperties(listItemDiff);
+			}
 		}
 	}
 
