@@ -56,7 +56,8 @@ public class TiBorderWrapperView extends FrameLayout
 
 		int maxPadding = (int) Math.min(bounds.right / 2, bounds.bottom / 2);
 		int padding = (int) Math.min(borderWidth, maxPadding);
-		RectF innerRect = new RectF(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
+		RectF innerRect =
+			new RectF(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
 		RectF outerRect = new RectF(bounds);
 
 		paint.setColor(color);
@@ -98,7 +99,8 @@ public class TiBorderWrapperView extends FrameLayout
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && viewOutlineProvider == null) {
 			viewOutlineProvider = new ViewOutlineProvider() {
 				@Override
-				public void getOutline(View view, Outline outline) {
+				public void getOutline(View view, Outline outline)
+				{
 					outline.setRoundRect(bounds, radius);
 				}
 			};
@@ -110,7 +112,7 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		this.color = color;
 	}
-	
+
 	public void setBgColor(int color)
 	{
 		this.backgroundColor = color;
@@ -125,7 +127,7 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		this.borderWidth = borderWidth;
 	}
-	
+
 	@Override
 	public boolean onSetAlpha(int alpha)
 	{

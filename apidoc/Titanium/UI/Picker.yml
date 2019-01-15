@@ -24,7 +24,7 @@ description: |
     On iOS, the `height` property is only available in iOS 9 and later.
     By default, the size of the picker, including its background, is fixed at the
     same height as the iPhone keyboard to respect the
-    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/Controls.html#//apple_ref/doc/uid/TP40006556-CH15-SW3).
+    [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/#//apple_ref/doc/uid/TP40006556-CH15-SW3).
     The default `width` on iOS is 320px and the `height` is 228px.
     The contents of the picker are sized to fit the picker, which may cut off text
     in the picker rows. Adding views to picker rows is also supported on iOS.
@@ -39,11 +39,10 @@ description: |
 extends: Titanium.UI.View
 excludes:
     properties: [
-        anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,
+        anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,children
         backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,backgroundRepeat,
         backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex]
-    methods: [ remove, removeAllChildren ]
-
+    methods: [remove, removeAllChildren, replaceAt]
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
@@ -78,7 +77,9 @@ methods:
 
   - name: setSelectedRow
     summary: Selects a column's row.
-    description: On iOS, this method must be called after the picker is rendered.
+    description: |
+        On iOS, this method must be called after the picker is rendered.
+        On Android, the picker has a default value of 0 for both column and row index.
     parameters:
       - name: column
         summary: A column index.
@@ -253,7 +254,7 @@ properties:
     description: |
         Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> picker types.
         The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the
-        [UIKit User Interface Catalog](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/UIKitUICatalog/UIDatePicker.html).
+        [UIKit User Interface Catalog](https://developer.apple.com/documentation/uikit/uidatepicker).
     type: String
     platforms: [iphone, ipad]
     since: "5.2.0"
@@ -348,9 +349,8 @@ properties:
     description: |
         If `true`, selection indicator is enabled.
 
-        On iOS 7 and later, the picker indicator is always shown and you cannot control it.
-
-        On iOS 6 and prior, if enabled, a blue bar is displayed to indicate the current selection.
+        Since iOS 7 and later you cannot customize the picker view's selection indicator.
+        The selection indicator is always shown, so setting this property to `false` has no effect.
     type: Boolean
     default: true (Android), false (iPhone, iPad)
     platforms: [android, iphone, ipad]
@@ -491,6 +491,10 @@ examples:
                     </Picker>
                 </Window>
             </Alloy>
+
+        `app/controllers/index.js`:
+
+            $.win.open();
 
   - title: Date Picker using Alloy XML Markup
     example: |

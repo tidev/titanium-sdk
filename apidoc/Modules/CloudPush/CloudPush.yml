@@ -123,17 +123,6 @@ methods:
         get the device token again.
     since: 3.1.2
 
-  - name: isGooglePlayServicesAvailable
-    returns:
-        type: Number
-        summary: |
-            One of the following status codes:
-            <Modules.CloudPush.SUCCESS>, <Modules.CloudPush.SERVICE_MISSING>,
-            <Modules.CloudPush.SERVICE_VERSION_UPDATE_REQUIRED>,
-            <Modules.CloudPush.SERVICE_DISABLED> or <Modules.CloudPush.SERVICE_INVALID>.
-    summary: Returns a code to indicate whether Google Play Services is available on the device.
-    since: 3.4.1
-    platforms: [android]
 properties:
   - name: enabled
     summary: Whether or not this device will receive push notifications.
@@ -191,35 +180,35 @@ properties:
     default: false
 
   - name: SUCCESS
-    summary: Code returned from <Modules.CloudPush.isGooglePlayServicesAvailable>. Google Play services is available, and the connection is successful.
+    summary: Code returned from <Modules.PlayServices.isGooglePlayServicesAvailable>. Google Play services is available, and the connection is successful.
     type: Number
     permission: read-only
     since: 3.4.1
     platforms: [android]
     
   - name: SERVICE_MISSING
-    summary: Code returned from <Modules.CloudPush.isGooglePlayServicesAvailable>. Google Play services is not installed on the device.
+    summary: Code returned from <Modules.PlayServices.isGooglePlayServicesAvailable>. Google Play services is not installed on the device.
     type: Number
     permission: read-only
     since: 3.4.1
     platforms: [android]
     
   - name: SERVICE_VERSION_UPDATE_REQUIRED
-    summary: Code returned from <Modules.CloudPush.isGooglePlayServicesAvailable>. Google Play services is out of date.
+    summary: Code returned from <Modules.PlayServices.isGooglePlayServicesAvailable>. Google Play services is out of date.
     type: Number
     permission: read-only
     since: 3.4.1
     platforms: [android]
     
   - name: SERVICE_DISABLED
-    summary: Code returned from <Modules.CloudPush.isGooglePlayServicesAvailable>. Google Play services has been disabled on this device.
+    summary: Code returned from <Modules.PlayServices.isGooglePlayServicesAvailable>. Google Play services has been disabled on this device.
     type: Number
     permission: read-only
     since: 3.4.1
     platforms: [android]
     
   - name: SERVICE_INVALID
-    summary: Code returned from <Modules.CloudPush.isGooglePlayServicesAvailable>. The version of Google Play services installed on this device is not authentic.
+    summary: Code returned from <Modules.PlayServices.isGooglePlayServicesAvailable>. The version of Google Play services installed on this device is not authentic.
     type: Number
     permission: read-only
     since: 3.4.1

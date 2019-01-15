@@ -17,7 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.kroll.common.Log;
 
+import android.Manifest;
 import android.app.Application;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Environment;
 import android.content.Context;
 
@@ -63,7 +66,6 @@ public class TiTempFileHelper
 		File tempFile = File.createTempFile(prefix, suffix, tempDir);
 		excludeFileOnCleanup(tempFile);
 		return tempFile;
-
 	}
 
 	/**
@@ -127,7 +129,8 @@ public class TiTempFileHelper
 	public void excludeFileOnCleanup(File f)
 	{
 		if (f != null && tempDir.equals(f.getParentFile())) {
-			synchronized (createdThisSession) {
+			synchronized (createdThisSession)
+			{
 				createdThisSession.add(f.getAbsolutePath());
 			}
 		}
@@ -141,7 +144,8 @@ public class TiTempFileHelper
 		}
 		for (File file : tempDir.listFiles()) {
 			String absolutePath = file.getAbsolutePath();
-			synchronized (createdThisSession) {
+			synchronized (createdThisSession)
+			{
 				if (createdThisSession.contains(absolutePath)) {
 					continue;
 				}
@@ -166,7 +170,12 @@ public class TiTempFileHelper
 	{
 		String extState = Environment.getExternalStorageState();
 		if (!extState.equals(previousExternalStorageState)) {
-			if (Environment.MEDIA_MOUNTED.equals(extState)) {
+			if (Environment.MEDIA_MOUNTED.equals(extState)
+				&& (Build.VERSION.SDK_INT < 23
+					|| (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+							== PackageManager.PERMISSION_GRANTED
+						&& context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+							   == PackageManager.PERMISSION_GRANTED))) {
 
 				// See http://developer.android.com/guide/topics/data/data-storage.html#ExternalCache
 				// getExternalCacheDir() is available since API 8
@@ -181,7 +190,6 @@ public class TiTempFileHelper
 			if (!tempDir.exists()) {
 				tempDir.mkdirs();
 			}
-
 		}
 		previousExternalStorageState = extState;
 	}

@@ -11,8 +11,9 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class DocumentProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class DocumentProxy extends NodeProxy
+{
 
 	private Document doc;
 
@@ -23,7 +24,8 @@ public class DocumentProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public AttrProxy createAttribute(String name) throws DOMException {
+	public AttrProxy createAttribute(String name) throws DOMException
+	{
 		Attr attr = doc.createAttribute(name);
 		// Harmony has a bug whereby the returned attribute
 		// has a null value, when it should be empty string.
@@ -34,8 +36,8 @@ public class DocumentProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public AttrProxy createAttributeNS(String namespaceURI, String qualifiedName)
-			throws DOMException {
+	public AttrProxy createAttributeNS(String namespaceURI, String qualifiedName) throws DOMException
+	{
 		Attr attr = doc.createAttributeNS(namespaceURI, qualifiedName);
 		// Just in case the Harmony bug noted in createAttribute happens
 		// here too:
@@ -46,86 +48,107 @@ public class DocumentProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public CDATASectionProxy createCDATASection(String data) throws DOMException {
+	public CDATASectionProxy createCDATASection(String data) throws DOMException
+	{
 		return getProxy(doc.createCDATASection(data));
 	}
 
 	@Kroll.method
-	public CommentProxy createComment(String data) {
+	public CommentProxy createComment(String data)
+	{
 		return getProxy(doc.createComment(data));
 	}
 
 	@Kroll.method
-	public DocumentFragmentProxy createDocumentFragment() {
+	public DocumentFragmentProxy createDocumentFragment()
+	{
 		return getProxy(doc.createDocumentFragment());
 	}
 
 	@Kroll.method
-	public ElementProxy createElement(String tagName) throws DOMException {
+	public ElementProxy createElement(String tagName) throws DOMException
+	{
 		return getProxy(doc.createElement(tagName));
 	}
 
 	@Kroll.method
-	public ElementProxy createElementNS(String namespaceURI, String qualifiedName)
-			throws DOMException {
+	public ElementProxy createElementNS(String namespaceURI, String qualifiedName) throws DOMException
+	{
 		return getProxy(doc.createElementNS(namespaceURI, qualifiedName));
 	}
 
 	@Kroll.method
-	public EntityReferenceProxy createEntityReference(String name)
-			throws DOMException {
+	public EntityReferenceProxy createEntityReference(String name) throws DOMException
+	{
 		return getProxy(doc.createEntityReference(name));
 	}
 
 	@Kroll.method
-	public ProcessingInstructionProxy createProcessingInstruction(String target,
-			String data) throws DOMException {
+	public ProcessingInstructionProxy createProcessingInstruction(String target, String data) throws DOMException
+	{
 		return getProxy(doc.createProcessingInstruction(target, data));
 	}
 
 	@Kroll.method
-	public TextProxy createTextNode(String data) {
+	public TextProxy createTextNode(String data)
+	{
 		return getProxy(doc.createTextNode(data));
 	}
 
-
-	@Kroll.getProperty @Kroll.method
-	public DocumentTypeProxy getDoctype() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public DocumentTypeProxy getDoctype()
+	// clang-format on
+	{
 		return getProxy(doc.getDoctype());
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public ElementProxy getDocumentElement() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public ElementProxy getDocumentElement()
+	// clang-format on
+	{
 		return getProxy(doc.getDocumentElement());
 	}
 
 	@Kroll.method
-	public ElementProxy getElementById(String elementId) {
+	public ElementProxy getElementById(String elementId)
+	{
 		return getProxy(doc.getElementById(elementId));
 	}
 
 	@Kroll.method
-	public NodeListProxy getElementsByTagName(String tagname) {
+	public NodeListProxy getElementsByTagName(String tagname)
+	{
 		return new NodeListProxy(doc.getElementsByTagName(tagname));
 	}
 
 	@Kroll.method
-	public NodeListProxy getElementsByTagNameNS(String namespaceURI, String localName) {
+	public NodeListProxy getElementsByTagNameNS(String namespaceURI, String localName)
+	{
 		return new NodeListProxy(doc.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public DOMImplementationProxy getImplementation() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public DOMImplementationProxy getImplementation()
+	// clang-format on
+	{
 		return new DOMImplementationProxy(doc.getImplementation());
 	}
 
 	@Kroll.method
-	public NodeProxy importNode(NodeProxy importedNode, boolean deep) throws DOMException {
+	public NodeProxy importNode(NodeProxy importedNode, boolean deep) throws DOMException
+	{
 		return getProxy(doc.importNode(importedNode.getNode(), deep));
 	}
 
 	@Override
-	public DocumentProxy getOwnerDocument() {
+	public DocumentProxy getOwnerDocument()
+	{
 		return this;
 	}
 

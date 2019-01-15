@@ -16,21 +16,19 @@ description: |
     To send a local notification, the application needs to:
 
       1. Enroll the application to send local notifications with the
-         <Titanium.App.iOS.registerUserNotificationSettings> method only if the device is running iOS 8
-         or later.
+         <Titanium.App.iOS.registerUserNotificationSettings> method.
       2. Schedule a local notification with the <Titanium.App.iOS.scheduleLocalNotification> method.
       3. Monitor the [notification](Titanium.App.iOS.notification) event to respond to the
          notification.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
 
     ### Local Interactive Notifications
 
-    Starting with Release 3.4.0, you can create interactive notifications, where users can respond to
-    application notifications without launching the application to the foreground.  The user needs to
-    reveal notification actions in the notification, then press a notification action to respond to the
-    notification.  This feature is available on devices running iOS 8 or later.
+    You can create interactive notifications, where users can respond to application notifications
+    without launching the application to the foreground. The user needs to reveal notification
+    actions in the notification, then press a notification action to respond to the notification.
 
     To create an interactive notification, the application needs to:
 
@@ -43,7 +41,7 @@ description: |
       4. Monitor the [localnotificationaction](Titanium.App.iOS.localnotificationaction) event.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
 
     ### Background Downloads
 
@@ -51,13 +49,12 @@ description: |
     content in the background. These background modes are supported in Titanium SDK 3.2.0 and later.
 
     For more information on getting started, refer to the
-    [iOS Background Services guide](http://docs.appcelerator.com/platform/latest/#!/guide/iOS_Background_Services).
+    [iOS Background Services guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Background_Services).
 
     ### Handoff User Activities
 
-    In iOS 8, Apple introduced Handoff, which allows you to create and transfer user activies from one device to another.
-    For example, you can start editing a document on your phone, then transfer the activity to your iPad to continue
-    editing the document.
+    Handoff allows you to create and transfer user activies from one device to another. For example, you can start editing
+    a document on your phone, then transfer the activity to your iPad to continue editing the document.
 
     To make an activity shareable, use the <Titanium.App.iOS.UserActivity> API to create the activity.
     To continue the activity on another device, listen for the
@@ -65,8 +62,8 @@ description: |
 
     ### Index Application Content
 
-    In iOS 9, Apple lets you index application content, such as music, videos, images and documents, to allow it
-    to be searched in iOS Spotlight.  To effectively add and remove information from the iOS search index
+    In iOS 9 and later, Apple lets you index application content, such as music, videos, images and documents, to allow it
+    to be searched in iOS Spotlight. To effectively add and remove information from the iOS search index
     you will need to use the following APIs:
 
     * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
@@ -91,6 +88,9 @@ methods:
     since: "4.0.0"
   - name: cancelAllLocalNotifications
     summary: Cancels all scheduled local notifications.
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: cancelLocalNotification
     summary: Cancels a local notification.
@@ -101,6 +101,9 @@ methods:
             To create an ID for the notification, set the `id` property in the `userInfo` dictionary
             passed to the <Titanium.App.iOS.scheduleLocalNotification> method.
         type: [Number,String]
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
@@ -115,10 +118,9 @@ methods:
 
   - name: registerUserNotificationSettings
     summary: |
-        Registers the application to use the requested notification types and categories
-        (for devices running iOS 8 or later).
+        Registers the application to use the requested notification types and categories.
     description:  |
-        Call this method at application start up.  If the application needs to register for remote
+        Call this method at application start up. If the application needs to register for remote
         notifications, call this method before calling
         [Titanium.Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications).
     parameters:
@@ -268,9 +270,36 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
+  - name: USER_NOTIFICATION_TYPE_CRITICAL_ALERT
+    summary: |
+        The ability to play sounds for critical alerts.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "12.0"}}
+    since: "7.4.0"
+
+  - name: USER_NOTIFICATION_TYPE_PROVISIONAL
+    summary: |
+        The ability to post non-interrupting notifications provisionally to the Notification Center.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "12.0"}}
+    since: "7.4.0"
+
+  - name: USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
+    summary: |
+        An option indicating the system should display a button for in-app notification settings.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "12.0"}}
+    since: "7.4.0"
+
   - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
     summary: |
-        The action will execute in background.  Use with the
+        The action will execute in background. Use with the
         [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
     type: Number
     permission: read-only
@@ -308,6 +337,154 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.0"}}
     since: "5.1.0"
+
+  - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED
+    summary: |
+        The user has not yet made a choice regarding whether the application may post
+        user notifications.
+    description: |
+        Used to check the `authorizationStatus` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED
+    summary: The application is authorized to post user notifications.
+    description: |
+        Used to check the `authorizationStatus` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED
+    summary: The application is not authorized to post user notifications.
+    description: |
+        Used to check the `authorizationStatus` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+
+  - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_PROVISIONAL
+    summary: The application is provisionally authorized to post non-interruptive user notifications.
+    description: |
+        Used to check the `authorizationStatus` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
+
+  - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
+    summary: The application does not support this notification type.
+    description: |
+        Used to check application-wide enabled notification settings received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_SETTING_ENABLED
+    summary: The notification setting is turned on.
+    description: |
+        Used to check application-wide enabled notification settings received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_SETTING_DISABLED
+    summary: The notification setting is turned off.
+    description: |
+        Used to check application-wide enabled notification settings received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_ALERT_STYLE_NONE
+    summary: No banner or alert dialog is presented when the notification is received.
+    description: |
+        Used to check the `alertStyle` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_ALERT_STYLE_ALERT
+    summary: A alert dialog is presented when the notification is received.
+    description: |
+        Used to check the `alertStyle` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_ALERT_STYLE_BANNER
+    summary: A banner is presented when the notification is received.
+    description: |
+        Used to check the `alertStyle` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_NONE
+    summary: No options.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
+    summary: Send dismiss actions to the UNUserNotificationCenter object's delegate for handling.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
+    summary: Allow CarPlay to display notifications of this type.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
+    summary: Show the notification's title, even if the user has disabled notification previews for the app.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "11.0"}}
+    since: "7.3.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
+    summary: Show the notification's subtitle, even if the user has disabled notification previews for the app.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "11.0"}}
+    since: "7.3.0"
 
   - name: UTTYPE_TEXT
     summary: |
@@ -572,17 +749,18 @@ properties:
 
   - name: currentUserNotificationSettings
     summary: |
-        Notification types and user notification categories the application is registered to use
-        (available on iOS 8 and later).
+        Notification types and user notification categories the application is registered to use.
     type: UserNotificationSettings
     permission: read-only
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> instead.
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: supportedUserActivityTypes
     summary: |
         Provides an Array of the NSUserActivityTypes keys defined within your Titanium project.
-        (available on iOS 8 and later).
     description: |
         Used to obtain a list of the NSUserActivityTypes keys defined in your Titanium project's tiapp.xml file.
         These NSUserActivityTypes keys are the keys which you can use working with iOS Titanium User Activities.
@@ -648,11 +826,11 @@ events:
         type: Date
 
       - name: sound
-        summary: Path to the sound file configured to play when the notification was fired.
+        summary: Name of the sound file configured to play when the notification was fired.
         type: String
 
       - name: timezone
-        summary: Timezone of the date when the notification was configured to fire.
+        summary: Timezone of the date when the notification was configured to fire. Available in Titanium SDK 7.4.0+.
         type: String
 
       - name: userInfo
@@ -660,8 +838,22 @@ events:
         type: Dictionary
 
       - name: inBackground
-        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0). 
+        summary: |
+          Boolean indicating if notification was received while app was in background. Available in Titanium SDK 6.2.0.
+          On iOS 10+ this is no longer available since this event will only fire if the app is in foreground.
         type: Boolean
+
+      - name: threadIdentifier
+        summary: |
+          The unique identifier for the thread or conversation related to this notification request.
+          It will be used to visually group notifications together. Available in Titanium SDK 7.5.0+ and iOS 10+.
+        type: String
+        since: { iphone: "7.5.0", ipad: "7.5.0" }
+
+      - name: category
+        summary: The identifier of the app-defined [category object](Titanium.App.iOS.UserNotificationCategory). Available in Titanium SDK 7.5.0+ and iOS 10+.
+        type: String
+        since: { iphone: "7.5.0", ipad: "7.5.0" }
 
   - name: localnotificationaction
     summary: Fired when a user selects an action for an interactive local notification.
@@ -712,8 +904,24 @@ events:
         type: Dictionary
 
       - name: inBackground
-        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0). 
+        summary: |
+          Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0).
+          On iOS 10+ this is no longer available since the event will only fire when opening the app after interacting
+          with a notification from the iOS notification center (which means the app was in background when the
+          notification was received).
         type: Boolean
+
+      - name: threadIdentifier
+        summary: |
+          The unique identifier for the thread or conversation related to this notification request.
+          It will be used to visually group notifications together. Available in Titanium SDK 7.5.0+ and iOS 10+.
+        type: String
+        since: { iphone: "7.5.0", ipad: "7.5.0" }
+
+      - name: category
+        summary: The identifier of the app-defined [category object](Titanium.App.iOS.UserNotificationCategory). Available in Titanium SDK 7.5.0+ and iOS 10+.
+        type: String
+        since: { iphone: "7.5.0", ipad: "7.5.0" }
 
   - name: remotenotificationaction
     summary: Fired when a user selects an action for an interactive remote notification.
@@ -794,9 +1002,9 @@ events:
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
         current event. This identifier should be passed as the argument to the
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
-        
+
         You can send extra information with a silent push using extra:
-        
+
             {
               aps: {
                 'content-available': 1
@@ -805,9 +1013,9 @@ events:
                 foo: 'bar'
               }
             }
-            
+
         In the event handler for <code>silentpush</code>, your code may look something like this:
-        
+
             {
               "handlerId": "SilentPush-1415976886.375816",
               "aps": {
@@ -884,7 +1092,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -917,7 +1125,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -950,7 +1158,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -977,7 +1185,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -993,6 +1201,14 @@ events:
       - name: message
         summary: A string containing the localized description of the error.
         type: String
+
+      - name: responseText
+        summary: The response text for upload tasks (since SDK 7.2.0).
+        type: String
+
+      - name: statusCode
+        summary: The response status code for upload tasks (since SDK 7.2.0).
+        type: Number
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -1017,7 +1233,7 @@ events:
         this method.
     properties:
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -1026,7 +1242,7 @@ events:
 
   - name: usernotificationsettings
     summary: |
-        Fired when the user notification settings are registered (available for iOS 8 and later).
+        Fired when the user notification settings are registered.
     properties:
       - name: types
         summary: Notification types the application is registered to use.
@@ -1043,16 +1259,16 @@ events:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.WatchSession> instead, which is supported on iOS9 and later.
+            Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
-        Add this event if your Titanium application if you are using a WatchKit extension.  When your WatchKit extension uses the openParentApplication:reply
+        Add this event if your Titanium application if you are using a WatchKit extension. When your WatchKit extension uses the openParentApplication:reply
         method your Titanium application will be opened in the background and provides your Titanium app the information from the extension. When this
         event is fired you must provide a reply by calling the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method with
         the `handlerID` parameter from this event.
 
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
-        current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension.  The `handlerID` identifier
+        current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension. The `handlerID` identifier
         must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
 
             Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
@@ -1076,9 +1292,9 @@ events:
   - name: continueactivity
     summary: Fired when iOS continueactivity calls `continueUserActivity`.
     description: |
-        Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight `continueUserActivity` request. This event will 
-        fire when a user taps on the handoff icon or the Core Spotlight search item.  Your Titanium application will be opened in the background and provides 
-        your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the 
+        Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight `continueUserActivity` request. This event will
+        fire when a user taps on the handoff icon or the Core Spotlight search item. Your Titanium application will be opened in the background and provides
+        your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the
         user to pick-up from where they left off on their other device.
 
             Ti.App.iOS.addEventListener("continueactivity", function(e) {
@@ -1092,7 +1308,7 @@ events:
       - name: searchableItemActivityIdentifier
         summary: |
             With field will contain the searchable Unique Identifier if the continueactivity is fired from a Core Spotlight searh result.
-        type: String        
+        type: String
       - name: title
         summary: |
             The optional title provided to the user activity or search item.
@@ -1103,7 +1319,7 @@ events:
         type: String
       - name: userInfo
         summary: |
-            The optional userInfo provided to the user activity.  The userInfo is a custom dictionary and can contain any information needed 
+            The optional userInfo provided to the user activity. The userInfo is a custom dictionary and can contain any information needed
             to create your handoff or Core Spotlight session.
         type: Dictionary
     platforms: [iphone, ipad]
@@ -1127,7 +1343,7 @@ events:
 
       - name: userInfo
         summary: The payload passed by the application shortcut.
-        type: Dictionary        
+        type: Dictionary
     platforms: [iphone]
     osver: {ios: {min: "9.0"}}
     since: '5.1.0'
@@ -1153,9 +1369,20 @@ since: "1.7"
 platforms: [iphone, ipad]
 
 properties:
+  - name: identifier
+    summary: The notification identifier.
+    description: |
+        This property is required in iOS 10+ and will fallback to a generated
+        UUID-string if not set. It is recommended to manage the identifier
+        yourself, but you can also get the generated UUID by accessing via
+        the "userInfo.id" field for parity with older iOS versions.
+    optional: false
+    since: "7.3.0"
+    type: String
+
   - name: alertAction
     summary: |
-        Alert button text ('Open', by default) or slider text ('slide to unlock...', by default)
+        Alert button text ('Open', by default) or home text ('Press Home to unlock', by default)
         to display.
     type: String
     optional: true
@@ -1166,15 +1393,30 @@ properties:
     optional: true
 
   - name: alertTitle
-    summary: Alert title to display. Available since Titanium SDK 5.4.0.
+    summary: Alert title to display.
     type: String
     optional: true
-    since: "5.4.0"
+    osver: {ios: {min: "8.2"}}
+    since: "7.3.0"
+
+  - name: alertSubtitle
+    summary: Alert subtitle to display.
+    type: String
+    optional: true
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
 
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
     type: String
     optional: true
+
+  - name: attachments
+    summary: Notification attachments to display.
+    type: Array<UserNotificationAttachment>
+    optional: true
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
 
   - name: badge
     summary: Application badge value.
@@ -1183,8 +1425,7 @@ properties:
 
   - name: category
     summary: |
-        String identifier of category of actions to be displayed for an interactive
-        notification (only for iOS 8 and above).
+        String identifier of category of actions to be displayed for an interactive notification.
     type: String
     optional: true
 
@@ -1215,23 +1456,66 @@ properties:
     optional: true
 
   - name: region
-    summary: | 
+    summary: |
         Region the notification will be triggered in. Allowed parameter are:
-        
+
         - `latitude`: Latitude of the location center, in decimal degrees (required).
         - `longitude`: Longitude of the location center, in decimal degrees (required).
         - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
-        - `identifier`: Identifier of the region (optional).
     type: Dictionary
     optional: true
-    since: "5.4.0"
+    osver: {ios: {min: "8.0"}}
+    since: "7.3.0"
+
+  - name: summaryArgument
+    summary: The string the notification adds to the category's summary format string.
+    type: String
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
+
+  - name: summaryArgumentCount
+    summary: The number of items the notification adds to the category's summary format string.
+    type: String
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
+
+---
+name: UserNotificationAttachment
+summary: |
+    Provide at least the property `identifier` and `url` property to identify a local
+    image, sound or video. If your media is invalid, the API will throw an error log and
+    skip the invalid attachment.
+since: "7.3.0"
+platforms: [iphone, ipad]
+osver: {ios: {min: "10.0"}}
+properties:
+  - name: identifier
+    type: String
+    summary: The identifier of this attachment.
+    optional: false
+  - name: url
+    type: String
+    summary: |
+        The URL to the attachment's data. If you have obtained this attachment from
+        the notification-center then the URL will be security-scoped.
+    optional: false
+  - name: options
+    type: Dictionary
+    summary: An additional dictionary of options to provide.
+    description: |
+        Allowed options are:
+          * `typeHint` - File type hint (String)
+          * `clipping` - Clipping enabled or not (Boolean)
+          * `thumbnailHidden` - Thumbnail hidden or not (Boolean)
+          * `thumbnailTime` - Video frame in milliseconds (Number)
+    optional: true
 
 ---
 name: LaunchOptionsType
 summary: |
-    Dictionary object of parameters used to identify an incoming URL that is handled 
+    Dictionary object of parameters used to identify an incoming URL that is handled
     by the application.
-since: "6.0.0"    
+since: "6.0.0"
 platforms: [iphone, ipad]
 properties:
   - name: source
@@ -1240,7 +1524,7 @@ properties:
   - name: url
     summary: The url that was triggered by the application or service.
     type: String
-        
+
 ---
 name: UserNotificationSettings
 summary: |
@@ -1248,7 +1532,7 @@ summary: |
     the <Titanium.App.iOS.registerUserNotificationSettings> method.
 
     To retrieve the current notification settings, use the
-    <Titanium.App.iOS.currentUserNotificationSettings> property.
+    <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> method.
 since: "3.4.0"
 platforms: [iphone, ipad]
 

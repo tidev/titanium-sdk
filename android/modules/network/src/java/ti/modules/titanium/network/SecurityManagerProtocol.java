@@ -19,14 +19,14 @@ public interface SecurityManagerProtocol {
 	 * @return true if SecurityManagers will define SSL Context, false otherwise.
 	 */
 	public boolean willHandleURL(Uri uri);
-	
+
 	/**
 	 * Returns the X509TrustManager array for SSL Context. 
 	 * @param uri - The end point of the network connection
 	 * @return Return array of X509TrustManager for custom server validation. Null otherwise.
 	 */
 	public X509TrustManager[] getTrustManagers(HTTPClientProxy proxy);
-	
+
 	/**
 	 * Returns the X509KeyManager array for the SSL Context.
 	 * @param uri - The end point of the network connection

@@ -1,17 +1,21 @@
 'use strict';
 
-const path = require('path'),
-	os = require('os'),
-	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
-	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
-	async = require('async'),
-	fs = require('fs-extra'),
-	utils = require('./utils'),
-	copyFile = utils.copyFile,
-	copyFiles = utils.copyFiles,
-	downloadURL = utils.downloadURL,
-	ROOT_DIR = path.join(__dirname, '..'),
-	SUPPORT_DIR = path.join(ROOT_DIR, 'support');
+const path = require('path');
+const os = require('os');
+const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
+const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
+const async = require('async');
+const fs = require('fs-extra');
+const babel = require('@babel/core');
+const appc = require('node-appc');
+const version = appc.version;
+const utils = require('./utils');
+const copyFile = utils.copyFile;
+const copyFiles = utils.copyFiles;
+const downloadURL = utils.downloadURL;
+const ROOT_DIR = path.join(__dirname, '..');
+const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
+const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 /**
  * Given a folder we'd like to zip up and the destination filename, this will zip up the directory contents.
@@ -58,19 +62,6 @@ function unzip(zipfile, dest, next) {
 	});
 }
 
-function leftpad(str, len, ch) {
-	str = String(str);
-	let i = -1;
-	if (!ch && ch !== 0) {
-		ch = ' ';
-	}
-	len -= str.length;
-	while (++i < len) {
-		str = ch + str;
-	}
-	return str;
-}
-
 /**
  * @param {String} outputDir path to place the temp files and zipfile
  * @param {String} targetOS  'win32', 'linux', or 'osx'
@@ -79,9 +70,11 @@ function leftpad(str, len, ch) {
  * @param {string} versionTag version tag
  * @param {string} moduleApiVersion module api version
  * @param {string} gitHash git commit SHA
+ * @param {string} timestamp build date/timestamp
+ * @param {boolean} [skipZip] Optionally skip zipping up the result
  * @constructor
  */
-function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApiVersion, gitHash) {
+function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApiVersion, gitHash, timestamp, skipZip) {
 	this.srcDir = ROOT_DIR;
 	this.outputDir = outputDir; // root folder where output is placed
 	this.targetOS = targetOS;
@@ -90,17 +83,17 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.versionTag = versionTag;
 	this.moduleApiVersion = moduleApiVersion;
 	this.gitHash = gitHash;
-	const date = new Date();
-	this.timestamp = '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
-	this.zipFile = path.join(this.outputDir, 'mobilesdk-' + this.versionTag + '-' + this.targetOS + '.zip');
+	this.timestamp = timestamp;
+	this.zipFile = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}.zip`);
 	this.packagers = {
-		'android': this.zipAndroid.bind(this),
-		'ios': this.zipIOS.bind(this),
-		'windows': this.zipWindows.bind(this)
+		android: this.zipAndroid.bind(this),
+		ios: this.zipIOS.bind(this),
+		windows: this.zipWindows.bind(this)
 	};
 	// Location where we build up the zip file contents
-	this.zipDir = path.join(this.outputDir, 'ziptmp');
+	this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 	this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
+	this.skipZip = skipZip;
 }
 
 /**
@@ -133,13 +126,11 @@ Packager.prototype.generateManifestJSON = function (next) {
  */
 Packager.prototype.zipIOS = function (next) {
 	const IOS = require('./ios');
-	// FIXME Pass along the version/gitHash/options!
 	new IOS({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
 Packager.prototype.zipWindows = function (next) {
 	const Windows = require('./windows');
-	// FIXME Pass along the version/gitHash/options!
 	new Windows({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
@@ -149,7 +140,6 @@ Packager.prototype.zipWindows = function (next) {
  */
 Packager.prototype.zipAndroid = function (next) {
 	const Android = require('./android');
-	// FIXME Pass along the ndk/sdk/version/apiLevel/options!
 	new Android({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
@@ -158,7 +148,7 @@ Packager.prototype.zipAndroid = function (next) {
  * @param  {Function} next callback function
  */
 Packager.prototype.cleanZipDir = function (next) {
-	console.log('Cleaning previous zipfile and tmp dir...');
+	console.log('Cleaning previous zipfile and tmp dir');
 	// IF zipDir exists, wipe it
 	if (fs.existsSync(this.zipDir)) {
 		fs.removeSync(this.zipDir);
@@ -175,7 +165,7 @@ Packager.prototype.cleanZipDir = function (next) {
  * @param  {Function} next callback function
  */
 Packager.prototype.includePackagedModules = function (next) {
-	console.log('Zipping packaged modules...');
+	console.log('Zipping packaged modules');
 	// Unzip all the zipfiles in support/module/packaged
 	let supportedPlatforms = this.platforms.concat([ 'commonjs' ]);
 	// Include aliases for ios/iphone/ipad
@@ -189,21 +179,25 @@ Packager.prototype.includePackagedModules = function (next) {
 	// that will download the all-in-one distribution.
 	supportedPlatforms = supportedPlatforms.concat([ 'hyperloop' ]);
 
-	let urls = []; // urls of module zips to grab
+	let modules = []; // module objects holding url/integrity
 	// Read modules.json, grab the object for each supportedPlatform
 	const contents = fs.readFileSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json')).toString(),
 		modulesJSON = JSON.parse(contents);
 	for (let x = 0; x < supportedPlatforms.length; x++) {
-		const newModuleURLS = modulesJSON[supportedPlatforms[x]];
-		urls = urls.concat(newModuleURLS || []);
+		const modulesForPlatform = modulesJSON[supportedPlatforms[x]];
+		if (modulesForPlatform) {
+			modules = modules.concat(Object.values(modulesForPlatform));
+		}
 	}
+	// remove duplicates
+	modules = Array.from(new Set(modules));
 
 	// Fetch the listed modules from URLs...
 	const outDir = this.zipDir,
 		zipFiles = [];
-	async.each(urls, function (url, cb) {
+	async.each(modules, function (moduleObject, cb) {
 		// FIXME Don't show progress bars, because they clobber each other
-		downloadURL(url, function (err, file) {
+		downloadURL(moduleObject.url, moduleObject.integrity, function (err, file) {
 			if (err) {
 				return cb(err);
 			}
@@ -241,8 +235,12 @@ Packager.prototype.copy = function (files, next) {
 /**
  * Zip it all up and wipe the zip dir
  * @param {Function} next callback function
+ * @returns {void}
  */
 Packager.prototype.zip = function (next) {
+	if (this.skipZip) {
+		return next();
+	}
 	zip(this.zipDir, this.zipFile, function (err) {
 		if (err) {
 			return next(err);
@@ -252,21 +250,71 @@ Packager.prototype.zip = function (next) {
 	}.bind(this));
 };
 
+Packager.prototype.transpile = async function (srcDir, destDir, options) {
+	const files = await fs.readdir(srcDir);
+	await Promise.all(files.map(file => {
+		const srcPath = path.join(srcDir, file);
+		const destPath = path.join(destDir, file);
+		const stats = fs.statSync(srcPath);
+		if (stats.isDirectory()) {
+			// recurse!
+			return fs.ensureDir(destPath).then(() => this.transpile(srcPath, destPath, options));
+		}
+
+		// read file in (if JS), transpile, write it out
+		if (file.endsWith('.js')) {
+			return babel.transformFileAsync(srcPath, options)
+				.then(result => fs.writeFile(destPath, result.code));
+		}
+		// just copy it
+		return fs.copy(srcPath, destPath);
+	}));
+};
+
 /**
  * [package description]
  * @param {Function} next callback function
  */
 Packager.prototype.package = function (next) {
-	console.log('Zipping Mobile SDK...');
+	console.log('Zipping Mobile SDK');
 	async.series([
 		this.cleanZipDir.bind(this),
 		this.generateManifestJSON.bind(this),
 		function (cb) {
+			console.log('Writing JSCA');
 			fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca'), cb);
 		}.bind(this),
 		function (cb) {
-			// Copy some root files, cli/, templates/, node_modules minus .bin sub-dir
+			console.log('Copying SDK files');
+			// Copy some root files, cli/, templates/, node_modules
 			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates' ], cb);
+		}.bind(this),
+		function (cb) {
+			console.log('Transpiling common SDK JS');
+			const destDir = path.join(this.zipSDKDir, 'common');
+			// Pull out android's V8 target (and transform into equivalent chrome version)
+			const v8Version = require('../android/package.json').v8.version;
+			const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+			const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
+			// Now pull out min IOS target
+			const minSupportedIosSdk = version.parseMin(require('../iphone/package.json').vendorDependencies['ios sdk']);
+			// TODO: filter to only targets relevant for platforms we're building?
+			const options = {
+				targets: {
+					chrome: chromeVersion,
+					ios: minSupportedIosSdk
+				}
+			};
+			// pull out windows target (if it exists)
+			if (fs.pathExistsSync('../windows/package.json')) {
+				const windowsSafariVersion = require('../windows/package.json').safari;
+				options.targets.safari = windowsSafariVersion;
+			}
+			this.transpile(path.join(this.srcDir, 'common'), destDir, {
+				presets: [ [ '@babel/env', options ] ]
+			})
+				.then(() => cb())
+				.catch(err => cb(err));
 		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {

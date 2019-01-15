@@ -8,8 +8,8 @@
 
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
-#import "TiUtils.h"
-#import "TiViewTemplate.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewTemplate.h>
 
 @interface TiUIListViewProxy ()
 @property (nonatomic, readwrite) TiUIListView *listView;
@@ -520,7 +520,7 @@
 
 - (NSMutableArray *)selectedItems
 {
-  NSMutableArray *result = [[NSMutableArray alloc] init];
+  NSMutableArray *result = [NSMutableArray array];
   NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
 
   if (selectedRows != nil) {
@@ -541,6 +541,7 @@
           [eventObject setObject:itemId forKey:@"itemId"];
         }
         [result addObject:eventObject];
+        [eventObject release];
       }
     },
         YES);

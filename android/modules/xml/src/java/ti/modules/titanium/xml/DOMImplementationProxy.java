@@ -11,8 +11,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class DOMImplementationProxy extends KrollProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class DOMImplementationProxy extends KrollProxy
+{
 
 	private DOMImplementation impl;
 	public DOMImplementationProxy(DOMImplementation impl)
@@ -22,21 +23,23 @@ public class DOMImplementationProxy extends KrollProxy {
 	}
 
 	@Kroll.method
-	public DocumentProxy createDocument(String namespaceURI, String qualifiedName,
-			DocumentTypeProxy doctype) throws DOMException {
-		return (DocumentProxy)NodeProxy.getNodeProxy(
-				impl.createDocument(namespaceURI, qualifiedName,
-						doctype == null ? null : doctype.getDocumentType()));
+	public DocumentProxy createDocument(String namespaceURI, String qualifiedName, DocumentTypeProxy doctype)
+		throws DOMException
+	{
+		return (DocumentProxy) NodeProxy.getNodeProxy(
+			impl.createDocument(namespaceURI, qualifiedName, doctype == null ? null : doctype.getDocumentType()));
 	}
 
 	@Kroll.method
-	public DocumentTypeProxy createDocumentType(String qualifiedName,
-			String publicId, String systemId) throws DOMException {
-		return (DocumentTypeProxy)NodeProxy.getNodeProxy(impl.createDocumentType(qualifiedName, publicId, systemId));
+	public DocumentTypeProxy createDocumentType(String qualifiedName, String publicId, String systemId)
+		throws DOMException
+	{
+		return (DocumentTypeProxy) NodeProxy.getNodeProxy(impl.createDocumentType(qualifiedName, publicId, systemId));
 	}
 
 	@Kroll.method
-	public boolean hasFeature(String feature, String version) {
+	public boolean hasFeature(String feature, String version)
+	{
 		return impl.hasFeature(feature, version);
 	}
 

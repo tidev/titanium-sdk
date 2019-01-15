@@ -7,10 +7,10 @@
 
 #ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiFile.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <MobileCoreServices/UTType.h>
@@ -269,22 +269,18 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasText:(id)unused
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasStrings]);
   }
-#endif
 
   return [self hasData:@"text/plain"];
 }
 
 - (id)hasColors:(id)unused
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasColors]);
   }
-#endif
 
   NSLog(@"[WARN] Ti.UI.Clipboard.hasColors() is only available on iOS 10 and later.");
   return NUMBOOL(NO);
@@ -292,11 +288,9 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasImages:(id)unused
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasImages]);
   }
-#endif
 
   NSLog(@"[WARN] Ti.UI.Clipboard.hasImages() is only available on iOS 10 and later.");
   return NUMBOOL(NO);
@@ -304,11 +298,9 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasURLs:(id)unused
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMBOOL([[self pasteboard] hasURLs]);
   }
-#endif
 
   NSLog(@"[WARN] Ti.UI.Clipboard.hasURLs() is only available on iOS 10 and later.");
   return NUMBOOL(NO);
@@ -316,8 +308,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (void)setItems:(id)args
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSArray *items = [args objectForKey:@"items"];
     NSDictionary *options = [args objectForKey:@"options"];
 
@@ -346,13 +337,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     },
         YES);
   }
-#endif
 }
 
 - (id)getItems:(id)unused
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     __block id items;
 
     TiThreadPerformOnMainThread(^{
@@ -378,7 +367,6 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
     return [items autorelease];
   }
-#endif
 
   return @[];
 }

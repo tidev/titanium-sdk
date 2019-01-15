@@ -10,31 +10,6 @@
 #import "CalendarModule.h"
 #import "TiCalendarCalendar.h"
 
-#pragma mark - Backwards compatibility for pre-iOS 6.0
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_6_0
-//TODO: Should we warn that they need to update to the latest XCode if this is happening?
-#define EKAuthorizationStatusNotDetermined 0
-#define EKAuthorizationStatusRestricted 1
-#define EKAuthorizationStatusDenied 2
-#define EKAuthorizationStatusAuthorized 3
-
-enum {
-  EKEntityTypeEvent,
-  EKEntityTypeReminder
-};
-typedef NSUInteger EKEntityType;
-
-typedef void (^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError *error);
-
-@protocol EKEventStoreIOS6Support <NSObject>
-@optional
-+ (NSInteger)authorizationStatusForEntityType:(EKEntityType)entityType;
-- (void)requestAccessToEntityType:(EKEntityType)entityType completion:(EKEventStoreRequestAccessCompletionHandler)completion;
-@end
-
-#endif
-
 @implementation CalendarModule
 
 #pragma mark - internal methods
@@ -144,6 +119,7 @@ typedef void (^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError
     if ([calendar_ allowsContentModifications]) {
       TiCalendarCalendar *calendar = [[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self];
       [editableCalendars addObject:calendar];
+      RELEASE_TO_NIL(calendar);
     }
   }
   return editableCalendars;
@@ -245,14 +221,13 @@ typedef void (^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError
     return;
   }
   TiThreadPerformOnMainThread(^() {
-
     EKEventStore *ourstore = [self store];
     [ourstore requestAccessToEntityType:EKEntityTypeEvent
                              completion:^(BOOL granted, NSError *error) {
                                NSDictionary *propertiesDict;
                                if (error == nil) {
                                  NSString *errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
-                                 propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMsg];
+                                 propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
                                } else {
                                  propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                                }
@@ -270,7 +245,7 @@ typedef void (^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCalendarsUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !calendarPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !calendarPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCalendarsUsageDescription\" inside the plist in your tiapp.xml when accessing the native calendar. Please add the key and re-run the application.");
   }
 

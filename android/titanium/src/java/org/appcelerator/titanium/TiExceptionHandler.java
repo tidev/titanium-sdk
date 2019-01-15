@@ -1,14 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
-import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollExceptionHandler;
 import org.appcelerator.kroll.KrollRuntime;
@@ -22,12 +22,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import android.widget.FrameLayout;
+import android.text.InputType;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Window;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Scroller;
 import android.widget.TextView;
 
 /**
@@ -41,13 +46,86 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
-	public void printError(String title, String message, String sourceName, int line, String lineSource,
-		int lineOffset)
+	public static final String ERROR_TITLE = "title";
+	public static final String ERROR_MESSAGE = "message";
+	public static final String ERROR_SOURCENAME = "sourceName";
+	public static final String ERROR_LINE = "line";
+	public static final String ERROR_LINESOURCE = "lineSource";
+	public static final String ERROR_LINEOFFSET = "lineOffset";
+	public static final String ERROR_JS_STACK = "javascriptStack";
+	public static final String ERROR_JAVA_STACK = "javaStack";
+
+	private static final String fill(int count)
 	{
-		Log.e(TAG, "----- Titanium Javascript " + title + " -----");
-		Log.e(TAG, "- In " + sourceName + ":" + line + "," + lineOffset);
-		Log.e(TAG, "- Message: " + message);
-		Log.e(TAG, "- Source: " + lineSource);
+		char[] string = new char[count];
+		Arrays.fill(string, ' ');
+		return new String(string);
+	}
+
+	public static final KrollDict getErrorDict(ExceptionMessage error)
+	{
+		final KrollDict dict = new KrollDict();
+		dict.put(ERROR_TITLE, error.title);
+		dict.put(ERROR_MESSAGE, error.message);
+		dict.put(ERROR_SOURCENAME, error.sourceName);
+		dict.put(ERROR_LINE, error.line);
+		dict.put(ERROR_LINESOURCE, error.lineSource);
+		dict.put(ERROR_LINEOFFSET, error.lineOffset);
+		dict.put(ERROR_JS_STACK, error.jsStack);
+		dict.put(ERROR_JAVA_STACK, error.javaStack);
+		return dict;
+	}
+
+	public static String getError(KrollDict error)
+	{
+		String output = new String();
+
+		final String sourceName = error.getString(ERROR_SOURCENAME);
+		final int line = error.getInt(ERROR_LINE);
+		final String lineSource = error.getString(ERROR_LINESOURCE);
+		final int lineOffset = error.getInt(ERROR_LINEOFFSET);
+		final String jsStack = error.getString(ERROR_JS_STACK);
+		final String javaStack = error.getString(ERROR_JAVA_STACK);
+		final String message = error.getString(ERROR_MESSAGE);
+
+		if (sourceName != null) {
+			output += sourceName + ":" + line + "\n";
+		}
+		if (lineSource != null) {
+			output += lineSource + "\n";
+			output += fill(lineOffset - 1) + "^\n";
+		}
+		// sometimes the stacktrace can include the error
+		// don't re-print the error if that is the case
+		if (jsStack != null) {
+			if (!jsStack.contains("Error:")) {
+				output += message + "\n";
+			}
+			output += jsStack + "\n";
+		} else {
+			output += message + "\n";
+		}
+		if (javaStack != null) {
+			output += javaStack;
+
+			// no java stack, attempt to obtain last ten stack entries
+			// omitting our error handling entries
+		} else {
+			StackTraceElement[] trace = new Error().getStackTrace();
+			int startIndex = 0;
+			for (StackTraceElement e : trace) {
+				startIndex++;
+				if (e.getMethodName().equals("dispatchException")) {
+					break;
+				}
+			}
+			int endIndex = startIndex + 10;
+			for (int i = startIndex; trace.length >= endIndex && i < endIndex; i++) {
+				output += "\n    " + trace[i].toString();
+			}
+		}
+
+		return output;
 	}
 
 	public TiExceptionHandler()
@@ -64,44 +142,33 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 	}
 
-	protected void handleOpenErrorDialog(ExceptionMessage error)
+	protected static void handleOpenErrorDialog(final ExceptionMessage error)
 	{
-		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
-		if (application == null) {
+		final TiApplication tiApp = TiApplication.getInstance();
+		if (tiApp == null) {
 			return;
 		}
 
-		Activity activity = application.getCurrentActivity();
+		final Activity activity = tiApp.getRootOrCurrentActivity();
 		if (activity == null || activity.isFinishing()) {
-			Log.w(TAG, "Activity is null or already finishing, skipping dialog.");
 			return;
 		}
 
-		KrollDict dict = new KrollDict();
-		dict.put("title", error.title);
-		dict.put("message", error.message);
-		dict.put("sourceName", error.sourceName);
-		dict.put("line", error.line);
-		dict.put("lineSource", error.lineSource);
-		dict.put("lineOffset", error.lineOffset);
-		TiApplication.getInstance().fireAppEvent("uncaughtException", dict);
+		final KrollDict dict = getErrorDict(error);
+		tiApp.fireAppEvent("uncaughtException", dict);
+		Log.e(TAG, getError(dict));
 
-		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset);
-
-		TiApplication tiApplication = TiApplication.getInstance();
-		if (tiApplication.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
+		if (tiApp.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			return;
 		}
 
 		if (!dialogShowing) {
 			dialogShowing = true;
-			final ExceptionMessage fError = error;
-			application.waitForCurrentActivity(new CurrentActivityListener()
-			{
-				// TODO @Override
+			tiApp.waitForCurrentActivity(new CurrentActivityListener() {
+				@Override
 				public void onCurrentActivityReady(Activity activity)
 				{
-					createDialog(fError);
+					createDialog(dict);
 				}
 			});
 		} else {
@@ -109,111 +176,65 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 	}
 
-	protected static void createDialog(final ExceptionMessage error)
+	protected static void createDialog(final KrollDict error)
 	{
-		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
-		if (application == null) {
+		final TiApplication tiApp = TiApplication.getInstance();
+		if (tiApp == null) {
 			return;
 		}
 
-		Context context = application.getCurrentActivity();
-		FrameLayout layout = new FrameLayout(context);
-		layout.setBackgroundColor(Color.rgb(128, 0, 0));
+		final Context context = tiApp.getCurrentActivity();
 
-		LinearLayout vlayout = new LinearLayout(context);
-		vlayout.setOrientation(LinearLayout.VERTICAL);
-		vlayout.setPadding(10, 10, 10, 10);
-		layout.addView(vlayout);
+		final TextView errorView = new TextView(context);
+		errorView.setBackgroundColor(0xFFF5F5F5);
+		errorView.setTextColor(0xFFE53935);
+		errorView.setPadding(5, 5, 5, 5);
+		errorView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+																LinearLayout.LayoutParams.MATCH_PARENT));
+		errorView.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+		errorView.setSingleLine(false);
+		errorView.setScroller(new Scroller(context));
+		errorView.setVerticalScrollBarEnabled(true);
+		errorView.setHorizontallyScrolling(true);
+		errorView.setHorizontalScrollBarEnabled(true);
+		errorView.setMovementMethod(new ScrollingMovementMethod());
+		errorView.setTypeface(Typeface.MONOSPACE);
+		errorView.setText(getError(error));
 
-		TextView sourceInfoView = new TextView(context);
-		sourceInfoView.setBackgroundColor(Color.WHITE);
-		sourceInfoView.setTextColor(Color.BLACK);
-		sourceInfoView.setPadding(4, 5, 4, 0);
-		sourceInfoView.setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
+		final RelativeLayout layout = new RelativeLayout(context);
+		layout.setPadding(0, 50, 0, 0);
+		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+			RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+		layout.setLayoutParams(layoutParams);
+		layout.addView(errorView);
 
-		TextView messageView = new TextView(context);
-		messageView.setBackgroundColor(Color.WHITE);
-		messageView.setTextColor(Color.BLACK);
-		messageView.setPadding(4, 5, 4, 0);
-		messageView.setText(error.message);
-
-		TextView sourceView = new TextView(context);
-		sourceView.setBackgroundColor(Color.WHITE);
-		sourceView.setTextColor(Color.BLACK);
-		sourceView.setPadding(4, 5, 4, 0);
-		sourceView.setText(error.lineSource);
-
-		TextView infoLabel = new TextView(context);
-		infoLabel.setText("Location: ");
-		infoLabel.setTextColor(Color.WHITE);
-		infoLabel.setTextScaleX(1.5f);
-
-		TextView messageLabel = new TextView(context);
-		messageLabel.setText("Message: ");
-		messageLabel.setTextColor(Color.WHITE);
-		messageLabel.setTextScaleX(1.5f);
-
-		TextView sourceLabel = new TextView(context);
-		sourceLabel.setText("Source: ");
-		sourceLabel.setTextColor(Color.WHITE);
-		sourceLabel.setTextScaleX(1.5f);
-
-		vlayout.addView(infoLabel);
-		vlayout.addView(sourceInfoView);
-		vlayout.addView(messageLabel);
-		vlayout.addView(messageView);
-		vlayout.addView(sourceLabel);
-		vlayout.addView(sourceView);
-
-		OnClickListener clickListener = new OnClickListener()
-		{
+		final OnClickListener clickListener = new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which)
 			{
+				dialogShowing = false;
 				if (which == DialogInterface.BUTTON_POSITIVE) {
-					// Kill Process
 					Process.killProcess(Process.myPid());
-
-				} else if (which == DialogInterface.BUTTON_NEUTRAL) {
-					// Continue
-				} else if (which == DialogInterface.BUTTON_NEGATIVE) {
-					// TODO: Reload (Fastdev)
-					// if (error.tiContext != null && error.tiContext.get() != null) {
-					// reload(error.sourceName);
-					// }
-
 				}
 				if (!errorMessages.isEmpty()) {
-					createDialog(errorMessages.removeFirst());
-
-				} else {
-					dialogShowing = false;
+					handleOpenErrorDialog(errorMessages.removeFirst());
 				}
 			}
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context)
-			.setTitle(error.title).setView(layout)
-			.setPositiveButton("Kill", clickListener)
-			.setNeutralButton("Continue", clickListener)
-			.setCancelable(false);
+		final AlertDialog.Builder builder = new AlertDialog.Builder(context)
+												.setTitle(error.getString("title"))
+												.setView(layout)
+												.setPositiveButton("Kill", clickListener)
+												.setNeutralButton("Continue", clickListener)
+												.setCancelable(false);
 
-		// TODO: Enable when we have fastdev working
-		// if (TiFastDev.isFastDevEnabled()) {
-		// builder.setNegativeButton("Reload", clickListener);
-		// }
-		builder.create().show();
-	}
+		final AlertDialog dialog = builder.create();
+		dialog.show();
 
-	protected static void reload(String sourceName)
-	{
-		// try {
-		// TODO: Enable this when we have fastdev
-		// KrollContext.getKrollContext().evalFile(sourceName);
-		/*
-		 * } catch (IOException e) {
-		 * Log.e(TAG, e.getMessage(), e);
-		 * }
-		 */
+		final Window window = ((Activity) context).getWindow();
+		Rect displayRect = new Rect();
+		window.getDecorView().getWindowVisibleDisplayFrame(displayRect);
+		dialog.getWindow().setLayout(displayRect.width(), (int) (displayRect.height() * 0.95));
 	}
 
 	public boolean handleMessage(Message msg)

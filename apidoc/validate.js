@@ -23,129 +23,129 @@ const WINDOWS_CONSTANTS = [
 	'Titanium.UI.Windows.ListViewScrollPosition.*'
 ];
 
-const Examples = [{
+const Examples = [ {
 	required: {
-		'title' : 'String',
-		'example' : 'Markdown'
+		title: 'String',
+		example: 'Markdown'
 	}
-}];
+} ];
 
 const Deprecated = {
 	required: {
-		'since' : 'Since'
+		since: 'Since'
 	},
 	optional: {
-		'removed' : 'String',
-		'notes' : 'String'
+		removed: 'String',
+		notes: 'String'
 	}
 };
 
 const validSyntax = {
 	required: {
-		'name' : 'String',
-		'summary' : 'String',
+		name: 'String',
+		summary: 'String',
 	},
 	optional: {
-		'description' : 'Markdown',
-		'createable' : 'Boolean',
-		'platforms' : [ common.VALID_PLATFORMS ],
-		'exclude-platforms' : [ common.VALID_PLATFORMS ],
-		'excludes' : {
+		description: 'Markdown',
+		createable: 'Boolean',
+		platforms: [ common.VALID_PLATFORMS ],
+		'exclude-platforms': [ common.VALID_PLATFORMS ],
+		excludes: {
 			optional: {
-				'events' : 'Array<events.name>',
-				'methods' : 'Array<methods.name>',
-				'properties' : 'Array<properties.name>'
+				events: 'Array<events.name>',
+				methods: 'Array<methods.name>',
+				properties: 'Array<properties.name>'
 			}
 		},
-		'examples' : Examples,
-		'osver' : 'OSVersions',
-		'extends' : 'Class',
-		'deprecated' : Deprecated,
-		'since' : 'Since',
-		'events' : [{
+		examples: Examples,
+		osver: 'OSVersions',
+		extends: 'Class',
+		deprecated: Deprecated,
+		since: 'Since',
+		events: [ {
 			required: {
-				'name' : 'String',
-				'summary' : 'String',
+				name: 'String',
+				summary: 'String',
 			},
 			optional: {
-				'description' : 'String',
-				'platforms' : [ common.VALID_PLATFORMS ],
-				'since' : 'Since',
-				'deprecated' : Deprecated,
-				'osver' : 'OSVersions',
-				'properties' : [{
+				description: 'String',
+				platforms: [ common.VALID_PLATFORMS ],
+				since: 'Since',
+				deprecated: Deprecated,
+				osver: 'OSVersions',
+				properties: [ {
 					required: {
-						'name' : 'String',
-						'summary' : 'String',
+						name: 'String',
+						summary: 'String',
 					},
 					optional: {
-						'type' : 'DataType',
-						'platforms' : [ common.VALID_PLATFORMS ],
-						'deprecated' : Deprecated,
-						'since': 'Since',
-						'exclude-platforms' : [ common.VALID_PLATFORMS ],
-						'constants' : 'Constants'
+						type: 'DataType',
+						platforms: [ common.VALID_PLATFORMS ],
+						deprecated: Deprecated,
+						since: 'Since',
+						'exclude-platforms': [ common.VALID_PLATFORMS ],
+						constants: 'Constants'
 					}
-				}],
-				'exclude-platforms' : [ common.VALID_PLATFORMS ],
-				'notes': 'Invalid'
+				} ],
+				'exclude-platforms': [ common.VALID_PLATFORMS ],
+				notes: 'Invalid'
 			}
-		}],
-		'methods' : [{
+		} ],
+		methods: [ {
 			required: {
-				'name' : 'String',
-				'summary' : 'String'
+				name: 'String',
+				summary: 'String'
 			},
 			optional: {
-				'description' : 'String',
-				'returns' : 'Returns', // FIXME Validate 'Returns' has a required 'type' String property
-				'platforms' : [ common.VALID_PLATFORMS ],
-				'since' : 'Since',
-				'deprecated' : Deprecated,
-				'examples' : Examples,
-				'osver' : 'OSVersions',
-				'parameters' : [{
+				description: 'String',
+				returns: 'Returns', // FIXME Validate 'Returns' has a required 'type' String property
+				platforms: [ common.VALID_PLATFORMS ],
+				since: 'Since',
+				deprecated: Deprecated,
+				examples: Examples,
+				osver: 'OSVersions',
+				parameters: [ {
 					required: {
-						'name' : 'String',
-						'summary' : 'String',
-						'type' : 'DataType'
+						name: 'String',
+						summary: 'String',
+						type: 'DataType'
 					},
 					optional: {
-						'optional' : 'Boolean',
-						'default' : 'Default',
-						'repeatable' : 'Boolean',
-						'constants' : 'Constants',
-						'notes': 'Invalid'
+						optional: 'Boolean',
+						default: 'Default',
+						repeatable: 'Boolean',
+						constants: 'Constants',
+						notes: 'Invalid'
 					}
-				}],
-				'exclude-platforms' : [ common.VALID_PLATFORMS ],
-				'notes': 'Invalid'
+				} ],
+				'exclude-platforms': [ common.VALID_PLATFORMS ],
+				notes: 'Invalid'
 			}
-		}],
-		'properties' : [{
+		} ],
+		properties: [ {
 			required: {
-				'name' : 'String',
-				'summary' : 'String',
-				'type' : 'DataType'
+				name: 'String',
+				summary: 'String',
+				type: 'DataType'
 			},
 			optional: {
-				'description' : 'String',
-				'platforms' : [ common.VALID_PLATFORMS ],
-				'since' : 'Since',
-				'deprecated' : Deprecated,
-				'osver' : 'OSVersions',
-				'examples' : Examples,
-				'permission' : [ 'read-only', 'write-only', 'read-write' ], // FIXME Enforce permission must be set to 'read-only' if name of property is all caps: [A-Z]+[A-Z_]*
-				'availability' : [ 'always', 'creation', 'not-creation' ],
-				'accessors' : 'Boolean',
-				'optional' : 'Boolean',
-				'value' : 'Primitive',
-				'default' : 'Default',
-				'exclude-platforms' : [ common.VALID_PLATFORMS ],
-				'constants' : 'Constants',
-				'notes': 'Invalid'
+				description: 'String',
+				platforms: [ common.VALID_PLATFORMS ],
+				since: 'Since',
+				deprecated: Deprecated,
+				osver: 'OSVersions',
+				examples: Examples,
+				permission: [ 'read-only', 'write-only', 'read-write' ], // FIXME Enforce permission must be set to 'read-only' if name of property is all caps: [A-Z]+[A-Z_]*
+				availability: [ 'always', 'creation', 'not-creation' ],
+				accessors: 'Boolean',
+				optional: 'Boolean',
+				value: 'Primitive',
+				default: 'Default',
+				'exclude-platforms': [ common.VALID_PLATFORMS ],
+				constants: 'Constants',
+				notes: 'Invalid'
 			}
-		}]
+		} ]
 	}
 };
 
@@ -557,11 +557,16 @@ function validateKey(obj, syntax, currentKey, className) {
 			if (Array.isArray(syntax[0])) {
 				// Validate array elements against syntax array
 				const errs = [];
-				obj.forEach(function (elem) {
-					if (!~syntax[0].indexOf(elem)) {
-						errs.push('Invalid array element: ' + elem + '; possible values: ' + syntax[0]);
-					}
-				});
+				// If key is 'platforms', validate not an empty array!
+				if (currentKey === 'platforms' && obj.length === 0) {
+					errs.push('platforms array must not be empty. Remove to fall back to "default" platforms based on "since" value; or remove doc entry if this applies to no platforms.');
+				} else {
+					obj.forEach(function (elem) {
+						if (!~syntax[0].indexOf(elem)) {
+							errs.push('Invalid array element: ' + elem + '; possible values: ' + syntax[0]);
+						}
+					});
+				}
 				if (errs.length > 0) {
 					errors = errs;
 				}

@@ -15,8 +15,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class ElementProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class ElementProxy extends NodeProxy
+{
 
 	private final static String TAG = "Element";
 
@@ -27,8 +28,11 @@ public class ElementProxy extends NodeProxy {
 		this.element = element;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTextContent()
+	// clang-format on
 	{
 		StringBuilder sb = new StringBuilder();
 		getTextImpl(element, sb);
@@ -38,18 +42,21 @@ public class ElementProxy extends NodeProxy {
 	private void getTextImpl(Node node, StringBuilder builder)
 	{
 		NodeList children = node.getChildNodes();
-		for (int i = 0; i < children.getLength(); i++)
-		{
+		for (int i = 0; i < children.getLength(); i++) {
 			Node child = children.item(i);
 			switch (child.getNodeType()) {
 				case Node.TEXT_NODE:
-					builder.append(((Text)child).getNodeValue()); break;
+					builder.append(((Text) child).getNodeValue());
+					break;
 				case Node.CDATA_SECTION_NODE:
-					builder.append(((CDATASection)child).getData()); break;
+					builder.append(((CDATASection) child).getData());
+					break;
 				case Node.ENTITY_NODE:
 				case Node.ELEMENT_NODE:
-					getTextImpl(child, builder); break;
-				default: break;
+					getTextImpl(child, builder);
+					break;
+				default:
+					break;
 			}
 		}
 	}
@@ -67,15 +74,13 @@ public class ElementProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public AttrProxy getAttributeNodeNS(String namespaceURI, String localName)
-		throws DOMException
+	public AttrProxy getAttributeNodeNS(String namespaceURI, String localName) throws DOMException
 	{
 		return getProxy(element.getAttributeNodeNS(namespaceURI, localName));
 	}
 
 	@Kroll.method
-	public String getAttributeNS(String namespaceURI, String localName)
-		throws DOMException
+	public String getAttributeNS(String namespaceURI, String localName) throws DOMException
 	{
 		return element.getAttributeNS(namespaceURI, localName);
 	}
@@ -99,14 +104,16 @@ public class ElementProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public NodeListProxy getElementsByTagNameNS(String namespaceURI, String localName)
-		throws DOMException
+	public NodeListProxy getElementsByTagNameNS(String namespaceURI, String localName) throws DOMException
 	{
 		return filterThisFromNodeList(element.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTagName()
+	// clang-format on
 	{
 		return element.getTagName();
 	}
@@ -118,43 +125,37 @@ public class ElementProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public boolean hasAttributeNS(String namespaceURI, String localName)
-		throws DOMException
+	public boolean hasAttributeNS(String namespaceURI, String localName) throws DOMException
 	{
 		return element.hasAttributeNS(namespaceURI, localName);
 	}
 
 	@Kroll.method
-	public void removeAttribute(String name)
-		throws DOMException
+	public void removeAttribute(String name) throws DOMException
 	{
 		element.removeAttribute(name);
 	}
 
 	@Kroll.method
-	public AttrProxy removeAttributeNode(AttrProxy oldAttr)
-		throws DOMException
+	public AttrProxy removeAttributeNode(AttrProxy oldAttr) throws DOMException
 	{
 		return getProxy(element.removeAttributeNode(oldAttr.getAttr()));
 	}
 
 	@Kroll.method
-	public void removeAttributeNS(String namespaceURI, String localName)
-		throws DOMException
+	public void removeAttributeNS(String namespaceURI, String localName) throws DOMException
 	{
 		element.removeAttributeNS(namespaceURI, localName);
 	}
 
 	@Kroll.method
-	public void setAttribute(String name, String value)
-		throws DOMException
+	public void setAttribute(String name, String value) throws DOMException
 	{
 		element.setAttribute(name, value);
 	}
 
 	@Kroll.method
-	public AttrProxy setAttributeNode(AttrProxy newAttr)
-		throws DOMException
+	public AttrProxy setAttributeNode(AttrProxy newAttr) throws DOMException
 	{
 		// The node name of newAttr
 		String newAttrName = newAttr.getNodeName();
@@ -196,8 +197,7 @@ public class ElementProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public AttrProxy setAttributeNodeNS(AttrProxy newAttr)
-		throws DOMException
+	public AttrProxy setAttributeNodeNS(AttrProxy newAttr) throws DOMException
 	{
 		AttrProxy existedAttr = this.getAttributeNodeNS(newAttr.getNamespaceURI(), newAttr.getLocalName());
 
@@ -228,8 +228,7 @@ public class ElementProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public void setAttributeNS(String namespaceURI, String qualifiedName, String value)
-		throws DOMException
+	public void setAttributeNS(String namespaceURI, String qualifiedName, String value) throws DOMException
 	{
 		element.setAttributeNS(namespaceURI, qualifiedName, value);
 	}

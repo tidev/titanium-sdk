@@ -12,8 +12,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.json.JSONObject;
 
-
-public class JsonBody extends AbstractContentBody {
+public class JsonBody extends AbstractContentBody
+{
 
 	private static final String CONTENT_TYPE = "application/json";
 
@@ -21,7 +21,8 @@ public class JsonBody extends AbstractContentBody {
 	private String value;
 	private byte[] data;
 
-	public JsonBody(JSONObject jsonObject, String filename) {
+	public JsonBody(JSONObject jsonObject, String filename)
+	{
 		super(CONTENT_TYPE);
 		this.value = jsonObject.toString();
 		this.filename = filename;
@@ -33,29 +34,33 @@ public class JsonBody extends AbstractContentBody {
 	}
 
 	@Override
-	public String getFilename() {
+	public String getFilename()
+	{
 		return filename;
 	}
 
 	@Override
-	public String getCharset() {
+	public String getCharset()
+	{
 		return HttpUrlConnectionUtils.UTF_8;
 	}
 
 	@Override
-	public long getContentLength() {
+	public long getContentLength()
+	{
 		return data.length;
 	}
 
 	@Override
-	public String getTransferEncoding() {
+	public String getTransferEncoding()
+	{
 		return "8bit";
 	}
 
 	@Override
-	public void writeTo(OutputStream out) throws IOException {
+	public void writeTo(OutputStream out) throws IOException
+	{
 		out.write(data);
 		out.flush();
-		
 	}
 }

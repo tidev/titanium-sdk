@@ -15,20 +15,22 @@ public class FormatNumericWheelAdapter extends NumericWheelAdapter
 {
 	private NumberFormat formatter;
 	private int maxCharacterLength = 2;
-	
+
 	public FormatNumericWheelAdapter(int minValue, int maxValue, NumberFormat formatter, int maxCharLength)
 	{
-		this(minValue,maxValue,formatter,maxCharLength, 1);
+		this(minValue, maxValue, formatter, maxCharLength, 1);
 	}
-	
-	public FormatNumericWheelAdapter(int minValue, int maxValue, NumberFormat formatter, int maxCharLength, int stepValue)
+
+	public FormatNumericWheelAdapter(int minValue, int maxValue, NumberFormat formatter, int maxCharLength,
+									 int stepValue)
 	{
 		super(minValue, maxValue, stepValue);
 		this.formatter = formatter;
 		this.maxCharacterLength = maxCharLength;
 	}
-	
-	public void setFormatter(NumberFormat formatter) {
+
+	public void setFormatter(NumberFormat formatter)
+	{
 		this.formatter = formatter;
 	}
 	@Override
@@ -46,8 +48,8 @@ public class FormatNumericWheelAdapter extends NumericWheelAdapter
 	{
 		return maxCharacterLength;
 	}
-	
-	public void setMaximumLength(int value) 
+
+	public void setMaximumLength(int value)
 	{
 		maxCharacterLength = value;
 	}

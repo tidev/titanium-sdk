@@ -7,9 +7,9 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabGroupProxy.h"
-#import "TiApp.h"
 #import "TiUITabGroup.h"
 #import "TiUITabProxy.h"
+#import <TitaniumKit/TiApp.h>
 
 @implementation TiUITabGroupProxy
 
@@ -266,6 +266,18 @@ static NSArray *tabGroupKeySequence;
   }
   return [super preferredStatusBarStyle];
 }
+
+#if IS_XCODE_9
+- (BOOL)homeIndicatorAutoHide
+{
+  UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+  NSUInteger blessedController = [tabController selectedIndex];
+  if (blessedController != NSNotFound) {
+    return [[tabs objectAtIndex:blessedController] homeIndicatorAutoHide];
+  }
+  return [super homeIndicatorAutoHide];
+}
+#endif
 
 - (BOOL)hidesStatusBar
 {

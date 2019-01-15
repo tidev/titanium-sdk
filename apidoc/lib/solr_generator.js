@@ -202,11 +202,11 @@ function exportAPI(api, type, className) {
 	}
 
 	const rv = {
-		'id': url + '-' + solr_category,
-		'url': url,
-		'name': api.name,
-		'type': solr_category,
-		'content': cleanContent(content.join(' '))
+		id: url + '-' + solr_category,
+		url: url,
+		name: api.name,
+		type: solr_category,
+		content: cleanContent(content.join(' '))
 	};
 	return rv;
 }

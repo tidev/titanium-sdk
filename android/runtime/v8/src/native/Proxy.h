@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,9 +20,7 @@ class Proxy : public JavaObject
 public:
 	enum {
 		kJavaObject = 0,
-		kJavaClass,
-		kPropertyCache,
-		kInternalFieldCount
+		kInternalFieldCount // Just one internal field on proxies, and it wraps the java object
 	};
 
 	static v8::Persistent<v8::FunctionTemplate> baseProxyTemplate;
@@ -126,8 +124,7 @@ public:
 		v8::Isolate* isolate = args.GetIsolate();
 		v8::HandleScope scope(isolate);
 		v8::Local<v8::Function> fn = args[0].As<v8::Function>();
-
-		v8::Local<v8::FunctionTemplate> newType = inheritProxyTemplate(
+ 		v8::Local<v8::FunctionTemplate> newType = inheritProxyTemplate(
 			isolate,
 			ProxyClass::getProxyTemplate(isolate),
 			ProxyClass::javaClass,
@@ -154,12 +151,10 @@ private:
 	 * Here we typically:
 	 * - wrap the js object in a Proxy instance
 	 * - define an own property "_properties" used for #getProperty and #setProperty callbacks
-	 * -
-	 * - look up the prototype of the JS object, grab the constructor, then ask for the __javaClass__ property.
-	 *   (See #javaClassPropertyCallback below) to get the jclass we need to instantiate
+	 * - Grab the Java class inside an External from the Data() value.
+	 * This got set back in #inheritProxyTemplate when we generate the FunctionTemplate
 	 * - attach the Java Proxy instantiated to this native Proxy.
 	 * - Deal with argunents passed
-	 * - If using the inherit function, look for that hanging as the Data() of args and invoke it.
 	 *
 	 * @param args The constructor arguments.
 	 */

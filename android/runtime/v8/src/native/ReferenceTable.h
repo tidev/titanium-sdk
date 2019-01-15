@@ -27,8 +27,10 @@ public:
 	static jlong createReference(jobject object);
 	static void destroyReference(jlong key);
 	static void makeWeakReference(jlong key);
-	static jobject clearWeakReference(jlong key);
+	static void makeSoftReference(jlong key);
+	static jobject clearReference(jlong key);
 	static jobject getReference(jlong key);
+	static jboolean isStrongReference(jlong key);
 };
 
 } // namespace titanium

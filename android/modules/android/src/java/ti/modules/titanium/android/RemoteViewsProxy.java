@@ -17,8 +17,9 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.net.Uri;
 import android.widget.RemoteViews;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class)
-public class RemoteViewsProxy extends KrollProxy {
+@Kroll.proxy(creatableInModule = AndroidModule.class)
+public class RemoteViewsProxy extends KrollProxy
+{
 	protected String packageName;
 	protected int layoutId;
 	protected RemoteViews remoteViews;
@@ -29,7 +30,8 @@ public class RemoteViewsProxy extends KrollProxy {
 	}
 
 	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	{
 		packageName = TiApplication.getInstance().getPackageName();
 		layoutId = -1;
 		if (args.length >= 1) {
@@ -45,7 +47,8 @@ public class RemoteViewsProxy extends KrollProxy {
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict dict) {
+	public void handleCreationDict(KrollDict dict)
+	{
 		super.handleCreationDict(dict);
 		if (dict.containsKey(TiC.PROPERTY_PACKAGE_NAME)) {
 			packageName = TiConvert.toString(dict, TiC.PROPERTY_PACKAGE_NAME);

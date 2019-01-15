@@ -15,7 +15,7 @@ import org.appcelerator.titanium.TiApplication;
 import android.util.DisplayMetrics;
 import android.view.Display;
 
-@Kroll.proxy(parentModule=PlatformModule.class)
+@Kroll.proxy(parentModule = PlatformModule.class)
 public class DisplayCapsProxy extends KrollProxy
 {
 	private DisplayMetrics dm;
@@ -27,37 +27,54 @@ public class DisplayCapsProxy extends KrollProxy
 		dm = new DisplayMetrics();
 	}
 
-	private Display getDisplay() {
+	private Display getDisplay()
+	{
 		if (softDisplay == null || softDisplay.get() == null) {
 			// we only need the window manager so it doesn't matter if the root or current activity is used
 			// for accessing it
-			softDisplay = new SoftReference<Display>(TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay());
+			softDisplay = new SoftReference<Display>(
+				TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay());
 		}
 		return softDisplay.get();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getPlatformWidth() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getPlatformWidth()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.widthPixels;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getPlatformHeight() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getPlatformHeight()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.heightPixels;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getDensity() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getDensity()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			int dpi = dm.densityDpi;
-			if (dpi >= 560) {        // DisplayMetrics.DENSITY_560
+			if (dpi >= 560) { // DisplayMetrics.DENSITY_560
 				return "xxxhigh";
 			} else if (dpi >= 400) { // DisplayMetrics.DENSITY_400
 				return "xxhigh";
@@ -74,33 +91,53 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getDpi() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getDpi()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.densityDpi;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getXdpi() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getXdpi()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.xdpi;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getYdpi() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getYdpi()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.ydpi;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getLogicalDensityFactor() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getLogicalDensityFactor()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.density;
 		}

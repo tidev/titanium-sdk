@@ -37,6 +37,8 @@ function markdownToHTML(text) {
 
 /**
  * Fixes illegal names like "2DMatrix" (not a valid JavaScript name)
+ * TODO: 2DMatrix / 3DMatrix are deprecated in 8.0.0. Remove this check
+ * once ripped out.
  * @param {string} ns raw fully-qualified name
  * @return {string} safe name
  */
@@ -118,7 +120,7 @@ function exportExamples(api) {
 				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
-			rv.push({ 'title': example.title, 'code': code });
+			rv.push({ title: example.title, code: code });
 		});
 	}
 	return rv;
@@ -183,13 +185,13 @@ function exportReturnTypes(api) {
 		}
 		api.returns.forEach(function (ret) {
 			rv.push({
-				'type': exportType(ret) || 'void',
-				'description': exportDescription(ret) || '',
-				'constants': ret.constants || []
+				type: exportType(ret) || 'void',
+				description: exportDescription(ret) || '',
+				constants: ret.constants || []
 			});
 		});
 	} else {
-		rv.push({ 'type': 'void', 'description': '', 'constants': [] });
+		rv.push({ type: 'void', description: '', constants: [] });
 	}
 	return rv;
 }
@@ -203,8 +205,8 @@ function exportSince(api) {
 	const rv = [];
 	for (const platform in api.since) {
 		rv.push({
-			'name': 'Titanium Mobile SDK - ' + common.PRETTY_PLATFORM[platform],
-			'version': api.since[platform]
+			name: 'Titanium Mobile SDK - ' + common.PRETTY_PLATFORM[platform],
+			version: api.since[platform]
 		});
 	}
 	return rv;
@@ -251,7 +253,7 @@ function exportType(api) {
 function exportUserAgents(api) {
 	const rv = [];
 	for (const platform in api.since) {
-		rv.push({ 'platform': platform });
+		rv.push({ platform: platform });
 	}
 	return rv;
 }
@@ -328,8 +330,8 @@ function exportAPIs(api, type) {
  */
 exports.exportData = function exportJSCA(apis) {
 	const rv = {
-		'types': [],
-		'aliases': [{ 'type': 'Titanium', 'name': 'Ti' }]
+		types: [],
+		aliases: [ { type: 'Titanium', name: 'Ti' } ]
 	};
 	doc = apis; // TODO make doc a field on a type, rather than this weird file-global!
 

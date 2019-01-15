@@ -16,15 +16,16 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITab;
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=UIModule.class,
-propertyAccessors = {
-	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_TITLEID,
-	TiC.PROPERTY_ICON
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_TITLEID,
+		TiC.PROPERTY_ICON
 })
+// clang-format on
 public class TabProxy extends TiViewProxy
 {
 	@SuppressWarnings("unused")
@@ -64,8 +65,12 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public boolean getActive() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getActive()
+	// clang-format on
+	{
 		if (tabGroupProxy != null) {
 			return tabGroupProxy.getActiveTab() == this;
 		}
@@ -73,8 +78,12 @@ public class TabProxy extends TiViewProxy
 		return false;
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setActive(boolean active) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setActive(boolean active)
+	// clang-format on
+	{
 		if (tabGroupProxy != null) {
 			tabGroupProxy.setActiveTab(this);
 		}
@@ -112,8 +121,11 @@ public class TabProxy extends TiViewProxy
 		return this.window;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public TabGroupProxy getTabGroup()
+	// clang-format on
 	{
 		return this.tabGroupProxy;
 	}
@@ -160,44 +172,6 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	/**
-	 * Get the color of the tab when it is active.
-	 *
-	 * @return the active color if specified, otherwise returns zero.
-	 */
-	public int getActiveTabColor()
-	{
-		Object color = getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
-		if (color == null) {
-			color = tabGroupProxy.getProperty(TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR);
-		}
-
-		if (color != null) {
-			return TiConvert.toColor(color.toString());
-		}
-
-		return 0;
-	}
-
-	/**
-	 * Get the color of the tab when it is inactive.
-	 *
-	 * @return the inactive color if specified, otherwise returns zero.
-	 */
-	public int getTabColor()
-	{
-		Object color = getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
-		if (color == null) {
-			color = tabGroupProxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR);
-		}
-
-		if (color != null) {
-			return TiConvert.toColor(color.toString());
-		}
-
-		return 0;
-	}
-
 	void onFocusChanged(boolean focused, KrollDict eventData)
 	{
 		// Windows are lazily opened when the tab is first focused.
@@ -218,10 +192,10 @@ public class TabProxy extends TiViewProxy
 			window.fireEvent(event, null, false);
 		}
 		fireEvent(event, eventData, true);
-
 	}
 
-	void close(boolean activityIsFinishing) {
+	void close(boolean activityIsFinishing)
+	{
 		if (windowOpened && window != null) {
 			windowOpened = false;
 			KrollDict data = null;
@@ -243,7 +217,7 @@ public class TabProxy extends TiViewProxy
 			}
 		}
 
-		((TiUIAbstractTab) view).onSelectionChange(selected);
+		((TiUITab) view).onSelectionChange(selected);
 	}
 
 	@Override

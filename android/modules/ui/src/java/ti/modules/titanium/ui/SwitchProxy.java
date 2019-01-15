@@ -14,19 +14,20 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiUISwitch;
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=UIModule.class,
-propertyAccessors = {
-	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_STYLE,
-	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_TITLE_ON,
-	TiC.PROPERTY_TITLE_OFF,
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_TEXT_ALIGN,
-	TiC.PROPERTY_VERTICAL_ALIGN
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_VALUE,
+		TiC.PROPERTY_STYLE,
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_TITLE_ON,
+		TiC.PROPERTY_TITLE_OFF,
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_TEXT_ALIGN,
+		TiC.PROPERTY_VERTICAL_ALIGN
 })
+// clang-format on
 public class SwitchProxy extends TiViewProxy
 {
 	public SwitchProxy()

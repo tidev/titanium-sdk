@@ -51,7 +51,7 @@ extends: Titanium.UI.View
 since: "0.8"
 excludes:
     events: [pinch, keypressed, longclick, twofingertap]
-    methods: [add, animate, hide, remove, removeAllChildren, show]
+    methods: [add, animate, hide, remove, replaceAt, removeAllChildren, show]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundGradient,backgroundLeftCap,
                  backgroundRepeat,backgroundTopCap,borderColor,borderRadius,borderWidth,
@@ -75,6 +75,7 @@ methods:
             Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
             iOS only supports the **animated** parameter.
         type: Object
+        optional: true
 
   - name: close
     summary: Closes the top-level window for this tab.
@@ -147,17 +148,12 @@ properties:
   - name: activeIcon
     summary: Icon URL for this tab when active.
     description: |
-         iOS 5.0 and later only.
-
          If unspecified, iOS uses a tint color to indicate the active tab. See
          [icon](Titanium.UI.Tab.icon) for more information.
 
-         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
-         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         If the icon provided is larger than [30 pixels (60 pixels for retina, 90 pixels for super-retina)]
+         (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit.
-
-         On iOS prior to 5.0, the default tint color is always used and this property
-         remains unset.
     type: String
     platforms: [iphone, ipad]
     since: "3.1.0"
@@ -169,12 +165,6 @@ properties:
     platforms: [android]
     since: {android: 3.0.0}
 
-  - name: backgroundDisabledColor
-    platforms: []
-
-  - name: backgroundDisabledImage
-    platforms: []
-
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
     description: |
@@ -183,15 +173,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]
     since: {android: 3.0.0}
-
-  - name: backgroundFocusedImage
-    platforms: []
-
-  - name: backgroundImage
-    platforms: []
-
-  - name: backgroundSelectedImage
-    platforms: []
 
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
@@ -221,8 +202,7 @@ properties:
         to black. In the active state, the tint color is usually blue. Prior to Titanium
         3.1, there was no way to override the default active icon tint.
 
-        Titanium 3.1 introduced some new ways to customize tab icons, which are supported
-        in iOS 5.0 and above:
+        Some icon-related features:
 
         *   You can specify the active tab's tint color as
         [activeTabIconTint](Titanium.UI.TabGroup.activeTabIconTint).
@@ -232,8 +212,8 @@ properties:
         inactive state, and `activeIcon` is used in the active state. **No default tint
         is applied to either icon.**
 
-         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
-         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         If the icon provided is larger than [30 pixels (60 pixels for retina, 90 pixels for super-retina)]
+         (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
     type: String
@@ -250,7 +230,7 @@ properties:
     platforms: [iphone,ipad]
 
   - name: iconIsMask
-    summary: Defines if the icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater.
+    summary: Defines if the icon property of the tab must be used as a mask.
     description: |
         When this property is true, the color data of the image specified as the icon is ignored and the image is used as an alpha mask.
         When this is false, the color data of the image is preserved.
@@ -261,7 +241,7 @@ properties:
     platforms: [iphone,ipad]
 
   - name: activeIconIsMask
-    summary: Defines if the active icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater.
+    summary: Defines if the active icon property of the tab must be used as a mask.
     description: |
         This is the equivalent of the [iconIsMask](Titanium.UI.Tab.iconIsMask) property, but for the active icon. When this is true, the active icon is
         tinted with the color specified in [tabsTintColor](Titanium.UI.TabGroup.tabsTintColor). When this is false the image is rendered as is, though the
@@ -285,21 +265,18 @@ properties:
     description: |
         The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
     type: String
-    since: "4.1.0"
+    since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, android]
 
   - name: activeTitleColor
     summary: Defines the color of the title of tab when it's active.
     description: |
         The color of the title of the tab when it's active. If not defined, it will use the default tint color.
     type: String
-    since: "4.1.0"
+    since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone,ipad]
-
-  - name: touchEnabled
-    platforms: []
+    platforms: [iphone, ipad, android]
 
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
@@ -329,7 +306,7 @@ events:
 
   - name: unselected
     summary: Fired when the tab is no longer selected.
-    since: {android: "3.5.1 ",  iphone: "5.2.0", ipad: "5.2.0"}
+    since: {android: "3.5.1",  iphone: "5.2.0", ipad: "5.2.0"}
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -348,12 +325,6 @@ events:
   - name: click
     summary: Fired when this tab is clicked in the tab group.
     exclude-platforms: [iphone, ipad]
-
-  - name: dblclick
-    platforms: []
-
-  - name: doubletap
-    platforms: []
 
   - name: focus
     summary: Fired when the tab gains focus.
@@ -377,7 +348,7 @@ events:
 
   - name: selected
     summary: Fired when the tab is selected.
-    since: {android: "3.5.1 ",  iphone: "5.2.0", ipad: "5.2.0"}
+    since: {android: "3.5.1",  iphone: "5.2.0", ipad: "5.2.0"}
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -393,34 +364,10 @@ events:
         type: Titanium.UI.Tab
     platforms: [android, iphone, ipad]
 
-  - name: longpress
-    platforms: []
-
-  - name: postlayout
-    platforms: []
-
   - name: selected
     summary: Fired when the tab is selected.
     platforms: [android]
     since: "3.6.0"
-
-  - name: singletap
-    platforms: []
-
-  - name: swipe
-    platforms: []
-
-  - name: touchcancel
-    platforms: []
-
-  - name: touchend
-    platforms: []
-
-  - name: touchmove
-    platforms: []
-
-  - name: touchstart
-    platforms: []
 
   - name: unselected
     summary: Fired when the tab is unselected.

@@ -41,6 +41,8 @@ private:
 	static Local<String> combineLogMessages(const FunctionCallbackInfo<Value>& args, int startIndex=0);
 	static void getApiName(const FunctionCallbackInfo<Value>& args);
 	static void getter_apiName(Local<Name> name, const PropertyCallbackInfo<Value>& args);
+	static void getter_undefined(Local<Name> name, const PropertyCallbackInfo<Value>& args);
+	static void undefined(const FunctionCallbackInfo<Value>& args);
 };
 }
 

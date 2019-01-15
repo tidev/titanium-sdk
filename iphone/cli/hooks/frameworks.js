@@ -122,6 +122,7 @@ class FrameworkManager {
 			path.join(this._builder.projectDir, 'platform', 'iphone')
 		];
 		for (let module of this._builder.modules) {
+			pathsToScan.push(path.join(module.modulePath));
 			pathsToScan.push(path.join(module.modulePath, 'platform'));
 			pathsToScan.push(path.join(module.modulePath, 'Resources'));
 		}
@@ -684,7 +685,7 @@ class FrameworkIntegrator {
 
 		let scriptPhaseUuid = this._builder.generateXcodeUuid();
 		let shellPath = '/bin/sh';
-		let shellScript = 'bash "' + stripFrameworksScriptPath + '"';
+		let shellScript = '/bin/bash "' + stripFrameworksScriptPath + '"';
 
 		this._xobjs.PBXShellScriptBuildPhase = this._xobjs.PBXShellScriptBuildPhase || {};
 		this._xobjs.PBXShellScriptBuildPhase[scriptPhaseUuid] = {

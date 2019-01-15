@@ -7,9 +7,11 @@
 
 package org.appcelerator.titanium.util;
 
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.util.TiFileHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,7 +20,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.RectF;
-import android.media.ExifInterface;
+import android.support.media.ExifInterface;
 
 /**
  * Utility class for image manipulations.
@@ -71,7 +73,7 @@ public class TiImageHelper
 		int width = image.getWidth();
 		int height = image.getHeight();
 		Bitmap imageRoundedCorner = Bitmap.createBitmap(width + (int) (borderSize * 2), height + (int) (borderSize * 2),
-			Bitmap.Config.ARGB_8888);
+														Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(imageRoundedCorner);
 
 		Path clipPath = new Path();
@@ -123,63 +125,107 @@ public class TiImageHelper
 
 		int width = image.getWidth();
 		int height = image.getHeight();
-		Bitmap imageBorder = Bitmap.createBitmap(width + borderSize * 2, height + borderSize * 2, Bitmap.Config.ARGB_8888);
+		Bitmap imageBorder =
+			Bitmap.createBitmap(width + borderSize * 2, height + borderSize * 2, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(imageBorder);
 		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
 		return imageBorder;
 	}
-	
-	private static final String FILE_PREFIX = "file://";
-	
+
 	/**
-	 * Find the orientation of the image.
-	 * @param file image file
-	 * @return return the orientation in degrees, -1 for error
+	 * Fetches the orientation of the given image in case it is not displayed upright.
+	 * <p>
+	 * This typically needs to be done with JPEG files whose EXIF information provides
+	 * the photo's "orientation" (aka: rotation) relative to the camera's mounting orientation.
+	 * @param path Path to an image file or URL.
+	 * @return
+	 * Returns the orientation of the image in degrees, clockwise.
+	 * <p>
+	 * Will only return values 0, 90, 180, and 270.
+	 * <p>
+	 * A value of 0 indicates that the image is upright or if this method was unable to fetch
+	 * orientation information from the image.
 	 */
-	public static int getOrientation(String path) {
+	public static int getOrientation(String path)
+	{
+		// Validate argument.
+		if ((path == null) || path.isEmpty()) {
+			String message = "Path of image file could not determined. "
+							 + "Could not create an exifInterface from an invalid path.";
+			Log.e(TAG, message);
+			return 0;
+		}
+
+		// Attempt to fetch the EXIF orientation from the given file/url path.
 		int orientation = 0;
-		try {
-			if (path == null) {
-				Log.e(TAG,
-					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
-				return 0;
+		try (InputStream stream = TiFileHelper.getInstance().openInputStream(path, false)) {
+			if (stream != null) {
+				orientation = getOrientation(stream);
 			}
-			// Remove path prefix
-			if (path.startsWith(FILE_PREFIX)) {
-				path = path.replaceFirst(FILE_PREFIX, "");
-			}
-			
-			ExifInterface ei = new ExifInterface(path);
-			int orientationConst = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-			switch (orientationConst) {
-				case ExifInterface.ORIENTATION_ROTATE_270:
-				case ExifInterface.ORIENTATION_TRANSVERSE:
-					orientation = 270;
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:
-				case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-					orientation = 180;
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_90:
-				case ExifInterface.ORIENTATION_TRANSPOSE:
-					orientation = 90;
-					break;
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Unable to find orientation " + e.getMessage());
+		} catch (Exception ex) {
 		}
 		return orientation;
 	}
-	
+
+	/**
+	 * Fetches the orientation of the given image in case it is not displayed upright.
+	 * <p>
+	 * This typically needs to be done with JPEG files whose EXIF information provides
+	 * the photo's "orientation" (aka: rotation) relative to the camera's upright orientation.
+	 * @param stream
+	 * An open input stream to an encoded image file, such as a JPEG.
+	 * <p>
+	 * This stream should not reference the raw decoded pixels of a bitmap since it would not
+	 * contain any EXIF orientation metadata.
+	 * <p>
+	 * This method will not close the given stream. That is the caller's responsibility.
+	 * @return
+	 * Returns the orientation of the image in degrees, clockwise.
+	 * <p>
+	 * Will only return values 0, 90, 180, and 270.
+	 * <p>
+	 * A value of 0 indicates that the image is upright or if this method was unable to fetch
+	 * orientation information from the image.
+	 */
+	public static int getOrientation(InputStream stream)
+	{
+		int orientation = 0;
+		try {
+			if (stream != null) {
+				ExifInterface exifInterface = new ExifInterface(stream);
+				int exifOrientation =
+					exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+				switch (exifOrientation) {
+					case ExifInterface.ORIENTATION_ROTATE_270:
+					case ExifInterface.ORIENTATION_TRANSVERSE: // Rotated and mirrored.
+						orientation = 270;
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_180:
+					case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+						orientation = 180;
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_90:
+					case ExifInterface.ORIENTATION_TRANSPOSE: // Rotated and mirrored.
+						orientation = 90;
+						break;
+				}
+			}
+		} catch (Exception ex) {
+			Log.e(TAG, "Unable to find orientation", ex);
+		}
+		return orientation;
+	}
+
 	/**
 	 * Rotate the image
 	 * @param bm source bitmap
 	 * @param rotation degree of rotation
 	 * @return return the rotated bitmap
 	 */
-	public static Bitmap rotateImage(Bitmap bm, int rotation) {
+	public static Bitmap rotateImage(Bitmap bm, int rotation)
+	{
 		Matrix matrix = new Matrix();
-	    matrix.postRotate(rotation);
-	    return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+		matrix.postRotate(rotation);
+		return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
 	}
 }

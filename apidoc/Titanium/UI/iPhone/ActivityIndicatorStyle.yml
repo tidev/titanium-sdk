@@ -9,9 +9,6 @@ extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
-deprecated:
-    since: "5.1.0"
-    notes: Use <Titanium.UI.ActivityIndicatorStyle> instead.
 properties:
   - name: BIG
     summary: Large white spinning indicator.

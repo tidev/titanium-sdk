@@ -43,7 +43,8 @@ public class TiWebViewBinding
 	// - change polling.js
 	// - minify polling.js to create polling.min.js
 	protected static String POLLING_CODE = "";
-	static {
+	static
+	{
 		StringBuilder jsonCode = readResourceFile("json2.js");
 		StringBuilder tiCode = readResourceFile("binding.min.js");
 		StringBuilder pollingCode = readResourceFile("polling.min.js");
@@ -152,15 +153,17 @@ public class TiWebViewBinding
 		// Don't try to evaluate js code again if the binding has already been destroyed
 		if (!destroyed && interfacesAdded) {
 			String code = "_TiReturn.setValue((function(){try{return " + expression
-				+ "+\"\";}catch(ti_eval_err){return '';}})());";
+						  + "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			returnSemaphore.drainPermits();
-			synchronized (codeSnippets) {
-				codeSnippets.push(code);
+			synchronized (codeSnippets)
+			{
+				codeSnippets.add(0, code);
 			}
 			try {
 				if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
-					synchronized (codeSnippets) {
+					synchronized (codeSnippets)
+					{
 						codeSnippets.removeElement(code);
 					}
 					Log.w(TAG, "Timeout waiting to evaluate JS");
@@ -207,8 +210,9 @@ public class TiWebViewBinding
 			}
 
 			String code = "Ti.executeListener(" + id + dataString + ");";
-			synchronized (codeSnippets) {
-				codeSnippets.push(code);
+			synchronized (codeSnippets)
+			{
+				codeSnippets.add(0, code);
 			}
 		}
 	}
@@ -280,8 +284,9 @@ public class TiWebViewBinding
 				return -1;
 			}
 			int result = 0;
-			synchronized (codeSnippets) {
-				if(codeSnippets.empty()) {
+			synchronized (codeSnippets)
+			{
+				if (codeSnippets.empty()) {
 					code = "";
 				} else {
 					result = 1;
@@ -289,7 +294,6 @@ public class TiWebViewBinding
 				}
 			}
 			return result;
-
 		}
 	}
 

@@ -5,22 +5,50 @@ const async = require('async'),
 
 module.exports = function (grunt) {
 
-	const iosSrc = [ 'iphone/Classes/*.h', 'iphone/Classes/*.m' ];
+	const iosSrc = [
+		'iphone/Classes/*.h',
+		'iphone/Classes/*.m',
+		'iphone/Classes/Layout/*.h',
+		'iphone/Classes/Layout/*.m',
+		'iphone/TitaniumKit/TitaniumKit/*.h',
+		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.h',
+		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.m'
+	];
+	const androidSrc = [
+		'android/build/src/**/*.java',
+		'android/kroll-apt/src/**/*.java',
+		'android/modules/*/src/**/*.java',
+		'android/runtime/*/src/**/*.java',
+		'android/titanium/src/**/*.java'
+	];
 
 	// Project configuration.
 	grunt.initConfig({
 		appcJs: {
-			src: [ 'dangerfile.js', 'Gruntfile.js', 'apidoc/**/*.js', 'build/**/*.js', 'cli/!(locales)/**/*.js', 'android/cli/!(locales)/**/*.js', 'iphone/cli/!(locales)/**/*.js' ]
+			src: [
+				'dangerfile.js',
+				'Gruntfile.js',
+				'apidoc/**/*.js',
+				'build/**/*.js',
+				'cli/!(locales)/**/*.js',
+				'android/cli/!(locales)/**/*.js',
+				'android/modules/**/src/js/**/*.js',
+				'android/runtime/common/src/js/**/*.js',
+				'iphone/cli/!(locales)/**/*.js',
+				'tests/Resources/**/*test.js'
+			]
 		},
 		clangFormat: {
-			src: iosSrc
+			android: { src: androidSrc },
+			ios: { src: iosSrc }
 		},
-		ios_format: {
-			src: iosSrc
+		checkFormat: {
+			android: { src: androidSrc },
+			ios: { src: iosSrc }
 		}
 	});
 
-	grunt.registerTask('validate_docs', 'Validates the docs.', function () {
+	grunt.registerTask('validate:docs', 'Validates the docs.', function () {
 		const done = this.async();
 		const fork = require('child_process').fork, // eslint-disable-line security/detect-child-process
 			path = require('path'),
@@ -28,9 +56,6 @@ module.exports = function (grunt) {
 
 		const validate = fork(path.join(apidoc, 'validate'), [], { cwd: apidoc, silent: true });
 		let output = '';
-		validate.stdout.on('data', function (data) {
-			output += data;
-		});
 
 		validate.stderr.on('data', function (data) {
 			output += data;
@@ -44,7 +69,7 @@ module.exports = function (grunt) {
 		});
 	});
 
-	grunt.registerMultiTask('ios_format', 'Validates the iOS source code formatting.', function () {
+	function validateFormatting() {
 		const done = this.async(),
 			clangFormat = require('clang-format');
 
@@ -68,7 +93,7 @@ module.exports = function (grunt) {
 		async.mapLimit(src, EXEC_LIMIT, function (filepath, cb) {
 			let stdout = '';
 
-			const proc = clangFormat.spawnClangFormat([ '-output-replacements-xml', filepath ], function () {}, 'pipe');
+			const proc = clangFormat.spawnClangFormat([ '-style=file', '-output-replacements-xml', filepath ], function () {}, 'pipe');
 			proc.stdout.on('data', function (data) {
 				stdout += data.toString();
 			});
@@ -95,7 +120,9 @@ module.exports = function (grunt) {
 			}
 			done();
 		});
-	});
+	}
+
+	grunt.registerMultiTask('checkFormat', 'Validates the source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
 	grunt.loadNpmTasks('grunt-mocha-test');
@@ -103,12 +130,15 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-clang-format');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
-	// register tasks
-	grunt.registerTask('lint', [ 'appcJs', 'ios_format', 'validate_docs' ]);
+	// linting: run eslint against js, standard appc checks, check ios/android format via clang, run doc validation script
+	grunt.registerTask('lint', [ 'appcJs:src:lintOnly', 'checkFormat:ios', 'checkFormat:android', 'validate:docs' ]);
 
-	// register tasks
-	grunt.registerTask('format', [ 'clangFormat' ]);
+	// Tasks for formatting the source code according to our clang/eslint rules
+	grunt.registerTask('format:js', [ 'appcJs:src:lint:fix' ]);
+	grunt.registerTask('format:android', [ 'clangFormat:android' ]);
+	grunt.registerTask('format:ios', [ 'clangFormat:ios' ]);
+	grunt.registerTask('format', [ 'format:android', 'format:ios', 'format:js' ]);
 
-	// register tasks
+	// By default, run linting
 	grunt.registerTask('default', [ 'lint' ]);
 };

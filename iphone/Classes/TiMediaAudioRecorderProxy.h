@@ -6,15 +6,10 @@
  */
 #ifdef USE_TI_MEDIAAUDIORECORDER
 
-#import "TiFile.h"
-#import "TiProxy.h"
+#import "TiMediaTypes.h"
 #import <AVFoundation/AVAudioRecorder.h>
-
-typedef enum {
-  RecordStarted = 0,
-  RecordStopped = 1,
-  RecordPaused = 2
-} RecorderState;
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiMediaAudioRecorderProxy : TiProxy <AVAudioRecorderDelegate> {
   @private

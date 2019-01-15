@@ -4,7 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiModule.h"
+
+#ifdef USE_TI_WATCHSESSION
+
+#import <TitaniumKit/TiModule.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 
 @interface WatchSessionModule : TiModule <WCSessionDelegate> {
@@ -17,3 +20,5 @@
 @property (nonatomic, readonly) NSNumber *ACTIVATION_STATE_ACTIVATED;
 
 @end
+
+#endif

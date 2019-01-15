@@ -13,12 +13,19 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
-
-@Kroll.proxy(propertyAccessors={
-	"title", "titleid", "message",
-	"buttonNames", "androidView",
-	"options", "selectedIndex", "cancel"
-}, parentModule=UIModule.class)
+// clang-format off
+@Kroll.proxy(parentModule = UIModule.class,
+	propertyAccessors = {
+		"title",
+		"titleid",
+		"message",
+		"buttonNames",
+		"androidView",
+		"options",
+		"selectedIndex",
+		"cancel"
+})
+// clang-format on
 public abstract class TiDialogProxy extends TiViewProxy
 {
 	protected boolean showing = false;

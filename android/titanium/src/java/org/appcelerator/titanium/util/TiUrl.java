@@ -32,11 +32,10 @@ public class TiUrl
 	public static final String CURRENT_PATH = ".";
 	public static final String PARENT_PATH_WITH_SEPARATOR = "../";
 	public static final String CURRENT_PATH_WITH_SEPARATOR = "./";
-    
 
 	public String baseUrl;
 	public String url;
-	
+
 	public TiUrl(String url)
 	{
 		this(TiC.URL_APP_PREFIX, url);
@@ -53,7 +52,7 @@ public class TiUrl
 		return normalizeWindowUrl(baseUrl, url).url;
 	}
 
-	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix) 
+	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix)
 	{
 		String[] right = path.split(PATH_SEPARATOR);
 		String[] left = null;
@@ -63,7 +62,7 @@ public class TiUrl
 					left = new String[0];
 				} else {
 					int idx = baseUrl.indexOf(SCHEME_SUFFIX);
-					left = baseUrl.substring(idx+3).split(PATH_SEPARATOR);
+					left = baseUrl.substring(idx + 3).split(PATH_SEPARATOR);
 				}
 			} else {
 				String[] tmp = baseUrl.split(SCHEME_SUFFIX);
@@ -79,10 +78,10 @@ public class TiUrl
 
 		int rIndex = 0;
 		int lIndex = left.length;
-		while(right[rIndex].equals(PARENT_PATH)) {
+		while (right[rIndex].equals(PARENT_PATH)) {
 			lIndex--;
 			rIndex++;
-			if (rIndex > right.length-1) {
+			if (rIndex > right.length - 1) {
 				break;
 			}
 		}
@@ -103,13 +102,13 @@ public class TiUrl
 		return bUrl;
 	}
 
-	private static HashMap<String,TiUrl> proxyUrlCache = new HashMap<String,TiUrl>(5);
+	private static HashMap<String, TiUrl> proxyUrlCache = new HashMap<String, TiUrl>(5);
 	public static TiUrl createProxyUrl(String url)
 	{
 		if (proxyUrlCache.containsKey(url)) {
 			return proxyUrlCache.get(url);
 		}
-	
+
 		if (url == null) {
 			return new TiUrl(null);
 		}
@@ -122,14 +121,14 @@ public class TiUrl
 
 		String path = url.substring(lastSlash + 1);
 		TiUrl result = new TiUrl(baseUrl, path);
-		proxyUrlCache.put(url,result);
+		proxyUrlCache.put(url, result);
 		return result;
 	}
 
-	public static TiUrl normalizeWindowUrl(String url) 
+	public static TiUrl normalizeWindowUrl(String url)
 	{
 		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
-		String baseUrl = url.substring(0, lastSlash+1);
+		String baseUrl = url.substring(0, lastSlash + 1);
 		if (baseUrl.length() == 0) {
 			baseUrl = TiC.URL_APP_PREFIX;
 		}
@@ -159,7 +158,7 @@ public class TiUrl
 				}
 				int lastIndex = path.lastIndexOf(PATH_SEPARATOR);
 				if (lastIndex > 0) {
-					fname = path.substring(lastIndex+1);
+					fname = path.substring(lastIndex + 1);
 					path = path.substring(0, lastIndex);
 				} else {
 					fname = path;
@@ -204,7 +203,7 @@ public class TiUrl
 	{
 		return resolve(baseUrl, path, null);
 	}
-	
+
 	public static String resolve(String baseUrl, String path, String scheme)
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
@@ -224,18 +223,17 @@ public class TiUrl
 			}
 			String newPath = path.substring(0, path.length() - fileName.length()) + fileNameWithoutExt;
 			return newPath;
-
 		}
 
 		String result = null;
 		if (scheme == null) {
 			scheme = "app:";
 		}
-		if (path.startsWith(CURRENT_PATH_WITH_SEPARATOR)) {
-			if (path.length() == 2) {
+		while (path.startsWith(CURRENT_PATH_WITH_SEPARATOR)) {
+			if (path.length() <= CURRENT_PATH_WITH_SEPARATOR.length()) {
 				path = "";
 			} else {
-				path = path.substring(2);
+				path = path.substring(CURRENT_PATH_WITH_SEPARATOR.length());
 			}
 		}
 		if (path.contains(PARENT_PATH_WITH_SEPARATOR) || path.contains(CURRENT_PATH_WITH_SEPARATOR)) {
@@ -275,21 +273,21 @@ public class TiUrl
 			} else {
 				URI uri = new URI(url);
 				if (uri.getScheme() != null) {
-					// the url already has a scheme, so we ignore the
-					// baseUrl completely.
+					// The URL already has a scheme. So, we ignore the base URL completely.
 					combined = url;
-				} else if (baseUrl.endsWith(PATH_SEPARATOR) && url.startsWith(PATH_SEPARATOR) 
-						&& !baseUrl.equals("file://")) {
-					if (baseUrl.length() == 1 && url.length() == 1) {
-						combined = PATH_SEPARATOR;
-					} else if (baseUrl.length() == 1) {
-						combined = url;
-					} else if (url.length() == 1) {
-						combined = baseUrl;
+				} else if (url.startsWith(PATH_SEPARATOR)) {
+					// The URL is an absolute path. Not relative to base URL.
+					// Note: A "file:///" URL needs 3 slashes to reference localhost.
+					if (defaultScheme != null) {
+						combined = defaultScheme + PATH_SEPARATOR;
+						if (defaultScheme.equals("file:")) {
+							combined += PATH_SEPARATOR;
+						}
+						combined += url;
 					} else {
-						combined = baseUrl + url.substring(1);
+						combined = url;
 					}
-				} else if (!baseUrl.endsWith(PATH_SEPARATOR) && !url.startsWith(PATH_SEPARATOR)) {
+				} else if (!baseUrl.endsWith(PATH_SEPARATOR)) {
 					combined = baseUrl + PATH_SEPARATOR + url;
 				} else {
 					combined = baseUrl + url;
@@ -314,7 +312,7 @@ public class TiUrl
 			return url;
 		}
 	}
-	
+
 	/**
 	 * Converts the given URL string to a "Uri" object.
 	 * <p>
@@ -327,7 +325,7 @@ public class TiUrl
 	 * <p>
 	 * Returns null if given an invalid URL or if the string is null/empty.
 	 */
-	public static Uri getCleanUri(String argString) 
+	public static Uri getCleanUri(String argString)
 	{
 		// Validate argument.
 		if ((argString == null) || (argString.length() <= 0)) {
@@ -392,7 +390,7 @@ public class TiUrl
 					// This will also encode an e-mail account's '@' sign, which is extremly important.
 					// Example: "user@domain.com:password@" -> "user%40domain.com:password@"
 					userInfoString = Uri.encode(userInfoString, "!$&'()*+,;=:");
-					userInfoString = userInfoString.replace("%25", "%");    // Restore %-encoded chars.
+					userInfoString = userInfoString.replace("%25", "%"); // Restore %-encoded chars.
 					stringBuilder.append(userInfoString);
 					stringBuilder.append('@');
 				}
@@ -400,7 +398,7 @@ public class TiUrl
 					// Append the host name in encoded form.
 					// Do not encode IPv6 URL characters. Example: http://[2001:db8:a0b:12f0::1]
 					hostName = Uri.encode(hostName, ":[]");
-					hostName = hostName.replace("%25", "%");    // Restore %-encoded chars in original URL.
+					hostName = hostName.replace("%25", "%"); // Restore %-encoded chars in original URL.
 					stringBuilder.append(hostName);
 				}
 				if (portNumberString != null) {
@@ -417,7 +415,7 @@ public class TiUrl
 			if ((path != null) && (path.length() > 0)) {
 				// Encode the given path.
 				path = Uri.encode(path, "!$&'()*+,;=:@/");
-				path = path.replace("%25", "%");                // Restore %-encoded chars in original URL.
+				path = path.replace("%25", "%"); // Restore %-encoded chars in original URL.
 				uriBuilder.encodedPath(path);
 			} else if (uri.getEncodedQuery() != null) {
 				// The URL has query params, but no path or slash. Inject a '/' before the '?'.
@@ -435,7 +433,7 @@ public class TiUrl
 			String fragment = uri.getEncodedFragment();
 			if (fragment != null) {
 				fragment = Uri.encode(fragment, "!$&'()*+,;=:@/?");
-				fragment = fragment.replace("%25", "%");        // Restore %-encoded chars in original URL.
+				fragment = fragment.replace("%25", "%"); // Restore %-encoded chars in original URL.
 				uriBuilder.encodedFragment(fragment);
 			}
 

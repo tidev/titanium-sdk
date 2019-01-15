@@ -12,7 +12,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Node;
 
-@Kroll.proxy(parentModule=XMLModule.class)
+@Kroll.proxy(parentModule = XMLModule.class)
 public class XPathNodeListProxy extends KrollProxy
 {
 	private List nodeList;
@@ -23,14 +23,19 @@ public class XPathNodeListProxy extends KrollProxy
 		this.nodeList = nodeList;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getLength() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLength()
+	// clang-format on
+	{
 		return nodeList.size();
 	}
 
 	@Kroll.method
-	public NodeProxy item(int index) {
-		Node node = (Node)nodeList.get(index);
+	public NodeProxy item(int index)
+	{
+		Node node = (Node) nodeList.get(index);
 		return NodeProxy.getNodeProxy(node);
 	}
 }

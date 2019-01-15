@@ -10,14 +10,16 @@ import java.util.HashMap;
 
 import org.appcelerator.titanium.util.TiConvert;
 
-public class TiPoint {
+public class TiPoint
+{
 	private TiDimension x, y;
 
 	/*
 	 * Create a new point with the 'x' and 'y'
 	 * coordinates in pixel units.
 	 */
-	public TiPoint(double x, double y) {
+	public TiPoint(double x, double y)
+	{
 		this.x = new TiDimension(x, TiDimension.TYPE_WIDTH);
 		this.y = new TiDimension(y, TiDimension.TYPE_HEIGHT);
 	}
@@ -27,7 +29,8 @@ public class TiPoint {
 	 * with 'x' and 'y' properties. If any of these
 	 * properties is missing, a default value of zero will be used.
 	 */
-	public TiPoint(HashMap object) {
+	public TiPoint(HashMap object)
+	{
 		this(object, 0, 0);
 	}
 
@@ -36,7 +39,8 @@ public class TiPoint {
 	 * with 'x' and 'y' properties. If any of these
 	 * properties is missing, the default values will be used.
 	 */
-	public TiPoint(HashMap object, double defaultValueX, double defaultValueY) {
+	public TiPoint(HashMap object, double defaultValueX, double defaultValueY)
+	{
 		x = TiConvert.toTiDimension(object.get(TiC.PROPERTY_X), TiDimension.TYPE_WIDTH);
 		if (x == null) {
 			x = new TiDimension(defaultValueX, TiDimension.TYPE_WIDTH);
@@ -47,7 +51,7 @@ public class TiPoint {
 			y = new TiDimension(defaultValueY, TiDimension.TYPE_HEIGHT);
 		}
 	}
-	
+
 	/*
 	 * Create a new point with the 'x' and 'y'
 	 * coordinates as string.
@@ -60,11 +64,13 @@ public class TiPoint {
 		this.y = new TiDimension(y, TiDimension.TYPE_HEIGHT);
 	}
 
-	public TiDimension getX() {
+	public TiDimension getX()
+	{
 		return x;
 	}
 
-	public TiDimension getY() {
+	public TiDimension getY()
+	{
 		return y;
 	}
 }

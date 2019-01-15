@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,10 +17,10 @@
 	v8::String::NewExternalOneByte(isolate, new v8::ExternalOneByteStringResourceImpl(string_literal, length)).ToLocalChecked()
 
 #define NEW_SYMBOL(isolate, string_literal) \
-	v8::String::NewFromUtf8(isolate, string_literal "", v8::String::kInternalizedString)
+	v8::String::NewFromUtf8(isolate, string_literal "", v8::NewStringType::kInternalized).ToLocalChecked()
 
 #define STRING_NEW(isolate, string_literal) \
-	v8::String::NewFromUtf8(isolate, string_literal "")
+	v8::String::NewFromUtf8(isolate, string_literal "", v8::NewStringType::kNormal).ToLocalChecked()
 
 #define DEFINE_CONSTANT(isolate, target, name, value) \
 	(target)->Set(NEW_SYMBOL(isolate, name), \
@@ -84,83 +84,56 @@
 
 namespace titanium {
 
-inline v8::Local<v8::FunctionTemplate>
-    NewFunctionTemplate(v8::Isolate* isolate,
-    					v8::FunctionCallback callback,
-                        v8::Local<v8::Signature> signature = v8::Local<v8::Signature>()) {
-  return v8::FunctionTemplate::New(isolate, callback, v8::Local<v8::Value>(), signature);
+inline v8::Local<v8::FunctionTemplate> NewFunctionTemplate(v8::Isolate* isolate, v8::FunctionCallback callback, v8::Local<v8::Signature> signature = v8::Local<v8::Signature>()) {
+	return v8::FunctionTemplate::New(isolate, callback, v8::Local<v8::Value>(), signature);
 }
 
-inline void SetMethod(v8::Isolate* isolate,
-					  v8::Local<v8::Object> that,
-                      const char* name,
-                      v8::FunctionCallback callback) {
-  v8::Local<v8::Function> function =
-      NewFunctionTemplate(isolate, callback)->GetFunction();
-  // kInternalized strings are created in the old space.
-  const v8::NewStringType type = v8::NewStringType::kInternalized;
-  v8::Local<v8::String> name_string =
-      v8::String::NewFromUtf8(isolate, name, type).ToLocalChecked();
-  that->Set(name_string, function);
-  function->SetName(name_string);  // NODE_SET_METHOD() compatibility.
+inline void SetMethod(v8::Local<v8::Context> context, v8::Isolate* isolate, v8::Local<v8::Object> that, const char* name, v8::FunctionCallback callback) {
+	v8::Local<v8::Function> function = NewFunctionTemplate(isolate, callback)->GetFunction(context).ToLocalChecked();
+	v8::Local<v8::String> name_string = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked();
+	that->Set(name_string, function);
+	function->SetName(name_string); // NODE_SET_METHOD() compatibility.
 }
 
-inline void SetProtoMethod(v8::Isolate* isolate,
-						   v8::Local<v8::FunctionTemplate> that,
-                           const char* name,
-                           v8::FunctionCallback callback) {
-  v8::Local<v8::Signature> signature = v8::Signature::New(isolate, that);
-  v8::Local<v8::FunctionTemplate> t =
-      NewFunctionTemplate(isolate, callback);
-  // kInternalized strings are created in the old space.
-  const v8::NewStringType type = v8::NewStringType::kInternalized;
-  v8::Local<v8::String> name_string =
-      v8::String::NewFromUtf8(isolate, name, type).ToLocalChecked();
-  that->PrototypeTemplate()->Set(name_string, t);
-  t->SetClassName(name_string);  // NODE_SET_PROTOTYPE_METHOD() compatibility.
+inline void SetProtoMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> that, const char* name, v8::FunctionCallback callback) {
+	v8::Local<v8::Signature> signature = v8::Signature::New(isolate, that);
+	v8::Local<v8::FunctionTemplate> t = NewFunctionTemplate(isolate, callback);
+	v8::Local<v8::String> name_string = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked();
+	that->PrototypeTemplate()->Set(name_string, t);
+	t->SetClassName(name_string); // NODE_SET_PROTOTYPE_METHOD() compatibility.
 }
 
-inline void SetTemplateMethod(v8::Isolate* isolate,
-							  v8::Local<v8::FunctionTemplate> that,
-                              const char* name,
-                              v8::FunctionCallback callback) {
-  v8::Local<v8::FunctionTemplate> t =
-      NewFunctionTemplate(isolate, callback);
-  // kInternalized strings are created in the old space.
-  const v8::NewStringType type = v8::NewStringType::kInternalized;
-  v8::Local<v8::String> name_string =
-      v8::String::NewFromUtf8(isolate, name, type).ToLocalChecked();
-  that->Set(name_string, t);
-  t->SetClassName(name_string);  // NODE_SET_METHOD() compatibility.
+inline void SetTemplateMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> that, const char* name, v8::FunctionCallback callback) {
+	v8::Local<v8::FunctionTemplate> t = NewFunctionTemplate(isolate, callback);
+	v8::Local<v8::String> name_string = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked();
+	that->Set(name_string, t);
+	t->SetClassName(name_string); // NODE_SET_METHOD() compatibility.
 }
 
-// DEPRECATED: Use v8::String::Utf8Value. Remove in SDK 8.0
-// class [[deprecated("Replaced by v8::String::Utf8Value, which is now official V8 API")]] Utf8Value {
 class Utf8Value {
-  public:
-    explicit Utf8Value(v8::Local<v8::Value> value);
+	public:
+	explicit Utf8Value(v8::Local<v8::Value> value);
 
-    ~Utf8Value() {
-      if (str_ != str_st_)
-        free(str_);
-    }
+	~Utf8Value() {
+		if (str_ != str_st_) free(str_);
+	}
 
-    char* operator*() {
-      return str_;
-    };
+	char* operator*() {
+		return str_;
+	};
 
-    const char* operator*() const {
-      return str_;
-    };
+	const char* operator*() const {
+		return str_;
+	};
 
-    size_t length() const {
-      return length_;
-    };
+	size_t length() const {
+		return length_;
+	};
 
-  private:
-    size_t length_;
-    char* str_;
-    char str_st_[1024];
+	private:
+	size_t length_;
+	char* str_;
+	char str_st_[1024];
 };
 
 class V8Util {
@@ -176,6 +149,7 @@ public:
 	static bool constructorNameMatches(v8::Isolate* isolate, v8::Local<v8::Object>, const char* name);
 	static bool isNaN(v8::Isolate* isolate, v8::Local<v8::Value> value);
 	static void dispose();
+	static std::string stackTraceString(v8::Isolate* isolate, v8::Local<v8::StackTrace> frames);
 };
 
 }

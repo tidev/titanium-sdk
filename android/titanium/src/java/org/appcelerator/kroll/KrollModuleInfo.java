@@ -15,7 +15,7 @@ public class KrollModuleInfo
 	protected boolean isJSModule = false;
 
 	public KrollModuleInfo(String name, String id, String guid, String version, String description, String author,
-		String license, String copyright)
+						   String license, String copyright)
 	{
 		this.name = name;
 		this.id = id;

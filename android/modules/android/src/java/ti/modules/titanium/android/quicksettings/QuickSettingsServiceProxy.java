@@ -19,7 +19,8 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 
 @TargetApi(24)
 @Kroll.proxy
-public class QuickSettingsServiceProxy extends ServiceProxy {
+public class QuickSettingsServiceProxy extends ServiceProxy
+{
 
 	private static final String TAG = "QuickSettingsService";
 
@@ -28,89 +29,105 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 	private Object pathObject = null;
 	private AlertDialog.Builder builder;
 
-	public QuickSettingsServiceProxy(TileService serviceInstance) {
+	public QuickSettingsServiceProxy(TileService serviceInstance)
+	{
 		tileService = serviceInstance;
 	}
 
 	//Update the tile with the latest changes
 	@Kroll.method
-	public void updateTile() {
+	public void updateTile()
+	{
 		tileService.getQsTile().updateTile();
 	}
 
 	//Setting Tile's icon
 	@Kroll.method
-	public void setIcon(Object path) {
-		tileService.getQsTile().setIcon(Icon.createWithBitmap(TiDrawableReference.fromObject(TiApplication.getAppRootOrCurrentActivity(),path).getBitmap()));
+	public void setIcon(Object path)
+	{
+		tileService.getQsTile().setIcon(Icon.createWithBitmap(
+			TiDrawableReference.fromObject(TiApplication.getAppRootOrCurrentActivity(), path).getBitmap()));
 		pathObject = path;
 	}
 
 	//Setting Tile's state
 	@Kroll.method
-	public void setState(int state) {
+	public void setState(int state)
+	{
 		tileService.getQsTile().setState(state);
 	}
 
 	//Setting Tile's label
 	@Kroll.method
-	public void setLabel(String label) {
+	public void setLabel(String label)
+	{
 		tileService.getQsTile().setLabel(label);
 	}
 
 	//Getting Tile'c icon
 	@Kroll.method
-	public Object getIcon() {
+	public Object getIcon()
+	{
 		return pathObject;
 	}
 
 	//Getting Tile's state
 	@Kroll.method
-	public int getState() {
+	public int getState()
+	{
 		return tileService.getQsTile().getState();
 	}
 
 	//Getting Tile's label
 	@Kroll.method
-	public String getLabel() {
+	public String getLabel()
+	{
 		return tileService.getQsTile().getLabel().toString();
 	}
 
 	//Checks if the lock screen is showing.
 	@Kroll.method
-	public final boolean isLocked() {
+	public final boolean isLocked()
+	{
 		return tileService.isLocked();
 	}
 
 	//Checks if the device is in a secure state.
 	@Kroll.method
-	public final boolean isSecure() {
+	public final boolean isSecure()
+	{
 		return tileService.isSecure();
 	}
 
 	//Used to show a dialog.
 	@Kroll.method
-	public void showDialog(KrollDict krollDictionary) {
+	public void showDialog(KrollDict krollDictionary)
+	{
 		tileService.showDialog(createDialogFromDictionary(krollDictionary));
 	}
 
 	//Start an activity while collapsing the panel.
 	@Kroll.method
-	public void startActivityAndCollapse(IntentProxy intent) {
+	public void startActivityAndCollapse(IntentProxy intent)
+	{
 		tileService.startActivityAndCollapse(intent.getIntent());
 	}
 
 	//Prompts the user to unlock the device before executing the JS file.
 	@Kroll.method
-	final void unlockAndRun(final String jsToEvaluate) {
+	final void unlockAndRun(final String jsToEvaluate)
+	{
 		tileService.unlockAndRun(new Runnable() {
 			@Override
-			public void run() {
+			public void run()
+			{
 				KrollRuntime.getInstance().evalString(jsToEvaluate);
 			}
 		});
 	}
 
-	private Dialog createDialogFromDictionary(KrollDict krollDict) {
+	private Dialog createDialogFromDictionary(KrollDict krollDict)
+	{
 		builder = new AlertDialog.Builder(tileService.getApplicationContext());
 		String[] buttonText = null;
 		if (krollDict.containsKey(TiC.PROPERTY_TITLE)) {
@@ -122,12 +139,13 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 		if (krollDict.containsKey(TiC.PROPERTY_BUTTON_NAMES)) {
 			buttonText = krollDict.getStringArray(TiC.PROPERTY_BUTTON_NAMES);
 		} else if (krollDict.containsKey(TiC.PROPERTY_OK)) {
-			buttonText = new String[]{krollDict.getString(TiC.PROPERTY_OK)};
+			buttonText = new String[] { krollDict.getString(TiC.PROPERTY_OK) };
 		}
 		if (krollDict.containsKey(TiC.PROPERTY_OPTIONS)) {
 			String[] optionText = krollDict.getStringArray(TiC.PROPERTY_OPTIONS);
-			int selectedIndex = krollDict.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? krollDict.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1;
-			if(selectedIndex >= optionText.length){
+			int selectedIndex =
+				krollDict.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? krollDict.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1;
+			if (selectedIndex >= optionText.length) {
 				Log.d(TAG, "Ooops invalid selected index specified: " + selectedIndex, Log.DEBUG_MODE);
 				selectedIndex = -1;
 			}
@@ -141,12 +159,13 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 		return builder.create();
 	}
 
-	private void processOptions(String[] optionText,int selectedIndex)
+	private void processOptions(String[] optionText, int selectedIndex)
 	{
-		builder.setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+		builder.setSingleChoiceItems(optionText, selectedIndex, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which)
+			{
 				KrollDict eventDictionary = new KrollDict();
-				eventDictionary.put(TiC.PROPERTY_ITEM_INDEX,which);
+				eventDictionary.put(TiC.PROPERTY_ITEM_INDEX, which);
 				fireEvent(TiC.EVENT_TILE_DIALOG_OPTION_SELECTED, eventDictionary);
 			}
 		});
@@ -162,7 +181,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 			public void onCancel(DialogInterface dialog)
 			{
 				dialog.dismiss();
-				fireEvent(TiC.EVENT_TILE_DIALOG_CANCELED,null);
+				fireEvent(TiC.EVENT_TILE_DIALOG_CANCELED, null);
 			}
 		});
 
@@ -173,7 +192,8 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 				case 0:
 					builder.setPositiveButton(text, new DialogInterface.OnClickListener() {
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
+						public void onClick(DialogInterface dialog, int which)
+						{
 							fireEvent(TiC.EVENT_TILE_DIALOG_POSITIVE, null);
 						}
 					});
@@ -181,7 +201,8 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 				case 1:
 					builder.setNeutralButton(text, new DialogInterface.OnClickListener() {
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
+						public void onClick(DialogInterface dialog, int which)
+						{
 							fireEvent(TiC.EVENT_TILE_DIALOG_NEUTRAL, null);
 						}
 					});
@@ -189,7 +210,8 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 				case 2:
 					builder.setNegativeButton(text, new DialogInterface.OnClickListener() {
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
+						public void onClick(DialogInterface dialog, int which)
+						{
 							fireEvent(TiC.EVENT_TILE_DIALOG_NEGATIVE, null);
 						}
 					});
@@ -199,5 +221,4 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 			}
 		}
 	}
-
 }

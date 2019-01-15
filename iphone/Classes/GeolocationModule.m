@@ -7,16 +7,13 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
-#import "APSAnalytics.h"
-#import "AnalyticsModule.h"
-#import "NSData+Additions.h"
-#import "TiApp.h"
-#import "TiEvaluator.h"
+#import <TitaniumKit/NSData+Additions.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiEvaluator.h>
 
 #import <sys/utsname.h>
 
 extern NSString *const TI_APPLICATION_GUID;
-extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @interface GeolocationCallback : NSObject <APSHTTPRequestDelegate> {
   id<TiEvaluator> context;
@@ -54,7 +51,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   [url appendString:@"?"];
   for (id key in params) {
     NSString *value = [TiUtils stringValue:[params objectForKey:key]];
-    [url appendFormat:@"%@=%@&", key, [value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    [url appendFormat:@"%@=%@&", key, [value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
   }
 
   APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
@@ -147,6 +144,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
     NSMutableDictionary *revisedEvent = [TiUtils dictionaryWithCode:success ? 0 : -1 message:success ? nil : @"error reverse geocoding"];
     [revisedEvent setValuesForKeysWithDictionary:event];
+    // TODO: Remove the zipcode and country_code values after on SDK 9.0.0!
+    NSArray<NSMutableDictionary *> *places = (NSArray<NSMutableDictionary *> *)revisedEvent[@"places"];
+    for (NSMutableDictionary *dict in places) {
+      dict[@"postalCode"] = dict[@"zipcode"];
+      dict[@"countryCode"] = dict[@"country_code"];
+    }
+    NSLog(@"[WARN] GeocodedAddress properties country_code and zipcode are deprecated in SDK 8.0.0 and will be removed in 9.0.0");
+    NSLog(@"[WARN] Please replace usage with the respective properties: countryCode and postalCode");
     [context fireEvent:callback withObject:revisedEvent remove:NO thisObject:nil];
   }
 }
@@ -252,9 +257,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   // pauseLocationupdateAutomatically by default NO
   pauseLocationUpdateAutomatically = NO;
 
-  //Set the default based on if the user has defined a background location mode
+  // Set the default based on if the user has defined a background location mode
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   allowsBackgroundLocationUpdates = ([backgroundModes containsObject:@"location"]);
+
+  // Per default, background location indicators are not visible
+  showBackgroundLocationIndicator = NO;
 
   lock = [[NSRecursiveLock alloc] init];
 
@@ -288,7 +296,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
              "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
              "\t// Handle authorization via e.success\n"
              "})\nPicking the hightest permission by default.");
-      if ([TiUtils isIOS11OrGreater] && ![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
+      if ([TiUtils isIOSVersionOrGreater:@"11.0"] && ![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
         NSLog(@"[WARN] Apps targeting iOS 11 and later always have to include the \"%@\" key in the tiapp.xml <plist> section in order to use any geolocation-services. This is a constraint Apple introduced to improve user-privacy by suggesting developers to incrementally upgrade the location permissions from \"When in Use\" to \"Always\" only if necessary. You can specify the new iOS 11+ plist-key \"%@\" which is used while upgrading from \"When in Use\" to \"Always\". Use the the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions and call this method again.", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
 
@@ -297,7 +305,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
       } else if ([GeolocationModule hasWhenInUsePermissionKeys]) {
         [locationManager requestWhenInUseAuthorization];
       } else {
-        if ([TiUtils isIOS11OrGreater]) {
+        if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
           NSLog(@"[ERROR] If you are only using geolocation-services *when in use*, you only need to specify the %@ key in your tiapp.xml", kTiGeolocationUsageDescriptionWhenInUse);
           NSLog(@"[ERROR] If you are *always*  using geolocation-servcies, you need to specify the following three keys in your tiapp.xml:\n  * %@\n  * %@\n  * %@", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
         } else {
@@ -306,17 +314,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
       }
     }
 
-    //This is set to NO by default for > iOS9.
-    if ([TiUtils isIOS9OrGreater]) {
-      locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
+    locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
     }
+#endif
 
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
 
-    if ([CLLocationManager locationServicesEnabled] == NO) {
-      //NOTE: this is from Apple example from LocateMe and it works well. the developer can still check for the
-      //property and do this message themselves before calling geo. But if they don't, we at least do it for them.
+    if (![CLLocationManager locationServicesEnabled]) {
+      // NOTE: This is from the Apple example and it works well. the developer can still check for the
+      // property and do this message themselves before calling geo. But if they don't, we at least do it for them.
       NSString *title = NSLocalizedString(@"Location Services Disabled", @"Location Services Disabled Alert Title");
       NSString *msg = NSLocalizedString(@"You currently have all location services for this device disabled. If you proceed, you will be asked to confirm whether location services should be reenabled.", @"Location Services Disabled Alert Message");
       NSString *ok = NSLocalizedString(@"OK", @"Location Services Disabled Alert OK Button");
@@ -366,11 +377,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
   if (startHeading || startLocation) {
     CLLocationManager *lm = [self locationManager];
-    if (startHeading && trackingHeading == NO) {
+    if (startHeading && !trackingHeading) {
       [lm startUpdatingHeading];
       trackingHeading = YES;
     }
-    if (startLocation && trackingLocation == NO) {
+    if (startLocation && !trackingLocation) {
       if (trackSignificantLocationChange) {
         [lm startMonitoringSignificantLocationChanges];
       } else {
@@ -380,11 +391,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
   } else if ((!startHeading || !startLocation) && locationManager != nil) {
     CLLocationManager *lm = [self locationManager];
-    if (startHeading == NO && trackingHeading) {
+    if (!startHeading && trackingHeading) {
       trackingHeading = NO;
       [lm stopUpdatingHeading];
     }
-    if (startLocation == NO && trackingLocation) {
+    if (!startLocation && trackingLocation) {
       trackingLocation = NO;
       if (trackSignificantLocationChange) {
         [lm stopMonitoringSignificantLocationChanges];
@@ -392,7 +403,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         [lm stopUpdatingLocation];
       }
     }
-    if ((startHeading == NO && startLocation == NO) || (trackingHeading == NO && trackingLocation == NO)) {
+    if ((!startHeading && !startLocation) || (!trackingHeading && !trackingLocation)) {
       [self shutdownLocationManager];
       trackingLocation = NO;
       trackingHeading = NO;
@@ -532,7 +543,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   ENSURE_UI_THREAD(getCurrentPosition, callback);
 
   // If the location updates are started, invoke the callback directly.
-  if (locationManager != nil && locationManager.location != nil && trackingLocation == YES) {
+  if (locationManager != nil && locationManager.location != nil && trackingLocation) {
     CLLocation *currentLocation = locationManager.location;
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:[self locationDictionary:currentLocation] forKey:@"coords"];
@@ -576,6 +587,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (void)setAccuracy:(NSNumber *)value
 {
   ENSURE_UI_THREAD(setAccuracy, value);
+  ENSURE_TYPE(value, NSNumber);
+
   accuracy = [TiUtils doubleValue:value];
   // don't prematurely start it
   if (locationManager != nil) {
@@ -633,6 +646,30 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   calibration = [TiUtils boolValue:value];
 }
 
+- (NSNumber *)showBackgroundLocationIndicator
+{
+#if IS_XCODE_9
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return @(showBackgroundLocationIndicator);
+  }
+#endif
+  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Returning \"false\" ...");
+  return @NO;
+}
+
+- (void)setShowBackgroundLocationIndicator:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+#if IS_XCODE_9
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    showBackgroundLocationIndicator = [TiUtils boolValue:value];
+    return;
+  }
+#endif
+  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
+}
+
 - (NSNumber *)locationServicesEnabled
 {
   return NUMBOOL([CLLocationManager locationServicesEnabled]);
@@ -675,7 +712,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   }
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 // Activity Type for CLlocationManager.
 - (NSNumber *)activityType
 {
@@ -706,7 +742,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   },
       NO);
 }
-#endif
 
 - (void)restart:(id)arg
 {
@@ -731,15 +766,12 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS, kCLLocationAccuracyThreeKilomete
 MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation); //Since 2.1.3
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
-MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorized);
+MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
+MAKE_SYSTEM_PROP(AUTHORIZATION_WHEN_IN_USE, kCLAuthorizationStatusAuthorizedWhenInUse);
+MAKE_SYSTEM_PROP(AUTHORIZATION_ALWAYS, kCLAuthorizationStatusAuthorizedAlways);
 MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, kCLAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, kCLAuthorizationStatusRestricted);
-#else
-// We only need auth unknown, because that's all the system will return.
-MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, 0);
-#endif
 
 MAKE_SYSTEM_PROP(ERROR_LOCATION_UNKNOWN, kCLErrorLocationUnknown);
 MAKE_SYSTEM_PROP(ERROR_DENIED, kCLErrorDenied);
@@ -750,22 +782,10 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DENIED, kCLErrorRegionMonitoringDenied)
 MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_FAILURE, kCLErrorRegionMonitoringFailure);
 MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupDelayed);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER, CLActivityTypeOther);
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION, CLActivityTypeAutomotiveNavigation);
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_FITNESS, CLActivityTypeFitness);
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
-#endif
-
-- (NSNumber *)AUTHORIZATION_ALWAYS
-{
-  return NUMINT(kCLAuthorizationStatusAuthorizedAlways);
-}
-
-- (NSNumber *)AUTHORIZATION_WHEN_IN_USE
-{
-  return NUMINT(kCLAuthorizationStatusAuthorizedWhenInUse);
-}
 
 - (CLLocationManager *)locationPermissionManager
 {
@@ -823,7 +843,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
   if (requestedAuthorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse) {
     if ([GeolocationModule hasWhenInUsePermissionKeys]) {
-      if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
+      if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) {
         errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to the lower permission-level AUTHORIZATION_WHEN_IN_USE";
       } else {
         TiThreadPerformOnMainThread(^{
@@ -842,10 +862,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         [[self locationPermissionManager] requestAlwaysAuthorization];
       },
           NO);
-    } else if ([TiUtils isIOS11OrGreater]) {
+    } else if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       errorMessage = [[NSString alloc] initWithFormat:
-                                           @"The %@, %@ and %@ key must be defined in your tiapp.xml in order to request this permission.",
-                                       kTiGeolocationUsageDescriptionAlwaysAndWhenInUse,
+                                           @"The %@, %@ and %@ (iOS 11+) key must be defined in your tiapp.xml in order to request this permission.",
+                                       kTiGeolocationUsageDescriptionWhenInUse,
                                        kTiGeolocationUsageDescriptionAlways,
                                        kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
     } else {
@@ -866,8 +886,8 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 + (BOOL)hasAlwaysPermissionKeys
 {
-  if (![TiUtils isIOS11OrGreater]) {
-    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways];
+  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways] != nil;
   }
 
   return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] &&
@@ -877,7 +897,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 + (BOOL)hasWhenInUsePermissionKeys
 {
-  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse];
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] != nil;
 }
 - (void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString *)message
 {
@@ -989,7 +1009,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   RELEASE_TO_NIL(purpose);
   purpose = [reason retain];
 
-  if ([TiUtils isIOS11OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ and (!) %@ (iOS 11+) key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
   } else {
     DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways);
@@ -1002,25 +1022,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
 }
 
-#pragma mark Geolacation Analytics
-
-- (void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations
-{
-  if ([AnalyticsModule isEventFiltered:@"ti.geo"]) {
-    return;
-  }
-  static BOOL analyticsSend = NO;
-  [lastLocationDict release];
-  lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
-  if (TI_APPLICATION_ANALYTICS && !analyticsSend) {
-    analyticsSend = YES;
-    [[APSAnalytics sharedInstance] sendAppGeoEvent:[locations lastObject]];
-  }
-}
-
 #pragma mark Delegates
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 
 - (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager
 {
@@ -1035,8 +1037,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self fireEvent:@"locationupdateresumed" withObject:nil];
   }
 }
-
-#endif
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
@@ -1099,7 +1099,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self fireEvent:@"location" withObject:event];
   }
 
-  [self fireApplicationAnalyticsIfNeeded:locations];
+  [self updateLastLocationDictionary:locations];
   [self fireSingleShotLocationIfNeeded:event stopIfNeeded:YES];
 }
 
@@ -1152,10 +1152,18 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return calibration;
 }
 
+#pragma mark Utilities
+
 - (void)dismissHeadingCalibrationDisplay:(id)args
 {
   ENSURE_UI_THREAD(dismissHeadingCalibrationDisplay, args);
   [[self locationManager] dismissHeadingCalibrationDisplay];
+}
+
+- (void)updateLastLocationDictionary:(NSArray *)locations
+{
+  [lastLocationDict release];
+  lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
 }
 
 @end

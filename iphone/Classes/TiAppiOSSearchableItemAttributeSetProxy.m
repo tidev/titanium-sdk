@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_APPIOSSEARCHQUERY) || defined(USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET)
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiAppiOSSearchableItemAttributeSetProxy
 
@@ -1322,8 +1322,6 @@
   ;
 }
 
-#if IS_XCODE_8
-
 // The fully formatted address of the item (obtained from MapKit)
 - (NSString *)fullyFormattedAddress
 {
@@ -1376,8 +1374,6 @@
   ENSURE_UI_THREAD(setThoroughfare, value);
   [_attributes setThoroughfare:[TiUtils stringValue:value]];
 }
-
-#endif
 
 @end
 #endif

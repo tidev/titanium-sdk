@@ -24,7 +24,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
-@Kroll.proxy(parentModule=CalendarModule.class)
+@Kroll.proxy(parentModule = CalendarModule.class)
 public class AlertProxy extends KrollProxy
 {
 
@@ -60,8 +60,10 @@ public class AlertProxy extends KrollProxy
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
-		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()), new String[] { "_id", "event_id", "begin", "end",
-			"alarmTime", "state", "minutes" }, query, queryArgs, orderBy);
+		Cursor cursor =
+			contentResolver.query(Uri.parse(getAlertsUri()),
+								  new String[] { "_id", "event_id", "begin", "end", "alarmTime", "state", "minutes" },
+								  query, queryArgs, orderBy);
 
 		if (cursor != null) {
 			while (cursor.moveToNext()) {
@@ -125,44 +127,62 @@ public class AlertProxy extends KrollProxy
 
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getEventId()
 	{
 		return eventId;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Date getEnd()
+	// clang-format on
 	{
 		return end;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Date getAlarmTime()
+	// clang-format on
 	{
 		return alarmTime;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getState()
+	// clang-format on
 	{
 		return state;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getMinutes()
+	// clang-format on
 	{
 		return minutes;
 	}

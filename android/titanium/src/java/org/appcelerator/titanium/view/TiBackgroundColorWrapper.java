@@ -30,14 +30,13 @@ import android.view.ViewParent;
  */
 public class TiBackgroundColorWrapper
 {
-	private static final String TAG = TiBackgroundColorWrapper.class
-			.getSimpleName();
+	private static final String TAG = TiBackgroundColorWrapper.class.getSimpleName();
 
 	private static final boolean IS_HONEYCOMB_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
 	private static final String COLOR_DRAWABLE_STATE_VAR = "mState";
 	private static final String COLOR_DRAWABLE_USE_COLOR_VAR = "mUseColor";
 	private static final String ERR_BACKGROUND_COLOR = "Unable to determine the current background color."
-			+ " Transparent will be returned as the color value.";
+													   + " Transparent will be returned as the color value.";
 
 	// ColorDrawable reflection
 	private static Field cdBackgroundStateField = null;
@@ -82,11 +81,9 @@ public class TiBackgroundColorWrapper
 
 					int layerCount = layerDrawable.getNumberOfLayers();
 					if (layerCount > 0) {
-						backgroundDrawable = layerDrawable
-								.getDrawable(layerCount - 1);
+						backgroundDrawable = layerDrawable.getDrawable(layerCount - 1);
 						if (backgroundDrawable != null) {
-							backgroundDrawable = backgroundDrawable
-									.getCurrent();
+							backgroundDrawable = backgroundDrawable.getCurrent();
 						}
 					}
 				}
@@ -108,7 +105,7 @@ public class TiBackgroundColorWrapper
 	{
 		if (view == null) {
 			Log.w(TAG,
-					"View was not set. Unable to determine the current background color. Returning Color.TRANSPARENT.");
+				  "View was not set. Unable to determine the current background color. Returning Color.TRANSPARENT.");
 			return Color.TRANSPARENT;
 		}
 
@@ -124,8 +121,7 @@ public class TiBackgroundColorWrapper
 		}
 
 		if (backgroundDrawable instanceof TiGradientDrawable) {
-			int[] gradientColors = ((TiGradientDrawable) backgroundDrawable)
-					.getColors();
+			int[] gradientColors = ((TiGradientDrawable) backgroundDrawable).getColors();
 
 			if (gradientColors.length > 0) {
 				// Just choose the last color. Better way?
@@ -154,29 +150,23 @@ public class TiBackgroundColorWrapper
 		Class<ColorDrawable> cdClass = ColorDrawable.class;
 
 		try {
-			cdBackgroundStateField = cdClass
-					.getDeclaredField(COLOR_DRAWABLE_STATE_VAR);
+			cdBackgroundStateField = cdClass.getDeclaredField(COLOR_DRAWABLE_STATE_VAR);
 			cdBackgroundStateField.setAccessible(true);
 		} catch (Exception e) {
-			Log.e(TAG,
-					"Reflection failed while trying to determine background color of view.",
-					e);
+			Log.e(TAG, "Reflection failed while trying to determine background color of view.", e);
 			cdBackgroundStateField = null;
 			return;
 		}
 
 		try {
-			cdBackgroundStateColorField = cdBackgroundStateField.getType()
-					.getDeclaredField(COLOR_DRAWABLE_USE_COLOR_VAR);
+			cdBackgroundStateColorField =
+				cdBackgroundStateField.getType().getDeclaredField(COLOR_DRAWABLE_USE_COLOR_VAR);
 			cdBackgroundStateColorField.setAccessible(true);
 		} catch (Exception e) {
-			Log.e(TAG,
-					"Reflection failed while trying to determine background color of view.",
-					e);
+			Log.e(TAG, "Reflection failed while trying to determine background color of view.", e);
 			cdBackgroundStateColorField = null;
 			return;
 		}
-
 	}
 
 	private int getColorFromColorDrawable(ColorDrawable colorDrawable)
@@ -189,8 +179,7 @@ public class TiBackgroundColorWrapper
 			initColorDrawableReflection(colorDrawable);
 		}
 
-		if (cdBackgroundStateField == null
-				|| cdBackgroundStateColorField == null) {
+		if (cdBackgroundStateField == null || cdBackgroundStateColorField == null) {
 			Log.w(TAG, ERR_BACKGROUND_COLOR);
 			return Color.TRANSPARENT;
 		}
@@ -212,14 +201,12 @@ public class TiBackgroundColorWrapper
 		int colorValue = Color.TRANSPARENT;
 
 		try {
-			colorValue = cdBackgroundStateColorField
-					.getInt(colorStatusInstance);
+			colorValue = cdBackgroundStateColorField.getInt(colorStatusInstance);
 		} catch (Exception e) {
 			Log.w(TAG, ERR_BACKGROUND_COLOR, e);
 		}
 
 		return colorValue;
-
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -236,5 +223,4 @@ public class TiBackgroundColorWrapper
 		}
 		view.setBackgroundColor(value);
 	}
-
 }

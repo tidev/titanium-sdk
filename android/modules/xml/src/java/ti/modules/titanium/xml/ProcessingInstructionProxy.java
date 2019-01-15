@@ -10,8 +10,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.ProcessingInstruction;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class ProcessingInstructionProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class ProcessingInstructionProxy extends NodeProxy
+{
 
 	private ProcessingInstruction pi;
 
@@ -21,18 +22,30 @@ public class ProcessingInstructionProxy extends NodeProxy {
 		this.pi = pi;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getData() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getData()
+	// clang-format on
+	{
 		return pi.getData();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getTarget() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getTarget()
+	// clang-format on
+	{
 		return pi.getTarget();
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setData(String data) throws DOMException {
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setData(String data) throws DOMException
+	// clang-format on
+	{
 		pi.setData(data);
 	}
 

@@ -26,21 +26,33 @@ import org.w3c.dom.Text;
 
 import android.os.Build;
 
-@Kroll.proxy(parentModule=XMLModule.class)
+@Kroll.proxy(parentModule = XMLModule.class)
 public class NodeProxy extends KrollProxy
 {
-	@Kroll.constant public static final int ATTRIBUTE_NODE = Node.ATTRIBUTE_NODE;
-	@Kroll.constant public static final int CDATA_SECTION_NODE = Node.CDATA_SECTION_NODE;
-	@Kroll.constant public static final int COMMENT_NODE = Node.COMMENT_NODE;
-	@Kroll.constant public static final int DOCUMENT_FRAGMENT_NODE = Node.DOCUMENT_FRAGMENT_NODE;
-	@Kroll.constant public static final int DOCUMENT_NODE = Node.DOCUMENT_NODE;
-	@Kroll.constant public static final int DOCUMENT_TYPE_NODE = Node.DOCUMENT_TYPE_NODE;
-	@Kroll.constant public static final int ELEMENT_NODE = Node.ELEMENT_NODE;
-	@Kroll.constant public static final int ENTITY_NODE = Node.ENTITY_NODE;
-	@Kroll.constant public static final int ENTITY_REFERENCE_NODE = Node.ENTITY_REFERENCE_NODE;
-	@Kroll.constant public static final int NOTATION_NODE = Node.NOTATION_NODE;
-	@Kroll.constant public static final int PROCESSING_INSTRUCTION_NODE = Node.PROCESSING_INSTRUCTION_NODE;
-	@Kroll.constant public static final int TEXT_NODE = Node.TEXT_NODE;
+	@Kroll.constant
+	public static final int ATTRIBUTE_NODE = Node.ATTRIBUTE_NODE;
+	@Kroll.constant
+	public static final int CDATA_SECTION_NODE = Node.CDATA_SECTION_NODE;
+	@Kroll.constant
+	public static final int COMMENT_NODE = Node.COMMENT_NODE;
+	@Kroll.constant
+	public static final int DOCUMENT_FRAGMENT_NODE = Node.DOCUMENT_FRAGMENT_NODE;
+	@Kroll.constant
+	public static final int DOCUMENT_NODE = Node.DOCUMENT_NODE;
+	@Kroll.constant
+	public static final int DOCUMENT_TYPE_NODE = Node.DOCUMENT_TYPE_NODE;
+	@Kroll.constant
+	public static final int ELEMENT_NODE = Node.ELEMENT_NODE;
+	@Kroll.constant
+	public static final int ENTITY_NODE = Node.ENTITY_NODE;
+	@Kroll.constant
+	public static final int ENTITY_REFERENCE_NODE = Node.ENTITY_REFERENCE_NODE;
+	@Kroll.constant
+	public static final int NOTATION_NODE = Node.NOTATION_NODE;
+	@Kroll.constant
+	public static final int PROCESSING_INSTRUCTION_NODE = Node.PROCESSING_INSTRUCTION_NODE;
+	@Kroll.constant
+	public static final int TEXT_NODE = Node.TEXT_NODE;
 
 	private static final String TAG = "TiNodeProxy";
 
@@ -66,40 +78,40 @@ public class NodeProxy extends KrollProxy
 		NodeProxy proxy;
 		switch (node.getNodeType()) {
 			case Node.ATTRIBUTE_NODE:
-				proxy = new AttrProxy((Attr)node);
+				proxy = new AttrProxy((Attr) node);
 				break;
 			case Node.CDATA_SECTION_NODE:
-				proxy = new CDATASectionProxy((CDATASection)node);
+				proxy = new CDATASectionProxy((CDATASection) node);
 				break;
 			case Node.COMMENT_NODE:
-				proxy = new CommentProxy((Comment)node);
+				proxy = new CommentProxy((Comment) node);
 				break;
 			case Node.DOCUMENT_FRAGMENT_NODE:
-				proxy = new DocumentFragmentProxy((DocumentFragment)node);
+				proxy = new DocumentFragmentProxy((DocumentFragment) node);
 				break;
 			case Node.DOCUMENT_NODE:
-				proxy = new DocumentProxy((Document)node);
+				proxy = new DocumentProxy((Document) node);
 				break;
 			case Node.DOCUMENT_TYPE_NODE:
-				proxy = new DocumentTypeProxy((DocumentType)node);
+				proxy = new DocumentTypeProxy((DocumentType) node);
 				break;
 			case Node.ELEMENT_NODE:
-				proxy = new ElementProxy((Element)node);
+				proxy = new ElementProxy((Element) node);
 				break;
 			case Node.ENTITY_NODE:
-				proxy = new EntityProxy((Entity)node);
+				proxy = new EntityProxy((Entity) node);
 				break;
 			case Node.ENTITY_REFERENCE_NODE:
-				proxy = new EntityReferenceProxy((EntityReference)node);
+				proxy = new EntityReferenceProxy((EntityReference) node);
 				break;
 			case Node.NOTATION_NODE:
-				proxy = new NotationProxy((Notation)node);
+				proxy = new NotationProxy((Notation) node);
 				break;
 			case Node.PROCESSING_INSTRUCTION_NODE:
-				proxy = new ProcessingInstructionProxy((ProcessingInstruction)node);
+				proxy = new ProcessingInstructionProxy((ProcessingInstruction) node);
 				break;
 			case Node.TEXT_NODE:
-				proxy = new TextProxy((Text)node);
+				proxy = new TextProxy((Text) node);
 				break;
 			default:
 				proxy = new NodeProxy(node);
@@ -138,87 +150,128 @@ public class NodeProxy extends KrollProxy
 		return getProxy(node.cloneNode(deep));
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public NamedNodeMapProxy getAttributes()
+	// clang-format on
 	{
 		return new NamedNodeMapProxy(node.getAttributes());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public NodeListProxy getChildNodes()
+	// clang-format on
 	{
 		return new NodeListProxy(node.getChildNodes());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getFirstChild()
+	// clang-format on
 	{
 		return getProxy(node.getFirstChild());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getLastChild()
+	// clang-format on
 	{
 		return getProxy(node.getLastChild());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getLocalName()
+	// clang-format on
 	{
 		return node.getLocalName();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getNamespaceURI()
+	// clang-format on
 	{
 		return node.getNamespaceURI();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getNextSibling()
+	// clang-format on
 	{
 		return getProxy(node.getNextSibling());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getNodeName()
+	// clang-format on
 	{
 		return node.getNodeName();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public short getNodeType()
+	// clang-format on
 	{
 		return node.getNodeType();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getNodeValue()
-		throws DOMException
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getNodeValue() throws DOMException
+	// clang-format on
 	{
 		return node.getNodeValue();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public DocumentProxy getOwnerDocument()
+	// clang-format on
 	{
 		return new DocumentProxy(node.getOwnerDocument());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getParentNode()
+	// clang-format on
 	{
 		return getProxy(node.getParentNode());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getPrefix()
+	// clang-format on
 	{
 		return node.getPrefix();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getPreviousSibling()
+	// clang-format on
 	{
 		return getProxy(node.getPreviousSibling());
 	}
@@ -236,8 +289,7 @@ public class NodeProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public NodeProxy insertBefore(NodeProxy newChild, NodeProxy refChild)
-		throws DOMException
+	public NodeProxy insertBefore(NodeProxy newChild, NodeProxy refChild) throws DOMException
 	{
 		return getProxy(node.insertBefore(newChild.node, refChild.node));
 	}
@@ -255,31 +307,33 @@ public class NodeProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public NodeProxy removeChild(NodeProxy oldChild)
-		throws DOMException
+	public NodeProxy removeChild(NodeProxy oldChild) throws DOMException
 	{
 		Node oldNode = node.removeChild(oldChild.node);
 		return removeProxyForNode(oldNode);
 	}
 
 	@Kroll.method
-	public NodeProxy replaceChild(NodeProxy newChild, NodeProxy oldChild)
-		throws DOMException
+	public NodeProxy replaceChild(NodeProxy newChild, NodeProxy oldChild) throws DOMException
 	{
 		Node oldNode = node.replaceChild(newChild.node, oldChild.node);
 		return removeProxyForNode(oldNode);
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setNodeValue(String nodeValue)
-		throws DOMException
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setNodeValue(String nodeValue) throws DOMException
+	// clang-format on
 	{
 		node.setNodeValue(nodeValue);
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setPrefix(String prefix)
-		throws DOMException
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setPrefix(String prefix) throws DOMException
+	// clang-format on
 	{
 		node.setPrefix(prefix);
 	}

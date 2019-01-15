@@ -18,28 +18,30 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-public class TiListViewTemplate {
-	
+public class TiListViewTemplate
+{
+
 	protected static final String TAG = "TiTemplate";
 
 	protected HashMap<String, DataItem> dataItems;
-	
+
 	public static final String DEFAULT_TEMPLATE = "defaultTemplate";
-	
+
 	public static final String GENERATED_BINDING = "generatedBinding:";
 
 	//Identifier for template, specified in ListView creation dict
 	private String templateID;
 	//Internal identifier for template, each template has a unique type
 	private int templateType;
-	
+
 	protected DataItem rootItem;
-	
+
 	protected String itemID;
-	//Properties of the template. 
+	//Properties of the template.
 	private KrollDict properties;
-	
-	public class DataItem {
+
+	public class DataItem
+	{
 		//proxy for the item
 		TiViewProxy vProxy;
 		//binding id
@@ -48,7 +50,8 @@ public class TiListViewTemplate {
 		ArrayList<DataItem> children;
 		KrollDict defaultProperties;
 
-		public DataItem(TiViewProxy proxy, String id, DataItem parent) {
+		public DataItem(TiViewProxy proxy, String id, DataItem parent)
+		{
 			vProxy = proxy;
 			bindId = id;
 			this.parent = parent;
@@ -56,9 +59,10 @@ public class TiListViewTemplate {
 			children = new ArrayList<DataItem>();
 			defaultProperties = new KrollDict();
 		}
-		
-		private void setProxyParent() {
-			
+
+		private void setProxyParent()
+		{
+
 			if (vProxy != null && parent != null) {
 				TiViewProxy parentProxy = parent.getViewProxy();
 				if (parentProxy != null) {
@@ -66,35 +70,43 @@ public class TiListViewTemplate {
 				}
 			}
 		}
-		
-		public TiViewProxy getViewProxy() {
+
+		public TiViewProxy getViewProxy()
+		{
 			return vProxy;
 		}
-		
-		public String getBindingId() {
+
+		public String getBindingId()
+		{
 			return bindId;
 		}
-		public void setDefaultProperties(KrollDict d) {
+		public void setDefaultProperties(KrollDict d)
+		{
 			defaultProperties = d;
 		}
-		
-		public KrollDict getDefaultProperties() {
+
+		public KrollDict getDefaultProperties()
+		{
 			return defaultProperties;
 		}
 
-		public DataItem getParent() {
+		public DataItem getParent()
+		{
 			return parent;
 		}
-		
-		public ArrayList<DataItem> getChildren() {
+
+		public ArrayList<DataItem> getChildren()
+		{
 			return children;
 		}
-		
-		public void addChild(DataItem child) {
+
+		public void addChild(DataItem child)
+		{
 			children.add(child);
 		}
-		
-		public void release() {
+
+		public void release()
+		{
 			if (vProxy != null) {
 				vProxy.release();
 				vProxy = null;
@@ -104,7 +116,8 @@ public class TiListViewTemplate {
 		}
 	}
 
-	public TiListViewTemplate(String id, KrollDict properties) {
+	public TiListViewTemplate(String id, KrollDict properties)
+	{
 		//Init our binding hashmaps
 		dataItems = new HashMap<String, DataItem>();
 
@@ -119,13 +132,13 @@ public class TiListViewTemplate {
 		} else {
 			this.properties = new KrollDict();
 		}
-	
 	}
 
-	private DataItem bindProxiesAndProperties(KrollDict properties, boolean isRootTemplate, DataItem parent) {
+	private DataItem bindProxiesAndProperties(KrollDict properties, boolean isRootTemplate, DataItem parent)
+	{
 		Object proxy = null;
 		String id = null;
-		Object props = null;
+		KrollDict props = null;
 		DataItem item = null;
 		if (properties.containsKey(TiC.PROPERTY_TI_PROXY)) {
 			proxy = properties.get(TiC.PROPERTY_TI_PROXY);
@@ -133,13 +146,12 @@ public class TiListViewTemplate {
 
 		//Get/generate random bind id
 		if (isRootTemplate) {
-			id = itemID;	
+			id = itemID;
 		} else if (properties.containsKey(TiC.PROPERTY_BIND_ID)) {
 			id = TiConvert.toString(properties, TiC.PROPERTY_BIND_ID);
 		} else {
 			id = GENERATED_BINDING + Math.random();
 		}
-		
 
 		if (proxy instanceof TiViewProxy) {
 			TiViewProxy viewProxy = (TiViewProxy) proxy;
@@ -150,37 +162,46 @@ public class TiListViewTemplate {
 				parent.addChild(item);
 			}
 			dataItems.put(id, item);
+
+			props = viewProxy.getProperties();
 		}
 
 		if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
-			props = properties.get(TiC.PROPERTY_PROPERTIES);
+			KrollDict templateProperties = properties.getKrollDict(TiC.PROPERTY_PROPERTIES);
+			if (templateProperties != null) {
+				if (props != null) {
+					props.putAll(templateProperties);
+				} else {
+					props = templateProperties;
+				}
+			}
 		}
-		
-		if (props instanceof HashMap) {
-			item.setDefaultProperties(new KrollDict((HashMap)props));
+		if (props != null) {
+			item.setDefaultProperties(props);
 		}
 
 		return item;
 	}
 
-	private void processProperties(KrollDict properties) {
+	private void processProperties(KrollDict properties)
+	{
 		bindProxiesAndProperties(properties, true, null);
 		if (properties.containsKey(TiC.PROPERTY_CHILD_TEMPLATES)) {
 			processChildProperties(properties.get(TiC.PROPERTY_CHILD_TEMPLATES), rootItem);
 		}
-
 	}
-	
-	private void processChildProperties(Object childProperties, DataItem parent) {
+
+	private void processChildProperties(Object childProperties, DataItem parent)
+	{
 		if (childProperties instanceof Object[]) {
-			Object[] propertiesArray = (Object[])childProperties;
+			Object[] propertiesArray = (Object[]) childProperties;
 			for (int i = 0; i < propertiesArray.length; i++) {
 				HashMap<String, Object> properties = (HashMap<String, Object>) propertiesArray[i];
 				//bind proxies and default properties
 				DataItem item = bindProxiesAndProperties(new KrollDict(properties), false, parent);
 				//Recursively calls for all childTemplates
 				if (properties.containsKey(TiC.PROPERTY_CHILD_TEMPLATES)) {
-					if(item == null) {
+					if (item == null) {
 						Log.e(TAG, "Unable to generate valid data from child view", Log.DEBUG_MODE);
 					}
 					processChildProperties(properties.get(TiC.PROPERTY_CHILD_TEMPLATES), item);
@@ -189,37 +210,44 @@ public class TiListViewTemplate {
 		}
 	}
 
-	public String getTemplateID() {
+	public String getTemplateID()
+	{
 		return templateID;
 	}
 
-	public void setType(int type) {
+	public void setType(int type)
+	{
 		templateType = type;
 	}
-	
-	public int getType() {
+
+	public int getType()
+	{
 		return templateType;
 	}
-	
-	public String getItemID() {
+
+	public String getItemID()
+	{
 		return itemID;
 	}
-	
-	public void setRootParent(TiViewProxy listView) {
+
+	public void setRootParent(TiViewProxy listView)
+	{
 		ListItemProxy rootProxy = (ListItemProxy) rootItem.getViewProxy();
 		if (rootProxy != null && rootProxy.getListProxy() == null) {
 			rootProxy.setListProxy(listView);
 		}
 	}
-	
+
 	/**
 	 * Returns the bound view proxy if exists.
 	 */
-	public DataItem getDataItem(String binding) {
-		return dataItems.get(binding);	
+	public DataItem getDataItem(String binding)
+	{
+		return dataItems.get(binding);
 	}
 
-	public DataItem getRootItem() {
+	public DataItem getRootItem()
+	{
 		return rootItem;
 	}
 
@@ -228,10 +256,12 @@ public class TiListViewTemplate {
 	 * @param data dictionary holding properties for template
 	 * @param update if true update entry else copy non-null values into data parameter
 	 */
-	public void updateOrMergeWithDefaultProperties(KrollDict data, boolean update) {
-		for (String binding: data.keySet()) {
+	public void updateOrMergeWithDefaultProperties(KrollDict data, boolean update)
+	{
+		for (String binding : data.keySet()) {
 			DataItem dataItem = dataItems.get(binding);
-			if (dataItem == null) continue;
+			if (dataItem == null)
+				continue;
 
 			KrollDict defaultProps = dataItem.getDefaultProperties();
 			KrollDict newProps = new KrollDict((HashMap) data.get(binding));
@@ -239,7 +269,7 @@ public class TiListViewTemplate {
 				if (update) {
 					//update default properties
 					Set<String> defaultPropsKeys = defaultProps.keySet();
-					for (String key:  newProps.keySet()) {
+					for (String key : newProps.keySet()) {
 						if (!defaultPropsKeys.contains(key)) {
 							defaultProps.put(key, null);
 						}
@@ -256,10 +286,10 @@ public class TiListViewTemplate {
 				}
 			}
 		}
-
 	}
-	
-	public void release () {
+
+	public void release()
+	{
 		for (int i = 0; i < dataItems.size(); i++) {
 			DataItem item = dataItems.get(i);
 			if (item != null) {

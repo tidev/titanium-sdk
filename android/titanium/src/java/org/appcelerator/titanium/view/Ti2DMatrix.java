@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.graphics.Matrix;
@@ -48,34 +49,40 @@ public class Ti2DMatrix extends KrollProxy
 			this.type = type;
 		}
 
-		public void apply(float interpolatedTime, Matrix matrix,
-			int childWidth, int childHeight, float anchorX, float anchorY)
+		public void apply(float interpolatedTime, Matrix matrix, int childWidth, int childHeight, float anchorX,
+						  float anchorY)
 		{
 			anchorX = anchorX == DEFAULT_ANCHOR_VALUE ? this.anchorX : anchorX;
 			anchorY = anchorY == DEFAULT_ANCHOR_VALUE ? this.anchorY : anchorY;
 			switch (type) {
 				case TYPE_SCALE:
 					matrix.preScale((interpolatedTime * (scaleToX - scaleFromX)) + scaleFromX,
-						(interpolatedTime * (scaleToY - scaleFromY)) + scaleFromY,
-						anchorX * childWidth,
-						anchorY * childHeight);
+									(interpolatedTime * (scaleToY - scaleFromY)) + scaleFromY, anchorX * childWidth,
+									anchorY * childHeight);
 					break;
 				case TYPE_TRANSLATE:
-					matrix.preTranslate(interpolatedTime * translateX, interpolatedTime * translateY); break;
+					matrix.preTranslate(interpolatedTime * translateX, interpolatedTime * translateY);
+					break;
 				case TYPE_ROTATE:
-					matrix.preRotate((interpolatedTime * (rotateTo - rotateFrom)) + rotateFrom, anchorX * childWidth, anchorY * childHeight); break;
+					matrix.preRotate((interpolatedTime * (rotateTo - rotateFrom)) + rotateFrom, anchorX * childWidth,
+									 anchorY * childHeight);
+					break;
 				case TYPE_MULTIPLY:
-					matrix.preConcat(multiplyWith.interpolate(interpolatedTime, childWidth, childHeight, anchorX, anchorY)); break;
+					matrix.preConcat(
+						multiplyWith.interpolate(interpolatedTime, childWidth, childHeight, anchorX, anchorY));
+					break;
 				case TYPE_INVERT:
-					matrix.invert(matrix); break;
+					matrix.invert(matrix);
+					break;
 			}
 		}
-
 	}
 
 	protected Operation op;
 
-	public Ti2DMatrix() {}
+	public Ti2DMatrix()
+	{
+	}
 	protected Ti2DMatrix(Ti2DMatrix prev, int opType)
 	{
 		if (prev != null) {
@@ -132,9 +139,12 @@ public class Ti2DMatrix extends KrollProxy
 	@Kroll.method
 	public Ti2DMatrix translate(double x, double y)
 	{
+		TiDimension xDimension = new TiDimension(TiConvert.toString(x), TiDimension.TYPE_LEFT);
+		TiDimension yDimension = new TiDimension(TiConvert.toString(y), TiDimension.TYPE_TOP);
+
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_TRANSLATE);
-		newMatrix.op.translateX = (float) x;
-		newMatrix.op.translateY = (float) y;
+		newMatrix.op.translateX = (float) xDimension.getPixels(null);
+		newMatrix.op.translateY = (float) yDimension.getPixels(null);
 		return newMatrix;
 	}
 
@@ -198,9 +208,9 @@ public class Ti2DMatrix extends KrollProxy
 		newMatrix.op.multiplyWith = this;
 		return newMatrix;
 	}
-	
+
 	@Kroll.method
-	public float[] finalValuesAfterInterpolation (int width, int height)
+	public float[] finalValuesAfterInterpolation(int width, int height)
 	{
 		Matrix m = interpolate(1f, width, height, 0.5f, 0.5f);
 		float[] result = new float[9];
@@ -212,9 +222,8 @@ public class Ti2DMatrix extends KrollProxy
 	{
 		Ti2DMatrix first = this;
 		ArrayList<Ti2DMatrix> preMatrixList = new ArrayList<Ti2DMatrix>();
-		
-		while (first.prev != null)
-		{
+
+		while (first.prev != null) {
 			first = first.prev;
 			// It is safe to use prev matrix to trace back the transformation matrix list,
 			// since prev matrix is constant.
@@ -282,9 +291,8 @@ public class Ti2DMatrix extends KrollProxy
 			check = check.prev;
 		}
 
-		Pair<Float, Float> viewCurrentScale = (view == null ?
-			Pair.create(Float.valueOf(1f), Float.valueOf(1f)) :
-				view.getAnimatedScaleValues());
+		Pair<Float, Float> viewCurrentScale =
+			(view == null ? Pair.create(Float.valueOf(1f), Float.valueOf(1f)) : view.getAnimatedScaleValues());
 
 		if (scaleOps.size() == 0) {
 			return viewCurrentScale;
@@ -368,12 +376,7 @@ public class Ti2DMatrix extends KrollProxy
 			return new float[4];
 		}
 
-		return new float[] {
-			this.op.rotateFrom,
-			this.op.rotateTo,
-			this.op.anchorX,
-			this.op.anchorY
-		};
+		return new float[] { this.op.rotateFrom, this.op.rotateTo, this.op.anchorX, this.op.anchorY };
 	}
 
 	public void setRotationFromDegrees(float degrees)
@@ -406,30 +409,30 @@ public class Ti2DMatrix extends KrollProxy
 			}
 
 			switch (op.type) {
-			case Operation.TYPE_SCALE:
-				if (hasScale) {
-					return false;
-				}
-				hasScale = true;
-				break;
+				case Operation.TYPE_SCALE:
+					if (hasScale) {
+						return false;
+					}
+					hasScale = true;
+					break;
 
-			case Operation.TYPE_TRANSLATE:
-				if (hasTranslate) {
-					return false;
-				}
-				hasTranslate = true;
-				break;
+				case Operation.TYPE_TRANSLATE:
+					if (hasTranslate) {
+						return false;
+					}
+					hasTranslate = true;
+					break;
 
-			case Operation.TYPE_ROTATE:
-				if (hasRotate) {
-					return false;
-				}
-				hasRotate = true;
-				break;
+				case Operation.TYPE_ROTATE:
+					if (hasRotate) {
+						return false;
+					}
+					hasRotate = true;
+					break;
 
-			case Operation.TYPE_MULTIPLY:
-			case Operation.TYPE_INVERT:
-				return false;
+				case Operation.TYPE_MULTIPLY:
+				case Operation.TYPE_INVERT:
+					return false;
 			}
 		}
 
@@ -458,5 +461,4 @@ public class Ti2DMatrix extends KrollProxy
 
 		return ops;
 	}
-
 }

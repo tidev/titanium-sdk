@@ -26,10 +26,36 @@ methods:
         The preferences values can be accessed via <Titanium.App.Properties>.
         
         See the example for a demonstration, and the official Android Developer documentation for 
-        the [preferences.xml](http://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
+        the [preferences.xml](https://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
         format.
         
 properties:
+  - name: FLAG_TRANSLUCENT_NAVIGATION
+    summary: Window flag which makes the Android system's navigation bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's bottom navigation bar semi-transparent. This flag will only work if you also set the
+        [Window.extendSafeArea](Titanium.UI.Window.extendSafeArea) property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+        On Android 4.4, navigation bar can only be translucent in portrait mode while newer OS versions support
+        this flag for all orientations.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
+  - name: FLAG_TRANSLUCENT_STATUS
+    summary: Window flag which makes the Android system's top status bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's top status bar semi-transparent. This flag will only work if you also set the
+        <Titanium.UI.Window.extendSafeArea> property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
   - name: GRAVITY_AXIS_CLIP
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
     type: Number
@@ -245,7 +271,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -257,7 +283,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -269,7 +295,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -281,7 +307,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -293,7 +319,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -305,7 +331,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -317,7 +343,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -329,7 +355,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -341,7 +367,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -353,7 +379,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -365,7 +391,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -377,7 +403,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -389,7 +415,7 @@ properties:
         improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -401,7 +427,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -683,7 +709,7 @@ properties:
         Moves views in or out from the edges of the scene. 
     description: |
         Use this only for activity transition.
-        Refers to [Explode](http://developer.android.com/reference/android/transition/Explode.html) transition.
+        Refers to [Explode](https://developer.android.com/reference/android/transition/Explode.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -693,7 +719,7 @@ properties:
         Fades in the views.
     description: |
         Use this only for activity transition.
-        Refers to [Fade](http://developer.android.com/reference/android/transition/Fade.html) transition.
+        Refers to [Fade](https://developer.android.com/reference/android/transition/Fade.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -703,7 +729,7 @@ properties:
         Fades out the views.
     description: |
         Use this only for activity transition.
-        Refers to [Fade](http://developer.android.com/reference/android/transition/Fade.html) transition.
+        Refers to [Fade](https://developer.android.com/reference/android/transition/Fade.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -713,7 +739,7 @@ properties:
         Moves views to top.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -723,7 +749,7 @@ properties:
         Moves views to right.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -733,7 +759,7 @@ properties:
         Moves views to bottom.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -743,7 +769,7 @@ properties:
         Moves views to left.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -753,7 +779,7 @@ properties:
         Captures layout bounds of target views before and after the scene change and animates those changes during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeBounds](http://developer.android.com/reference/android/transition/ChangeBounds.html) transition.
+        Refers to [ChangeBounds](https://developer.android.com/reference/android/transition/ChangeBounds.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -763,7 +789,7 @@ properties:
         Captures the clip bounds before and after the scene change and animates those changes during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeClipBounds](http://developer.android.com/reference/android/transition/ChangeClipBounds.html) transition.
+        Refers to [ChangeClipBounds](https://developer.android.com/reference/android/transition/ChangeClipBounds.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -773,7 +799,7 @@ properties:
         Captures scale and rotation for Views before and after the scene change and animates those changes during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeTransform](http://developer.android.com/reference/android/transition/ChangeTransform.html) transition.
+        Refers to [ChangeTransform](https://developer.android.com/reference/android/transition/ChangeTransform.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -783,7 +809,7 @@ properties:
         Captures an ImageView's matrix before and after the scene change and animates it during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeImageTransform](http://developer.android.com/reference/android/transition/ChangeImageTransform.html) transition.
+        Refers to [ChangeImageTransform](https://developer.android.com/reference/android/transition/ChangeImageTransform.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -796,6 +822,20 @@ properties:
     type: Number
     permission: read-only
     since: "5.2.0"
+
+  - name: TABS_STYLE_DEFAULT
+    summary: The default TabGroup style that places the Tabs bellow the ActionBar and above the Window content.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
+
+  - name: TABS_STYLE_BOTTOM_NAVIGATION
+    summary: TabGroup style taking advantage of a bottom navigation controller for switching between tabs.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
 
 examples:
   - title: Android Preferences Example

@@ -8,11 +8,11 @@
 
 #import "NetworkModule.h"
 #import "Reachability.h"
-#import "TiApp.h"
-#import "TiBlob.h"
 #import "TiNetworkCookieProxy.h"
 #import "TiNetworkSocketProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
 
 NSString *const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
@@ -130,18 +130,14 @@ static NSOperationQueue *_operationQueue = nil;
 {
   id arg = [args objectAtIndex:0];
   NSString *unencodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-      (CFStringRef)unencodedString,
-      NULL,
-      (CFStringRef) @"!*'();:@+$,/?%#[]=&",
-      kCFStringEncodingUTF8) autorelease];
+  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
 - (id)decodeURIComponent:(id)args
 {
   id arg = [args objectAtIndex:0];
   NSString *encodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (CFStringRef)encodedString, CFSTR(""), kCFStringEncodingUTF8) autorelease];
+  return [encodedString stringByRemovingPercentEncoding];
 }
 
 // Socket submodule
@@ -254,7 +250,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
   pushNotificationError = [[args objectForKey:@"error"] retain];
   pushNotificationCallback = [[args objectForKey:@"callback"] retain];
 
-  [[TiApp app] setRemoteNotificationDelegate:self];
+  [[TiApp app] registerApplicationDelegate:self];
 
   UIApplication *app = [UIApplication sharedApplication];
 
@@ -280,6 +276,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   UIApplication *app = [UIApplication sharedApplication];
   [app unregisterForRemoteNotifications];
+  [[TiApp app] unregisterApplicationDelegate:self];
 }
 
 #pragma mark Push Notification Delegates

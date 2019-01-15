@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,16 +17,12 @@
 #include "V8Runtime.h"
 #include "V8Util.h"
 
-#include "org_appcelerator_kroll_runtime_v8_V8Object.h"
-
 #define TAG "V8Object"
 
 using namespace titanium;
 using namespace v8;
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 JNIEXPORT void JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInitObject
@@ -51,19 +47,31 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		LOGE(TAG, "!!! Attempting to set a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
-		jobject proxySupport = env->GetObjectField(object, JNIUtil::krollObjectProxySupportField);
+
+		jobject proxySupportField = env->GetObjectField(object, JNIUtil::krollObjectProxySupportField);
+		if (!proxySupportField) {
+			return;
+		}
+		static jmethodID getMethodID = NULL;
+		if (!getMethodID) {
+			getMethodID = env->GetMethodID(env->FindClass("java/lang/ref/WeakReference"), "get", "()Ljava/lang/Object;");
+		}
+		jobject proxySupport = (jobject)env->CallObjectMethodA(proxySupportField, getMethodID, NULL);
 		if (!proxySupport) {
 			return;
 		}
 		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
 	}
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
 
-	Local<Object> properties = jsObject->Get(titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate)).As<Object>();
-	Local<Value> jsName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, name);
-	Local<Value> jsValue = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, value);
-
-	jsObject->SetAccessor(jsName->ToString(V8Runtime::v8_isolate), titanium::Proxy::getProperty, titanium::Proxy::onPropertyChanged);
-	properties->Set(jsName, jsValue);
+	MaybeLocal<Value> maybeProperties = jsObject->Get(context, titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate));
+	if (!maybeProperties.IsEmpty()) {
+		Local<Object> properties = maybeProperties.ToLocalChecked().As<Object>();
+		Local<Value> jsName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, name);
+		Local<Value> jsValue = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, value);
+		jsObject->SetAccessor(context, jsName->ToString(context).FromMaybe(String::Empty(V8Runtime::v8_isolate)), titanium::Proxy::getProperty, titanium::Proxy::onPropertyChanged);
+		properties->Set(context, jsName, jsValue);
+	}
 }
 
 
@@ -77,7 +85,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	Local<Value> jsEvent = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, event);
 
 #ifdef TI_DEBUG
-	v8::String::Utf8Value eventName(jsEvent);
+	v8::String::Utf8Value eventName(isolate, jsEvent);
 	LOGV(TAG, "firing event \"%s\"", *eventName);
 #endif
 
@@ -89,8 +97,14 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		emitter = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jEmitter).As<Object>();
 	}
 
-	Local<Value> fireEventValue = emitter->Get(EventEmitter::emitSymbol.Get(V8Runtime::v8_isolate));
-	if (!fireEventValue->IsFunction()) {
+	Local<String> symbol = EventEmitter::emitSymbol.Get(V8Runtime::v8_isolate);
+	if (emitter.IsEmpty() || symbol.IsEmpty()) {
+		return JNI_FALSE;
+	}
+
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+	MaybeLocal<Value> fireEventValue = emitter->Get(context, symbol);
+	if (fireEventValue.IsEmpty() || !fireEventValue.ToLocalChecked()->IsFunction()) {
 		return JNI_FALSE;
 	}
 
@@ -104,36 +118,33 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		source = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jsource).As<Object>();
 	}
 
-	Local<Function> fireEvent = fireEventValue.As<Function>();
+	Local<Function> fireEvent = fireEventValue.ToLocalChecked().As<Function>();
 
 	Local<Object> jsData = TypeConverter::javaHashMapToJsValue(V8Runtime::v8_isolate, env, data);
 
-	jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "bubbles"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, bubble));
-
-	jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "source"), source);
+	jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "bubbles"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, bubble));
+	jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "source"), source);
 
 	if (reportSuccess || code != 0) {
-		jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "success"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, code == 0));
-		jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "code"), TypeConverter::javaIntToJsNumber(V8Runtime::v8_isolate, code));
+		jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "success"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, code == 0));
+		jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "code"), TypeConverter::javaIntToJsNumber(V8Runtime::v8_isolate, code));
 	}
 
 	if (errorMessage != NULL) {
-		jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "error"), TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, errorMessage));
+		jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "error"), TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, errorMessage));
 	}
 
 	TryCatch tryCatch(V8Runtime::v8_isolate);
 	Local<Value> args[] = { jsEvent, jsData };
-	MaybeLocal<Value> result = fireEvent->Call(V8Runtime::v8_isolate->GetCurrentContext(), emitter, 2, args);
+	MaybeLocal<Value> result = fireEvent->Call(context, emitter, 2, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
-	} else if (result.IsEmpty()) {
 		return JNI_FALSE;
-	} else if (result.ToLocalChecked()->IsTrue()) {
-		return JNI_TRUE;
 	}
-	return JNI_FALSE;
+
+	return result.FromMaybe(False(V8Runtime::v8_isolate).As<Value>())->IsTrue() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jobject JNICALL
@@ -151,7 +162,15 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		LOGE(TAG, "!!! Attempting to call a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
-		jobject proxySupport = env->GetObjectField(javaObject, JNIUtil::krollObjectProxySupportField);
+		jobject proxySupportField = env->GetObjectField(javaObject, JNIUtil::krollObjectProxySupportField);
+		if (!proxySupportField) {
+			return JNIUtil::undefinedObject;
+		}
+		static jmethodID getMethodID = NULL;
+		if (!getMethodID) {
+			getMethodID = env->GetMethodID(env->FindClass("java/lang/ref/WeakReference"), "get", "()Ljava/lang/Object;");
+		}
+		jobject proxySupport = (jobject)env->CallObjectMethodA(proxySupportField, getMethodID, NULL);
 		if (proxySupport) {
 			jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
 		}
@@ -162,8 +181,10 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 		return JNIUtil::undefinedObject;
 	}
 
-	Local<Value> property = jsObject->Get(jsPropertyName);
-	if (!property->IsFunction()) {
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+
+	MaybeLocal<Value> property = jsObject->Get(context, jsPropertyName);
+	if (property.IsEmpty() || !property.ToLocalChecked()->IsFunction()) {
 		return JNIUtil::undefinedObject;
 	}
 
@@ -174,8 +195,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	}
 
 	TryCatch tryCatch(V8Runtime::v8_isolate);
-	Local<Function> function = property.As<Function>();
-	MaybeLocal<Value> returnValue = function->Call(V8Runtime::v8_isolate->GetCurrentContext(), jsObject, argc, argv);
+	Local<Function> function = property.ToLocalChecked().As<Function>();
+	MaybeLocal<Value> returnValue = function->Call(context, jsObject, argc, argv);
 
 	if (argv) {
 		delete[] argv;
@@ -184,8 +205,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
-		return JNIUtil::undefinedObject;
-	} else if (returnValue.IsEmpty()) {
+	} // if exception, object should be empty handle...so returns undefined
+	if (returnValue.IsEmpty()) {
 		return JNIUtil::undefinedObject;
 	}
 
@@ -224,6 +245,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 {
 	HandleScope scope(V8Runtime::v8_isolate);
 	titanium::JNIScope jniScope(env);
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
 
 	Local<Object> jsKrollWindow;
 	if (ptr != 0) {
@@ -233,19 +255,19 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 		jsKrollWindow = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, javaKrollWindow).As<Object>();
 	}
 
-	Local<Value> setWindowValue = jsKrollWindow->Get(STRING_NEW(V8Runtime::v8_isolate, "setWindow"));
-	if (!setWindowValue->IsFunction()) {
+	MaybeLocal<Value> setWindowValue = jsKrollWindow->Get(context, STRING_NEW(V8Runtime::v8_isolate, "setWindow"));
+	if (setWindowValue.IsEmpty() || !setWindowValue.ToLocalChecked()->IsFunction()) {
 		return;
 	}
 
-	Local<Function> setWindow = setWindowValue.As<Function>();
+	Local<Function> setWindow = setWindowValue.ToLocalChecked().As<Function>();
 
 	Local<Value> jsWindow = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, javaWindow);
 
 	TryCatch tryCatch(V8Runtime::v8_isolate);
 	if (!jsWindow->IsNull()) {
 		Local<Value> args[] = { jsWindow };
-		setWindow->Call(V8Runtime::v8_isolate->GetCurrentContext(), jsKrollWindow, 1, args);
+		setWindow->Call(context, jsKrollWindow, 1, args);
 	}
 
 	if (tryCatch.HasCaught()) {
@@ -254,6 +276,4 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 	}
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"

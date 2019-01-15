@@ -19,7 +19,6 @@ import android.os.Bundle;
  * intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, uniqueWindowId);
  * </code>
  */
-public interface TiActivityWindow
-{
+public interface TiActivityWindow {
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState);
 }

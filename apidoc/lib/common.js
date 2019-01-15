@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2018 Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  *
  * Common Library for Doctools
@@ -22,23 +22,23 @@ let logLevel = LOG_INFO;
 exports.VALID_PLATFORMS = [ 'android', 'blackberry', 'iphone', 'ipad', 'windowsphone' ];
 exports.VALID_OSES = [ 'android', 'blackberry', 'ios', 'windowsphone' ];
 exports.DEFAULT_VERSIONS = {
-	'android' : '0.8',
-	'iphone' : '0.8',
-	'ipad' : '0.8'
+	android: '0.8',
+	iphone: '0.8',
+	ipad: '0.8'
 };
 exports.ADDON_VERSIONS = {
-	'blackberry' : '3.1.2',
-	'windowsphone' : '4.1.0'
+	blackberry: '3.1.2',
+	windowsphone: '4.1.0'
 };
 exports.DATA_TYPES = [ 'Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String' ];
 exports.PRETTY_PLATFORM = {
-	'android': 'Android',
-	'blackberry': 'BlackBerry',
-	'ios': 'iOS',
-	'iphone': 'iPhone',
-	'ipad': 'iPad',
-	'tizen': 'Tizen',
-	'windowsphone' : 'Windows Phone'
+	android: 'Android',
+	blackberry: 'BlackBerry',
+	ios: 'iOS',
+	iphone: 'iPhone',
+	ipad: 'iPad',
+	tizen: 'Tizen',
+	windowsphone: 'Windows'
 };
 
 // Matches FOO_CONSTANT
@@ -186,8 +186,12 @@ exports.parseYAML = function parseYAML(path) {
 								rv.data[doc.name] = doc;
 								rv.data[doc.name].__file = currentFile;
 							} else {
-								console.warn('WARNING: Duplicate key: %s, attempting to merge', doc.name);
-								nodeappc.util.mixObj(rv.data[doc.name], doc);
+								rv.errors.push({
+									toString: function () {
+										return 'Duplicate key: ' + doc.name + '. Please rename the key to be unique!';
+									},
+									__file: currentFile
+								});
 							}
 						});
 					} catch (e) {

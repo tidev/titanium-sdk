@@ -19,7 +19,7 @@ description: |
     to true disables the Action Bar since it is part of the navigation title bar.
 
     For more examples on using the Action Bar, refer to the
-    [Android Action Bar guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
+    [Android Action Bar guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
 
     #### Application Notes for Alloy
 
@@ -135,9 +135,9 @@ methods:
     summary: Hides the action bar if it is currently showing.
     description: |
         See also:
-        [hide](http://developer.android.com/reference/android/app/ActionBar.html#hide())
+        [hide](https://developer.android.com/reference/android/app/ActionBar.html#hide())
         in the Android API Reference.
-  
+
   - name: setDisplayShowHomeEnabled
     summary: Shows or hides the action bar home icon
     parameters:
@@ -146,7 +146,7 @@ methods:
         type: Boolean
     description: |
         See also:
-        [setDisplayShowHomeEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowHomeEnabled(boolean))
+        [setDisplayShowHomeEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowHomeEnabled(boolean))
         in the Android API Reference.
     since: "3.3.0"
     
@@ -158,7 +158,7 @@ methods:
         type: Boolean
     description: |
         See also:
-        [setDisplayShowTitleEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowTitleEnabled(boolean))
+        [setDisplayShowTitleEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowTitleEnabled(boolean))
         in the Android API Reference.
     since: "3.3.0"
         
@@ -166,7 +166,7 @@ methods:
     summary: Shows the action bar if it is currently hidden.
     description: |
         See also:
-        [show](http://developer.android.com/reference/android/app/ActionBar.html#show())
+        [show](https://developer.android.com/reference/android/app/ActionBar.html#show())
         in the Android API Reference.
 
 properties:
@@ -178,7 +178,7 @@ properties:
   - name: displayHomeAsUp
     summary: Displays an "up" affordance on the "home" area of the action bar.
     description: |
-        See also: [setDisplayHomeAsUpEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayHomeAsUpEnabled(boolean))
+        See also: [setDisplayHomeAsUpEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayHomeAsUpEnabled(boolean))
         in the Android Developer Reference.
     type: Boolean
     permission: write-only
@@ -186,7 +186,7 @@ properties:
   - name: homeButtonEnabled
     summary: Enable or disable the "home" button in the corner of the action bar.
     description: |
-        See also: [setHomeButtonEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setHomeButtonEnabled(boolean))
+        See also: [setHomeButtonEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setHomeButtonEnabled(boolean))
         in the Android Developer Reference.
     type: Boolean
     since: "3.3.0"
@@ -199,7 +199,7 @@ properties:
         use of icons in toolbars.
 
         Prior to Release 3.3.0, this method only works on devices with Android 4.0 (API 14) and above. See also:
-        [setIcon](http://developer.android.com/reference/android/app/ActionBar.html#setIcon(android.graphics.drawable.Drawable))
+        [setIcon](https://developer.android.com/reference/android/app/ActionBar.html#setIcon(android.graphics.drawable.Drawable))
         in the Android Developer Reference.
     type: String
     permission: write-only
@@ -208,7 +208,7 @@ properties:
     summary: Sets the application logo displayed in the "home" area of the action bar, specified as a local file path or URL.
     description: |
         Prior to Release 3.3.0, this method only works on devices with Android 4.0 (API 14) and above. See also:
-        [setLogo](http://developer.android.com/reference/android/app/ActionBar.html#setLogo(android.graphics.drawable.Drawable))
+        [setLogo](https://developer.android.com/reference/android/app/ActionBar.html#setLogo(android.graphics.drawable.Drawable))
         in the Android Developer Reference.
     type: String
     permission: write-only
@@ -218,7 +218,7 @@ properties:
     description: |
         The navigation mode can be [NAVIGATION_MODE_STANDARD](Titanium.Android.NAVIGATION_MODE_STANDARD), or [NAVIGATION_MODE_TABS](Titanium.Android.NAVIGATION_MODE_TABS).
         A TabGroup is initialized by Titanium Mobile with `NAVIGATION_MODE_TABS`, and can be hidden by setting to `NAVIGATION_MODE_STANDARD`. `NAVIGATION_MODE_LIST` is not yet supported.
-        See also: [setNavigationMode](http://developer.android.com/reference/android/app/ActionBar.html#setNavigationMode(int))
+        See also: [setNavigationMode](https://developer.android.com/reference/android/app/ActionBar.html#setNavigationMode(int))
         in the Android Developer Reference.
     type: Number
 
@@ -235,3 +235,12 @@ properties:
   - name: title
     summary: Sets the title of the action bar.
     type: String
+
+  - name: customView
+    summary: Sets a view to be used for a custom navigation mode.
+    type: Titanium.UI.View
+    description: |
+        Inserts a custom view for navigation in the space
+        between the application's home button and menu actions.
+        The custom view is trimmed to fit the space available.
+    since: "7.1.0"

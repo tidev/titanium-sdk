@@ -13,9 +13,9 @@
 #ifdef USE_TI_UISEARCHBAR
 
 #import "TiUISearchBar.h"
-#import "ImageLoader.h"
 #import "TiUISearchBarProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUISearchBar
 
@@ -60,7 +60,7 @@
     [searchView setDelegate:nil];
     RELEASE_TO_NIL(searchView);
   }
-  searchView = searchBar;
+  searchView = [searchBar retain];
   [searchView setDelegate:self];
   [self addSubview:searchView];
 }
@@ -116,6 +116,45 @@
 - (void)setHintText_:(id)value
 {
   [[self searchBar] setPlaceholder:[TiUtils stringValue:value]];
+
+  if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
+    [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+  }
+}
+
+- (void)setHintTextColor_:(id)value
+{
+  id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
+
+  NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
+  [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeholder];
+  RELEASE_TO_NIL(placeholder);
+}
+
+- (void)setColor_:(id)value
+{
+  // TIMOB-10368
+  // Remove this hack again once iOS exposes this as a public API
+  UIView *searchContainerView = [[[self searchBar] subviews] firstObject];
+
+  [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    if ([obj isKindOfClass:[UITextField class]]) {
+      [(UITextField *)obj setTextColor:[[TiUtils colorValue:value] _color]];
+      *stop = YES;
+    }
+  }];
+}
+
+- (void)setFieldBackgroundImage_:(id)arg
+{
+  [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateNormal];
+  [self.searchBar setSearchTextPositionAdjustment:UIOffsetMake(8.0, 0.0)];
+}
+
+- (void)setFieldBackgroundDisabledImage_:(id)arg
+{
+  [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateDisabled];
+  [self.searchBar setSearchTextPositionAdjustment:UIOffsetMake(8.0, 0.0)];
 }
 
 - (void)setKeyboardType_:(id)value

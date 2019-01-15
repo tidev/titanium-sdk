@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
@@ -65,10 +66,12 @@ public class TiWebChromeClient extends WebChromeClient
 		super();
 		this.tiWebView = webView;
 	}
-	
+
 	@Override
-	public void onGeolocationPermissionsShowPrompt(String origin, android.webkit.GeolocationPermissions.Callback callback) {
-	     callback.invoke(origin, true, false);
+	public void onGeolocationPermissionsShowPrompt(String origin,
+												   android.webkit.GeolocationPermissions.Callback callback)
+	{
+		callback.invoke(origin, true, false);
 	}
 
 	@Override
@@ -79,7 +82,7 @@ public class TiWebChromeClient extends WebChromeClient
 				Log.d(CONSOLE_TAG, message.message() + " (" + message.lineNumber() + ":" + message.sourceId() + ")");
 				break;
 			default:
-				Log.i(CONSOLE_TAG, message.message() + " (" + message.lineNumber() + ":"+ message.sourceId() + ")");
+				Log.i(CONSOLE_TAG, message.message() + " (" + message.lineNumber() + ":" + message.sourceId() + ")");
 				break;
 		}
 		return true;
@@ -88,7 +91,8 @@ public class TiWebChromeClient extends WebChromeClient
 	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)
 	{
 		TiUIHelper.doOkDialog("Alert", message, new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(DialogInterface dialog, int which)
+			{
 				result.confirm();
 			}
 		});
@@ -106,7 +110,7 @@ public class TiWebChromeClient extends WebChromeClient
 	@Override
 	public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg)
 	{
-		TiViewProxy proxy = tiWebView.getProxy();
+		WebViewProxy proxy = (WebViewProxy) tiWebView.getProxy();
 		if (proxy == null) {
 			return false;
 		}
@@ -114,6 +118,21 @@ public class TiWebChromeClient extends WebChromeClient
 		Object onCreateWindow = proxy.getProperty(TiC.PROPERTY_ON_CREATE_WINDOW);
 		if (!(onCreateWindow instanceof KrollFunction)) {
 			return false;
+		}
+
+		Message href = view.getHandler().obtainMessage();
+		view.requestFocusNodeHref(href);
+		String url = href.getData().getString("url");
+
+		Object onLink = proxy.getProperty(TiC.PROPERTY_ON_LINK);
+		if (onLink instanceof KrollFunction) {
+			KrollFunction onLinkFunction = (KrollFunction) onLink;
+			KrollDict args = new KrollDict();
+			args.put(TiC.EVENT_PROPERTY_URL, url);
+			Object result = onLinkFunction.call(proxy.getKrollObject(), args);
+			if (result == null || (result instanceof Boolean && ((Boolean) result) == false)) {
+				return false;
+			}
 		}
 
 		KrollFunction onCreateWindowFunction = (KrollFunction) onCreateWindow;
@@ -125,14 +144,16 @@ public class TiWebChromeClient extends WebChromeClient
 		if (result instanceof WebViewProxy) {
 			WebViewProxy newProxy = (WebViewProxy) result;
 			newProxy.setPostCreateMessage(resultMsg);
+			newProxy.getWebView().setProxy(proxy);
 			return true;
 		}
 
 		return false;
 	}
-	
+
 	@Override
-	public void onExceededDatabaseQuota(String url, String databaseIdentifier, long currentQuota, long estimatedSize, long totalUsedQuota, QuotaUpdater quotaUpdater)
+	public void onExceededDatabaseQuota(String url, String databaseIdentifier, long currentQuota, long estimatedSize,
+										long totalUsedQuota, QuotaUpdater quotaUpdater)
 	{
 		quotaUpdater.updateQuota(estimatedSize * 2);
 	}
@@ -149,7 +170,8 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		Activity activity = tiWebView.getProxy().getActivity();
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+		FrameLayout.LayoutParams params =
+			new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 		if (activity instanceof TiBaseActivity) {
 			if (mCustomViewContainer == null) {
 				mCustomViewContainer = new FrameLayout(activity);
@@ -196,236 +218,253 @@ public class TiWebChromeClient extends WebChromeClient
 	// See: https://code.google.com/p/android/issues/detail?id=62220
 	// This is unsupported by Google Android
 	// openFileChooser for Android 3.0+
-	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType){
-	    if (mFilePathCallbackLegacy != null) {
-	        mFilePathCallbackLegacy.onReceiveValue(null);
-	    }
-	    mFilePathCallbackLegacy = filePathCallback;
+	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType)
+	{
+		if (mFilePathCallbackLegacy != null) {
+			mFilePathCallbackLegacy.onReceiveValue(null);
+		}
+		mFilePathCallbackLegacy = filePathCallback;
 
-	    TiViewProxy proxy = tiWebView.getProxy();
-	    Activity activity = null;
-	    PackageManager packageManager = null;
-	    ActivityProxy activityProxy = null;
+		TiViewProxy proxy = tiWebView.getProxy();
+		Activity activity = null;
+		PackageManager packageManager = null;
+		ActivityProxy activityProxy = null;
 
-	    if (proxy != null) {
-	        activity = proxy.getActivity();
-	        activityProxy = proxy.getActivityProxy();
-	    }
+		if (proxy != null) {
+			activity = proxy.getActivity();
+			activityProxy = proxy.getActivityProxy();
+		}
 
-	    if (activity != null) {
-	        packageManager = activity.getPackageManager();
-	    }
+		if (activity != null) {
+			packageManager = activity.getPackageManager();
+		}
 
-	    if (activityProxy != null) {
-	        activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager), new OpenFileChooserCallbackFunction());
-	    }
+		if (activityProxy != null) {
+			activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager),
+												 new OpenFileChooserCallbackFunction());
+		}
 	}
 
-	protected IntentProxy prepareFileChooserIntent(PackageManager packageManager) {
-	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-	    Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+	protected IntentProxy prepareFileChooserIntent(PackageManager packageManager)
+	{
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 
-	    if (Build.VERSION.SDK_INT < 23 || (Build.VERSION.SDK_INT >= 23 && currentActivity != null
-	            && currentActivity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-	        if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
-	            // Create the File where the photo should go
-	            File photoFile = null;
-	            try {
-	                photoFile = createImageFile();
-	                takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
-	            } catch (IOException ex) {
-	                // Error occurred while creating the File
-	                Log.e(TAG, "Unable to create Image File", ex);
-	            }
+		if (Build.VERSION.SDK_INT < 23
+			|| (Build.VERSION.SDK_INT >= 23 && currentActivity != null
+				&& currentActivity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+					   == PackageManager.PERMISSION_GRANTED)) {
+			if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
+				// Create the File where the photo should go
+				File photoFile = null;
+				try {
+					photoFile = createImageFile();
+					takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
+				} catch (IOException ex) {
+					// Error occurred while creating the File
+					Log.e(TAG, "Unable to create Image File", ex);
+				}
 
-	            // Continue only if the File was successfully created
-	            if (photoFile != null) {
-	                mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
-	                mCameraPhotoUri = Uri.fromFile(photoFile);
-	                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
-	            } else {
-	                takePictureIntent = null;
-	            }
-	        }
-	    } else {
-	        takePictureIntent = null;
-	    }
+				// Continue only if the File was successfully created
+				if (photoFile != null) {
+					mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
+					mCameraPhotoUri = Uri.fromFile(photoFile);
+					takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
+				} else {
+					takePictureIntent = null;
+				}
+			}
+		} else {
+			takePictureIntent = null;
+		}
 
-	    Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-	    contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-	    contentSelectionIntent.setType("image/*");
+		Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+		contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+		contentSelectionIntent.setType("*/*");
 
-	    Intent[] intentArray = null;
-	    if (takePictureIntent != null) {
-	        intentArray = new Intent[]{takePictureIntent};
-	    } else {
-	        intentArray = new Intent[0];
-	    }
+		Intent[] intentArray = null;
+		if (takePictureIntent != null) {
+			intentArray = new Intent[] { takePictureIntent };
+		} else {
+			intentArray = new Intent[0];
+		}
 
-	    Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
-	    chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-	    chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
-	    if (intentArray != null) {
-	        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-	    }
+		Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+		chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+		chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+		if (intentArray != null) {
+			chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+		}
 
-	    return new IntentProxy(chooserIntent);
+		return new IntentProxy(chooserIntent);
 	}
 
-    // See: https://code.google.com/p/android/issues/detail?id=62220
-    // This is unsupported by Google Android
-    // openFileChooser for Android < 3.0
-    public void openFileChooser(ValueCallback<Uri> filePathCallback) {
-        openFileChooser(filePathCallback, "");
-    }
+	// See: https://code.google.com/p/android/issues/detail?id=62220
+	// This is unsupported by Google Android
+	// openFileChooser for Android < 3.0
+	public void openFileChooser(ValueCallback<Uri> filePathCallback)
+	{
+		openFileChooser(filePathCallback, "");
+	}
 
-    // See: https://code.google.com/p/android/issues/detail?id=62220
-    // This is unsupported by Google Android
-    //openFileChooser for other Android versions
-    public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType, String capture) {
-        openFileChooser(filePathCallback, acceptType);
-    }
+	// See: https://code.google.com/p/android/issues/detail?id=62220
+	// This is unsupported by Google Android
+	//openFileChooser for other Android versions
+	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType, String capture)
+	{
+		openFileChooser(filePathCallback, acceptType);
+	}
 
-    // This is officially supported by Google Android
-    // This is available on API level 21 and above
-    public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
-            WebChromeClient.FileChooserParams fileChooserParams) {
+	// This is officially supported by Google Android
+	// This is available on API level 21 and above
+	public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
+									 WebChromeClient.FileChooserParams fileChooserParams)
+	{
 
-        if (mFilePathCallback != null) {
-            mFilePathCallback.onReceiveValue(null);
-        }
-        mFilePathCallback = filePathCallback;
+		if (mFilePathCallback != null) {
+			mFilePathCallback.onReceiveValue(null);
+		}
+		mFilePathCallback = filePathCallback;
 
-        TiViewProxy proxy = tiWebView.getProxy();
-        Activity activity = null;
-        PackageManager packageManager = null;
-        ActivityProxy activityProxy = null;
+		TiViewProxy proxy = tiWebView.getProxy();
+		Activity activity = null;
+		PackageManager packageManager = null;
+		ActivityProxy activityProxy = null;
 
-        if (proxy != null) {
-            activity = proxy.getActivity();
-            activityProxy = proxy.getActivityProxy();
-        }
+		if (proxy != null) {
+			activity = proxy.getActivity();
+			activityProxy = proxy.getActivityProxy();
+		}
 
-        if (activity != null) {
-            packageManager = activity.getPackageManager();
-        }
+		if (activity != null) {
+			packageManager = activity.getPackageManager();
+		}
 
-        if (activityProxy != null) {
-            activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager), new ShowFileChooserCallbackFunction());
-        }
-        return true;
-    }
+		if (activityProxy != null) {
+			activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager),
+												 new ShowFileChooserCallbackFunction());
+		}
+		return true;
+	}
 
-    class ShowFileChooserCallbackFunction implements KrollFunction {
+	class ShowFileChooserCallbackFunction implements KrollFunction
+	{
 
-        @Override
-        public Object call(KrollObject krollObject, HashMap args) {
-            return null;
-        }
+		@Override
+		public Object call(KrollObject krollObject, HashMap args)
+		{
+			return null;
+		}
 
-        @Override
-        public Object call(KrollObject krollObject, Object[] args) {
-            return null;
-        }
+		@Override
+		public Object call(KrollObject krollObject, Object[] args)
+		{
+			return null;
+		}
 
-        @Override
-        public void callAsync(KrollObject krollObject, HashMap args) {
-            int resultCode = Activity.RESULT_CANCELED;
-            Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
-            if (objectResults instanceof Integer) {
-                resultCode = (Integer) objectResults;
-            }
-            IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
-            Intent data = null;
-            if(intentProxy != null) {
-                data = intentProxy.getIntent();
-            }
+		@Override
+		public void callAsync(KrollObject krollObject, HashMap args)
+		{
+			int resultCode = Activity.RESULT_CANCELED;
+			Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+			if (objectResults instanceof Integer) {
+				resultCode = (Integer) objectResults;
+			}
+			IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
+			Intent data = null;
+			if (intentProxy != null) {
+				data = intentProxy.getIntent();
+			}
 
-            Uri[] results = null;
-            if(resultCode == Activity.RESULT_OK) {
-                if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
-                    // If there is no data, then we may have taken a photo
-                    if(mCameraPhotoPath != null) {
-                        results = new Uri[]{Uri.parse(mCameraPhotoPath)};
-                    }
-                } else {
-                    String dataString = data.getDataString();
-                    if (dataString != null) {
-                        results = new Uri[]{Uri.parse(dataString)};
-                    }
-                }
-            }
+			Uri[] results = null;
+			if (resultCode == Activity.RESULT_OK) {
+				if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
+					// If there is no data, then we may have taken a photo
+					if (mCameraPhotoPath != null) {
+						results = new Uri[] { Uri.parse(mCameraPhotoPath) };
+					}
+				} else {
+					String dataString = data.getDataString();
+					if (dataString != null) {
+						results = new Uri[] { Uri.parse(dataString) };
+					}
+				}
+			}
 
-            mFilePathCallback.onReceiveValue(results);
-            mFilePathCallback = null;
-        }
+			mFilePathCallback.onReceiveValue(results);
+			mFilePathCallback = null;
+		}
 
-        @Override
-        public void callAsync(KrollObject krollObject, Object[] args) {
-        }
-    }
+		@Override
+		public void callAsync(KrollObject krollObject, Object[] args)
+		{
+		}
+	}
 
-    class OpenFileChooserCallbackFunction implements KrollFunction {
+	class OpenFileChooserCallbackFunction implements KrollFunction
+	{
 
-        @Override
-        public Object call(KrollObject krollObject, HashMap args) {
-            return null;
-        }
+		@Override
+		public Object call(KrollObject krollObject, HashMap args)
+		{
+			return null;
+		}
 
-        @Override
-        public Object call(KrollObject krollObject, Object[] args) {
-            return null;
-        }
+		@Override
+		public Object call(KrollObject krollObject, Object[] args)
+		{
+			return null;
+		}
 
-        @Override
-        public void callAsync(KrollObject krollObject, HashMap args) {
-            int resultCode = Activity.RESULT_CANCELED;
-            Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
-            if (objectResults instanceof Integer) {
-                resultCode = (Integer) objectResults;
-            }
-            IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
-            Intent data = null;
-            if(intentProxy != null) {
-                data = intentProxy.getIntent();
-            }
+		@Override
+		public void callAsync(KrollObject krollObject, HashMap args)
+		{
+			int resultCode = Activity.RESULT_CANCELED;
+			Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+			if (objectResults instanceof Integer) {
+				resultCode = (Integer) objectResults;
+			}
+			IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
+			Intent data = null;
+			if (intentProxy != null) {
+				data = intentProxy.getIntent();
+			}
 
-            Uri results = null;
-            if(resultCode == Activity.RESULT_OK) {
-                if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
-                    // If there is no data, then we may have taken a photo
-                    if(mCameraPhotoUri != null) {
-                        results = mCameraPhotoUri;
-                    }
-                } else {
-                    String dataString = data.getDataString();
-                    if (dataString != null) {
-                        results = Uri.parse(dataString);
-                    }
-                }
-            }
+			Uri results = null;
+			if (resultCode == Activity.RESULT_OK) {
+				if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
+					// If there is no data, then we may have taken a photo
+					if (mCameraPhotoUri != null) {
+						results = mCameraPhotoUri;
+					}
+				} else {
+					String dataString = data.getDataString();
+					if (dataString != null) {
+						results = Uri.parse(dataString);
+					}
+				}
+			}
 
-            mFilePathCallbackLegacy.onReceiveValue(results);
-            mFilePathCallbackLegacy = null;
-        }
+			mFilePathCallbackLegacy.onReceiveValue(results);
+			mFilePathCallbackLegacy = null;
+		}
 
-        @Override
-        public void callAsync(KrollObject krollObject, Object[] args) {
-        }
-    }
+		@Override
+		public void callAsync(KrollObject krollObject, Object[] args)
+		{
+		}
+	}
 
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        File imageFile = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-                );
-        return imageFile;
-    }
+	private File createImageFile() throws IOException
+	{
+		// Create an image file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+		String imageFileName = "JPEG_" + timeStamp + "_";
+		File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+		File imageFile = File.createTempFile(imageFileName, /* prefix */
+											 ".jpg",        /* suffix */
+											 storageDir     /* directory */
+		);
+		return imageFile;
+	}
 }
-

@@ -20,14 +20,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat.BigPictureStyle;
 
-@Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
-	TiC.PROPERTY_DECODE_RETRIES
-})
-public class BigPictureStyleProxy extends StyleProxy {
+@Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = { TiC.PROPERTY_DECODE_RETRIES })
+public class BigPictureStyleProxy extends StyleProxy
+{
 
 	private static final String TAG = "TiNotificationBigPictureStyle";
 
-	public BigPictureStyleProxy() {
+	public BigPictureStyleProxy()
+	{
 		super();
 		style = new BigPictureStyle();
 	}
@@ -58,12 +58,16 @@ public class BigPictureStyleProxy extends StyleProxy {
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setBigLargeIcon(Object icon)
+	// clang-format on
 	{
-		if(icon instanceof Number) {
-			Bitmap bigLargeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), ((Number)icon).intValue());
-			((BigPictureStyle)style).bigLargeIcon(bigLargeIcon);
+		if (icon instanceof Number) {
+			Bitmap bigLargeIcon =
+				BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), ((Number) icon).intValue());
+			((BigPictureStyle) style).bigLargeIcon(bigLargeIcon);
 		} else {
 			String iconUrl = TiConvert.toString(icon);
 			if (iconUrl == null) {
@@ -71,37 +75,50 @@ public class BigPictureStyleProxy extends StyleProxy {
 				return;
 			}
 			String iconFullUrl = resolveUrl(null, iconUrl);
-			Bitmap bigLargeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), TiUIHelper.getResourceId(iconFullUrl));
-			((BigPictureStyle)style).bigLargeIcon(bigLargeIcon);
+			Bitmap bigLargeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(),
+															   TiUIHelper.getResourceId(iconFullUrl));
+			((BigPictureStyle) style).bigLargeIcon(bigLargeIcon);
 		}
 
 		setProperty(TiC.PROPERTY_BIG_LARGE_ICON, icon);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setBigPicture(Object picture)
+	// clang-format on
 	{
 		TiDrawableReference source = TiDrawableReference.fromObject(this, picture);
 
 		// Check for decodeRetries
 		if (hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
-			source.setDecodeRetries(TiConvert.toInt(getProperty(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES));
+			source.setDecodeRetries(
+				TiConvert.toInt(getProperty(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES));
 		}
 
-		((BigPictureStyle)style).bigPicture(source.getBitmap());
+		((BigPictureStyle) style).bigPicture(source.getBitmap());
 
 		setProperty(TiC.PROPERTY_BIG_PICTURE, picture);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setBigContentTitle(String title) {
-		((BigPictureStyle)style).setBigContentTitle(title);
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setBigContentTitle(String title)
+	// clang-format on
+	{
+		((BigPictureStyle) style).setBigContentTitle(title);
 		setProperty(TiC.PROPERTY_BIG_CONTENT_TITLE, title);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setSummaryText(String text) {
-		((BigPictureStyle)style).setSummaryText(text);
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setSummaryText(String text)
+	// clang-format on
+	{
+		((BigPictureStyle) style).setSummaryText(text);
 		setProperty(TiC.PROPERTY_SUMMARY_TEXT, text);
 	}
 }

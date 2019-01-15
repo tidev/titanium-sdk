@@ -26,13 +26,11 @@
     <orderEntry type="module" module-name="contacts" />
     <orderEntry type="module" module-name="xml" />
     <orderEntry type="module" module-name="database" />
-    <orderEntry type="module" module-name="yahoo" />
     <orderEntry type="module" module-name="geolocation" />
     <orderEntry type="module" module-name="gesture" />
     <orderEntry type="module" module-name="accelerometer" />
     <orderEntry type="module" module-name="locale" />
     <orderEntry type="module" module-name="analytics" />
-    <orderEntry type="module" module-name="map" />
     <orderEntry type="module" module-name="android" />
     <orderEntry type="module" module-name="app" />
     <orderEntry type="module" module-name="network" />

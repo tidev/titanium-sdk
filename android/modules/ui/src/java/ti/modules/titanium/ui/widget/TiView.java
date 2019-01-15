@@ -16,7 +16,8 @@ import org.appcelerator.titanium.view.TiUIView;
 public class TiView extends TiUIView
 {
 
-	public TiView(TiViewProxy proxy) {
+	public TiView(TiViewProxy proxy)
+	{
 		super(proxy);
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 
@@ -30,5 +31,4 @@ public class TiView extends TiUIView
 		}
 		setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement, proxy));
 	}
-
 }

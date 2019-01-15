@@ -44,7 +44,6 @@ import android.view.ViewParent;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -53,7 +52,6 @@ import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ArgbEvaluator;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.animation.AnimatorProxy;
 
 /**
@@ -108,10 +106,11 @@ import com.nineoldandroids.view.animation.AnimatorProxy;
 public class TiAnimationBuilder
 {
 	private static final String TAG = "TiAnimationBuilder";
-	private static final boolean PRE_HONEYCOMB = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
 
 	// Views on which animations are currently running.
 	private static ArrayList<WeakReference<View>> sRunningViews = new ArrayList<WeakReference<View>>();
+	private static final boolean PRE_LOLLIPOP = (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP);
+	private static final TiAnimationCurve DEFAULT_CURVE = TiAnimationCurve.EASE_IN_OUT;
 
 	protected float anchorX;
 	protected float anchorY;
@@ -125,6 +124,7 @@ public class TiAnimationBuilder
 	protected String centerX = null, centerY = null;
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
+	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
@@ -155,8 +155,7 @@ public class TiAnimationBuilder
 				anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
 				anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
 			} else {
-				Log.e(TAG,
-						"Invalid argument type for anchorPoint property. Ignoring");
+				Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
 			}
 		}
 
@@ -169,6 +168,16 @@ public class TiAnimationBuilder
 
 		if (options.containsKey(TiC.PROPERTY_DURATION)) {
 			duration = TiConvert.toDouble(options, TiC.PROPERTY_DURATION);
+		}
+
+		this.curve = TiAnimationBuilder.DEFAULT_CURVE;
+		if (options.containsKey(TiC.PROPERTY_CURVE)) {
+			TiAnimationCurve newCurve = TiAnimationCurve.fromTiIntId(TiConvert.toInt(options, TiC.PROPERTY_CURVE));
+			if (newCurve != null) {
+				this.curve = newCurve;
+			} else {
+				Log.e(TAG, "Invalid value assigned to the '" + TiC.PROPERTY_CURVE + "' property.");
+			}
 		}
 
 		if (options.containsKey(TiC.PROPERTY_OPACITY)) {
@@ -188,8 +197,7 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_AUTOREVERSE)) {
-			autoreverse = TiConvert
-					.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
+			autoreverse = TiConvert.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_TOP)) {
@@ -216,8 +224,7 @@ public class TiAnimationBuilder
 				centerY = TiConvert.toString(center, TiC.PROPERTY_Y);
 
 			} else {
-				Log.e(TAG,
-						"Invalid argument type for center property. Ignoring");
+				Log.e(TAG, "Invalid argument type for center property. Ignoring");
 			}
 		}
 
@@ -230,8 +237,7 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			backgroundColor = TiConvert.toColor(options,
-					TiC.PROPERTY_BACKGROUND_COLOR);
+			backgroundColor = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR);
 		}
 
 		this.options = options;
@@ -276,9 +282,8 @@ public class TiAnimationBuilder
 			parentWidth = group.getMeasuredWidth();
 		}
 
-		return buildViewAnimations(view.getLeft(), view.getTop(),
-				view.getMeasuredWidth(), view.getMeasuredHeight(), parentWidth,
-				parentHeight);
+		return buildViewAnimations(view.getLeft(), view.getTop(), view.getMeasuredWidth(), view.getMeasuredHeight(),
+								   parentWidth, parentHeight);
 	}
 
 	/**
@@ -301,8 +306,8 @@ public class TiAnimationBuilder
 			parentWidth = group.getWidth();
 		}
 
-		return buildPropertyAnimators(view.getLeft(), view.getTop(),
-				view.getWidth(), view.getHeight(), parentWidth, parentHeight);
+		return buildPropertyAnimators(view.getLeft(), view.getTop(), view.getWidth(), view.getHeight(), parentWidth,
+									  parentHeight);
 	}
 
 	/**
@@ -327,20 +332,22 @@ public class TiAnimationBuilder
 		}
 
 		if (backgroundColor != null) {
+			View bgView = view;
+			if (view instanceof TiBorderWrapperView && ((TiBorderWrapperView) view).getChildCount() > 0) {
+				// set backgroundColor on the child view and not TiBorderWrapperView itself
+				bgView = ((TiBorderWrapperView) view).getChildAt(0);
+			}
 			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper.wrap(view);
 			int currentBackgroundColor = bgWrap.getBackgroundColor();
-			ObjectAnimator bgAnimator = ObjectAnimator.ofInt(view, "backgroundColor", currentBackgroundColor,
-					backgroundColor);
+			ObjectAnimator bgAnimator =
+				ObjectAnimator.ofInt(bgView, "backgroundColor", currentBackgroundColor, backgroundColor);
 			bgAnimator.setEvaluator(new ArgbEvaluator());
 			addAnimator(animators, bgAnimator);
 		}
 
 		if (tdm != null) {
 			AnimatorUpdateListener updateListener = null;
-			// Need to invalidate the parent view for Honeycomb+. Otherwise it will not draw correctly.
-			if (!PRE_HONEYCOMB) {
-				updateListener = new AnimatorUpdateListener();
-			}
+			updateListener = new AnimatorUpdateListener();
 
 			// Derive a set of property Animators from the
 			// operations in the matrix so we can go ahead
@@ -364,15 +371,15 @@ public class TiAnimationBuilder
 
 				for (Operation operation : operations) {
 					if (operation.anchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE
-							|| operation.anchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
+						|| operation.anchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
 						setAnchor(w, h, operation.anchorX, operation.anchorY);
 					}
 					switch (operation.type) {
 						case Operation.TYPE_ROTATE:
 							includesRotation = true;
 							if (operation.rotationFromValueSpecified) {
-								ObjectAnimator anim = ObjectAnimator.ofFloat(view, "rotation", operation.rotateFrom,
-									operation.rotateTo);
+								ObjectAnimator anim =
+									ObjectAnimator.ofFloat(view, "rotation", operation.rotateFrom, operation.rotateTo);
 								if (updateListener != null) {
 									anim.addUpdateListener(updateListener);
 								}
@@ -387,14 +394,14 @@ public class TiAnimationBuilder
 							break;
 						case Operation.TYPE_SCALE:
 							if (operation.scaleFromValuesSpecified) {
-								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX,
-									operation.scaleToX);
+								ObjectAnimator animX =
+									ObjectAnimator.ofFloat(view, "scaleX", operation.scaleFromX, operation.scaleToX);
 								if (updateListener != null) {
 									animX.addUpdateListener(updateListener);
 								}
 								addAnimator(animators, animX);
 								addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", operation.scaleFromY,
-										operation.scaleToY));
+																			  operation.scaleToY));
 
 							} else {
 								ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", operation.scaleToX);
@@ -417,12 +424,16 @@ public class TiAnimationBuilder
 			}
 		}
 
+		if (anchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE || anchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
+			setAnchor(w, h, anchorX, anchorY);
+		}
+
 		if (top != null || bottom != null || left != null || right != null || centerX != null || centerY != null) {
 			TiDimension optionTop = null, optionBottom = null;
 			TiDimension optionLeft = null, optionRight = null;
 			TiDimension optionCenterX = null, optionCenterY = null;
-			TiDimension optionHeight = null, optionWidth=null;
-			int newHeight = h, newWidth=w;
+			TiDimension optionHeight = null, optionWidth = null;
+			int newHeight = h, newWidth = w;
 
 			// Note that we're stringifying the values to make sure we
 			// use the correct TiDimension constructor, except when
@@ -480,92 +491,84 @@ public class TiAnimationBuilder
 				newWidth = optionWidth.getAsPixels(parentView);
 			}
 
-			TiCompositeLayout.computePosition(parentView, optionLeft, optionCenterX, optionRight, newWidth, 0, parentWidth,
-					horizontal);
-			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, newHeight, 0, parentHeight,
-					vertical);
+			TiCompositeLayout.computePosition(parentView, optionLeft, optionCenterX, optionRight, newWidth, 0,
+											  parentWidth, horizontal);
+			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, newHeight, 0,
+											  parentHeight, vertical);
 
-			// For pre-Honeycomb, there will be flicker during animation if using animatorHelper.
-			if (PRE_HONEYCOMB) {
-				int translationX = horizontal[0] - x;
-				int translationY = vertical[0] - y;
-				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", translationX));
-				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", translationY));
+			if (animatorHelper == null) {
+				animatorHelper = new AnimatorHelper();
+			}
 
-			// For Honeycomb+, animatorHelper will reset layout parameters so the layout will keep correct (TIMOB-15951).
-			} else {
-				if (animatorHelper == null) {
-					animatorHelper = new AnimatorHelper();
+			if (left != null) {
+				addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_LEFT, x, horizontal[0]));
+			}
+
+			if (right != null) {
+				int afterRight = optionRight.getAsPixels(parentView);
+				;
+
+				TiDimension beforeRightD = ((TiCompositeLayout.LayoutParams) view.getLayoutParams()).optionRight;
+				int beforeRight = 0;
+				if (beforeRightD != null) {
+					beforeRight = beforeRightD.getAsPixels(parentView);
+				} else {
+					beforeRight = parentWidth - view.getRight();
 				}
-				
-				if (left != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_LEFT, x, horizontal[0]));
-				} 
-				
-				if (right != null) {
-					int afterRight = optionRight.getAsPixels(parentView);;
-					
-					TiDimension beforeRightD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionRight;
-					int beforeRight = 0;
-					if (beforeRightD != null) {
-						beforeRight = beforeRightD.getAsPixels(parentView);
-					} else {
-						beforeRight = parentWidth - view.getRight(); 
-					}
 
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_RIGHT, beforeRight, afterRight));
-				} 
+				addAnimator(animators,
+							ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_RIGHT, beforeRight, afterRight));
+			}
 
-				if (centerX != null) {
-					int afterCenterX = optionCenterX.getAsPixels(parentView);;
-					
-					int beforeCenterX = 0;
-					TiDimension beforeCenterXD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionCenterX;
-					
-					if (beforeCenterXD != null) {
-						beforeCenterX = beforeCenterXD.getAsPixels(parentView);
-					} else {
-						beforeCenterX = (view.getRight() + view.getLeft()) / 2;
-					}
-					
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerX", beforeCenterX, afterCenterX));
+			if (centerX != null) {
+				int afterCenterX = optionCenterX.getAsPixels(parentView);
+				;
+
+				int beforeCenterX = 0;
+				TiDimension beforeCenterXD = ((TiCompositeLayout.LayoutParams) view.getLayoutParams()).optionCenterX;
+
+				if (beforeCenterXD != null) {
+					beforeCenterX = beforeCenterXD.getAsPixels(parentView);
+				} else {
+					beforeCenterX = (view.getRight() + view.getLeft()) / 2;
 				}
-				
-				
-				if (top != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_TOP, y, vertical[0]));
-					
-				}
-				
-				if (bottom != null) {
-					int afterBottom = optionBottom.getAsPixels(parentView);
 
-					int beforeBottom = 0;
-					TiDimension beforeBottomD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionBottom;
-					if (beforeBottomD != null) {
-						beforeBottom = beforeBottomD.getAsPixels(parentView);
-					} else {
-						beforeBottom = parentHeight - view.getBottom();
-					}
-					
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_BOTTOM, beforeBottom, afterBottom));
-					
-				}
-				
-				if (centerY != null) {
-					int afterCenterY = optionCenterY.getAsPixels(parentView);;
-					
-					int beforeCenterY = 0;
-					TiDimension beforeCenterYD = ((TiCompositeLayout.LayoutParams)view.getLayoutParams()).optionCenterY;
+				addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerX", beforeCenterX, afterCenterX));
+			}
 
-					if (beforeCenterYD != null) {
-						beforeCenterY = beforeCenterYD.getAsPixels(parentView);
-					} else {
-						beforeCenterY = (view.getTop() + view.getBottom()) / 2;
-					}
+			if (top != null) {
+				addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_TOP, y, vertical[0]));
+			}
 
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerY", beforeCenterY, afterCenterY));
+			if (bottom != null) {
+				int afterBottom = optionBottom.getAsPixels(parentView);
+
+				int beforeBottom = 0;
+				TiDimension beforeBottomD = ((TiCompositeLayout.LayoutParams) view.getLayoutParams()).optionBottom;
+				if (beforeBottomD != null) {
+					beforeBottom = beforeBottomD.getAsPixels(parentView);
+				} else {
+					beforeBottom = parentHeight - view.getBottom();
 				}
+
+				addAnimator(animators,
+							ObjectAnimator.ofInt(animatorHelper, TiC.PROPERTY_BOTTOM, beforeBottom, afterBottom));
+			}
+
+			if (centerY != null) {
+				int afterCenterY = optionCenterY.getAsPixels(parentView);
+				;
+
+				int beforeCenterY = 0;
+				TiDimension beforeCenterYD = ((TiCompositeLayout.LayoutParams) view.getLayoutParams()).optionCenterY;
+
+				if (beforeCenterYD != null) {
+					beforeCenterY = beforeCenterYD.getAsPixels(parentView);
+				} else {
+					beforeCenterY = (view.getTop() + view.getBottom()) / 2;
+				}
+
+				addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerY", beforeCenterY, afterCenterY));
 			}
 
 			// Pre-Honeycomb, we will need to update layout params at end of
@@ -575,7 +578,6 @@ public class TiAnimationBuilder
 			// need to re-layout. Also, don't do it if a rotation is included,
 			// since the re-layout will lose the rotation.
 			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
-
 		}
 
 		if (tdm == null && (width != null || height != null)) {
@@ -603,24 +605,14 @@ public class TiAnimationBuilder
 			int toWidth = optionWidth.getAsPixels(parentView != null ? parentView : view);
 			int toHeight = optionHeight.getAsPixels(parentView != null ? parentView : view);
 
-			// For pre-Honeycomb, there will be flicker during animation if using animatorHelper.
-			if (PRE_HONEYCOMB) {
-				float scaleX = (float) toWidth / w;
-				float scaleY = (float) toHeight / h;
-				addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleX", scaleX));
-				addAnimator(animators, ObjectAnimator.ofFloat(view, "scaleY", scaleY));
-
-			// For Honeycomb+, animatorHelper will reset layout parameters so the layout will keep correct (TIMOB-15951, TIMOB-16087).
-			} else {
-				if (animatorHelper == null) {
-					animatorHelper = new AnimatorHelper();
-				}
-				if (width != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "width", w, toWidth));
-				}
-				if (height != null) {
-					addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "height", h, toHeight));
-				}
+			if (animatorHelper == null) {
+				animatorHelper = new AnimatorHelper();
+			}
+			if (width != null) {
+				addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "width", w, toWidth));
+			}
+			if (height != null) {
+				addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "height", h, toHeight));
 			}
 
 			setAnchor(w, h);
@@ -633,20 +625,6 @@ public class TiAnimationBuilder
 			// Also, don't do it if a rotation is included,
 			// since the re-layout will lose the rotation.
 			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
-		}
-
-		// Because of https://github.com/JakeWharton/NineOldAndroids/issues/54
-		// we add a dummy animator if all of these conditions are met:
-		// 1. There is only one animator so far.
-		// 2. That animator is for the alpha property.
-		// 3. The view has a non-null background.
-		// 4. Pre-Honeycomb (e.g., Gingerbread) is running.
-		if (PRE_HONEYCOMB && animators.size() == 1 && toOpacity != null && view.getBackground() != null) {
-			float currentScaleX = ViewHelper.getScaleX(view);
-			ValueAnimator dummyAnimator = ObjectAnimator.ofFloat(view, "scaleX", currentScaleX + 0.001f);
-			dummyAnimator.setRepeatCount(1);
-			dummyAnimator.setRepeatMode(ValueAnimator.REVERSE);
-			addAnimator(animators, dummyAnimator);
 		}
 
 		AnimatorSet as = new AnimatorSet();
@@ -687,7 +665,7 @@ public class TiAnimationBuilder
 
 	private void addAnimator(List<Animator> list, ValueAnimator animator)
 	{
-		animator.setInterpolator(new LinearInterpolator());
+		animator.setInterpolator(this.curve.toInterpolator());
 
 		// repeatCount is ignored at the AnimatorSet level, so it needs to
 		// be set for each member animator manually. Same with
@@ -713,25 +691,16 @@ public class TiAnimationBuilder
 		list.add(animator);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setViewPivotHC(float pivotX, float pivotY)
 	{
 		view.setPivotX(pivotX);
 		view.setPivotY(pivotY);
 	}
 
-	private void setViewPivot(float pivotX, float pivotY)
-	{
-		AnimatorProxy proxy = AnimatorProxy.wrap(view);
-		proxy.setPivotX(pivotX);
-		proxy.setPivotY(pivotY);
-	}
-
 	public TiMatrixAnimation createMatrixAnimation(Ti2DMatrix matrix)
 	{
 		return new TiMatrixAnimation(matrix, anchorX, anchorY);
 	}
-
 
 	/**
 	 * Builds the Animations used for pre-Honeycomb
@@ -751,8 +720,7 @@ public class TiAnimationBuilder
 	 * @return An AnimationSet with the view Animations that
 	 * will be used to accomplish the requested animation.
 	 */
-	private AnimationSet buildViewAnimations(int x, int y, int w, int h,
-			int parentWidth, int parentHeight)
+	private AnimationSet buildViewAnimations(int x, int y, int w, int h, int parentWidth, int parentHeight)
 	{
 		boolean includesRotation = false;
 		AnimationSet as = new AnimationSet(false);
@@ -769,23 +737,20 @@ public class TiAnimationBuilder
 			// 3.) Else, use 1.0f as the from value.
 
 			float fromOpacity;
-			float currentAnimatedAlpha = tiView == null ? Float.MIN_VALUE
-					: tiView.getAnimatedAlpha();
+			float currentAnimatedAlpha = tiView == null ? Float.MIN_VALUE : tiView.getAnimatedAlpha();
 
 			if (currentAnimatedAlpha != Float.MIN_VALUE) {
 				// MIN_VALUE is used as a signal that no value has been set.
 				fromOpacity = currentAnimatedAlpha;
 
 			} else if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-				fromOpacity = TiConvert.toFloat(viewProxy
-						.getProperty(TiC.PROPERTY_OPACITY));
+				fromOpacity = TiConvert.toFloat(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
 
 			} else {
 				fromOpacity = 1.0f;
 			}
 
-			Animation animation = new AlphaAnimation(fromOpacity,
-					toOpacity.floatValue());
+			Animation animation = new AlphaAnimation(fromOpacity, toOpacity.floatValue());
 
 			// Remember the toOpacity value for next time, since we no way of
 			// looking
@@ -798,8 +763,7 @@ public class TiAnimationBuilder
 			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
 
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)
-					&& toOpacity != null) {
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && toOpacity != null) {
 				prepareOpacityForAnimation();
 			}
 		}
@@ -808,17 +772,16 @@ public class TiAnimationBuilder
 			int fromBackgroundColor = 0;
 
 			if (viewProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-				fromBackgroundColor = TiConvert.toColor(TiConvert
-						.toString(viewProxy
-								.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
+				fromBackgroundColor =
+					TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
 			} else {
-				Log.w(TAG,
-						"Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
+				Log.w(
+					TAG,
+					"Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
 				fromBackgroundColor = Color.argb(0, 0, 0, 0);
 			}
 
-			Animation a = new TiColorAnimation(view, fromBackgroundColor,
-					backgroundColor);
+			Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
 			addAnimation(as, a);
 		}
 
@@ -826,24 +789,21 @@ public class TiAnimationBuilder
 
 			Animation anim;
 			if (tdm.hasScaleOperation() && tiView != null) {
-				tiView.setAnimatedScaleValues(tdm.verifyScaleValues(tiView,
-						(autoreverse != null && autoreverse.booleanValue())));
+				tiView.setAnimatedScaleValues(
+					tdm.verifyScaleValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
 			}
 
 			if (tdm.hasRotateOperation() && tiView != null) {
 				includesRotation = true;
-				tiView.setAnimatedRotationDegrees(tdm.verifyRotationValues(
-						tiView,
-						(autoreverse != null && autoreverse.booleanValue())));
+				tiView.setAnimatedRotationDegrees(
+					tdm.verifyRotationValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
 			}
 
 			anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 			addAnimation(as, anim);
-
 		}
 
-		if (top != null || bottom != null || left != null || right != null
-				|| centerX != null || centerY != null) {
+		if (top != null || bottom != null || left != null || right != null || centerX != null || centerY != null) {
 			TiDimension optionTop = null, optionBottom = null;
 			TiDimension optionLeft = null, optionRight = null;
 			TiDimension optionCenterX = null, optionCenterY = null;
@@ -867,8 +827,7 @@ public class TiAnimationBuilder
 				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
 			} else if (right == null && centerX == null) {
 				// Fix a left value since no other x-axis value is being set.
-				optionLeft = new TiDimension(view.getLeft(),
-						TiDimension.TYPE_LEFT);
+				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
 				optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
@@ -877,13 +836,11 @@ public class TiAnimationBuilder
 			}
 
 			if (centerX != null) {
-				optionCenterX = new TiDimension(centerX,
-						TiDimension.TYPE_CENTER_X);
+				optionCenterX = new TiDimension(centerX, TiDimension.TYPE_CENTER_X);
 			}
 
 			if (centerY != null) {
-				optionCenterY = new TiDimension(centerY,
-						TiDimension.TYPE_CENTER_Y);
+				optionCenterY = new TiDimension(centerY, TiDimension.TYPE_CENTER_Y);
 			}
 
 			int horizontal[] = new int[2];
@@ -895,14 +852,13 @@ public class TiAnimationBuilder
 				parentView = (View) parent;
 			}
 
-			TiCompositeLayout.computePosition(parentView, optionLeft,
-					optionCenterX, optionRight, w, 0, parentWidth, horizontal);
-			TiCompositeLayout.computePosition(parentView, optionTop,
-					optionCenterY, optionBottom, h, 0, parentHeight, vertical);
+			TiCompositeLayout.computePosition(parentView, optionLeft, optionCenterX, optionRight, w, 0, parentWidth,
+											  horizontal);
+			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, h, 0, parentHeight,
+											  vertical);
 
-			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, 0,
-					Animation.ABSOLUTE, horizontal[0] - x, Animation.ABSOLUTE,
-					0, Animation.ABSOLUTE, vertical[0] - y);
+			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, 0, Animation.ABSOLUTE, horizontal[0] - x,
+														 Animation.ABSOLUTE, 0, Animation.ABSOLUTE, vertical[0] - y);
 
 			animation.setAnimationListener(animationListener);
 			addAnimation(as, animation);
@@ -913,15 +869,13 @@ public class TiAnimationBuilder
 			// orientation. But if autoreversing to original layout, no
 			// need to re-layout. But don't do it if a rotation is included
 			// because re-layout will lose the rotation.
-			relayoutChild = !includesRotation
-					&& (autoreverse == null || !autoreverse.booleanValue());
+			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 
 			if (Log.isDebugModeEnabled()) {
-				Log.d(TAG, "animate " + viewProxy + " relative to self: "
-						+ (horizontal[0] - x) + ", " + (vertical[0] - y),
-						Log.DEBUG_MODE);
+				Log.d(TAG,
+					  "animate " + viewProxy + " relative to self: " + (horizontal[0] - x) + ", " + (vertical[0] - y),
+					  Log.DEBUG_MODE);
 			}
-
 		}
 
 		if (tdm == null && (width != null || height != null)) {
@@ -940,7 +894,7 @@ public class TiAnimationBuilder
 				optionHeight = new TiDimension(h, TiDimension.TYPE_HEIGHT);
 				optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
-			
+
 			ViewParent parent = view.getParent();
 			View parentView = null;
 
@@ -948,17 +902,16 @@ public class TiAnimationBuilder
 				parentView = (View) parent;
 			}
 
-			int toWidth = optionWidth.getAsPixels((parentView != null)?parentView:view);
-			int toHeight = optionHeight.getAsPixels((parentView != null)?parentView:view);
+			int toWidth = optionWidth.getAsPixels((parentView != null) ? parentView : view);
+			int toHeight = optionHeight.getAsPixels((parentView != null) ? parentView : view);
 
-			SizeAnimation sizeAnimation = new SizeAnimation(view, w, h,
-					toWidth, toHeight);
+			SizeAnimation sizeAnimation = new SizeAnimation(view, w, h, toWidth, toHeight);
 
 			if (duration != null) {
 				sizeAnimation.setDuration(duration.longValue());
 			}
 
-			sizeAnimation.setInterpolator(new LinearInterpolator());
+			sizeAnimation.setInterpolator(this.curve.toInterpolator());
 			sizeAnimation.setAnimationListener(animationListener);
 			addAnimation(as, sizeAnimation);
 
@@ -969,8 +922,7 @@ public class TiAnimationBuilder
 			// to original layout, no need to re-layout. But don't do it if a
 			// rotation is included
 			// because re-layout will lose the rotation.
-			relayoutChild = !includesRotation
-					&& (autoreverse == null || !autoreverse.booleanValue());
+			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 		}
 
 		// Set duration, repeatMode and fillAfter only after adding children.
@@ -1006,8 +958,7 @@ public class TiAnimationBuilder
 		protected float fromWidth, fromHeight, toWidth, toHeight;
 		protected static final String TAG = "TiSizeAnimation";
 
-		public SizeAnimation(View view, float fromWidth, float fromHeight,
-				float toWidth, float toHeight)
+		public SizeAnimation(View view, float fromWidth, float fromHeight, float toWidth, float toHeight)
 		{
 			this.view = view;
 			this.fromWidth = fromWidth;
@@ -1016,15 +967,14 @@ public class TiAnimationBuilder
 			this.toHeight = toHeight;
 
 			if (Log.isDebugModeEnabled()) {
-				Log.d(TAG, "animate view from (" + fromWidth + "x" + fromHeight
-						+ ") to (" + toWidth + "x" + toHeight + ")",
-						Log.DEBUG_MODE);
+				Log.d(TAG,
+					  "animate view from (" + fromWidth + "x" + fromHeight + ") to (" + toWidth + "x" + toHeight + ")",
+					  Log.DEBUG_MODE);
 			}
 		}
 
 		@Override
-		protected void applyTransformation(float interpolatedTime,
-				Transformation transformation)
+		protected void applyTransformation(float interpolatedTime, Transformation transformation)
 		{
 			super.applyTransformation(interpolatedTime, transformation);
 
@@ -1033,8 +983,7 @@ public class TiAnimationBuilder
 				width = (int) fromWidth;
 
 			} else {
-				width = (int) Math.floor(fromWidth
-						+ ((toWidth - fromWidth) * interpolatedTime));
+				width = (int) Math.floor(fromWidth + ((toWidth - fromWidth) * interpolatedTime));
 			}
 
 			int height = 0;
@@ -1042,8 +991,7 @@ public class TiAnimationBuilder
 				height = (int) fromHeight;
 
 			} else {
-				height = (int) Math.floor(fromHeight
-						+ ((toHeight - fromHeight) * interpolatedTime));
+				height = (int) Math.floor(fromHeight + ((toHeight - fromHeight) * interpolatedTime));
 			}
 
 			ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -1052,11 +1000,9 @@ public class TiAnimationBuilder
 
 			if (params instanceof TiCompositeLayout.LayoutParams) {
 				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
-				tiParams.optionHeight = new TiDimension(height,
-						TiDimension.TYPE_HEIGHT);
+				tiParams.optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
 				tiParams.optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
-				tiParams.optionWidth = new TiDimension(width,
-						TiDimension.TYPE_WIDTH);
+				tiParams.optionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
 				tiParams.optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
@@ -1083,8 +1029,7 @@ public class TiAnimationBuilder
 		}
 
 		@Override
-		public void initialize(int width, int height, int parentWidth,
-				int parentHeight)
+		public void initialize(int width, int height, int parentWidth, int parentHeight)
 		{
 			super.initialize(width, height, parentWidth, parentHeight);
 			this.childWidth = width;
@@ -1092,25 +1037,21 @@ public class TiAnimationBuilder
 		}
 
 		@Override
-		protected void applyTransformation(float interpolatedTime,
-				Transformation transformation)
+		protected void applyTransformation(float interpolatedTime, Transformation transformation)
 		{
 			super.applyTransformation(interpolatedTime, transformation);
 			if (interpolate) {
-				Matrix m = matrix.interpolate(interpolatedTime, childWidth,
-						childHeight, anchorX, anchorY);
+				Matrix m = matrix.interpolate(interpolatedTime, childWidth, childHeight, anchorX, anchorY);
 				transformation.getMatrix().set(m);
 
 			} else {
-				transformation.getMatrix().set(
-						getFinalMatrix(childWidth, childHeight));
+				transformation.getMatrix().set(getFinalMatrix(childWidth, childHeight));
 			}
 		}
 
 		public Matrix getFinalMatrix(int childWidth, int childHeight)
 		{
-			return matrix.interpolate(1.0f, childWidth, childHeight, anchorX,
-					anchorY);
+			return matrix.interpolate(1.0f, childWidth, childHeight, anchorX, anchorY);
 		}
 
 		public void invalidateWithMatrix(View view)
@@ -1128,8 +1069,8 @@ public class TiAnimationBuilder
 				int left = view.getLeft();
 				int top = view.getTop();
 
-				((ViewGroup) view.getParent()).invalidate(left + rect.left, top
-						+ rect.top, left + rect.width(), top + rect.height());
+				((ViewGroup) view.getParent())
+					.invalidate(left + rect.left, top + rect.top, left + rect.width(), top + rect.height());
 			}
 		}
 	}
@@ -1150,21 +1091,15 @@ public class TiAnimationBuilder
 
 			ColorDrawable fromColorDrawable = new ColorDrawable(fromColor);
 			ColorDrawable toColorDrawable = new ColorDrawable(toColor);
-			transitionDrawable = new TransitionDrawable(new Drawable[] {
-					fromColorDrawable, toColorDrawable });
+			transitionDrawable = new TransitionDrawable(new Drawable[] { fromColorDrawable, toColorDrawable });
 
-			this.setAnimationListener(new android.view.animation.Animation.AnimationListener()
-			{
-
+			this.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
 				@SuppressWarnings("deprecation")
 				public void onAnimationStart(Animation animation)
 				{
-					TiColorAnimation.this.view
-							.setBackgroundDrawable(transitionDrawable);
-					TiColorAnimation.this.duration = Long.valueOf(
-							animation.getDuration()).intValue();
-					transitionDrawable
-							.startTransition(TiColorAnimation.this.duration);
+					TiColorAnimation.this.view.setBackgroundDrawable(transitionDrawable);
+					TiColorAnimation.this.duration = Long.valueOf(animation.getDuration()).intValue();
+					transitionDrawable.startTransition(TiColorAnimation.this.duration);
 				}
 
 				public void onAnimationRepeat(Animation animation)
@@ -1173,11 +1108,9 @@ public class TiAnimationBuilder
 						reversing = !reversing;
 					}
 					if (reversing) {
-						transitionDrawable
-								.reverseTransition(TiColorAnimation.this.duration);
+						transitionDrawable.reverseTransition(TiColorAnimation.this.duration);
 					} else {
-						transitionDrawable
-								.startTransition(TiColorAnimation.this.duration);
+						transitionDrawable.startTransition(TiColorAnimation.this.duration);
 					}
 				}
 
@@ -1236,7 +1169,7 @@ public class TiAnimationBuilder
 			view.requestLayout();
 			invalidateParentView();
 		}
-		
+
 		public void setRight(final int r)
 		{
 			ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -1260,7 +1193,7 @@ public class TiAnimationBuilder
 			view.requestLayout();
 			invalidateParentView();
 		}
-		
+
 		public void setBottom(final int b)
 		{
 			ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -1272,7 +1205,7 @@ public class TiAnimationBuilder
 			view.requestLayout();
 			invalidateParentView();
 		}
-		
+
 		public void setCenterX(final int b)
 		{
 			ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -1284,7 +1217,7 @@ public class TiAnimationBuilder
 			view.requestLayout();
 			invalidateParentView();
 		}
-		
+
 		public void setCenterY(final int b)
 		{
 			ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -1296,8 +1229,8 @@ public class TiAnimationBuilder
 			view.requestLayout();
 			invalidateParentView();
 		}
-		
-		private void invalidateParentView() 
+
+		private void invalidateParentView()
 		{
 			ViewParent vp = view.getParent();
 			if (vp instanceof View) {
@@ -1337,39 +1270,11 @@ public class TiAnimationBuilder
 		@SuppressWarnings("unchecked")
 		public void onAnimationEnd(Animator animator)
 		{
-			if (relayoutChild) {
-				if (PRE_HONEYCOMB) {
-					LayoutParams params = null;
-					View viewToSetParams = view;
-					if (view.getParent() instanceof TiBorderWrapperView) {
-						viewToSetParams = (View) view.getParent();
-					}
-					params = (LayoutParams) viewToSetParams.getLayoutParams();
-					TiConvert.fillLayout(options, params);
-					viewToSetParams.setLayoutParams(params);
-					view.clearAnimation();
-					relayoutChild = false;
-				}
-				// TIMOB-11298 Propagate layout property changes to proxy
-				for (Object key : options.keySet()) {
-					if (TiC.PROPERTY_TOP.equals(key)
-							|| TiC.PROPERTY_BOTTOM.equals(key)
-							|| TiC.PROPERTY_LEFT.equals(key)
-							|| TiC.PROPERTY_RIGHT.equals(key)
-							|| TiC.PROPERTY_CENTER.equals(key)
-							|| TiC.PROPERTY_WIDTH.equals(key)
-							|| TiC.PROPERTY_HEIGHT.equals(key)
-							|| TiC.PROPERTY_BACKGROUND_COLOR.equals(key)) {
-						viewProxy.setProperty((String) key, options.get(key));
-					}
-				}
-			}
 
 			if (animator instanceof AnimatorSet) {
 				setAnimationRunningFor(view, false);
 				if (callback != null) {
-					callback.callAsync(viewProxy.getKrollObject(),
-							new Object[] { new KrollDict() });
+					callback.callAsync(viewProxy.getKrollObject(), new Object[] { new KrollDict() });
 				}
 
 				if (animationProxy != null) {
@@ -1381,20 +1286,16 @@ public class TiAnimationBuilder
 					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
 						animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
 					} else {
-						Looper.myQueue().addIdleHandler(
-								new MessageQueue.IdleHandler()
-								{
-									public boolean queueIdle()
-									{
-										animationProxy.fireEvent(
-												TiC.EVENT_COMPLETE, null);
-										return false;
-									}
-								});
+						Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+							public boolean queueIdle()
+							{
+								animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+								return false;
+							}
+						});
 					}
 				}
 			}
-
 		}
 
 		public void onAnimationRepeat(Animator animator)
@@ -1407,7 +1308,6 @@ public class TiAnimationBuilder
 				animationProxy.fireEvent(TiC.EVENT_START, null);
 			}
 		}
-
 	}
 
 	/**
@@ -1429,23 +1329,9 @@ public class TiAnimationBuilder
 				}
 				view.clearAnimation();
 				relayoutChild = false;
-				// TIMOB-11298 Propagate layout property changes to proxy
-				for (Object key : options.keySet()) {
-					if (TiC.PROPERTY_TOP.equals(key)
-							|| TiC.PROPERTY_BOTTOM.equals(key)
-							|| TiC.PROPERTY_LEFT.equals(key)
-							|| TiC.PROPERTY_RIGHT.equals(key)
-							|| TiC.PROPERTY_CENTER.equals(key)
-							|| TiC.PROPERTY_WIDTH.equals(key)
-							|| TiC.PROPERTY_HEIGHT.equals(key)
-							|| TiC.PROPERTY_BACKGROUND_COLOR.equals(key)) {
-						viewProxy.setProperty((String) key, options.get(key));
-					}
-				}
 			}
 
-			if (applyOpacity
-					&& (autoreverse == null || !autoreverse.booleanValue())) {
+			if (applyOpacity && (autoreverse == null || !autoreverse.booleanValue())) {
 				// There is an android bug where animations still occur after
 				// this method. We clear it from the view to
 				// correct this.
@@ -1459,8 +1345,7 @@ public class TiAnimationBuilder
 					}
 					// this is apparently the only way to apply an opacity to
 					// the entire view and have it stick
-					AlphaAnimation aa = new AlphaAnimation(
-							toOpacity.floatValue(), toOpacity.floatValue());
+					AlphaAnimation aa = new AlphaAnimation(toOpacity.floatValue(), toOpacity.floatValue());
 					aa.setDuration(1);
 					aa.setFillAfter(true);
 					view.setLayoutParams(view.getLayoutParams());
@@ -1473,8 +1358,7 @@ public class TiAnimationBuilder
 			if (a instanceof AnimationSet) {
 				setAnimationRunningFor(view, false);
 				if (callback != null) {
-					callback.callAsync(viewProxy.getKrollObject(),
-							new Object[] { new KrollDict() });
+					callback.callAsync(viewProxy.getKrollObject(), new Object[] { new KrollDict() });
 				}
 
 				if (animationProxy != null) {
@@ -1486,16 +1370,13 @@ public class TiAnimationBuilder
 					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
 						animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
 					} else {
-						Looper.myQueue().addIdleHandler(
-								new MessageQueue.IdleHandler()
-								{
-									public boolean queueIdle()
-									{
-										animationProxy.fireEvent(
-												TiC.EVENT_COMPLETE, null);
-										return false;
-									}
-								});
+						Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+							public boolean queueIdle()
+							{
+								animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+								return false;
+							}
+						});
 					}
 				}
 			}
@@ -1551,24 +1432,29 @@ public class TiAnimationBuilder
 		setAnchor(width, height, anchorX, anchorY);
 	}
 
-	private void setAnchor(int width, int height, float thisAnchorX,
-			float thisAnchorY)
+	private void setAnchor(int width, int height, float thisAnchorX, float thisAnchorY)
 	{
+		final float EPSILON = Math.ulp(1.0f);
 		float pivotX = 0, pivotY = 0;
 
 		if (thisAnchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
-			pivotX = width * thisAnchorX;
+			pivotX = (width * thisAnchorX);
 		}
 
 		if (thisAnchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
 			pivotY = height * thisAnchorY;
 		}
 
-		if (PRE_HONEYCOMB) {
-			setViewPivot(pivotX, pivotY);
-		} else {
-			setViewPivotHC(pivotX, pivotY);
+		// Passing 0 as both X and Y parameters for a view's pivot point
+		// results in setting the point in the view's center for APIs 16
+		// to 19. This is why we add EPSILON for both parameters if this is the
+		// case.
+		if (PRE_LOLLIPOP && thisAnchorX == 0 && thisAnchorY == 0) {
+			pivotX += EPSILON;
+			pivotY += EPSILON;
 		}
+
+		setViewPivotHC(pivotX, pivotY);
 	}
 
 	/**
@@ -1594,7 +1480,6 @@ public class TiAnimationBuilder
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -1636,7 +1521,6 @@ public class TiAnimationBuilder
 			if (toRemove != null) {
 				sRunningViews.remove(toRemove);
 			}
-
 		}
 	}
 

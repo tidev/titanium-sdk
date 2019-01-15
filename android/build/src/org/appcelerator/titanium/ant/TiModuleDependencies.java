@@ -15,11 +15,13 @@ import java.util.Map;
 import org.json.simple.JSONValue;
 
 @SuppressWarnings("unchecked")
-public class TiModuleDependencies {
+public class TiModuleDependencies
+{
 
 	protected Map<String, Object> map;
-	
-	public TiModuleDependencies(String jsonPath) {
+
+	public TiModuleDependencies(String jsonPath)
+	{
 		try {
 			map = (Map<String, Object>) JSONValue.parse(new FileReader(jsonPath));
 		} catch (FileNotFoundException e) {
@@ -27,36 +29,44 @@ public class TiModuleDependencies {
 			e.printStackTrace();
 		}
 	}
-	
-	public Map<String, List<String>> getDependencies() {
-		return (Map<String, List<String>>)map.get("dependencies");
-	}
-	
-	public Map<String, String> getModulePackages() {
-		return (Map<String, String>)map.get("modulepackage");
+
+	public Map<String, List<String>> getDependencies()
+	{
+		return (Map<String, List<String>>) map.get("dependencies");
 	}
 
-	public Collection<String> getModules() {
+	public Map<String, String> getModulePackages()
+	{
+		return (Map<String, String>) map.get("modulepackage");
+	}
+
+	public Collection<String> getModules()
+	{
 		return getDependencies().keySet();
 	}
-	
-	public List<String> getModuleDependencies(String module) {
+
+	public List<String> getModuleDependencies(String module)
+	{
 		return getDependencies().get(module);
 	}
-	
-	public List<String> getRequiredModules() {
-		return (List<String>)map.get("required");
+
+	public List<String> getRequiredModules()
+	{
+		return (List<String>) map.get("required");
 	}
-	
-	public Map<String, List<String>> getLibraries() {
-		return (Map<String, List<String>>)map.get("libraries");
+
+	public Map<String, List<String>> getLibraries()
+	{
+		return (Map<String, List<String>>) map.get("libraries");
 	}
-	
-	public boolean moduleHasLibraries(String module) {
+
+	public boolean moduleHasLibraries(String module)
+	{
 		return getLibraries().containsKey(module);
 	}
-	
-	public List<String> getModuleLibraries(String module) {
+
+	public List<String> getModuleLibraries(String module)
+	{
 		return getLibraries().get(module);
 	}
 }

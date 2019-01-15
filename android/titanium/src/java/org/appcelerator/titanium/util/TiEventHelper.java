@@ -14,45 +14,49 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
-public class TiEventHelper {
-	public static void fireViewEvent(TiViewProxy view, String type, Map<String,Object> extraProperties)
+public class TiEventHelper
+{
+	public static void fireViewEvent(TiViewProxy view, String type, Map<String, Object> extraProperties)
 	{
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_SOURCE, view);
 		event.put(TiC.EVENT_PROPERTY_TYPE, type);
-		
+
 		if (extraProperties != null) {
-			for (Entry<String,Object> entry : extraProperties.entrySet()) {
+			for (Entry<String, Object> entry : extraProperties.entrySet()) {
 				event.put(entry.getKey(), entry.getValue());
 			}
 		}
-		
+
 		view.fireEvent(type, event);
 	}
-	
+
 	public static void fireViewEvent(TiViewProxy view, String type, String... properties)
 	{
 		if (properties.length == 0) {
-			fireViewEvent(view, type, (Map<String,Object>)null);
+			fireViewEvent(view, type, (Map<String, Object>) null);
 		}
-		
-		Map<String,Object> extraProperties = new HashMap<String,Object>();
+
+		Map<String, Object> extraProperties = new HashMap<String, Object>();
 		for (int i = 0; i < properties.length; i++) {
-			if (i+1 < properties.length) {
+			if (i + 1 < properties.length) {
 				extraProperties.put(properties[i], properties[++i]);
 			}
 		}
 	}
-	
-	public static void fireClicked(TiViewProxy view) {
+
+	public static void fireClicked(TiViewProxy view)
+	{
 		fireViewEvent(view, TiC.EVENT_CLICK);
 	}
-	
-	public static void fireFocused(TiViewProxy view) {
+
+	public static void fireFocused(TiViewProxy view)
+	{
 		fireViewEvent(view, TiC.EVENT_FOCUSED);
 	}
-	
-	public static void fireUnfocused(TiViewProxy view) {
+
+	public static void fireUnfocused(TiViewProxy view)
+	{
 		fireViewEvent(view, TiC.EVENT_UNFOCUSED);
 	}
 }

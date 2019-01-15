@@ -10,8 +10,7 @@ package org.appcelerator.kroll;
  * This interface represents the various APIs needed by KrollRuntime
  * on a specific Proxy instance (and hides KrollProxy)
  */
-public interface KrollProxySupport
-{
+public interface KrollProxySupport {
 	/**
 	 * This method is a callback from the Javascript runtime to notify that a property has been changed.
 	 * @param name the property name.
@@ -26,7 +25,7 @@ public interface KrollProxySupport
 	 * @return the KrollObject object.
 	 */
 	public KrollObject getKrollObject();
-	
+
 	/**
 	 * Implementing classes should set its KrollObject to object.
 	 * @param object the KrollObject to be set.
@@ -43,7 +42,6 @@ public interface KrollProxySupport
 	 * @param hasListeners If this is true, the eventListener has been added to event, and vice versa.
 	 */
 	public void onHasListenersChanged(String event, boolean hasListeners);
-	
-	
+
 	public void onEventFired(String event, Object data);
 }

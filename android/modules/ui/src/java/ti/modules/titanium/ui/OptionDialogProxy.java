@@ -13,16 +13,18 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIDialog;
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_ANDROID_VIEW,
-	TiC.PROPERTY_CANCEL,
-	TiC.PROPERTY_OPTIONS,
-	TiC.PROPERTY_SELECTED_INDEX,
-	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_TITLEID,
-	TiC.PROPERTY_PERSISTENT
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_ANDROID_VIEW,
+		TiC.PROPERTY_CANCEL,
+		TiC.PROPERTY_OPTIONS,
+		TiC.PROPERTY_SELECTED_INDEX,
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_TITLEID,
+		TiC.PROPERTY_PERSISTENT
 })
+// clang-format on
 public class OptionDialogProxy extends TiDialogProxy
 {
 	public OptionDialogProxy()
@@ -31,7 +33,8 @@ public class OptionDialogProxy extends TiDialogProxy
 	}
 
 	@Override
-	protected KrollDict getLangConversionTable() {
+	protected KrollDict getLangConversionTable()
+	{
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
 		return table;
@@ -44,7 +47,8 @@ public class OptionDialogProxy extends TiDialogProxy
 	}
 
 	@Override
-	protected void handleShow(KrollDict options) {
+	protected void handleShow(KrollDict options)
+	{
 		super.handleShow(options);
 
 		TiUIDialog d = (TiUIDialog) getOrCreateView();
@@ -52,7 +56,8 @@ public class OptionDialogProxy extends TiDialogProxy
 	}
 
 	@Override
-	protected void handleHide(KrollDict options) {
+	protected void handleHide(KrollDict options)
+	{
 		super.handleHide(options);
 
 		TiUIDialog d = (TiUIDialog) getOrCreateView();

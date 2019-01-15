@@ -26,8 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-public class TiUIProgressIndicator extends TiUIView
-	implements Handler.Callback, DialogInterface.OnCancelListener
+public class TiUIProgressIndicator extends TiUIView implements Handler.Callback, DialogInterface.OnCancelListener
 {
 	private static final String TAG = "TiUIProgressDialog";
 
@@ -52,7 +51,8 @@ public class TiUIProgressIndicator extends TiUIView
 	protected int max;
 	protected int type;
 
-	public TiUIProgressIndicator(TiViewProxy proxy) {
+	public TiUIProgressIndicator(TiViewProxy proxy)
+	{
 		super(proxy);
 		Log.d(TAG, "Creating an progress indicator", Log.DEBUG_MODE);
 		handler = new Handler(Looper.getMainLooper(), this);
@@ -61,11 +61,11 @@ public class TiUIProgressIndicator extends TiUIView
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_SHOW : {
+			case MSG_SHOW: {
 				handleShow();
 				return true;
 			}
-			case MSG_PROGRESS : {
+			case MSG_PROGRESS: {
 				if (progressDialog != null) {
 					progressDialog.setProgress(msg.arg1);
 				} else {
@@ -74,7 +74,7 @@ public class TiUIProgressIndicator extends TiUIView
 				}
 				return true;
 			}
-			case MSG_HIDE : {
+			case MSG_HIDE: {
 				handleHide();
 				return true;
 			}
@@ -201,7 +201,8 @@ public class TiUIProgressIndicator extends TiUIView
 				progressDialog = new ProgressDialog(a);
 				if (a instanceof TiBaseActivity) {
 					TiBaseActivity baseActivity = (TiBaseActivity) a;
-					baseActivity.addDialog(baseActivity.new DialogWrapper(progressDialog, true, new WeakReference<TiBaseActivity> (baseActivity)));
+					baseActivity.addDialog(baseActivity.new DialogWrapper(
+						progressDialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 					progressDialog.setOwnerActivity(a);
 				}
 				progressDialog.setOnCancelListener(this);
@@ -209,7 +210,8 @@ public class TiUIProgressIndicator extends TiUIView
 
 			progressDialog.setMessage(message);
 			// setCanceledOnTouchOutside() overrides the value of setCancelable(), so order of execution matters.
-			progressDialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, false));
+			progressDialog.setCanceledOnTouchOutside(
+				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, false));
 			progressDialog.setCancelable(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, false));
 
 			if (type == INDETERMINANT) {
@@ -218,7 +220,7 @@ public class TiUIProgressIndicator extends TiUIView
 				progressDialog.setIndeterminate(false);
 				progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 				if (min != 0) {
-					progressDialog.setMax(max-min); // no min setting so shift
+					progressDialog.setMax(max - min); // no min setting so shift
 				} else {
 					progressDialog.setMax(max);
 				}
@@ -241,11 +243,12 @@ public class TiUIProgressIndicator extends TiUIView
 		handler.sendEmptyMessage(MSG_HIDE);
 	}
 
-	protected void handleHide() {
+	protected void handleHide()
+	{
 		if (progressDialog != null) {
 			Activity ownerActivity = progressDialog.getOwnerActivity();
 			if (ownerActivity != null && !ownerActivity.isFinishing()) {
-				((TiBaseActivity)ownerActivity).removeDialog(progressDialog);
+				((TiBaseActivity) ownerActivity).removeDialog(progressDialog);
 				progressDialog.dismiss();
 			}
 			progressDialog = null;
@@ -261,7 +264,8 @@ public class TiUIProgressIndicator extends TiUIView
 	}
 
 	@Override
-	public void onCancel(DialogInterface dialog) {
+	public void onCancel(DialogInterface dialog)
+	{
 		visible = false;
 		fireEvent(TiC.EVENT_CANCEL, null);
 	}

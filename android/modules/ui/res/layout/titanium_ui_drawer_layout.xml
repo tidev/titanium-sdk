@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/drawer_layout_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -16,12 +17,10 @@
                android:layout_width="match_parent"
                android:minHeight="?attr/actionBarSize"
                android:background="?attr/colorPrimary"
-               app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-               android:fitsSystemWindows="true"/>
+               app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
            <org.appcelerator.titanium.view.TiCompositeLayout
-               android:layout_below="@id/drawer_layout_toolbar"
                android:layout_width="match_parent"
                android:layout_height="match_parent"/>
-     </RelativeLayout>
+     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

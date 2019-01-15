@@ -82,12 +82,12 @@ methods:
     returns:
         type: String
 
-    name: isLocked
+  - name: isLocked
     summary: Returns 'true' if the device is currently locked, 'false' otherwise.
     returns:
         type: Boolean
 
-    name: isSecure
+  - name: isSecure
     summary: Returns 'true' if the device is in secure state, 'false' otherwise.
     returns:
         type: Boolean

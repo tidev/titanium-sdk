@@ -15,12 +15,13 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
-
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_TINT_COLOR,
-	TiC.PROPERTY_TITLE,
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_TINT_COLOR,
+		TiC.PROPERTY_TITLE,
 })
+// clang-format on
 public class RefreshControlProxy extends KrollProxy
 {
 	/** The default Android log tag name to be used by this class. */
@@ -47,7 +48,6 @@ public class RefreshControlProxy extends KrollProxy
 	 * Set to null if not currently assigned to a view.
 	 */
 	private TiSwipeRefreshLayout swipeRefreshLayout;
-
 
 	/** Creates a new Titanium "RefreshControl" proxy binding. */
 	public RefreshControlProxy()
@@ -117,8 +117,6 @@ public class RefreshControlProxy extends KrollProxy
 
 	/**
 	 * Stores the given tint color value to be applied to the refresh progress indicator.
-	 * <p>
-	 * This method can be safely called from any thread.
 	 * @param colorName
 	 * The color value to be applied. Expected to be a string such as "red", "blue", "#00FF00", etc.
 	 * Can be null, in which case, the progress indicator will revert back to its default color.
@@ -129,7 +127,7 @@ public class RefreshControlProxy extends KrollProxy
 		if (colorName == null) {
 			this.tintColor = RefreshControlProxy.DEFAULT_TINT_COLOR;
 		} else if (colorName instanceof String) {
-			this.tintColor = TiColorHelper.parseColor((String)colorName);
+			this.tintColor = TiColorHelper.parseColor((String) colorName);
 		} else {
 			Log.e(TAG, "Property '" + TiC.PROPERTY_TINT_COLOR + "' must be of type string.");
 			return;
@@ -141,71 +139,49 @@ public class RefreshControlProxy extends KrollProxy
 		}
 
 		// Apply the color to the refresh progress indicator.
-		runOnMainThread(new Runnable() {
-			@Override
-			public void run() {
-				if (swipeRefreshLayout != null) {
-					swipeRefreshLayout.setColorSchemeColors(tintColor);
-				}
-			}
-		});
+		this.swipeRefreshLayout.setColorSchemeColors(tintColor);
 	}
 
-	/**
-	 * Displays the refresh progress indicator if a SwipeRefreshLayout is currently assigned.
-	 * <p>
-	 * This method can be safely called from any thread.
-	 */
+	/** Displays the refresh progress indicator if a SwipeRefreshLayout is currently assigned. */
 	@Kroll.method
 	public void beginRefreshing()
 	{
-		runOnMainThread(new Runnable() {
-			@Override
-			public void run() {
-				// Do not continue if a refreshable view has not been assigned to this control.
-				if (swipeRefreshLayout == null) {
-					return;
-				}
+		// Do not continue if a refreshable view has not been assigned to this control.
+		if (this.swipeRefreshLayout == null) {
+			return;
+		}
 
-				// Do not continue if already refreshing.
-				if (swipeRefreshLayout.isRefreshing()) {
-					return;
-				}
+		// Do not continue if already refreshing.
+		if (this.swipeRefreshLayout.isRefreshing()) {
+			return;
+		}
 
-				// Show the refresh progress indicator.
-				swipeRefreshLayout.setRefreshing(true);
-			}
-		});
+		// Show the refresh progress indicator.
+		this.swipeRefreshLayout.setRefreshing(true);
+
+		// Notify the owner that the refresh state has started.
+		fireEvent(TiC.EVENT_REFRESH_START, null);
 	}
 
-	/**
-	 * Hides the refresh progress indicator if a SwipeRefreshLayout is currently assigned.
-	 * <p>
-	 * This method can be safely called from any thread.
-	 */
+	/** Hides the refresh progress indicator if a SwipeRefreshLayout is currently assigned. */
 	@Kroll.method
 	public void endRefreshing()
 	{
-		runOnMainThread(new Runnable() {
-			@Override
-			public void run() {
-				// Do not continue if a refreshable view has not be assigned to this control.
-				if (swipeRefreshLayout == null) {
-					return;
-				}
+		// Do not continue if a refreshable view has not be assigned to this control.
+		if (this.swipeRefreshLayout == null) {
+			return;
+		}
 
-				// Do not continue if not refreshing.
-				if (swipeRefreshLayout.isRefreshing() == false) {
-					return;
-				}
+		// Do not continue if not refreshing.
+		if (this.swipeRefreshLayout.isRefreshing() == false) {
+			return;
+		}
 
-				// Hide the refresh progress indicator.
-				swipeRefreshLayout.setRefreshing(false);
+		// Hide the refresh progress indicator.
+		this.swipeRefreshLayout.setRefreshing(false);
 
-				// Notify the owner that the refresh state has ended.
-				fireEvent(TiC.EVENT_REFRESH_END, null);
-			}
-		});
+		// Notify the owner that the refresh state has ended.
+		fireEvent(TiC.EVENT_REFRESH_END, null);
 	}
 
 	/**

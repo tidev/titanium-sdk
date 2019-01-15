@@ -15,20 +15,23 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIButton;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_TITLEID,
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_ENABLED,
-	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_IMAGE,
-	TiC.PROPERTY_TEXT_ALIGN,
-	TiC.PROPERTY_VERTICAL_ALIGN,
-	TiC.PROPERTY_SHADOW_OFFSET,
-	TiC.PROPERTY_SHADOW_COLOR,
-	TiC.PROPERTY_SHADOW_RADIUS,
-	TiC.PROPERTY_TINT_COLOR
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_TITLEID,
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_ENABLED,
+		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_IMAGE,
+		TiC.PROPERTY_TEXT_ALIGN,
+		TiC.PROPERTY_VERTICAL_ALIGN,
+		TiC.PROPERTY_SHADOW_OFFSET,
+		TiC.PROPERTY_SHADOW_COLOR,
+		TiC.PROPERTY_SHADOW_RADIUS,
+		TiC.PROPERTY_TINT_COLOR
 })
+// clang-format on
 public class ButtonProxy extends TiViewProxy
 {
 	public ButtonProxy()

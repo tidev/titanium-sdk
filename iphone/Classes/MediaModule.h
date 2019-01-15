@@ -1,17 +1,20 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIA
 
-#import "KrollCallback.h"
 #import "MediaPlayer/MediaPlayer.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"
-#import "TiModule.h"
-#import "TiViewProxy.h"
+#import "TiMediaTypes.h"
+#import <TitaniumKit/KrollCallback.h>
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiViewProxy.h>
+
+@class AVAudioRecorder;
 
 @interface MediaModule : TiModule <
                              UINavigationControllerDelegate,
@@ -39,9 +42,11 @@
   MPMediaPickerController *musicPicker;
 #endif
 
-  // Music players
+// Music players
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
   TiMediaMusicPlayer *systemMusicPlayer;
   TiMediaMusicPlayer *appMusicPlayer;
+#endif
 
   // Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
   BOOL animatedPicker;
@@ -49,7 +54,6 @@
   KrollCallback *pickerErrorCallback;
   KrollCallback *pickerCancelCallback;
 
-  id popover;
   TiViewProxy *cameraView;
 
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
@@ -59,10 +63,15 @@
   KrollCallback *editorErrorCallback;
   KrollCallback *editorCancelCallback;
   UIPopoverArrowDirection arrowDirection;
+
+  AVAudioRecorder *_microphoneRecorder;
+  NSTimer *_microphoneTimer;
 }
 
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
 + (NSDictionary *)itemProperties;
 + (NSDictionary *)filterableItemProperties;
+#endif
 
 @property (nonatomic, readwrite, retain) id popoverView;
 @property (nonatomic, readonly) NSNumber *volume;
@@ -75,8 +84,10 @@
 @property (nonatomic, assign) NSNumber *audioSessionMode;
 @property (nonatomic, assign) NSString *audioSessionCategory;
 
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
 @property (nonatomic, readonly) TiMediaMusicPlayer *systemMusicPlayer;
 @property (nonatomic, readonly) TiMediaMusicPlayer *appMusicPlayer;
+#endif
 
 @property (nonatomic, readonly) NSNumber *UNKNOWN_ERROR;
 @property (nonatomic, readonly) NSNumber *DEVICE_BUSY;
@@ -119,6 +130,7 @@
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_PHOTO;
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_LIVEPHOTO;
 
+#ifdef USE_TI_MEDIAAUDIORECORDER
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_LINEAR_PCM;
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_ULAW;
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_ALAW;
@@ -136,6 +148,7 @@
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_3GPP;
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_3GP2;
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_AMR;
+#endif
 
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_CATEGORY_AMBIENT;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_CATEGORY_SOLO_AMBIENT;
@@ -193,8 +206,6 @@
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PLAYING;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PAUSED;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_INTERRUPTED;
-@property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_SEEKING_FORWARD;
-@property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD;
 
 @property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_UNKNOWN;
 @property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_PLAYABLE;
@@ -221,6 +232,16 @@
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_BLUETOOTHHFP;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_USBAUDIO;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_CARAUDIO;
+
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_INITIALIZED;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STARTING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_DATA;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_QUEUE;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_PLAYING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_BUFFERING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STOPPING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STOPPED;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_PAUSED;
 
 @end
 

@@ -13,7 +13,11 @@ description: |
       * Handoff broadcasts activities via Bluetooth LE signals, so both the broadcasting and receiving devices must have Bluetooth LE 4.0 support.
       * Connect all devices to the same Wi-Fi network.
 
-    Make sure you have two Handoff compatible devices running iOS 8 or later that are logged onto the same iCloud account.
+    Make sure you have two devices that are logged onto the same iCloud account.
+    
+    Since iOS 12, you can also configure the UserActivity API for handling Siri Shortcuts. See the
+    below API's and example or refer to the [Apple Siri Shortcuts Docs](https://developer.apple.com/documentation/sirikit/donating_shortcuts?language=objc)
+    for details.
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
 since: "5.0.0"
@@ -67,6 +71,29 @@ properties:
     type: Boolean
     osver: {ios: {min: "9.0"}}
     default: true
+    availability: creation
+
+  - name: eligibleForPrediction
+    summary: |
+        A Boolean value that determines whether Siri can suggest the user activity as a shortcut to the user.
+    description: |
+        To donate a user activity to Siri Shortcuts, set eligibleForPrediction to `true` and make the 
+        user activity current. To make the user activity current, call the becomeCurrent method of activity.
+        For more information, see https://developer.apple.com/documentation/sirikit/donating_shortcuts?language=objc.    
+    type: Boolean
+    osver: { ios: { min: "12.0" } }
+    default: false
+    since: "7.4.0"
+    availability: creation
+
+  - name: persistentIdentifier
+    summary: A value used to identify the user activity.
+    description: |
+        Set this property to a unique value that identifies the user activity so you can later delete it with 
+        Ti.App.iOS.UserActivity.deleteSavedUserActivitiesForPersistentIdentifiers method.
+    type: String
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
     availability: creation
 
   - name: expirationDate
@@ -159,6 +186,32 @@ methods:
         summary: Returns `true` if the device supports user activity.
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.0"}}
+
+  - name: deleteSavedUserActivitiesForPersistentIdentifiers
+    summary: |
+        Deletes user activities created by your app that have the specified persistent identifiers.
+    description: |
+        The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deteting the 
+        user activities. Listen and wait for this event to fired to ensure that the system deletes 
+        the activities (or marks them for deletion).
+    parameters:
+      - name: persistentIdentifiers
+        summary: Array of persistent identifiers of user activity.
+        type: Array<String>
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
+
+  - name: deleteAllSavedUserActivities
+    summary: Deletes all user activities created by your app.
+    description: |
+        The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deteting the 
+        user activities. Listen and wait for this event to fired to ensure that the system deletes 
+        the activities (or marks them for deletion).
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
+
 events:
   - name: useractivitywillsave
     summary: |
@@ -216,8 +269,17 @@ events:
         summary: Dictionary object containing the userInfo data of the User Activity.
         type: Dictionary
         platforms: [iphone, ipad]
+
+  - name: useractivitydeleted
+    summary: |
+        Fired when the user activity get deleted using the <Titanium.App.iOS.UserActivity.deleteAllSavedUserActivities> or 
+        <Titanium.App.iOS.UserActivity.deleteSavedUserActivitiesForPersistentIdentifiers> methods.
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
+
 examples:
-  - title: Creating a new UserActivity Example
+  - title: Creating a new User Activity
     example: |
         The following example demonstrates how to create a new UserActivity and mark the activity as
         the current activity Handoff should be using when switching between devices.
@@ -236,12 +298,12 @@ examples:
                 }
             });
 
-            if(!activity.isSupported()){
+            if (!activity.isSupported()) {
                 alert('User Activities are not supported on this device!');
             } else {
                 activity.becomeCurrent();
 
-                Ti.App.iOS.addEventListener('continueactivity', function(e) {
+                Ti.App.iOS.addEventListener('continueactivity', function (e) {
                     if (e.activityType === 'com.setdirection.home' && e.userInfo.msg) {
                         alert(e.userInfo.msg);
                     }
@@ -263,3 +325,62 @@ examples:
               </ios>
             </ti:app>
 
+  - title: iOS 12+ Siri Shortcuts
+    example: |
+        The following example shows how to add and delete a UserActivity for Siri Shortcuts
+        on iOS 12 and later.
+
+        #### app.js
+
+            var win = Ti.UI.createWindow({
+                backgroundColor: '#fff'
+            });
+
+            var btn = Ti.UI.createButton({
+                top: 200,
+                title: 'Delete UserActivity'
+            });
+
+            var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
+                itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
+                title: 'Titanium Siri Shortcut Tutorial',
+                contentDescription: 'Tech Example \nOn: ' + (new Date().toLocaleString()),
+            });
+
+            var activity = Ti.App.iOS.createUserActivity({
+                activityType: 'com.appcelerator.titanium',
+                title: 'Siri shortcut activity',
+                userInfo: {
+                    msg: 'hello world'
+                },
+                eligibleForSearch: true,
+                eligibleForPrediction: true,
+                persistentIdentifier: 'titanium_siri_identifier'
+            });
+
+            activity.addContentAttributeSet(itemAttr);
+
+            if (!activity.isSupported()) {
+                alert('User Activities are not supported on this device!');
+            } else {
+                activity.becomeCurrent();
+
+                Ti.App.iOS.addEventListener('continueactivity', function (e) {
+                    Ti.API.info('continueactivity called');
+                    if (e.activityType === 'com.appcelerator.titanium' && e.userInfo.msg) {
+                        alert(e.userInfo.msg);
+                    }
+                });
+            }
+
+            activity.addEventListener('useractivitydeleted', function (e) {
+                Ti.API.info('useractivitydeleted called');
+                alert('user activity deleted');
+            });
+
+            btn.addEventListener('click', function () {
+                activity.deleteSavedUserActivitiesForPersistentIdentifiers(['titanium_siri_identifier']);
+            });
+
+            win.add(btn);
+            win.open();

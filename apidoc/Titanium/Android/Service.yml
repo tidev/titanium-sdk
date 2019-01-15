@@ -32,13 +32,74 @@ description: |
 
     Further Reading:
 
-      * [Android Services guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Services)
-      * [Android Developer: Service](http://developer.android.com/reference/android/app/Service.html)
+      * [Android Services guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Services)
+      * [Android Developer: Service](https://developer.android.com/reference/android/app/Service.html)
 
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
+
 methods:
+  - name: foregroundCancel
+    since: "7.3.0"
+    summary: Puts the service into the "background" state and removes its foreground notification.
+    description: |
+        If you call the [foregroundNotify()](Titanium.Android.Service.foregroundNotify) method to
+        put the service into the "foreground" state, then you call this method to put the service
+        back into the "background" state. This will also automatically remove the foreground service's
+        notification that was put into the status bar.
+
+        Note that stopping a foreground service will remove its foreground notification from
+        the status bar as well. So, you do not have to call this method to remove it. This method
+        is only intended to be used by services that need to dynamically change states.
+
+  - name: foregroundNotify
+    since: "7.3.0"
+    summary: Puts the service into the "foreground" state and displays a notification.
+    description: |
+        Calling this method will change the service from the "background" state (the default)
+        to the "foreground" state. It will also post a notification to the status bar to notify the
+        end-user that the app is doing work, even while backgrounded. This feature is typically
+        used by apps that play music, monitor current location, or perform large downloads while
+        the app is in the background.
+
+        Note that a foreground service is far less likely to be terminated by the operating system
+        while the app is in the background. A foreground service is also needed if the app
+        needs to acquire location data since Android 8.0 and higher throttles location acquisition
+        while the app is in the background.
+
+        See Android 8.0 "Background Execution Limits":
+
+          * https://developer.android.com/about/versions/oreo/background
+
+        You can call this method before or after the service has been started. If you need to
+        change the displayed notification, then you can call this method again with the same
+        notification ID and with an updated [notification]<Titanium.Android.Notification> object.
+
+        The notification will be automatically removed from the status bar when the service has
+        been stopped or if you call the [foregroundCancel()](Titanium.Android.Service.foregroundCancel)
+        method.
+
+        This method will fail on Android 9.0 and above unless you set the following Android manifest
+        permission in your "tiapp.xml" file.
+
+            <ti:app>
+                <android xmlns:android="http://schemas.android.com/apk/res/android">
+                    <manifest>
+                        <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+                    </manifest>
+                </android>
+            </ti:app>
+
+    parameters:
+      - name: id
+        summary: Unique integer ID to be assigned to the notification. Cannot be zero.
+        type: Number
+
+      - name: notification
+        summary: Notification to display in the status bar. Cannot be null.
+        type: Titanium.Android.Notification
+
   - name: start
     summary: Starts the Service.
     description: |

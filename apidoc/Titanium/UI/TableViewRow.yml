@@ -120,22 +120,6 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
-  - name: swipe
-    summary: Fired when the device detects a swipe gesture against the view.
-    platforms: []
-    properties:
-      - name: direction
-        summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
-        type: String
-
-      - name: x
-        summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
-        type: Number
-
-      - name: y
-        summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
-        type: Number
-
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
     description: |

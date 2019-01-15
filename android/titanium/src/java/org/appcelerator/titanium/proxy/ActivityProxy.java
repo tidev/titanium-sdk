@@ -6,10 +6,14 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import android.support.v7.widget.Toolbar;
+import java.util.List;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -21,9 +25,10 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
+// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_SUPPORT_TOOLBAR,
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
@@ -36,18 +41,15 @@ import android.support.v7.app.AppCompatActivity;
 	TiC.PROPERTY_ON_STOP,
 	TiC.PROPERTY_ON_DESTROY
 })
+// clang-format on
 /**
  * This is a proxy representation of the Android Activity type.
  * Refer to <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity</a>
  * for more details.
  */
-public class ActivityProxy extends KrollProxy
-	implements TiActivityResultHandler
+public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 {
 	private static final String TAG = "ActivityProxy";
-	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-	private static final int MSG_INVALIDATE_OPTIONS_MENU = MSG_FIRST_ID + 100;
-	private static final int MSG_OPEN_OPTIONS_MENU = MSG_FIRST_ID + 101;
 
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
@@ -58,10 +60,18 @@ public class ActivityProxy extends KrollProxy
 
 	public ActivityProxy()
 	{
+		// Setting up both proxy support and model listener allows us to detect when events have been
+		// added and removed on the JavaScript side.
+		KrollObject krollObject = getKrollObject();
+		if (krollObject != null) {
+			krollObject.setProxySupport(this);
+		}
+		this.modelListener = ActivityProxy.ProxyModelListener.getInstance();
 	}
 
 	public ActivityProxy(Activity activity)
 	{
+		this();
 		setActivity(activity);
 		setWrappedActivity(activity);
 	}
@@ -93,13 +103,12 @@ public class ActivityProxy extends KrollProxy
 
 				return null;
 			}
-			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
+			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity) activity).getLayout());
 			decorViewProxy.setActivity(activity);
 			savedDecorViewProxy = decorViewProxy;
 		}
-		
+
 		return savedDecorViewProxy;
-		
 	}
 
 	@Kroll.method
@@ -118,7 +127,7 @@ public class ActivityProxy extends KrollProxy
 		if (activity != null) {
 			TiActivitySupport support = null;
 			if (activity instanceof TiActivitySupport) {
-				support = (TiActivitySupport)activity;
+				support = (TiActivitySupport) activity;
 			} else {
 				support = new TiActivitySupportHelper(activity);
 			}
@@ -168,46 +177,52 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void sendBroadcastWithPermission(IntentProxy intent, @Kroll.argument(optional = true) String receiverPermission)
+	public void sendBroadcastWithPermission(IntentProxy intent,
+											@Kroll.argument(optional = true) String receiverPermission)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.sendBroadcast(intent.getIntent(), receiverPermission);
 		}
 	}
-	
+
 	@Kroll.method
 	public String getString(int resId, Object[] formatArgs)
 	{
-		Activity activity = getWrappedActivity();
-		if (activity != null) {
-			if (formatArgs == null || formatArgs.length == 0) {
-				return activity.getString(resId);
-			} else {
-				return activity.getString(resId, formatArgs);
-			}
+		TiApplication application = TiApplication.getInstance();
+		if (formatArgs == null || formatArgs.length == 0) {
+			return application.getString(resId);
 		}
-		return null;
+		return application.getString(resId, formatArgs);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public IntentProxy getIntent()
+	// clang-format on
 	{
 		return intentProxy;
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setRequestedOrientation(int orientation)
+	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
-			activity.setRequestedOrientation(orientation);
+			try {
+				activity.setRequestedOrientation(orientation);
+			} catch (Exception ex) {
+				Log.e(TAG, ex.getMessage());
+			}
 		}
 	}
 
 	@Kroll.method
-	public void setResult(int resultCode,
-		@Kroll.argument(optional=true) IntentProxy intent)
+	public void setResult(int resultCode, @Kroll.argument(optional = true) IntentProxy intent)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -238,8 +253,11 @@ public class ActivityProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public TiWindowProxy getWindow()
+	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (!(activity instanceof TiBaseActivity)) {
@@ -250,8 +268,11 @@ public class ActivityProxy extends KrollProxy
 		return tiActivity.getWindowProxy();
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public ActionBarProxy getActionBar()
+	// clang-format on
 	{
 		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
 		if (actionBarProxy == null && activity != null) {
@@ -263,45 +284,39 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public void openOptionsMenu()
 	{
-		if (TiApplication.isUIThread()) {
-			handleOpenOptionsMenu();
-		} else {
-			getMainHandler().obtainMessage(MSG_OPEN_OPTIONS_MENU).sendToTarget();
-		}
-	}
-
-	@Kroll.method
-	public void invalidateOptionsMenu()
-	{
-		if (TiApplication.isUIThread()) {
-				handleInvalidateOptionsMenu();
-		} else {
-				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
-		}
-	}
-
-	@Kroll.method
-	public void setSupportActionBar(TiToolbarProxy tiToolbarProxy) {
-		TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
-		if (activity != null) {
-			activity.setSupportActionBar((Toolbar) tiToolbarProxy.getToolbarInstance());
-		}
-	}
-
-	private void handleOpenOptionsMenu()
-	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.openOptionsMenu();
 		}
 	}
 
-	private void handleInvalidateOptionsMenu()
+	@Kroll.method
+	public void invalidateOptionsMenu()
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null && activity instanceof AppCompatActivity) {
-			((AppCompatActivity)activity).supportInvalidateOptionsMenu();
+			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
 		}
+	}
+
+	@Kroll.method
+	public void setSupportActionBar(TiToolbarProxy tiToolbarProxy)
+	{
+		TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
+		if (activity != null) {
+			activity.setSupportActionBar((Toolbar) tiToolbarProxy.getToolbarInstance());
+		}
+	}
+
+	public void onNewIntent(Intent newIntent)
+	{
+		// Replace previously stored intent with the given one.
+		this.intentProxy = new IntentProxy(newIntent);
+
+		// Fire a Titanium "newintent" event.
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_INTENT, this.intentProxy);
+		fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
 	}
 
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
@@ -328,6 +343,7 @@ public class ActivityProxy extends KrollProxy
 		this.resultCallback.callAsync(krollObject, event);
 	}
 
+	@Override
 	public void release()
 	{
 		super.release();
@@ -347,24 +363,58 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_INVALIDATE_OPTIONS_MENU: {
-				handleInvalidateOptionsMenu();
-				return true;
-			}
-			case MSG_OPEN_OPTIONS_MENU: {
-				handleOpenOptionsMenu();
-				return true;
-			}
-		}
-		return super.handleMessage(msg);
-	}
-
-	@Override
 	public String getApiName()
 	{
 		return "Ti.Android.Activity";
+	}
+
+	/**
+	 * Monitors proxy object's property changes and added/removed events on the JavaScript side.
+	 * <p>
+	 * TODO: Remove this in Titanium 9.0.0. We only use it to log an event deprecation warning.
+	 */
+	private static class ProxyModelListener implements KrollProxyListener
+	{
+		private static ProxyModelListener instance = new ProxyModelListener();
+
+		public static ProxyModelListener getInstance()
+		{
+			return ProxyModelListener.instance;
+		}
+
+		@Override
+		public void listenerAdded(String type, int count, KrollProxy proxy)
+		{
+			// Log a deprecation warning if using event name "newIntent" instead of "newintent".
+			final String DEPRECATED_NEW_INTENT_NAME = "newIntent";
+			if (DEPRECATED_NEW_INTENT_NAME.equals(type)) {
+				String message = "Event '" + DEPRECATED_NEW_INTENT_NAME + "' is deprecated. Use '"
+								 + TiC.EVENT_NEW_INTENT + "' instead.";
+				Log.w(TAG, message);
+			}
+		}
+
+		@Override
+		public void listenerRemoved(String type, int count, KrollProxy proxy)
+		{
+		}
+
+		@Override
+		public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+		{
+		}
+
+		@Override
+		public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
+		{
+			for (KrollPropertyChange change : changes) {
+				propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
+			}
+		}
+
+		@Override
+		public void processProperties(KrollDict properties)
+		{
+		}
 	}
 }

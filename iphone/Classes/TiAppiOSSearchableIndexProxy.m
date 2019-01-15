@@ -7,7 +7,7 @@
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
 #import "TiAppiOSSearchableIndexProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiAppiOSSearchableIndexProxy
 
@@ -18,11 +18,7 @@
 
 - (id)isSupported:(id)unused
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
-  } else {
-    return NUMBOOL(NO);
-  }
+  return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
 }
 
 - (void)addToDefaultSearchableIndex:(id)args
@@ -44,7 +40,6 @@
 
   [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:items
                                                  completionHandler:^(NSError *__nullable error) {
-
                                                    NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
                                                    [event setObject:NUMBOOL((!error)) forKey:@"success"];
 
@@ -58,7 +53,6 @@
                                                                        listener:callback
                                                                      thisObject:nil];
                                                    }
-
                                                  }];
 }
 

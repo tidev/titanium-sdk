@@ -9,8 +9,9 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Comment;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class CommentProxy extends CharacterDataProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class CommentProxy extends CharacterDataProxy
+{
 
 	public CommentProxy(Comment comment)
 	{

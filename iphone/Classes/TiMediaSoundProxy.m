@@ -6,19 +6,14 @@
  */
 #ifdef USE_TI_MEDIASOUND
 
-#import <AudioToolbox/AudioToolbox.h>
-#if IS_XCODE_8
 #import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#endif
+#import <AudioToolbox/AudioToolbox.h>
 
-#import "TiBlob.h"
-#import "TiFile.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaSoundProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaSoundProxy
 
@@ -268,7 +263,7 @@
 {
   if ([url_ isKindOfClass:[NSString class]]) {
     url = [[TiUtils toURL:url_ proxy:self] retain];
-    if ([url isFileURL] == NO) {
+    if (![url isFileURL]) {
       // we need to download it and save it off into temp file
       NSData *data = [NSData dataWithContentsOfURL:url];
       NSString *ext = [[[url path] lastPathComponent] pathExtension];

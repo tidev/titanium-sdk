@@ -22,20 +22,45 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Build;
+import android.os.SystemClock;
+
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalyticsMeta;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Kroll.module
 public class PlatformModule extends KrollModule
 {
 	private static final String TAG = "PlatformModule";
 
-	@Kroll.constant public static final int BATTERY_STATE_UNKNOWN = 0;
-	@Kroll.constant public static final int BATTERY_STATE_UNPLUGGED = 1;
-	@Kroll.constant public static final int BATTERY_STATE_CHARGING = 2;
-	@Kroll.constant public static final int BATTERY_STATE_FULL = 3;
+	@Kroll.constant
+	public static final int BATTERY_STATE_UNKNOWN = 0;
+	@Kroll.constant
+	public static final int BATTERY_STATE_UNPLUGGED = 1;
+	@Kroll.constant
+	public static final int BATTERY_STATE_CHARGING = 2;
+	@Kroll.constant
+	public static final int BATTERY_STATE_FULL = 3;
 
 	protected DisplayCapsProxy displayCaps;
+
+	private List<Processor> processors;
 
 	protected int batteryState;
 	protected double batteryLevel;
@@ -51,23 +76,39 @@ public class PlatformModule extends KrollModule
 		batteryLevel = -1;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getName() {
-		return TiPlatformHelper.getInstance().getName();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	// clang-format on
+	{
+		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getOsname() {
-		return TiPlatformHelper.getInstance().getName();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getOsname()
+	// clang-format on
+	{
+		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getLocale() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getLocale()
+	// clang-format on
+	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public DisplayCapsProxy getDisplayCaps() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public DisplayCapsProxy getDisplayCaps()
+	// clang-format on
+	{
 		if (displayCaps == null) {
 			displayCaps = new DisplayCapsProxy();
 			displayCaps.setActivity(TiApplication.getInstance().getCurrentActivity());
@@ -75,54 +116,102 @@ public class PlatformModule extends KrollModule
 		return displayCaps;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getProcessorCount() {
-		return TiPlatformHelper.getInstance().getProcessorCount();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getProcessorCount()
+	// clang-format on
+	{
+		return Runtime.getRuntime().availableProcessors();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getUsername() {
-		return TiPlatformHelper.getInstance().getUsername();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getUsername()
+	// clang-format on
+	{
+		return Build.USER;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getVersion() {
-		return TiPlatformHelper.getInstance().getVersion();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getVersion()
+	// clang-format on
+	{
+		return APSAnalyticsMeta.getOsVersion();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public double getAvailableMemory() {
-		return TiPlatformHelper.getInstance().getAvailableMemory();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getAvailableMemory()
+	// clang-format on
+	{
+		return Runtime.getRuntime().freeMemory();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getModel() {
-		return TiPlatformHelper.getInstance().getModel();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getTotalMemory()
+	// clang-format on
+	{
+		return Runtime.getRuntime().totalMemory();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getManufacturer() {
-		return TiPlatformHelper.getInstance().getManufacturer();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getModel()
+	// clang-format on
+	{
+		return Build.MODEL;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getOstype() {
-		return TiPlatformHelper.getInstance().getOstype();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getManufacturer()
+	// clang-format on
+	{
+		return Build.MANUFACTURER;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getArchitecture() {
-		return TiPlatformHelper.getInstance().getArchitecture();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getOstype()
+	// clang-format on
+	{
+		return APSAnalyticsMeta.getOsType();
 	}
 
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getArchitecture()
+	// clang-format on
+	{
+		return APSAnalyticsMeta.getArchitecture();
+	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getAddress() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAddress()
+	// clang-format on
+	{
 		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getNetmask() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getNetmask()
+	// clang-format on
+	{
 		return TiPlatformHelper.getInstance().getNetmask();
 	}
 
@@ -137,42 +226,93 @@ public class PlatformModule extends KrollModule
 	}
 
 	@Kroll.method
-	public String createUUID() {
-		return TiPlatformHelper.getInstance().createUUID();
+	public String createUUID()
+	{
+		return UUID.randomUUID().toString();
 	}
 
 	@Kroll.method
-	public boolean openURL(String url) {
+	public boolean openURL(String url)
+	{
 		Log.d(TAG, "Launching viewer for: " + url, Log.DEBUG_MODE);
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		try {
 			Activity activity = TiApplication.getAppRootOrCurrentActivity();
 
-			if(activity != null) {
+			if (activity != null) {
 				activity.startActivity(intent);
 			} else {
 				throw new ActivityNotFoundException("No valid root or current activity found for application instance");
 			}
 			return true;
 		} catch (ActivityNotFoundException e) {
-			Log.e(TAG,"Activity not found: " + url, e);
+			Log.e(TAG, "Activity not found: " + url, e);
 		}
 		return false;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getMacaddress() {
-		return TiPlatformHelper.getInstance().getMacaddress();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getMacaddress()
+	// clang-format on
+	{
+		String macaddr = null;
+		TiApplication tiApp = TiApplication.getInstance();
+
+		if (tiApp.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+			== PackageManager.PERMISSION_GRANTED) {
+			WifiManager wm = (WifiManager) tiApp.getSystemService(Context.WIFI_SERVICE);
+			if (wm != null) {
+				WifiInfo wi = wm.getConnectionInfo();
+				if (wi != null) {
+					macaddr = wi.getMacAddress();
+					Log.d(TAG, "Found mac address " + macaddr);
+				} else {
+					Log.d(TAG, "Mo WifiInfo, enabling Wifi to get mac address");
+					if (!wm.isWifiEnabled()) {
+						if (wm.setWifiEnabled(true)) {
+							if ((wi = wm.getConnectionInfo()) != null) {
+								macaddr = wi.getMacAddress();
+							} else {
+								Log.d(TAG, "Still no WifiInfo, assuming no mac address");
+							}
+							Log.d(TAG, "Disabling wifi because we enabled it.");
+							wm.setWifiEnabled(false);
+						} else {
+							Log.d(TAG, "Enabling wifi failed, assuming no mac address");
+						}
+					} else {
+						Log.d(TAG, "Wifi already enabled, assuming no mac address");
+					}
+				}
+			}
+		} else {
+			Log.w(TAG, "Must have android.permission.ACCESS_WIFI_STATE to get mac address.");
+		}
+
+		if (macaddr == null) {
+			macaddr = getId(); // just make it the unique ID if not found
+		}
+
+		return macaddr;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getId() {
-		return TiPlatformHelper.getInstance().getMobileId();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getId()
+	// clang-format on
+	{
+		return APSAnalytics.getInstance().getMachineId();
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
+	// clang-format on
 	{
 		if (monitor && batteryStateReceiver == null) {
 			registerBatteryStateReceiver();
@@ -181,28 +321,117 @@ public class PlatformModule extends KrollModule
 			batteryStateReceiver = null;
 		}
 	}
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
+	// clang-format on
 	{
 		return batteryStateReceiver != null;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getBatteryState()
+	// clang-format on
 	{
 		return batteryState;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public double getBatteryLevel()
+	// clang-format on
 	{
 		return batteryLevel;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getRuntime()
+	// clang-format on
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getUptime()
+	// clang-format on
+	{
+		return SystemClock.uptimeMillis() / 1000.0;
+	}
+
+	// clang-format off
+	@Kroll.method
+	public Object[] cpus()
+	// clang-format on
+	{
+		List<Processor> processors = getProcessors();
+		List<KrollDict> result = new ArrayList<KrollDict>(processors.size());
+		for (Processor p : processors) {
+			result.add(p.toKrollDict());
+		}
+		return result.toArray();
+	}
+
+	private synchronized List<Processor> getProcessors()
+	{
+		if (this.processors != null) {
+			return this.processors;
+		}
+		final int processorCount = getProcessorCount();
+		processors = new ArrayList<Processor>(processorCount);
+
+		// Now read in their details
+		BufferedReader in = null;
+		List<Map> groups = new ArrayList<Map>();
+		Map<String, String> current = new HashMap<String, String>();
+		try {
+			String[] args = { "/system/bin/cat", "/proc/cpuinfo" };
+			ProcessBuilder cmd = new ProcessBuilder(args);
+			Process process = cmd.start();
+			InputStream inStream = process.getInputStream();
+			in = new BufferedReader(new InputStreamReader(inStream));
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				if (line.length() == 0) {
+					// new group!
+					groups.add(current);
+					current = new HashMap<String, String>();
+				} else {
+					// entry, split by ':'
+					int colonIndex = line.indexOf(':');
+					String key = line.substring(0, colonIndex).trim();
+					String value = line.substring(colonIndex + 1).trim();
+					current.put(key, value);
+				}
+			}
+			for (Map<String, String> group : groups) {
+				processors.add(new Processor(group));
+			}
+			// TODO Sort processors by index, fill in model name by preceding if unknown
+
+		} catch (IOException ex) {
+			// somethign went wrong, create "default" set of processors?
+			this.processors = new ArrayList<Processor>(processorCount);
+			for (int i = 0; i < processorCount; i++) {
+				this.processors.add(Processor.unknown(i));
+			}
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		return processors;
 	}
 
 	protected void registerBatteryStateReceiver()
@@ -320,5 +549,124 @@ public class PlatformModule extends KrollModule
 	public String getApiName()
 	{
 		return "Ti.Platform";
+	}
+
+	private static class Processor
+	{
+		private Map<String, String> details;
+		private Double speed;
+		private Integer index;
+		private String model;
+
+		public Processor(Map<String, String> details)
+		{
+			this.details = details;
+		}
+
+		// Used for error case when we have processor count but can't get any details on them
+		private Processor(int index)
+		{
+			this.index = index;
+			this.model = "unknown";
+		}
+
+		public synchronized int getIndex()
+		{
+			if (this.index != null) {
+				return this.index;
+			}
+			this.index = Integer.valueOf(this.details.get("processor"));
+			return this.index;
+		}
+		// TODO: try to group key/value pairs per-processor?
+		// What we really want here is to pull out "model name" and "cpu MHz" for each grouping
+		// We need to fallback for "model name" to "Processor", (or "cpu model") (if former is not available and latter is)
+		// https://github.com/libuv/libuv/blob/0813f5b97afe086a7b4d827774605b1f2e99191c/src/unix/linux-core.c
+		// No fallback for cpuMHz, ignore BogoMIPs as that's meaningless
+		// Instead need to *try* and read "/sys/devices/system/cpu/cpu%u/cpufreq/scaling_cur_freq" and divide by 1000.0
+
+		public synchronized double getSpeed()
+		{
+			if (this.speed != null) {
+				return this.speed;
+			}
+			if (details.containsKey("cpu MHz")) {
+				this.speed = Double.parseDouble(details.get("cpu MHz"));
+				return this.speed;
+			}
+			Long freq = readCPUFrequency();
+			if (freq != null) {
+				this.speed = freq / 1000.0;
+			} else {
+				this.speed = 0.0;
+			}
+			return this.speed;
+		}
+
+		private Long readCPUFrequency()
+		{
+			BufferedReader in = null;
+			try {
+				String[] args = { "/system/bin/cat",
+								  "/sys/devices/system/cpu/cpu" + getIndex() + "/cpufreq/scaling_cur_freq" };
+				ProcessBuilder cmd = new ProcessBuilder(args);
+				Process process = cmd.start();
+				InputStream inStream = process.getInputStream();
+				in = new BufferedReader(new InputStreamReader(inStream));
+				String line = in.readLine();
+				if (line != null) {
+					return Long.parseLong(line);
+				}
+			} catch (IOException ex) {
+				// ignore
+			} finally {
+				try {
+					if (in != null) {
+						in.close();
+					}
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+			return null;
+		}
+
+		public synchronized String getModel()
+		{
+			if (this.model != null) {
+				return this.model;
+			}
+			if (details.containsKey("model name")) {
+				this.model = details.get("model name");
+			} else if (details.containsKey("Processor")) {
+				this.model = details.get("Processor");
+			} else if (details.containsKey("cpu model")) {
+				this.model = details.get("cpu model");
+			} else {
+				// FIXME We can also infer same model as preceding cpu!
+				this.model = "unknown";
+			}
+			return this.model;
+		}
+
+		public KrollDict toKrollDict()
+		{
+			KrollDict dict = new KrollDict();
+			dict.put("model", getModel());
+			dict.put("speed", getSpeed());
+			KrollDict times = new KrollDict();
+			times.put("user", 0);
+			times.put("nice", 0);
+			times.put("sys", 0);
+			times.put("idle", 0);
+			times.put("irq", 0);
+			dict.put("times", times);
+			return dict;
+		}
+
+		public static Processor unknown(int index)
+		{
+			return new Processor(index);
+		}
 	}
 }

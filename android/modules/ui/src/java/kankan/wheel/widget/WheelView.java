@@ -52,7 +52,8 @@ import android.view.View;
  * @author Yuri Kanivets
  */
 @SuppressWarnings("deprecation")
-public class WheelView extends View {
+public class WheelView extends View
+{
 	private static final int NOVAL = -1;
 
 	/** Current value & label text color */
@@ -62,12 +63,10 @@ public class WheelView extends View {
 	private static final int ITEMS_TEXT_COLOR = 0xFF000000;
 
 	/** Top and bottom shadows colors */
-	private static final int[] SHADOWS_COLORS = new int[] { 0xFF111111,
-			0x00AAAAAA, 0x00AAAAAA };
+	private static final int[] SHADOWS_COLORS = new int[] { 0xFF111111, 0x00AAAAAA, 0x00AAAAAA };
 
 	/** Additional items height (is added to standard text item height) */
 	//private static final int ADDITIONAL_ITEM_HEIGHT = 15;
-	
 
 	/** Text size */
 	//private static final int TEXT_SIZE = 24;
@@ -91,7 +90,7 @@ public class WheelView extends View {
 	// Wheel Values
 	private WheelAdapter adapter = null;
 	private int currentItem = 0;
-	
+
 	// Widths
 	private int itemsWidth = 0;
 	private int labelWidth = 0;
@@ -118,9 +117,9 @@ public class WheelView extends View {
 
 	// Last touch Y position
 	private float lastYTouch;
-	
+
 	private WheelView.OnItemSelectedListener itemSelectedListener;
-	
+
 	private int textColor = NOVAL;
 	private Typeface typeface = Typeface.DEFAULT;
 	private int typefaceWeight = Typeface.NORMAL;
@@ -129,21 +128,24 @@ public class WheelView extends View {
 	/**
 	 * Constructor
 	 */
-	public WheelView(Context context, AttributeSet attrs, int defStyle) {
+	public WheelView(Context context, AttributeSet attrs, int defStyle)
+	{
 		super(context, attrs, defStyle);
 	}
 
 	/**
 	 * Constructor
 	 */
-	public WheelView(Context context, AttributeSet attrs) {
+	public WheelView(Context context, AttributeSet attrs)
+	{
 		super(context, attrs);
 	}
 
 	/**
 	 * Constructor
 	 */
-	public WheelView(Context context) {
+	public WheelView(Context context)
+	{
 		super(context);
 	}
 
@@ -151,27 +153,30 @@ public class WheelView extends View {
 	 * Gets wheel adapter
 	 * @return the adapter
 	 */
-	public WheelAdapter getAdapter() {
+	public WheelAdapter getAdapter()
+	{
 		return adapter;
 	}
-	
+
 	/**
 	 * Sets wheel adapter
 	 * @param adapter the new wheel adapter
 	 */
-	public void setAdapter(WheelAdapter adapter) {
+	public void setAdapter(WheelAdapter adapter)
+	{
 		this.adapter = adapter;
 		itemsLayout = null;
 		valueLayout = null;
 		invalidate();
 	}
-	
+
 	/**
 	 * Gets count of visible items
 	 * 
 	 * @return the count of visible items
 	 */
-	public int getVisibleItems() {
+	public int getVisibleItems()
+	{
 		return visibleItems;
 	}
 
@@ -181,7 +186,8 @@ public class WheelView extends View {
 	 * @param count
 	 *            the new count
 	 */
-	public void setVisibleItems(int count) {
+	public void setVisibleItems(int count)
+	{
 		visibleItems = count;
 	}
 
@@ -190,7 +196,8 @@ public class WheelView extends View {
 	 * 
 	 * @return the label
 	 */
-	public String getLabel() {
+	public String getLabel()
+	{
 		return label;
 	}
 
@@ -200,7 +207,8 @@ public class WheelView extends View {
 	 * @param newLabel
 	 *            the label to set
 	 */
-	public void setLabel(String newLabel) {
+	public void setLabel(String newLabel)
+	{
 		label = newLabel;
 		labelLayout = null;
 		invalidate();
@@ -211,7 +219,8 @@ public class WheelView extends View {
 	 * 
 	 * @return the current value
 	 */
-	public int getCurrentItem() {
+	public int getCurrentItem()
+	{
 		return currentItem;
 	}
 
@@ -220,7 +229,8 @@ public class WheelView extends View {
 	 * 
 	 * @param index the item index
 	 */
-	public void setCurrentItem(int index) {
+	public void setCurrentItem(int index)
+	{
 		if (index != currentItem) {
 			itemsLayout = null;
 			valueLayout = null;
@@ -234,7 +244,7 @@ public class WheelView extends View {
 
 	private void resetTextPainters()
 	{
-		TextPaint[] painters = new TextPaint[]{itemsPaint, valuePaint};
+		TextPaint[] painters = new TextPaint[] { itemsPaint, valuePaint };
 		for (int i = 0; i < painters.length; i++) {
 			TextPaint painter = painters[i];
 			if (painter != null) {
@@ -252,15 +262,15 @@ public class WheelView extends View {
 			}
 		}
 	}
-	
+
 	/**
 	 * Initializes resources
 	 */
-	private void initResourcesIfNecessary() {
+	private void initResourcesIfNecessary()
+	{
 		if (itemsPaint == null) {
 			if (typefaceWeight == Typeface.BOLD) {
-				itemsPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
-						| Paint.FAKE_BOLD_TEXT_FLAG);
+				itemsPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.FAKE_BOLD_TEXT_FLAG);
 			} else {
 				itemsPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 			}
@@ -272,11 +282,9 @@ public class WheelView extends View {
 
 		if (valuePaint == null) {
 			if (typefaceWeight == Typeface.BOLD) {
-				valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
-						| Paint.FAKE_BOLD_TEXT_FLAG | Paint.DITHER_FLAG);
+				valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.FAKE_BOLD_TEXT_FLAG | Paint.DITHER_FLAG);
 			} else {
-				valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
-						| Paint.DITHER_FLAG);
+				valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
 			}
 			//valuePaint.density = getResources().getDisplayMetrics().density;
 			valuePaint.setTextSize(textSize);
@@ -300,41 +308,46 @@ public class WheelView extends View {
 		//setBackgroundResource(R.drawable.wheel_bg);
 		setBackgroundDrawable(getWheelBackground());
 	}
-	
+
 	/**
 	 * Direct programmatic creation of drawables (instead of R & res files)
 	 */
-	private int dipToInt(float dips) 
+	private int dipToInt(float dips)
 	{
-		return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dips, getResources().getDisplayMetrics()));
+		return Math.round(
+			TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dips, getResources().getDisplayMetrics()));
 	}
-	private GradientDrawable makeGradientDrawable(Orientation orientation, 
-			int startColor, int centerColor, int endColor, float strokeDips, int strokeColor)
+	private GradientDrawable makeGradientDrawable(Orientation orientation, int startColor, int centerColor,
+												  int endColor, float strokeDips, int strokeColor)
 	{
 		GradientDrawable gd = makeGradientDrawable(orientation, startColor, centerColor, endColor);
 		gd.setStroke(dipToInt(strokeDips), strokeColor);
 		return gd;
 	}
-	
-	private GradientDrawable makeGradientDrawable(Orientation orientation, 
-			int startColor, int centerColor, int endColor)
+
+	private GradientDrawable makeGradientDrawable(Orientation orientation, int startColor, int centerColor,
+												  int endColor)
 	{
-		int[] colors = new int[]{startColor, centerColor, endColor};
+		int[] colors = new int[] { startColor, centerColor, endColor };
 		GradientDrawable gd = new GradientDrawable(orientation, colors);
 		return gd;
 	}
-	
+
 	private Drawable getWheelValDrawable()
 	{
-		return makeGradientDrawable(Orientation.BOTTOM_TOP, 
-				Color.parseColor("#70222222"), Color.parseColor("#70222222"), Color.parseColor("#70EEEEEE"), 1f, Color.parseColor("#70333333"));
+		return makeGradientDrawable(Orientation.BOTTOM_TOP, Color.parseColor("#70222222"),
+									Color.parseColor("#70222222"), Color.parseColor("#70EEEEEE"), 1f,
+									Color.parseColor("#70333333"));
 	}
-	
+
 	private Drawable getWheelBackground()
 	{
-		Drawable item0 = makeGradientDrawable(Orientation.BOTTOM_TOP, Color.parseColor("#333333"), Color.parseColor("#DDDDDD"), Color.parseColor("#333333"), 1f, Color.parseColor("#FF333333"));
-		Drawable item1 = makeGradientDrawable(Orientation.BOTTOM_TOP, Color.parseColor("#AAAAAA"), Color.parseColor("#FFFFFF"), Color.parseColor("#AAAAAA"));
-		LayerDrawable ld = new LayerDrawable(new Drawable[]{item0, item1});
+		Drawable item0 =
+			makeGradientDrawable(Orientation.BOTTOM_TOP, Color.parseColor("#333333"), Color.parseColor("#DDDDDD"),
+								 Color.parseColor("#333333"), 1f, Color.parseColor("#FF333333"));
+		Drawable item1 = makeGradientDrawable(Orientation.BOTTOM_TOP, Color.parseColor("#AAAAAA"),
+											  Color.parseColor("#FFFFFF"), Color.parseColor("#AAAAAA"));
+		LayerDrawable ld = new LayerDrawable(new Drawable[] { item0, item1 });
 		ld.setLayerInset(1, dipToInt(4f), dipToInt(1f), dipToInt(4f), dipToInt(1f));
 		return ld;
 	}
@@ -346,26 +359,27 @@ public class WheelView extends View {
 	 *            the source layout
 	 * @return the desired layout height
 	 */
-	private int getDesiredHeight(Layout layout) {
-	    if (layout == null) {
-	        return 0;
-	    }
+	// APPCELERATOR TITANIUM CUSTOMIZATION:
+	private int getDesiredHeight(Layout layout)
+	{
+		// Validate argument.
+		if (layout == null) {
+			return 0;
+		}
 
-	    int linecount = layout.getLineCount();
+		// Calculate height of spinner based on lines rendered in given layout.
+		// Note: Subtracting offset from height clips the top-most and bottom-most lines in spinner
+		//       on purpose so that end-user knows that there are more items to scroll to.
+		int desired = layout.getHeight();
+		desired -= getItemOffset() * 2;
+		if (Build.VERSION.SDK_INT < 21) {
+			// Android 4.4 always adds "spacingadd" below last line when we don't want it. Exclude it.
+			desired -= getAdditionalItemHeight();
+		}
 
-	    // APPCELERATOR TITANIUM CUSTOMIZATION:
-	    int desired = layout.getLineTop(linecount) - getAdditionalItemHeight();
-
-	    if (Build.VERSION.SDK_INT < 21) {
-	        desired -= getItemOffset() * 2;
-	    } else {
-	        desired += getTextSize();
-	    }
-
-	    // Check against our minimum height
-	    desired = Math.max(desired, getSuggestedMinimumHeight());
-
-	    return desired;
+		// Do not allow desired height to be larger than assigned minimum.
+		desired = Math.max(desired, getSuggestedMinimumHeight());
+		return desired;
 	}
 
 	/**
@@ -375,7 +389,14 @@ public class WheelView extends View {
 	 */
 	// APPCELERATOR TITANIUM CUSTOMIZATION:
 	// Must build ellipsized string here because the layout in this class only support one-line items. (TIMOB-14654)
-	private String buildText(int widthItems) {
+	private String buildText(int widthItems)
+	{
+		// Empty lines on Android 5.0 and higher have a different line/spacing height compared to non-empty lines.
+		// Work-Around: Add a zero-width space char to end of every line to ensure they all have same line height.
+		final String ZERO_WIDTH_SPACE = "\u200B";
+		final String LINE_ENDING = ZERO_WIDTH_SPACE + "\n";
+
+		// Create the text lines above the selection.
 		WheelAdapter adapter = getAdapter();
 		StringBuilder itemsText = new StringBuilder();
 		int addItems = visibleItems / 2;
@@ -388,11 +409,13 @@ public class WheelView extends View {
 					itemsText.append(text);
 				}
 			}
-			itemsText.append("\n");
+			itemsText.append(LINE_ENDING);
 		}
-		
-		itemsText.append("\n"); // here will be current value
-		
+
+		// Create an empty line where the selected item will be.
+		itemsText.append(LINE_ENDING);
+
+		// Create the text lines below the selection.
 		for (int i = currentItem + 1; i <= currentItem + addItems; i++) {
 			if (adapter != null && i < adapter.getItemsCount()) {
 				String text = adapter.getItem(i);
@@ -403,9 +426,12 @@ public class WheelView extends View {
 				}
 			}
 			if (i < currentItem + addItems) {
-				itemsText.append("\n");
+				itemsText.append(LINE_ENDING);
 			}
 		}
+		itemsText.append(ZERO_WIDTH_SPACE);
+
+		// Return the multiline text to be displayed by the spinner.
 		return itemsText.toString();
 	}
 
@@ -413,12 +439,13 @@ public class WheelView extends View {
 	 * Returns the max item length that can be present
 	 * @return the max length
 	 */
-	private int getMaxTextLength() {
+	private int getMaxTextLength()
+	{
 		WheelAdapter adapter = getAdapter();
 		if (adapter == null) {
 			return 0;
 		}
-		
+
 		int adapterLength = adapter.getMaximumLength();
 		if (adapterLength > 0) {
 			return adapterLength;
@@ -427,7 +454,7 @@ public class WheelView extends View {
 		String maxText = null;
 		int addItems = visibleItems / 2;
 		for (int i = Math.max(currentItem - addItems, 0);
-				i < Math.min(currentItem + visibleItems, adapter.getItemsCount()); i++) {
+			 i < Math.min(currentItem + visibleItems, adapter.getItemsCount()); i++) {
 			String text = adapter.getItem(i);
 			if (text != null && (maxText == null || maxText.length() < text.length())) {
 				maxText = text;
@@ -443,7 +470,8 @@ public class WheelView extends View {
 	 * @param mode the layout mode
 	 * @return the calculated control width
 	 */
-	private int calculateLayoutWidth(int widthSize, int mode) {
+	private int calculateLayoutWidth(int widthSize, int mode)
+	{
 		initResourcesIfNecessary();
 
 		int width = widthSize;
@@ -488,8 +516,7 @@ public class WheelView extends View {
 				itemsWidth = labelWidth = 0;
 			}
 			if (labelWidth > 0) {
-				double newWidthItems = (double) itemsWidth * pureWidth
-						/ (itemsWidth + labelWidth);
+				double newWidthItems = (double) itemsWidth * pureWidth / (itemsWidth + labelWidth);
 				itemsWidth = (int) newWidthItems;
 				labelWidth = pureWidth - itemsWidth;
 			} else {
@@ -509,7 +536,8 @@ public class WheelView extends View {
 	 * @param widthItems width of items layout
 	 * @param widthLabel width of label layout
 	 */
-	private void createLayouts(int widthItems, int widthLabel) {
+	private void createLayouts(int widthItems, int widthLabel)
+	{
 		if (itemsLayout == null || itemsLayout.getWidth() > widthItems) {
 			// APPCELERATOR TITANIUM CUSTOMIZATION:
 			// Must build ellipsized string here because the layout in this class only support one-line items. (TIMOB-14654)
@@ -517,9 +545,10 @@ public class WheelView extends View {
 			if (text == null) {
 				text = "";
 			}
-			itemsLayout = new StaticLayout(text, 0, text.length(), itemsPaint, widthItems,
-					widthLabel > 0 ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER,
-					1, getAdditionalItemHeight(), false, TextUtils.TruncateAt.END, widthItems);
+			itemsLayout =
+				new StaticLayout(text, 0, text.length(), itemsPaint, widthItems,
+								 widthLabel > 0 ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER, 1,
+								 getAdditionalItemHeight(), false, TextUtils.TruncateAt.END, widthItems);
 		} else {
 			itemsLayout.increaseWidthTo(widthItems);
 		}
@@ -528,21 +557,20 @@ public class WheelView extends View {
 			String text = getAdapter() != null ? getAdapter().getItem(currentItem) : null;
 			// APPCELERATOR TITANIUM CUSTOMIZATION:
 			// Must build ellipsized string here because the layout in this class only support one-line items. (TIMOB-14654)
-			text = text != null ? (String) TextUtils.ellipsize(text, valuePaint, widthItems, TextUtils.TruncateAt.END) : null;
-			valueLayout = new StaticLayout(text != null ? text : "",
-					0, text != null ? text.length() : 0,
-					valuePaint, widthItems, widthLabel > 0 ?
-							Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER,
-							1, getAdditionalItemHeight(), false, TextUtils.TruncateAt.END, widthItems);
+			text = text != null ? (String) TextUtils.ellipsize(text, valuePaint, widthItems, TextUtils.TruncateAt.END)
+								: null;
+			valueLayout =
+				new StaticLayout(text != null ? text : "", 0, text != null ? text.length() : 0, valuePaint, widthItems,
+								 widthLabel > 0 ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER, 1,
+								 getAdditionalItemHeight(), false, TextUtils.TruncateAt.END, widthItems);
 		} else {
 			valueLayout.increaseWidthTo(widthItems);
 		}
 
 		if (widthLabel > 0) {
 			if (labelLayout == null || labelLayout.getWidth() > widthLabel) {
-				labelLayout = new StaticLayout(label, valuePaint,
-						widthLabel, Layout.Alignment.ALIGN_NORMAL, 1,
-						getAdditionalItemHeight(), false);
+				labelLayout = new StaticLayout(label, valuePaint, widthLabel, Layout.Alignment.ALIGN_NORMAL, 1,
+											   getAdditionalItemHeight(), false);
 			} else {
 				labelLayout.increaseWidthTo(widthLabel);
 			}
@@ -550,7 +578,8 @@ public class WheelView extends View {
 	}
 
 	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -573,7 +602,8 @@ public class WheelView extends View {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(Canvas canvas)
+	{
 		super.onDraw(canvas);
 
 		if (itemsLayout == null) {
@@ -585,10 +615,9 @@ public class WheelView extends View {
 		}
 
 		drawCenterRect(canvas);
-		
+
 		if (itemsWidth > 0) {
 			canvas.save();
-			// Skip padding space and hide a part of top and bottom items
 			canvas.translate(PADDING, -getItemOffset());
 			drawItems(canvas);
 			drawValue(canvas);
@@ -602,12 +631,12 @@ public class WheelView extends View {
 	 * Draws shadows on top and bottom of control
 	 * @param canvas the canvas for drawing
 	 */
-	private void drawShadows(Canvas canvas) {
+	private void drawShadows(Canvas canvas)
+	{
 		topShadow.setBounds(0, 0, getWidth(), getHeight() / visibleItems);
 		topShadow.draw(canvas);
 
-		bottomShadow.setBounds(0, getHeight() - getHeight() / visibleItems,
-				getWidth(), getHeight());
+		bottomShadow.setBounds(0, getHeight() - getHeight() / visibleItems, getWidth(), getHeight());
 		bottomShadow.draw(canvas);
 	}
 
@@ -615,8 +644,9 @@ public class WheelView extends View {
 	 * Draws value and label layout
 	 * @param canvas the canvas for drawing
 	 */
-	private void drawValue(Canvas canvas) {
-		valuePaint.setColor( (textColor == NOVAL) ? VALUE_TEXT_COLOR : textColor);
+	private void drawValue(Canvas canvas)
+	{
+		valuePaint.setColor((textColor == NOVAL) ? VALUE_TEXT_COLOR : textColor);
 		valuePaint.drawableState = getDrawableState();
 
 		Rect bounds = new Rect();
@@ -641,7 +671,8 @@ public class WheelView extends View {
 	 * Draws items
 	 * @param canvas the canvas for drawing
 	 */
-	private void drawItems(Canvas canvas) {
+	private void drawItems(Canvas canvas)
+	{
 		itemsPaint.drawableState = getDrawableState();
 		itemsLayout.draw(canvas);
 	}
@@ -650,7 +681,8 @@ public class WheelView extends View {
 	 * Draws rect for current value
 	 * @param canvas the canvas for drawing
 	 */
-	private void drawCenterRect(Canvas canvas) {
+	private void drawCenterRect(Canvas canvas)
+	{
 		if (!showSelectionIndicator) {
 			return;
 		}
@@ -661,62 +693,62 @@ public class WheelView extends View {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(MotionEvent event)
+	{
 		WheelAdapter adapter = getAdapter();
 		if (adapter == null) {
 			return true;
 		}
-		
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			lastYTouch = event.getY();
-			break;
 
-		case MotionEvent.ACTION_MOVE:
-			float delta = event.getY() - lastYTouch;
-			//A nasty hack for timob-8470 b/c touch events seem to not register in area above the first row when put in a scrollview.
-			int count = (int) (visibleItems * delta * 3 / getHeight());
-			int pos = currentItem - count;
-			pos = Math.max(pos, 0);
-			pos = Math.min(pos, adapter.getItemsCount() - 1);
-			if (pos != currentItem) {
+		switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
 				lastYTouch = event.getY();
-				setCurrentItem(pos);
-			}
-			break;
-		case MotionEvent.ACTION_UP:
-			break;
+				break;
+
+			case MotionEvent.ACTION_MOVE:
+				float delta = event.getY() - lastYTouch;
+				//A nasty hack for timob-8470 b/c touch events seem to not register in area above the first row when put in a scrollview.
+				int count = (int) (visibleItems * delta * 3 / getHeight());
+				int pos = currentItem - count;
+				pos = Math.max(pos, 0);
+				pos = Math.min(pos, adapter.getItemsCount() - 1);
+				if (pos != currentItem) {
+					lastYTouch = event.getY();
+					setCurrentItem(pos);
+				}
+				break;
+			case MotionEvent.ACTION_UP:
+				break;
 		}
 		return true;
 	}
-	
-	public interface OnItemSelectedListener
-	{
+
+	public interface OnItemSelectedListener {
 		void onItemSelected(WheelView view, int index);
 	}
-	
+
 	public void setItemSelectedListener(OnItemSelectedListener listener)
 	{
 		this.itemSelectedListener = listener;
 	}
-	
+
 	private int getAdditionalItemHeight()
 	{
 		return (int) (textSize * 0.625);
 	}
-	
+
 	private int getItemOffset()
 	{
 		return (int) (textSize / 5);
 	}
-	
+
 	public void fullLayoutReset()
 	{
 		itemsLayout = null;
 		valueLayout = null;
 		requestLayout();
 	}
-	
+
 	public void setTextSize(int size)
 	{
 		int orig = textSize;
@@ -725,7 +757,7 @@ public class WheelView extends View {
 			resetTextPainters();
 		}
 	}
-	
+
 	public int getTextSize()
 	{
 		return textSize;
@@ -780,4 +812,3 @@ public class WheelView extends View {
 		return showSelectionIndicator;
 	}
 }
-

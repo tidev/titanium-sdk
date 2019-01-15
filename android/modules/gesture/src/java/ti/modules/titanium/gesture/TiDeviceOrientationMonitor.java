@@ -23,7 +23,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.TiApplication;
 
-
 /**
  * Monitors the current orientation of the device via its sensors (accelerometer, gyroscope, etc.).
  */
@@ -33,8 +32,7 @@ public final class TiDeviceOrientationMonitor
 	 * Listener used to detect orientation changes. Intended to be passed to
 	 * a "TiDeviceOrientationMonitor" object's setOrientationChangedListener() method.
 	 */
-	public interface OrientationChangedListener
-	{
+	public interface OrientationChangedListener {
 		/**
 		 * Called when the device orientation has changed.
 		 * You can access the new orientation via the monitor's getLastReadOrientation() method.
@@ -56,7 +54,6 @@ public final class TiDeviceOrientationMonitor
 	private boolean isUsingOrientationEventListener;
 	private boolean isSystemRotationLockIgnored;
 	private TiDeviceOrientation lastReadOrientation = TiDeviceOrientation.UNKNOWN;
-
 
 	public TiDeviceOrientationMonitor()
 	{
@@ -84,7 +81,7 @@ public final class TiDeviceOrientationMonitor
 		// Fetch the system's sensor manager.
 		Object value = this.context.getSystemService(Context.SENSOR_SERVICE);
 		if (value instanceof SensorManager) {
-			this.sensorManager = (SensorManager)value;
+			this.sensorManager = (SensorManager) value;
 		} else {
 			Log.i(TAG, "Unable to aquire SensorManager.");
 		}
@@ -124,8 +121,7 @@ public final class TiDeviceOrientationMonitor
 		}
 	}
 
-	public void setOrientationChangedListener(
-		TiDeviceOrientationMonitor.OrientationChangedListener listener)
+	public void setOrientationChangedListener(TiDeviceOrientationMonitor.OrientationChangedListener listener)
 	{
 		this.orientationChangedListener = listener;
 	}
@@ -215,8 +211,7 @@ public final class TiDeviceOrientationMonitor
 				Sensor sensor = this.sensorManager.getDefaultSensor(typeId);
 				if (sensor != null) {
 					wasSuccessful = this.sensorManager.registerListener(
-							this.sensorEventHandler, sensor,
-							SensorManager.SENSOR_DELAY_NORMAL, this.handler);
+						this.sensorEventHandler, sensor, SensorManager.SENSOR_DELAY_NORMAL, this.handler);
 				}
 			}
 		} catch (Exception ex) {
@@ -231,8 +226,7 @@ public final class TiDeviceOrientationMonitor
 			try {
 				ContentResolver contentResolver = this.context.getContentResolver();
 				if (contentResolver != null) {
-					int value = Settings.System.getInt(
-							contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
+					int value = Settings.System.getInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
 					isLockEnabled = (value == 0);
 				}
 			} catch (Exception ex) {
@@ -281,7 +275,6 @@ public final class TiDeviceOrientationMonitor
 		}
 	}
 
-
 	/**
 	 * Detects orientation changes via the Android "SensorManager".
 	 * This is the most accurate and preferred method of doing this.
@@ -296,7 +289,6 @@ public final class TiDeviceOrientationMonitor
 		private boolean hasAccelerationData;
 		private boolean hasMagneticData;
 		private TiDeviceOrientation lastReadOrientation;
-
 
 		public SensorEventHandler(TiDeviceOrientationMonitor monitor)
 		{
@@ -348,43 +340,33 @@ public final class TiDeviceOrientationMonitor
 				case Sensor.TYPE_ACCELEROMETER:
 					if (event.values.length >= this.accelerationVectorArray.length) {
 						// Store the received acceleration data.
-						System.arraycopy(
-								event.values, 0,
-								this.accelerationVectorArray, 0,
-								this.accelerationVectorArray.length);
+						System.arraycopy(event.values, 0, this.accelerationVectorArray, 0,
+										 this.accelerationVectorArray.length);
 						this.hasAccelerationData = true;
 
 						// Update rotation matrix using previous received magnetic data.
 						if (this.hasMagneticData) {
 							wasRotationMatrixUpdated = this.monitor.sensorManager.getRotationMatrix(
-									this.rotationMatrixArray, null,
-									this.accelerationVectorArray,
-									this.magneticVectorArray);
+								this.rotationMatrixArray, null, this.accelerationVectorArray, this.magneticVectorArray);
 						}
 					}
 					break;
 				case Sensor.TYPE_MAGNETIC_FIELD:
 					if (event.values.length >= this.magneticVectorArray.length) {
 						// Store the received magnetic data.
-						System.arraycopy(
-								event.values, 0,
-								this.magneticVectorArray, 0,
-								this.magneticVectorArray.length);
+						System.arraycopy(event.values, 0, this.magneticVectorArray, 0, this.magneticVectorArray.length);
 						this.hasMagneticData = true;
 
 						// Update rotation matrix using previous received acceleration data.
 						if (this.hasAccelerationData) {
 							wasRotationMatrixUpdated = this.monitor.sensorManager.getRotationMatrix(
-									this.rotationMatrixArray, null,
-									this.accelerationVectorArray,
-									this.magneticVectorArray);
+								this.rotationMatrixArray, null, this.accelerationVectorArray, this.magneticVectorArray);
 						}
 					}
 					break;
 				case Sensor.TYPE_ROTATION_VECTOR:
 					// Store the received rotation matrix data.
-					this.monitor.sensorManager.getRotationMatrixFromVector(
-							this.rotationMatrixArray, event.values);
+					this.monitor.sensorManager.getRotationMatrixFromVector(this.rotationMatrixArray, event.values);
 					wasRotationMatrixUpdated = true;
 					break;
 			}
@@ -396,8 +378,8 @@ public final class TiDeviceOrientationMonitor
 
 			// Calculate the device's orientation/attitude in degrees.
 			this.monitor.sensorManager.getOrientation(this.rotationMatrixArray, this.orientationArray);
-			double pitch = Math.toDegrees((double)this.orientationArray[1]);    // -90 to 90
-			double roll = Math.toDegrees((double)this.orientationArray[2]);     // -180 to 180
+			double pitch = Math.toDegrees((double) this.orientationArray[1]); // -90 to 90
+			double roll = Math.toDegrees((double) this.orientationArray[2]);  // -180 to 180
 
 			// Determine the device's orientation from pitch and roll.
 			// Note: For face-up, Android typically expects a near flat orientation of +/-20 degrees.
@@ -445,7 +427,6 @@ public final class TiDeviceOrientationMonitor
 		private TiDeviceOrientationMonitor monitor;
 		private TiDeviceOrientation lastReadOrientation;
 
-
 		public OrientationEventHandler(TiDeviceOrientationMonitor monitor)
 		{
 			super(monitor.context, SensorManager.SENSOR_DELAY_NORMAL);
@@ -476,8 +457,7 @@ public final class TiDeviceOrientationMonitor
 			}
 
 			// Update the device monitor with the new orientation on the handler's thread.
-			Runnable runnable = new Runnable()
-			{
+			Runnable runnable = new Runnable() {
 				@Override
 				public void run()
 				{
@@ -517,8 +497,7 @@ public final class TiDeviceOrientationMonitor
 			this.monitor = monitor;
 			this.isEnabled = false;
 			this.lastReadOrientation = TiDeviceOrientation.UNKNOWN;
-			this.contentObserver = new ContentObserver(this.monitor.handler)
-			{
+			this.contentObserver = new ContentObserver(this.monitor.handler) {
 				@Override
 				public boolean deliverSelfNotifications()
 				{
@@ -558,8 +537,7 @@ public final class TiDeviceOrientationMonitor
 				ContentResolver contentResolver = this.monitor.context.getContentResolver();
 				if (contentResolver != null) {
 					contentResolver.registerContentObserver(
-							Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION),
-							true, this.contentObserver);
+						Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION), true, this.contentObserver);
 				}
 			} catch (Exception ex) {
 			}
@@ -570,8 +548,7 @@ public final class TiDeviceOrientationMonitor
 			//       be called for 180 degree changes such as LandscapeRight<->LandscapeLeft.
 			// TODO: In the future, use API Level 17 "DisplayManager.Listener" instead.
 			final long TIMER_INTERVAL_IN_MILLISECONDS = 200;
-			final Runnable runnable = new Runnable()
-			{
+			final Runnable runnable = new Runnable() {
 				@Override
 				public void run()
 				{
@@ -580,8 +557,7 @@ public final class TiDeviceOrientationMonitor
 
 					// Schedule this timer's next elapse time if screen handler is still enabled.
 					if (isEnabled()) {
-						ScreenEventHandler.this.monitor.handler.postDelayed(
-								this, TIMER_INTERVAL_IN_MILLISECONDS);
+						ScreenEventHandler.this.monitor.handler.postDelayed(this, TIMER_INTERVAL_IN_MILLISECONDS);
 					}
 				}
 			};

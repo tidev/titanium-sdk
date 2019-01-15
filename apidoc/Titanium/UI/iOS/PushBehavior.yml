@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.PushBehavior
 summary: Continuous or instantaneous force to apply to an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A push behavior configures the continuous or instaneous force to apply to one or more items. To
     define a push behavior:
 
@@ -100,7 +98,7 @@ examples:
                 width: 100,
                 height: 100,
                 backgroundColor: 'blue',
-                transform: Ti.UI.create2DMatrix({ rotate: 45 })
+                transform: Ti.UI.createMatrix2D({ rotate: 45 })
             });
 
             // Create a default collision behavior, using the window edges as boundaries

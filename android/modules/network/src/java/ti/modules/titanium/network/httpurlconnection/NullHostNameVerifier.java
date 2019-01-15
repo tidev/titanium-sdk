@@ -9,11 +9,12 @@ package ti.modules.titanium.network.httpurlconnection;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
-public class NullHostNameVerifier implements HostnameVerifier {
+public class NullHostNameVerifier implements HostnameVerifier
+{
 
-    @Override   
-    public boolean verify(String hostname, SSLSession session) {
-        return true;
-    }
-
+	@Override
+	public boolean verify(String hostname, SSLSession session)
+	{
+		return true;
+	}
 }

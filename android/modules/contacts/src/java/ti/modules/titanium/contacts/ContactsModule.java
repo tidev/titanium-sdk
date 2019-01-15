@@ -30,22 +30,29 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-@Kroll.module @ContextSpecific
-public class ContactsModule extends KrollModule
-		implements TiActivityResultHandler
+@Kroll.module
+@ContextSpecific
+public class ContactsModule extends KrollModule implements TiActivityResultHandler
 {
 	private static final String TAG = "TiContacts";
 
-	@Kroll.constant public static final int CONTACTS_KIND_ORGANIZATION = 0;
-	@Kroll.constant public static final int CONTACTS_KIND_PERSON = 1;
-	@Kroll.constant public static final int CONTACTS_SORT_FIRST_NAME = 0;
-	@Kroll.constant public static final int CONTACTS_SORT_LAST_NAME = 1;
+	@Kroll.constant
+	public static final int CONTACTS_KIND_ORGANIZATION = 0;
+	@Kroll.constant
+	public static final int CONTACTS_KIND_PERSON = 1;
+	@Kroll.constant
+	public static final int CONTACTS_SORT_FIRST_NAME = 0;
+	@Kroll.constant
+	public static final int CONTACTS_SORT_LAST_NAME = 1;
 
-	@Kroll.constant public static final int AUTHORIZATION_AUTHORIZED = 3;
-	@Kroll.constant public static final int AUTHORIZATION_DENIED = 2;
-	@Kroll.constant public static final int AUTHORIZATION_RESTRICTED = 1;
-	@Kroll.constant public static final int AUTHORIZATION_UNKNOWN = 0;
-
+	@Kroll.constant
+	public static final int AUTHORIZATION_AUTHORIZED = 3;
+	@Kroll.constant
+	public static final int AUTHORIZATION_DENIED = 2;
+	@Kroll.constant
+	public static final int AUTHORIZATION_RESTRICTED = 1;
+	@Kroll.constant
+	public static final int AUTHORIZATION_UNKNOWN = 0;
 
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
@@ -57,41 +64,46 @@ public class ContactsModule extends KrollModule
 		contactsApi = CommonContactsApi.getInstance();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getContactsAuthorization() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getContactsAuthorization()
+	// clang-format on
+	{
 		return AUTHORIZATION_AUTHORIZED;
 	}
 
 	@Kroll.method
-	public boolean hasContactsPermissions() {
+	public boolean hasContactsPermissions()
+	{
 		return contactsApi.hasContactsPermissions();
 	}
 
 	@Kroll.method
-	public void requestContactsPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	public void requestContactsPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasContactsPermissions()) {
 			return;
 		}
 
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CONTACTS, permissionCallback, getKrollObject());
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CONTACTS, permissionCallback,
+														 getKrollObject());
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		// Requesting for READ_CONTACTS will also enable WRITE_CONTACTS if the permission is set in the manifest.
-		currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, TiC.PERMISSION_CODE_CONTACTS);
-
+		currentActivity.requestPermissions(new String[] { Manifest.permission.READ_CONTACTS },
+										   TiC.PERMISSION_CODE_CONTACTS);
 	}
 
 	@Kroll.method
-	public Object[] getAllPeople(@Kroll.argument(optional=true) KrollDict options)
+	public Object[] getAllPeople(@Kroll.argument(optional = true) KrollDict options)
 	{
 		Calendar start = Calendar.getInstance();
 		//TODO: right now, this is needed to be able to constrain
 		//temporarily for a specific app.. we need to rethink this entire API
 		int length = Integer.MAX_VALUE;
 		if (options != null) {
-			if (options.containsKey("max"))
-			{
-				Double maxObj = (Double)options.get("max");
+			if (options.containsKey("max")) {
+				Double maxObj = (Double) options.get("max");
 				length = maxObj.intValue();
 			}
 		}
@@ -117,13 +129,23 @@ public class ContactsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void save (Object people)
+	public void save(Object people)
 	{
 		contactsApi.save(people);
 	}
 
 	@Kroll.method
 	public PersonProxy getPersonByID(long id)
+	{
+		Log.w(
+			TAG,
+			"Ti.Contacts.getPersonByID() has been deprecated in favor of Ti.Contacts.getPersonByIdentifier() for cross-platform parity",
+			Log.DEBUG_MODE);
+		return contactsApi.getPersonById(id);
+	}
+
+	@Kroll.method
+	public PersonProxy getPersonByIdentifier(long id)
 	{
 		return contactsApi.getPersonById(id);
 	}
@@ -143,7 +165,7 @@ public class ContactsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
+	public void showContacts(@Kroll.argument(optional = true) KrollDict d)
 	{
 		if (TiApplication.getInstance() == null) {
 			Log.e(TAG, "Could not showContacts, application is null", Log.DEBUG_MODE);
@@ -162,17 +184,17 @@ public class ContactsModule extends KrollModule
 		int requestCode = requestCodeGen.getAndIncrement();
 
 		if (requests == null) {
-			requests = new HashMap<Integer, Map<String,KrollFunction>>();
+			requests = new HashMap<Integer, Map<String, KrollFunction>>();
 		}
 		Map<String, KrollFunction> callbacks = new HashMap<String, KrollFunction>();
 		requests.put(new Integer(requestCode), callbacks);
 
-		String[] callbacksToConsider = new String[]{"selectedPerson", "cancel"};
+		String[] callbacksToConsider = new String[] { "selectedPerson", "cancel" };
 		for (String callbackToConsider : callbacksToConsider) {
 			if (d.containsKey(callbackToConsider)) {
 				Object test = d.get(callbackToConsider);
 				if (test instanceof KrollFunction) {
-					callbacks.put(callbackToConsider, (KrollFunction)test);
+					callbacks.put(callbackToConsider, (KrollFunction) test);
 				}
 			}
 			if (d.containsKey("proxy")) {
@@ -195,8 +217,7 @@ public class ContactsModule extends KrollModule
 	}
 
 	@Override
-	public void onResult(Activity activity, int requestCode, int resultCode,
-			Intent data)
+	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		Integer rcode = new Integer(requestCode);
 		if (requests.containsKey(rcode)) {

@@ -12,7 +12,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-@Kroll.proxy(parentModule=XMLModule.class)
+@Kroll.proxy(parentModule = XMLModule.class)
 public class TextProxy extends CharacterDataProxy
 {
 	private final static String TAG = "Text";
@@ -65,8 +65,11 @@ public class TextProxy extends CharacterDataProxy
 		return getProxy(returnNode);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTextContent()
+	// clang-format on
 	{
 		return this.text.getNodeValue();
 	}

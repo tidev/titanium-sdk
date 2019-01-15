@@ -1,15 +1,18 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
+
 var NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
-	bootstrap = require('bootstrap'),
 	invoker = require('invoker');
+
+require('bootstrap');
 
 var TAG = 'Module';
 
@@ -183,11 +186,8 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
  * @return {Object}                 The exported module
  */
 Module.prototype.loadExternalModule = function (id, externalBinding, context) {
-	var sourceUrl = (context === undefined) ? 'app://app.js' : context.sourceUrl,
-		externalModule,
-		returnObj;
-
-	externalModule = Module.cache[id];
+	var sourceUrl = (context === undefined) ? 'app://ti.main.js' : context.sourceUrl,
+		externalModule = Module.cache[id];
 
 	if (!externalModule) {
 		// Get the compiled bootstrap JS
@@ -255,13 +255,13 @@ Module.prototype.require = function (request, context) {
 	if (start === './' || start === '..') {
 		loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request), context);
 		if (loaded) {
-			return loaded;
+			return loaded.exports;
 		}
 	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
 	} else if (request.substring(0, 1) === '/') {
 		loaded = this.loadAsFileOrDirectory(path.normalize(request), context);
 		if (loaded) {
-			return loaded;
+			return loaded.exports;
 		}
 	} else {
 		// Look for CommonJS module
@@ -270,12 +270,12 @@ Module.prototype.require = function (request, context) {
 			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
 			loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
 			if (loaded) {
-				return loaded;
+				return loaded.exports;
 			}
 			// Then try module.id as directory
 			loaded = this.loadAsDirectory('/' + request, context);
 			if (loaded) {
-				return loaded;
+				return loaded.exports;
 			}
 		}
 
@@ -283,7 +283,7 @@ Module.prototype.require = function (request, context) {
 		// 3. LOAD_NODE_MODULES(X, dirname(Y))
 		loaded = this.loadNodeModules(request, this.path, context);
 		if (loaded) {
-			return loaded;
+			return loaded.exports;
 		}
 
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
@@ -295,7 +295,7 @@ Module.prototype.require = function (request, context) {
 
 		loaded = this.loadAsFileOrDirectory(path.normalize('/' + request), context);
 		if (loaded) {
-			return loaded;
+			return loaded.exports;
 		}
 	}
 
@@ -450,13 +450,13 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename].exports;
+		return Module.cache[filename];
 	}
 
 	module = new Module(filename, this, context);
 	module.load(filename);
 
-	return module.exports;
+	return module;
 };
 
 /**
@@ -472,7 +472,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename].exports;
+		return Module.cache[filename];
 	}
 
 	module = new Module(filename, this, context);
@@ -486,7 +486,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module.exports = JSON.parse(source);
 	module.loaded = true;
 
-	return module.exports;
+	return module;
 };
 
 /**
@@ -533,9 +533,9 @@ Module.prototype.loadAsDirectory = function (id, context) {
 	if (this.filenameExists(filename)) {
 		// a. Parse X/package.json, and look for "main" field.
 		var object = this.loadJavascriptObject(filename, context);
-		if (object && object.main) {
+		if (object && object.exports && object.exports.main) {
 			// b. let M = X + (json main field)
-			var m = path.resolve(id, object.main);
+			var m = path.resolve(id, object.exports.main);
 			// c. LOAD_AS_FILE(M)
 			return this.loadAsFile(m, context);
 		}
@@ -576,7 +576,6 @@ Module.prototype._runScript = function (source, filename) {
 	// to go this route. So added currentActivity check. (bill)
 	if (self.id === '.' && self.context.currentActivity) {
 		global.require = require;
-		Titanium.Android.currentActivity = self.context.currentActivity;
 
 		// check if we have an inspector binding...
 		var inspector = kroll.binding('inspector');

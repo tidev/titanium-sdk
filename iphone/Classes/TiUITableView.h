@@ -6,12 +6,12 @@
  */
 #ifdef USE_TI_UITABLEVIEW
 
-#import "TiDimension.h"
 #import "TiUISearchBarProxy.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUIView.h"
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiUIView.h>
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
@@ -43,7 +43,6 @@
 @interface TiUITableView : TiUIView <UISearchResultsUpdating, UISearchControllerDelegate, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, TiScrolling, TiProxyObserver> {
   @private
   UITableView *tableview;
-  UITableView *_searchTableView;
   BOOL moving;
   BOOL editing;
   BOOL searchHidden;
@@ -68,8 +67,8 @@
   BOOL filterCaseInsensitive;
   BOOL allowsSelectionSet;
   UISearchController *searchController;
-  UITableViewController *resultViewController;
   UIViewController *searchControllerPresenter;
+  UIView *dimmingView;
   BOOL _dimsBackgroundDuringPresentation;
   TiViewProxy *headerViewProxy;
   TiViewProxy *footerViewProxy;

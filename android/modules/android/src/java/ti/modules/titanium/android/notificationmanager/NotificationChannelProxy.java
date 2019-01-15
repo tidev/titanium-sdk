@@ -16,22 +16,12 @@ import ti.modules.titanium.android.AndroidModule;
 
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 
 @TargetApi(26)
-@Kroll.proxy(propertyAccessors = {
-		TiC.PROPERTY_BYPASS_DND,
-		TiC.PROPERTY_DESCRIPTION,
-		TiC.PROPERTY_ENABLE_LIGHTS,
-		TiC.PROPERTY_ENABLE_VIBRATION,
-		TiC.PROPERTY_GROUP_ID,
-		TiC.PROPERTY_IMPORTANCE,
-		TiC.PROPERTY_LIGHT_COLOR,
-		TiC.PROPERTY_LOCKSCREEN_VISIBILITY,
-		TiC.PROPERTY_NAME,
-		TiC.PROPERTY_SHOW_BADGE,
-		TiC.PROPERTY_VIBRATE_PATTERN
-})
+@Kroll.proxy
 public class NotificationChannelProxy extends KrollProxy
 {
 	private static final String TAG = "TiNotificationChannel";
@@ -47,10 +37,11 @@ public class NotificationChannelProxy extends KrollProxy
 	public void handleCreationDict(KrollDict d)
 	{
 		super.handleCreationDict(d);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && d != null &&
-				d.containsKey(TiC.PROPERTY_ID) && d.containsKey(TiC.PROPERTY_NAME) && d.containsKey(TiC.PROPERTY_IMPORTANCE)) {
-			
-			channel = new NotificationChannel(d.getString(TiC.PROPERTY_ID), d.getString(TiC.PROPERTY_NAME), d.getInt(TiC.PROPERTY_IMPORTANCE));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && d != null && d.containsKey(TiC.PROPERTY_ID)
+			&& d.containsKey(TiC.PROPERTY_NAME) && d.containsKey(TiC.PROPERTY_IMPORTANCE)) {
+
+			channel = new NotificationChannel(d.getString(TiC.PROPERTY_ID), d.getString(TiC.PROPERTY_NAME),
+											  d.getInt(TiC.PROPERTY_IMPORTANCE));
 
 			if (d.containsKey(TiC.PROPERTY_BYPASS_DND)) {
 				setBypassDnd(d.getBoolean(TiC.PROPERTY_BYPASS_DND));
@@ -76,6 +67,9 @@ public class NotificationChannelProxy extends KrollProxy
 			if (d.containsKey(TiC.PROPERTY_SHOW_BADGE)) {
 				setShowBadge(d.getBoolean(TiC.PROPERTY_SHOW_BADGE));
 			}
+			if (d.containsKey(TiC.PROPERTY_SOUND)) {
+				setSound(d.getString(TiC.PROPERTY_SOUND));
+			}
 			if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 				setVibrationPattern(d.get(TiC.PROPERTY_VIBRATE_PATTERN));
 			}
@@ -84,84 +78,236 @@ public class NotificationChannelProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
+	// clang-format on
 	{
 		return channel.getId();
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getEnableLights()
+	// clang-format on
+	{
+		return channel.shouldShowLights();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setEnableLights(boolean lights)
+	// clang-format on
 	{
 		channel.enableLights(lights);
-		setProperty(TiC.PROPERTY_ENABLE_LIGHTS, lights);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getEnableVibration()
+	// clang-format on
+	{
+		return channel.shouldVibrate();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setEnableVibration(boolean vibration)
+	// clang-format on
 	{
 		channel.enableVibration(vibration);
-		setProperty(TiC.PROPERTY_ENABLE_VIBRATION, vibration);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void	setBypassDnd(boolean bypassDnd)
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getBypassDnd()
+	// clang-format on
+	{
+		return channel.canBypassDnd();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setBypassDnd(boolean bypassDnd)
+	// clang-format on
 	{
 		channel.setBypassDnd(bypassDnd);
-		setProperty(TiC.PROPERTY_BYPASS_DND, bypassDnd);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void	setDescription(String description)
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getDescription()
+	// clang-format on
+	{
+		return channel.getDescription();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setDescription(String description)
+	// clang-format on
 	{
 		channel.setDescription(description);
-		setProperty(TiC.PROPERTY_DESCRIPTION, description);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void	setGroupId(String groupId)
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getGroupId()
+	// clang-format on
+	{
+		return channel.getGroup();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setGroupId(String groupId)
+	// clang-format on
 	{
 		channel.setGroup(groupId);
-		setProperty(TiC.PROPERTY_GROUP_ID, groupId);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getImportance()
+	// clang-format on
+	{
+		return channel.getImportance();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setImportance(int importance)
+	// clang-format on
 	{
 		channel.setImportance(importance);
-		setProperty(TiC.PROPERTY_IMPORTANCE, importance);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLightColor()
+	// clang-format on
+	{
+		return channel.getLightColor();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLightColor(int argb)
+	// clang-format on
 	{
 		channel.setLightColor(argb);
-		setProperty(TiC.PROPERTY_LIGHT_COLOR, argb);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLockscreenVisibility()
+	// clang-format on
+	{
+		return channel.getLockscreenVisibility();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLockscreenVisibility(int lockscreenVisibility)
+	// clang-format on
 	{
 		channel.setLockscreenVisibility(lockscreenVisibility);
-		setProperty(TiC.PROPERTY_LOCKSCREEN_VISIBILITY, lockscreenVisibility);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	// clang-format on
+	{
+		return channel.getName().toString();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setName(String name)
+	// clang-format on
 	{
 		channel.setName(name);
-		setProperty(TiC.PROPERTY_NAME, name);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getShowBadge()
+	// clang-format on
+	{
+		return channel.canShowBadge();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setShowBadge(boolean showBadge)
+	// clang-format on
 	{
 		channel.setShowBadge(showBadge);
-		setProperty(TiC.PROPERTY_SHOW_BADGE, showBadge);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getSound()
+	// clang-format on
+	{
+		Uri uri = channel.getSound();
+		return (uri != null) ? uri.toString() : null;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setSound(String path)
+	// clang-format on
+	{
+		AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
+		attributesBuilder.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+		attributesBuilder.setUsage(AudioAttributes.USAGE_NOTIFICATION);
+		channel.setSound(Uri.parse(resolveUrl(null, path)), attributesBuilder.build());
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public Object getVibrationPattern()
+	// clang-format on
+	{
+		long[] pattern = channel.getVibrationPattern();
+		Object[] patternArray = new Object[pattern.length];
+		for (int i = 0; i < pattern.length; i++) {
+			patternArray[i] = Long.valueOf(pattern[i]);
+		}
+		return patternArray;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setVibrationPattern(Object patternObj)
+	// clang-format on
 	{
 		if (patternObj instanceof Object[]) {
 			Object[] patternArray = (Object[]) patternObj;
@@ -175,7 +321,6 @@ public class NotificationChannelProxy extends KrollProxy
 				pattern[i] = ((Integer) patternArray[i]).intValue();
 			}
 			channel.setVibrationPattern(pattern);
-			setProperty(TiC.PROPERTY_VIBRATE_PATTERN, patternArray);
 		}
 	}
 

@@ -15,62 +15,72 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class FileBody extends AbstractContentBody{
+public class FileBody extends AbstractContentBody
+{
 
-private final File file;
+	private final File file;
 
-    public FileBody(final File file, final String mimeType) {
-        super(mimeType);
-        if (file == null) {
-            throw new IllegalArgumentException("File may not be null");
-        }
-        this.file = file;
-    }
+	public FileBody(final File file, final String mimeType)
+	{
+		super(mimeType);
+		if (file == null) {
+			throw new IllegalArgumentException("File may not be null");
+		}
+		this.file = file;
+	}
 
-    public FileBody(final File file) {
-        this(file, "application/octet-stream");
-    }
+	public FileBody(final File file)
+	{
+		this(file, "application/octet-stream");
+	}
 
-    public InputStream getInputStream() throws IOException {
-        return new FileInputStream(this.file);
-    }
+	public InputStream getInputStream() throws IOException
+	{
+		return new FileInputStream(this.file);
+	}
 
-    @Override
-    public void writeTo(final OutputStream out) throws IOException {
-        if (out == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
-        InputStream in = new FileInputStream(this.file);
-        try {
-            byte[] tmp = new byte[4096];
-            int l;
-            while ((l = in.read(tmp)) != -1) {
-                out.write(tmp, 0, l);
-            }
-            out.flush();
-        } finally {
-            in.close();
-        }
-    }
+	@Override
+	public void writeTo(final OutputStream out) throws IOException
+	{
+		if (out == null) {
+			throw new IllegalArgumentException("Output stream may not be null");
+		}
+		InputStream in = new FileInputStream(this.file);
+		try {
+			byte[] tmp = new byte[4096];
+			int l;
+			while ((l = in.read(tmp)) != -1) {
+				out.write(tmp, 0, l);
+			}
+			out.flush();
+		} finally {
+			in.close();
+		}
+	}
 
-    public String getTransferEncoding() {
-    	return "binary";
-        //return MIME.ENC_BINARY;
-    }
+	public String getTransferEncoding()
+	{
+		return "binary";
+		//return MIME.ENC_BINARY;
+	}
 
-    public String getCharset() {
-        return null;
-    }
+	public String getCharset()
+	{
+		return null;
+	}
 
-    public long getContentLength() {
-        return this.file.length();
-    }
+	public long getContentLength()
+	{
+		return this.file.length();
+	}
 
-    public String getFilename() {
-        return this.file.getName();
-    }
+	public String getFilename()
+	{
+		return this.file.getName();
+	}
 
-    public File getFile() {
-        return this.file;
-    }
+	public File getFile()
+	{
+		return this.file;
+	}
 }

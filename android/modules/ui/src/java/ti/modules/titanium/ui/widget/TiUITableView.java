@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.widget.listview.TiNestedListView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
@@ -36,11 +37,11 @@ import android.view.ViewParent;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-public class TiUITableView extends TiUIView
-	implements OnItemClickedListener, OnItemLongClickedListener, OnLifecycleEvent
+public class TiUITableView
+	extends TiUIView implements OnItemClickedListener, OnItemLongClickedListener, OnLifecycleEvent
 {
 	private static final String TAG = "TitaniumTableView";
-	
+
 	private static final int SEARCHVIEW_ID = 102;
 
 	protected TiTableView tableView;
@@ -67,8 +68,9 @@ public class TiUITableView extends TiUIView
 	public void setModelDirty()
 	{
 		tableView.getTableViewModel().setDirty();
+		getTableView().dataSetChanged();
 	}
-	
+
 	public TableViewModel getModel()
 	{
 		return tableView.getTableViewModel();
@@ -88,7 +90,7 @@ public class TiUITableView extends TiUIView
 	{
 		tableView.getListView().setSelectionFromTop(index, 0);
 	}
-	
+
 	public void selectRow(final int row_id)
 	{
 		tableView.getListView().setSelection(row_id);
@@ -103,7 +105,7 @@ public class TiUITableView extends TiUIView
 	{
 		return tableView.getListView();
 	}
-	
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -123,9 +125,8 @@ public class TiUITableView extends TiUIView
 		if (clickable) {
 			tableView.setOnItemClickListener(this);
 			tableView.setOnItemLongClickListener(this);
-
 		}
-		
+
 		ListView list = getListView();
 		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
@@ -133,7 +134,7 @@ public class TiUITableView extends TiUIView
 		} else {
 			list.setFooterDividersEnabled(false);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_HEADER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_HEADER_DIVIDERS_ENABLED, false);
 			list.setHeaderDividersEnabled(enabled);
@@ -144,7 +145,7 @@ public class TiUITableView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_REFRESH_CONTROL)) {
 			Object object = d.get(TiC.PROPERTY_REFRESH_CONTROL);
 			if (object instanceof RefreshControlProxy) {
-				((RefreshControlProxy)object).assignTo(this.tableView);
+				((RefreshControlProxy) object).assignTo(this.tableView);
 			}
 		}
 
@@ -152,11 +153,12 @@ public class TiUITableView extends TiUIView
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
 			TiUIView search = searchView.getOrCreateView();
 			if (searchView instanceof SearchBarProxy) {
-				((TiUISearchBar)search).setOnSearchChangeListener(tableView);
+				((TiUISearchBar) search).setOnSearchChangeListener(tableView);
 			} else {
-				((TiUISearchView)search).setOnSearchChangeListener(tableView);
+				((TiUISearchView) search).setOnSearchChangeListener(tableView);
 			}
-			if (!(d.containsKey(TiC.PROPERTY_SEARCH_AS_CHILD) && !TiConvert.toBoolean(d.get(TiC.PROPERTY_SEARCH_AS_CHILD)))) {
+			if (!(d.containsKey(TiC.PROPERTY_SEARCH_AS_CHILD)
+				  && !TiConvert.toBoolean(d.get(TiC.PROPERTY_SEARCH_AS_CHILD)))) {
 
 				View sView = search.getNativeView();
 
@@ -165,8 +167,7 @@ public class TiUITableView extends TiUIView
 				layout.setPadding(0, 0, 0, 0);
 
 				RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
-						RelativeLayout.LayoutParams.MATCH_PARENT,
-						RelativeLayout.LayoutParams.MATCH_PARENT);
+					RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -192,9 +193,8 @@ public class TiUITableView extends TiUIView
 					Log.e(TAG, "Searchview already has parent, cannot add to tableview.", Log.DEBUG_MODE);
 				}
 
-				p = new RelativeLayout.LayoutParams(
-						RelativeLayout.LayoutParams.MATCH_PARENT,
-						RelativeLayout.LayoutParams.MATCH_PARENT);
+				p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+													RelativeLayout.LayoutParams.MATCH_PARENT);
 				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 				p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -218,9 +218,18 @@ public class TiUITableView extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
-				getListView().setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+				getListView().setOverScrollMode(
+					TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
+
+		if (d.containsKey(TiC.PROPERTY_SCROLLABLE)) {
+			if (list instanceof TiNestedListView) {
+				boolean isScrollable = TiConvert.toBoolean(d.get(TiC.PROPERTY_SCROLLABLE), true);
+				((TiNestedListView) list).setTouchScrollable(isScrollable);
+			}
+		}
+
 		boolean filterCaseInsensitive = true;
 		if (d.containsKey(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
 			filterCaseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
@@ -235,17 +244,33 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 		if (tableView != null) {
 			tableView.dataSetChanged();
 		}
 	}
 
-	@Override public void onCreate(Activity activity, Bundle savedInstanceState) {}
-	@Override public void onStop(Activity activity) {}
-	@Override public void onStart(Activity activity) {}
-	@Override public void onPause(Activity activity) {}
-	@Override public void onDestroy(Activity activity) {}
+	@Override
+	public void onCreate(Activity activity, Bundle savedInstanceState)
+	{
+	}
+	@Override
+	public void onStop(Activity activity)
+	{
+	}
+	@Override
+	public void onStart(Activity activity)
+	{
+	}
+	@Override
+	public void onPause(Activity activity)
+	{
+	}
+	@Override
+	public void onDestroy(Activity activity)
+	{
+	}
 
 	@Override
 	public void release()
@@ -262,10 +287,10 @@ public class TiUITableView extends TiUIView
 
 		if (tableView != null) {
 			tableView.release();
-			tableView  = null;
+			tableView = null;
 		}
 		if (proxy != null && proxy.getActivity() != null) {
-			((TiBaseActivity)proxy.getActivity()).removeOnLifecycleEventListener(this);
+			((TiBaseActivity) proxy.getActivity()).removeOnLifecycleEventListener(this);
 		}
 		nativeView = null;
 		super.release();
@@ -288,16 +313,21 @@ public class TiUITableView extends TiUIView
 				tableView.setOnItemClickListener(null);
 				tableView.setOnItemLongClickListener(null);
 			}
-
 		}
 
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_SEPARATOR_STYLE)) {
-		    tableView.setSeparatorStyle(TiConvert.toInt(newValue));
+			tableView.setSeparatorStyle(TiConvert.toInt(newValue));
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
+		} else if (TiC.PROPERTY_SCROLLABLE.equals(key)) {
+			ListView listView = getListView();
+			if (listView instanceof TiNestedListView) {
+				boolean isScrollable = TiConvert.toBoolean(newValue);
+				((TiNestedListView) listView).setTouchScrollable(isScrollable);
 			}
 		} else if (TiC.PROPERTY_MIN_ROW_HEIGHT.equals(key)) {
 			updateView();
@@ -305,12 +335,16 @@ public class TiUITableView extends TiUIView
 			if (oldValue != null) {
 				tableView.removeHeaderView((TiViewProxy) oldValue);
 			}
-			tableView.setHeaderView();
+			if (newValue != null) {
+				tableView.setHeaderView();
+			}
 		} else if (TiC.PROPERTY_FOOTER_VIEW.equals(key)) {
 			if (oldValue != null) {
 				tableView.removeFooterView((TiViewProxy) oldValue);
 			}
-			tableView.setFooterView();
+			if (newValue != null) {
+				tableView.setFooterView();
+			}
 		} else if (key.equals(TiC.PROPERTY_FILTER_ANCHORED)) {
 			tableView.setFilterAnchored(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
@@ -319,7 +353,7 @@ public class TiUITableView extends TiUIView
 			if (newValue == null) {
 				RefreshControlProxy.unassignFrom(this.tableView);
 			} else if (newValue instanceof RefreshControlProxy) {
-				((RefreshControlProxy)newValue).assignTo(this.tableView);
+				((RefreshControlProxy) newValue).assignTo(this.tableView);
 			} else {
 				Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 			}
@@ -329,7 +363,8 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void registerForTouch() {
+	public void registerForTouch()
+	{
 		registerForTouch(tableView.getListView());
 	}
 }
