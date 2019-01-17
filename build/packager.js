@@ -356,7 +356,9 @@ Packager.prototype.package = function (next) {
 					chrome: chromeVersion,
 					ios: minSupportedIosSdk
 				},
-				useBuiltIns: 'entry'
+				useBuiltIns: 'entry',
+				// DO NOT include web polyfills!
+				exclude: [ 'web.dom.iterable', 'web.immediate', 'web.timers' ]
 			};
 			// pull out windows target (if it exists)
 			if (fs.pathExistsSync('../windows/package.json')) {
@@ -373,9 +375,9 @@ Packager.prototype.package = function (next) {
 					fs.ensureDirSync(modulesDir);
 
 					copyPackageAndDependencies('@babel/polyfill', modulesDir);
-					cb();
+					return cb(); // eslint-disable-line promise/no-callback-in-promise
 				})
-				.catch(err => cb(err));  // eslint-disable-line promise/no-callback-in-promise
+				.catch(err => cb(err)); // eslint-disable-line promise/no-callback-in-promise
 		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {
