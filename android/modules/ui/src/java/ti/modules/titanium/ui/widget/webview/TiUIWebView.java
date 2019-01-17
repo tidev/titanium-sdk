@@ -575,7 +575,7 @@ public class TiUIWebView extends TiUIView
 
 	public void setZoomLevel(float value)
 	{
-		if (proxy != null){
+		if (proxy != null) {
 			proxy.setProperty(TiC.PROPERTY_ZOOM_LEVEL, value / initScale);
 		}
 		zoomLevel = value;
