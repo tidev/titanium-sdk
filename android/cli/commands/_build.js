@@ -30,7 +30,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
@@ -2796,6 +2796,38 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 			};
 		}), function () {
+			// jsanalyze will copy polyfils into buildBinAssetsResourcesDir and we need
+			// to unmark them here so they won't get removed on subsequent builds
+			if (this.transpile) {
+				/**
+				 * Recursively unmarks a module and it's dependencies from the last
+				 * build files list.
+				 *
+				 * @param {String} moduleId The module to remove from the list of files
+				 * @param {String} nodeModulesPath Path to the node_modules folder
+				 */
+				const unmarkPackageAndDependencies = (moduleId, nodeModulesPath) => {
+					let packageJsonPath;
+					if (require.resolve.paths) {
+						packageJsonPath = require.resolve(path.join(moduleId, 'package.json'), { paths: [ nodeModulesPath ] });
+					} else {
+						packageJsonPath = require.resolve(path.join(moduleId, 'package.json'));
+						packageJsonPath = path.join(nodeModulesPath, packageJsonPath.substring(packageJsonPath.indexOf('node_modules') + 12));
+					}
+					const modulePath = path.dirname(packageJsonPath);
+					Object.keys(this.lastBuildFiles).forEach(p => {
+						if (p.startsWith(modulePath)) {
+							delete this.lastBuildFiles[p];
+						}
+					});
+					const packageJson = fs.readJSONSync(packageJsonPath);
+					for (const dependency in packageJson.dependencies) {
+						unmarkPackageAndDependencies(dependency, nodeModulesPath);
+					}
+				};
+				unmarkPackageAndDependencies('@babel/polyfill', path.join(this.buildBinAssetsResourcesDir, 'node_modules'));
+			}
+
 			// write the properties file
 			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
 				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
