@@ -157,7 +157,11 @@ function iOSBuilder() {
 
 	// a list of relative paths to js files that need to be encrypted
 	// note: the filename will have all periods replaced with underscores
+	// FIXME: Use a Map from original names -> encrypted names
 	this.jsFilesToEncrypt = [];
+	// a list of relative paths to js files that have been encrypted
+	// note: this is the original filename used by our require _index_.json and referenced within the app
+	this.jsFilesEncrypted = [];
 
 	// set to true if any js files changed so that we can trigger encryption to run
 	this.jsFilesChanged = false;
@@ -2248,6 +2252,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		// titanium related tasks
 		'writeDebugProfilePlists',
 		'copyResources',
+		'generateRequireIndex', // has to be run before encryption, since index may be encrypted
 		'encryptJSFiles',
 		'writeI18NFiles',
 		'processTiSymbols',
@@ -5825,9 +5830,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								if (file.indexOf('/') === 0) {
 									file = path.basename(file);
 								}
+								this.jsFilesEncrypted.push(file); // original name
 								file = file.replace(/\./g, '_');
 								info.dest = path.join(this.buildAssetsDir, file);
-								this.jsFilesToEncrypt.push(file);
+								this.jsFilesToEncrypt.push(file); // encrypted name
 							}
 
 							try {
@@ -5904,11 +5910,15 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				function writeBootstrapJson() {
 					this.logger.info(__('Writing bootstrap json'));
 
-					const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : path.join('ti.internal', 'bootstrap.json'),
-						bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath),
-						bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
+					const originalBootstrapJsonName = path.join('ti.internal', 'bootstrap.json');
+					const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : originalBootstrapJsonName;
+					const bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath);
+					const bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
 
-					this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+					if (this.encryptJS) {
+						this.jsFilesEncrypted.push(originalBootstrapJsonName); // original name
+						this.jsFilesToEncrypt.push(bootstrapJsonRelativePath); // encrypted name
+					}
 
 					if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
 						this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
@@ -5929,14 +5939,17 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		function writeAppProps() {
 			this.logger.info(__('Writing app properties'));
 
-			const appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
-				props = {};
+			const appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json');
+			const props = {};
 
-			this.encryptJS && this.jsFilesToEncrypt.push('_app_props__json');
+			if (this.encryptJS) {
+				this.jsFilesEncrypted.push('_app_props_.json'); // original name
+				this.jsFilesToEncrypt.push('_app_props__json'); // encrypted name
+			}
 
-			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(function (prop) {
+			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(prop => {
 				props[prop] = this.tiapp.properties[prop].value;
-			}, this);
+			});
 
 			const contents = JSON.stringify(props);
 			if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile).toString()) {
@@ -6003,12 +6016,10 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 	}
 
 	const titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
-		let tries = 0,
-			completed = false;
+		let tries = 0;
+		let completed = false;
 
-		this.jsFilesToEncrypt.forEach(function (file) {
-			this.logger.debug(__('Preparing %s', file.cyan));
-		}, this);
+		this.jsFilesToEncrypt.forEach(file => this.logger.debug(__('Preparing %s', file.cyan)));
 
 		async.whilst(
 			function () {
@@ -6030,13 +6041,8 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 				child.stdin.write(this.jsFilesToEncrypt.join('\n'));
 				child.stdin.end();
 
-				child.stdout.on('data', function (data) {
-					out += data.toString();
-				});
-
-				child.stderr.on('data', function (data) {
-					err += data.toString();
-				});
+				child.stdout.on('data', data => out += data.toString());
+				child.stderr.on('data', data => err += data.toString());
 
 				child.on('close', function (code) {
 					if (code) {
@@ -6090,6 +6096,42 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		{},
 		next
 	);
+};
+
+iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
+	const index = {};
+	const binAssetsDir = this.xcodeAppDir.replace(/\\/g, '/');
+
+	// Write _index_.json file with our JS/JSON file listing. This may also be encrypted
+	const destFilename = this.encryptJS ? '_index__json' : '_index_.json';
+	const destFile = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, destFilename);
+	if (this.encryptJS) {
+		this.jsFilesToEncrypt.push(destFilename);
+	}
+
+	// Grab unencrypted JS/JSON files
+	(function walk(dir) {
+		fs.readdirSync(dir).forEach(filename => {
+			const file = path.join(dir, filename);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					walk(file);
+				} else if (/\.js(on)?$/.test(filename)) {
+					index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/')] = 1; // 1 for exists on disk
+				}
+			}
+		});
+	}(this.xcodeAppDir));
+
+	// Grab encrypted JS/JSON files
+	this.jsFilesEncrypted.forEach(file => {
+		index['Resources/' + file.replace(/\\/g, '/')] = 2; // 2 for encrypted
+	});
+
+	delete index['Resources/_app_props_.json'];
+
+	fs.existsSync(destFile) && fs.unlinkSync(destFile);
+	fs.writeFile(destFile, JSON.stringify(index), callback);
 };
 
 iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
