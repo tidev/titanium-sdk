@@ -1677,7 +1677,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     callbackArgs = [args subarrayWithRange:NSMakeRange(2, argCount - 2)];
   }
   NSNumber *timerIdentifier = @(self.nextTimerIdentifier++);
-  KrollTimerTarget *timerTarget = [[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs];
+  KrollTimerTarget *timerTarget = [[[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs] autorelease];
   NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:timerTarget selector:@selector(timerFired:) userInfo:timerTarget repeats:shouldRepeat];
   [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
 
