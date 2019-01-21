@@ -548,6 +548,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
 							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
 		}
+
+		if (hasProperty(TiC.PROPERTY_EXTEND_SAFE_AREA)) {
+			boolean value = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXTEND_SAFE_AREA), false);
+			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
+		}
+
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
 							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));

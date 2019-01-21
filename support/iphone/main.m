@@ -45,7 +45,9 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
+#ifndef DISABLE_TI_LOG_SERVER
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
+#endif
 
   UIColor *defaultBgColor = UIColor.blackColor;
 #if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
@@ -55,6 +57,10 @@ int main(int argc, char *argv[])
                                 alpha:1.0f];
 #endif
   [[TiSharedConfig defaultConfig] setDefaultBackgroundColor:defaultBgColor];
+  
+#if defined(DEBUG) || defined(DEVELOPER)
+  [[TiSharedConfig defaultConfig] setDebugEnabled:YES];
+#endif
   
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
   int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");

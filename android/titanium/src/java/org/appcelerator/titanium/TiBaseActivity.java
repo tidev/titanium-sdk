@@ -46,6 +46,7 @@ import org.appcelerator.titanium.view.TiActionBarStyleHandler;
 import org.appcelerator.titanium.view.TiActivitySafeAreaMonitor;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
@@ -1423,19 +1424,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
 
-		// handle shortcut intents
-		Intent intent = getIntent();
-		String shortcutId =
-			intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT) ? intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT) : null;
-		if (shortcutId != null) {
-			KrollModule appModule = TiApplication.getInstance().getModuleByName("App");
-			if (appModule != null) {
-				KrollDict data = new KrollDict();
-				data.put(TiC.PROPERTY_ID, shortcutId);
-				appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
-			}
-		}
-
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
 		}
@@ -1614,8 +1602,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// If the activity is finishing, remove the windowId and supportHelperId so the window and supportHelper can be released.
 		// If the activity is forced to destroy by Android OS, keep the windowId and supportHelperId so the activity can be recovered.
 		if (isFinishing) {
-			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
-			TiActivityWindows.removeWindow(windowId);
+			if (this.launchIntent != null) {
+				int windowId = this.launchIntent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+				TiActivityWindows.removeWindow(windowId);
+			}
 			TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
 		}
 
@@ -1723,7 +1713,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	protected boolean shouldFinishRootActivity()
 	{
-		return canFinishRoot && getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
+		boolean isIntentRequestingFinishRoot = false;
+		if (this.launchIntent != null) {
+			isIntentRequestingFinishRoot = this.launchIntent.getBooleanExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
+		}
+		return TiBaseActivity.canFinishRoot && isIntentRequestingFinishRoot;
 	}
 
 	@Override
@@ -1807,5 +1801,33 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			return null;
 		}
 		return this.safeAreaMonitor.getSafeAreaRect();
+	}
+
+	/**
+	 * Adds an object used to provide custom insets to be excluded from the safe-area returned
+	 * by this activity's getSafeAreaRect() method.
+	 * <p>
+	 * For example, Titanium's TabGroup will use this method to add its tab bar as a custom inset.
+	 * <p>
+	 * The provider's insets are expected to be relative to this activity's root decor view.
+	 * @param provider Object used to provide custom insets. If given null, then this method will no-op.
+	 */
+	public void addCustomInsetsProvider(TiInsetsProvider provider)
+	{
+		if (this.safeAreaMonitor != null) {
+			this.safeAreaMonitor.addInsetsProvider(provider);
+		}
+	}
+
+	/**
+	 * Removes the provider added via the addCustomInsetsProvider() method by reference.
+	 * Once removed, the provider's insets will no longer apply to this activity's safe-area.
+	 * @param provider The insets provider to be removed by reference. Can be null.
+	 */
+	public void removeCustomInsetsProvider(TiInsetsProvider provider)
+	{
+		if (this.safeAreaMonitor != null) {
+			this.safeAreaMonitor.removeInsetsProvider(provider);
+		}
 	}
 }
