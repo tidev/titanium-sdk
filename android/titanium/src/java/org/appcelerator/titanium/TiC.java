@@ -3142,6 +3142,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TEXT_ONLY = "textOnly";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_THEME = "theme";
 
 	/**

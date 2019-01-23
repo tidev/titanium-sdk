@@ -37,6 +37,7 @@ public class TiUIDialog extends TiUIView
 	protected Builder builder;
 	protected TiUIView view;
 	private DialogWrapper dialogWrapper;
+	private Boolean textOnly = false;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -83,6 +84,9 @@ public class TiUIDialog extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			getBuilder().setTitle(d.getString(TiC.PROPERTY_TITLE));
 		}
+		if (d.containsKey(TiC.PROPERTY_TEXT_ONLY)) {
+			textOnly = d.getBoolean(TiC.PROPERTY_TEXT_ONLY);
+		}
 		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
 			getBuilder().setMessage(d.getString(TiC.PROPERTY_MESSAGE));
 		}
@@ -116,13 +120,23 @@ public class TiUIDialog extends TiUIView
 
 	private void processOptions(String[] optionText, int selectedIndex)
 	{
-		getBuilder().setSingleChoiceItems(optionText, selectedIndex, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which)
-			{
-				handleEvent(which);
-				hide(null);
-			}
-		});
+		if (!textOnly) {
+			getBuilder().setSingleChoiceItems(optionText, selectedIndex, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which)
+				{
+					handleEvent(which);
+					hide(null);
+				}
+			});
+		} else {
+			getBuilder().setItems(optionText, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which)
+				{
+					handleEvent(which);
+					hide(null);
+				}
+			});
+		}
 	}
 
 	private void processButtons(String[] buttonText)
@@ -260,6 +274,8 @@ public class TiUIDialog extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE) && dialog != null) {
 			dialog.setCanceledOnTouchOutside(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_TEXT_ONLY)) {
+			textOnly = TiConvert.toBoolean(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
