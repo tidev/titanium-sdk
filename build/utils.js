@@ -161,7 +161,7 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 
 function cachedDownloadPath(url) {
 	// Use some consistent name so we can cache files!
-	const cacheDir = path.join(tempDir, 'timob-build');
+	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || tempDir, 'timob-build');
 	fs.existsSync(cacheDir) || fs.mkdirsSync(cacheDir);
 
 	const filename = url.slice(url.lastIndexOf('/') + 1);

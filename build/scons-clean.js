@@ -19,6 +19,7 @@ async.each(platforms, function (item, next) {
 	new Platform(program).clean(next);
 }, function (err) {
 	if (err) {
+		console.error(err);
 		process.exit(1);
 	}
 	process.exit(0);
