@@ -187,11 +187,7 @@
 {
   NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
     @"title" : [[info userInfo] valueForKey:@"title"],
-#ifdef USE_TI_UIAPPLICATIONSHORTCUTS
-    @"identifier" : [[info userInfo] valueForKey:@"type"]
-#else
     @"itemtype" : [[info userInfo] valueForKey:@"type"]
-#endif
   }];
 
   if ([[info userInfo] valueForKey:@"subtitle"] != nil) {
