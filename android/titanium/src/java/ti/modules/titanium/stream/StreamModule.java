@@ -159,7 +159,7 @@ public class StreamModule extends KrollModule
 	{
 		int totalBytesRead = 0;
 
-		while (true) {
+		while (sourceStream.isReadable()) {
 			int bytesRead = sourceStream.readSync(buffer, offset, 1024);
 			if (bytesRead == -1) {
 				break;
@@ -188,9 +188,11 @@ public class StreamModule extends KrollModule
 
 		// delegate to TiStream now that it supports async calls
 		TiStream outputStream = (TiStream) args[0];
-		Object[] newArgs = new Object[args.length - 1];
-		System.arraycopy(args, 1, newArgs, 0, args.length - 1);
-		outputStream.write(newArgs);
+		if (outputStream.isWritable()) {
+			Object[] newArgs = new Object[args.length - 1];
+			System.arraycopy(args, 1, newArgs, 0, args.length - 1);
+			outputStream.write(newArgs);
+		}
 	}
 
 	@Kroll.method
@@ -271,7 +273,7 @@ public class StreamModule extends KrollModule
 		BufferProxy buffer = new BufferProxy(maxChunkSize);
 		int totalBytesWritten = 0;
 
-		while (true) {
+		while (inputStream.isReadable() && outputStream.isWritable()) {
 			int bytesRead = inputStream.readSync(buffer, 0, maxChunkSize);
 			if (bytesRead == -1) {
 				break;
@@ -354,7 +356,7 @@ public class StreamModule extends KrollModule
 		String errorDescription = "";
 		final KrollObject krollObject = getKrollObject();
 		try {
-			while (true) {
+			while (inputStream.isReadable()) {
 				BufferProxy buffer = new BufferProxy(maxChunkSize);
 				int bytesRead = inputStream.readSync(buffer, 0, maxChunkSize);
 				if (bytesRead != -1) {
