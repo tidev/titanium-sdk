@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -142,13 +142,15 @@
   }
 
   NSMutableArray *shortcuts = (NSMutableArray *)[UIApplication sharedApplication].shortcutItems;
+  NSMutableIndexSet *shortcutsIndicesToDelete = [[NSMutableIndexSet alloc] init];
 
-  for (UIApplicationShortcutItem *item in shortcuts) {
-    if ([item.type isEqualToString:key]) {
-      [shortcuts removeObject:item];
+  [shortcuts enumerateObjectsUsingBlock:^(UIApplicationShortcutItem *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    if ([obj.type isEqualToString:key]) {
+      [shortcutsIndicesToDelete addIndex:idx];
     }
-  }
+  }];
 
+  [shortcuts removeObjectsAtIndexes:shortcutsIndicesToDelete];
   [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
