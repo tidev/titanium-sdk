@@ -18,10 +18,11 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "test": "grunt",
+    "test": "npm run ios-sanity-check && grunt",
     "android": "./build/scons cleanbuild android",
     "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s android && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s android",
     "ios": "./build/scons cleanbuild ios",
+    "ios-sanity-check": "./build/scons check-ios-toplevel",
     "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s ios",
     "commit": "git-cz"
   },
@@ -36,6 +37,9 @@
       "iphone/**/*.{m,h}": [
         "npx clang-format -style=file -i",
         "git add"
+      ],
+      "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
+        "npm run ios-sanity-check --"
       ],
       "*.java": [
         "npx clang-format -style=file -i",
