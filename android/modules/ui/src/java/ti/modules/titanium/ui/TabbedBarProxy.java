@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import android.app.Activity;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -34,28 +33,14 @@ public class TabbedBarProxy extends TiViewProxy
 	}
 
 	@Override
-	public String getApiName()
-	{
-		return "Ti.UI.TabbedBar";
-	}
-
-	@Override
-	public void handleCreationDict(KrollDict options)
-	{
-		// If a style is not set in the creation dictionary use the default one
-		if (options != null) {
-
-		}
-
-		super.handleCreationDict(options);
-		if (!options.containsKeyAndNotNull(TiC.PROPERTY_STYLE)) {
-			this.setProperty(TiC.PROPERTY_STYLE, AndroidModule.TABS_STYLE_DEFAULT);
-		}
-	}
-
-	@Override
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUITabbedBar(this);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.TabbedBar";
 	}
 }
