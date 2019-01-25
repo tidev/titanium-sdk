@@ -38,7 +38,7 @@ extern NSString *TitaniumModuleRequireFormat;
   KrollContext *context;
   NSDictionary *preload;
   NSMutableDictionary *modules;
-  NSMutableDictionary *pathCache;
+  NSMutableDictionary *packageJSONMainCache;
   TitaniumObject *titanium;
   KrollObject *console;
   BOOL shutdown;

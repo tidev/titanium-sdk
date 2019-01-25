@@ -422,7 +422,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		APSAnalyticsMeta.setAppName(this.appInfo.getName());
 		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
 		APSAnalyticsMeta.setDeployType(deployType);
-		APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
+		APSAnalyticsMeta.setSdkVersion(getTiBuildVersion());
 		APSAnalytics.getInstance().setMachineId(this);
 
 		if (isAnalyticsEnabled()) {
