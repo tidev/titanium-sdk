@@ -1001,9 +1001,9 @@ properties:
     summary: Separator style constant.
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
-    since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"}
+    since: {android: "8.1.0", iphone: "3.2.0", ipad: "3.2.0"}
 
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
 
   - name: style
     summary: Style of the list view.
