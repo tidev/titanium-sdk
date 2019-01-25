@@ -518,6 +518,7 @@ exports.exportData = function exportHTML(apis) {
 		property: []
 	};
 	doc = apis;
+	common.createMarkdown(doc);
 
 	common.log(common.LOG_INFO, 'Annotating HTML-specific attributes...');
 
