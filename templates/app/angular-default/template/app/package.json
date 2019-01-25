@@ -25,7 +25,7 @@
         "@ngtools/webpack": "^6.2.5",
         "@types/titanium": "^7.1.0",
         "clean-webpack-plugin": "^0.1.18",
-        "copy-webpack-plugin": "^4.3.1",
+        "copy-webpack-plugin": "^4.5.4",
         "raw-loader": "^0.5.1",
         "webpack": "^4.20.2",
         "webpack-dev-titanium": "^0.1.0"
