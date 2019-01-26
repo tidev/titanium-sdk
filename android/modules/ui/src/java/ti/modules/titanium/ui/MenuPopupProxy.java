@@ -58,7 +58,7 @@ public class MenuPopupProxy extends KrollProxy
 	@Kroll.method
 	public void show(KrollDict args)
 	{
-		Object tiView = properties.get(TiC.PROPERTY_VIEW);
+		Object tiView = args.get(TiC.PROPERTY_VIEW);
 
 		if (tiView == null) {
 			Log.e(TAG, "Missing required property \"view\"");
