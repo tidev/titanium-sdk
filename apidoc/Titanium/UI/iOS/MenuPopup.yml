@@ -10,6 +10,9 @@ summary: |
 
 platforms: [iphone,ipad]
 since: "5.2.0"
+deprecated:
+    since: "8.1.0"
+    notes: "Use the cross-platform <Titanium.UI.MenuPopup> instead."
 extends: Titanium.Proxy
 
 properties:

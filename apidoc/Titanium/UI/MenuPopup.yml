@@ -76,7 +76,7 @@ examples:
 
             win.add(button);
 
-            var menu = Ti.UI.iOS.createMenuPopup({
+            var menu = Ti.UI.createMenuPopup({
                 items: ['Option 1', 'Option 2']
             });
 
@@ -95,7 +95,7 @@ examples:
 ---
 
 name: MenuPopupShowParams
-summary: Dictionary of options for showing a menu popup with <Titanium.UI.iOS.MenuPopup.show>.
+summary: Dictionary of options for showing a menu popup with <Titanium.UI.MenuPopup.show>.
 platforms: [iphone, ipad, android]
 since: "8.1.0"
 description: |
@@ -124,7 +124,7 @@ properties:
 
 ---
 name: MenuPopupHideParams
-summary: Dictionary of options for hiding a menu popup with <Titanium.UI.iOS.MenuPopup.hide>.
+summary: Dictionary of options for hiding a menu popup with <Titanium.UI.MenuPopup.hide>.
 platforms: [iphone, ipad]
 since: "5.2.0"
 description: |
