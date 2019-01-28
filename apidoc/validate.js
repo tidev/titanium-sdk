@@ -11,7 +11,7 @@
 const fs = require('fs'),
 	nodeappc = require('node-appc'),
 	colors = require('colors'), // eslint-disable-line no-unused-vars
-	common = require('./lib/common.js'),
+	common = require('./lib/common.js');
 
 let doc = {},
 	errorCount = 0,
