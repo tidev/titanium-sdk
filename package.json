@@ -89,7 +89,7 @@
     "semver": "^5.5.0",
     "sprintf": "0.1.5",
     "temp": "0.9.0",
-    "windowslib": "^0.6.7",
+    "windowslib": "^0.6.8",
     "wrench": "1.5.9",
     "xcode": "^2.0.0",
     "xmldom": "^0.1.27"
