@@ -66,7 +66,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				break;
 			default:
 				Log.w(TAG, "TabbedBar '" + TiC.PROPERTY_STYLE
-							   + "' property was assigned to an unknow value. Using default style instead.");
+							   + "' property was assigned an unknown value. Using default style instead.");
 				this.style = AndroidModule.TABS_STYLE_DEFAULT;
 				createTabLayout();
 				break;
