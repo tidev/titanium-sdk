@@ -14,8 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -140,9 +138,8 @@ public class TableViewProxy extends TiViewProxy
 	public void release()
 	{
 		// Release search bar proxy if there is one
-		if (getTableView().getNativeView() instanceof RelativeLayout) {
-			((RelativeLayout) getTableView().getNativeView()).removeAllViews();
-			TiViewProxy searchView = (TiViewProxy) (getProperty(TiC.PROPERTY_SEARCH));
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			TiViewProxy searchView = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
 			searchView.release();
 		}
 

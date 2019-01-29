@@ -8,7 +8,7 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 
 describe('Titanium.UI.TableView', function () {
 
@@ -22,10 +22,14 @@ describe('Titanium.UI.TableView', function () {
 			}),
 			win = Ti.UI.createWindow();
 		function removeAndAddTable() {
-			table.removeEventListener('postlayout', removeAndAddTable);
-			win.remove(table);
-			win.add(table);
-			finish();
+			try {
+				table.removeEventListener('postlayout', removeAndAddTable);
+				win.remove(table);
+				win.add(table);
+				finish();
+			} catch (err) {
+				finish (err);
+			}
 		}
 
 		table.addEventListener('postlayout', removeAndAddTable);
