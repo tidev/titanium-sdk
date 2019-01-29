@@ -37,6 +37,7 @@ addBinding('path', '/ti.internal/extensions/path');
 addBinding('os', '/ti.internal/extensions/os');
 addBinding('tty', '/ti.internal/extensions/tty');
 addBinding('util', '/ti.internal/extensions/util');
+addBinding('assert', '/ti.internal/extensions/assert');
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
