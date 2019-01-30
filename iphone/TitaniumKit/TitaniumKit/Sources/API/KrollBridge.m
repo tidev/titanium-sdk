@@ -1366,7 +1366,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 {
   NSURL *oldURL = [self currentURL];
   NSString *workingPath = [oldURL relativePath];
-  ResolvedModule *resolved = [self resolveRequire:path withWorkingPath:workingPath];
+  ResolvedModule *resolved = [[self resolveRequire:path withWorkingPath:workingPath] autorelease];
   // failed to resolve it!
   if (resolved == nil) {
     NSString *arch = [TiUtils currentArchitecture];
