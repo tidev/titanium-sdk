@@ -419,6 +419,14 @@ assert.deepStrictEqual = (actual, expected, message) => {
 	}
 };
 
+assert.notDeepStrictEqual = (actual, expected, message) => {
+	if (deepEqual(actual, expected)) {
+		throwError({
+			actual, expected, message, operator: 'notDeepStrictEqual'
+		});
+	}
+};
+
 assert.fail = (message = 'Failed') => throwError({ message });
 
 const NO_EXCEPTION = {};
@@ -551,11 +559,9 @@ function checkError(actual, expected, message) {
 
 // TODO:
 // assert.deepEqual(actual, expected[, message])
-// assert.deepStrictEqual(actual, expected[, message])
 // assert.doesNotReject(asyncFn[, error][, message])
 // assert.ifError(value)
 // assert.notDeepEqual(actual, expected[, message])
-// assert.notDeepStrictEqual(actual, expected[, message])
 // assert.rejects(asyncFn[, error][, message])
 
 // Create "strict" copy which overrides "loose" methods to call strict equivalents
