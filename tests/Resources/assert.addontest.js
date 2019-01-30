@@ -11,7 +11,11 @@
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 let assert;
 
-describe.only('assert', function () {
+// possible test cases:
+// https://github.com/nodejs/node/blob/master/test/parallel/test-assert-deep.js
+// https://github.com/nodejs/node/blob/master/test/parallel/test-assert.js
+
+describe('assert', function () {
 	it('should be required as core module', function () {
 		assert = require('assert');
 		assert.should.be.a.Function; // it's an alias for assert.ok
@@ -392,8 +396,7 @@ describe.only('assert', function () {
 			});
 		});
 
-		// FIXME: We don't do deep equality checks yet!
-		it.skip('does not throw when matches Object deeply', () => {
+		it('does not throw when matches Object deeply', () => {
 			should.doesNotThrow(function () {
 				const err = new TypeError('Wrong value');
 				err.code = 404;
@@ -663,6 +666,300 @@ describe.only('assert', function () {
 				return err instanceof assert.AssertionError && err.message === 'Got unwanted exception: Whoops';
 			});
 		});
+	});
+
+	describe('#deepStrictEqual()', () => {
+		it('is a function', function () {
+			assert.deepStrictEqual.should.be.a.Function;
+		});
+
+		it('does throw for comparing 1 with \'1\' as values of same key on objects', () => {
+			should.throws(function () {
+				assert.deepStrictEqual({ a: 1 }, { a: '1' });
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for comparing NaN to NaN', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(NaN, NaN);
+			});
+		});
+
+		it('does not throw for comparing -0 to -0', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(-0, -0);
+			});
+		});
+
+		it('does throw for comparing 0 with -0', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(0, -0);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for object with same symbol key', () => {
+			should.doesNotThrow(function () {
+				const symbol1 = Symbol();
+				assert.deepStrictEqual({ [symbol1]: 1 }, { [symbol1]: 1 });
+			});
+		});
+
+		it('does throw for objects with different symbol property keys', () => {
+			should.throws(function () {
+				const symbol1 = Symbol();
+				const symbol2 = Symbol();
+				assert.deepStrictEqual({ [symbol1]: 1 }, { [symbol2]: 1 });
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does throw for wrapped numbers with different underlying values', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(new Number(1), new Number(2)); // eslint-disable-line no-new-wrappers
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for wrapped strings with same underlying values', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(new String('foo'), Object('foo')); // eslint-disable-line no-new-wrappers
+			});
+		});
+
+		it('does throw for objects with differing prototypes', () => {
+			should.throws(function () {
+				const object = {};
+				const fakeDate = {};
+				Object.setPrototypeOf(fakeDate, Date.prototype);
+				assert.deepStrictEqual(object, fakeDate);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does throw for objects with differing type tags', () => {
+			should.throws(function () {
+				const date = new Date();
+				const fakeDate = {};
+				Object.setPrototypeOf(fakeDate, Date.prototype);
+
+				// Different type tags:
+				assert.deepStrictEqual(date, fakeDate);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does throw for Dates with differing getTime() values', () => {
+			should.throws(function () {
+				const date1 = new Date();
+				const date2 = new Date();
+				date2.setTime(0);
+				assert.deepStrictEqual(date1, date2);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for Dates with same getTime() values', () => {
+			should.doesNotThrow(function () {
+				const date1 = new Date();
+				const date2 = new Date();
+				date1.setTime(0);
+				date2.setTime(0);
+				assert.deepStrictEqual(date1, date2);
+			});
+		});
+
+		it('does not throw for Array with same values', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual([ 3, 2, 1 ], [ 3, 2, 1 ]);
+			});
+		});
+
+		it('throws for Array with differing values', () => {
+			should.throws(function () {
+				assert.deepStrictEqual([ 1, 2, 3 ], [ 4, 5, 6 ]);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('throws for Array with same values in differing order', () => {
+			should.throws(function () {
+				assert.deepStrictEqual([ 1, 2, 3 ], [ 3, 2, 1 ]);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('throws for Array with different lengths', () => {
+			should.throws(function () {
+				assert.deepStrictEqual([ 1, 2, 3 ], [ 1, 2, 3, 4 ]);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for Regexp with same value', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(/a/, /a/);
+			});
+		});
+
+		it('does not throw for Regexp with same value and flags', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(/a/igm, /a/igm);
+			});
+		});
+
+		it('throws for RegExp with different flags', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(/a/ig, /a/im);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for sparse Array with same values', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual([ 1, , , 3 ], [ 1, , , 3 ]); // eslint-disable-line no-sparse-arrays
+			});
+		});
+
+		it('throws for sparse Arrays with different holes', () => {
+			should.throws(function () {
+				assert.deepStrictEqual([ 1, , , 3 ], [ 1, , , 3, , , ]); // eslint-disable-line no-sparse-arrays
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('throws for inconsistent circular structures', () => {
+			should.throws(function () {
+				const d = {};
+				d.a = 1;
+				d.b = d;
+				const e = {};
+				e.a = 1;
+				e.b = {};
+				assert.deepStrictEqual(d, e);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for circular structure that is equivalent', () => {
+			should.doesNotThrow(function () {
+				const b = {};
+				b.b = b;
+				const c = {};
+				c.b = c;
+				assert.deepStrictEqual(b, c);
+			});
+		});
+
+		it('does not throw for comparing two empty Sets', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(new Set(), new Set());
+			});
+		});
+
+		it('does not throw for comparing two Sets with same values', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(new Set([ 1, 2, 3 ]), new Set([ 1, 2, 3 ]));
+			});
+		});
+
+		it('throws for Sets with different sizes', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(new Set([ 1, 2, 3, 4 ]), new Set([ 1, 2, 3 ]));
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('throws for Sets with differing objects as values', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(new Set([ { a: 0 } ]), new Set([ { a: 1 } ]));
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('does not throw for comparing two Sets with same values in different order', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(new Set([ [ 1, 2 ], [ 3, 4 ] ]), new Set([ [ 3, 4 ], [ 1, 2 ] ]));
+			});
+		});
+
+		it('does not throw for comparing two empty Maps', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(new Map(), new Map());
+			});
+		});
+
+		it('does not throw for comparing Maps with same key/value pairs', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(new Map([ [ 1, 1 ], [ 2, 2 ] ]), new Map([ [ 1, 1 ], [ 2, 2 ] ]));
+			});
+		});
+
+		it('does not throw for comparing Maps with same key/value pairs in different order', () => {
+			should.doesNotThrow(function () {
+				assert.deepStrictEqual(new Map([ [ 1, 1 ], [ 2, 2 ] ]), new Map([ [ 2, 2 ], [ 1, 1 ] ]));
+			});
+		});
+
+		it('throws for Maps with differing key/value pairs', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(new Map([ [ 1, 1 ], [ 2, 2 ] ]), new Map([ [ 1, 2 ], [ 2, 1 ] ]));
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		// TODO: Test:
+		// Symbols
+		// BigInts
 	});
 
 	describe('.strict', () => {
