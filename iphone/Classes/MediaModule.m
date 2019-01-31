@@ -1704,7 +1704,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self displayCamera:picker];
     }
   } else {
-    if ([TiUtils isIOS11OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
       if (!allowTranscoding) {
         picker.videoExportPreset = AVAssetExportPresetPassthrough;
