@@ -281,7 +281,7 @@ function $Reporter(runner) {
 		// Hack around cycles in structure!
 		const seen = [];
 		let stringified = JSON.stringify(result, (key, val) => {
-		   if (val != null && typeof val === 'object') { // eslint-disable-line eqeqeq
+			if (val != null && typeof val === 'object') { // eslint-disable-line no-eq-null,eqeqeq
 				if (seen.indexOf(val) >= 0) {
 					return;
 				}
