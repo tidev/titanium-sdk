@@ -1,0 +1,13 @@
+{
+  "name": "titanium-mobile-tests",
+  "description": "Appcelerator Titanium Mobile Unit Tests",
+  "version": "0.0.1",
+  "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
+  "dependencies": {
+    "should": "^13.2.3"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=8"
+  }
+}
