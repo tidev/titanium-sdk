@@ -1,11 +1,9 @@
 ---
 name: Titanium.UI.Toolbar
-summary: A toolbar, which can contain buttons and certain other controls.
+summary: A Toolbar can contain buttons, as well as certain other widgets, including text fields and
+    labels.
 description: |
     A `Toolbar` is created by the <Titanium.UI.createToolbar> factory method or **`<Toolbar>`** Alloy element.
-
-    A `Toolbar` can contain buttons, as well as certain other widgets, including text fields and
-    labels.
 
     To provide spacing between items in the toolbar, on iOS you can use the special system button types,
     [FIXED_SPACE](Titanium.UI.iOS.SystemButton.FIXED_SPACE) and
@@ -23,7 +21,7 @@ description: |
     such as `touchstart` and `touchend`.
 
     On Android a toolbar can also be used as an ActionBar for [activities](Titanium.Android.Activity). This allows a toolbar to
-    inherit [ActionBar's](Titanium.Android.ActionBar) methods, properties and events and provide a better customization of this
+    inherit [ActionBar's](Titanium.Android.ActionBar) methods, properties and events as well as provide a better customization of this
     design element. For example you can provide your own images to be used as navigation button icon, overflow menu icon and logo.
     In order to do that, an application must be using Theme.AppCompat.NoTitleBar.
     It can be set in the tiapp.xml file of the application.
