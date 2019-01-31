@@ -20,10 +20,10 @@
   "scripts": {
     "test": "npm run ios-sanity-check && grunt",
     "android": "./build/scons cleanbuild android",
-    "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s android && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s android",
+    "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s android && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s android",
     "ios": "./build/scons cleanbuild ios",
     "ios-sanity-check": "./build/scons check-ios-toplevel",
-    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install && ti sdk select $npm_package_version && ./build/scons test -s ios",
+    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios",
     "commit": "git-cz"
   },
   "husky": {
@@ -89,7 +89,7 @@
     "semver": "^5.5.0",
     "sprintf": "0.1.5",
     "temp": "0.9.0",
-    "windowslib": "^0.6.7",
+    "windowslib": "^0.6.8",
     "wrench": "1.5.9",
     "xcode": "^2.0.0",
     "xmldom": "^0.1.27"

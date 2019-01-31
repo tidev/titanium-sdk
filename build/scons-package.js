@@ -1,25 +1,26 @@
 #!/usr/bin/env node
 'use strict';
 
-const os = require('os'),
-	path = require('path'),
-	async = require('async'),
-	program = require('commander'),
-	packageJSON = require('../package.json'),
-	version = packageJSON.version,
-	Documentation = require('./docs'),
-	git = require('./git'),
-	Packager = require('./packager'),
-	// TODO Move common constants somewhere?
-	ROOT_DIR = path.join(__dirname, '..'),
-	DIST_DIR = path.join(ROOT_DIR, 'dist'),
-	ALL_OSES = [ 'win32', 'linux', 'osx' ],
-	ALL_PLATFORMS = [ 'ios', 'android', 'windows' ],
-	OS_TO_PLATFORMS = {
-		win32: [ 'android', 'windows' ],
-		osx: [ 'android', 'ios' ],
-		linux: [ 'android' ]
-	};
+const os = require('os');
+const path = require('path');
+const async = require('async');
+const program = require('commander');
+const packageJSON = require('../package.json');
+const version = packageJSON.version;
+const Documentation = require('./docs');
+const git = require('./git');
+const Packager = require('./packager');
+const utils = require('./utils');
+// TODO Move common constants somewhere?
+const ROOT_DIR = path.join(__dirname, '..');
+const DIST_DIR = path.join(ROOT_DIR, 'dist');
+const ALL_OSES = [ 'win32', 'linux', 'osx' ];
+const ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
+const OS_TO_PLATFORMS = {
+	win32: [ 'android', 'windows' ],
+	osx: [ 'android', 'ios' ],
+	linux: [ 'android' ]
+};
 
 program
 	.option('-a, --all', 'Build a zipfile for every OS')
@@ -28,6 +29,8 @@ program
 	.option('-s, --skip-zip', 'Do not zip up the package')
 	.parse(process.argv);
 
+console.log(process.argv);
+console.log(program.skipZip);
 let platforms = program.args;
 let oses = [];
 
@@ -53,6 +56,8 @@ const versionTag = program.versionTag || program.sdkVersion;
 
 git.getHash(path.join(__dirname, '..'), function (err, hash) {
 	const outputDir = DIST_DIR;
+	program.gitHash = hash;
+	program.timestamp = utils.timestamp();
 	console.log('Packaging MobileSDK (%s)...', versionTag);
 
 	new Documentation(outputDir).generate(function (err) {
@@ -74,7 +79,7 @@ git.getHash(path.join(__dirname, '..'), function (err, hash) {
 				}
 			}
 
-			new Packager(outputDir, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, hash, program.skipZip).package(next);
+			new Packager(outputDir, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, hash, program.timestamp, program.skipZip).package(next);
 		}, function (err) {
 			if (err) {
 				console.error(err);

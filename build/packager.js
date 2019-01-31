@@ -241,6 +241,7 @@ Packager.prototype.zip = function (next) {
 	if (this.skipZip) {
 		return next();
 	}
+	console.log(`Zipping up packaged SDK to ${this.zipFile}`);
 	zip(this.zipDir, this.zipFile, function (err) {
 		if (err) {
 			return next(err);
@@ -276,7 +277,7 @@ Packager.prototype.transpile = async function (srcDir, destDir, options) {
  * @param {Function} next callback function
  */
 Packager.prototype.package = function (next) {
-	console.log('Zipping Mobile SDK');
+	console.log('Packaging Mobile SDK...');
 	async.series([
 		this.cleanZipDir.bind(this),
 		this.generateManifestJSON.bind(this),
@@ -313,8 +314,8 @@ Packager.prototype.package = function (next) {
 			this.transpile(path.join(this.srcDir, 'common'), destDir, {
 				presets: [ [ '@babel/env', options ] ]
 			})
-				.then(() => cb())
-				.catch(err => cb(err));
+				.then(() => cb()) // eslint-disable-line promise/no-callback-in-promise
+				.catch(err => cb(err)); // eslint-disable-line promise/no-callback-in-promise
 		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {
