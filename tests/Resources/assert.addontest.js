@@ -673,7 +673,7 @@ describe('assert', function () {
 			assert.deepStrictEqual.should.be.a.Function;
 		});
 
-		it('does throw for comparing 1 with \'1\' as values of same key on objects', () => {
+		it('throws for comparing 1 with \'1\' as values of same key on objects', () => {
 			should.throws(function () {
 				assert.deepStrictEqual({ a: 1 }, { a: '1' });
 			},
@@ -695,9 +695,29 @@ describe('assert', function () {
 			});
 		});
 
-		it('does throw for comparing 0 with -0', () => {
+		it('throws for comparing 0 with -0', () => {
 			should.throws(function () {
 				assert.deepStrictEqual(0, -0);
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('throws for comparing 4 with \'4\'', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(4, '4');
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be strictly deep-equal:');
+			});
+		});
+
+		it('throws for comparing true with 1', () => {
+			should.throws(function () {
+				assert.deepStrictEqual(true, 1);
 			},
 			function (err) {
 				// TODO: Test for rest of error message diff!
@@ -962,9 +982,191 @@ describe('assert', function () {
 		// BigInts
 	});
 
+	describe('#deepEqual()', () => {
+		it('is a function', function () {
+			assert.deepEqual.should.be.a.Function;
+		});
+
+		it('does not throw for comparing 1 with \'1\' as values of same key on objects', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual({ a: 1 }, { a: '1' });
+			},
+			function (err) {
+				// TODO: Test for rest of error message diff!
+				return err instanceof assert.AssertionError && err.message.startsWith('Expected values to be loosely deep-equal:');
+			});
+		});
+
+		it('does not throw for comparing 0 with -0', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual(0, -0);
+			});
+		});
+
+		it('does not throw for comparing -0 with -0', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual(-0, -0);
+			});
+		});
+
+		it('does not throw for comparing 4 with \'4\'', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual(4, '4');
+			});
+		});
+
+		it('does not throw for comparing true with 1', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual(true, 1);
+			});
+		});
+
+		it('does not throw for comparing Set with 1 and \'1\'', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual(new Set([ '1' ]), new Set([ 1 ]));
+			});
+		});
+
+		it('does not throw for comparing Map with keys 1 and \'1\'', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual(new Map([ [ '1', 'a' ] ]), new Map([ [ 1, 'a' ] ]));
+			});
+		});
+
+		it('does not throw for comparing Map with values 1 and \'1\'', () => {
+			should.doesNotThrow(function () {
+				assert.deepEqual(new Map([ [ 'a', '1' ] ]), new Map([ [ 'a', 1 ] ]));
+			});
+		});
+
+		// TODO: Test specific cases where deepEqual passes but deepStrictEqual doesn't!
+	});
+
+	describe('#ifError()', () => {
+		it('is a function', () => {
+			assert.ifError.should.be.a.Function;
+		});
+
+		it('does not throw null', () => {
+			should.doesNotThrow(function () {
+				assert.ifError(null);
+			});
+		});
+
+		it('does not throw undefined', () => {
+			should.doesNotThrow(function () {
+				assert.ifError(undefined);
+			});
+		});
+
+		it('throws for falsy number', () => {
+			should.throws(function () {
+				assert.ifError(0);
+			},
+			function (err) {
+				return err instanceof assert.AssertionError && err.message === 'ifError got unwanted exception: 0';
+			});
+		});
+
+		it('throws for string', () => {
+			should.throws(function () {
+				assert.ifError('error');
+			},
+			function (err) {
+				return err instanceof assert.AssertionError && err.message === 'ifError got unwanted exception: error';
+			});
+		});
+
+		it('throws for Error instance', () => {
+			should.throws(function () {
+				assert.ifError(new Error());
+			},
+			function (err) {
+				return err instanceof assert.AssertionError && err.message === 'ifError got unwanted exception: Error';
+			});
+		});
+
+		it('throws for Error instance with correct stack frames', () => {
+			should.throws(function () {
+				let err;
+				(function errorFrame() { // eslint-disable-line wrap-iife
+					err = new Error('test error');
+				})();
+
+				(function ifErrorFrame() {  // eslint-disable-line wrap-iife
+					assert.ifError(err);
+				})();
+			},
+			function (err) {
+				// AssertionError [ERR_ASSERTION]: ifError got unwanted exception: test error
+				//     at ifErrorFrame
+				//     at errorFrame
+
+				// FIXME: Test the stack frames are correct!
+				return err instanceof assert.AssertionError && err.message === 'ifError got unwanted exception: Error: test error';
+			});
+		});
+	});
+
 	describe('.strict', () => {
 		it('is a function', function () {
 			assert.strict.should.be.a.Function; // it's an alias for assert.ok
+		});
+
+		it('is available off of itself', function () {
+			assert.strict.strict.should.be.ok;
+		});
+
+		describe('#ok', () => {
+			it('is a function', () => assert.strict.ok.should.be.a.Function);
+		});
+
+		// FIXME: Implement ifError!
+		describe.skip('#ifError', () => {
+			it('is a function', () => assert.strict.ifError.should.be.a.Function);
+		});
+
+		describe('#fail', () => {
+			it('is a function', () => assert.strict.fail.should.be.a.Function);
+		});
+
+		// FIXME: Implement deepEqual!
+		describe.skip('#deepEqual', () => {
+			it('is a function', () => assert.strict.deepEqual.should.be.a.Function);
+		});
+
+		describe('#throws', () => {
+			it('is a function', () => assert.strict.throws.should.be.a.Function);
+		});
+
+		describe('#doesNotThrow', () => {
+			it('is a function', () => assert.strict.doesNotThrow.should.be.a.Function);
+		});
+
+		// FIXME: Implement rejects!
+		describe.skip('#rejects', () => {
+			it('is a function', () => assert.strict.rejects.should.be.a.Function);
+		});
+
+		// FIXME: Implement doesNotReject!
+		describe.skip('#doesNotReject', () => {
+			it('is a function', () => assert.strict.doesNotReject.should.be.a.Function);
+		});
+
+		describe('#strictEqual', () => {
+			it('is a function', () => assert.strict.strictEqual.should.be.a.Function);
+		});
+
+		describe('#notStrictEqual', () => {
+			it('is a function', () => assert.strict.notStrictEqual.should.be.a.Function);
+		});
+
+		describe('#deepStrictEqual', () => {
+			it('is a function', () => assert.strict.deepStrictEqual.should.be.a.Function);
+		});
+
+		describe('#notDeepStrictEqual', () => {
+			it('is a function', () => assert.strict.notDeepStrictEqual.should.be.a.Function);
 		});
 
 		describe('#equal()', () => {

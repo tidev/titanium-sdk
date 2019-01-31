@@ -1,25 +1,28 @@
+/* global BigInt */
 'use strict';
 
-const util = require('./util');
+const util = require('util');
 
 const DEFAULT_MESSAGES = {
 	deepStrictEqual: 'Expected values to be strictly deep-equal:',
 	strictEqual: 'Expected values to be strictly equal:',
-	strictEqualObject: 'Expected "actual" to be reference-equal to "expected":',
 	deepEqual: 'Expected values to be loosely deep-equal:',
 	equal: 'Expected values to be loosely equal:',
 	notDeepStrictEqual: 'Expected "actual" not to be strictly deep-equal to:',
 	notStrictEqual: 'Expected "actual" to be strictly unequal to:',
-	notStrictEqualObject: 'Expected "actual" not to be reference-equal to "expected":',
 	notDeepEqual: 'Expected "actual" not to be loosely deep-equal to:',
 	notEqual: 'Expected "actual" to be loosely unequal to:',
-	notIdentical: 'Values identical but not reference-equal:',
 };
 
+// Fake enums to use internally
 const COMPARE_TYPE = {
-	Object,
-	Map,
-	Set
+	Object: 0,
+	Map: 1,
+	Set: 2
+};
+const STRICTNESS = {
+	Strict: 0,
+	Loose: 1
 };
 
 class AssertionError extends Error {
@@ -43,6 +46,11 @@ class AssertionError extends Error {
 		this.code = 'ERR_ASSERTION';
 	}
 }
+
+// TODO: Can we define AssertStrict and AssertLoose as subclasses of a base Assert class
+// that class holds impls for shared methods, subclasses override specific
+// comparisons used (Object.is vs ===)?
+
 const assert = (value, message) => assert.ok(value, message);
 assert.AssertionError = AssertionError;
 assert.ok = (...args) => {
@@ -134,119 +142,142 @@ const isPrimitive = value => {
 /**
  * @param {Map} actual map we are comparing
  * @param {Map} expected map we're comparing against
+ * @param {STRICTNESS.Loose|strictness.Strict} strictness how to compare
  * @param {object} references memoized references to objects in the deepEqual hierarchy
  * @returns {boolean}
  */
-function compareMaps(actual, expected, references) {
-	const objectKeys = new Set(); // keep track of objects we need to test more extensively than using #get()
-	for (const [key, value] of actual) {
+function compareMaps(actual, expected, strictness, references) {
+	const looseChecks = new Set(); // keep track of objects we need to test more extensively than using #get()/#has()
+	for (const [ key, value ] of actual) {
 		if (typeof key === 'object' && key !== null) {
-			// non-null object. We need to do our own checking, not use get()
-			objectKeys.add(value);
+			// non-null object. We need to do our own checking, not use get()/has()
+			looseChecks.add(key);
 		} else {
 			// handle "primitives"
-			if (!expected.has(key)) {
-				return false; // second Map doesn't have the key, fail
+			if (expected.has(key) && deepEqual(value, expected.get(key), strictness, references)) {
+				// yay! a nice easy match - both key and value matched exactly - move on
+				continue;
 			}
-			// does value match?
-			const expectedValue = expected.get(key);
-			if (!deepEqual(value, expectedValue, references)) {
+			if (strictness === STRICTNESS.Strict) { // if we didn't match key/value perfectly in strict mode, fail right away
 				return false;
 			}
+
+			// ok, so it didn't match key/value perfectly - but we're in loose mode, so fall back to try again
+			looseChecks.add(key);
 		}
 	}
 
-	if (objectKeys.size > 0) {
-		// only go through the second Map once!
-		for (const [expectedKey, expectedValue] of expected) {
-			if (typeof expectedKey === 'object' && expectedKey !== null) {
-				// it's a non-null object in second Map
-				// see if it's in our `objectKeys` set
-				let found = false;
-				for (const key of objectKeys) {
-					// if both key and value matches
-					if (deepEqual(key, expectedKey, references)
-						&& deepEqual(actual.get(key), expectedValue, references)) {
-						found = true;
-						objectKeys.delete(key); // remove from our objectKeys Set since we already matched it
-						break;
-					}
-				}
-				// if not found, we failed to match
-				if (!found) {
-					return false;
-				}
+	if (looseChecks.size === 0) { // no loose ends to tie up, everything matched
+		return true;
+	}
+
+	// only go through the second Map once!
+	for (const [ expectedKey, expectedValue ] of expected) {
+		// if it's not a non-null object in strict mode, fail!
+		// (i.e. if it's a primitive that failed a match, don't fall back to more loosely match it)
+		// Note that this shouldn't ever happen since we should be returning false immediately above
+		if (strictness === STRICTNESS.Strict && !(typeof expectedKey === 'object' && expectedKey !== null)) {
+			return false;
+		}
+
+		// otherwise, test it // TODO: Wish we could use #find() like on an Array, but Set doesn't have it!
+		let found = false;
+		for (const key of looseChecks) {
+			// if both key and value matches
+			if (deepEqual(key, expectedKey, strictness, references)
+				&& deepEqual(actual.get(key), expectedValue, strictness, references)) {
+				found = true;
+				looseChecks.delete(key); // remove from our looseChecks Set since we already matched it
+				break;
 			}
 		}
-		// did we leave un-matched keys?
-		if (objectKeys.size !== 0) {
+		// if not found, we failed to match
+		if (!found) {
 			return false;
 		}
 	}
-	return true;
+	// did we leave un-matched keys? if so, fail
+	return looseChecks.size === 0;
 }
 
 /**
  * @param {Set} actual map we are comparing
  * @param {Set} expected map we're comparing against
+ * @param {strictness.Loose|strictness.Strict} strictness how to compare
  * @param {object} references memoized references to objects in the deepEqual hierarchy
  * @returns {boolean}
  */
-function compareSets(actual, expected, references) {
-	const objects = new Set(); // keep track of objects we need to test more extensively than using #has()
+function compareSets(actual, expected, strictness, references) {
+	const looseChecks = new Set(); // keep track of values we need to test more extensively than using #has()
 	for (const value of actual) {
 		if (typeof value === 'object' && value !== null) {
 			// non-null object. We need to do our own checking, not use has()
-			objects.add(value);
+			looseChecks.add(value);
 		} else if (!expected.has(value)) {
 			// FIXME: has does "same-value-zero" check, which is like Object.is except for -0/+0 being considered equal
-			// so may need to special case that here
+			// so may need to special case that here, that'd have to be in an else below (since has will return true here)
+
+			if (strictness === STRICTNESS.Strict) { // failed "same-value" match for primitive in strict mode, so fail right away
+				return false;
+			}
+
+			// When doing loose check, we need to fall back to looser check than #has(), so we can't just return false immediately here
+			// add to set of values to check more thoroughly
+			looseChecks.add(value);
+		}
+	}
+
+	if (looseChecks.size === 0) { // no loose ends to tie up, everything matched
+		return true;
+	}
+
+	// Try to whittle down the loose checks set to be empty...
+	// only go through the second Set once!
+	for (const expectedValue of expected) {
+		// if it's not a non-null object in strict mode, fail!
+		// (i.e. if it's a primitive that failed a match, don't fall back to more loosely match it)
+		// Note that this shouldn't ever happen since we should be returning false immediately above
+		if (strictness === STRICTNESS.Strict && !(typeof expectedValue === 'object' && expectedValue !== null)) {
+			return false;
+		}
+
+		let found = false;
+		for (const object of looseChecks) {
+			if (deepEqual(object, expectedValue, strictness, references)) {
+				found = true; // found a match!
+				looseChecks.delete(object); // remove from our looseChecks Set since we matched it
+				break;
+			}
+		}
+		// if not found, we failed to match
+		if (!found) {
 			return false;
 		}
 	}
 
-	if (objects.size > 0) {
-		// only go through the second Set once!
-		for (const expectedEntry of expected) {
-			if (typeof expectedEntry === 'object' && expectedEntry !== null) {
-				// it's a non-null object in second Set
-				// see if it's in our `objects` set
-				let found = false;
-				for (const object of objects) {
-					if (deepEqual(object, expectedEntry, references)) {
-						found = true; // found a match!
-						objects.delete(object); // remove from our objects Set since we already matched it
-						break;
-					}
-				}
-				// if not found, we failed to match
-				if (!found) {
-					return false;
-				}
-			}
-		}
-		// did we leave un-match objects?
-		if (objects.size !== 0) {
-			return false;
-		}
-	}
-	return true;
+	// did we leave un-matched values? if so, fail
+	return looseChecks.size === 0;
 }
 
 /**
- * @param {*} actual
- * @param {*} expected
- * @param {object} [references]
- * @param {Map<object,number>} [references.actual]
- * @param {Map<object,number>} [references.expected]
- * @param {number} [references.depth]
+ * @param {*} actual value we are comparing
+ * @param {*} expected values we're comparing against
+ * @param {STRICTNESS.Strict|STRICTNESS.Loose} strictness how strict a comparison to do
+ * @param {object} [references] optional object to keep track of circular references in the hierarchy
+ * @param {Map<object,number>} [references.actual] mapping from objects visited (on `actual`) to their depth
+ * @param {Map<object,number>} [references.expected] mapping from objects visited (on `expected`) to their depth
+ * @param {number} [references.depth] The current depth of the hierarchy
  * @returns {boolean}
  */
-function deepEqual(actual, expected, references) {
+function deepEqual(actual, expected, strictness, references) {
 	// if primitives, compare using Object.is
 	// This handles: null, undefined, number, string, boolean
 	if (isPrimitive(actual) && isPrimitive(expected)) {
-		return Object.is(actual, expected); // TODO: If doing "loose" equality check, use ===
+		if (strictness === STRICTNESS.Strict) {
+			return Object.is(actual, expected);
+		} else {
+			return actual == expected; // eslint-disable-line eqeqeq
+		}
 	}
 
 	// Now we have various objects/functions:
@@ -261,10 +292,12 @@ function deepEqual(actual, expected, references) {
 	}
 
 	// [[Prototype]] of objects are compared using the Strict Equality Comparison.
-	const actualPrototype = Object.getPrototypeOf(actual);
-	const expectedPrototype = Object.getPrototypeOf(expected);
-	if (actualPrototype !== expectedPrototype) {
-		return false;
+	if (strictness === STRICTNESS.Strict) { // don't check prototype when doing "loose"
+		const actualPrototype = Object.getPrototypeOf(actual);
+		const expectedPrototype = Object.getPrototypeOf(expected);
+		if (actualPrototype !== expectedPrototype) {
+			return false;
+		}
 	}
 
 	let comparison = COMPARE_TYPE.Object;
@@ -342,25 +375,28 @@ function deepEqual(actual, expected, references) {
 		return false;
 	}
 
-	const actualSymbols = Object.getOwnPropertySymbols(actual);
-	const expectedSymbols = Object.getOwnPropertySymbols(expected);
+	// Don't check own symbols when doing "loose"
+	if (strictness === STRICTNESS.Strict) {
+		const actualSymbols = Object.getOwnPropertySymbols(actual);
+		const expectedSymbols = Object.getOwnPropertySymbols(expected);
 
-	// Must have same number of symbols
-	if (actualSymbols.length !== expectedSymbols.length) {
-		return false;
-	}
+		// Must have same number of symbols
+		if (actualSymbols.length !== expectedSymbols.length) {
+			return false;
+		}
 
-	if (actualSymbols.length > 0) {
-		// Have to filter them down to enumerable symbols!
-		for (const key of actualSymbols) {
-			const actualIsEnumerable = Object.prototype.propertyIsEnumerable.call(actual, key);
-			const expectedIsEnumerable = Object.prototype.propertyIsEnumerable.call(expected, key);
-			if (actualIsEnumerable !== expectedIsEnumerable) {
-				return false; // they differ on whetehr symbol is enumerable, fail!
-			} else if (actualIsEnumerable) {
-				// it's enumerable, add to keys to check
-				actualKeys.push(key);
-				expectedKeys.push(key);
+		if (actualSymbols.length > 0) {
+			// Have to filter them down to enumerable symbols!
+			for (const key of actualSymbols) {
+				const actualIsEnumerable = Object.prototype.propertyIsEnumerable.call(actual, key);
+				const expectedIsEnumerable = Object.prototype.propertyIsEnumerable.call(expected, key);
+				if (actualIsEnumerable !== expectedIsEnumerable) {
+					return false; // they differ on whetehr symbol is enumerable, fail!
+				} else if (actualIsEnumerable) {
+					// it's enumerable, add to keys to check
+					actualKeys.push(key);
+					expectedKeys.push(key);
+				}
 			}
 		}
 	}
@@ -392,14 +428,14 @@ function deepEqual(actual, expected, references) {
 	// When comparing Maps/Sets, compare elements before custom properties
 	let result = true;
 	if (comparison === COMPARE_TYPE.Set) {
-		result = compareSets(actual, expected, references);
+		result = compareSets(actual, expected, strictness, references);
 	} else if (comparison === COMPARE_TYPE.Map) {
-		result = compareMaps(actual, expected, references);
+		result = compareMaps(actual, expected, strictness, references);
 	}
 	if (result) {
 		// Now loop over keys and compare them to each other!
 		for (const key of actualKeys) {
-			if (!deepEqual(actual[key], expected[key], references)) {
+			if (!deepEqual(actual[key], expected[key], strictness, references)) {
 				result = false;
 				break;
 			}
@@ -412,7 +448,7 @@ function deepEqual(actual, expected, references) {
 }
 
 assert.deepStrictEqual = (actual, expected, message) => {
-	if (!deepEqual(actual, expected)) {
+	if (!deepEqual(actual, expected, STRICTNESS.Strict)) {
 		throwError({
 			actual, expected, message, operator: 'deepStrictEqual'
 		});
@@ -420,9 +456,25 @@ assert.deepStrictEqual = (actual, expected, message) => {
 };
 
 assert.notDeepStrictEqual = (actual, expected, message) => {
-	if (deepEqual(actual, expected)) {
+	if (deepEqual(actual, expected, STRICTNESS.Strict)) {
 		throwError({
 			actual, expected, message, operator: 'notDeepStrictEqual'
+		});
+	}
+};
+
+assert.deepEqual = (actual, expected, message) => {
+	if (!deepEqual(actual, expected, STRICTNESS.Loose)) {
+		throwError({
+			actual, expected, message, operator: 'deepEqual'
+		});
+	}
+};
+
+assert.notDeepEqual = (actual, expected, message) => {
+	if (deepEqual(actual, expected, STRICTNESS.Loose)) {
+		throwError({
+			actual, expected, message, operator: 'notDeepEqual'
 		});
 	}
 };
@@ -496,7 +548,7 @@ assert.doesNotThrow = (fn, error, message) => {
  * @returns {boolean} true if the Error matches the expected value/object
  */
 function checkError(actual, expected, message) {
-	// What we do here depends on what err is:
+	// What we do here depends on what `expected` is:
 	// function - call it to validate
 	// object - test properties against actual
 	// Regexp - test against actual.toString()
@@ -514,8 +566,7 @@ function checkError(actual, expected, message) {
 			keys.unshift('name', 'message'); // we want to compare name and message, but they're not set as enumerable on Error
 		}
 		for (const key of keys) {
-			console.log(`Comparing values for key: ${key}. actual: ${actual[key]}, expected: ${expected[key]}`);
-			if (!deepEqual(actual[key], expected[key])) {
+			if (!deepEqual(actual[key], expected[key], STRICTNESS.Strict)) {
 				if (!message) {
 					// generate a meaningful message! Cheat by treating like equality check of values
 					// then steal the message it generated
@@ -557,19 +608,33 @@ function checkError(actual, expected, message) {
 	return false;
 }
 
+assert.ifError = value => {
+	if (value === null || value === undefined) {
+		return;
+	}
+
+	throwError({
+		actual: value,
+		expected: null,
+		message: `ifError got unwanted exception: ${value}`,
+		operator: 'ifError'
+	});
+};
+
 // TODO:
-// assert.deepEqual(actual, expected[, message])
 // assert.doesNotReject(asyncFn[, error][, message])
-// assert.ifError(value)
-// assert.notDeepEqual(actual, expected[, message])
 // assert.rejects(asyncFn[, error][, message])
 
 // Create "strict" copy which overrides "loose" methods to call strict equivalents
 assert.strict = (value, message) => assert.ok(value, message);
+// "Copy" methods from assert to assert.strict!
+Object.assign(assert.strict, assert);
+// Override the "loose" methods to point to the strict ones
 assert.strict.deepEqual = assert.deepStrictEqual;
 assert.strict.notDeepEqual = assert.notDeepStrictEqual;
 assert.strict.equal = assert.strictEqual;
 assert.strict.notEqual = assert.notStrictEqual;
+// hang strict off itself
 assert.strict.strict = assert.strict;
 
 module.exports = assert;
