@@ -48,7 +48,7 @@ methods:
         optional: true
 
   - name: setContentOffset
-    summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
+    summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffsetXY) property.
     platforms: [iphone, ipad]
     parameters:
       - name: contentOffset
