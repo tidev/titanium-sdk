@@ -5,12 +5,20 @@ summary: |
     in a vertically-scrolling view.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/listview/listview_android.png" height="200" style="border: 1px solid black;"/></td>
-        <td><img src="images/listview/listview_ios.png" height="200" style="border: 1px solid black;"/></td>
-        <td><img src="images/listview/listview_wp.png" height="200" style="border: 1px solid black;"/></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/listview/listview_android.png" height="200" /></td>
+          <td><img src="images/listview/listview_ios.png" height="200" /></td>
+          <td><img src="images/listview/listview_wp.png" height="200" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.

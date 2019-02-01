@@ -62,11 +62,32 @@ description: |
     the client and server.
 
     <table class="doc-table" summary="This table provides information about TLS versions.">
-    <caption><b>TLS versions by platform</b></caption>
-    <tr><th>Protocol</th><th>Android<th>iOS</th></tr>
-    <tr><th align="left">TLS 1.0</th><td>1.0+</td><td>1.0+</td></tr>
-    <tr><th align="left">TLS 1.1</th><td>4.1+</td><td>5.0+</td></tr>
-    <tr><th align="left">TLS 1.2</th><td>4.1+</td><td>5.0+</td></tr>
+      <caption><b>TLS versions by platform</b></caption>
+      <thead>
+        <tr>
+          <th>Protocol</th>
+          <th>Android</th>
+          <th>iOS</th>
+        </tr>
+      <thead>
+      <tbody>
+        <tr>
+          <th align="left">TLS 1.0</th>
+          <td>1.0+</td>
+          <td>1.0+</td>
+        </tr>
+        <tr>
+          <th align="left">TLS 1.1</th>
+          <td>4.1+</td>
+          <td>5.0+</td>
+        </tr>
+        <tr>
+          <th align="left">TLS 1.2</th>
+          <td>4.1+</td>
+          <td>5.0+</td>
+        </tr>
+      <tbody>
+    </table>
 
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
     TLS 1.1 and TLS 1.0. By default, TLS 1.2 is attempted first.
