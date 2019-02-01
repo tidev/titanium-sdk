@@ -1,0 +1,5 @@
+{
+    "name": "package_with_main_dir",
+    "version": "1.0.0",
+    "main": "./lib"
+}

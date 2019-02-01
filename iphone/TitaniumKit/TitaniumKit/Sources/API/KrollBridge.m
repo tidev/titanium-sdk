@@ -1040,9 +1040,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
     // b. let M = X + (json main field)
     m = [x stringByAppendingPathComponent:mainString];
     m = [self pathByStandarizingPath:m];
-    if ([self fileExists:m]) {
-      packageJSONMainCache[packageJsonPath] = m; // cache from package.json to main value
-      return m;
+    ResolvedModule *resolved = [self tryFileOrDirectory:m];
+    if (resolved) {
+      packageJSONMainCache[packageJsonPath] = resolved->path; // cache from package.json to main value
+      return resolved->path;
     }
   }
   return nil;
