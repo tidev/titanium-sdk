@@ -33,56 +33,20 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 
 	// TiStream interface methods
 	@Kroll.method
-	public int read(Object args[]) throws IOException
+	public int read(Object args[]) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to read from file, not open");
 		}
 
-		BufferProxy bufferProxy = null;
-		int offset = 0;
-		int length = 0;
+		return TiStreamHelper.readTiStream(TAG, getKrollObject(), this, args);
+	}
 
-		if (args.length == 1 || args.length == 3) {
-			if (args.length > 0) {
-				if (args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
-			}
-
-			if (args.length == 3) {
-				if (args[1] instanceof Integer) {
-					offset = ((Integer) args[1]).intValue();
-
-				} else if (args[1] instanceof Double) {
-					offset = ((Double) args[1]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid offset argument");
-				}
-
-				if (args[2] instanceof Integer) {
-					length = ((Integer) args[2]).intValue();
-
-				} else if (args[2] instanceof Double) {
-					length = ((Double) args[2]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid length argument");
-				}
-			}
-
-		} else {
-			throw new IllegalArgumentException("Invalid number of arguments");
-		}
-
+	public int readSync(Object bufferProxy, int offset, int length) throws IOException
+	{
 		try {
-			return TiStreamHelper.read(fileProxy.getBaseFile().getExistingInputStream(), bufferProxy, offset, length);
-
+			return TiStreamHelper.read(this.fileProxy.getBaseFile().getExistingInputStream(), (BufferProxy) bufferProxy,
+									   offset, length);
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to read from file, IO error", e);
 			throw new IOException("Unable to read from file, IO error");
@@ -90,56 +54,20 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public int write(Object args[]) throws IOException
+	public int write(Object args[]) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to write to file, not open");
 		}
 
-		BufferProxy bufferProxy = null;
-		int offset = 0;
-		int length = 0;
+		return TiStreamHelper.writeTiStream(TAG, getKrollObject(), this, args);
+	}
 
-		if (args.length == 1 || args.length == 3) {
-			if (args.length > 0) {
-				if (args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
-			}
-
-			if (args.length == 3) {
-				if (args[1] instanceof Integer) {
-					offset = ((Integer) args[1]).intValue();
-
-				} else if (args[1] instanceof Double) {
-					offset = ((Double) args[1]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid offset argument");
-				}
-
-				if (args[2] instanceof Integer) {
-					length = ((Integer) args[2]).intValue();
-
-				} else if (args[2] instanceof Double) {
-					length = ((Double) args[2]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid length argument");
-				}
-			}
-
-		} else {
-			throw new IllegalArgumentException("Invalid number of arguments");
-		}
-
+	public int writeSync(Object bufferProxy, int offset, int length) throws IOException
+	{
 		try {
-			return TiStreamHelper.write(fileProxy.getBaseFile().getExistingOutputStream(), bufferProxy, offset, length);
-
+			return TiStreamHelper.write(this.fileProxy.getBaseFile().getExistingOutputStream(),
+										(BufferProxy) bufferProxy, offset, length);
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to write to file, IO error", e);
 			throw new IOException("Unable to write to file, IO error");

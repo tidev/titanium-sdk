@@ -1,15 +1,18 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
+
 var NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
-	bootstrap = require('bootstrap'),
 	invoker = require('invoker');
+
+require('bootstrap');
 
 var TAG = 'Module';
 
@@ -183,11 +186,8 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
  * @return {Object}                 The exported module
  */
 Module.prototype.loadExternalModule = function (id, externalBinding, context) {
-	var sourceUrl = (context === undefined) ? 'app://app.js' : context.sourceUrl,
-		externalModule,
-		returnObj;
-
-	externalModule = Module.cache[id];
+	var sourceUrl = (context === undefined) ? 'app://ti.main.js' : context.sourceUrl,
+		externalModule = Module.cache[id];
 
 	if (!externalModule) {
 		// Get the compiled bootstrap JS
@@ -576,7 +576,6 @@ Module.prototype._runScript = function (source, filename) {
 	// to go this route. So added currentActivity check. (bill)
 	if (self.id === '.' && self.context.currentActivity) {
 		global.require = require;
-		Titanium.Android.currentActivity = self.context.currentActivity;
 
 		// check if we have an inspector binding...
 		var inspector = kroll.binding('inspector');

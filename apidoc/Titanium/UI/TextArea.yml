@@ -359,7 +359,7 @@ properties:
     description: Sets the height of the text area by line height. Set to -1 to respect the view's height property instead.
     default: 1
     type: Number
-    since: { android: "7.4.0" }
+    since: { android: "7.5.0" }
     platforms: [android]
 
   - name: maxLength
@@ -377,12 +377,12 @@ properties:
     description: Sets the maximum of lines that the field will be extended to when pressing `Return`.
     default: -1
     type: Number
-    since: { android: "7.4.0" }
+    since: { android: "7.5.0" }
     platforms: [android]
 
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
-    type: TextAreaPadding
+    type: ViewPadding
     platforms: [android, iphone, ipad]
     since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
 
@@ -610,24 +610,3 @@ properties:
   - name: length
     summary: Number of characters selected.
     type: Number
----
-name: TextAreaPadding
-summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
-since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
-platforms: [android, iphone, ipad]
-properties:
-  - name: left
-    type: Number
-    summary: Left padding
-
-  - name: right
-    type: Number
-    summary: Right padding
-
-  - name: top
-    type: Number
-    summary: Top padding
-
-  - name: bottom
-    type: Number
-    summary: Bottom padding

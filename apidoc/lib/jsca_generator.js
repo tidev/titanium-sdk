@@ -37,6 +37,8 @@ function markdownToHTML(text) {
 
 /**
  * Fixes illegal names like "2DMatrix" (not a valid JavaScript name)
+ * TODO: 2DMatrix / 3DMatrix are deprecated in 8.0.0. Remove this check
+ * once ripped out.
  * @param {string} ns raw fully-qualified name
  * @return {string} safe name
  */

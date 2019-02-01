@@ -185,6 +185,27 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int CAMERA_FLASH_AUTO = 2;
 
+	@Kroll.constant
+	public static final int AUDIO_STATE_BUFFERING = 0; // current playback is in the buffering from the network state
+	@Kroll.constant
+	public static final int AUDIO_STATE_INITIALIZED = 1; // current playback is in the initialization state
+	@Kroll.constant
+	public static final int AUDIO_STATE_PAUSED = 2; // current playback is in the paused state
+	@Kroll.constant
+	public static final int AUDIO_STATE_PLAYING = 3; // current playback is in the playing state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STARTING = 4; // current playback is in the starting playback state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STOPPED = 5; // current playback is in the stopped state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STOPPING = 6; // current playback is in the stopping state
+	@Kroll.constant
+	public static final int AUDIO_STATE_WAITING_FOR_DATA =
+		7; // current playback is in the waiting for audio data from the network state
+	@Kroll.constant
+	public static final int AUDIO_STATE_WAITING_FOR_QUEUE =
+		8; //  current playback is in the waiting for audio data to fill the queue state
+
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
 	private TiTempFileHelper tempFileHelper;
@@ -438,6 +459,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		Context context = TiApplication.getInstance().getApplicationContext();
 		if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 			&& context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+				   == PackageManager.PERMISSION_GRANTED
+			&& context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 				   == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
@@ -475,11 +498,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return true;
 		}
 		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-			== PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
+
+		return (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+					== PackageManager.PERMISSION_GRANTED
+				&& context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+					   == PackageManager.PERMISSION_GRANTED);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -517,11 +540,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		String[] permissions = null;
 		if (!hasCameraPermission() && !hasStoragePermission()) {
-			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE };
+			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
+										 Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		} else if (!hasCameraPermission()) {
 			permissions = new String[] { Manifest.permission.CAMERA };
 		} else {
-			permissions = new String[] { Manifest.permission.READ_EXTERNAL_STORAGE };
+			permissions =
+				new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionCallback,
@@ -726,7 +751,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		private void validateFile() throws Throwable
 		{
 			try {
-				if (intentType == MediaStore.ACTION_VIDEO_CAPTURE) {
+				if (MediaStore.ACTION_VIDEO_CAPTURE.equals(intentType)) {
 					// video
 				} else {
 					// bitmap

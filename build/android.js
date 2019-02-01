@@ -129,7 +129,7 @@ Android.prototype.package = function (packager, next) {
 		// Copy over module resources
 		function (cb) {
 			const filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium-(.+)?.(jar|res.zip|respackage))?$'); // eslint-disable-line security/detect-non-literal-regexp
-			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: filterRegExp }, cb);
+			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: src => filterRegExp.test(src) }, cb);
 		}
 	], next);
 };

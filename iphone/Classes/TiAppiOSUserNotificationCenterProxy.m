@@ -14,35 +14,37 @@
 
 @implementation TiAppiOSUserNotificationCenterProxy
 
+- (NSString *)apiName
+{
+  return @"Ti.App.iOS.UserNotificationCenter";
+}
+
 - (void)getPendingNotifications:(id)callback
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
-    TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+      NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
 
-        for (UNNotificationRequest *request in requests) {
-          [result addObject:[self dictionaryWithUserNotificationRequest:request]];
-        }
+      for (UNNotificationRequest *request in requests) {
+        [result addObject:[self dictionaryWithUserNotificationRequest:request]];
+      }
 
-        NSDictionary *propertiesDict = @{
-          @"notifications" : result
-        };
-        NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+      NSDictionary *propertiesDict = @{
+        @"notifications" : result
+      };
+      NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-      }];
-    },
-        NO);
+      [callback call:invocationArray thisObject:self];
+      [invocationArray release];
+    }];
   } else {
     NSArray<UILocalNotification *> *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
     for (UILocalNotification *notification in notifications) {
-      [result addObject:[TiApp dictionaryWithLocalNotification:notification withIdentifier:nil]];
+      [result addObject:[TiApp dictionaryWithLocalNotification:notification withIdentifier:notification.userInfo[@"id"]]];
     }
 
     NSDictionary *propertiesDict = @{
@@ -59,25 +61,22 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
-    TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+      NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
-        for (UNNotificationRequest *request in requests) {
-          [result addObject:[self dictionaryWithUserNotificationRequest:request]];
-        }
+      for (UNNotification *notification in notifications) {
+        [result addObject:[self dictionaryWithUserNotificationRequest:[notification request]]];
+      }
 
-        NSDictionary *propertiesDict = @{
-          @"notifications" : result
-        };
-        NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+      NSDictionary *propertiesDict = @{
+        @"notifications" : result
+      };
+      NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-      }];
-    },
-        NO);
+      [callback call:invocationArray thisObject:self];
+      [invocationArray release];
+    }];
   } else {
     DebugLog(@"[ERROR] Ti.App.iOS.UserNotificationCenter.getDeliveredNotifications() is only available in iOS 10 and later.");
   }
@@ -85,32 +84,30 @@
 
 - (void)removePendingNotifications:(id)args
 {
-  ENSURE_TYPE_OR_NIL(args, NSArray);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSArray);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    TiThreadPerformOnMainThread(^{
-      if (args == nil || [args count] == 0) {
-        [center removeAllPendingNotificationRequests];
-        return;
-      }
+    if (args == nil || [args count] == 0) {
+      [center removeAllPendingNotificationRequests];
+      return;
+    }
 
-      [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        // Loop through current notification requests
-        for (UNNotificationRequest *request in requests) {
+    [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+      NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
+      for (UNNotificationRequest *request in requests) {
+        for (id notification in args) {
+          ENSURE_TYPE(notification, NSDictionary);
 
-          // Loop through provided notifications
-          for (id notification in args) {
-            ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
-
-            if ([request content] == [(TiAppiOSLocalNotificationProxy *)notification notification]) {
-              [center removePendingNotificationRequestsWithIdentifiers:@[ [request identifier] ]];
-            }
+          if ([request.identifier isEqual:notification[@"identifier"]]) {
+            [identifiers addObject:request.identifier];
           }
         }
-      }];
-    },
-        NO);
+      }
+      if (identifiers.count > 0) {
+        [center removePendingNotificationRequestsWithIdentifiers:identifiers];
+      }
+    }];
   } else {
     TiThreadPerformOnMainThread(^{
       if (args == nil || [args count] == 0) {
@@ -118,9 +115,15 @@
         return;
       }
 
-      for (id notification in args) {
-        ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
-        [[UIApplication sharedApplication] cancelLocalNotification:[(TiAppiOSLocalNotificationProxy *)notification notification]];
+      for (UILocalNotification *scheduledNotification in UIApplication.sharedApplication.scheduledLocalNotifications) {
+        for (id notification in args) {
+          ENSURE_TYPE(notification, NSDictionary);
+
+          if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]]) {
+            [UIApplication.sharedApplication cancelLocalNotification:scheduledNotification];
+            break;
+          }
+        }
       }
     },
         NO);
@@ -129,33 +132,31 @@
 
 - (void)removeDeliveredNotifications:(id)args
 {
-  ENSURE_TYPE_OR_NIL(args, NSArray);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSArray);
 
-  if ([TiUtils isIOS10OrGreater]) {
-    TiThreadPerformOnMainThread(^{
-      UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
-      if ([args count] == 0) {
-        [center removeAllDeliveredNotifications];
-        return;
-      }
+    if ([args count] == 0) {
+      [center removeAllDeliveredNotifications];
+      return;
+    }
 
-      [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        // Loop through current notification requests
-        for (UNNotificationRequest *request in requests) {
+    [center getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+      NSMutableArray<NSString *> *identifiers = [NSMutableArray new];
+      for (UNNotification *deliveredNotification in notifications) {
+        for (id notification in args) {
+          ENSURE_TYPE(notification, NSDictionary);
 
-          // Loop through provided notifications
-          for (id notification in args) {
-            ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
-
-            if ([request content] == [(TiAppiOSLocalNotificationProxy *)notification notification]) {
-              [center removeDeliveredNotificationsWithIdentifiers:@[ [request identifier] ]];
-            }
+          if ([deliveredNotification.request.identifier isEqual:notification[@"identifier"]]) {
+            [identifiers addObject:deliveredNotification.request.identifier];
           }
         }
-      }];
-    },
-        NO);
+      }
+      if (identifiers.count > 0) {
+        [center removeDeliveredNotificationsWithIdentifiers:identifiers];
+      }
+    }];
   } else {
     DebugLog(@"[ERROR] Ti.App.iOS.UserNotificationCenter.removeDeliveredNotifications() is only available in iOS 10 and later.");
   }
@@ -165,31 +166,34 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
-    TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-        NSMutableDictionary *propertiesDict = [@{
-          @"authorizationStatus" : @([settings authorizationStatus]),
-          @"soundSetting" : @([settings soundSetting]),
-          @"badgeSetting" : @([settings badgeSetting]),
-          @"alertSetting" : @([settings alertSetting]),
-          @"notificationCenterSetting" : @([settings notificationCenterSetting]),
-          @"lockScreenSetting" : @([settings lockScreenSetting]),
-          @"carPlaySetting" : @([settings carPlaySetting]),
-          @"alertStyle" : @([settings alertStyle])
-        } mutableCopy];
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+      NSMutableDictionary *propertiesDict = [@{
+        @"authorizationStatus" : @([settings authorizationStatus]),
+        @"soundSetting" : @([settings soundSetting]),
+        @"badgeSetting" : @([settings badgeSetting]),
+        @"alertSetting" : @([settings alertSetting]),
+        @"notificationCenterSetting" : @([settings notificationCenterSetting]),
+        @"lockScreenSetting" : @([settings lockScreenSetting]),
+        @"carPlaySetting" : @([settings carPlaySetting]),
+        @"alertStyle" : @([settings alertStyle])
+      } mutableCopy];
 #if IS_XCODE_9
-        if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-          propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
-        }
+      if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+        propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
+      }
 #endif
-        NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+#if IS_XCODE_10
+      if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+        propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
+        propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
+      }
+#endif
+      NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-      }];
-    },
-        NO);
+      [callback call:invocationArray thisObject:self];
+      [invocationArray release];
+    }];
   } else {
     TiThreadPerformOnMainThread(^{
       UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
@@ -215,11 +219,16 @@
   [event setObject:NULL_IF_NIL([[request content] title]) forKey:@"alertTitle"];
   [event setObject:NULL_IF_NIL([[request content] subtitle]) forKey:@"alertSubtitle"];
   [event setObject:NULL_IF_NIL([[request content] launchImageName]) forKey:@"alertLaunchImage"];
-  [event setObject:NULL_IF_NIL([[request content] sound]) forKey:@"sound"];
   [event setObject:NULL_IF_NIL([[request content] badge]) forKey:@"badge"];
   [event setObject:NULL_IF_NIL([[request content] userInfo]) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL([[request content] categoryIdentifier]) forKey:@"category"];
   [event setObject:NULL_IF_NIL([request identifier]) forKey:@"identifier"];
+
+  // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
+  // a sound in the APS dictionary, we can provide that one for parity
+  if (request.content.userInfo[@"aps"] && request.content.userInfo[@"aps"][@"sound"]) {
+    [event setObject:request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
+  }
 
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];

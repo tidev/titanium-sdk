@@ -7,14 +7,14 @@
 #ifdef USE_TI_APP
 
 #import "AppModule.h"
-#import "ListenerEntry.h"
-#import "TiApp.h"
-#import "TiHost.h"
+#import <TitaniumKit/ListenerEntry.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiHost.h>
 #if defined(USE_TI_APPIOS)
 #import "TiAppiOSProxy.h"
 #endif
 
-#import "TiLayoutQueue.h"
+#import <TitaniumKit/TiLayoutQueue.h>
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
 
@@ -102,6 +102,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(accessibilityVoiceOverStatusChanged:)
                                                name:UIAccessibilityVoiceOverStatusChanged
+                                             object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(handleUserInteraction:)
+                                               name:kTiUserInteraction
                                              object:nil];
 }
 
@@ -278,6 +282,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   return NUMBOOL([TiApp app].disableNetworkActivityIndicator);
 }
 
+- (void)handleUserInteraction:(id)notification
+{
+  if ([self _hasListeners:@"userinteraction"]) {
+    [self fireEvent:@"userinteraction" withObject:nil];
+  }
+}
+
 //To fire the keyboard frame change event.
 - (void)keyboardFrameChanged:(NSNotification *)notification
 {
@@ -365,6 +376,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
+  [nc addObserver:self selector:@selector(errored:) name:kTiErrorNotification object:nil];
 
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];

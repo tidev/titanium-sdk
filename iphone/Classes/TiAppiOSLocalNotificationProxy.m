@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_APPIOS
 #import "TiAppiOSLocalNotificationProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiAppiOSLocalNotificationProxy
 
@@ -26,16 +26,14 @@
 
 - (void)cancel:(id)unused
 {
-  DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers");
+  DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel()", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications()");
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSString *identifier = @"notification";
     NSDictionary *userInfo = [(UNMutableNotificationContent *)self.notification userInfo];
 
-    if (userInfo != nil) {
-      if ([userInfo objectForKey:@"id"] != nil) {
-        identifier = [TiUtils stringValue:[userInfo objectForKey:@"id"]];
-      }
+    if (userInfo != nil && [userInfo objectForKey:@"id"] != nil) {
+      identifier = [TiUtils stringValue:[userInfo objectForKey:@"id"]];
     }
     [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ [TiUtils stringValue:identifier] ]];
   } else {

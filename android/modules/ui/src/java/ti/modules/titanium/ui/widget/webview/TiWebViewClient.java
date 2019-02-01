@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.webview;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -58,8 +59,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	{
 		super.onPageFinished(view, url);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
-		if (proxy == null || webView.hasSetUserAgent) {
-			webView.hasSetUserAgent = false;
+		if (proxy == null) {
 			return;
 		}
 		webView.changeProxyUrl(url);
@@ -94,7 +94,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	{
 		super.onPageStarted(view, url, favicon);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
-		if (proxy == null || webView.hasSetUserAgent) {
+		if (proxy == null) {
 			return;
 		}
 		KrollDict data = new KrollDict();
@@ -125,6 +125,19 @@ public class TiWebViewClient extends WebViewClientClassicExt
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
 		if (proxy == null) {
 			return super.shouldOverrideUrlLoading(view, url);
+		}
+		if (proxy.hasProperty(TiC.PROPERTY_ON_LINK)) {
+			Object onLink = proxy.getProperty(TiC.PROPERTY_ON_LINK);
+			if (onLink instanceof KrollFunction) {
+				KrollFunction onLinkFunction = (KrollFunction) onLink;
+				KrollDict args = new KrollDict();
+				args.put(TiC.EVENT_PROPERTY_URL, url);
+				Object result = onLinkFunction.call(proxy.getKrollObject(), args);
+				if (result == null || (result instanceof Boolean && ((Boolean) result) == false)) {
+					webView.stopLoading();
+					return true;
+				}
+			}
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
 			String[] blacklistedSites =
@@ -312,8 +325,8 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error)
 	{
 		/*
-		 * in theory this should be checked to make sure it's not null but if there is some failure 
-		 * in the association then usage of proxy should trigger a NPE to make sure the issue 
+		 * in theory this should be checked to make sure it's not null but if there is some failure
+		 * in the association then usage of proxy should trigger a NPE to make sure the issue
 		 * is not ignored
 		 */
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();

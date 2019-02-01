@@ -1,13 +1,47 @@
 {
   "extends": [ "axway/env-node", "axway/+mocha"],
-  "globals": {
-    "Ti": false
-  },
   "parserOptions": {
     "ecmaVersion": 2015,
     "sourceType": "script"
   },
+  "globals": {
+    "Ti": false,
+    "Titanium": false,
+    "__filename": false,
+    "__dirname": false,
+    "kroll": false
+  },
   "rules": {
     "strict": ["error", "global"]
   },
+  "overrides": [
+    {
+      "files": [ "tests/Resources/es6.*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2015,
+        "sourceType": "module"
+      }
+    },
+    {
+      "files": [ "dangerfile.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
+      }
+    },
+    {
+      "files": [ "build/**/*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "script"
+      }
+    },
+    {
+      "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "script"
+      }
+    }
+  ]
 }

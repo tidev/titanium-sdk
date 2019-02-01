@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
+import java.net.HttpURLConnection;
 import java.net.ResponseCache;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,7 +35,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
@@ -205,7 +205,7 @@ public class TiResponseCache extends ResponseCache
 			if (rc.cacheDir == null) {
 				return false;
 			}
-			String hash = DigestUtils.shaHex(uri.toString());
+			String hash = TiDigestUtils.sha1Hex(uri.toString());
 			File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
 			File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
 			if (!bFile.exists() || !hFile.exists()) {
@@ -219,6 +219,108 @@ public class TiResponseCache extends ResponseCache
 		}
 
 		return false;
+	}
+
+	/**
+	 * Determines if the given URI's HTTP response has been cached, including the cached endpoint response
+	 * of a redirect response.
+	 * @param uri The URI to check for a cached response of. Can be null.
+	 * @return
+	 * Returns true if the system has a cached response for the given URI.
+	 * <p>
+	 * Returns false if the URI's response is not cached, or if it is a redirect, its redirected response is not cached.
+	 * Will also return false if given an invalid argument.
+	 */
+	public static boolean peekFollowingRedirects(URI uri)
+	{
+		URI cachedUri = fetchEndpointFollowingRedirects(uri);
+		return (cachedUri != null);
+	}
+
+	/**
+	 * Fetches the cached endpoint for the given URI in case the URI triggers a redirect.
+	 * @param uri The URI to fetch the endpoint of. Can be null.
+	 * @return
+	 * If the given URI is cached and references a redirect response, then the returned URI will
+	 * be the redirect's "location" URI.
+	 * <p>
+	 * If the given URI does not reference a redirect, then the given URI is returned.
+	 * <p>
+	 * Returns null if given URI is not cached or if given an invalid argument.
+	 */
+	public static URI fetchEndpointFollowingRedirects(URI uri)
+	{
+		// Validate.
+		if (uri == null) {
+			return null;
+		}
+
+		// Check if the given URI is cached. If it is, follow its cached redirects if applicable.
+		try {
+			URI nextUri = uri;
+			HashMap<String, List<String>> requestHeaders = new HashMap<String, List<String>>();
+			while (TiResponseCache.peek(nextUri)) {
+				// Fetch the URI's cached response.
+				CacheResponse response = TiResponseCache.getDefault().get(nextUri, "GET", requestHeaders);
+				if (response == null) {
+					return null;
+				}
+
+				// If cached response is a redirect, then acquire its redirect URI.
+				URI redirectUri = null;
+				try {
+					Map<String, List<String>> responseHeaders = response.getHeaders();
+					for (Map.Entry<String, List<String>> headerEntry : responseHeaders.entrySet()) {
+						// Validate header key/value pair.
+						if (headerEntry == null) {
+							continue;
+						}
+
+						// Fetch the HTTP header name.
+						String headerName = headerEntry.getKey();
+						if (headerName == null) {
+							continue;
+						}
+						headerName = headerName.toLowerCase().trim();
+
+						// If this is a redirect header, then fetch its URL and stop here.
+						if (headerName.equals("location")) {
+							List<String> valueList = headerEntry.getValue();
+							if ((valueList != null) && !valueList.isEmpty()) {
+								try {
+									redirectUri = new URI(valueList.get(0));
+								} catch (Exception ex) {
+								}
+								break;
+							}
+						}
+					}
+				} finally {
+					// Fetching "CacheResponse" auto-opens a stream to the file storing the "body".
+					// We must close the file ourselves here.
+					try {
+						InputStream cachedInputStream = response.getBody();
+						if (cachedInputStream != null) {
+							cachedInputStream.close();
+						}
+					} catch (Exception ex) {
+					}
+				}
+
+				// If we've found a redirect URI, then fetch it's cached response.
+				if ((redirectUri != null) && !redirectUri.equals(nextUri)) {
+					nextUri = redirectUri;
+					continue;
+				}
+
+				// Cached response is not a redirect. We're done.
+				return nextUri;
+			}
+		} catch (Exception ex) {
+		}
+
+		// Given URI is invalid or its response is not cached.
+		return null;
 	}
 
 	/**
@@ -236,7 +338,7 @@ public class TiResponseCache extends ResponseCache
 			if (rc.cacheDir == null) {
 				return null;
 			}
-			String hash = DigestUtils.shaHex(uri.toString());
+			String hash = TiDigestUtils.sha1Hex(uri.toString());
 			File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
 			File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
 			if (!bFile.exists() || !hFile.exists()) {
@@ -284,11 +386,11 @@ public class TiResponseCache extends ResponseCache
 	{
 		synchronized (completeListeners)
 		{
-			String hash = DigestUtils.shaHex(uri.toString());
-			if (!completeListeners.containsKey(hash)) {
-				completeListeners.put(hash, new ArrayList<CompleteListener>());
+			String key = uri.toString();
+			if (!completeListeners.containsKey(key)) {
+				completeListeners.put(key, new ArrayList<CompleteListener>());
 			}
-			completeListeners.get(hash).add(listener);
+			completeListeners.get(key).add(listener);
 		}
 	}
 
@@ -311,8 +413,15 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheResponse get(URI uri, String rqstMethod, Map<String, List<String>> rqstHeaders) throws IOException
 	{
-		if (uri == null || cacheDir == null)
+		if (uri == null || cacheDir == null || rqstMethod == null) {
 			return null;
+		}
+
+		// We only support caching HTTP "GET" requests. (Apple and Google do not normally cache "HEAD".)
+		// Never cache methods which can make server-side changes such as "POST", "PUT", "DELETE", etc.
+		if (!rqstMethod.equals("GET")) {
+			return null;
+		}
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
@@ -324,7 +433,7 @@ public class TiResponseCache extends ResponseCache
 		}
 
 		// Get our key, which is a hash of the URI
-		String hash = DigestUtils.shaHex(uri.toString());
+		String hash = TiDigestUtils.sha1Hex(uri.toString());
 
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
@@ -408,8 +517,18 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
-		if (cacheDir == null)
+		if (cacheDir == null) {
 			return null;
+		}
+
+		// We only support caching HTTP "GET" requests. (Apple and Google do not normally cache "HEAD".)
+		// Never cache methods which can make server-side changes such as "POST", "PUT", "DELETE", etc.
+		if (conn instanceof HttpURLConnection) {
+			String requestMethod = ((HttpURLConnection) conn).getRequestMethod();
+			if ((requestMethod == null) || !requestMethod.equals("GET")) {
+				return null;
+			}
+		}
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
@@ -465,7 +584,7 @@ public class TiResponseCache extends ResponseCache
 		}
 
 		// Get our key, which is a hash of the URI
-		String hash = DigestUtils.shaHex(uri.toString());
+		String hash = TiDigestUtils.sha1Hex(uri.toString());
 
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
@@ -498,12 +617,12 @@ public class TiResponseCache extends ResponseCache
 	{
 		synchronized (completeListeners)
 		{
-			String hash = DigestUtils.shaHex(uri.toString());
-			if (completeListeners.containsKey(hash)) {
-				for (CompleteListener listener : completeListeners.get(hash)) {
+			String key = uri.toString();
+			if (completeListeners.containsKey(key)) {
+				for (CompleteListener listener : completeListeners.get(key)) {
 					listener.cacheCompleted(uri);
 				}
-				completeListeners.remove(hash);
+				completeListeners.remove(key);
 			}
 		}
 	}

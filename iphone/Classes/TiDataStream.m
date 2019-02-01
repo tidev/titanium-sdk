@@ -6,7 +6,7 @@
  */
 
 #import "TiDataStream.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDataStream
 @synthesize data, mode;

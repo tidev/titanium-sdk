@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIOSSPLITWINDOW
-#import "TiUIWindow.h"
+#import <TitaniumKit/TiUIWindow.h>
 
 @interface TiUIiOSSplitWindow : TiUIWindow {
   @private
@@ -14,6 +14,7 @@
   BOOL showMasterInPortrait;
   BOOL masterIsOverlayed;
   BOOL viewsInitialized;
+  BOOL masterViewVisible;
 
   TiViewProxy *masterProxy;
   TiViewProxy *detailProxy;
@@ -27,5 +28,6 @@
 - (void)setMasterIsOverlayed_:(id)value withObject:(id)animated;
 - (void)initWrappers;
 - (void)cleanup;
+- (void)setMasterViewVisible_:(NSNumber *)value;
 @end
 #endif

@@ -30,7 +30,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
@@ -126,7 +126,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_CONFIG_SETTING_NOT_INSTALLED');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_NOT_SUPPORTED');
 
 					if (!cli.argv.prompt) {
 						// check that the Android SDK is found and sane
@@ -917,7 +919,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
-	this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
+	this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
 	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
@@ -1267,13 +1270,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// determine the abis to support
 	this.abis = this.validABIs;
-	if (this.deployType === 'production') {
-		// by default, remove 'x86' from production builds
-		// 'x86' devices are scarce; this is predominantly used for emulators
+	const customABIs = cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1;
+	if (!customABIs && this.deployType === 'production') {
+		// If a users has not specified the abi tag in the tiapp,
+		// remove 'x86' from production builds 'x86' devices are scarce;
+		// this is predominantly used for emulators
 		// we can save 16MB+ by removing this from release builds
 		this.abis.splice(this.abis.indexOf('x86'), 1);
 	}
-	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1) {
+	if (customABIs) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
 			if (this.validABIs.indexOf(abi) === -1) {
@@ -2324,6 +2329,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableResources = {},
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
+		jsBootstrapFiles = [],
 		htmlJsFiles = this.htmlJsFiles = {},
 		symlinkFiles = process.platform !== 'win32' && this.config.get('android.symlinkResources', true),
 		_t = this;
@@ -2515,6 +2521,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
 							jsFiles[id] = from;
+
+							// JS files that end with "*.bootstrap.js" are loaded before the "app.js".
+							// Add it as a require() compatible string to bootstrap array if it's a match.
+							const bootstrapPath = id.substr(0, id.length - 3);  // Remove the ".js" extension.
+							if (bootstrapPath.endsWith('.bootstrap')) {
+								jsBootstrapFiles.push(bootstrapPath);
+							}
 						}
 
 						next();
@@ -2556,8 +2569,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	const tasks = [
-		// first task is to copy all files in the Resources directory, but ignore
-		// any directory that is the name of a known platform
+		// First copy all of the Titanium SDK's core JS files shared by all platforms.
+		function (cb) {
+			const src = path.join(this.titaniumSdkPath, 'common', 'Resources');
+			warnDupeDrawableFolders.call(this, src);
+			_t.logger.debug(__('Copying %s', src.cyan));
+			copyDir.call(this, {
+				src: src,
+				dest: this.buildBinAssetsResourcesDir,
+				ignoreRootDirs: ti.allPlatformNames
+			}, cb);
+		},
+
+		// Next, copy all files in the project's Resources directory,
+		// but ignore any directory that is the name of a known platform.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources');
 			warnDupeDrawableFolders.call(this, src);
@@ -2569,7 +2594,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			}, cb);
 		},
 
-		// next copy all files from the Android specific Resources directory
+		// Last, copy all files from the Android specific Resources directory.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources', 'android');
 			warnDupeDrawableFolders.call(this, src);
@@ -2728,10 +2753,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									targets: {
 										chrome: this.chromeVersion
 									},
-									resourcesDir: this.buildBinAssetsResourcesDir
+									resourcesDir: this.buildBinAssetsResourcesDir,
+									logger: this.logger
 								});
 								const newContents = modified.contents;
 
@@ -2769,8 +2796,41 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 			};
 		}), function () {
+			// jsanalyze will copy polyfils into buildBinAssetsResourcesDir and we need
+			// to unmark them here so they won't get removed on subsequent builds
+			if (this.transpile) {
+				/**
+				 * Recursively unmarks a module and it's dependencies from the last
+				 * build files list.
+				 *
+				 * @param {String} moduleId The module to remove from the list of files
+				 * @param {String} nodeModulesPath Path to the node_modules folder
+				 */
+				const unmarkPackageAndDependencies = (moduleId, nodeModulesPath) => {
+					let packageJsonPath;
+					if (require.resolve.paths) {
+						packageJsonPath = require.resolve(path.join(moduleId, 'package.json'), { paths: [ nodeModulesPath ] });
+					} else {
+						packageJsonPath = require.resolve(path.join(moduleId, 'package.json'));
+						packageJsonPath = path.join(nodeModulesPath, packageJsonPath.substring(packageJsonPath.indexOf('node_modules') + 12));
+					}
+					const modulePath = path.dirname(packageJsonPath);
+					Object.keys(this.lastBuildFiles).forEach(p => {
+						if (p.startsWith(modulePath)) {
+							delete this.lastBuildFiles[p];
+						}
+					});
+					const packageJson = fs.readJSONSync(packageJsonPath);
+					for (const dependency in packageJson.dependencies) {
+						unmarkPackageAndDependencies(dependency, nodeModulesPath);
+					}
+				};
+				unmarkPackageAndDependencies('@babel/polyfill', path.join(this.buildBinAssetsResourcesDir, 'node_modules'));
+			}
+
 			// write the properties file
-			const appPropsFile = path.join(this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir, '_app_props_.json'),
+			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
+				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
 				props = {};
 			Object.keys(this.tiapp.properties).forEach(function (prop) {
 				props[prop] = this.tiapp.properties[prop].value;
@@ -2781,6 +2841,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			);
 			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
 			delete this.lastBuildFiles[appPropsFile];
+
+			// Write the "bootstrap.json" file, even if the bootstrap array is empty.
+			// Note: An empty array indicates the app has no bootstrap files.
+			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
+				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
+			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
 
 			if (!jsFilesToEncrypt.length) {
 				// nothing to encrypt, continue
@@ -3773,14 +3841,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}, this);
 	}, this);
 
-	// TIMOB-15253: Titanium Android cannot be used with 'android:launchMode' as it can dispose the KrollRuntime instance
-	// prevent 'android:launchMode' from being defined in the AndroidManifest.xml
+	// scan "AndroidManifest.xml" activities
 	if (tiappAndroidManifest && tiappAndroidManifest.application) {
+		// Log a warning if Activity "launchMode" is set. May make app behave in a manner Titanium does not expect.
+		// Note: Allow it since some developers want "singleTask" support and know how to deal with its repercussions.
 		for (const activity in tiappAndroidManifest.application.activity) {
 			const parameters = tiappAndroidManifest.application.activity[activity];
 			if (parameters['launchMode']) {
-				delete parameters['launchMode'];
-				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
+				this.logger.warn(__('Setting "%s" is not recommended for activity "%s"', 'android:launchMode'.red, activity.cyan));
 			}
 		}
 
@@ -3888,9 +3956,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		if (fs.existsSync(libraryManifestPath)) {
 			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
 
-			// handle injected build variables
+			// handle injected build variables such as ${applicationId}
 			// https://developer.android.com/studio/build/manifest-build-variables
-			libraryManifestContent = libraryManifestContent.replace('${applicationId}', this.appid); // eslint-disable-line no-template-curly-in-string
+			libraryManifestContent = libraryManifestContent.replace(/\$\{applicationId\}/g, this.appid); // eslint-disable-line no-template-curly-in-string
 
 			const libraryManifest = new AndroidManifest();
 			libraryManifest.parse(libraryManifestContent);
@@ -3987,6 +4055,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidCompileSDK.androidJar,
 			'-F', this.ap_File,
+			'--ignore-assets', '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~',
 			'--output-text-symbols', bundlesPath,
 			'--no-version-vectors'
 		];
@@ -4341,7 +4410,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				'-Pconfiguration=' + quotePath(baserules) + pathArraySeparator + quotePath(mainDexProGuardFilePath)
 			], { shell: true, windowsHide: true }, function (code, out, err) {
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to run gradle:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();
@@ -4360,7 +4429,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to generate main class for dexer:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();
@@ -4406,7 +4475,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 	this.logger.info(__('Creating unsigned apk'));
 
 	// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
-	const archives = [this.ap_File].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+	const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 
 	archives.forEach(function (file) {
 		const src = new AdmZip(file),

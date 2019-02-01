@@ -8,9 +8,9 @@
 
 #import "TiDatabaseResultSetProxy.h"
 #import "DatabaseModule.h"
-#import "TiBlob.h"
 #import "TiDatabaseProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDatabaseResultSetProxy
 
@@ -130,7 +130,7 @@
 {
   if (results != nil) {
     validRow = [results next];
-    if (validRow == NO) {
+    if (!validRow) {
       [self close:nil];
     }
     return NUMBOOL(validRow);
@@ -211,7 +211,7 @@
       [results reset];
       reset = YES;
     }
-    if (reset == NO) {
+    if (!reset) {
       return NUMINT(rowCount);
     }
     // we cache it

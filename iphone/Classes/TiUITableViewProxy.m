@@ -11,15 +11,15 @@
 #endif
 
 #import "TiUITableViewProxy.h"
-#import "TiApp.h"
-#import "TiComplexValue.h"
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "WebFont.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiComplexValue.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/WebFont.h>
 
 NSArray *tableKeySequence;
 
@@ -1121,6 +1121,32 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 - (void)add:(id)arg
 {
   NSLog(@"[ERROR] Cannot add sub-views to table views. Use \"appendRow\" or \"appendSection\" instead.");
+}
+
+#pragma mark Accessibility Overrides
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel
+{
+  [super setAccessibilityLabel:accessibilityLabel];
+
+  [[[self tableView] tableView] setAccessibilityLabel:accessibilityLabel];
+  [self replaceValue:accessibilityLabel forKey:@"accessibilityLabel" notification:NO];
+}
+
+- (void)setAccessibilityValue:(NSString *)accessibilityValue
+{
+  [super setAccessibilityValue:accessibilityValue];
+
+  [[[self tableView] tableView] setAccessibilityValue:accessibilityValue];
+  [self replaceValue:accessibilityValue forKey:@"accessibilityValue" notification:NO];
+}
+
+- (void)setAccessibilityHint:(NSString *)accessibilityHint
+{
+  [super setAccessibilityHint:accessibilityHint];
+
+  [[[self tableView] tableView] setAccessibilityHint:accessibilityHint];
+  [self replaceValue:accessibilityHint forKey:@"accessibilityHint" notification:NO];
 }
 
 @end

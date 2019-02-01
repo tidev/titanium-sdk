@@ -1,13 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #ifdef USE_TI_CONTACTS
 #import "TiContactsPerson.h"
 #endif
@@ -105,7 +105,7 @@
   ENSURE_SINGLE_ARG(itemtype, NSString);
 
   if ([TiUtils stringValue:itemtype] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
     return;
   }
 
@@ -133,22 +133,24 @@
   NSString *key = [TiUtils stringValue:itemtype];
 
   if (key == nil) {
-    NSLog(@"[ERROR] The itemtype property is required.");
+    NSLog(@"[ERROR] The \"itemtype\" property is required.");
     return;
   }
 
-  if ([self typeExists:key] == NO) {
+  if (![self typeExists:key]) {
     return;
   }
 
   NSMutableArray *shortcuts = (NSMutableArray *)[UIApplication sharedApplication].shortcutItems;
+  NSMutableIndexSet *shortcutsIndicesToDelete = [[NSMutableIndexSet alloc] init];
 
-  for (UIApplicationShortcutItem *item in shortcuts) {
-    if ([item.type isEqualToString:key]) {
-      [shortcuts removeObject:item];
+  [shortcuts enumerateObjectsUsingBlock:^(UIApplicationShortcutItem *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    if ([obj.type isEqualToString:key]) {
+      [shortcutsIndicesToDelete addIndex:idx];
     }
-  }
+  }];
 
+  [shortcuts removeObjectsAtIndexes:shortcutsIndicesToDelete];
   [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
@@ -157,12 +159,12 @@
   ENSURE_SINGLE_ARG(args, NSDictionary);
 
   if ([args objectForKey:@"itemtype"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
     return;
   }
 
   if ([args objectForKey:@"title"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The title property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"title\" property is required.");
     return;
   }
 
@@ -217,7 +219,7 @@
 {
   NSString *resultUrl = nil;
 
-  if ([url hasPrefix:@"/"] == YES) {
+  if ([url hasPrefix:@"/"]) {
     url = [url substringFromIndex:1];
   }
 

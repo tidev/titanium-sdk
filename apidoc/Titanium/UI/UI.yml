@@ -144,9 +144,21 @@ methods:
     parameters:
       - name: parameters
         summary: Initial transformation of the matrix.
-        type: MatrixCreationDict
+        type: Matrix2DCreationDict
         optional: true
+    deprecated:
+        since: "8.0.0"
+        notes: Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
 
+  - name: createMatrix2D
+    summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix2DCreationDict
+        optional: true
 
   - name: convertUnits
     summary: Converts one type of unit to another using the metrics of the main display.
@@ -174,7 +186,8 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: |
@@ -182,7 +195,8 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_OUT
     summary: |
@@ -190,7 +204,8 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_LINEAR
     summary: |
@@ -198,7 +213,8 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ATTRIBUTE_FONT
     summary: |
@@ -338,6 +354,18 @@ properties:
     platforms: [iphone, ipad]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_PARAGRAPH_STYLE
+    summary: |
+        Use with <Attribute.type> to manages the behaviour of string set.
+    description: |
+        Use <ParagraphAttribute> for the 'value' property in the attribute dictionary.
+        Range for this should be whole string.
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "7.5.0"
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_WIDTH
@@ -480,6 +508,9 @@ properties:
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK
+    deprecated:
+        since: "7.5.0"
+        notes: Use <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode> instead.  
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
@@ -1077,7 +1108,7 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_DAY
-    summary: Specifies the expectation of a card expectation day.
+    summary: Specifies the expectation of a card expiration day.
     type: String
     platforms: [android]
     since: "6.3.0"
@@ -1085,7 +1116,7 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_MONTH
-    summary: Specifies the expectation of a card expectation month.
+    summary: Specifies the expectation of a card expiration month.
     type: String
     platforms: [android]
     since: "6.3.0"
@@ -1093,11 +1124,27 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_YEAR
-    summary: Specifies the expectation of a card expectation year.
+    summary: Specifies the expectation of a card expiration year.
     type: String
     platforms: [android]
     since: "6.3.0"
     osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NEW_PASSWORD
+    summary: Specifies the expectation of a new password.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ONE_TIME_CODE
+    summary: Specifies the expectation of a single-factor SMS login code.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
     permission: read-only
 
   - name: AUTOLINK_MAP_ADDRESSES
@@ -1707,6 +1754,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.4.0"
+        removed: "8.0.0"
     platforms: [iphone, ipad]
 
   - name: KEYBOARD_APPEARANCE_DEFAULT
@@ -1739,6 +1787,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
 
   - name: KEYBOARD_DECIMAL_PAD
@@ -1753,6 +1802,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
 
   - name: KEYBOARD_DEFAULT
@@ -1764,6 +1814,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
 
   - name: KEYBOARD_EMAIL
@@ -1775,6 +1826,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
 
   - name: KEYBOARD_NAMEPHONE_PAD
@@ -1787,6 +1839,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
@@ -1799,6 +1852,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
 
   - name: KEYBOARD_NUMBER_PAD
@@ -1812,6 +1866,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
 
   - name: KEYBOARD_PHONE_PAD
@@ -1825,6 +1880,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
 
   - name: KEYBOARD_URL
@@ -1836,6 +1892,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD

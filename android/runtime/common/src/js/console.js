@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
+
 const times = new Map();
 function join(args) {
 	// Handle null / undefined args up front since we can't slice them
@@ -24,6 +26,22 @@ function join(args) {
 				? (arg.hasOwnProperty('toString') ? arg.toString() : JSON.stringify(arg))
 				: arg);
 	}).join(' ');
+}
+
+function logTime(label, logData) {
+	label = `${label}`;
+	const startTime = times.get(label);
+	if (!startTime) {
+		exports.warn(`Label "${label}" does not exist`);
+		return true;
+	}
+	const duration = Date.now() - startTime;
+	if (logData) {
+		exports.log(`${label}: ${duration}ms`, ...logData);
+	} else {
+		exports.log(`${label}: ${duration}ms`);
+	}
+	return false;
 }
 
 exports.log = function () {
@@ -56,13 +74,12 @@ exports.time = function (label = 'default') {
 };
 
 exports.timeEnd = function (label = 'default') {
-	label = `${label}`;
-	const startTime = times.get(label);
-	if (!startTime) {
-		exports.warn(`Label "${label}" does not exist`);
-		return;
+	const warned = logTime(label);
+	if (!warned) {
+		times.delete(label);
 	}
-	const duration = Date.now() - startTime;
-	exports.log(`${label}: ${duration}ms`);
-	times.delete(label);
+};
+
+exports.timeLog = function (label = 'default', ...logData) {
+	logTime(label, logData);
 };

@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.graphics.Matrix;
@@ -138,9 +139,12 @@ public class Ti2DMatrix extends KrollProxy
 	@Kroll.method
 	public Ti2DMatrix translate(double x, double y)
 	{
+		TiDimension xDimension = new TiDimension(TiConvert.toString(x), TiDimension.TYPE_LEFT);
+		TiDimension yDimension = new TiDimension(TiConvert.toString(y), TiDimension.TYPE_TOP);
+
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_TRANSLATE);
-		newMatrix.op.translateX = (float) x;
-		newMatrix.op.translateY = (float) y;
+		newMatrix.op.translateX = (float) xDimension.getPixels(null);
+		newMatrix.op.translateY = (float) yDimension.getPixels(null);
 		return newMatrix;
 	}
 

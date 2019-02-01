@@ -8,7 +8,7 @@
 
 #import "TiUIProgressBarProxy.h"
 #import "TiUIProgressBar.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIProgressBarProxy
 

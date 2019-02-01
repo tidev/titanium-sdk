@@ -12,6 +12,24 @@ const path = require('path'),
 	util = require('util'),
 	Utils = {};
 
+function leftpad(str, len, ch) {
+	str = String(str);
+	let i = -1;
+	if (!ch && ch !== 0) {
+		ch = ' ';
+	}
+	len -= str.length;
+	while (++i < len) {
+		str = ch + str;
+	}
+	return str;
+}
+
+Utils.timestamp = function () {
+	const date = new Date();
+	return '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
+};
+
 Utils.copyFile = function (srcFolder, destFolder, filename, next) {
 	fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename), next);
 };
@@ -28,6 +46,20 @@ Utils.globCopy = function (pattern, srcFolder, destFolder, next) {
 			return next(err);
 		}
 		Utils.copyFiles(srcFolder, destFolder, files, next);
+	});
+};
+
+Utils.globCopyFlat = function (pattern, srcFolder, destFolder, next) {
+	glob(pattern, { cwd: srcFolder }, function (err, files) {
+		if (err) {
+			console.error(err);
+			return next(err);
+		}
+
+		async.each(files, function (filename, cb) {
+			const filenameWithoutDirectory = filename.split('/')[1]; // TODO: Refactor to simply copy without it's source directory
+			fs.copy(path.join(srcFolder, filename), path.join(destFolder, filenameWithoutDirectory), cb);
+		}, next);
 	});
 };
 
@@ -121,7 +153,7 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 		// Verify integrity!
 		ssri.checkStream(fs.createReadStream(file), integrity).then(() => {
 			callback(null, file);
-		}).catch((e) => {
+		}).catch(e => {
 			callback(e);
 		});
 	});
@@ -129,7 +161,7 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 
 function cachedDownloadPath(url) {
 	// Use some consistent name so we can cache files!
-	const cacheDir = path.join(tempDir, 'timob-build');
+	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || tempDir, 'timob-build');
 	fs.existsSync(cacheDir) || fs.mkdirsSync(cacheDir);
 
 	const filename = url.slice(url.lastIndexOf('/') + 1);
@@ -138,6 +170,15 @@ function cachedDownloadPath(url) {
 }
 
 Utils.generateSSRIHashFromURL = function (url, callback) {
+	if (url.startsWith('file://')) {
+		// Generate integrity hash!
+		ssri.fromStream(fs.createReadStream(url.slice(7))).then(integrity => {
+			callback(null, integrity.toString());
+		}).catch(e => {
+			callback(e);
+		});
+		return;
+	}
 	const downloadPath = cachedDownloadPath(url);
 	fs.removeSync(downloadPath);
 	download(url, downloadPath, function (err, file) {
@@ -154,11 +195,23 @@ Utils.generateSSRIHashFromURL = function (url, callback) {
 };
 
 Utils.downloadURL = function downloadURL(url, integrity, callback) {
-	const downloadPath = cachedDownloadPath(url);
+	if (url.startsWith('file://')) {
+		if (!fs.existsSync(url.slice(7))) {
+			return callback(new Error('File URL does not exist on disk: %s', url));
+		}
+		// if it passes integrity check, we're all good, return path to file
+		ssri.checkStream(fs.createReadStream(url.slice(7)), integrity).then(() => {
+			// cached copy is still valid, integrity hash matches
+			callback(null, url.slice(7));
+		}).catch(e => callback(e));
+		return;
+	}
 
 	if (!integrity) {
 		return callback(new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url));
 	}
+
+	const downloadPath = cachedDownloadPath(url);
 	// Check if file already exists and passes integrity check!
 	if (fs.existsSync(downloadPath)) {
 		// if it passes integrity check, we're all good, return path to file
@@ -174,6 +227,68 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 		// download and verify integrity
 		downloadWithIntegrity(url, downloadPath, integrity, callback);
 	}
+};
+
+/**
+ * @returns {string} absolute path to SDK install root
+ */
+Utils.sdkInstallDir = function () {
+	switch (os.platform()) {
+		case 'win32':
+			return path.join(process.env.ProgramData, 'Titanium');
+
+		case 'darwin':
+			return path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
+
+		case 'linux':
+		default:
+			return path.join(process.env.HOME, '.titanium');
+	}
+};
+
+/**
+ * @param  {String}   versionTag [description]
+ * @param  {boolean}   [symlinkIfPossible=false] [description]
+ * @returns {Promise<void>}
+ */
+Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
+	const dest = Utils.sdkInstallDir();
+
+	let osName = os.platform();
+	if (osName === 'darwin') {
+		osName = 'osx';
+	}
+
+	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
+	const dirExists = await fs.pathExists(zipDir);
+
+	if (dirExists) {
+		console.log('Installing %s...', zipDir);
+		if (symlinkIfPossible) {
+			console.log('Symlinking built SDK to install!');
+			// FIXME: What about modules? Can we symlink those in?
+			const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
+			if (await fs.pathExists(destDir)) {
+				await fs.remove(destDir);
+			}
+			return fs.ensureSymlink(path.join(zipDir, 'mobilesdk', osName, versionTag), destDir);
+		}
+		await fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true });
+		await fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'));
+		return;
+	}
+
+	// try the zip
+	const zipfile = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}.zip`);
+	console.log('Installing %s...', zipfile);
+	return new Promise((resolve, reject) => {
+		appc.zip.unzip(zipfile, dest, {}, function (err) {
+			if (err) {
+				return reject(err);
+			}
+			return resolve();
+		});
+	});
 };
 
 module.exports = Utils;

@@ -46,14 +46,14 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
-	private static final String ERROR_TITLE = "title";
-	private static final String ERROR_MESSAGE = "message";
-	private static final String ERROR_SOURCENAME = "sourceName";
-	private static final String ERROR_LINE = "line";
-	private static final String ERROR_LINESOURCE = "lineSource";
-	private static final String ERROR_LINEOFFSET = "lineOffset";
-	private static final String ERROR_JS_STACK = "javascriptStack";
-	private static final String ERROR_JAVA_STACK = "javaStack";
+	public static final String ERROR_TITLE = "title";
+	public static final String ERROR_MESSAGE = "message";
+	public static final String ERROR_SOURCENAME = "sourceName";
+	public static final String ERROR_LINE = "line";
+	public static final String ERROR_LINESOURCE = "lineSource";
+	public static final String ERROR_LINEOFFSET = "lineOffset";
+	public static final String ERROR_JS_STACK = "javascriptStack";
+	public static final String ERROR_JAVA_STACK = "javaStack";
 
 	private static final String fill(int count)
 	{
@@ -97,14 +97,32 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 		// sometimes the stacktrace can include the error
 		// don't re-print the error if that is the case
-		if (!jsStack.contains("Error:")) {
-			output += message + "\n";
-		}
 		if (jsStack != null) {
+			if (!jsStack.contains("Error:")) {
+				output += message + "\n";
+			}
 			output += jsStack + "\n";
+		} else {
+			output += message + "\n";
 		}
 		if (javaStack != null) {
 			output += javaStack;
+
+			// no java stack, attempt to obtain last ten stack entries
+			// omitting our error handling entries
+		} else {
+			StackTraceElement[] trace = new Error().getStackTrace();
+			int startIndex = 0;
+			for (StackTraceElement e : trace) {
+				startIndex++;
+				if (e.getMethodName().equals("dispatchException")) {
+					break;
+				}
+			}
+			int endIndex = startIndex + 10;
+			for (int i = startIndex; trace.length >= endIndex && i < endIndex; i++) {
+				output += "\n    " + trace[i].toString();
+			}
 		}
 
 		return output;
@@ -193,13 +211,12 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		final OnClickListener clickListener = new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which)
 			{
+				dialogShowing = false;
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					Process.killProcess(Process.myPid());
 				}
 				if (!errorMessages.isEmpty()) {
 					handleOpenErrorDialog(errorMessages.removeFirst());
-				} else {
-					dialogShowing = false;
 				}
 			}
 		};

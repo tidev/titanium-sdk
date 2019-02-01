@@ -30,10 +30,31 @@ properties:
 
   - name: launchIntent
     summary: |
-        Return the intent that was used to launch the application. 
+        Return the intent that was used to launch the application.
+    description : |
+        This intent will not change for the lifetime of the application. Its [action](Titanium.Android.Intent.action)
+        is typically set to "android.intent.action.MAIN" when launched via the app list screen.
+
+        This launch intent can be used to resume the app while backgrounded via the
+        [startActivity()](Titanium.Android.Activity.startActivity) method or via a notification.
+
+        When the app is launched via a data intent such as a URL, shortcut, notification, etc. then that intent
+        is provided by the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object's
+        [intent](Titanium.Android.Activity.intent) property instead. That intent will initially be set to the
+        launch intent, but will change when a ["newintent"](Titanium.Android.Activity.newintent) event has been fired.
+        You should always read the root activity's intent instead of the launch intent for data.
     type: Titanium.Android.Intent
     permission: read-only
     since: 3.3.0
+
+events:
+  - name: shortcutitemclick
+    summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
+    properties:
+      - name: id
+        summary: Identifier of the clicked shortcut item.
+        type: String
+    since: 7.5.0
 
 examples:
   - title: Custom String Resource
