@@ -748,7 +748,7 @@ beprovided to handle the result.
 <#macro getHolder>
 	Local<Object> holder = args.Holder();
 	if (!JavaObject::isJavaObject(holder)) {
-		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(context));
+		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
 	}
 	if (holder.IsEmpty() || holder->IsNull()) {
 		LOGE(TAG, "Couldn't obtain argument holder");

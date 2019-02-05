@@ -1960,7 +1960,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	public KrollDict toImage()
 	{
-		return TiUIHelper.viewToImage(proxy.getProperties(), getNativeView());
+		return TiUIHelper.viewToImage(proxy.getProperties(), getOuterView());
 	}
 
 	private View getTouchView()

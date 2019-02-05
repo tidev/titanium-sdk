@@ -2114,7 +2114,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../common/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\ncp -Rf \"$PROJECT_DIR/../Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/dev/localecompiler.py\" \"$PROJECT_DIR/..\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../common/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\ncp -Rf \"$PROJECT_DIR/../Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/dev/localecompiler.py\" \"$PROJECT_DIR/..\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"\$PROJECT_DIR/../../support/dev/index_generator.js\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -153,7 +153,7 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 		// Verify integrity!
 		ssri.checkStream(fs.createReadStream(file), integrity).then(() => {
 			callback(null, file);
-		}).catch((e) => {
+		}).catch(e => {
 			callback(e);
 		});
 	});
@@ -230,41 +230,65 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 };
 
 /**
- * @param  {String}   versionTag [description]
- * @param  {Function} next        [description]
+ * @returns {string} absolute path to SDK install root
  */
-Utils.installSDK = function (versionTag, next) {
-	let dest,
-		osName = os.platform();
+Utils.sdkInstallDir = function () {
+	switch (os.platform()) {
+		case 'win32':
+			return path.join(process.env.ProgramData, 'Titanium');
 
-	if (osName === 'win32') {
-		dest = path.join(process.env.ProgramData, 'Titanium');
+		case 'darwin':
+			return path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
+
+		case 'linux':
+		default:
+			return path.join(process.env.HOME, '.titanium');
 	}
+};
 
+/**
+ * @param  {String}   versionTag [description]
+ * @param  {boolean}   [symlinkIfPossible=false] [description]
+ * @returns {Promise<void>}
+ */
+Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
+	const dest = Utils.sdkInstallDir();
+
+	let osName = os.platform();
 	if (osName === 'darwin') {
 		osName = 'osx';
-		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
-	}
-
-	if (osName === 'linux') {
-		osName = 'linux';
-		dest = path.join(process.env.HOME, '.titanium');
 	}
 
 	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
-	if (fs.existsSync(zipDir)) {
-		console.log('Installing %s...', zipDir);
-		fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true })
-			.then(() => {
-				fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'), next);
-			})
-			.catch(err => next(err));
-	} else {
-		const zipfile = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}.zip`);
-		console.log('Installing %s...', zipfile);
+	const dirExists = await fs.pathExists(zipDir);
 
-		appc.zip.unzip(zipfile, dest, {}, next);
+	if (dirExists) {
+		console.log('Installing %s...', zipDir);
+		if (symlinkIfPossible) {
+			console.log('Symlinking built SDK to install!');
+			// FIXME: What about modules? Can we symlink those in?
+			const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
+			if (await fs.pathExists(destDir)) {
+				await fs.remove(destDir);
+			}
+			return fs.ensureSymlink(path.join(zipDir, 'mobilesdk', osName, versionTag), destDir);
+		}
+		await fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true });
+		await fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'));
+		return;
 	}
+
+	// try the zip
+	const zipfile = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}.zip`);
+	console.log('Installing %s...', zipfile);
+	return new Promise((resolve, reject) => {
+		appc.zip.unzip(zipfile, dest, {}, function (err) {
+			if (err) {
+				return reject(err);
+			}
+			return resolve();
+		});
+	});
 };
 
 module.exports = Utils;
