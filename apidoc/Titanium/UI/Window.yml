@@ -566,7 +566,7 @@ properties:
         equals the top of your content view. When the user scrolls down, the search bar collapses into 
         the navigation bar. Scrolling back to the top reveals the search bar again. When the value of 
         this property is false, the search bar remains regardless of the current scroll position. 
-        You must set <Titanium.UI.ListView.showSearchBarInNavigation> or <Titanium.UI.TableView.showSearchBarInNavigation> 
+        You must set <Titanium.UI.ListView.showSearchBarInNavBar> or <Titanium.UI.TableView.showSearchBarInNavBar> 
         property for this property to have any effect.
     default: true
     type: Boolean

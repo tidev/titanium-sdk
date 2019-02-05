@@ -1790,7 +1790,7 @@
   RELEASE_TO_NIL(searchField);
   RELEASE_TO_NIL(searchController);
 
-  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavigation"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
 
   if (search != nil) {
     //TODO: now that we're using the search controller, we can move away from

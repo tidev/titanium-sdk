@@ -1350,7 +1350,7 @@ properties:
     platforms: [iphone, ipad]
     availability: creation
 
-  - name: showSearchBarInNavigation
+  - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
           If you want to show the search bar in navigation bar, set this property `true` during creation. 
