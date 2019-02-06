@@ -6,8 +6,8 @@ description: |
     used to rotate, scale, translate, or skew the objects in three-dimensional
     space. A 3D transform  is represented by a 4 by 4 matrix.
 
-    You create an `identity matrix` by creating a 3D Matrix with an empty
-    constructor.
+    If you pass no arguments, <Titanium.UI.createMatrix3D> returns an identity matrix.
+
 extends: Titanium.Proxy
 since: "8.0.0"
 platforms: [iphone, ipad]
@@ -151,7 +151,7 @@ examples:
   - title: Apply a 3D Matrix to a Label
     example: |
         Move a label through a translation that repositions it from 100px to 200px from the top of
-        the display.
+        the Window.
 
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'

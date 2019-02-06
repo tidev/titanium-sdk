@@ -2,6 +2,7 @@
 name: Titanium.UI.2DMatrix
 summary: The 2D Matrix is an object for holding values for an affine transformation matrix.
 description: |
+    2DMatrix is deprecated since 8.0.0. Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
     A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space.
     A 2D affine transformation can be  represented by a 3 by 3 matrix:
 

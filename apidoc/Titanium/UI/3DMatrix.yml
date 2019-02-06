@@ -2,6 +2,7 @@
 name: Titanium.UI.3DMatrix
 summary:  The 3D Matrix is an object for holding values for a 3D affine transform.
 description: |
+    3DMatrix is deprecated since 8.0.0. Use <Titanium.UI.Matrix3D> for improved ES6+ compatibility instead.
     The 3DMatrix is created by <Titanium.UI.create3DMatrix>. A 3D transform is
     used to rotate, scale, translate, or skew the objects in three-dimensional
     space. A 3D transform  is represented by a 4 by 4 matrix.
