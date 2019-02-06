@@ -24,5 +24,15 @@ require('./ti.internal/extensions/Error');
 require('./ti.internal/bootstrap.loader').loadAsync(function () {
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
+	if (Ti.Android) {
+		// On Android, Titanium 7.5.x can launch another UI stack for the same JS runtime via an intent.
+		// The require() function has already cached "app.js" in this case. We must re-execute it explicitly.
+		// Note: Below is not needed as of 8.0.0 since intents in that version will resume existing UI instead.
+		if (global.Module.cache['/app.js']) {
+			var scriptText = Ti.Filesystem.getFile('app.js').read().text;
+			global.kroll.binding('evals').Script.runInThisContext(scriptText, '/app.js', true);
+			return;
+		}
+	}
 	require('./app');
 });
