@@ -28,7 +28,7 @@ describe('Titanium.UI.TableView', function () {
 				win.add(table);
 				finish();
 			} catch (err) {
-				finish (err);
+				finish(err);
 			}
 		}
 
