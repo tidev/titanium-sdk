@@ -111,6 +111,7 @@ properties:
     summary: Damping ratio of spring. Use a value between 0 and 1. For a smoother deceleration use values closer to 1.
     type: Number,
     platforms: [iphone, ipad]
+    since: "8.1.0"
 
   - name: delay
     summary: Delay, in milliseconds before starting the animation.
@@ -154,6 +155,7 @@ properties:
 A value of 1 corresponds to the total animation distance traversed in one second. For example, if the total animation distance is 200 points and you want the start of the animation to match a view velocity of 100 pt/s, use a value of 0.5.`
     type: Number
     platforms: [iphone, ipad]
+    since: "8.1.0"
 
   - name: top
     summary: Value of the `top` property at the end of the animation.
