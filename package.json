@@ -95,7 +95,7 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.3.1",
+    "@commitlint/cli": "^7.5.2",
     "@commitlint/config-conventional": "^7.3.1",
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^0.3.0",
