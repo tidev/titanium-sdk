@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -39,6 +40,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
@@ -53,13 +56,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
-import android.view.WindowManager;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_MODAL,
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-		TiC.PROPERTY_FLAG_SECURE
+		TiC.PROPERTY_FLAG_SECURE,
+		TiC.PROPERTY_BAR_COLOR
 })
 // clang-format on
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -374,7 +377,18 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		}
-
+		if (name.equals(TiC.PROPERTY_BAR_COLOR)) {
+			// Get a reference to the ActionBar.
+			ActionBar actionBar = ((AppCompatActivity) activity.get()).getSupportActionBar();
+			// Check if it is available ( app is using a theme with one or a Toolbar is used as one ).
+			if (actionBar != null) {
+				// Change to background to the new color.
+				actionBar.setBackgroundDrawable(new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value))));
+			} else {
+				// Log a warning if there is no ActionBar available.
+				Log.w(TAG, "There is no ActionBar available for this Window.");
+			}
+		}
 		super.onPropertyChanged(name, value);
 	}
 
