@@ -495,6 +495,33 @@ function execute(fn) {
 	return NO_EXCEPTION;
 }
 
+function isPromiseLike(obj) {
+	return util.types.isPromise(obj)
+		|| (fn && typeof fn === 'object' && typeof fn.then === 'function');
+}
+
+async function executePromise(fn) {
+	let promise;
+	const fnType = typeof fn;
+	if (fnType === 'function') {
+		promise = fn();
+		if (!isPromiseLike(promise)) {
+			throw new TypeError(`Expected instanceof Promise to be returned from the "fn" function but got ${typeof promise}`);
+		}
+	} else {
+		if (!isPromiseLike(fn)) {
+			throw new TypeError(`The "fn" argument must be of type Function or Promise. Received type ${fnType}`);
+		}
+		promise = fn;
+	}
+	try {
+		await promise;
+	} catch (e) {
+		return e;
+	}
+	return NO_EXCEPTION;
+}
+
 assert.throws = (fn, error, message) => {
 	const actual = execute(fn);
 	if (actual === NO_EXCEPTION) {
@@ -515,8 +542,54 @@ assert.throws = (fn, error, message) => {
 	}
 };
 
+assert.rejects = async function (asyncFn, error, message) {
+	const actual = await executePromise(asyncFn);
+	if (actual === NO_EXCEPTION) {
+		// FIXME: append message if not null
+		throwError({
+			actual: undefined, expected: error, message: 'Missing expected exception.', operator: 'rejects'
+		});
+		return;
+	}
+
+	// They didn't specify how to validate, so just roll with it
+	if (!error) {
+		return;
+	}
+
+	if (!checkError(actual, error, message)) {
+		throw actual; // throw the Error it did generate
+	}
+};
+
 assert.doesNotThrow = (fn, error, message) => {
 	const actual = execute(fn);
+	// no Error, just return
+	if (actual === NO_EXCEPTION) {
+		return;
+	}
+
+	// They didn't specify how to validate, so just re-throw
+	if (!error) {
+		throw actual;
+	}
+
+	// If error matches expected, throw an AssertionError
+	if (checkError(actual, error)) {
+		throwError({
+			actual,
+			expected: error,
+			operator: 'doesNotThrow',
+			message: `Got unwanted exception${message ? (': ' + message) : '.'}`
+		});
+		return;
+	}
+	// doesn't match, re-throw
+	throw actual;
+};
+
+assert.doesNotReject = async function (fn, error, message) {
+	const actual = await executePromise(fn);
 	// no Error, just return
 	if (actual === NO_EXCEPTION) {
 		return;

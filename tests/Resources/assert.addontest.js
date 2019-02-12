@@ -15,7 +15,7 @@ let assert;
 // https://github.com/nodejs/node/blob/master/test/parallel/test-assert-deep.js
 // https://github.com/nodejs/node/blob/master/test/parallel/test-assert.js
 
-describe('assert', function () {
+describe.only('assert', function () {
 	it('should be required as core module', function () {
 		assert = require('assert');
 		assert.should.be.a.Function; // it's an alias for assert.ok
@@ -665,6 +665,30 @@ describe('assert', function () {
 			function (err) {
 				return err instanceof assert.AssertionError && err.message === 'Got unwanted exception: Whoops';
 			});
+		});
+	});
+
+	describe('#rejects()', () => {
+		it('is a function', () => {
+			assert.rejects.should.be.a.Function;
+		});
+
+		// TODO: Add some basic tests!
+		it('passes when given a Promise that rejects', finished => {
+			assert.rejects(
+				Promise.reject(new Error('Wrong value'))
+			).then(() => {
+				return finished();
+			}).catch(err => finished(err));
+		});
+
+		it('passes when given a Promise that rejects expected Error type', finished => {
+			assert.rejects(
+				Promise.reject(new Error('Wrong value')),
+				Error
+			).then(() => {
+				return finished();
+			}).catch(err => finished(err));
 		});
 	});
 
