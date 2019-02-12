@@ -1518,9 +1518,18 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			const manifestHashes = [],
 				nativeHashes = [],
 				bindingsHashes = [],
-				jarHashes = {};
+				jarHashes = {},
+				blacklist = [ 'com.soasta.touchtest' ];
 
 			modules.found.forEach(function (module) {
+
+				// skip modules from blacklist
+				// TODO: remove SOASTA files from project in 8.1.0
+				if (blacklist.includes(module.id)) {
+					this.logger.warn(__('Skipping unsupported module "%s"', module.id.cyan));
+					return;
+				}
+
 				manifestHashes.push(this.hash(JSON.stringify(module.manifest)));
 
 				if (module.platform.indexOf('commonjs') !== -1) {
