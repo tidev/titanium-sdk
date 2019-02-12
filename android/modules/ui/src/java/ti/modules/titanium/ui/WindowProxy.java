@@ -292,6 +292,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 
+		// Handle barColor property.
+		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
+			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)));
+			activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(colorInt));
+		}
 		activity.getActivityProxy().getDecorView().add(this);
 		activity.addWindowToStack(this);
 
@@ -378,15 +383,19 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 		if (name.equals(TiC.PROPERTY_BAR_COLOR)) {
-			// Get a reference to the ActionBar.
-			ActionBar actionBar = ((AppCompatActivity) activity.get()).getSupportActionBar();
-			// Check if it is available ( app is using a theme with one or a Toolbar is used as one ).
-			if (actionBar != null) {
-				// Change to background to the new color.
-				actionBar.setBackgroundDrawable(new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value))));
-			} else {
-				// Log a warning if there is no ActionBar available.
-				Log.w(TAG, "There is no ActionBar available for this Window.");
+			// Guard for activity being destroyed
+			if (windowActivity != null && windowActivity.get() != null) {
+				// Get a reference to the ActionBar.
+				ActionBar actionBar = ((AppCompatActivity) windowActivity.get()).getSupportActionBar();
+				// Check if it is available ( app is using a theme with one or a Toolbar is used as one ).
+				if (actionBar != null) {
+					// Change to background to the new color.
+					actionBar.setBackgroundDrawable(
+						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value))));
+				} else {
+					// Log a warning if there is no ActionBar available.
+					Log.w(TAG, "There is no ActionBar available for this Window.");
+				}
 			}
 		}
 		super.onPropertyChanged(name, value);
