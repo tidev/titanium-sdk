@@ -96,9 +96,9 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			{
 				super.onConfigurationChanged(newConfig);
 				if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-					mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+					setTabGravity(TabLayout.GRAVITY_FILL);
 				} else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					mTabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
+					setTabGravity(TabLayout.GRAVITY_CENTER);
 				}
 			}
 		};
