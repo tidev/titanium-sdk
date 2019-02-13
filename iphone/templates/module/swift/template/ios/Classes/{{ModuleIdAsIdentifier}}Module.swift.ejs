@@ -49,17 +49,15 @@ class <%- moduleIdAsIdentifier %>Module: TiModule {
     return "hello world!"
   }
   
-  @objc(exampleProp)
-  func exampleProp() -> String {
-    // Example property getter. 
-    // Call with "MyModule.exampleProp"
-    
-    return "Titanium rocks!"
-  }
-
-  @objc(setExampleProp:)
-  func setExampleProp(value: Any?) {
-    // Example property setter. 
-    // Call with "MyModule.exampleProp = 'newValue'"
-  }
+  @objc public var exampleProp: String {
+     get { 
+        // Example property getter
+        return "Titanium rocks!"
+     }
+     set {
+        // Example property setter
+        // Call with "MyModule.exampleProp = 'newValue'"
+        self.replaceValue(newValue, forKey: "exampleProp", notification: false)
+     }
+   }
 }
