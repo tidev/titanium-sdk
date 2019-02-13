@@ -40,11 +40,26 @@ class <%- moduleIdAsIdentifier %>Module: TiModule {
     super.startup()
     debugPrint("[DEBUG] \(self) loaded")
   }
+
+  @objc(example:)
+  func example(arguments: Array<Any>?) -> String {
+    // Example method. 
+    // Call with "MyModule.example(args)"
+
+    return "hello world!"
+  }
   
-  @objc(tryThis:)
-  func tryThis(arguments: Array<Any>?) -> String {
-    guard let arguments = arguments, let message = arguments.first else { return "No arguments" }
+  @objc(exampleProp)
+  func exampleProp() -> String {
+    // Example property getter. 
+    // Call with "MyModule.exampleProp"
     
-    return "\(message) from TiSwift!"
+    return "Titanium rocks!"
+  }
+
+  @objc(setExampleProp:)
+  func setExampleProp(value: Any?) {
+    // Example property setter. 
+    // Call with "MyModule.exampleProp = 'newValue'"
   }
 }
