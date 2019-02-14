@@ -80,7 +80,14 @@ function stringify(value) {
 	try {
 		return JSON.stringify(value);
 	} catch (e) {
-		return '[Circular]';
+		if (e instanceof TypeError
+			&& (e.message.includes('circular') || e.message.includes('cyclic'))) {
+			// "Converting circular structure to JSON"
+			// JSC gives: "JSON.stringify cannot serialize cyclic structures."
+			// TODO: Maybe force a circular reference object through and sniff the JS engine's message generated to match against?
+			return '[Circular]';
+		}
+		throw e;
 	}
 }
 
@@ -175,7 +182,7 @@ util.format = (...args) => {
 		}
 		return str;
 	}
-	
+
 	// first arg wasn't string, so we loop over args and call util.inspect on each
 	return args.map(a => util.inspect(a)).join(' ');
 };
