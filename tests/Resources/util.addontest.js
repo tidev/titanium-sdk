@@ -40,51 +40,216 @@ describe.only('util', () => {
 			util.format('%% %s').should.eql('%% %s');
 		});
 
-		it('string placeholder for int', () => {
-			util.format('%s', 1).should.eql('1');
-			util.format('%s', 42).should.eql('42');
-			util.format('%s %s', 42, 43).should.eql('42 43');
-			util.format('%s %s', 42).should.eql('42 %s');
+		describe('String placeholder', () => {
+			it('with int', () => {
+				util.format('%s', 1).should.eql('1');
+				util.format('%s', 42).should.eql('42');
+				util.format('%s %s', 42, 43).should.eql('42 43');
+				util.format('%s %s', 42).should.eql('42 %s');
+			});
+
+			it('with undefined', () => {
+				util.format('%s', undefined).should.eql('undefined');
+			});
+
+			it('with null', () => {
+				util.format('%s', null).should.eql('null');
+			});
+
+			it('with string', () => {
+				util.format('%s', 'foo').should.eql('foo');
+			});
+
+			it('with string holding int value', () => {
+				util.format('%s', '42').should.eql('42');
+			});
+
+			it('with floats', () => {
+				util.format('%s', 42.0).should.eql('42');
+				util.format('%s', 1.5).should.eql('1.5');
+				util.format('%s', -0.5).should.eql('-0.5');
+			});
+
+			it('with Symbol', () => {
+				util.format('%s', Symbol()).should.eql('Symbol()');
+				util.format('%s', Symbol('foo')).should.eql('Symbol(foo)');
+			});
+			// TODO: BigInt
 		});
 
-		it('string placeholder for undefined', () => {
-			util.format('%s', undefined).should.eql('undefined');
+		describe('Number placeholder', () => {
+			it('with floats', () => {
+				util.format('%d', 42.0).should.eql('42');
+				util.format('%d', 1.5).should.eql('1.5');
+				util.format('%d', -0.5).should.eql('-0.5');
+			});
+
+			it('with ints', () => {
+				util.format('%d', 42).should.eql('42');
+				util.format('%d %d', 42, 43).should.eql('42 43');
+				util.format('%d %d', 42).should.eql('42 %d');
+			});
+
+			it('with string holding int value', () => {
+				util.format('%d', '42').should.eql('42');
+			});
+
+			it('with string holding float value', () => {
+				util.format('%d', '42.0').should.eql('42');
+			});
+
+			it('with empty string', () => {
+				util.format('%d', '').should.eql('0');
+			});
+
+			it('with Symbol', () => {
+				util.format('%d', Symbol()).should.eql('NaN');
+			});
+
+			it('with null', () => {
+				util.format('%d', null).should.eql('0');
+			});
+
+			it('with undefined', () => {
+				util.format('%d', undefined).should.eql('NaN');
+			});
+
+			// TODO: BigInt
 		});
 
-		it('string placeholder for string', () => {
-			util.format('%s', 'foo').should.eql('foo');
+		describe('Float placeholder', () => {
+			it('with floats', () => {
+				util.format('%f', 42.0).should.eql('42');
+				util.format('%f', 1.5).should.eql('1.5');
+				util.format('%f', -0.5).should.eql('-0.5');
+			});
+
+			it('with ints', () => {
+				util.format('%f', 42).should.eql('42');
+				util.format('%f %f', 42, 43).should.eql('42 43');
+				util.format('%f %f', 42).should.eql('42 %f');
+			});
+
+			it('with string holding int value', () => {
+				util.format('%f', '42').should.eql('42');
+			});
+
+			it('with string holding float value', () => {
+				util.format('%f', '42.0').should.eql('42');
+			});
+
+			it('with empty string', () => {
+				util.format('%f', '').should.eql('NaN');
+			});
+
+			it('with Symbol', () => {
+				util.format('%f', Symbol()).should.eql('NaN');
+			});
+
+			it('with null', () => {
+				util.format('%f', null).should.eql('NaN');
+			});
+
+			it('with undefined', () => {
+				util.format('%f', undefined).should.eql('NaN');
+			});
+
+			// TODO: BigInt
 		});
 
-		it('string placeholder for string int', () => {
-			util.format('%s', '42').should.eql('42');
+		describe('Integer placeholder', () => {
+			it('with ints', () => {
+				util.format('%i', 42).should.eql('42');
+				util.format('%i %i', 42, 43).should.eql('42 43');
+				util.format('%i %i', 42).should.eql('42 %i');
+			});
+
+			it('with floats', () => {
+				util.format('%i', 42.0).should.eql('42');
+				util.format('%i', 1.5).should.eql('1');
+				util.format('%i', -0.5).should.eql('0');
+			});
+
+			it('with string holding int value', () => {
+				util.format('%i', '42').should.eql('42');
+			});
+
+			it('with string holding float value', () => {
+				util.format('%i', '42.0').should.eql('42');
+			});
+
+			it('with empty string', () => {
+				util.format('%i', '').should.eql('NaN');
+			});
+
+			it('with Symbol', () => {
+				util.format('%i', Symbol()).should.eql('NaN');
+			});
+
+			it('with null', () => {
+				util.format('%i', null).should.eql('NaN');
+			});
+
+			it('with undefined', () => {
+				util.format('%i', undefined).should.eql('NaN');
+			});
+
+			// TODO: BigInt
 		});
 
-		it('Number placeholder for floats', () => {
-			util.format('%d', 42.0).should.eql('42');
-			util.format('%d', 1.5).should.eql('1.5');
-			util.format('%d', -0.5).should.eql('-0.5');
-		});
+		describe('JSON placeholder', () => {
+			it('with floats', () => {
+				util.format('%j', 42.0).should.eql('42');
+				util.format('%j', 1.5).should.eql('1.5');
+				util.format('%j', -0.5).should.eql('-0.5');
+			});
 
-		it('Number placeholder for ints', () => {
-			util.format('%d', 42).should.eql('42');
-			util.format('%d %d', 42, 43).should.eql('42 43');
-			util.format('%d %d', 42).should.eql('42 %d');
-		});
+			it('with ints', () => {
+				util.format('%j', 42).should.eql('42');
+				util.format('%j %j', 42, 43).should.eql('42 43');
+				util.format('%j %j', 42).should.eql('42 %j');
+			});
 
-		it('Number placeholder for string int', () => {
-			util.format('%d', '42').should.eql('42');
-		});
+			it('with string holding int value', () => {
+				util.format('%j', '42').should.eql('"42"');
+			});
 
-		it('Number placeholder for string float', () => {
-			util.format('%d', '42.0').should.eql('42');
-		});
+			it('with string holding float value', () => {
+				util.format('%j', '42.0').should.eql('"42.0"');
+			});
 
-		it('Number placeholder for empty string', () => {
-			util.format('%d', '').should.eql('0');
-		});
+			it('with empty string', () => {
+				util.format('%j', '').should.eql('""');
+			});
 
-		it('Number placeholder for Symbol', () => {
-			util.format('%d', Symbol()).should.eql('NaN');
+			it('with Symbol', () => {
+				util.format('%j', Symbol()).should.eql('undefined');
+			});
+
+			it('with null', () => {
+				util.format('%j', null).should.eql('null');
+			});
+
+			it('with undefined', () => {
+				util.format('%j', undefined).should.eql('undefined');
+			});
+
+			it('with object having circular reference', () => {
+				const o = {};
+				o.o = o;
+				util.format('%j', o).should.eql('[Circular]');
+			});
+
+			it('with object throwing Error in toJSON() re-throws Error', () => {
+				const o = {
+					toJSON: () => {
+						throw new Error('Failed!');
+					}
+				};
+				(() => util.format('%j', o)).should.throw('Failed!');
+			});
+
+			// TODO: BigInt
 		});
 	});
 
