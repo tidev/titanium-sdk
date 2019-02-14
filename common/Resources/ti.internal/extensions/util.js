@@ -1,6 +1,8 @@
 'use strict';
 
 const util = {
+	// So node actually calls into native code for these checks, but I think for shim compatability this is good enough
+	// There's overhead for doing the native checks, and it'd require a native module to achieve.
 	types: {
 		// TODO: We're missing a lot of the methods hanging off this namespace!
 		isNumberObject: value => {
@@ -71,7 +73,20 @@ function getConstructor(obj) {
 	return 'Object';
 }
 
-util.inspect = (obj) => {
+const defaultInspectOptions = {
+	showHidden: false,
+	depth: 2,
+	colors: false,
+	customInspect: true,
+	showProxy: false,
+	maxArrayLength: 100,
+	breakLength: 60,
+	compact: true,
+	sorted: false,
+	getters: false
+};
+util.inspect = (obj, options = {}) => {
+	const mergedOptions = Object.assign({}, defaultInspectOptions, options);
 	const objType = typeof obj;
 	if (objType === 'object' || objType === 'function') {
 		if (obj === null) {
@@ -89,36 +104,79 @@ util.inspect = (obj) => {
 		if (tag && tag !== constructorName) {
 			prefix = `${prefix}[${tag}] `;
 		}
-		let value = '{}';
-		// TODO, ok now actually loop through properties/values/etc
-		// FIXME: Handle the 0 length/size Array/Set/Map more gracefully!
-		if (Array.isArray(obj)) {
+
+		// what braces do we use to enclose the values/properties?
+		let open = '{';
+		let close = '}';
+		let header = ''; // for special cases like Function where we pre-pend header info
+		const values = []; // collect the values/properties we list!
+		const isArray = Array.isArray(obj);
+		if (isArray) {
 			if (prefix === 'Array ') {
 				prefix = ''; // wipe "normal" Array prefixes
 			}
+			[ open, close ] = [ '[', ']' ]; // use array braces
 			if (obj.length > 0) {
-				// TODO: handle non-index properties, sparse arrays
-				value = `[ ${obj.map(o => util.inspect(o)).join(', ')} ]`;
-			} else {
-				value = '[]'; // empty array needs to extra spaces
+				// TODO: handle sparse arrays
+				values.push(...obj.map(o => util.inspect(o)));
 			}
 		} else if (util.types.isMap(obj)) {
 			if (obj.size > 0) {
-				value = `{ ${Array.from(obj).map(entry => `${util.inspect(entry[0])} => ${util.inspect(entry[1])}`).join(', ')} }`;
-			} else {
-				value = '{}';
+				values.push(...Array.from(obj).map(entry => `${util.inspect(entry[0])} => ${util.inspect(entry[1])}`));
 			}
 		} else if (util.types.isSet(obj)) {
 			if (obj.size > 0) {
-				value = `{ ${Array.from(obj).map(o => util.inspect(o)).join(', ')} }`;
-			} else {
-				value = '{}';
+				values.push(...Array.from(obj).map(o => util.inspect(o)));
 			}
 		} else if (util.types.isRegexp(obj)) {
-			// don't do prefix or any of that crap!
+			// don't do prefix or any of that crap! TODO: Can we just call Regexp.prototype.toString.call()?
 			return `/${obj.source}/${obj.flags}`;
+		} else if (util.isFunction(obj)) {
+			if (prefix === 'Function ') {
+				prefix = ''; // wipe "normal" Function prefixes
+			}
+
+			// Functions are special and we must use a "header"
+			// if no values/properties, just print the "header"
+			// if any, stick "header" inside braces before property/value listing
+			if (obj.name) {
+				header = `[Function: ${obj.name}]`;
+			} else {
+				header = '[Function]';
+			}
 		}
-		// TODO: handle objects, Maps, Sets, Arrays, Functions
+
+		// handle enumerable properties
+		const properties = [];
+		const ownProperties = Object.keys(obj);
+		for (const propName of ownProperties) {
+			if (isArray && propName.match(/^\d+$/)) { // skip Array's index properties
+				continue;
+			}
+			const propDesc = Object.getOwnPropertyDescriptor(propName)
+				|| { value: obj[propName], enumerable: true }; // fall back to faking a descriptor
+			if (propDesc.value !== undefined) {
+				properties.push(`${propName}: ${util.inspect(propDesc.value)}`);
+			}
+			// TODO: Handle setter/getters
+		}
+		if (properties.length !== 0) {
+			values.push(...properties);
+		}
+
+		let value = '';
+		if (values.length === 0) {
+			if (header.length > 0) {
+				value = header; // i.e. '[Function: name]'
+			} else {
+				value = `${open}${close}`; // no spaces, i.e. '{}' or '[]'
+			}
+		} else if (header.length > 0) { // i.e. '{ [Function] a: 1, b: 2 }'
+			value = `${open} ${header} ${values.join(', ')} ${close}`; // spaces between braces and values/properties
+		} else {  // i.e. '{ 1, 2, a: 3 }'
+			value = `${open} ${values.join(', ')} ${close}`; // spaces between braces and values/properties
+		}
+
 		return `${prefix}${value}`;
 	}
 	// only special case is -0
@@ -126,8 +184,10 @@ util.inspect = (obj) => {
 		return `'${obj}'`;
 	} else if (objType === 'number' && Object.is(obj, -0)) { // can't check for -0 using ===
 		return '-0';
+	} else if (util.isSymbol(obj)) {
+		return obj.toString();
 	}
-	// TODO: Handle BigInt and Symbols!
+	// TODO: Handle BigInt?
 	return `${obj}`;
 };
 
