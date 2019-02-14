@@ -334,4 +334,198 @@ describe.only('util', () => {
 			util.inspect(new Foo()).should.eql('Foo [bar] {}');
 		});
 	});
+
+	describe('.types', () => {
+		describe('#isNativeError()', () => {
+			it('is a function', () => {
+				util.types.isNativeError.should.be.a.Function;
+			});
+
+			it('returns true for Error instance', () => {
+				util.types.isNativeError(new Error()).should.eql(true);
+			});
+
+			it('returns true for EvalError instance', () => {
+				util.types.isNativeError(new EvalError()).should.eql(true);
+			});
+
+			it('returns true for RangeError instance', () => {
+				util.types.isNativeError(new RangeError()).should.eql(true);
+			});
+
+			it('returns true for ReferenceError instance', () => {
+				util.types.isNativeError(new ReferenceError()).should.eql(true);
+			});
+
+			it('returns true for SyntaxError instance', () => {
+				util.types.isNativeError(new SyntaxError()).should.eql(true);
+			});
+
+			it('returns true for TypeError instance', () => {
+				util.types.isNativeError(new TypeError()).should.eql(true);
+			});
+
+			it('returns true for URIError instance', () => {
+				util.types.isNativeError(new URIError()).should.eql(true);
+			});
+
+			it('returns false for custom Error subclass', () => {
+				class SubError extends Error {}
+				util.types.isNativeError(new SubError()).should.eql(false);
+			});
+		});
+
+		describe('#isNumberObject()', () => {
+			it('is a function', () => {
+				util.types.isNumberObject.should.be.a.Function;
+			});
+
+			it('returns true for boxed Number', () => {
+				// eslint-disable-next-line no-new-wrappers
+				util.types.isNumberObject(new Number()).should.eql(true);
+			});
+
+			it('returns false for primitive Number', () => {
+				util.types.isNumberObject(0).should.eql(false);
+			});
+		});
+
+		describe('#isStringObject()', () => {
+			it('is a function', () => {
+				util.types.isStringObject.should.be.a.Function;
+			});
+
+			it('returns true for boxed String', () => {
+				// eslint-disable-next-line no-new-wrappers
+				util.types.isStringObject(new String('foo')).should.eql(true);
+			});
+
+			it('returns false for primitive String', () => {
+				util.types.isStringObject('foo').should.eql(false);
+			});
+		});
+
+		describe('#isBooleanObject()', () => {
+			it('is a function', () => {
+				util.types.isBooleanObject.should.be.a.Function;
+			});
+
+			it('returns true for boxed Boolean', () => {
+				// eslint-disable-next-line no-new-wrappers
+				util.types.isBooleanObject(new Boolean(false)).should.eql(true);
+			});
+
+			it('returns false for primitive Boolean', () => {
+				util.types.isBooleanObject(true).should.eql(false);
+			});
+		});
+
+		// TODO: Re-enable when we have BigInt support
+		// describe('#isBigIntObject()', () => {
+		// 	it('is a function', () => {
+		// 		util.types.isBigIntObject.should.be.a.Function;
+		// 	});
+
+		// 	it('returns true for boxed BigInt', () => {
+		// 		// eslint-disable-next-line no-new-wrappers,no-undef
+		// 		util.types.isSymbolObject(Object(BigInt(9007199254740991))).should.eql(true);
+		// 	});
+
+		// 	it('returns false for BigInt instance', () => {
+		// 		// eslint-disable-next-line no-undef
+		// 		util.types.isSymbolObject(BigInt(9007199254740991)).should.eql(false);
+		// 	});
+
+			// it('returns false for primitive BigInt', () => {
+			// 	util.types.isSymbolObject(9007199254740991n).should.eql(false);
+			// });
+		// });
+
+		describe('#isSymbolObject()', () => {
+			it('is a function', () => {
+				util.types.isSymbolObject.should.be.a.Function;
+			});
+
+			it('returns true for boxed Symbol', () => {
+				// eslint-disable-next-line no-new-wrappers
+				util.types.isSymbolObject(Object(Symbol('foo'))).should.eql(true);
+			});
+
+			it('returns false for primitive Symbol', () => {
+				util.types.isSymbolObject(Symbol('foo')).should.eql(false);
+			});
+		});
+
+		describe('#isBoxedPrimitive()', () => {
+			it('is a function', () => {
+				util.types.isBoxedPrimitive.should.be.a.Function;
+			});
+
+			it('returns false for primitive Boolean', () => {
+				util.types.isBoxedPrimitive(false).should.eql(false);
+			});
+
+			it('returns true for boxed Boolean', () => {
+				// eslint-disable-next-line no-new-wrappers
+				util.types.isBoxedPrimitive(new Boolean(false)).should.eql(true);
+			});
+
+			it('returns false for primitive Symbol', () => {
+				util.types.isBoxedPrimitive(Symbol('foo')).should.eql(false);
+			});
+
+			it('returns true for boxed Symbol', () => {
+				util.types.isBoxedPrimitive(Object(Symbol('foo'))).should.eql(true);
+			});
+
+			// it('returns true for boxed BigInt', () => {
+			// 	// eslint-disable-next-line no-undef
+			// 	util.types.isBoxedPrimitive(Object(BigInt(5))).should.eql(true);
+			// });
+		});
+
+		describe('#isSet()', () => {
+			it('is a function', () => {
+				util.types.isSet.should.be.a.Function;
+			});
+
+			it('returns true for Set instance', () => {
+				util.types.isSet(new Set()).should.eql(true);
+			});
+		});
+
+		describe('#isMap()', () => {
+			it('is a function', () => {
+				util.types.isMap.should.be.a.Function;
+			});
+
+			it('returns true for Map instance', () => {
+				util.types.isMap(new Map()).should.eql(true);
+			});
+		});
+
+		describe('#isDate()', () => {
+			it('is a function', () => {
+				util.types.isDate.should.be.a.Function;
+			});
+
+			it('returns true for Date instance', () => {
+				util.types.isDate(new Date()).should.eql(true);
+			});
+		});
+
+		describe('#isRegexp()', () => {
+			it('is a function', () => {
+				util.types.isRegexp.should.be.a.Function;
+			});
+
+			it('returns true for Regexp instance', () => {
+				util.types.isRegexp(/abc/).should.eql(true);
+			});
+
+			it('returns true for Regexp primitive', () => {
+				util.types.isRegexp(new RegExp('abc')).should.eql(true);
+			});
+		});
+	});
 });
