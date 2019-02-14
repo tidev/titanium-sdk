@@ -1202,19 +1202,19 @@ CFMutableSetRef krollBridgeRegistry = nil;
     if (json) {
       type = JSON;
     }
-    return [[ResolvedModule alloc] initWithType:type andPath:path];
+    return [[[ResolvedModule alloc] initWithType:type andPath:path] autorelease];
   }
 
   // 2. If X.js is a file, load X.js as JavaScript text.  STOP
   NSString *asJS = [path stringByAppendingString:@".js"];
   if ([self fileExists:asJS]) {
-    return [[ResolvedModule alloc] initWithType:JS andPath:asJS];
+    return [[[ResolvedModule alloc] initWithType:JS andPath:asJS] autorelease];
   }
 
   // 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
   NSString *asJSON = [path stringByAppendingString:@".json"];
   if ([self fileExists:asJSON]) {
-    return [[ResolvedModule alloc] initWithType:JSON andPath:asJSON];
+    return [[[ResolvedModule alloc] initWithType:JSON andPath:asJSON] autorelease];
   }
 
   return nil;
@@ -1230,12 +1230,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   NSString *indexJS = [path stringByAppendingPathComponent:@"index.js"];
   if ([self fileExists:indexJS]) {
-    return [[ResolvedModule alloc] initWithType:JS andPath:indexJS];
+    return [[[ResolvedModule alloc] initWithType:JS andPath:indexJS] autorelease];
   }
 
   NSString *indexJSON = [path stringByAppendingPathComponent:@"index.json"];
   if ([self fileExists:indexJSON]) {
-    return [[ResolvedModule alloc] initWithType:JSON andPath:indexJSON];
+    return [[[ResolvedModule alloc] initWithType:JSON andPath:indexJSON] autorelease];
   }
   return nil;
 }
@@ -1268,14 +1268,14 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // Are they just trying to load the top-level module? If so, return that as our path
   NSRange separatorLocation = [path rangeOfString:@"/"];
   if (separatorLocation.location == NSNotFound) {
-    return [[ResolvedModule alloc] initWithType:Native andPath:moduleID];
+    return [[[ResolvedModule alloc] initWithType:Native andPath:moduleID] autorelease];
   }
 
   // check rest of path
   NSString *assetPath = [path substringFromIndex:separatorLocation.location + 1];
   // Treat require('module.id/module.id') == require('module.id')
   if ([assetPath isEqualToString:moduleID]) {
-    return [[ResolvedModule alloc] initWithType:Native andPath:moduleID];
+    return [[[ResolvedModule alloc] initWithType:Native andPath:moduleID] autorelease];
   }
 
   // we need to load the actual module to determine beyond this...
@@ -1299,7 +1299,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     return nil;
   }
   // asset inside module
-  return [[ResolvedModule alloc] initWithType:NativeJS andPath:filepath];
+  return [[[ResolvedModule alloc] initWithType:NativeJS andPath:filepath] autorelease];
 }
 
 - (NSString *)pathByStandarizingPath:(NSString *)relativePath
@@ -1338,7 +1338,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     // For CommonJS we need to look for module.id/module.id.js first...
     NSString *filename = [[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"];
     if ([self fileExists:filename]) {
-      return [[ResolvedModule alloc] initWithType:JS andPath:filename];
+      return [[[ResolvedModule alloc] initWithType:JS andPath:filename] autorelease];
     }
 
     // Then try module.id as directory

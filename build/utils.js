@@ -259,6 +259,16 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 		osName = 'osx';
 	}
 
+	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
+	const destStats = fs.lstatSync(destDir);
+	if (destStats.isDirectory()) {
+		console.log('Destination exists, deleting %s...', destDir);
+		await fs.remove(destDir);
+	} else if (destStats.isSymbolicLink()) {
+		console.log('Destination exists as symlink, unlinking %s...', destDir);
+		fs.unlinkSync(destDir);
+	}
+
 	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
 	const dirExists = await fs.pathExists(zipDir);
 
@@ -267,15 +277,10 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 		if (symlinkIfPossible) {
 			console.log('Symlinking built SDK to install!');
 			// FIXME: What about modules? Can we symlink those in?
-			const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
-			if (await fs.pathExists(destDir)) {
-				await fs.remove(destDir);
-			}
 			return fs.ensureSymlink(path.join(zipDir, 'mobilesdk', osName, versionTag), destDir);
 		}
 		await fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true });
-		await fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'));
-		return;
+		return fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'));
 	}
 
 	// try the zip
