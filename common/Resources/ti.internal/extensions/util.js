@@ -1,6 +1,66 @@
 'use strict';
 
-const util = {};
+const util = {
+	types: {
+		// TODO: We're missing a lot of the methods hanging off this namespace!
+		isNumberObject: value => {
+			return typeof value === 'object' && Object.prototype.toString.call(value) === '[object Number]';
+		},
+		isStringObject: value => {
+			return typeof value === 'object' && Object.prototype.toString.call(value) === '[object String]';
+		},
+		isBooleanObject: value => {
+			return typeof value === 'object' && Object.prototype.toString.call(value) === '[object Boolean]';
+		},
+		// isBigIntObject: value => {
+		// 	return Object.prototype.toString.call(value) === '[object BigInt]';
+		// },
+		isSymbolObject: value => {
+			return typeof value === 'object' && Object.prototype.toString.call(value) === '[object Symbol]';
+		},
+		isBoxedPrimitive: function (value) {
+			if (typeof value !== 'object') {
+				return false;
+			}
+			return this.isNumberObject(value)
+				|| this.isStringObject(value)
+				|| this.isBooleanObject(value)
+				// || this.isBigIntObject(value)
+				|| this.isSymbolObject(value);
+		},
+		isNativeError: value => {
+			// if not an instance of an Error, definietly not a native error
+			if (!(value instanceof Error)) {
+				return false;
+			}
+			if (!value || !value.constructor) {
+				return false;
+			}
+			return [ 'Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError'].includes(value.constructor.name);
+
+		},
+		isSet: value => value instanceof Set,
+		isMap: value => value instanceof Map,
+		isDate: value => value instanceof Date,
+		isRegexp: value => value instanceof RegExp || Object.prototype.toString.call(value) === '[object RegExp]'
+	},
+	isArray: value => Array.isArray(value),
+	isBoolean: value => typeof value === 'boolean',
+	isFunction: value => typeof value === 'function',
+	isNull: value => value === null,
+	isNullOrUndefined: value => value === undefined || value === null,
+	isNumber: value => typeof value === 'number',
+	isObject: value => value !== null && typeof value === 'object',
+	isPrimitive: value => (typeof value !== 'object' && typeof value !== 'function') || value === null,
+	isString: value => typeof value === 'string',
+	isSymbol: value => typeof value === 'symbol',
+	isUndefindex: value => value === undefined
+};
+
+util.isBuffer = () => false; // FIXME: Check for Ti.Buffer? for node/browserify buffer?
+util.isDate = value => util.types.isDate(value);
+util.isError = value => util.types.isNativeError(value); // FIXME: Implement util.types.isNativeError()!
+util.isRegexp = value => util.types.isRegexp(value);
 
 // FIXME: Our String.format is not very forgiving. It sort-of is supposed to do the same thing, but blows up easily
 // util.format = String.format;
@@ -42,19 +102,19 @@ util.inspect = (obj) => {
 			} else {
 				value = '[]'; // empty array needs to extra spaces
 			}
-		} else if (obj instanceof Map) {
+		} else if (util.types.isMap(obj)) {
 			if (obj.size > 0) {
 				value = `{ ${Array.from(obj).map(entry => `${util.inspect(entry[0])} => ${util.inspect(entry[1])}`).join(', ')} }`;
 			} else {
 				value = '{}';
 			}
-		} else if (obj instanceof Set) {
+		} else if (util.types.isSet(obj)) {
 			if (obj.size > 0) {
 				value = `{ ${Array.from(obj).map(o => util.inspect(o)).join(', ')} }`;
 			} else {
 				value = '{}';
 			}
-		} else if (obj instanceof RegExp) {
+		} else if (util.types.isRegexp(obj)) {
 			// don't do prefix or any of that crap!
 			return `/${obj.source}/${obj.flags}`;
 		}
@@ -122,7 +182,7 @@ util.format = (...args) => {
 					break;
 
 				case 'd': // Number
-					if (typeof curArg === 'symbol') {
+					if (util.isSymbol(curArg) || util.types.isSymbolObject(curArg)) {
 						str += 'NaN';
 					} else {
 						str += Number(curArg);
@@ -131,7 +191,7 @@ util.format = (...args) => {
 					break;
 
 				case 'i': // Integer
-					if (typeof curArg === 'symbol') {
+					if (util.isSymbol(curArg) || util.types.isSymbolObject(curArg)) {
 						str += 'NaN';
 					} else {
 						str += parseInt(curArg);
@@ -140,7 +200,7 @@ util.format = (...args) => {
 					break;
 
 				case 'f': // Float
-					if (typeof curArg === 'symbol') {
+					if (util.isSymbol(curArg) || util.types.isSymbolObject(curArg)) {
 						str += 'NaN';
 					} else {
 						str += parseFloat(curArg);
