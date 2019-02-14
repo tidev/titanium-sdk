@@ -251,6 +251,173 @@ describe.only('util', () => {
 
 			// TODO: BigInt
 		});
+
+		describe('%O - object placeholder', () => {
+			it('with int', () => {
+				util.format('%O', 42).should.eql('42');
+			});
+
+			it('with undefined', () => {
+				util.format('%O', undefined).should.eql('undefined');
+			});
+
+			it('with null', () => {
+				util.format('%O', null).should.eql('null');
+			});
+
+			it('with string', () => {
+				util.format('%O', 'foo').should.eql('\'foo\'');
+			});
+
+			it('with string holding int value', () => {
+				util.format('%O', '42').should.eql('\'42\'');
+			});
+
+			it('with floats', () => {
+				util.format('%O', 42.0).should.eql('42');
+				util.format('%O', 1.5).should.eql('1.5');
+				util.format('%O', -0.5).should.eql('-0.5');
+			});
+
+			it('with Symbol', () => {
+				util.format('%O', Symbol()).should.eql('Symbol()');
+				util.format('%O', Symbol('foo')).should.eql('Symbol(foo)');
+			});
+
+			it('with simple object', () => {
+				const obj = {
+					foo: 'bar'
+				};
+				util.format('%O', obj).should.eql('{ foo: \'bar\' }');
+			});
+
+			it('with object', () => {
+				const obj = {
+					foo: 'bar',
+					foobar: 1,
+					func: function () {}
+				};
+				util.format('%O', obj).should.eql('{ foo: \'bar\', foobar: 1, func: [Function: func] }');
+			});
+
+			it('with nested object', () => {
+				const nestedObj2 = {
+					foo: 'bar',
+					foobar: 1,
+					func: [ { a: function () {} } ]
+				};
+				util.format('%O', nestedObj2).should.eql(
+					'{ foo: \'bar\', foobar: 1, func: [ { a: [Function: a] } ] }');
+			});
+
+			it('with same object twice', () => {
+				const obj = {
+					foo: 'bar',
+					foobar: 1,
+					func: function () {}
+				};
+				util.format('%O %O', obj, obj).should.eql(
+					'{ foo: \'bar\', foobar: 1, func: [Function: func] } '
+					+ '{ foo: \'bar\', foobar: 1, func: [Function: func] }');
+			});
+		});
+
+		describe('%o - object placeholder', () => {
+			it('with int', () => {
+				util.format('%o', 42).should.eql('42');
+			});
+
+			it('with undefined', () => {
+				util.format('%o', undefined).should.eql('undefined');
+			});
+
+			it('with null', () => {
+				util.format('%o', null).should.eql('null');
+			});
+
+			it('with string', () => {
+				util.format('%o', 'foo').should.eql('\'foo\'');
+			});
+
+			it('with string holding int value', () => {
+				util.format('%o', '42').should.eql('\'42\'');
+			});
+
+			it('with floats', () => {
+				util.format('%o', 42.0).should.eql('42');
+				util.format('%o', 1.5).should.eql('1.5');
+				util.format('%o', -0.5).should.eql('-0.5');
+			});
+
+			it('with Symbol', () => {
+				util.format('%o', Symbol()).should.eql('Symbol()');
+				util.format('%o', Symbol('foo')).should.eql('Symbol(foo)');
+			});
+
+			it('with simple object', () => {
+				const obj = {
+					foo: 'bar'
+				};
+				util.format('%o', obj).should.eql('{ foo: \'bar\' }');
+			});
+
+			it('with object', () => {
+				const obj = {
+					foo: 'bar',
+					foobar: 1,
+					func: function () {}
+				};
+				util.format('%o', obj).should.eql(
+					'{ foo: \'bar\',\n'
+					+ '  foobar: 1,\n'
+					+ '  func:\n'
+					+ '   { [Function: func]\n'
+					+ '     [length]: 0,\n'
+					+ '     [name]: \'func\',\n'
+					+ '     [prototype]: func { [constructor]: [Circular] } } }');
+			});
+
+			it('with nested object', () => {
+				const nestedObj2 = {
+					foo: 'bar',
+					foobar: 1,
+					func: [ { a: function () {} } ]
+				};
+				util.format('%o', nestedObj2).should.eql(
+					'{ foo: \'bar\',\n'
+					+ '  foobar: 1,\n'
+					+ '  func:\n'
+					+ '   [ { a:\n'
+					+ '        { [Function: a]\n'
+					+ '          [length]: 0,\n'
+					+ '          [name]: \'a\',\n'
+					+ '          [prototype]: a { [constructor]: [Circular] } } },\n'
+					+ '     [length]: 1 ] }');
+			});
+
+			it('with same object twice', () => {
+				const obj = {
+					foo: 'bar',
+					foobar: 1,
+					func: function () {}
+				};
+				util.format('%o %o', obj, obj).should.eql(
+					'{ foo: \'bar\',\n'
+					+ '  foobar: 1,\n'
+					+ '  func:\n'
+					+ '   { [Function: func]\n'
+					+ '     [length]: 0,\n'
+					+ '     [name]: \'func\',\n'
+					+ '     [prototype]: func { [constructor]: [Circular] } } }'
+					+ ' { foo: \'bar\',\n'
+					+ '  foobar: 1,\n'
+					+ '  func:\n'
+					+ '   { [Function: func]\n'
+					+ '     [length]: 0,\n'
+					+ '     [name]: \'func\',\n'
+					+ '     [prototype]: func { [constructor]: [Circular] } } }');
+			});
+		});
 	});
 
 	describe('#inspect()', () => {
@@ -332,6 +499,24 @@ describe.only('util', () => {
 				}
 			}
 			util.inspect(new Foo()).should.eql('Foo [bar] {}');
+		});
+
+		it('handles empty function', () => {
+			util.inspect(function () {}).should.eql('[Function]');
+		});
+
+		it('handles named function', () => {
+			util.inspect(function bar() {}).should.eql('[Function: bar]');
+		});
+
+		it('handles arrow function', () => {
+			util.inspect(() => {}).should.eql('[Function]');
+		});
+
+		it('handles function with custom property', () => {
+			const myFunc = () => {};
+			myFunc.a = 1;
+			util.inspect(myFunc).should.eql('{ [Function: myFunc] a: 1 }');
 		});
 	});
 
