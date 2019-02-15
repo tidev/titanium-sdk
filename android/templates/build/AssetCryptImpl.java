@@ -19,7 +19,6 @@ import android.os.Debug;
 
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
-
 	private static class Range
 	{
 		int offset;
@@ -31,9 +30,10 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		}
 	}
 
-	<% -encryptedAssets %>
+	<%- encryptedAssets %>
 
-		@Override public InputStream openAsset(String path)
+	@Override
+	public InputStream openAsset(String path)
 	{
 		byte[] bytes = fetchFilteredAssetBytes(path);
 		if (bytes == null) {
