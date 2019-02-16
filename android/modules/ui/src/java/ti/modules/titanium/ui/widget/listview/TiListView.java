@@ -574,7 +574,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 		}
 		if (d.containsKey(TiC.PROPERTY_SEPARATOR_STYLE)) {
 			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE),
-											  UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
+											  UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE));
 		}
 		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
