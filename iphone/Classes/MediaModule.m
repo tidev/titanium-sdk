@@ -51,7 +51,7 @@ enum {
 
 // Have to distinguish between filterable and nonfilterable properties
 #if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
-static NSDictionary *TI_itemProperties;
+static NSMutableDictionary *TI_itemProperties;
 static NSDictionary *TI_filterableItemProperties;
 #endif
 
@@ -148,30 +148,32 @@ static NSDictionary *TI_filterableItemProperties;
 + (NSDictionary *)itemProperties
 {
   if (TI_itemProperties == nil) {
-    TI_itemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
-                                              MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
-                                              MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
-                                              MPMediaItemPropertyDiscNumber, @"discNumber",
-                                              MPMediaItemPropertyDiscCount, @"discCount",
-                                              MPMediaItemPropertyLyrics, @"lyrics",
-                                              MPMediaItemPropertySkipCount, @"skipCount",
-                                              MPMediaItemPropertyRating, @"rating",
-                                              MPMediaItemPropertyAssetURL, @"assetURL",
-                                              MPMediaItemPropertyIsExplicit, @"isExplicit",
-                                              MPMediaItemPropertyReleaseDate, @"releaseDate",
-                                              MPMediaItemPropertyBeatsPerMinute, @"beatsPerMinute",
-                                              MPMediaItemPropertyComments, @"comments",
-                                              MPMediaItemPropertyLastPlayedDate, @"lastPlayedDate",
-                                              MPMediaItemPropertyUserGrouping, @"userGrouping",
-                                              MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
-#ifdef __IPHONE_10_0
-                                              MPMediaItemPropertyDateAdded, @"dateAdded",
-#endif
-#ifdef __IPHONE_10_3
-                                              MPMediaItemPropertyPlaybackStoreID, @"playbackStoreID",
-#endif
-                                              nil];
+    TI_itemProperties = [[NSMutableDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
+                                                     MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
+                                                     MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
+                                                     MPMediaItemPropertyDiscNumber, @"discNumber",
+                                                     MPMediaItemPropertyDiscCount, @"discCount",
+                                                     MPMediaItemPropertyLyrics, @"lyrics",
+                                                     MPMediaItemPropertySkipCount, @"skipCount",
+                                                     MPMediaItemPropertyRating, @"rating",
+                                                     MPMediaItemPropertyAssetURL, @"assetURL",
+                                                     MPMediaItemPropertyIsExplicit, @"isExplicit",
+                                                     MPMediaItemPropertyReleaseDate, @"releaseDate",
+                                                     MPMediaItemPropertyBeatsPerMinute, @"beatsPerMinute",
+                                                     MPMediaItemPropertyComments, @"comments",
+                                                     MPMediaItemPropertyLastPlayedDate, @"lastPlayedDate",
+                                                     MPMediaItemPropertyUserGrouping, @"userGrouping",
+                                                     MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
+                                                     nil];
+
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+      TI_itemProperties[@"dateAdded"] = MPMediaItemPropertyDateAdded;
+      if ([TiUtils isIOSVersionOrGreater:@"10.3"]) {
+        TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
+      }
+    }
   }
+
   return TI_itemProperties;
 }
 #endif
