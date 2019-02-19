@@ -17,7 +17,7 @@ properties:
     description: |
         Can be [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS), 
         [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK), or 
-        [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE).
+        [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE). // checkme!
     type: String
     default: null
     
