@@ -89,7 +89,7 @@ description: |
 
     #### Configurating Location Updates on Android
 
-    On Android, three different location service modes are supported: *simple*, *manual*, and *legacy*.
+    On Android, two different location service modes are supported: *simple*, and *manual*.
 
     *   *Simple mode* provides a compromise mode that provides adaquate support for
         undemanding location applications without requiring developers to
@@ -109,23 +109,6 @@ description: |
         Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
         to `true`. In manual mode, the `accuracy` property is not used, and all
         configuration is done through the <Titanium.Geolocation.Android> module.
-
-    *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is // check me!
-        used when the `manualMode` flag is `false` and the `accuracy` property is
-        set to one of the iOS `ACCURACY` constants:
-
-        *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
-        *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS)
-        *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS)
-        *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER)
-        *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
-            accuracy and power consumption).
-
-        This mode is deprecated and should not be used for new development.
-
-        In this mode, the specified `accuracy` value determines the
-        *minimum distance between location updates*. If `accuracy` is set to
-        `ACCURACY_BEST`, no distance filter is used on updates.
 
     As of Titanium SDK 7.1.0 and later, including the [`ti.playservices`](https://github.com/appcelerator-modules/ti.playservices) module will allow Google Play Services 
     to be used by default to obtain location information. This means the provider passed into [createLocationProvider](Titanium.Geolocation.Android.createLocationProvider)
@@ -659,9 +642,6 @@ properties:
         is recommended to maximize accuracy and battery life.
         See <Titanium.Geolocation.Android> for details on using manual mode.
 
-        Note that for backwards compatibility, Android supports using the iOS accuracy constants.
-        This usage is deprecated. Applications using one of the iOS constants should
-        migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
     constants: Titanium.Geolocation.ACCURACY_*
 
@@ -673,6 +653,23 @@ properties:
     type: Number
     default: 0
     platforms: [iphone, ipad]
+
+  - name: frequency
+    deprecated:
+        since: "2.0.0"
+        notes: |
+            Android legacy mode operation is deprecated. For new development, use
+            either simple mode or manual mode. See "Configurating Location Updates on Android"
+            in the main description of this class for more information.
+    summary: Requested frequency for location updates, in milliseconds.
+    description: |
+        Setting a frequency value enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+         Note that the frequency value is used as a guideline: there are no guarantees
+        that the device will provide updates at the specified frequency.
+         A lower frequency value generally increases power consumption.
+        A value of 0 means that updates should be generated as quickly as possible.
+    type: Number
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
@@ -707,6 +704,26 @@ properties:
         Therefore, this method returns `true` on these devices if only there is GPS or network provider available.
     type: Boolean
     permission: read-only
+
+  - name: preferredProvider
+    deprecated:
+        since: "2.0.0"
+        notes: |
+            Android legacy mode operation is deprecated. For new development, use
+            either simple mode or manual mode. See "Configurating Location Updates on Android"
+            in the main description of this class for more information.
+    summary: |
+        Determines the preferred location provider.
+    description: |
+        Setting a preferred provider enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+         The preferred provider affects power consumption. In general, `PROVIDER_GPS`
+        requires the most power, and `PROVIDER_PASSIVE` requires the least.
+         If `undefined`, the preferred provider is auto-detected.
+    type: String
+    constants: Titanium.Geolocation.Android.PROVIDER_*
+    platforms: [android]
+    default: <Titanium.Geolocation.Android.PROVIDER_NETWORK>
 
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
