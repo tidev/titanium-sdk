@@ -722,9 +722,13 @@ describe.only('util', () => {
 			}
 			const callbackified = util.callbackify(original);
 			callbackified(23, (err, result) => {
-				should(err).not.be.ok;
-				should(result).eql(23);
-				finished();
+				try {
+					should(err).not.be.ok;
+					should(result).eql(23);
+					finished();
+				} catch (e) {
+					finished(e);
+				}
 			});
 		});
 
@@ -734,9 +738,30 @@ describe.only('util', () => {
 			}
 			const callbackified = util.callbackify(original);
 			callbackified(new Error('expected this'), (err, result) => {
-				should(err).be.ok;
-				should(result).not.be.ok;
-				finished();
+				try {
+					should(err).be.ok;
+					should(result).not.be.ok;
+					finished();
+				} catch (e) {
+					finished(e);
+				}
+			});
+		});
+
+		it('handles special case of falsy rejection', (finished) => {
+			function original() {
+				return Promise.reject(null);
+			}
+			const callbackified = util.callbackify(original);
+			callbackified((err, result) => {
+				try {
+					should(err).be.ok;
+					should(err instanceof Error).eql(true);
+					should(err.reason).eql(null);
+					finished();
+				} catch (e) {
+					finished(e);
+				}
 			});
 		});
 

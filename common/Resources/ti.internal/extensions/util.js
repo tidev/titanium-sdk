@@ -400,7 +400,14 @@ util.callbackify = function (original) {
 			.then(result => { // eslint-disable-line promise/always-return
 				callback(null, result); // eslint-disable-line promise/no-callback-in-promise
 			})
-			.catch(err => callback(err)); // eslint-disable-line promise/no-callback-in-promise
+			.catch(err => {
+				if (!err) {
+					const wrappedError = new Error('Promise was rejected with falsy value');
+					wrappedError.reason = err;
+					err = wrappedError;
+				}
+				callback(err);
+			}); // eslint-disable-line promise/no-callback-in-promise
 	}
 	return wrapped;
 };
