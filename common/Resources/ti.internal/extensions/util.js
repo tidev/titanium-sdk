@@ -385,6 +385,27 @@ util.promisify = function (original) {
 };
 
 /**
+ * @param {Function} original original function to convert from async/Promise return value to a callback style
+ * @returns {Function} wrapped function
+ */
+util.callbackify = function (original) {
+	if (typeof original !== 'function') {
+		throw new TypeError(`The "original" argument must be of type Function. Received type ${typeof original}`);
+	}
+
+	function wrapped(...args) {
+		const callback = args.pop();
+		const promise = original.apply(this, args);
+		promise
+			.then(result => { // eslint-disable-line promise/always-return
+				callback(null, result); // eslint-disable-line promise/no-callback-in-promise
+			})
+			.catch(err => callback(err)); // eslint-disable-line promise/no-callback-in-promise
+	}
+	return wrapped;
+};
+
+/**
  * @param {Function} func function to deprecate/wrap
  * @param {string} string message to give when deprecation warning is emitted
  * @param {string} code deprecation code to use to group warnings

@@ -711,6 +711,42 @@ describe.only('util', () => {
 		});
 	});
 
+	describe('#callbackify()', () => {
+		it('is a function', () => {
+			util.callbackify.should.be.a.Function;
+		});
+
+		it('wraps function returning Promise to return function accepting callback (with success)', (finished) => {
+			function original(argOne) {
+				return Promise.resolve(argOne);
+			}
+			const callbackified = util.callbackify(original);
+			callbackified(23, (err, result) => {
+				should(err).not.be.ok;
+				should(result).eql(23);
+				finished();
+			});
+		});
+
+		it('wraps function returning Promise to return function accepting callback (with error)', (finished) => {
+			function original(argOne) {
+				return Promise.reject(argOne);
+			}
+			const callbackified = util.callbackify(original);
+			callbackified(new Error('expected this'), (err, result) => {
+				should(err).be.ok;
+				should(result).not.be.ok;
+				finished();
+			});
+		});
+
+		it('throws TypeError if original argument is not a function', () => {
+			should.throws(() => util.callbackify({}),
+				TypeError
+			);
+		});
+	});
+
 	describe('#deprecate()', () => {
 		it('is a function', () => {
 			util.deprecate.should.be.a.Function;
