@@ -92,8 +92,6 @@ util.inspect = (obj, options = {}) => {
 		mergedOptions.recursionCount = -1;
 	}
 	mergedOptions.recursionCount++;
-	console.log(`max depth: ${mergedOptions.depth}, current depth: ${mergedOptions.recursionCount}`);
-	console.log(`show hidden? ${mergedOptions.showHidden}`);
 	const objType = typeof obj;
 	if (objType === 'object' || objType === 'function') {
 		if (obj === null) {
@@ -170,7 +168,6 @@ util.inspect = (obj, options = {}) => {
 		const properties = [];
 		// if showing hidden, get all own properties, otherwise just enumerable
 		const ownProperties = (mergedOptions.showHidden) ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
-		console.log(`Properties to list: ${ownProperties}`);
 		// FIXME: On V8/Android we are not getting 'arguments' and 'caller' properties!
 		// This may be because in newer specs/strict mode they shouldn't be accessible?
 		for (const propName of ownProperties) {
