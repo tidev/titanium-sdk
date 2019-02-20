@@ -38,7 +38,7 @@ const util = {
 			if (!value || !value.constructor) {
 				return false;
 			}
-			return [ 'Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError'].includes(value.constructor.name);
+			return [ 'Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError' ].includes(value.constructor.name);
 
 		},
 		isSet: value => value instanceof Set,
@@ -171,6 +171,8 @@ util.inspect = (obj, options = {}) => {
 		// if showing hidden, get all own properties, otherwise just enumerable
 		const ownProperties = (mergedOptions.showHidden) ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
 		console.log(`Properties to list: ${ownProperties}`);
+		// FIXME: On V8/Android we are not getting 'arguments' and 'caller' properties!
+		// This may be because in newer specs/strict mode they shouldn't be accessible?
 		for (const propName of ownProperties) {
 			if (isArray && propName.match(/^\d+$/)) { // skip Array's index properties
 				continue;
