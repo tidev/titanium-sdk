@@ -87,11 +87,26 @@ const defaultInspectOptions = {
 };
 util.inspect = (obj, options = {}) => {
 	const mergedOptions = Object.assign({}, defaultInspectOptions, options);
+	// increase our recursion counter to avoid going past depth
+	if (mergedOptions.recursionCount === undefined) {
+		mergedOptions.recursionCount = -1;
+	}
+	mergedOptions.recursionCount++;
+	console.log(`max depth: ${mergedOptions.depth}, current depth: ${mergedOptions.recursionCount}`);
+	console.log(`show hidden? ${mergedOptions.showHidden}`);
 	const objType = typeof obj;
 	if (objType === 'object' || objType === 'function') {
 		if (obj === null) {
 			return 'null';
 		}
+
+		// Guard against circular references
+		// FIXME: Need to push/pop the references, not store forever!
+		mergedOptions.memo = mergedOptions.memo || [];
+		if (mergedOptions.memo.includes(obj)) {
+			return '[Circular]';
+		}
+		mergedOptions.memo.push(obj);
 
 		const constructorName = getConstructor(obj);
 		// if the constructor name is not 'Object', pre-pend it!
@@ -118,15 +133,15 @@ util.inspect = (obj, options = {}) => {
 			[ open, close ] = [ '[', ']' ]; // use array braces
 			if (obj.length > 0) {
 				// TODO: handle sparse arrays
-				values.push(...obj.map(o => util.inspect(o)));
+				values.push(...obj.map(o => util.inspect(o, mergedOptions)));
 			}
 		} else if (util.types.isMap(obj)) {
 			if (obj.size > 0) {
-				values.push(...Array.from(obj).map(entry => `${util.inspect(entry[0])} => ${util.inspect(entry[1])}`));
+				values.push(...Array.from(obj).map(entry => `${util.inspect(entry[0], mergedOptions)} => ${util.inspect(entry[1], mergedOptions)}`));
 			}
 		} else if (util.types.isSet(obj)) {
 			if (obj.size > 0) {
-				values.push(...Array.from(obj).map(o => util.inspect(o)));
+				values.push(...Array.from(obj).map(o => util.inspect(o, mergedOptions)));
 			}
 		} else if (util.types.isRegexp(obj)) {
 			// don't do prefix or any of that crap! TODO: Can we just call Regexp.prototype.toString.call()?
@@ -146,17 +161,28 @@ util.inspect = (obj, options = {}) => {
 			}
 		}
 
-		// handle enumerable properties
+		// If we've gone past our depth, just do a quickie result here, like '[Object]'
+		if (mergedOptions.recursionCount > mergedOptions.depth) {
+			return `[${constructorName || tag || 'Object'}]`;
+		}
+
+		// handle properties
 		const properties = [];
-		const ownProperties = Object.keys(obj);
+		// if showing hidden, get all own properties, otherwise just enumerable
+		const ownProperties = (mergedOptions.showHidden) ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
+		console.log(`Properties to list: ${ownProperties}`);
 		for (const propName of ownProperties) {
 			if (isArray && propName.match(/^\d+$/)) { // skip Array's index properties
 				continue;
 			}
-			const propDesc = Object.getOwnPropertyDescriptor(propName)
+			const propDesc = Object.getOwnPropertyDescriptor(obj, propName)
 				|| { value: obj[propName], enumerable: true }; // fall back to faking a descriptor
 			if (propDesc.value !== undefined) {
-				properties.push(`${propName}: ${util.inspect(propDesc.value)}`);
+				if (propDesc.enumerable) {
+					properties.push(`${propName}: ${util.inspect(propDesc.value, mergedOptions)}`);
+				} else { // If not enumerable, wrap name in []!
+					properties.push(`[${propName}]: ${util.inspect(propDesc.value, mergedOptions)}`);
+				}
 			}
 			// TODO: Handle setter/getters
 		}
