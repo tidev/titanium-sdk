@@ -358,6 +358,10 @@ util.inherits = function (constructor, superConstructor) {
 	Object.setPrototypeOf(constructor.prototype, superConstructor.prototype);
 };
 
+/**
+ * @param {Function} original original function to wrap which is expected to have a final callback argument
+ * @returns {Function} function that returns a Promise
+ */
 util.promisify = function (original) {
 	if (typeof original !== 'function') {
 		throw new TypeError(`The "original" argument must be of type Function. Received type ${typeof original}`);
