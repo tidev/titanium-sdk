@@ -340,4 +340,25 @@ util.format = (...args) => {
 	return args.map(a => util.inspect(a)).join(' ');
 };
 
+/**
+ * @param {Function} constructor subclass
+ * @param {Function} superConstructor base class
+ * @returns {void}
+ */
+util.inherits = function (constructor, superConstructor) {
+	// TODO Extract common code for enforcing types of arguments. We use this logic in path.js too!
+	if (constructor == null) { // eslint-disable-line eqeqeq, no-eq-null
+		throw new TypeError(`The "constructor" argument must be of type Function. Received type ${typeof constructor}`);
+	}
+	if (superConstructor == null) { // eslint-disable-line eqeqeq, no-eq-null
+		throw new TypeError(`The "superConstructor" argument must be of type Function. Received type ${typeof superConstructor}`);
+	}
+	if (superConstructor.prototype === undefined) {
+		throw new TypeError('The "superConstructor.prototype" argument must be of type Object. Received type undefined');
+	}
+
+	constructor.super_ = superConstructor; // FIXME: Don't make enumerable!
+	Object.setPrototypeOf(constructor.prototype, superConstructor.prototype);
+};
+
 module.exports = util;

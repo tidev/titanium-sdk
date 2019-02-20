@@ -590,6 +590,90 @@ describe.only('util', () => {
 		});
 	});
 
+	describe('#inherits()', () => {
+		it('is a function', () => {
+			util.inherits.should.be.a.Function;
+		});
+
+		it('hooks subclass to super constructor', (finished) => {
+			function BaseClass() {
+				this.listeners = {};
+			}
+
+			BaseClass.prototype.on = function (eventName, listener) {
+				const eventListeners = this.listeners[eventName] || [];
+				eventListeners.push(listener);
+				this.listeners[eventName] = eventListeners;
+			};
+
+			BaseClass.prototype.emit = function (eventName, data) {
+				const eventListeners = this.listeners[eventName] || [];
+				for (const listener of eventListeners) {
+					listener.call(this, data);
+				}
+			};
+
+			function MyStream() {
+				BaseClass.call(this);
+			}
+
+			util.inherits(MyStream, BaseClass);
+
+			MyStream.prototype.write = function (data) {
+				this.emit('data', data);
+			};
+
+			const stream = new MyStream();
+
+			should(stream instanceof BaseClass).eql(true);
+			should(MyStream.super_).eql(BaseClass);
+
+			stream.on('data', data => {
+				data.should.eql('It works!');
+				finished();
+			});
+			stream.write('It works!'); // Received data: "It works!"
+		});
+
+		it('throws TypeError if super constructor is null', () => {
+			function BaseClass() {
+			}
+
+			function MyStream() {
+				BaseClass.call(this);
+			}
+
+			should.throws(() => util.inherits(MyStream, null),
+				TypeError
+			);
+		});
+
+		it('throws TypeError if constructor is null', () => {
+			function BaseClass() {
+			}
+
+			function MyStream() {
+				BaseClass.call(this);
+			}
+
+			should.throws(() => util.inherits(null, BaseClass),
+				TypeError
+			);
+		});
+
+		it('throws TypeError if super sonctructor has no prototype', () => {
+			const BaseClass = Object.create(null, {});
+
+			function MyStream() {
+				BaseClass.call(this);
+			}
+
+			should.throws(() => util.inherits(MyStream, BaseClass),
+				TypeError
+			);
+		});
+	});
+
 	describe('.types', () => {
 		describe('#isNativeError()', () => {
 			it('is a function', () => {
