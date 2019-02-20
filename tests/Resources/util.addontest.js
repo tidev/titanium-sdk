@@ -652,16 +652,12 @@ describe.only('util', () => {
 			function BaseClass() {
 			}
 
-			function MyStream() {
-				BaseClass.call(this);
-			}
-
 			should.throws(() => util.inherits(null, BaseClass),
 				TypeError
 			);
 		});
 
-		it('throws TypeError if super sonctructor has no prototype', () => {
+		it('throws TypeError if super constructor has no prototype', () => {
 			const BaseClass = Object.create(null, {});
 
 			function MyStream() {
@@ -669,6 +665,47 @@ describe.only('util', () => {
 			}
 
 			should.throws(() => util.inherits(MyStream, BaseClass),
+				TypeError
+			);
+		});
+	});
+
+	describe('#promisify()', () => {
+		it('is a function', () => {
+			util.promisify.should.be.a.Function;
+		});
+
+		it('wraps callback function to return promise with resolve', (finished) => {
+			function callbackOriginal(argOne, argTwo, next) {
+				next(argOne, argTwo);
+			}
+			const promisified = util.promisify(callbackOriginal);
+			const result = promisified(null, 123);
+			should(result instanceof Promise).eql(true);
+			result.then(value => {
+				should(value).eql(123);
+				finished();
+			}).catch(err => finished(err));
+		});
+
+		it('wraps callback function to return promise with rejection', (finished) => {
+			function callbackOriginal(argOne, argTwo, next) {
+				next(argOne, argTwo);
+			}
+			const promisified = util.promisify(callbackOriginal);
+			const result = promisified(new Error('example'), 123);
+			should(result instanceof Promise).eql(true);
+			result.then(value => {
+				should(value).eql(123);
+				finished(new Error('Expected promise to get rejected!'));
+			}).catch(err => {
+				err.message.should.eql('example');
+				finished();
+			});
+		});
+
+		it('throws TypeError if original argument is not a function', () => {
+			should.throws(() => util.promisify({}),
 				TypeError
 			);
 		});

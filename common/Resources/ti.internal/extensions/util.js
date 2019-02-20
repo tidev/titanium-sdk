@@ -361,4 +361,25 @@ util.inherits = function (constructor, superConstructor) {
 	Object.setPrototypeOf(constructor.prototype, superConstructor.prototype);
 };
 
+util.promisify = function (original) {
+	if (typeof original !== 'function') {
+		throw new TypeError(`The "original" argument must be of type Function. Received type ${typeof original}`);
+	}
+
+	function wrapped(...args) {
+		return new Promise((resolve, reject) => {
+			original.call(this, ...args, (err, result) => {
+				if (err) {
+					return reject(err);
+				}
+
+				return resolve(result);
+			});
+		});
+	}
+	// TODO: Copy properties from original to wrapped
+	// TODO: hook prototype chain up from wrapped to original
+	return wrapped;
+};
+
 module.exports = util;
