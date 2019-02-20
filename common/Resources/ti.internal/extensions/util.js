@@ -163,7 +163,7 @@ util.inspect = (obj, options = {}) => {
 
 		// If we've gone past our depth, just do a quickie result here, like '[Object]'
 		if (mergedOptions.recursionCount > mergedOptions.depth) {
-			return `[${constructorName || tag || 'Object'}]`;
+			return header || `[${constructorName || tag || 'Object'}]`;
 		}
 
 		// handle properties
@@ -187,9 +187,14 @@ util.inspect = (obj, options = {}) => {
 			// TODO: Handle setter/getters
 		}
 		if (properties.length !== 0) {
+			// TODO: Handle custom sorting option!
+			if (mergedOptions.sorted) {
+				properties.sort();
+			}
 			values.push(...properties);
 		}
 
+		// TODO: Handle breaking them by breakLength here!
 		let value = '';
 		if (values.length === 0) {
 			if (header.length > 0) {
@@ -300,12 +305,12 @@ util.format = (...args) => {
 					break;
 
 				case 'o': // Object w/showHidden and showProxy
-					str += util.inspect(curArg, { showHidden: true, showProxy: true });
+					str += util.inspect(curArg, { showHidden: true, showProxy: true, depth: 4 });
 					i++; // consume argument
 					break;
 
 				case 'O': // Object w/o options
-					str += util.inspect(curArg);
+					str += util.inspect(curArg, {});
 					i++; // consume argument
 					break;
 
