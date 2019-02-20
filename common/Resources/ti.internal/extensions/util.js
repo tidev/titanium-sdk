@@ -56,7 +56,9 @@ const util = {
 	isPrimitive: value => (typeof value !== 'object' && typeof value !== 'function') || value === null,
 	isString: value => typeof value === 'string',
 	isSymbol: value => typeof value === 'symbol',
-	isUndefindex: value => value === undefined
+	isUndefined: value => value === undefined,
+	print: (...args) => console.log(...args),
+	puts: (...args) => console.log(...args)
 };
 
 util.isBuffer = () => false; // FIXME: Check for Ti.Buffer? for node/browserify buffer?
