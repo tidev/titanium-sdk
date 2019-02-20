@@ -434,5 +434,10 @@ util.deprecate = function (func, string, code) {
 
 	return wrapped;
 };
+// TODO: Support debuglog? What is our equivalent of process.env('NODE_DEBUG')?
+const noop = () => {};
+util.debuglog = () => {
+	return noop;
+};
 
 module.exports = util;
