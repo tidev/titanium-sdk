@@ -379,6 +379,30 @@ util.promisify = function (original) {
 	}
 	// TODO: Copy properties from original to wrapped
 	// TODO: hook prototype chain up from wrapped to original
+	// TODO: Support custom promisify hooks
+	return wrapped;
+};
+
+/**
+ * @param {Function} func function to deprecate/wrap
+ * @param {string} string message to give when deprecation warning is emitted
+ * @param {string} code deprecation code to use to group warnings
+ * @returns {Function} wrapped function
+ */
+util.deprecate = function (func, string, code) {
+	if (process.noDeprecation) {
+		return func; // skip the wrapping!
+	}
+	// TODO: Support `code` argument by tracking a map of codes we've warned about
+	function wrapped(...args) {
+		let warned = false;
+		if (!warned) {
+			process.emitWarning(string, 'DeprecationWarning');
+			warned = true;
+		}
+		return func.apply(this, args);
+	}
+
 	return wrapped;
 };
 

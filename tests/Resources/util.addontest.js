@@ -682,7 +682,7 @@ describe.only('util', () => {
 			const promisified = util.promisify(callbackOriginal);
 			const result = promisified(null, 123);
 			should(result instanceof Promise).eql(true);
-			result.then(value => {
+			result.then(value => { // eslint-disable-line promise/always-return
 				should(value).eql(123);
 				finished();
 			}).catch(err => finished(err));
@@ -695,7 +695,7 @@ describe.only('util', () => {
 			const promisified = util.promisify(callbackOriginal);
 			const result = promisified(new Error('example'), 123);
 			should(result instanceof Promise).eql(true);
-			result.then(value => {
+			result.then(value => { // eslint-disable-line promise/always-return
 				should(value).eql(123);
 				finished(new Error('Expected promise to get rejected!'));
 			}).catch(err => {
@@ -709,6 +709,28 @@ describe.only('util', () => {
 				TypeError
 			);
 		});
+	});
+
+	describe('#deprecate()', () => {
+		it('is a function', () => {
+			util.deprecate.should.be.a.Function;
+		});
+
+		it('wraps function to emit warning', () => {
+			function original(...args) {
+				return args;
+			}
+			const deprecated = util.deprecate(original, 'dont call me Al');
+			// this should get called synchronously, so I don't think we need to do any setTimeout/async finished stuff
+			process.on('warning', warning => {
+				warning.name.should.eql('DeprecationWarning');
+				warning.message.should.eql('dont call me Al');
+			});
+			const result = deprecated(null, 123);
+			should(result).eql([ null, 123 ]);
+		});
+
+		// TODO: Test that we return original function if process.noDeprecation is true!
 	});
 
 	describe('.types', () => {
