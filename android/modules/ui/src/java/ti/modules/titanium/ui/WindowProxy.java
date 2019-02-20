@@ -287,8 +287,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			// Get a reference to the root window in the NavigationWindow.
 			WindowProxy rootWindowProxy = ((NavigationWindowProxy) this.getNavigationWindow()).getRootWindowProxy();
 			// If the root window matches this window do not show the Up navigation button.
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootWindowProxy != null ? rootWindowProxy != this
-																							 : false);
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootWindowProxy != this);
 		}
 
 		activity.getActivityProxy().getDecorView().add(this);

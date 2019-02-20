@@ -98,8 +98,7 @@ public class NavigationWindowProxy extends WindowProxy
 	{
 		if (!windows.isEmpty()) {
 			return windows.get(0);
-		} else {
-			return null;
 		}
+		return null;
 	}
 }
