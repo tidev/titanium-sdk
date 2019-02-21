@@ -1,5 +1,9 @@
 'use strict';
 
+const MONTHS = [
+	'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
+
 const util = {
 	// So node actually calls into native code for these checks, but I think for shim compatability this is good enough
 	// There's overhead for doing the native checks, and it'd require a native module to achieve.
@@ -31,7 +35,7 @@ const util = {
 				|| this.isSymbolObject(value);
 		},
 		isNativeError: value => {
-			// if not an instance of an Error, definietly not a native error
+			// if not an instance of an Error, definitely not a native error
 			if (!(value instanceof Error)) {
 				return false;
 			}
@@ -57,13 +61,21 @@ const util = {
 	isString: value => typeof value === 'string',
 	isSymbol: value => typeof value === 'symbol',
 	isUndefined: value => value === undefined,
-	print: (...args) => console.log(...args),
-	puts: (...args) => console.log(...args)
+	log: string => {
+		const date = new Date();
+		const time = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+		// Produces output like: "21 Feb 10:04:23 - message"
+		console.log(`${date.getDate()} ${MONTHS[date.getMonth()]} ${time} - ${string}`);
+	},
+	print: (...args) => console.log(args.join('')), // FIXME: Shouldn't add trailing newline like console.log does!
+	puts: (...args) => console.log(args.join('\n')),
+	error: (...args) => console.error(args.join('\n')),
+	debug: string => console.error(`DEBUG: ${string}`)
 };
 
 util.isBuffer = () => false; // FIXME: Check for Ti.Buffer? for node/browserify buffer?
 util.isDate = value => util.types.isDate(value);
-util.isError = value => util.types.isNativeError(value); // FIXME: Implement util.types.isNativeError()!
+util.isError = value => util.types.isNativeError(value);
 util.isRegexp = value => util.types.isRegexp(value);
 
 // FIXME: Our String.format is not very forgiving. It sort-of is supposed to do the same thing, but blows up easily

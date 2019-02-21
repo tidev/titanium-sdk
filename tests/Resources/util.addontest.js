@@ -794,6 +794,101 @@ describe.only('util', () => {
 		// TODO: Test that we return original function if process.noDeprecation is true!
 	});
 
+	describe('#log()', () => {
+		it('is a function', () => {
+			util.log.should.be.a.Function;
+		});
+
+		it('prepends timestamp to message', () => {
+			// Hijack console.log! NOTE: This doesn't work on iOS until we move to obj-c API!
+			const original = console.log;
+			try {
+				console.log = string => {
+					string.should.match(/^\d{1,2} \w{3} \d{2}:\d{2}:\d{2} - message$/);
+				};
+				util.log('message');
+			} finally {
+				console.log = original;
+			}
+		});
+	});
+
+	describe('#print()', () => {
+		it('is a function', () => {
+			util.print.should.be.a.Function;
+		});
+
+		it('concatenates with no join', () => {
+			// Hijack console.log! NOTE: This doesn't work on iOS until we move to obj-c API!
+			const original = console.log;
+			try {
+				console.log = string => {
+					string.should.eql('123');
+				};
+				util.print(1, 2, 3);
+			} finally {
+				console.log = original;
+			}
+		});
+	});
+
+	describe('#puts()', () => {
+		it('is a function', () => {
+			util.puts.should.be.a.Function;
+		});
+
+		it('concatenates with newline join', () => {
+			// Hijack console.log! NOTE: This doesn't work on iOS until we move to obj-c API!
+			const original = console.log;
+			try {
+				console.log = string => {
+					string.should.eql('1\n2\n3');
+				};
+				util.puts(1, 2, 3);
+			} finally {
+				console.log = original;
+			}
+		});
+	});
+
+	describe('#debug()', () => {
+		it('is a function', () => {
+			util.debug.should.be.a.Function;
+		});
+
+		it('concatenates with newline join', () => {
+			// Hijack console.error! NOTE: This doesn't work on iOS until we move to obj-c API!
+			const original = console.error;
+			try {
+				console.error = string => {
+					string.should.eql('DEBUG: message');
+				};
+				util.debug('message');
+			} finally {
+				console.error = original;
+			}
+		});
+	});
+
+	describe('#error()', () => {
+		it('is a function', () => {
+			util.error.should.be.a.Function;
+		});
+
+		it('concatenates with newline join', () => {
+			// Hijack console.error! NOTE: This doesn't work on iOS until we move to obj-c API!
+			const original = console.error;
+			try {
+				console.error = string => {
+					string.should.eql('1\n2\n3');
+				};
+				util.error(1, 2, 3);
+			} finally {
+				console.error = original;
+			}
+		});
+	});
+
 	describe('.types', () => {
 		describe('#isNativeError()', () => {
 			it('is a function', () => {
