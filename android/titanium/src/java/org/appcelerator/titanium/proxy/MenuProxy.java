@@ -6,25 +6,21 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import java.util.HashMap;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiUIView;
-
-import android.os.Message;
 import android.support.v7.view.menu.MenuItemWrapperICS;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiUIView;
+
+import java.util.HashMap;
 
 @Kroll.proxy
 public class MenuProxy extends KrollProxy
@@ -57,7 +53,7 @@ public class MenuProxy extends KrollProxy
 		int itemId = Menu.NONE;
 		int groupId = Menu.NONE;
 		int order = Menu.NONE;
-
+		String newProp = null;
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
 		}
@@ -71,8 +67,16 @@ public class MenuProxy extends KrollProxy
 			order = TiConvert.toInt(d, TiC.PROPERTY_ORDER);
 		}
 
+		// For now assume that icon search color property is enough to distinguish search view.
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_ACTION_VIEW)) {
+			TiViewProxy tiViewProxy = (TiViewProxy) d.get(TiC.PROPERTY_ACTION_VIEW);
+			if (tiViewProxy.hasProperty(TiC.PROPERTY_ICON_SEARCH_COLOR)) {
+				newProp = tiViewProxy.getProperty(TiC.PROPERTY_ICON_SEARCH_COLOR).toString();
+			}
+		}
+
 		MenuItem item = menu.add(groupId, itemId, order, title);
-		mip = new MenuItemProxy(item);
+		mip = new MenuItemProxy(item, newProp);
 		//Appcompat for ICS+ wraps the menu object so here we want to set the wrapped object for look-up purposes
 		//since the wrapper will be copied when onOptionsItemSelected is invoked.
 		if (item instanceof MenuItemWrapperICS) {

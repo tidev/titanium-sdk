@@ -1926,6 +1926,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ICON_SEARCH_COLOR = "iconSearchColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICON_SEARCH_CLOSE_COLOR = "iconSearchCloseColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICON_SEARCH_HINT_COLOR = "iconSearchHintColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ICONIFIED = "iconified";
 
 	/**

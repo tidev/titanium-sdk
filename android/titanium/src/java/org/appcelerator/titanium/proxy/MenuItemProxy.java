@@ -6,24 +6,23 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.support.v4.view.MenuItemCompat;
+import android.view.MenuItem;
+import android.view.View;
+
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
-
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Message;
-import android.support.v4.view.MenuItemCompat;
-import android.view.MenuItem;
-import android.view.View;
 
 @Kroll.proxy
 public class MenuItemProxy extends KrollProxy
@@ -31,6 +30,7 @@ public class MenuItemProxy extends KrollProxy
 	private static final String TAG = "MenuItem";
 
 	private MenuItem item;
+	private String newProp;
 
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 1000;
@@ -50,9 +50,10 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	protected MenuItemProxy(MenuItem item)
+	protected MenuItemProxy(MenuItem item, String newProp)
 	{
 		this.item = item;
+		this.newProp = newProp;
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
@@ -194,6 +195,7 @@ public class MenuItemProxy extends KrollProxy
 				Drawable d = TiUIHelper.getResourceDrawable(TiConvert.toInt(icon));
 				if (d != null) {
 					item.setIcon(d);
+					item.getIcon().setColorFilter(TiColorHelper.parseColor(newProp), PorterDuff.Mode.SRC_IN);
 				}
 			}
 		}

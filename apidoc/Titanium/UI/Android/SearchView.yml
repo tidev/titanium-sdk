@@ -94,7 +94,25 @@ properties:
     summary: Whether to display the submit button when necessary or never display.
     type: Boolean
     default: undefined
-         
+
+  - name: iconSearchColor
+    summary: The color of the search view's icon.
+    type: String
+    default: Default Android theme's search icon color.
+    since: 8.1.0
+
+  - name: iconSearchHintColor
+    summary: The color of the search view's hint icon.
+    type: String
+    default: Default Android theme's search hint icon color.
+    since: 8.1.0
+
+  - name: iconSearchCloseColor
+    summary: The color of the search view's close icon.
+    type: String
+    default: Default Android theme's search close icon color.
+    since: 8.1.0
+
 examples:
 
   - title: Search View for Table in Action Bar
