@@ -14,7 +14,7 @@ const utilities = require('./utilities/utilities');
 
 let util;
 
-describe.only('util', () => {
+describe('util', () => {
 	it('should be required as core module', () => {
 		util = require('util');
 		util.should.be.an.Object;
