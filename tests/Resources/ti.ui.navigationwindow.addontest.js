@@ -23,10 +23,10 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 	});
 
 	it('open window from open event of window (TIMOB-26838)', function (finish) {
-		var window = Ti.UI.createWindow(),
-			navigation = Ti.UI.createNavigationWindow({
-				window: window
-			});
+		var window = Ti.UI.createWindow();
+		nav = Ti.UI.createNavigationWindow({
+			window: window
+		});
 
 		var nextWindow = Ti.UI.createWindow();
 
@@ -34,9 +34,9 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 			finish();
 		});
 		window.addEventListener('open', function () {
-			nav.openWindow(win2,{animated:true});
+			nav.openWindow(nextWindow, { animated: true });
 		});
-		navigation.open();
+		nav.open();
 	});
 });
 
