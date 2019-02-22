@@ -99,6 +99,17 @@ const defaultInspectOptions = {
 	sorted: false,
 	getters: false
 };
+
+/**
+ * @param {*} obj JS value or object to inspect
+ * @param {object} [options] options for output
+ * @param {Integer} [options.breakLength=60] length at which to break properties into individual lines
+ * @param {boolean} [options.showHidden=false] whether to include hidden properties (non-enumerable)
+ * @param {boolean} [options.sorted=false] whether to sort the property listings per-object
+ * @param {boolean} [options.compact=true] if set to `false`, uses luxurious amount of spacing and newlines
+ * @param {Integer} [options.depth=2] depth to recurse into objects
+ * @returns {string}
+ */
 util.inspect = (obj, options = {}) => {
 	const mergedOptions = Object.assign({}, defaultInspectOptions, options);
 	// increase our recursion counter to avoid going past depth
@@ -207,7 +218,6 @@ util.inspect = (obj, options = {}) => {
 			values.push(...properties);
 		}
 
-		// TODO: Handle breaking them by breakLength here!
 		let value = '';
 		if (values.length === 0) {
 			if (header.length > 0) {
@@ -215,10 +225,27 @@ util.inspect = (obj, options = {}) => {
 			} else {
 				value = `${open}${close}`; // no spaces, i.e. '{}' or '[]'
 			}
-		} else if (header.length > 0) { // i.e. '{ [Function] a: 1, b: 2 }'
-			value = `${open} ${header} ${values.join(', ')} ${close}`; // spaces between braces and values/properties
-		} else {  // i.e. '{ 1, 2, a: 3 }'
-			value = `${open} ${values.join(', ')} ${close}`; // spaces between braces and values/properties
+		} else {
+			let str = '';
+			if (header.length > 0) { // i.e. '{ [Function] a: 1, b: 2 }'
+				str = `${header} `;
+			}
+			// Handle breaking them by breakLength here!
+			let length = 0;
+			for (const value of values) {
+				length += value.length + 1; // Node seems to add one for comma, but not more for spaces?
+				if (length > mergedOptions.breakLength) { // break early if length > breakLength!
+					break;
+				}
+			}
+			if (length > mergedOptions.breakLength) {
+				// break them up!
+				str += values.join(',\n  ');
+			} else {
+				str += values.join(', ');
+			}
+
+			value = `${open} ${str} ${close}`; // spaces between braces and values/properties
 		}
 
 		return `${prefix}${value}`;

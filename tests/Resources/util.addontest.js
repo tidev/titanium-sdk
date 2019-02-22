@@ -588,6 +588,28 @@ describe('util', () => {
 			util.inspect(nestedObj2, {}).should.eql(
 				'{ foo: \'bar\', foobar: 1, func: [ { a: [Function: a] } ] }');
 		});
+
+		it('with default breakLength at exact break point', () => {
+			const obj = {
+				foo: '',
+				foobar: 1,
+				something: '12',
+				whatever: '',
+				whatever2: ''
+			};
+			util.inspect(obj).should.eql('{ foo: \'\',\n  foobar: 1,\n  something: \'12\',\n  whatever: \'\',\n  whatever2: \'\' }');
+		});
+
+		it('with default breakLength just below break point', () => {
+			const obj = {
+				foo: '',
+				foobar: 1,
+				something: '1',
+				whatever: '',
+				whatever2: ''
+			};
+			util.inspect(obj).should.eql('{ foo: \'\', foobar: 1, something: \'1\', whatever: \'\', whatever2: \'\' }');
+		});
 	});
 
 	describe('#inherits()', () => {
