@@ -579,6 +579,43 @@ describe('util', () => {
 				'{ foo: \'bar\', foobar: 1, func: [ { a: [Function] }, [length]: 1 ] }');
 		});
 
+		it('with toplevel object that breaks and nested object that doesn\'t break', () => {
+			const nestedObj2 = {
+				foo: 'bar',
+				foobar: 1,
+				func: {
+					other: true,
+					yeah: 'man',
+					whatever: '123456789'
+				}
+			};
+			util.inspect(nestedObj2).should.eql(
+				'{ foo: \'bar\',\n'
+				+ '  foobar: 1,\n'
+				+ '  func: { other: true, yeah: \'man\', whatever: \'123456789\' } }');
+		});
+
+		it('with toplevel and nested objects that break', () => {
+			const nestedObj2 = {
+				foo: 'bar',
+				foobar: 1,
+				func: {
+					other: true,
+					yeah: 'man',
+					whatever: '123456789',
+					whatever2: '123456789'
+				}
+			};
+			util.inspect(nestedObj2).should.eql(
+				'{ foo: \'bar\',\n'
+				+ '  foobar: 1,\n'
+				+ '  func:\n'
+				+ '   { other: true,\n'
+				+ '     yeah: \'man\',\n'
+				+ '     whatever: \'123456789\',\n'
+				+ '     whatever2: \'123456789\' } }');
+		});
+
 		it('with nested object and empty options', () => {
 			const nestedObj2 = {
 				foo: 'bar',
