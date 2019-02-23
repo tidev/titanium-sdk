@@ -594,7 +594,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
 
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, notification, responseInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, notification, responseInfo, [completionHandler copy], nil]];
 
   [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
 }
@@ -603,7 +603,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, responseInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, responseInfo, [completionHandler copy], nil]];
 
   [self handleRemoteNotificationWithIdentifier:identifier
                                    andUserInfo:userInfo
