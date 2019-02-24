@@ -104,7 +104,7 @@
     "commander": "^2.15.1",
     "commitizen": "^3.0.5",
     "cz-conventional-changelog": "^2.1.0",
-    "danger": "^7.0.1",
+    "danger": "^7.0.14",
     "eslint-config-axway": "^4.2.1",
     "eslint-plugin-mocha": "^5.2.1",
     "grunt": "^1.0.3",
