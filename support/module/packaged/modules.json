@@ -56,7 +56,7 @@
 		},
 		"ti.playservices": {
 			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/16.1.2/ti.playservices-android-16.1.2.zip",
-			"integrity": "sha512-FZfDWJHCrXlrwYFgF1yO/m5veYJJKlqxVOAHoiyrbANJIzQNTjLtB6Yf5e3quyFs04rb8vKN6qxm3UnHldtDIA=="
+			"integrity": "sha512-IKcj16f1a1FE8cdacwmK6uICNy8MbMe+2BdCLu6ufSb1eQT3G8PiOPAVTJSsc5luiSvPshJaZ2OJIhvKXkWB8Q=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.1.0/ti.identity-android-2.1.0.zip",
