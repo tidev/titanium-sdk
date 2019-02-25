@@ -131,7 +131,7 @@ public class LocaleModule extends KrollModule
 		if (defaultValue == null) {
 			defaultValue = key;
 		}
-		
+
 		try {
 			int resid = TiRHelper.getResource("string." + key.replace(".", "_"));
 			if (resid != 0) {
