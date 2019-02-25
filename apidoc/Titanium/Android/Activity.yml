@@ -261,7 +261,7 @@ methods:
 
   - name: recreate
     summary: Recreates the activity.
-    since: "8.0.0"
+    since: "7.5.1"
 
 events:
 
