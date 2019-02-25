@@ -19,7 +19,14 @@
 - (id)getString:(id)args
 {
   NSString *key = [args objectAtIndex:0];
-  NSString *def = [args count] > 1 ? [args objectAtIndex:1] : nil;
+  NSString *def = nil;
+  if ([args count] > 1) {
+    // Only accept String defaults
+    id defaultValue = [args objectAtIndex:1];
+    if ([defaultValue isKindOfClass:[NSString class]]) {
+      def = (NSString *)defaultValue;
+    }
+  }
   return [TiLocale getString:key comment:def];
 }
 
