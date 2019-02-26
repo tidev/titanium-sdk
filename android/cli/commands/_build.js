@@ -2761,10 +2761,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							try {
 								// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
 								const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
+								const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
 								const modified = jsanalyze.analyzeJs(source, {
 									filename: from,
-									minify: this.minifyJS,
-									transpile: transpile,
+									minify,
+									transpile,
 									sourceMap: this.sourceMaps || this.deployType === 'development',
 									targets: {
 										chrome: this.chromeVersion

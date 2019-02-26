@@ -5856,10 +5856,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 										// Analyze Ti API usage, possibly also minify/transpile
 										// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
 										const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
+										const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
 										const analyzeOptions = {
 											filename: from,
-											minify: this.minifyJS,
-											transpile: transpile,
+											minify,
+											transpile,
 											sourceMap: this.sourceMaps || this.deployType === 'development',
 											resourcesDir: this.xcodeAppDir,
 											logger: this.logger,
