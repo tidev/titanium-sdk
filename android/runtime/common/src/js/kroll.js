@@ -66,6 +66,13 @@
 		global.Ti = global.Titanium = NativeModule.require('titanium');
 		global.Module = NativeModule.require('module');
 		global.console = NativeModule.require('console'); // Convenience toplevel alias for logging facilities
+		global.Worker = NativeModule.require('worker').Worker;
+		if (global.constructor === global.WorkerGlobalScope) {
+			// our `EventEmitter` is not fully compliant with WHATWG `EventTarget`
+			// we don't have `dispatchEvent()`
+			global.addEventListener = global.addEventListener.bind(global);
+			global.removeEventListener = global.removeEventListener.bind(global);
+		}
 	};
 
 	startup.runMain = function () {};

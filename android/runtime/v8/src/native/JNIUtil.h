@@ -108,6 +108,7 @@ public:
 	static jclass krollDictClass;
 	static jclass tiJsErrorDialogClass;
 	static jclass referenceTableClass;
+	static jclass krollWorkerClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -165,6 +166,8 @@ public:
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 	static jmethodID krollLoggingLogWithDefaultLoggerMethod;
 	static jmethodID krollRuntimeDispatchExceptionMethod;
+	static jmethodID krollWorkerCloseMethod;
+	static jmethodID krollWorkerPostMessageMethod;
 
 	static jmethodID krollAssetHelperReadAssetMethod;
 
@@ -176,6 +179,10 @@ public:
 	JNIScope(JNIEnv *env)
 			: prev(current)
 	{
+		JNIEnv *cur = getEnv();
+		if (cur != env) {
+			LOGE("JNIScope", "Error. JNIEnv %p != JNIEnv %p", cur, env);
+		}
 		current = env;
 	}
 	~JNIScope()

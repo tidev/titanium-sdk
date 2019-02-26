@@ -93,7 +93,7 @@ Local<Boolean> TypeConverter::javaBooleanToJsBoolean(Isolate* isolate, jboolean 
 
 jstring TypeConverter::jsStringToJavaString(Local<String> jsString)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -102,7 +102,7 @@ jstring TypeConverter::jsStringToJavaString(Local<String> jsString)
 
 jstring TypeConverter::jsStringToJavaString(Isolate* isolate, Local<String> jsString)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -123,7 +123,7 @@ jstring TypeConverter::jsStringToJavaString(Isolate* isolate, JNIEnv *env, Local
 
 jstring TypeConverter::jsValueToJavaString(Isolate* isolate, Local<Value> jsValue)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -141,7 +141,7 @@ jstring TypeConverter::jsValueToJavaString(Isolate* isolate, JNIEnv *env, Local<
 
 Local<Value> TypeConverter::javaStringToJsString(Isolate* isolate, jstring javaString)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return String::Empty(isolate);
 	}
@@ -165,7 +165,7 @@ Local<Value> TypeConverter::javaStringToJsString(Isolate* isolate, JNIEnv *env, 
 
 jobject TypeConverter::jsDateToJavaDate(Local<Date> jsDate)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -184,7 +184,7 @@ jlong TypeConverter::jsDateToJavaLong(Local<Date> jsDate)
 
 Local<Date> TypeConverter::javaDateToJsDate(Isolate* isolate, jobject javaDate)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Local<Date>();
 	}
@@ -204,7 +204,7 @@ Local<Date> TypeConverter::javaLongToJsDate(Isolate* isolate, jlong javaLong)
 
 jobject TypeConverter::jsObjectToJavaFunction(Isolate* isolate, Local<Object> jsObject)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return NULL;
 	}
@@ -232,7 +232,7 @@ jobject TypeConverter::jsObjectToJavaFunction(Isolate* isolate, JNIEnv *env, Loc
 
 Local<Function> TypeConverter::javaObjectToJsFunction(Isolate* isolate, jobject javaObject)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return Local<Function>();
 	}
@@ -248,7 +248,7 @@ Local<Function> TypeConverter::javaObjectToJsFunction(Isolate* isolate, JNIEnv *
 
 jobject TypeConverter::jsObjectToJavaPromise(Isolate* isolate, Local<Object> jsObject)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return NULL;
 	}
@@ -275,7 +275,7 @@ jobject TypeConverter::jsObjectToJavaPromise(Isolate* isolate, JNIEnv *env, Loca
 }
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const FunctionCallbackInfo<Value>& args)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return NULL;
 	}
@@ -307,7 +307,7 @@ jobjectArray TypeConverter::jsArgumentsToJavaArray(JNIEnv *env, const FunctionCa
 // call "delete" on the return value otherwise the memory will never be released
 Local<Value>* TypeConverter::javaObjectArrayToJsArguments(Isolate* isolate, jobjectArray javaObjectArray, int* length)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return NULL;
 	}
@@ -331,7 +331,7 @@ Local<Value>* TypeConverter::javaObjectArrayToJsArguments(Isolate* isolate, JNIE
 
 jarray TypeConverter::jsArrayToJavaArray(Isolate* isolate, Local<Array> jsArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -368,7 +368,7 @@ jarray TypeConverter::jsArrayToJavaArray(Isolate* isolate, JNIEnv *env, Local<Ar
 
 jobjectArray TypeConverter::jsArrayToJavaStringArray(Isolate* isolate, Local<Array> jsArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -408,7 +408,7 @@ jobjectArray TypeConverter::jsArrayToJavaStringArray(Isolate* isolate, JNIEnv *e
 
 Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, jbooleanArray javaBooleanArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Array::New(isolate);
 	}
@@ -431,7 +431,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, jb
 
 jshortArray TypeConverter::jsArrayToJavaShortArray(Isolate* isolate, Local<Array> jsArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -481,7 +481,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, js
 
 jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, Local<Array> jsArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -521,7 +521,7 @@ jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Lo
 
 Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, jintArray javaIntArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Local<Array>();
 	}
@@ -544,7 +544,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, ji
 
 jlongArray TypeConverter::jsArrayToJavaLongArray(Isolate* isolate, Local<Array> jsArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -584,7 +584,7 @@ jlongArray TypeConverter::jsArrayToJavaLongArray(Isolate* isolate, JNIEnv *env, 
 
 jfloatArray TypeConverter::jsArrayToJavaFloatArray(Isolate* isolate, Local<Array> jsArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -644,7 +644,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, jf
 
 jdoubleArray TypeConverter::jsArrayToJavaDoubleArray(Isolate* isolate, Local<Array> jsArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -694,7 +694,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, jd
 
 Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, jobjectArray javaObjectArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Array::New(isolate);
 	}
@@ -721,7 +721,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, jo
 // object is a container type
 jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, Local<Value> jsValue, bool *isNew)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -836,7 +836,7 @@ jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, JNIEnv *env, Local<
 // object is a container type
 jobject TypeConverter::jsObjectToJavaKrollDict(Isolate* isolate, Local<Value> jsValue, bool *isNew)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -889,7 +889,7 @@ jobject TypeConverter::jsObjectToJavaKrollDict(Isolate* isolate, JNIEnv *env, Lo
 // converts js value to java error
 jobject TypeConverter::jsValueToJavaError(Isolate* isolate, Local<Value> jsValue, bool* isNew)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -976,7 +976,7 @@ Local<Value> TypeConverter::javaObjectToJsValue(Isolate* isolate, jobject javaOb
 		return Null(isolate);
 	}
 
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return Undefined(isolate);
 	}
@@ -1065,7 +1065,7 @@ Local<Value> TypeConverter::javaObjectToJsValue(Isolate* isolate, JNIEnv *env, j
 
 jobjectArray TypeConverter::jsObjectIndexPropsToJavaArray(Isolate* isolate, Local<Object> jsObject, int start, int length)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return NULL;
 	}
@@ -1105,7 +1105,7 @@ jobjectArray TypeConverter::jsObjectIndexPropsToJavaArray(Isolate* isolate, JNIE
 // arrays to to the generic js number type
 Local<Array> TypeConverter::javaDoubleArrayToJsNumberArray(Isolate* isolate, jdoubleArray javaDoubleArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Array::New(isolate);
 	}
@@ -1129,7 +1129,7 @@ Local<Array> TypeConverter::javaDoubleArrayToJsNumberArray(Isolate* isolate, JNI
 
 Local<Array> TypeConverter::javaLongArrayToJsNumberArray(Isolate* isolate, jlongArray javaLongArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Array::New(isolate);
 	}
@@ -1151,7 +1151,7 @@ Local<Array> TypeConverter::javaLongArrayToJsNumberArray(Isolate* isolate, JNIEn
 
 Local<Array> TypeConverter::javaFloatArrayToJsNumberArray(Isolate* isolate, jfloatArray javaFloatArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Array::New(isolate);
 	}
@@ -1174,7 +1174,7 @@ Local<Array> TypeConverter::javaFloatArrayToJsNumberArray(Isolate* isolate, JNIE
 
 Local<Array> TypeConverter::javaShortArrayToJsNumberArray(Isolate* isolate, jshortArray javaShortArray)
 {
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL) {
 		return Array::New(isolate);
 	}

@@ -24,20 +24,20 @@ public class V8Promise extends V8Object implements KrollPromise
 	@Override
 	public void resolve(Object value)
 	{
-		if (KrollRuntime.getInstance().isRuntimeThread()) {
+		if (KrollRuntime.getInstance().isOriginThreadForObject(this)) {
 			nativeResolve(getPointer(), value);
 		} else {
-			TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_RESOLVE), value);
+			TiMessenger.sendBlockingMessageToOrigin(this, handler.obtainMessage(MSG_RESOLVE), value);
 		}
 	}
 
 	@Override
 	public void reject(Object value)
 	{
-		if (KrollRuntime.getInstance().isRuntimeThread()) {
+		if (KrollRuntime.getInstance().isOriginThreadForObject(this)) {
 			nativeReject(getPointer(), value);
 		} else {
-			TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_REJECT), value);
+			TiMessenger.sendBlockingMessageToOrigin(this, handler.obtainMessage(MSG_REJECT), value);
 		}
 	}
 

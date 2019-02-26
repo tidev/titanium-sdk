@@ -6,6 +6,7 @@
  */
 
 #include <jni.h>
+#include <unistd.h>
 #include <v8.h>
 
 #include "JNIUtil.h"
@@ -27,8 +28,13 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Promise_nativeRe
 	JNIEnv *env, jobject self, jlong ptr, jobject arg)
 {
 	LOGD(TAG, "Promise nativeResolve");
-	HandleScope scope(V8Runtime::v8_isolate);
-	titanium::JNIScope jniScope(env);
+	pid_t threadId = gettid();
+	Isolate* isolate = V8Runtime::thread_isolateMap[threadId];
+	if (isolate == NULL) {
+		LOGE(TAG, "!!!Received a bad thread id. Returning undefined.");
+		return;
+	}
+	HandleScope scope(isolate);
 
 	auto it = TypeConverter::resolvers.find(ptr);
 	if (it == TypeConverter::resolvers.end()) {
@@ -37,9 +43,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Promise_nativeRe
 	}
 
 	auto persistent = TypeConverter::resolvers.at(ptr);
-	auto resolver = persistent.Get(V8Runtime::v8_isolate);
+	auto resolver = persistent.Get(isolate);
 
-	Maybe<bool> b = resolver->Resolve(V8Runtime::v8_isolate->GetCurrentContext(), TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, arg));
+	Maybe<bool> b = resolver->Resolve(isolate->GetCurrentContext(), TypeConverter::javaObjectToJsValue(isolate, arg));
 	LOGD(TAG, "Promise nativeReject resolver->Resolve %s", b.FromMaybe(false) ? "true" : "false");
 
 }
@@ -48,8 +54,13 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Promise_nativeRe
 	JNIEnv *env, jobject self, jlong ptr, jobject arg)
 {
 	LOGD(TAG, "Promise nativeReject");
-	HandleScope scope(V8Runtime::v8_isolate);
-	titanium::JNIScope jniScope(env);
+	pid_t threadId = gettid();
+	Isolate* isolate = V8Runtime::thread_isolateMap[threadId];
+	if (isolate == NULL) {
+		LOGE(TAG, "!!!Received a bad thread id. Returning undefined.");
+		return;
+	}
+	HandleScope scope(isolate);
 
 	auto it = TypeConverter::resolvers.find(ptr);
 	if (it == TypeConverter::resolvers.end()) {
@@ -58,9 +69,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Promise_nativeRe
 	}
 
 	auto persistent = TypeConverter::resolvers.at(ptr);
-	auto resolver = persistent.Get(V8Runtime::v8_isolate);
+	auto resolver = persistent.Get(isolate);
 
-	Maybe<bool> b = resolver->Reject(V8Runtime::v8_isolate->GetCurrentContext(), TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, arg));
+	Maybe<bool> b = resolver->Reject(isolate->GetCurrentContext(), TypeConverter::javaObjectToJsValue(isolate, arg));
 	LOGD(TAG, "Promise nativeReject resolver->Reject %s", b.FromMaybe(false) ? "true" : "false");
 }
 

@@ -651,7 +651,7 @@ fails, a JS exception is returned.
 	<#if method.hasInvocation>
 	Local<Object> scopeVars = args[0]->ToObject(context).ToLocalChecked(); // FIXME handle when empty!
 	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(isolate, env,
-		scopeVars->Get(context, Proxy::sourceUrlSymbol.Get(isolate)).FromMaybe(String::Empty(isolate).As<Value>())); // FIXME Default to app.js?
+		scopeVars->Get(context, Proxy::sourceUrlSymbolMap[isolate].Get(isolate)).FromMaybe(String::Empty(isolate).As<Value>())); // FIXME Default to app.js?
 	jArguments[0].l = env->NewObject(titanium::JNIUtil::krollInvocationClass,
 		titanium::JNIUtil::krollInvocationInitMethod, sourceUrl);
 	env->DeleteLocalRef(sourceUrl);
@@ -758,7 +758,7 @@ beprovided to handle the result.
 </#macro>
 
 <#macro initJNIEnv>
-	JNIEnv *env = titanium::JNIScope::getEnv();
+	JNIEnv *env = titanium::JNIUtil::getJNIEnv();
 	if (!env) {
 		titanium::JSException::GetJNIEnvironmentError(isolate);
 		return;

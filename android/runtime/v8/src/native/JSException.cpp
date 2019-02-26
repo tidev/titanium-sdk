@@ -22,7 +22,7 @@ namespace titanium {
 
 Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable javaException)
 {
-	JNIEnv* env = JNIScope::getEnv();
+	JNIEnv* env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return GetJNIEnvironmentError(isolate);
 	}
