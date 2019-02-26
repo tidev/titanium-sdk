@@ -6,7 +6,10 @@ const exec = require('child_process').exec; // eslint-disable-line security/dete
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const async = require('async');
 const fs = require('fs-extra');
-const babel = require('@babel/core');
+const rollup = require('rollup').rollup;
+const babel = require('rollup-plugin-babel');
+const resolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
 const appc = require('node-appc');
 const version = appc.version;
 const utils = require('./utils');
@@ -251,25 +254,76 @@ Packager.prototype.zip = function (next) {
 	}.bind(this));
 };
 
-Packager.prototype.transpile = async function (srcDir, destDir, options) {
-	const files = await fs.readdir(srcDir);
-	await Promise.all(files.map(file => {
-		const srcPath = path.join(srcDir, file);
-		const destPath = path.join(destDir, file);
-		const stats = fs.statSync(srcPath);
-		if (stats.isDirectory()) {
-			// recurse!
-			return fs.ensureDir(destPath).then(() => this.transpile(srcPath, destPath, options));
-		}
+function determineBabelOptions() {
+	// Pull out android's V8 target (and transform into equivalent chrome version)
+	const v8Version = require('../android/package.json').v8.version;
+	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+	const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
+	// Now pull out min IOS target
+	const minSupportedIosSdk = version.parseMin(require('../iphone/package.json').vendorDependencies['ios sdk']);
+	// TODO: filter to only targets relevant for platforms we're building?
+	const options = {
+		targets: {
+			chrome: chromeVersion,
+			ios: minSupportedIosSdk
+		},
+		useBuiltIns: 'entry',
+		// DO NOT include web polyfills!
+		exclude: [ 'web.dom.iterable', 'web.immediate', 'web.timers' ]
+	};
+	// pull out windows target (if it exists)
+	if (fs.pathExistsSync('../windows/package.json')) {
+		const windowsSafariVersion = require('../windows/package.json').safari;
+		options.targets.safari = windowsSafariVersion;
+	}
+	return {
+		presets: [ [ '@babel/env', options ] ],
+		exclude: 'node_modules/**'
+	};
+}
 
-		// read file in (if JS), transpile, write it out
-		if (file.endsWith('.js')) {
-			return babel.transformFileAsync(srcPath, options)
-				.then(result => fs.writeFile(destPath, result.code));
-		}
-		// just copy it
-		return fs.copy(srcPath, destPath);
-	}));
+Packager.prototype.transpile = async function () {
+	// Copy over common dir, @babel/polyfill, etc into some temp dir
+	// Then run rollup/babel on it, then just copy the resulting bundle to our real destination!
+	// The temporary location we'll assembled the transpiled bundle
+	const tmpBundleDir = path.join(this.zipSDKDir, 'common_temp');
+
+	console.log('Copying common SDK JS over');
+	fs.copySync(path.join(this.srcDir, 'common'), tmpBundleDir);
+
+	// copy over polyfill and its dependencies
+	console.log('Copying JS polyfills over');
+	const modulesDir = path.join(tmpBundleDir, 'Resources/node_modules');
+	// make sure our 'node_modules' directory exists
+	fs.ensureDirSync(modulesDir);
+	copyPackageAndDependencies('@babel/polyfill', modulesDir);
+
+	console.log('Transpiling and bundling common SDK JS');
+	// the ultimate destinatio for our common SDK JS
+	const destDir = path.join(this.zipSDKDir, 'common');
+	// create a bundle
+	console.log('running rollup');
+	const babelOptions = determineBabelOptions();
+	const bundle = await rollup({
+		input: `${tmpBundleDir}/Resources/ti.main.js`,
+		plugins: [
+			resolve(),
+			commonjs(),
+			babel(babelOptions)
+		],
+		external: [ './app', 'com.appcelerator.aca' ]
+	});
+
+	// write the bundle to disk
+	console.log('Writing common SDK JS bundle to disk');
+	await bundle.write({ format: 'cjs', file: `${destDir}/Resources/ti.main.js` });
+
+	// Copy over the files we can't bundle/inline: common/Resources/ti.internal
+	await fs.copy(path.join(this.srcDir, 'common/Resources/ti.internal'), path.join(destDir, 'Resources/ti.internal'));
+
+	// Remove the temp dir we assembled the parts inside!
+	console.log('Removing temporary common SDK JS bundle directory');
+	await fs.remove(tmpBundleDir);
 };
 
 /**
@@ -342,41 +396,8 @@ Packager.prototype.package = function (next) {
 			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates' ], cb);
 		}.bind(this),
 		function (cb) {
-			console.log('Transpiling common SDK JS');
-			const destDir = path.join(this.zipSDKDir, 'common');
-			// Pull out android's V8 target (and transform into equivalent chrome version)
-			const v8Version = require('../android/package.json').v8.version;
-			const found = v8Version.match(V8_STRING_VERSION_REGEXP);
-			const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
-			// Now pull out min IOS target
-			const minSupportedIosSdk = version.parseMin(require('../iphone/package.json').vendorDependencies['ios sdk']);
-			// TODO: filter to only targets relevant for platforms we're building?
-			const options = {
-				targets: {
-					chrome: chromeVersion,
-					ios: minSupportedIosSdk
-				},
-				useBuiltIns: 'entry',
-				// DO NOT include web polyfills!
-				exclude: [ 'web.dom.iterable', 'web.immediate', 'web.timers' ]
-			};
-			// pull out windows target (if it exists)
-			if (fs.pathExistsSync('../windows/package.json')) {
-				const windowsSafariVersion = require('../windows/package.json').safari;
-				options.targets.safari = windowsSafariVersion;
-			}
-			this.transpile(path.join(this.srcDir, 'common'), destDir, {
-				presets: [ [ '@babel/env', options ] ]
-			})
-				// copy over polyfill and its dependencies
-				.then(() => {  // eslint-disable-line promise/no-callback-in-promise
-					const modulesDir = path.join(destDir, 'Resources/node_modules');
-					// make sure our 'node_modules' directory exists
-					fs.ensureDirSync(modulesDir);
-
-					copyPackageAndDependencies('@babel/polyfill', modulesDir);
-					return cb(); // eslint-disable-line promise/no-callback-in-promise
-				})
+			this.transpile()
+				.then(() => cb()) // eslint-disable-line promise/no-callback-in-promise
 				.catch(err => cb(err)); // eslint-disable-line promise/no-callback-in-promise
 		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies

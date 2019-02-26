@@ -25,11 +25,11 @@ try {
 }
 
 // Load JS language polyfills
-require('@babel/polyfill');
+import '@babel/polyfill';
 
 // Load all JavaScript extensions.
-require('./ti.internal/extensions/Error');
-require('./ti.internal/extensions/process');
+import './ti.internal/extensions/Error';
+import './ti.internal/extensions/process';
 
 // When registering a binding, need to resolve the path *now* versus whenever the call actually gets made
 // i.e. we want absolute paths
