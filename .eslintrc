@@ -49,6 +49,13 @@
         "ecmaVersion": 2017,
         "sourceType": "module"
       }
+    },
+    {
+      "files": [ "common/Resources/ti.internal/extensions/assert.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "script"
+      }
     }
   ]
 }
