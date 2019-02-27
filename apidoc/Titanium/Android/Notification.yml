@@ -358,7 +358,7 @@ properties:
         ([Filesystem.externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory)).
 
         Note that this sound property is ignored on Android 8.0 and above. On these OS versions,
-        you must use the [NotificationChannel.sound]Titanium.Android.NotificationChannel.sound)
+        you must use the [NotificationChannel.sound](Titanium.Android.NotificationChannel.sound)
         property and that sound will play for any notification posted under that channel. Also, you will
         still need to set this notification's sound property for OS versions older than Android 8.0 too,
         meaning that the sound URL needs to be set in both places.
