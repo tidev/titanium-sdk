@@ -936,7 +936,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
   if (![NSThread isMainThread]) {
-    [self rememberProxy:[args objectForKey:@"overlay"]];
     TiThreadPerformOnMainThread(^{
       [self showCamera:args];
     },
@@ -944,6 +943,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     return;
   }
 
+  [self rememberProxy:[args objectForKey:@"overlay"]];
   [self showPicker:args isCamera:YES];
 }
 #endif
