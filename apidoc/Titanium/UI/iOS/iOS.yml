@@ -1955,7 +1955,7 @@ properties:
   - name: CREDENTIAL_PERSISTENCE_NONE
     summary: Credential should not be stored.
     description: |
-        Used with the `persistence` property of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
+        Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
     type: Number
     since: "8.0.0"
     permission: read-only
@@ -1963,7 +1963,7 @@ properties:
   - name: CREDENTIAL_PERSISTENCE_FOR_SESSION
     summary: Credential should be stored only for this session.
     description: |
-        Used with the `persistence` property of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
+        Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
     type: Number
     since: "8.0.0"
     permission: read-only
@@ -1971,7 +1971,7 @@ properties:
   - name: CREDENTIAL_PERSISTENCE_PERMANENT
     summary: Credential should be stored in the keychain.
     description: |
-       Used with the `persistence` property of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
+       Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
     type: Number
     since: "8.0.0"
     permission: read-only
@@ -1981,7 +1981,7 @@ properties:
         Credential should be stored permanently in the keychain, and in addition should be 
         distributed to other devices based on the owning AppleID.
     description: |
-        Used with the `persistence` property of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
+        Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
     type: Number
     since: "8.0.0"
     permission: read-only
@@ -2098,7 +2098,7 @@ properties:
     summary: |
         Inject the script after the document element is created, but before any other content is loaded.
     description: |
-        Used to set the `injectionTime` property of <Titanium.UI.WebView.addUserScript>.
+        Used to set the `injectionTime` argument of <Titanium.UI.WebView.addUserScript>.
     type: Number
     since: "8.0.0"
     permission: read-only
@@ -2107,7 +2107,7 @@ properties:
     summary: |
         Inject the script after the document finishes loading, but before other subresources finish loading.
     description: |
-        Used to set the `injectionTime` property of <Titanium.UI.WebView.addUserScript>.
+        Used to set the `injectionTime` argument of <Titanium.UI.WebView.addUserScript>.
     type: Number
     since: "8.0.0"
     permission: read-only
