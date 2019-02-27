@@ -15,7 +15,7 @@ let assert;
 // https://github.com/nodejs/node/blob/master/test/parallel/test-assert-deep.js
 // https://github.com/nodejs/node/blob/master/test/parallel/test-assert.js
 
-describe.only('assert', function () {
+describe('assert', function () {
 	it('should be required as core module', function () {
 		assert = require('assert');
 		assert.should.be.a.Function; // it's an alias for assert.ok
@@ -673,8 +673,7 @@ describe.only('assert', function () {
 			assert.rejects.should.be.a.Function;
 		});
 
-		// TODO: Add some basic tests!
-		it('passes when given a Promise that rejects', finished => {
+		it('resolves when given a Promise that rejects', finished => {
 			assert.rejects(
 				Promise.reject(new Error('Wrong value'))
 			).then(() => {
@@ -682,10 +681,91 @@ describe.only('assert', function () {
 			}).catch(err => finished(err));
 		});
 
-		it('passes when given a Promise that rejects expected Error type', finished => {
+		// TODO: Test with message arg!
+
+		it('resolves when given a Promise that rejects expected Error type', finished => {
 			assert.rejects(
 				Promise.reject(new Error('Wrong value')),
 				Error
+			).then(() => {
+				return finished();
+			}).catch(err => finished(err));
+		});
+
+		it('rejects with actual Error when given a Promise that rejects unexpected Error type', finished => {
+			const actualError = new Error('Wrong value');
+			assert.rejects(
+				Promise.reject(actualError),
+				TypeError
+			).then(() => {
+				return finished(new Error('Expected assert.rejects to bubble up underlying Error to catch handler'));
+			}).catch(err => {
+				err.should.eql(actualError);
+				finished();
+			});
+		});
+
+		it('rejects with AssertionError when given a Promise that resolves', finished => {
+			assert.rejects(
+				Promise.resolve(1)
+			).then(() => {
+				return finished(new Error('Expected assert.rejects to reject with Error to catch handler if supplied Promise resolves'));
+			}).catch(err => {
+				err.should.be.ok;
+				(err instanceof assert.AssertionError).should.eql(true);
+				finished();
+			});
+		});
+	});
+
+	describe('#doesNotReject()', () => {
+		it('is a function', () => {
+			assert.doesNotReject.should.be.a.Function;
+		});
+
+		// TODO: Add some basic tests!
+		it('rejects with actual Error when given a Promise that rejects', finished => {
+			const actualError = new Error('Wrong value');
+			assert.doesNotReject(
+				Promise.reject(actualError)
+			).then(() => {
+				return finished(new Error('Expected assert.doesNotReject to bubble up underlying Error to catch handler'));
+			}).catch(err => {
+				err.should.eql(actualError);
+				finished();
+			});
+		});
+
+		it('rejects with AssertionError when given a Promise that rejects expected Error type', finished => {
+			const actualError = new Error('Wrong value');
+			assert.doesNotReject(
+				Promise.reject(actualError),
+				Error
+			).then(() => {
+				return finished(new Error('Expected assert.doesNotReject to reject with AssertionError to catch handler'));
+			}).catch(err => {
+				err.should.not.eql(actualError);
+				(err instanceof assert.AssertionError).should.eql(true);
+				finished();
+			});
+		});
+
+		it('rejects with actual Error when given a Promise that rejects unexpected Error type', finished => {
+			const actualError = new Error('Wrong value');
+			assert.doesNotReject(
+				Promise.reject(actualError),
+				TypeError
+			).then(() => {
+				return finished(new Error('Expected assert.doesNotReject to bubble up underlying Error to catch handler'));
+			}).catch(err => {
+				err.should.eql(actualError);
+				finished();
+			});
+		});
+
+		it('resolves when given a Promise that resolves', finished => {
+			assert.doesNotReject(
+				Promise.resolve('abc')
 			).then(() => {
 				return finished();
 			}).catch(err => finished(err));

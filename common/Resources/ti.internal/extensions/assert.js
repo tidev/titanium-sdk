@@ -495,8 +495,8 @@ function execute(fn) {
 	return NO_EXCEPTION;
 }
 
-function isPromiseLike(obj) {
-	return util.types.isPromise(obj)
+function isPromiseLike(fn) {
+	return util.types.isPromise(fn)
 		|| (fn && typeof fn === 'object' && typeof fn.then === 'function');
 }
 
