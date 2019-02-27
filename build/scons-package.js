@@ -27,10 +27,9 @@ program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
 	.option('-s, --skip-zip', 'Do not zip up the package')
+	.option('--no-docs', 'Do not produce docs')
 	.parse(process.argv);
 
-console.log(process.argv);
-console.log(program.skipZip);
 let platforms = program.args;
 let oses = [];
 
@@ -60,11 +59,19 @@ git.getHash(path.join(__dirname, '..'), function (err, hash) {
 	program.timestamp = utils.timestamp();
 	console.log('Packaging MobileSDK (%s)...', versionTag);
 
-	new Documentation(outputDir).generate(function (err) {
+	async.series([
+		function (next) {
+			if (!program.docs) {
+				return next();
+			}
+			new Documentation(outputDir).generate(next);
+		}
+	], function (err) {
 		if (err) {
 			console.error(err);
 			process.exit(1);
 		}
+
 		// Now package for each OS.
 		// MUST RUN IN SERIES - this all runs in same directory, so running in
 		// parallel for each OS would cause all sorts of collisions right now.
