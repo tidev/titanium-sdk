@@ -11,8 +11,6 @@
  * - Load the app developer's main "app.js" script after doing all of the above.
  */
 
-'use strict';
-
 // Log the app name, app version, and Titanium version on startup.
 Ti.API.info(Ti.App.name + ' ' + Ti.App.version + ' (Powered by Titanium ' + Ti.version + '.' + Ti.buildHash + ')');
 
