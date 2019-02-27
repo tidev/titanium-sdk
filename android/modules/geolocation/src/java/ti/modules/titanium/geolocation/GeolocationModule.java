@@ -508,15 +508,19 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public void requestLocationPermissions(@Kroll.argument(optional = true) Object type,
 										   @Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
-		if (hasLocationPermissions()) {
-			return;
-		}
-
 		KrollFunction permissionCB;
 		if (type instanceof KrollFunction && permissionCallback == null) {
 			permissionCB = (KrollFunction) type;
 		} else {
 			permissionCB = permissionCallback;
+		}
+
+		// already have permissions, fall through
+		if (hasLocationPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCB.callAsync(getKrollObject(), response);
+			return;
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB, getKrollObject());
