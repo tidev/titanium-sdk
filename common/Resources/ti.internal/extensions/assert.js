@@ -694,10 +694,6 @@ assert.ifError = value => {
 	});
 };
 
-// TODO:
-// assert.doesNotReject(asyncFn[, error][, message])
-// assert.rejects(asyncFn[, error][, message])
-
 // Create "strict" copy which overrides "loose" methods to call strict equivalents
 assert.strict = (value, message) => assert.ok(value, message);
 // "Copy" methods from assert to assert.strict!
