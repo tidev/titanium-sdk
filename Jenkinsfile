@@ -73,7 +73,11 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 						dir('scripts') {
 							try {
 								timeout(20) {
-									sh "node test.js -b ../../${zipName} -p ${os}"
+									if ('ios'.equals(os)) {
+										sh "node test.js -b ../../${zipName} -p ${os}"
+									} else {
+										sh "node test.js -C android-23-x86 -T emulator -b ../../${zipName} -p ${os}"
+									}
 								} // timeout
 							} catch (e) {
 								if ('ios'.equals(os)) {
