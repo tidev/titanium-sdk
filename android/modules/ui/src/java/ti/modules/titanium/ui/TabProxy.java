@@ -12,11 +12,9 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.tabgroup.TiUITab;
 import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -216,8 +214,6 @@ public class TabProxy extends TiViewProxy
 				TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
 			}
 		}
-
-		((TiUITab) view).onSelectionChange(selected);
 	}
 
 	@Override

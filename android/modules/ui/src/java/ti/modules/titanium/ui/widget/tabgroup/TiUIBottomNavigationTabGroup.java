@@ -163,14 +163,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 		// Add the MenuItem to the menu of BottomNavigationView.
 		this.mMenuItemsArray.add(menuItem);
-		// TabLayout automatically select the first tab that is added to it,
-		// but BottomNavigationView does not do that, so we manually trigger it.
-		// That's necessary to match the behavior across styles.
-		if (this.mMenuItemsArray.size() == 1) {
-			((TabGroupProxy) getProxy()).onTabSelected(tabProxy);
-			currentlySelectedIndex = 0;
-			selectTab(currentlySelectedIndex);
-		}
 		// Set the drawables.
 		setDrawables();
 		// Handle shift mode.
@@ -256,10 +248,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void selectTabItemInController(int position)
 	{
 		// Fire the UNSELECTED event from the currently selected tab.
-		((TabGroupProxy) getProxy())
-			.getTabList()
-			.get(currentlySelectedIndex)
-			.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		if (currentlySelectedIndex != -1) {
+			((TabGroupProxy) getProxy())
+				.getTabList()
+				.get(currentlySelectedIndex)
+				.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		}
 		currentlySelectedIndex = position;
 		// The ViewPager has changed current page from swiping.
 		// Or any other interaction with it that can cause page change.
