@@ -260,13 +260,15 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 	}
 
 	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
-	const destStats = fs.lstatSync(destDir);
-	if (destStats.isDirectory()) {
-		console.log('Destination exists, deleting %s...', destDir);
-		await fs.remove(destDir);
-	} else if (destStats.isSymbolicLink()) {
-		console.log('Destination exists as symlink, unlinking %s...', destDir);
-		fs.unlinkSync(destDir);
+	if (await fs.pathExists(destDir)) {
+		const destStats = fs.lstatSync(destDir);
+		if (destStats.isDirectory()) {
+			console.log('Destination exists, deleting %s...', destDir);
+			await fs.remove(destDir);
+		} else if (destStats.isSymbolicLink()) {
+			console.log('Destination exists as symlink, unlinking %s...', destDir);
+			fs.unlinkSync(destDir);
+		}
 	}
 
 	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
