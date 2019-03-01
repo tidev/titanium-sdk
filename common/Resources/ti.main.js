@@ -11,8 +11,6 @@
  * - Load the app developer's main "app.js" script after doing all of the above.
  */
 
-'use strict';
-
 // Log the app name, app version, and Titanium version on startup.
 Ti.API.info(Ti.App.name + ' ' + Ti.App.version + ' (Powered by Titanium ' + Ti.version + '.' + Ti.buildHash + ')');
 
@@ -24,9 +22,12 @@ try {
 	// Could not load module, silently ignore exception.
 }
 
+// Load JS language polyfills
+import '@babel/polyfill';
+
 // Load all JavaScript extensions.
-require('./ti.internal/extensions/Error');
-require('./ti.internal/extensions/process');
+import './ti.internal/extensions/Error';
+import './ti.internal/extensions/process';
 
 // When registering a binding, need to resolve the path *now* versus whenever the call actually gets made
 // i.e. we want absolute paths
@@ -34,6 +35,7 @@ const addBinding = require('./ti.internal/extensions/binding');
 // FIXME Use require.resolve to resolve the path, once we support it!
 addBinding('path', '/ti.internal/extensions/path');
 addBinding('os', '/ti.internal/extensions/os');
+addBinding('tty', '/ti.internal/extensions/tty');
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.

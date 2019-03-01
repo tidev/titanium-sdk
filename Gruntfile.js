@@ -31,6 +31,7 @@ module.exports = function (grunt) {
 				'apidoc/**/*.js',
 				'build/**/*.js',
 				'cli/!(locales)/**/*.js',
+				'common/**/*.js',
 				'android/cli/!(locales)/**/*.js',
 				'android/modules/**/src/js/**/*.js',
 				'android/runtime/common/src/js/**/*.js',
