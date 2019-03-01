@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
 import android.support.design.widget.TabLayout;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -156,7 +155,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			newTab.setIcon(drawable);
 		}
 		// Add the new tab to the TabLayout.
-		this.mTabLayout.addTab(newTab);
+		this.mTabLayout.addTab(newTab, false);
 
 		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
 		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
