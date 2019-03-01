@@ -68,9 +68,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
     NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
 
-    // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
-    for (NSInteger i = 4; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
-      NSString *line = [[exceptionStackTrace objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+    // re-size stack trace and format results. Starting at index = 1 to not include showScriptError call
+    for (NSInteger i = 1; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+      NSString *line = [self removeWhitespace:[exceptionStackTrace objectAtIndex:i]];
+
+      // remove stack index
+      line = [line substringFromIndex:[line rangeOfString:@" "].location + 1];
+
       [formattedStackTrace addObject:line];
     }
 
@@ -78,10 +82,16 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], stackTrace]];
     NSMutableDictionary *errorDict = [error.dictionaryValue mutableCopy];
     [errorDict setObject:stackTrace forKey:@"stackTrace"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
-                                                        object:self
-                                                      userInfo:errorDict];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification object:self userInfo:errorDict];
   }
+}
+
+- (NSString *)removeWhitespace:(NSString *)line
+{
+  while ([line rangeOfString:@"  "].length > 0) {
+    line = [line stringByReplacingOccurrencesOfString:@"  " withString:@" "];
+  }
+  return line;
 }
 
 #pragma mark - TiExceptionHandlerDelegate
@@ -164,7 +174,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     NSString *line = [lines objectAtIndex:self.lineNo - 1];
     NSString *linePointer = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
 
-    return [NSString stringWithFormat:@"/%@:%ld\n%@\n%@^\n%@\n%@", [self.sourceURL lastPathComponent], (long)self.lineNo, line, linePointer, self.message, self.backtrace];
+    // remove bundle path from source paths
+    NSString *encodedBundlePath = [NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle].bundlePath stringByReplacingOccurrencesOfString:@" " withString:@"%20"]];
+    NSString *jsStack = [self.backtrace stringByReplacingOccurrencesOfString:encodedBundlePath withString:@""];
+
+    return [NSString stringWithFormat:@"/%@:%ld\n%@\n%@^\n%@\n%@", [self.sourceURL lastPathComponent], (long)self.lineNo, line, linePointer, self.message, jsStack];
   } else {
     return [NSString stringWithFormat:@"%@", self.message];
   }
