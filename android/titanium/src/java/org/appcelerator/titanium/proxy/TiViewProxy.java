@@ -488,14 +488,15 @@ public abstract class TiViewProxy extends KrollProxy
 			}
 
 			view = createView(activity);
+			if (view != null) {
+				if (isDecorView && baseActivity != null) {
+					baseActivity.setViewProxy(view.getProxy());
+				}
 
-			if (isDecorView && baseActivity != null) {
-				baseActivity.setViewProxy(view.getProxy());
+				realizeViews(view);
+				view.registerForTouch();
+				view.registerForKeyPress();
 			}
-
-			realizeViews(view);
-			view.registerForTouch();
-			view.registerForKeyPress();
 		}
 		return view;
 	}
