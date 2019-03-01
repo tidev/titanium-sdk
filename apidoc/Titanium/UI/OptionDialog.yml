@@ -225,7 +225,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: selectedIndex
-    summary: Defines the default selected option. If not defined or -1 it will show a
+    summary: Defines the default selected option. Since `8.1.0`, if not defined or -1 it will show a
         normal list instead of radio buttons.
     platforms: [android]
     type: Number
