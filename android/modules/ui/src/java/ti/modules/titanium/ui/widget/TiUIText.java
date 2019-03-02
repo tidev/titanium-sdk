@@ -167,9 +167,9 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		// Disable change event temporarily as we are setting the default value
 		disableChangeEvent = true;
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
-			tv.setText(d.getString(TiC.PROPERTY_VALUE));
+			updateText(d.getString(TiC.PROPERTY_VALUE));
 		} else {
-			tv.setText("");
+			updateText("");
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
@@ -326,7 +326,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			//TIMOB-17210 Android: A textfield change listener is wrongly triggered also if the value is programmatically set before creation
 			disableChangeEvent = true;
-			tv.setText(TiConvert.toString(newValue));
+			updateText(TiConvert.toString(newValue));
 			disableChangeEvent = false;
 		} else if (key.equals(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(newValue);
@@ -338,7 +338,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				if (cursor > maxLength) {
 					cursor = maxLength;
 				}
-				tv.setText(truncateText);
+				updateText(truncateText);
 				tv.setSelection(cursor);
 			}
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
@@ -433,7 +433,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			if (cursor > maxLength) {
 				cursor = maxLength;
 			}
-			tv.setText(newText); // This method will invoke onTextChanged() and afterTextChanged().
+			updateText(newText); // This method will invoke onTextChanged() and afterTextChanged().
 			tv.setSelection(cursor);
 		} else {
 			isTruncatingText = false;
@@ -529,7 +529,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
-				tv.setText("");
+				updateText("");
 			}
 			Rect r = new Rect();
 			tv.getFocusedRect(r);
@@ -909,7 +909,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			//TIMOB-17210 Android: A textfield change listener is wrongly triggered also if the value is programmatically set before creation
 			boolean wasDisabled = disableChangeEvent;
 			disableChangeEvent = true;
-			tv.setText((Spannable) bundleText.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING));
+			updateText((Spannable) bundleText.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING));
 			if (bundleText.getBoolean(TiC.PROPERTY_HAS_LINK, false)) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
@@ -936,6 +936,31 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setHint("");
 			textInputLayout.setHint(hintText);
 			textInputLayout.setHintEnabled(true);
+		}
+	}
+
+	private void updateText(CharSequence text)
+	{
+		// Validate.
+		if (this.tv == null) {
+			return;
+		}
+
+		// Make sure given text is valid.
+		if (text == null) {
+			text = "";
+		}
+
+		// Update the EditText with the given text.
+		Editable editable = this.tv.getText();
+		if (editable != null) {
+			// Update the text stored by the existing editable for best performance.
+			// Note: Calling setText() will cause the field's text to flicker and log several warnings
+			//       while the virtual keyboard is displayed since it's monitoring the editable's changes.
+			editable.replace(0, editable.length(), text);
+		} else {
+			// Set the text if an editable has not been assigned to the field yet.
+			this.tv.setText(text);
 		}
 	}
 }
