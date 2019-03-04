@@ -42,6 +42,13 @@
         "ecmaVersion": 6,
         "sourceType": "script"
       }
+    },
+    {
+      "files": [ "common/Resources/ti.main.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
+      }
     }
   ]
 }
