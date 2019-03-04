@@ -102,7 +102,7 @@
     "@seadub/danger-plugin-junit": "0.0.2",
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
-    "commitizen": "^3.0.5",
+    "commitizen": "^3.0.7",
     "cz-conventional-changelog": "^2.1.0",
     "danger": "^7.0.14",
     "eslint-config-axway": "^4.2.1",
