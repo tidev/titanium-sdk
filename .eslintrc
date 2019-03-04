@@ -44,7 +44,15 @@
       }
     },
     {
-      "files": [ "common/Resources/ti.main.js" ],
+      "files": [
+        "common/Resources/ti.main.js",
+        "common/Resources/ti.internal/extensions/binding.js",
+        "common/Resources/ti.internal/extensions/os.js",
+        "common/Resources/ti.internal/extensions/path.js",
+        "common/Resources/ti.internal/extensions/tty.js",
+        "common/Resources/ti.internal/extensions/util.js",
+        "common/Resources/ti.internal/bootstrap.loader.js"
+      ],
       "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"

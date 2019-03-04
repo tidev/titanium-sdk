@@ -1,5 +1,3 @@
-'use strict';
-
 const MONTHS = [
 	'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
@@ -555,4 +553,4 @@ util.debuglog = () => {
 	return noop;
 };
 
-module.exports = util;
+export default util;
