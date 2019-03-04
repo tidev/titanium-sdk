@@ -7,7 +7,7 @@
 /* eslint-env mocha */
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
-import should from './utilities/assertions';
+import './utilities/assertions';
 
 describe('ES6 async/await', () => {
 	it('handles awaiting on async function from another', finished => {
@@ -19,9 +19,10 @@ describe('ES6 async/await', () => {
 			return result + 3;
 		}
 
+		// eslint-disable-next-line promise/always-return
 		second().then(result => {
 			result.should.eql(4);
 			finished();
-		}). catch(err => finished(err));
+		}).catch(err => finished(err));
 	});
 });
