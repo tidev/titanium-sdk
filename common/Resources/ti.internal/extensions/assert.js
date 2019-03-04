@@ -1,6 +1,4 @@
-'use strict';
-
-const util = require('util');
+import util from './util';
 
 const DEFAULT_MESSAGES = {
 	deepStrictEqual: 'Expected values to be strictly deep-equal:',
@@ -706,4 +704,4 @@ assert.strict.notEqual = assert.notStrictEqual;
 // hang strict off itself
 assert.strict.strict = assert.strict;
 
-module.exports = assert;
+export default assert;

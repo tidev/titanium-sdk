@@ -12,7 +12,7 @@
  */
 
 // Log the app name, app version, and Titanium version on startup.
-Ti.API.info(Ti.App.name + ' ' + Ti.App.version + ' (Powered by Titanium ' + Ti.version + '.' + Ti.buildHash + ')');
+Ti.API.info(`${Ti.App.name} ${Ti.App.version} (Powered by Titanium ${Ti.version}.${Ti.buildHash})`);
 
 // Attempt to load crash analytics module.
 // NOTE: This should be the first module that loads on startup.
@@ -29,19 +29,24 @@ import '@babel/polyfill';
 import './ti.internal/extensions/Error';
 import './ti.internal/extensions/process';
 
-// When registering a binding, need to resolve the path *now* versus whenever the call actually gets made
-// i.e. we want absolute paths
-const addBinding = require('./ti.internal/extensions/binding');
-// FIXME Use require.resolve to resolve the path, once we support it!
-addBinding('path', '/ti.internal/extensions/path');
-addBinding('os', '/ti.internal/extensions/os');
-addBinding('tty', '/ti.internal/extensions/tty');
-addBinding('util', '/ti.internal/extensions/util');
-addBinding('assert', '/ti.internal/extensions/assert');
+// Load all the node compatible core modules
+import path from './ti.internal/extensions/path';
+import os from './ti.internal/extensions/os';
+import tty from './ti.internal/extensions/tty';
+import util from './ti.internal/extensions/util';
+import assert from './ti.internal/extensions/assert';
+// hook our implementations to get loaded by require
+import { bindObjectToCoreModuleId } from './ti.internal/extensions/binding';
+bindObjectToCoreModuleId('path', path);
+bindObjectToCoreModuleId('os', os);
+bindObjectToCoreModuleId('tty', tty);
+bindObjectToCoreModuleId('util', util);
+bindObjectToCoreModuleId('assert', assert);
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
-require('./ti.internal/bootstrap.loader').loadAsync(function () {
+import loadAsync from './ti.internal/bootstrap.loader';
+loadAsync(function () {
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
 	require('./app');

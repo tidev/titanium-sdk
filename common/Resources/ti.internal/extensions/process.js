@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * This function 'standardizes' the reported architectures to the equivalents reported by Node.js
  * node values: 'arm', 'arm64', 'ia32', 'mips', 'mipsel', 'ppc', 'ppc64', 's390', 's390x', 'x32', and 'x64'.
@@ -74,7 +72,7 @@ const process = {
 		return eventListeners.length !== 0;
 	},
 	eventNames: () => Object.getOwnPropertyNames(listeners),
-	emitWarning: function (warning, options, code, ctor) {
+	emitWarning: function (warning, options, code, ctor) { // eslint-disable-line no-unused-vars
 		let type;
 		let detail;
 		if (typeof options === 'string') {
@@ -129,4 +127,5 @@ process.on('warning', warning => {
 	}
 	console.error(msg);
 });
-module.exports = process;
+
+export default process;
