@@ -27,6 +27,9 @@ int64_t TypeConverter::functionIndex = std::numeric_limits<int64_t>::min();
 // The global map to hold persistent functions. We use the index as our "pointer" to store and retrieve the function
 std::map<int64_t, Persistent<Function, CopyablePersistentTraits<Function>>> TypeConverter::functions;
 
+int64_t TypeConverter::resolverIndex = std::numeric_limits<int64_t>::min();
+std::map<int64_t, Persistent<Promise::Resolver, CopyablePersistentTraits<Promise::Resolver>>> TypeConverter::resolvers;
+
 /****************************** public methods ******************************/
 jshort TypeConverter::jsNumberToJavaShort(Local<Number> jsNumber)
 {
@@ -243,6 +246,33 @@ Local<Function> TypeConverter::javaObjectToJsFunction(Isolate* isolate, JNIEnv *
 	return persistentV8Object.Get(isolate);
 }
 
+jobject TypeConverter::jsObjectToJavaPromise(Isolate* isolate, Local<Object> jsObject)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return NULL;
+	}
+	return TypeConverter::jsObjectToJavaPromise(isolate, env, jsObject);
+}
+
+jobject TypeConverter::jsObjectToJavaPromise(Isolate* isolate, JNIEnv *env, Local<Object> jsObject)
+{
+    Local<Promise::Resolver> resolver = jsObject.As<Promise::Resolver>();
+    Persistent<Promise::Resolver, CopyablePersistentTraits<Promise::Resolver>> persistent(isolate, resolver);
+    persistent.MarkIndependent();
+
+	// Place the persistent into some global table with incrementing index, use the index as the "ptr" here
+	// Then when we re-construct, use the ptr value as index into the table to grab the persistent!
+	jlong ptr = (jlong) resolverIndex; // jlong is signed 64-bit, so int64_t should match up
+	TypeConverter::resolvers[resolverIndex] = persistent;
+	resolverIndex++;
+	// Java code assumes 0 is null pointer. So we need to skip it. TODO fix this so we don't need to perform this special check?
+	if (resolverIndex == 0) {
+		resolverIndex++;
+	}
+
+	return env->NewObject(JNIUtil::v8PromiseClass, JNIUtil::v8PromiseInitMethod, ptr);
+}
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const FunctionCallbackInfo<Value>& args)
 {
 	JNIEnv *env = JNIScope::getEnv();

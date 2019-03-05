@@ -288,11 +288,14 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 		args.GetReturnValue().Set(v8::Undefined(isolate));
 		return;
 	}
-	<@Proxy.callJNIMethod method.args, method.hasInvocation, method.returnType,
+	<@Proxy.callJNIMethod method.args, method.hasInvocation, method.isAsync, method.returnType,
 		"methodID", "javaProxy", "jArguments", (method.returnType != "void") ; hasResult, resultVar>
 
 	<#if hasResult>
 	args.GetReturnValue().Set(${resultVar});
+	<#elseif method.isAsync>
+	auto promise = maybeResolver.ToLocalChecked().As<Promise::Resolver>()->GetPromise();
+	args.GetReturnValue().Set(promise);
 	<#else>
 	args.GetReturnValue().Set(v8::Undefined(isolate));
 	</#if>
@@ -329,7 +332,7 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 		args.GetReturnValue().Set(v8::Undefined(isolate));
 		return;
 	}
-	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
+	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, false, property.getReturnType,
 		"methodID", "javaProxy", "jArguments", (property.getReturnType != "void") ; hasResult, resultVar>
 
 	args.GetReturnValue().Set(${resultVar});
@@ -369,7 +372,7 @@ void ${className}::setter_${name}(Local<Name> property, Local<Value> value, cons
 	if (javaProxy == NULL) {
 		return;
 	}
-	<@Proxy.callJNIMethod property.setMethodArgs, property.setHasInvocation, property.setReturnType, "methodID", "javaProxy", "jArguments", false ;
+	<@Proxy.callJNIMethod property.setMethodArgs, property.setHasInvocation, false, property.setReturnType, "methodID", "javaProxy", "jArguments", false ;
 		hasResult, resultVar>
 	</@Proxy.callJNIMethod>
 
