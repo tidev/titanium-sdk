@@ -39,8 +39,8 @@
 			"integrity": "sha512-LM73iq9PPV9qqW4dXU0bgZkNJwnIyRft6CWN6bON1HgHS5e6KD0xjvjRk2sWAgvEXE+FazDCRZ5e14SUN+T2Fg=="
 		},
 		"ti.cloudpush": {
-			"url": "https://downloads.platform.axway.com/modules/ti.cloudpush-android-6.0.0.zip",
-			"integrity": "sha512-eqInObySn1gn2A+DMJ67RiXTXiTouvVuffTu5a7SWGLAo7Ubg5dSp+HM0b4PdLlFUfoF8VJHTGoTqH62+QpuyQ=="
+			"url": "https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-6.0.1.zip",
+			"integrity": "sha512-jWm02Frq1M0mMfG9sVqgYmcgUQKJvtu1SWYoCmajZR/m8NKANPNtDVD0VH5Znx7X2KB87nF6I7L4kEYXaeXzNQ=="
 		},
 		"ti.map": {
 			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/android-4.3.1/ti.map-android-4.3.1.zip",
