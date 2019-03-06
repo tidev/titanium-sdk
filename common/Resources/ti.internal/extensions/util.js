@@ -128,137 +128,140 @@ util.inspect = (obj, options = {}) => {
 			}
 
 			// Guard against circular references
-			// FIXME: Need to push/pop the references, not store forever!
 			mergedOptions.memo = mergedOptions.memo || [];
 			if (mergedOptions.memo.includes(obj)) {
 				return '[Circular]';
 			}
-			mergedOptions.memo.push(obj);
+			try {
+				mergedOptions.memo.push(obj); // popped off in a finally block, so we only worry about circular references, not sibling references
 
-			const constructorName = getConstructor(obj);
-			// if the constructor name is not 'Object', pre-pend it!
-			let prefix = '';
-			if (constructorName !== 'Object') {
-				prefix = `${constructorName} `;
-			}
-			// now grab the type tag if it has one!
-			const tag = obj[Symbol.toStringTag];
-			if (tag && tag !== constructorName) {
-				prefix = `${prefix}[${tag}] `;
-			}
-
-			// what braces do we use to enclose the values/properties?
-			let open = '{';
-			let close = '}';
-			let header = ''; // for special cases like Function where we pre-pend header info
-			const values = []; // collect the values/properties we list!
-			const isArray = Array.isArray(obj);
-			if (isArray) {
-				if (prefix === 'Array ') {
-					prefix = ''; // wipe "normal" Array prefixes
+				const constructorName = getConstructor(obj);
+				// if the constructor name is not 'Object', pre-pend it!
+				let prefix = '';
+				if (constructorName !== 'Object') {
+					prefix = `${constructorName} `;
 				}
-				[ open, close ] = [ '[', ']' ]; // use array braces
-				if (obj.length > 0) {
-					// TODO: handle sparse arrays
-					values.push(...obj.map(o => util.inspect(o, mergedOptions)));
-				}
-			} else if (util.types.isMap(obj)) {
-				if (obj.size > 0) {
-					values.push(...Array.from(obj).map(entry => `${util.inspect(entry[0], mergedOptions)} => ${util.inspect(entry[1], mergedOptions)}`));
-				}
-			} else if (util.types.isSet(obj)) {
-				if (obj.size > 0) {
-					values.push(...Array.from(obj).map(o => util.inspect(o, mergedOptions)));
-				}
-			} else if (util.types.isRegexp(obj)) {
-				// don't do prefix or any of that crap! TODO: Can we just call Regexp.prototype.toString.call()?
-				return `/${obj.source}/${obj.flags}`;
-			} else if (util.isFunction(obj)) {
-				if (prefix === 'Function ') {
-					prefix = ''; // wipe "normal" Function prefixes
+				// now grab the type tag if it has one!
+				const tag = obj[Symbol.toStringTag];
+				if (tag && tag !== constructorName) {
+					prefix = `${prefix}[${tag}] `;
 				}
 
-				// Functions are special and we must use a "header"
-				// if no values/properties, just print the "header"
-				// if any, stick "header" inside braces before property/value listing
-				if (obj.name) {
-					header = `[Function: ${obj.name}]`;
-				} else {
-					header = '[Function]';
-				}
-			}
-
-			// If we've gone past our depth, just do a quickie result here, like '[Object]'
-			if (mergedOptions.recursionCount > mergedOptions.depth) {
-				return header || `[${constructorName || tag || 'Object'}]`;
-			}
-
-			// handle properties
-			const properties = [];
-			// if showing hidden, get all own properties, otherwise just enumerable
-			const ownProperties = (mergedOptions.showHidden) ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
-			// FIXME: On V8/Android we are not getting 'arguments' and 'caller' properties!
-			// This may be because in newer specs/strict mode they shouldn't be accessible?
-			for (const propName of ownProperties) {
-				if (isArray && propName.match(/^\d+$/)) { // skip Array's index properties
-					continue;
-				}
-				const propDesc = Object.getOwnPropertyDescriptor(obj, propName)
-					|| { value: obj[propName], enumerable: true }; // fall back to faking a descriptor
-				if (propDesc.value !== undefined) {
-					mergedOptions.indentLevel += 3; // Node uses 3 spaces for arrays/Objects?
-					const key = propDesc.enumerable ? propName : `[${propName}]`; // If not enumerable, wrap name in []!
-					let space = ' ';
-					const value = util.inspect(propDesc.value, mergedOptions);
-					// if value is breaking, break between key and top-level value
-					if (value.length > mergedOptions.breakLength) {
-						space = `\n${' '.repeat(mergedOptions.indentLevel)}`;
+				// what braces do we use to enclose the values/properties?
+				let open = '{';
+				let close = '}';
+				let header = ''; // for special cases like Function where we pre-pend header info
+				const values = []; // collect the values/properties we list!
+				const isArray = Array.isArray(obj);
+				if (isArray) {
+					if (prefix === 'Array ') {
+						prefix = ''; // wipe "normal" Array prefixes
 					}
-					mergedOptions.indentLevel -= 3;
-					properties.push(`${key}:${space}${value}`);
-				}
-				// TODO: Handle setter/getters
-			}
-			if (properties.length !== 0) {
-				// TODO: Handle custom sorting option!
-				if (mergedOptions.sorted) {
-					properties.sort();
-				}
-				values.push(...properties);
-			}
+					[ open, close ] = [ '[', ']' ]; // use array braces
+					if (obj.length > 0) {
+						// TODO: handle sparse arrays
+						values.push(...obj.map(o => util.inspect(o, mergedOptions)));
+					}
+				} else if (util.types.isMap(obj)) {
+					if (obj.size > 0) {
+						values.push(...Array.from(obj).map(entry => `${util.inspect(entry[0], mergedOptions)} => ${util.inspect(entry[1], mergedOptions)}`));
+					}
+				} else if (util.types.isSet(obj)) {
+					if (obj.size > 0) {
+						values.push(...Array.from(obj).map(o => util.inspect(o, mergedOptions)));
+					}
+				} else if (util.types.isRegexp(obj)) {
+					// don't do prefix or any of that crap! TODO: Can we just call Regexp.prototype.toString.call()?
+					return `/${obj.source}/${obj.flags}`;
+				} else if (util.isFunction(obj)) {
+					if (prefix === 'Function ') {
+						prefix = ''; // wipe "normal" Function prefixes
+					}
 
-			let value = '';
-			if (values.length === 0) {
-				if (header.length > 0) {
-					value = header; // i.e. '[Function: name]'
-				} else {
-					value = `${open}${close}`; // no spaces, i.e. '{}' or '[]'
-				}
-			} else {
-				let str = '';
-				if (header.length > 0) { // i.e. '{ [Function] a: 1, b: 2 }'
-					str = `${header} `;
-				}
-				// Handle breaking them by breakLength here!
-				let length = 0;
-				for (const value of values) {
-					length += value.length + 1; // Node seems to add one for comma, but not more for spaces?
-					if (length > mergedOptions.breakLength) { // break early if length > breakLength!
-						break;
+					// Functions are special and we must use a "header"
+					// if no values/properties, just print the "header"
+					// if any, stick "header" inside braces before property/value listing
+					if (obj.name) {
+						header = `[Function: ${obj.name}]`;
+					} else {
+						header = '[Function]';
 					}
 				}
-				if (length > mergedOptions.breakLength) {
-					const indent = ' '.repeat(mergedOptions.indentLevel);
-					// break them up!
-					str += values.join(`,\n${indent}  `);
-				} else {
-					str += values.join(', ');
+
+				// If we've gone past our depth, just do a quickie result here, like '[Object]'
+				if (mergedOptions.recursionCount > mergedOptions.depth) {
+					return header || `[${constructorName || tag || 'Object'}]`;
 				}
 
-				value = `${open} ${str} ${close}`; // spaces between braces and values/properties
-			}
+				// handle properties
+				const properties = [];
+				// if showing hidden, get all own properties, otherwise just enumerable
+				const ownProperties = (mergedOptions.showHidden) ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
+				// FIXME: On V8/Android we are not getting 'arguments' and 'caller' properties!
+				// This may be because in newer specs/strict mode they shouldn't be accessible?
+				for (const propName of ownProperties) {
+					if (isArray && propName.match(/^\d+$/)) { // skip Array's index properties
+						continue;
+					}
+					const propDesc = Object.getOwnPropertyDescriptor(obj, propName)
+						|| { value: obj[propName], enumerable: true }; // fall back to faking a descriptor
+					if (propDesc.value !== undefined) {
+						mergedOptions.indentLevel += 3; // Node uses 3 spaces for arrays/Objects?
+						const key = propDesc.enumerable ? propName : `[${propName}]`; // If not enumerable, wrap name in []!
+						let space = ' ';
+						const value = util.inspect(propDesc.value, mergedOptions);
+						// if value is breaking, break between key and top-level value
+						if (value.length > mergedOptions.breakLength) {
+							space = `\n${' '.repeat(mergedOptions.indentLevel)}`;
+						}
+						mergedOptions.indentLevel -= 3;
+						properties.push(`${key}:${space}${value}`);
+					}
+					// TODO: Handle setter/getters
+				}
+				if (properties.length !== 0) {
+					// TODO: Handle custom sorting option!
+					if (mergedOptions.sorted) {
+						properties.sort();
+					}
+					values.push(...properties);
+				}
 
-			return `${prefix}${value}`;
+				let value = '';
+				if (values.length === 0) {
+					if (header.length > 0) {
+						value = header; // i.e. '[Function: name]'
+					} else {
+						value = `${open}${close}`; // no spaces, i.e. '{}' or '[]'
+					}
+				} else {
+					let str = '';
+					if (header.length > 0) { // i.e. '{ [Function] a: 1, b: 2 }'
+						str = `${header} `;
+					}
+					// Handle breaking them by breakLength here!
+					let length = 0;
+					for (const value of values) {
+						length += value.length + 1; // Node seems to add one for comma, but not more for spaces?
+						if (length > mergedOptions.breakLength) { // break early if length > breakLength!
+							break;
+						}
+					}
+					if (length > mergedOptions.breakLength) {
+						const indent = ' '.repeat(mergedOptions.indentLevel);
+						// break them up!
+						str += values.join(`,\n${indent}  `);
+					} else {
+						str += values.join(', ');
+					}
+
+					value = `${open} ${str} ${close}`; // spaces between braces and values/properties
+				}
+
+				return `${prefix}${value}`;
+			} finally {
+				mergedOptions.memo.pop(obj);
+			}
 		}
 		// only special case is -0
 		if (objType === 'string') {

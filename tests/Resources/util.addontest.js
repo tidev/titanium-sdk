@@ -531,6 +531,11 @@ describe('util', () => {
 			util.inspect(obj).should.eql('{ foo: \'bar\' }');
 		});
 
+		it('with same object repeated in an array', () => {
+			const a = { id: 1 };
+			util.inspect([ a, a ]).should.eql('[ { id: 1 }, { id: 1 } ]');
+		});
+
 		it('with object', () => {
 			const obj = {
 				foo: 'bar',
