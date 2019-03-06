@@ -2252,7 +2252,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		// titanium related tasks
 		'writeDebugProfilePlists',
 		'copyResources',
-		'generateRequireIndex', // has to be run before encryption, since index may be encrypted
 		'encryptJSFiles',
 		'writeI18NFiles',
 		'processTiSymbols',
@@ -2265,6 +2264,8 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		function (next) {
 			cli.emit('build.pre.build', this, next);
 		},
+
+		'generateRequireIndex', // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
 
 		// build baby, build
 		'invokeXcodeBuild',
@@ -6103,15 +6104,13 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 };
 
 iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
+	this.logger.info(__('Writing index.json with listing of JS/JSON files'));
 	const index = {};
 	const binAssetsDir = this.xcodeAppDir.replace(/\\/g, '/');
 
 	// Write _index_.json file with our JS/JSON file listing. This may also be encrypted
-	const destFilename = this.encryptJS ? '_index__json' : '_index_.json';
-	const destFile = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, destFilename);
-	if (this.encryptJS) {
-		this.jsFilesToEncrypt.push(destFilename);
-	}
+	const destFilename = '_index_.json';
+	const destFile = path.join(this.xcodeAppDir, destFilename);
 
 	// Grab unencrypted JS/JSON files
 	(function walk(dir) {
@@ -6121,7 +6120,8 @@ iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callba
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
 				} else if (/\.js(on)?$/.test(filename)) {
-					index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/')] = 1; // 1 for exists on disk
+					const modifiedFilename = file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/');
+					index[modifiedFilename] = 1; // 1 for exists on disk
 				}
 			}
 		});
