@@ -947,6 +947,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (_footerViewProxy != nil) {
     [_footerViewProxy windowWillClose];
   }
+
+  if (searchController.isActive) {
+    searchController.active = NO;
+  }
 }
 
 #pragma mark - SectionIndexTitle Support
@@ -2025,9 +2029,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if ([searchBar.text length] == 0) {
     self.searchString = @"";
     [self buildResultsForSearchText];
-    if ([searchController isActive]) {
-      [searchController setActive:NO];
-    }
+    [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
   }
 }
 
@@ -2372,7 +2374,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)dismissSearchController
 {
-  [searchController setActive:NO];
+  if (searchController.isActive) {
+    searchController.active = NO;
+  }
 }
 
 - (void)keyboardWillChangeFrame:(NSNotification *)notification

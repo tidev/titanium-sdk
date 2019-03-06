@@ -39,8 +39,8 @@
 			"integrity": "sha512-fuEZOeMqHzDHNV9rpVYz5LqVOpnCya0cVu032BZzO1HhvJ2hmFl2c7xj11qlXqxQL6Ad3c/X6WmBPzi4ESudcQ=="
 		},
 		"ti.cloudpush": {
-			"url": "https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.2.0.zip",
-			"integrity": "sha512-4TNH0K/rDUA7MOwNaieLiklG7aUkckpdr2H2tK3iaBevRZtO7MTGaSS/oNgi0KL9z2RreuAzRwdOs9vW3Z9IZA=="
+			"url": "https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-6.0.1.zip",
+			"integrity": "sha512-jWm02Frq1M0mMfG9sVqgYmcgUQKJvtu1SWYoCmajZR/m8NKANPNtDVD0VH5Znx7X2KB87nF6I7L4kEYXaeXzNQ=="
 		},
 		"ti.map": {
 			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/android-4.3.1/ti.map-android-4.3.1.zip",
@@ -55,8 +55,8 @@
 			"integrity": "sha512-G30ZTwV1VI+GI5FmRWJLGZUQgckvMYTiX7mYhWDLCGZac8cSQDpG4xylJlSp6B/isNqa6TBX4ZPE3ieJ50p0mA=="
 		},
 		"ti.playservices": {
-			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip",
-			"integrity": "sha512-bLhpzOjnmiTWFRjMuFfvqf0ePd1kbTdXLMVZJ+EsPrfn4JmxvkINS9Nu6ivjV+fmH9cBYVjZ5k9nGCeUdqZOlQ=="
+			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/16.1.2/ti.playservices-android-16.1.2.zip",
+			"integrity": "sha512-IKcj16f1a1FE8cdacwmK6uICNy8MbMe+2BdCLu6ufSb1eQT3G8PiOPAVTJSsc5luiSvPshJaZ2OJIhvKXkWB8Q=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.1.0/ti.identity-android-2.1.0.zip",

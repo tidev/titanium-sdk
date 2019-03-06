@@ -258,6 +258,11 @@ methods:
         summary: Name of the permission that the receiver should hold in order to receive the broadcast.
         type: String
         optional: true
+
+  - name: recreate
+    summary: Recreates the activity.
+    since: "7.5.1"
+
 events:
 
   - name: create

@@ -270,7 +270,14 @@ static TiValueRef LCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiOb
 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *key = [KrollObject toID:ctx value:args[0]];
-  NSString *comment = argCount > 1 ? [KrollObject toID:ctx value:args[1]] : nil;
+  NSString *comment = nil;
+  // ignore non-String default values
+  if (argCount > 1) {
+    id defaultValue = [KrollObject toID:ctx value:args[1]];
+    if ([defaultValue isKindOfClass:[NSString class]]) {
+      comment = (NSString *)defaultValue;
+    }
+  }
   @try {
     id result = [TiLocale getString:key comment:comment];
     return [KrollObject toValue:ctx value:result];

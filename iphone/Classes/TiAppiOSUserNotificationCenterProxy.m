@@ -47,7 +47,7 @@
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
     for (UILocalNotification *notification in notifications) {
-      [result addObject:[TiApp dictionaryWithLocalNotification:notification withIdentifier:nil]];
+      [result addObject:[TiApp dictionaryWithLocalNotification:notification withIdentifier:notification.userInfo[@"id"]]];
     }
 
     NSDictionary *propertiesDict = @{
@@ -90,7 +90,7 @@
 
 - (void)removePendingNotifications:(id)args
 {
-  ENSURE_TYPE_OR_NIL(args, NSArray);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSArray);
 
   if ([TiUtils isIOS10OrGreater]) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -101,17 +101,18 @@
       }
 
       [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        // Loop through current notification requests
+        NSMutableArray<NSString *> *identifiers = [[NSMutableArray new] autorelease];
         for (UNNotificationRequest *request in requests) {
-
-          // Loop through provided notifications
           for (id notification in args) {
-            ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
+            ENSURE_TYPE(notification, NSDictionary);
 
-            if ([request content] == [(TiAppiOSLocalNotificationProxy *)notification notification]) {
-              [center removePendingNotificationRequestsWithIdentifiers:@[ [request identifier] ]];
+            if ([request.identifier isEqual:notification[@"identifier"]]) {
+              [identifiers addObject:request.identifier];
             }
           }
+        }
+        if (identifiers.count > 0) {
+          [center removePendingNotificationRequestsWithIdentifiers:identifiers];
         }
       }];
     },
@@ -123,9 +124,15 @@
         return;
       }
 
-      for (id notification in args) {
-        ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
-        [[UIApplication sharedApplication] cancelLocalNotification:[(TiAppiOSLocalNotificationProxy *)notification notification]];
+      for (UILocalNotification *scheduledNotification in UIApplication.sharedApplication.scheduledLocalNotifications) {
+        for (id notification in args) {
+          ENSURE_TYPE(notification, NSDictionary);
+
+          if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]]) {
+            [UIApplication.sharedApplication cancelLocalNotification:scheduledNotification];
+            break;
+          }
+        }
       }
     },
         NO);
@@ -134,7 +141,7 @@
 
 - (void)removeDeliveredNotifications:(id)args
 {
-  ENSURE_TYPE_OR_NIL(args, NSArray);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSArray);
 
   if ([TiUtils isIOS10OrGreater]) {
     TiThreadPerformOnMainThread(^{
@@ -145,18 +152,19 @@
         return;
       }
 
-      [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        // Loop through current notification requests
-        for (UNNotificationRequest *request in requests) {
-
-          // Loop through provided notifications
+      [center getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+        NSMutableArray<NSString *> *identifiers = [[NSMutableArray new] autorelease];
+        for (UNNotification *deliveredNotification in notifications) {
           for (id notification in args) {
-            ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
+            ENSURE_TYPE(notification, NSDictionary);
 
-            if ([request content] == [(TiAppiOSLocalNotificationProxy *)notification notification]) {
-              [center removeDeliveredNotificationsWithIdentifiers:@[ [request identifier] ]];
+            if ([deliveredNotification.request.identifier isEqual:notification[@"identifier"]]) {
+              [identifiers addObject:deliveredNotification.request.identifier];
             }
           }
+        }
+        if (identifiers.count > 0) {
+          [center removeDeliveredNotificationsWithIdentifiers:identifiers];
         }
       }];
     },
