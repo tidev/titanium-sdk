@@ -86,6 +86,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	public abstract void setBackgroundDrawable(Drawable drawable);
 
+	/**
+	 * Changes the tabs background drawables to the proper color states.
+	 */
+	public abstract void setDrawables();
+
 	// region protected fields
 	protected static final String TAG = "TiUITabLayoutTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE =
@@ -356,6 +361,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			this.swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
+				   || key.equals(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+			setDrawables();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

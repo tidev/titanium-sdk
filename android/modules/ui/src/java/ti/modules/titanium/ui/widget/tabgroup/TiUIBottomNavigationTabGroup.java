@@ -6,8 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.graphics.drawable.Drawable;
+import android.content.res.ColorStateList;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
@@ -174,7 +175,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// Set the drawables.
 		setDrawables();
 		// Handle shift mode.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
+		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
 			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
 				disableShiftMode();
 			}
@@ -186,7 +187,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	 * it rebuilds its menu on every addition of a new item in it.
 	 *
 	 */
-	private void setDrawables()
+	public void setDrawables()
 	{
 		try {
 			ArrayList<TabProxy> tabs = ((TabGroupProxy) proxy).getTabList();
