@@ -1164,47 +1164,47 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self sendPickerError:MediaModuleErrorNoMusicPlayer];
 #else
 
-  if (args != nil) {
-    MPMediaType mediaTypes = 0;
-    id mediaList = [args objectForKey:@"mediaTypes"];
+    if (args != nil) {
+      MPMediaType mediaTypes = 0;
+      id mediaList = [args objectForKey:@"mediaTypes"];
 
-    if (mediaList != nil) {
-      if ([mediaList isKindOfClass:[NSArray class]]) {
-        for (NSNumber *type in mediaList) {
-          switch ([type integerValue]) {
+      if (mediaList != nil) {
+        if ([mediaList isKindOfClass:[NSArray class]]) {
+          for (NSNumber *type in mediaList) {
+            switch ([type integerValue]) {
+            case MPMediaTypeMusic:
+            case MPMediaTypeAnyAudio:
+            case MPMediaTypeAudioBook:
+            case MPMediaTypePodcast:
+            case MPMediaTypeAny:
+              mediaTypes |= [type integerValue];
+            }
+          }
+        } else {
+          ENSURE_TYPE(mediaList, NSNumber);
+          switch ([mediaList integerValue]) {
           case MPMediaTypeMusic:
           case MPMediaTypeAnyAudio:
           case MPMediaTypeAudioBook:
           case MPMediaTypePodcast:
           case MPMediaTypeAny:
-            mediaTypes |= [type integerValue];
+            mediaTypes = [mediaList integerValue];
           }
         }
-      } else {
-        ENSURE_TYPE(mediaList, NSNumber);
-        switch ([mediaList integerValue]) {
-        case MPMediaTypeMusic:
-        case MPMediaTypeAnyAudio:
-        case MPMediaTypeAudioBook:
-        case MPMediaTypePodcast:
-        case MPMediaTypeAny:
-          mediaTypes = [mediaList integerValue];
-        }
       }
+
+      if (mediaTypes == 0) {
+        mediaTypes = MPMediaTypeAny;
+      }
+
+      musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
+      musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
+    } else {
+      musicPicker = [[MPMediaPickerController alloc] init];
     }
+    [musicPicker setDelegate:self];
 
-    if (mediaTypes == 0) {
-      mediaTypes = MPMediaTypeAny;
-    }
-
-    musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
-    musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
-  } else {
-    musicPicker = [[MPMediaPickerController alloc] init];
-  }
-  [musicPicker setDelegate:self];
-
-  [self displayModalPicker:musicPicker settings:args];
+    [self displayModalPicker:musicPicker settings:args];
 #endif
 }
 
@@ -1671,8 +1671,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #ifndef TI_USE_AUTOLAYOUT
       ApplyConstraintToViewWithBounds([cameraViewProxy layoutProperties], (TiUIView *)view, [[UIScreen mainScreen] bounds]);
 #else
-      [TiUtils setView:view
-          positionRect:view.bounds];
+        [TiUtils setView:view
+            positionRect:view.bounds];
 #endif
 
       [cameraView windowWillOpen];
