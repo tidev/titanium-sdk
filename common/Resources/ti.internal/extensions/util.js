@@ -78,8 +78,6 @@ util.isDate = value => util.types.isDate(value);
 util.isError = value => util.types.isNativeError(value);
 util.isRegexp = value => util.types.isRegexp(value);
 
-// FIXME: Our String.format is not very forgiving. It sort-of is supposed to do the same thing, but blows up easily
-// util.format = String.format;
 function getConstructor(obj) {
 	if (obj.constructor) {
 		return obj.constructor.name;
