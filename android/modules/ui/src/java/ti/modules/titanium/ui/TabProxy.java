@@ -12,10 +12,10 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITab;
 import android.app.Activity;
 // clang-format off
@@ -218,6 +218,17 @@ public class TabProxy extends TiViewProxy
 		}
 
 		((TiUITab) view).onSelectionChange(selected);
+	}
+
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		super.onPropertyChanged(name, value);
+		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
+			if (tabGroupProxy != null) {
+				((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).setDrawables();
+			}
+		}
 	}
 
 	@Override

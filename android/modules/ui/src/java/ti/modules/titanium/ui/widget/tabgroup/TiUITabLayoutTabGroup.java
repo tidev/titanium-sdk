@@ -10,10 +10,10 @@ import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
 import android.support.design.widget.TabLayout;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
@@ -46,6 +46,31 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		// Setup the action bar for navigation tabs.
 		super(proxy, activity);
+	}
+
+	private void setDrawablesForTab(int tabIndex)
+	{
+		TabProxy tabProxy = ((TabGroupProxy) this.proxy).getTabList().get(tabIndex);
+		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
+		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
+
+		// Go through the layout to set the background color state drawable manually for each tab.
+		// Currently we support only the default type of TabLayout which has a SlidingTabStrip.
+		try {
+			LinearLayout stripLayout = ((LinearLayout) this.mTabLayout.getChildAt(0));
+			// Get the just added TabView as a LinearLayout in order to set the background.
+			LinearLayout tabLL = ((LinearLayout) stripLayout.getChildAt(tabIndex));
+			tabLL.setBackground(backgroundDrawable);
+			// Set the TextView textColor.
+			for (int i = 0; i < tabLL.getChildCount(); i++) {
+				if (tabLL.getChildAt(i) instanceof TextView) {
+					((TextView) tabLL.getChildAt(i))
+						.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+				}
+			}
+		} catch (Exception e) {
+			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+		}
 	}
 
 	/**
@@ -158,26 +183,8 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		// Add the new tab to the TabLayout.
 		this.mTabLayout.addTab(newTab);
 
-		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
-		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
-
-		// Go through the layout to set the background color state drawable manually for each tab.
-		// Currently we support only the default type of TabLayout which has a SlidingTabStrip.
-		try {
-			LinearLayout stripLayout = ((LinearLayout) this.mTabLayout.getChildAt(0));
-			// Get the just added TabView as a LinearLayout in order to set the background.
-			LinearLayout tabLL = ((LinearLayout) stripLayout.getChildAt(this.mTabLayout.getTabCount() - 1));
-			tabLL.setBackground(backgroundDrawable);
-			// Set the TextView textColor.
-			for (int i = 0; i < tabLL.getChildCount(); i++) {
-				if (tabLL.getChildAt(i) instanceof TextView) {
-					((TextView) tabLL.getChildAt(i))
-						.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
-				}
-			}
-		} catch (Exception e) {
-			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
-		}
+		// Set the drawables for the most recently added Tab.
+		setDrawablesForTab(this.mTabLayout.getTabCount() - 1);
 	}
 
 	/**
@@ -214,6 +221,15 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	public void setBackgroundDrawable(Drawable drawable)
 	{
 		this.mTabLayout.setBackground(drawable);
+	}
+
+	@Override
+	public void setDrawables()
+	{
+		ArrayList<TabProxy> tabProxiesList = ((TabGroupProxy) this.proxy).getTabList();
+		for (TabProxy tabProxy : tabProxiesList) {
+			setDrawablesForTab(tabProxiesList.indexOf(tabProxy));
+		}
 	}
 
 	/**
