@@ -249,10 +249,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// Fire the UNSELECTED event from the currently selected tab.
 		if (currentlySelectedIndex != -1) {
-			((TabGroupProxy) getProxy())
-				.getTabList()
-				.get(currentlySelectedIndex)
-				.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+			if (getProxy() != null) {
+				((TabGroupProxy) getProxy())
+					.getTabList()
+					.get(currentlySelectedIndex)
+					.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+			}
 		}
 		currentlySelectedIndex = position;
 		// The ViewPager has changed current page from swiping.
@@ -286,11 +288,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
 		if (index != currentlySelectedIndex) {
-			((TabGroupProxy) getProxy())
-				.getTabList()
-				.get(currentlySelectedIndex)
-				.fireEvent(TiC.EVENT_UNSELECTED, null, false);
-			currentlySelectedIndex = index;
+			if (getProxy() != null) {
+				((TabGroupProxy) getProxy())
+					.getTabList()
+					.get(currentlySelectedIndex)
+					.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+				currentlySelectedIndex = index;
+			}
 		}
 		// Make the ViewPager to select the proper page too.
 		selectTab(index);
