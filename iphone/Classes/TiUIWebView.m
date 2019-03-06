@@ -399,7 +399,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     listeners.push({callback:callback,id:newid});\
     window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'addEventListener', callback: Ti._JSON({name:name, id:newid},1)},'*'); \
     }, \
-    removeEventListener: function(name, callback) { \
+    removeEventListener: function(name, fn) { \
     var listeners=Ti._listeners[name]; \
     if(listeners){ \
     for(var c=0;c<listeners.length;c++){ \
@@ -744,7 +744,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
         id listenerid = [event objectForKey:@"id"];
         [tiModule addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"removeEventListener"]) {
-        id listenerid = [[message body] objectForKey:@"id"];
+        id listenerid = [event objectForKey:@"id"];
         [tiModule removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"log"]) {
         NSString *level = [event objectForKey:@"level"];
