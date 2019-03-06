@@ -166,13 +166,17 @@ static NSDictionary *TI_filterableItemProperties;
                                                      MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
                                                      nil];
 
+#ifdef __IPHONE_10_0
     if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       TI_itemProperties[@"dateAdded"] = MPMediaItemPropertyDateAdded;
+#ifdef __IPHONE_10_3
       if ([TiUtils isIOSVersionOrGreater:@"10.3"]) {
         TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
       }
+#endif
     }
   }
+#endif
 
   return TI_itemProperties;
 }

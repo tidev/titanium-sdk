@@ -487,6 +487,7 @@
   KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
   ENSURE_TYPE(callback, KrollCallback);
 
+#if __IPHONE_11_0
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     [[[self webView] webView] takeSnapshotWithConfiguration:nil
                                           completionHandler:^(UIImage *snapshotImage, NSError *error) {
@@ -498,9 +499,12 @@
                                             [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [[TiBlob alloc] initWithImage:snapshotImage] } ] thisObject:self];
                                           }];
   } else {
+#endif
     [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [self toImage:nil] } ]
         thisObject:self];
+#if __IPHONE_11_0
   }
+#endif
 }
 
 #pragma mark Utilities
