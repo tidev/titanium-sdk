@@ -235,7 +235,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   RELEASE_TO_NIL(image);
   image = [image_ retain];
-  [self setMimeType:([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)type:TiBlobTypeImage];
+  [self setMimeType:([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) type:TiBlobTypeImage];
 }
 
 - (NSString *)path
@@ -382,7 +382,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     ENSURE_ARG_COUNT(args, 1);
 
     float compressionQuality = [TiUtils floatValue:[args objectAtIndex:0] def:1.0];
-    return [[[TiBlob alloc] _initWithPageContext: [self pageContext] andData:UIImageJPEGRepresentation(image, compressionQuality) mimetype:@"image/jpeg"] autorelease];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:UIImageJPEGRepresentation(image, compressionQuality) mimetype:@"image/jpeg"] autorelease];
   }
   return nil;
 }
