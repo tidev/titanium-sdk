@@ -350,7 +350,8 @@ properties:
         Background color for the nav bar, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "8.0.1", iphone: "0.9", ipad: "0.9"}
     type: String
 
   - name: barImage
