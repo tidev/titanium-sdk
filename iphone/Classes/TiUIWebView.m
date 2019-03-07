@@ -261,7 +261,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   // No options, default load behavior
   if (options == nil) {
-    [[self webView] loadHTMLString:content baseURL:nil];
+    [[self webView] loadHTMLString:content baseURL:[NSURL fileURLWithPath:[TiHost resourcePath]]];
     return;
   }
 
