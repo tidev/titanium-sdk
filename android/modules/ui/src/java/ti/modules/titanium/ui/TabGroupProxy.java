@@ -568,7 +568,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			synchronized (tabs)
 			{
 				for (TabProxy t : tabs) {
-					t.setTabGroup(null);
 					t.releaseViews();
 				}
 			}
