@@ -555,8 +555,23 @@ properties:
         title view when requested by the current navigation item. To specify when
         the large out-of-line title view appears, see <Titanium.UI.Window.largeTitleDisplayMode>.
     default: false
-    type: String
+    type: Boolean
     since: "6.3.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+
+  - name: hidesSearchBarWhenScrolling
+    summary: A Boolean value indicating whether the integrated search bar is hidden when scrolling any underlying content.
+    description: |
+        When the value of this property is true, the search bar is visible only when the scroll position 
+        equals the top of your content view. When the user scrolls down, the search bar collapses into 
+        the navigation bar. Scrolling back to the top reveals the search bar again. When the value of 
+        this property is false, the search bar remains regardless of the current scroll position. 
+        You must set <Titanium.UI.ListView.showSearchBarInNavBar> or <Titanium.UI.TableView.showSearchBarInNavBar> 
+        property for this property to have any effect.
+    default: true
+    type: Boolean
+    since: "8.1.0"
     platforms: [iphone, ipad]
     osver: {ios: {min: "11.0"}}
 

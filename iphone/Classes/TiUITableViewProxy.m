@@ -101,7 +101,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 - (NSArray *)keySequence
 {
   if (tableKeySequence == nil) {
-    tableKeySequence = [[NSArray arrayWithObjects:@"style", @"search", @"data", @"backgroundColor", nil] retain];
+    tableKeySequence = [[NSArray arrayWithObjects:@"style", @"showSearchBarInNavBar", @"search", @"data", @"backgroundColor", nil] retain];
   }
   return tableKeySequence;
 }

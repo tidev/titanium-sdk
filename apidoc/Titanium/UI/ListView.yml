@@ -1087,6 +1087,19 @@ properties:
     platforms: [iphone, ipad]
     availability: creation
 
+  - name: showSearchBarInNavBar
+    summary: A Boolean indicating whether search bar will be in navigation bar.
+    description: |
+          If you want to show the search bar in navigation bar, set this property `true` during creation. 
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
+          searchbar when scrolling.
+    type: Boolean
+    default: false
+    since: 8.1.0
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+    availability: creation
+
   - name: resultsBackgroundColor
     summary: The background color of the search results (iOS-only).
     description: |
