@@ -14,6 +14,7 @@
   BOOL showMasterInPortrait;
   BOOL masterIsOverlayed;
   BOOL viewsInitialized;
+  BOOL masterViewVisible;
 
   TiViewProxy *masterProxy;
   TiViewProxy *detailProxy;
@@ -27,5 +28,6 @@
 - (void)setMasterIsOverlayed_:(id)value withObject:(id)animated;
 - (void)initWrappers;
 - (void)cleanup;
+- (void)setMasterViewVisible_:(NSNumber *)value;
 @end
 #endif
