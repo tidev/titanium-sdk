@@ -77,6 +77,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   CGPoint tableContentOffset;
   BOOL isSearched;
   UIView *dimmingView;
+  BOOL isSearchBarInNavigation;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -193,7 +194,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _searchWrapper = [self initWrapperProxy];
   _headerWrapper = [self initWrapperProxy];
 
-  [_headerViewProxy add:_searchWrapper];
+  isSearchBarInNavigation = [TiUtils boolValue:[(TiViewProxy *)self.proxy valueForUndefinedKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+  if (!isSearchBarInNavigation) {
+    [_headerViewProxy add:_searchWrapper];
+  }
   [_headerViewProxy add:_headerWrapper];
 }
 
@@ -575,17 +579,21 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
-  UIView *searchSuperView = [searchController.view superview];
-  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+    UIView *searchSuperView = [searchController.view superview];
+    searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
 
-  CGFloat width = [_searchWrapper view].frame.size.width;
-  UIView *view = searchController.searchBar.superview;
-  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
-  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
-  [searchViewProxy ensureSearchBarHierarchy];
+    CGFloat width = [_searchWrapper view].frame.size.width;
+    UIView *view = searchController.searchBar.superview;
+    view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+    searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+    [searchViewProxy ensureSearchBarHierarchy];
+  }
 }
 
 #pragma mark - Public API
@@ -2188,6 +2196,24 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)viewGetFocus
 {
+#if IS_XCODE_9
+  if (isSearchBarInNavigation) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    UIViewController *controller;
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      controller = [proxy windowHoldingController];
+    } else {
+      controller = [[TiApp app] controller];
+    }
+    if (!controller.navigationItem.searchController) {
+      controller.navigationItem.searchController = searchController;
+    }
+  }
+#endif
+
   if (isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
     [searchController performSelector:@selector(setActive:) withObject:@YES afterDelay:.1];
@@ -2356,7 +2382,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  }
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];
