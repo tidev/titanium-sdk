@@ -18,7 +18,7 @@
     {
       "files": [ "tests/Resources/es6.*.js" ],
       "parserOptions": {
-        "ecmaVersion": 2015,
+        "ecmaVersion": 2017,
         "sourceType": "module"
       }
     },
@@ -41,6 +41,13 @@
       "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "script"
+      }
+    },
+    {
+      "files": [ "common/Resources/ti.main.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
       }
     }
   ]

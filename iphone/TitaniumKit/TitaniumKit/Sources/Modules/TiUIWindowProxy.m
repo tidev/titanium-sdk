@@ -827,6 +827,17 @@
   }
 }
 
+- (void)setHidesSearchBarWhenScrolling:(id)value
+{
+  ENSURE_UI_THREAD(setHidesSearchBarWhenScrolling, value);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
+
+  [self replaceValue:value forKey:@"hidesSearchBarWhenScrolling" notification:NO];
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [controller navigationItem].hidesSearchBarWhenScrolling = [TiUtils intValue:value def:YES];
+  }
+}
 - (void)setTitlePrompt:(NSString *)title_
 {
   ENSURE_UI_THREAD(setTitlePrompt, title_);
@@ -933,6 +944,8 @@
   SETPROP(@"titlePrompt", setTitlePrompt);
   SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
   SETPROP(@"largeTitleDisplayMode", setLargeTitleDisplayMode);
+  SETPROP(@"hidesSearchBarWhenScrolling", setHidesSearchBarWhenScrolling);
+
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);

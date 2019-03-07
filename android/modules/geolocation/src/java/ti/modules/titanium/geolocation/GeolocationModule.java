@@ -111,9 +111,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public int numLocationListeners = 0;
 	public HashMap<String, LocationProviderProxy> simpleLocationProviders =
 		new HashMap<String, LocationProviderProxy>();
-	@Deprecated
-	public HashMap<String, LocationProviderProxy> legacyLocationProviders =
-		new HashMap<String, LocationProviderProxy>();
 
 	protected static final int MSG_ENABLE_LOCATION_PROVIDERS = KrollModule.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_ENABLE_LOCATION_PROVIDERS;
@@ -135,17 +132,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
-	private int simpleLocationAccuracyProperty = ACCURACY_LOW;
 	private Location currentLocation;
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
-	@Deprecated
-	private HashMap<Integer, Double> legacyLocationAccuracyMap = new HashMap<Integer, Double>();
-	@Deprecated
-	private double legacyLocationFrequency = 5000;
-	@Deprecated
-	private String legacyLocationPreferredProvider = AndroidModule.PROVIDER_NETWORK;
 
 	private FusedLocationProvider fusedLocationProvider;
 
@@ -178,6 +168,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		simpleLocationNetworkRule =
 			new LocationRuleProxy(AndroidModule.PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE,
 								  SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
+		simpleLocationRules.add(simpleLocationNetworkRule);
+		simpleLocationRules.add(simpleLocationGpsRule);
 	}
 
 	/**
@@ -321,40 +313,21 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("MissingPermission")
 	private void propertyChangedAccuracy(Object newValue)
 	{
-		// is simple mode enabled (registered with OS, not just selected via the accuracy property)
-		boolean simpleModeEnabled = false;
-		if (!(getManualMode()) && (numLocationListeners > 0)) {
-			simpleModeEnabled = true;
-		}
-
 		int accuracyProperty = TiConvert.toInt(newValue);
-
 		if ((accuracyProperty == ACCURACY_HIGH) || (accuracyProperty == ACCURACY_LOW)) {
-			// has the value changed from the last known good value?
-			if (accuracyProperty != simpleLocationAccuracyProperty) {
-				simpleLocationAccuracyProperty = accuracyProperty;
-				LocationProviderProxy gpsProvider = simpleLocationProviders.get(AndroidModule.PROVIDER_GPS);
 
-				if ((accuracyProperty == ACCURACY_HIGH) && (gpsProvider == null)) {
-					gpsProvider = new LocationProviderProxy(AndroidModule.PROVIDER_GPS, SIMPLE_LOCATION_GPS_DISTANCE,
-															SIMPLE_LOCATION_GPS_TIME, this);
-					simpleLocationProviders.put(AndroidModule.PROVIDER_GPS, gpsProvider);
-					simpleLocationRules.add(simpleLocationNetworkRule);
-					simpleLocationRules.add(simpleLocationGpsRule);
+			double accuracyDistance = SIMPLE_LOCATION_GPS_DISTANCE;
+			if (accuracyProperty == ACCURACY_LOW) {
+				accuracyDistance = 3000.0;
+			}
+			LocationProviderProxy gpsProvider =
+				new LocationProviderProxy(AndroidModule.PROVIDER_GPS, accuracyDistance, SIMPLE_LOCATION_GPS_TIME, this);
 
-					if (simpleModeEnabled) {
-						registerLocationProvider(gpsProvider);
-					}
+			unregisterLocationProvider(simpleLocationProviders.get(AndroidModule.PROVIDER_GPS));
+			simpleLocationProviders.put(AndroidModule.PROVIDER_GPS, gpsProvider);
 
-				} else if ((accuracyProperty == ACCURACY_LOW) && (gpsProvider != null)) {
-					simpleLocationProviders.remove(AndroidModule.PROVIDER_GPS);
-					simpleLocationRules.remove(simpleLocationNetworkRule);
-					simpleLocationRules.remove(simpleLocationGpsRule);
-
-					if (simpleModeEnabled) {
-						unregisterLocationProvider(gpsProvider);
-					}
-				}
+			if (!getManualMode()) {
+				registerLocationProvider(gpsProvider);
 			}
 		}
 	}
@@ -367,15 +340,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private void propertyChangedFrequency(Object newValue)
 	{
 		double frequencyProperty = TiConvert.toDouble(newValue) * 1000;
-		if (frequencyProperty != legacyLocationFrequency) {
-			legacyLocationFrequency = frequencyProperty;
-
-			Iterator<String> iterator = legacyLocationProviders.keySet().iterator();
-			while (iterator.hasNext()) {
-				LocationProviderProxy locationProvider = legacyLocationProviders.get(iterator.next());
-				locationProvider.setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, legacyLocationFrequency);
-			}
-		}
 	}
 
 	/**
@@ -390,24 +354,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		if (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_NETWORK))
 			&& (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_GPS)))) {
 			return;
-		}
-
-		if (!(preferredProviderProperty.equals(legacyLocationPreferredProvider))) {
-			LocationProviderProxy oldProvider = legacyLocationProviders.get(legacyLocationPreferredProvider);
-			LocationProviderProxy newProvider = legacyLocationProviders.get(preferredProviderProperty);
-
-			if (oldProvider != null) {
-				legacyLocationProviders.remove(legacyLocationPreferredProvider);
-			}
-
-			if (newProvider == null) {
-				newProvider = new LocationProviderProxy(preferredProviderProperty,
-														legacyLocationAccuracyMap.get(simpleLocationAccuracyProperty),
-														legacyLocationFrequency, this);
-				legacyLocationProviders.put(preferredProviderProperty, newProvider);
-			}
-
-			legacyLocationPreferredProvider = preferredProviderProperty;
 		}
 	}
 
@@ -562,15 +508,19 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public void requestLocationPermissions(@Kroll.argument(optional = true) Object type,
 										   @Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
-		if (hasLocationPermissions()) {
-			return;
-		}
-
 		KrollFunction permissionCB;
 		if (type instanceof KrollFunction && permissionCallback == null) {
 			permissionCB = (KrollFunction) type;
 		} else {
 			permissionCB = permissionCallback;
+		}
+
+		// already have permissions, fall through
+		if (hasLocationPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCB.callAsync(getKrollObject(), response);
+			return;
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB, getKrollObject());
@@ -590,6 +540,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		if (!hasLocationPermissions()) {
 			Log.e(TAG, "Location permissions missing", Log.DEBUG_MODE);
+			return;
+		} else if (locationProvider == null) {
+			Log.e(TAG, "Invalid location provider", Log.DEBUG_MODE);
 			return;
 		}
 
@@ -615,6 +568,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("MissingPermission")
 	public void unregisterLocationProvider(LocationProviderProxy locationProvider)
 	{
+		if (locationProvider == null) {
+			return;
+		}
 		if (FusedLocationProvider.hasPlayServices(context)) {
 			fusedLocationProvider.unregisterLocationProvider(locationProvider);
 		} else {
@@ -673,10 +629,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("MissingPermission")
 	private void disableLocationProviders()
 	{
-		for (LocationProviderProxy locationProvider : legacyLocationProviders.values()) {
-			unregisterLocationProvider(locationProvider);
-		}
-
 		for (LocationProviderProxy locationProvider : simpleLocationProviders.values()) {
 			unregisterLocationProvider(locationProvider);
 		}
