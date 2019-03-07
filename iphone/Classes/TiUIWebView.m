@@ -23,6 +23,7 @@
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
 
+#import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
 extern NSString *const TI_APPLICATION_ID;
@@ -74,6 +75,15 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [controller addScriptMessageHandler:self name:@"_Ti_"];
 
     [config setUserContentController:controller];
+
+#if IS_XCODE_9
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
+        [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
+      }
+    }
+#endif
+
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
     _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
@@ -251,7 +261,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   // No options, default load behavior
   if (options == nil) {
-    [[self webView] loadHTMLString:content baseURL:nil];
+    [[self webView] loadHTMLString:content baseURL:[NSURL fileURLWithPath:[TiHost resourcePath]]];
     return;
   }
 
@@ -1314,4 +1324,60 @@ static NSString *UIKitLocalizedString(NSString *string)
 }
 
 @end
+
+#if IS_XCODE_9
+
+@implementation WebAppProtocolHandler
+
++ (NSString *)specialProtocolScheme
+{
+  return @"app";
+}
+
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask
+{
+  NSURLRequest *request = [urlSchemeTask request];
+  NSURL *url = [request URL];
+  DebugLog(@"[DEBUG] Requested resource via app protocol, loading: %@", url);
+
+  // see if it's a compiled resource
+  NSData *data = [TiUtils loadAppResource:url];
+  if (data == nil) {
+    // check to see if it's a local resource in the bundle, could be
+    // a bundled image, etc. - or we could be running from XCode :)
+    NSString *urlpath = [url path];
+    if ([urlpath characterAtIndex:0] == '/') {
+      if ([[NSFileManager defaultManager] fileExistsAtPath:urlpath]) {
+        data = [[[NSData alloc] initWithContentsOfFile:urlpath] autorelease];
+      }
+    }
+    if (data == nil) {
+      NSString *resourceurl = [TiHost resourcePath];
+      NSString *path = [NSString stringWithFormat:@"%@%@", resourceurl, urlpath];
+      data = [[[NSData alloc] initWithContentsOfFile:path] autorelease];
+    }
+  }
+
+  if (data != nil) {
+    NSURLCacheStoragePolicy caching = NSURLCacheStorageAllowedInMemoryOnly;
+    NSString *mime = [Mimetypes mimeTypeForExtension:[url path]];
+    NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:mime expectedContentLength:[data length] textEncodingName:@"utf-8"];
+    [urlSchemeTask didReceiveResponse:response];
+    [urlSchemeTask didReceiveData:data];
+    [urlSchemeTask didFinish];
+    [response release];
+  } else {
+    NSLog(@"[ERROR] Error loading %@", url);
+    [urlSchemeTask didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
+    [urlSchemeTask didFinish];
+  }
+}
+
+- (void)webView:(nonnull WKWebView *)webView stopURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask
+{
+}
+
+@end
+#endif
+
 #endif
