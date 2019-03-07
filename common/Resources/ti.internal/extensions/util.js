@@ -203,9 +203,9 @@ util.inspect = (obj, options = {}) => {
 					}
 					const propDesc = Object.getOwnPropertyDescriptor(obj, propName)
 						|| { value: obj[propName], enumerable: true }; // fall back to faking a descriptor
+					const key = propDesc.enumerable ? propName : `[${propName}]`; // If not enumerable, wrap name in []!
 					if (propDesc.value !== undefined) {
 						mergedOptions.indentLevel += 3; // Node uses 3 spaces for arrays/Objects?
-						const key = propDesc.enumerable ? propName : `[${propName}]`; // If not enumerable, wrap name in []!
 						let space = ' ';
 						const value = util.inspect(propDesc.value, mergedOptions);
 						// if value is breaking, break between key and top-level value
@@ -214,8 +214,18 @@ util.inspect = (obj, options = {}) => {
 						}
 						mergedOptions.indentLevel -= 3;
 						properties.push(`${key}:${space}${value}`);
+					} else if (propDesc.get !== undefined) {
+						// TODO: Handle when options.getters === true, need to actually attempt to get and show value!
+						if (propDesc.set !== undefined) {
+							properties.push(`${key}: [Getter/Setter]`);
+						} else {
+							properties.push(`${key}: [Getter]`);
+						}
+					} else if (propDesc.set !== undefined) {
+						properties.push(`${key}: [Setter]`);
+					} else { // weird case of a property defined with an explicit undefined value
+						properties.push(`${key}: undefined`);
 					}
-					// TODO: Handle setter/getters
 				}
 				if (properties.length !== 0) {
 					// TODO: Handle custom sorting option!

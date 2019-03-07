@@ -14,7 +14,7 @@ const utilities = require('./utilities/utilities');
 
 let util;
 
-describe('util', () => {
+describe.only('util', () => {
 	it('should be required as core module', () => {
 		util = require('util');
 		util.should.be.an.Object;
@@ -450,6 +450,12 @@ describe('util', () => {
 			util.inspect([ 'a', 2 ]).should.eql('[ \'a\', 2 ]');
 		});
 
+		// TODO: Handle sparse arrays
+		it.skip('handles sparse array', () => {
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1, , 3 ]).should.eql('[ 1, <1 empty item>, 3 ]');
+		});
+
 		it('handles Regexp literal', () => {
 			util.inspect(/123/).should.eql('/123/');
 		});
@@ -522,6 +528,32 @@ describe('util', () => {
 			const myFunc = () => {};
 			myFunc.a = 1;
 			util.inspect(myFunc).should.eql('{ [Function: myFunc] a: 1 }');
+		});
+
+		it('handles object with getter property', () => {
+			const obj = {};
+			// eslint-disable-next-line accessor-pairs
+			Object.defineProperty(obj, 'whatever', { get: () => 1, enumerable: true });
+			util.inspect(obj).should.eql('{ whatever: [Getter] }');
+		});
+
+		it('handles object with setter property', () => {
+			const obj = {};
+			// eslint-disable-next-line accessor-pairs
+			Object.defineProperty(obj, 'whatever2', { set: () => {}, enumerable: true });
+			util.inspect(obj).should.eql('{ whatever2: [Setter] }');
+		});
+
+		it('handles object with getter/setter property', () => {
+			const obj = {};
+			Object.defineProperty(obj, 'whatever3', { get: () => 1, set: () => {}, enumerable: true });
+			util.inspect(obj).should.eql('{ whatever3: [Getter/Setter] }');
+		});
+
+		it('handles object with property holding explicit undefined value', () => {
+			const obj = {};
+			Object.defineProperty(obj, 'whatever4', { value: undefined, enumerable: true });
+			util.inspect(obj).should.eql('{ whatever4: undefined }');
 		});
 
 		it('with simple object', () => {
