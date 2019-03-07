@@ -381,9 +381,18 @@ util.format = (...args) => {
 
 		// If we have args remaining, need to...
 		// loop over rest of args and coerce to Strings and concat joined by spaces.
-		// FIXME: Unless typeof === 'object' or 'symbol', then do util.inspect() on them
+		// Unless typeof === 'object' or 'symbol', then do util.inspect() on them
 		if (i < args.length) {
-			str += ` ${args.slice(i).map(a => String(a)).join(' ')}`;
+			str += ` ${args.slice(i).map(a => {
+				const aType = typeof a;
+				switch (aType) {
+					case 'object':
+					case 'symbol':
+						return util.inspect(a);
+					default:
+						return String(a);
+				}
+			}).join(' ')}`;
 		}
 		return str;
 	}
@@ -409,7 +418,7 @@ util.inherits = function (constructor, superConstructor) {
 		throw new TypeError('The "superConstructor.prototype" argument must be of type Object. Received type undefined');
 	}
 
-	constructor.super_ = superConstructor; // FIXME: Don't make enumerable!
+	Object.defineProperty(constructor, 'super_', { value: superConstructor });
 	Object.setPrototypeOf(constructor.prototype, superConstructor.prototype);
 };
 
@@ -461,8 +470,8 @@ util.callbackify = function (original) {
 					wrappedError.reason = err;
 					err = wrappedError;
 				}
-				callback(err);
-			}); // eslint-disable-line promise/no-callback-in-promise
+				callback(err);  // eslint-disable-line promise/no-callback-in-promise
+			});
 	}
 	return wrapped;
 };
