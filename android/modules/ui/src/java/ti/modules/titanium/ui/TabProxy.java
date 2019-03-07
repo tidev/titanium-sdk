@@ -170,6 +170,13 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
+	@Override
+	public void release()
+	{
+		setTabGroup(null);
+		super.release();
+	}
+
 	void onFocusChanged(boolean focused, KrollDict eventData)
 	{
 		// Windows are lazily opened when the tab is first focused.
