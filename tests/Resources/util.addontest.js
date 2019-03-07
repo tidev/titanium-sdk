@@ -450,10 +450,39 @@ describe.only('util', () => {
 			util.inspect([ 'a', 2 ]).should.eql('[ \'a\', 2 ]');
 		});
 
-		// TODO: Handle sparse arrays
-		it.skip('handles sparse array', () => {
+		it('handles sparse array', () => {
 			// eslint-disable-next-line no-sparse-arrays
 			util.inspect([ 1, , 3 ]).should.eql('[ 1, <1 empty item>, 3 ]');
+		});
+
+		it('handles sparse array with multiple items missing in a row', () => {
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1,,,, 3 ]).should.eql('[ 1, <3 empty items>, 3 ]');
+		});
+
+		it('handles sparse array with multiple separate gaps', () => {
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1,,,, 3, ,, 4 ]).should.eql('[ 1, <3 empty items>, 3, <2 empty items>, 4 ]');
+		});
+
+		it('handles array with length > options.maxArrayLength', () => {
+			util.inspect([ 1, 2, 3 ], { maxArrayLength: 1 }).should.eql('[ 1, ... 2 more items ]');
+		});
+
+		it('handles array with length > options.maxArrayLength and is sparse', () => {
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 1 }).should.eql('[ 1, ... 7 more items ]');
+		});
+
+		it('handles sparse array with length > options.maxArrayLength counting gaps as one item for length', () => {
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1,,,, ], { maxArrayLength: 2 }).should.eql('[ 1, <3 empty items> ]');
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 2 }).should.eql('[ 1, <3 empty items>, ... 4 more items ]');
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 3 }).should.eql('[ 1, <3 empty items>, 3, ... 3 more items ]');
+			// eslint-disable-next-line no-sparse-arrays
+			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 4 }).should.eql('[ 1, <3 empty items>, 3, <2 empty items>, ... 1 more item ]');
 		});
 
 		it('handles Regexp literal', () => {

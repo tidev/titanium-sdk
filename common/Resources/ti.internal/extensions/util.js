@@ -98,6 +98,46 @@ const defaultInspectOptions = {
 	getters: false
 };
 
+function formatArray(array, options) {
+	const maxLength = Math.max(0, options.maxArrayLength);
+	const arrayLength = array.length;
+	const values = [];
+	let consecutiveEmpties = 0;
+	let i = 0;
+	// for sparse arrays, consecutive empties count as a "single item" in terms of maxArrayLength
+	for (; i < arrayLength; i++) { // don't go past end of array...
+		const value = array[i];
+		if (value === undefined) { // sparse array!
+			consecutiveEmpties++;
+			continue;
+		}
+
+		// non-empty index currently...
+		if (consecutiveEmpties > 0) { // were we collecting consecutive empty indices as a single gap?
+			values.push(`<${consecutiveEmpties} empty item${consecutiveEmpties > 1 ? 's' : ''}>`);
+			consecutiveEmpties = 0; // reset our count
+			if (values.length >= maxLength) { // don't show more than options.maxArrayLength "values"
+				break;
+			}
+		}
+		// push the current index value
+		values.push(util.inspect(value, options));
+		if (values.length >= maxLength) { // don't show more than options.maxArrayLength "values"
+			i++; // so our "remaining" count is correct
+			break;
+		}
+	}
+
+	const remaining = arrayLength - i;
+	if (remaining > 0) { // did we stop before the end of the array (due to options.maxArrayLength)?
+		values.push(`... ${remaining} more item${remaining > 1 ? 's' : ''}`);
+	} else if (consecutiveEmpties > 0) { // did the sparse array gaps run to the end of the array?
+		values.push(`<${consecutiveEmpties} empty item${consecutiveEmpties > 1 ? 's' : ''}>`);
+	}
+
+	return values;
+}
+
 /**
  * @param {*} obj JS value or object to inspect
  * @param {object} [options] options for output
@@ -156,10 +196,7 @@ util.inspect = (obj, options = {}) => {
 						prefix = ''; // wipe "normal" Array prefixes
 					}
 					[ open, close ] = [ '[', ']' ]; // use array braces
-					if (obj.length > 0) {
-						// TODO: handle sparse arrays
-						values.push(...obj.map(o => util.inspect(o, mergedOptions)));
-					}
+					values.push(...formatArray(obj, mergedOptions));
 				} else if (util.types.isMap(obj)) {
 					if (obj.size > 0) {
 						values.push(...Array.from(obj).map(entry => `${util.inspect(entry[0], mergedOptions)} => ${util.inspect(entry[1], mergedOptions)}`));
