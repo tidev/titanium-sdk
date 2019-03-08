@@ -46,14 +46,87 @@ function standardizeArch(original) {
 	}
 }
 
+const listeners = {};
 const process = {
 	arch: standardizeArch(Ti.Platform.architecture),
+	noDeprecation: false,
+	throwDeprecation: false,
+	traceDeprecation: false,
+	pid: 0,
 	cwd: function () {
 		return __dirname;
 	},
 	// FIXME: Should we try and adopt 'windowsphone'/'windowsstore' to 'win32'?
 	// FIXME: Should we try and adopt 'ipad'/'iphone' to 'darwin'? or 'ios'?
-	platform: Ti.Platform.osname
+	platform: Ti.Platform.osname,
+	on: function (eventName, callback) {
+		const eventListeners = listeners[eventName] || [];
+		eventListeners.push(callback);
+		listeners[eventName] = eventListeners;
+		return this;
+	},
+	// TODO: Add #once which is like #on, but should get wrapped to remove itself before getting fired
+	emit: function (eventName, ...args) {
+		const eventListeners = listeners[eventName] || [];
+		for (const listener of eventListeners) {
+			listener.call(this, ...args);
+		}
+		return eventListeners.length !== 0;
+	},
+	eventNames: () => Object.getOwnPropertyNames(listeners),
+	emitWarning: function (warning, options, code, ctor) {
+		let type;
+		let detail;
+		if (typeof options === 'string') {
+			type = options;
+		} else if (typeof options === 'object') {
+			type = options.type;
+			code = options.code;
+			detail = options.detail;
+		}
+		if (typeof warning === 'string') {
+			// TODO: make use of `ctor` arg for limiting stack traces? Can only really be used on V8
+			// set stack trace limit to 0, then call Error.captureStackTrace(warning, ctor);
+			warning = new Error(warning);
+			warning.name = type || 'Warning';
+			if (code !== undefined) {
+				warning.code = code;
+			}
+			if (detail !== undefined) {
+				warning.detail = detail;
+			}
+		}
+		// TODO: Throw TypeError if not an instanceof Error at this point!
+		const isDeprecation = (warning.name === 'DeprecationWarning');
+		if (isDeprecation && process.noDeprecation) {
+			return; // ignore
+		}
+		if (isDeprecation && process.throwDeprecation) {
+			throw warning;
+		}
+		this.emit('warning', warning);
+	}
 };
 global.process = process;
+// handle spitting out warnings
+const WARNING_PREFIX = `(titanium:${process.pid}) `;
+process.on('warning', warning => {
+	const isDeprecation = (warning.name === 'DeprecationWarning');
+	// if we're not doing deprecations, ignore!
+	if (isDeprecation && process.noDeprecation) {
+		return;
+	}
+	// TODO: Check process.traceDeprecation and if set, include stack trace in message!
+	let msg = WARNING_PREFIX;
+	if (warning.code !== undefined) {
+		msg += `[${warning.code}] `;
+	}
+	if (warning.toString) {
+		msg += warning.toString();
+	}
+	if (warning.detail) {
+		msg += `\n${warning.detail}`;
+	}
+	console.error(msg);
+});
 module.exports = process;
