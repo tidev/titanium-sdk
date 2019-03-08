@@ -1225,8 +1225,7 @@ describe('assert', function () {
 			it('is a function', () => assert.strict.ok.should.be.a.Function);
 		});
 
-		// FIXME: Implement ifError!
-		describe.skip('#ifError', () => {
+		describe('#ifError', () => {
 			it('is a function', () => assert.strict.ifError.should.be.a.Function);
 		});
 
@@ -1234,8 +1233,7 @@ describe('assert', function () {
 			it('is a function', () => assert.strict.fail.should.be.a.Function);
 		});
 
-		// FIXME: Implement deepEqual!
-		describe.skip('#deepEqual', () => {
+		describe('#deepEqual', () => {
 			it('is a function', () => assert.strict.deepEqual.should.be.a.Function);
 		});
 
@@ -1247,13 +1245,11 @@ describe('assert', function () {
 			it('is a function', () => assert.strict.doesNotThrow.should.be.a.Function);
 		});
 
-		// FIXME: Implement rejects!
-		describe.skip('#rejects', () => {
+		describe('#rejects', () => {
 			it('is a function', () => assert.strict.rejects.should.be.a.Function);
 		});
 
-		// FIXME: Implement doesNotReject!
-		describe.skip('#doesNotReject', () => {
+		describe('#doesNotReject', () => {
 			it('is a function', () => assert.strict.doesNotReject.should.be.a.Function);
 		});
 
