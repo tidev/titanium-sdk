@@ -8,7 +8,7 @@ package org.appcelerator.titanium.util;
 
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.net.CacheResponse;
+import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -16,8 +16,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,6 +27,9 @@ import org.appcelerator.titanium.TiApplication;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that
@@ -163,6 +164,17 @@ public class TiDownloadManager implements Handler.Callback
 				connection.setConnectTimeout(TIMEOUT_IN_MILLISECONDS);
 				connection.setReadTimeout(TIMEOUT_IN_MILLISECONDS);
 				connection.setDoInput(true);
+				if (connection instanceof HttpsURLConnection) {
+					final HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
+
+					// NOTE: use reflection to prevent circular reference to the network module
+					// TODO: move TiDownloadManager into network module
+					final Class TiSocketFactory = Class.forName("ti.modules.titanium.network.TiSocketFactory");
+					final Constructor constructor = TiSocketFactory.getConstructors()[0];
+					final SSLSocketFactory socketFactory = (SSLSocketFactory) constructor.newInstance(null, null, 0);
+
+					httpsConnection.setSSLSocketFactory(socketFactory);
+				}
 				if (connection instanceof HttpURLConnection) {
 					// Connect via HTTP/HTTPS.
 					HttpURLConnection httpConnection = (HttpURLConnection) connection;
