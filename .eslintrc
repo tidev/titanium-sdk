@@ -46,6 +46,7 @@
     {
       "files": [
         "common/Resources/ti.main.js",
+        "common/Resources/ti.internal/extensions/assert.js",
         "common/Resources/ti.internal/extensions/binding.js",
         "common/Resources/ti.internal/extensions/os.js",
         "common/Resources/ti.internal/extensions/path.js",
@@ -56,13 +57,6 @@
       "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"
-      }
-    },
-    {
-      "files": [ "common/Resources/ti.internal/extensions/assert.js" ],
-      "parserOptions": {
-        "ecmaVersion": 2017,
-        "sourceType": "script"
       }
     }
   ]
