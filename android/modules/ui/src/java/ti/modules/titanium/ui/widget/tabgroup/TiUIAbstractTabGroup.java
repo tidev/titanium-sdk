@@ -168,7 +168,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	/**
 	 * Method for handling of the setActiveTab. It is used to set the currently selected page
-	 * throw the code and not clicking/swiping.
+	 * through the code and not clicking/swiping.
 	 * @param tabProxy the TabProxy instance to be set as currently selected
 	 */
 	public void selectTab(TabProxy tabProxy)
@@ -176,7 +176,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		int index = ((TabGroupProxy) getProxy()).getTabList().indexOf(tabProxy);
 		// Guard for trying to set a tab, that is not part of the group, as active.
 		if (index != -1 && !tabsDisabled) {
-			this.tabGroupViewPager.setCurrentItem(index, this.smoothScrollOnTabClick);
+			selectTabItemInController(index);
+			selectTab(index);
 		}
 	}
 
