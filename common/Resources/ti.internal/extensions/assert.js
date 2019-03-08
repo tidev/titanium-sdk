@@ -1,4 +1,3 @@
-/* global BigInt */
 'use strict';
 
 const util = require('util');
@@ -338,10 +337,11 @@ function deepEqual(actual, expected, strictness, references) {
 			&& (!util.types.isBooleanObject(expected)
 				|| Boolean.prototype.valueOf.call(actual) !== Boolean.prototype.valueOf.call(expected))) {
 			return false;
-		} else if (util.types.isBigIntObject(actual)
-			&& (!util.types.isBigIntObject(expected)
-				|| BigInt.prototype.valueOf.call(actual) !== BigInt.prototype.valueOf.call(expected))) {
-			return false;
+		// FIXME: Uncomment when we support BigInt cross-platform!
+		// } else if (util.types.isBigIntObject(actual)
+		// 	&& (!util.types.isBigIntObject(expected)
+		// 		|| BigInt.prototype.valueOf.call(actual) !== BigInt.prototype.valueOf.call(expected))) {
+		// 	return false;
 		} else if (util.types.isSymbolObject(actual)
 			&& (!util.types.isSymbolObject(expected)
 				|| Symbol.prototype.valueOf.call(actual) !== Symbol.prototype.valueOf.call(expected))) {
