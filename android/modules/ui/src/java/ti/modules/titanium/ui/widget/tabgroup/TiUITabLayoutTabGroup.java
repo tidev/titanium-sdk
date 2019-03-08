@@ -50,7 +50,16 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 
 	private void setDrawablesForTab(int tabIndex)
 	{
-		TabProxy tabProxy = ((TabGroupProxy) this.proxy).getTabList().get(tabIndex);
+		// Validate index input.
+		ArrayList<TabProxy> tabProxyArrayList = ((TabGroupProxy) this.proxy).getTabList();
+		if (tabIndex < 0 || tabIndex >= tabProxyArrayList.size()) {
+			return;
+		}
+
+		TabProxy tabProxy = tabProxyArrayList.get(tabIndex);
+		if (tabProxy == null) {
+			return;
+		}
 		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
 		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 
@@ -117,14 +126,6 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			}
 		};
 		this.mTabLayout.setFitsSystemWindows(true);
-
-		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			this.mTabLayout.setBackgroundColor(
-				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
-		} else {
-			this.mTabLayout.setBackgroundColor(this.colorPrimaryInt);
-		}
 
 		// Set the OnTabSelected listener.
 		this.mTabLayout.addOnTabSelectedListener(this);
@@ -212,15 +213,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		this.mTabLayout.addOnTabSelectedListener(this);
 	}
 
-	/**
-	 * Set the background drawable for TabLayout.
-	 *
-	 * @param drawable the new background drawable.
-	 */
 	@Override
-	public void setBackgroundDrawable(Drawable drawable)
+	public void setBackgroundColor(int colorInt)
 	{
-		this.mTabLayout.setBackground(drawable);
+		this.mTabLayout.setBackgroundColor(colorInt);
 	}
 
 	@Override

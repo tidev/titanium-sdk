@@ -82,14 +82,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		};
 		this.mBottomNavigationView.setFitsSystemWindows(true);
 
-		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			this.mBottomNavigationView.setBackgroundColor(
-				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
-		} else {
-			this.mBottomNavigationView.setBackgroundColor(this.colorPrimaryInt);
-		}
-
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
 		//       This means the bottom tab bar should overlap/overlay the view pager content.
@@ -270,15 +262,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		((TabGroupProxy) getProxy()).onTabSelected(position);
 	}
 
-	/**
-	 * Set the background drawable for BottomNavigationView.
-	 *
-	 * @param drawable the new background drawable.
-	 */
 	@Override
-	public void setBackgroundDrawable(Drawable drawable)
+	public void setBackgroundColor(int colorInt)
 	{
-		this.mBottomNavigationView.setBackground(drawable);
+		this.mBottomNavigationView.setBackgroundColor(colorInt);
 	}
 
 	/**
