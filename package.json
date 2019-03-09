@@ -84,7 +84,7 @@
     "node-appc": "^0.2.47",
     "node-titanium-sdk": "^3.0.1",
     "node-uuid": "1.4.8",
-    "pngjs": "^3.3.3",
+    "pngjs": "^3.4.0",
     "request": "^2.87.0",
     "semver": "^6.0.0",
     "sprintf": "0.1.5",
