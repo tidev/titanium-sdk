@@ -116,7 +116,7 @@
     "js-yaml": "^3.12.1",
     "lint-staged": "^8.1.0",
     "pagedown": "~1.1.0",
-    "rollup": "^1.4.1",
+    "rollup": "^1.6.0",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.2.1",
     "rollup-plugin-node-resolve": "^4.0.1",
