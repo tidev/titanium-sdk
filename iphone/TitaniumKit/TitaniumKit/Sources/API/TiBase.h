@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "TiSharedConfig.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
@@ -330,6 +331,12 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
     return [NSNumber numberWithInt:map]; \
   }
 
+#define MAKE_SYSTEM_PROP_UINTEGER(name, map)         \
+  -(NSNumber *)name                                  \
+  {                                                  \
+    return [NSNumber numberWithUnsignedInteger:map]; \
+  }
+
 #define MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(name, map, api, in, newapi) \
   -(NSNumber *)name                                                      \
   {                                                                      \
@@ -516,16 +523,12 @@ enum {
   }
 #endif
 
-#if defined(DEBUG) || defined(DEVELOPER)
-#define DebugLog(...)   \
-  {                     \
-    NSLog(__VA_ARGS__); \
+#define DebugLog(...)                                  \
+  {                                                    \
+    if ([TiSharedConfig defaultConfig].debugEnabled) { \
+      NSLog(__VA_ARGS__);                              \
+    }                                                  \
   }
-#else
-#define DebugLog(...) \
-  {                   \
-  }
-#endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
 

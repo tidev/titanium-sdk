@@ -16,22 +16,13 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
-public abstract class TiUIAbstractTab extends TiUIView
+public class TiUITab extends TiUIView
 {
 
-	public TiUIAbstractTab(TabProxy proxy)
+	public TiUITab(TabProxy proxy)
 	{
 		super(proxy);
 		proxy.setView(this);
-	}
-
-	/**
-	 * Called when the selection of this tab has changed.
-	 *
-	 * @param selected true if the tab is now selected or false if it was unselected.
-	 */
-	public void onSelectionChange(boolean selected)
-	{
 	}
 
 	/**

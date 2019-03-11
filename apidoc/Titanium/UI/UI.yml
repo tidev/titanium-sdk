@@ -144,9 +144,21 @@ methods:
     parameters:
       - name: parameters
         summary: Initial transformation of the matrix.
-        type: MatrixCreationDict
+        type: Matrix2DCreationDict
         optional: true
+    deprecated:
+        since: "8.0.0"
+        notes: Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
 
+  - name: createMatrix2D
+    summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix2DCreationDict
+        optional: true
 
   - name: convertUnits
     summary: Converts one type of unit to another using the metrics of the main display.
@@ -174,7 +186,8 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: |
@@ -182,7 +195,8 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_OUT
     summary: |
@@ -190,7 +204,8 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_LINEAR
     summary: |
@@ -198,7 +213,8 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ATTRIBUTE_FONT
     summary: |
@@ -1738,6 +1754,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.4.0"
+        removed: "8.0.0"
     platforms: [iphone, ipad]
 
   - name: KEYBOARD_APPEARANCE_DEFAULT
@@ -1770,6 +1787,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
 
   - name: KEYBOARD_DECIMAL_PAD
@@ -1784,6 +1802,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
 
   - name: KEYBOARD_DEFAULT
@@ -1795,6 +1814,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
 
   - name: KEYBOARD_EMAIL
@@ -1806,6 +1826,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
 
   - name: KEYBOARD_NAMEPHONE_PAD
@@ -1818,6 +1839,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
@@ -1830,6 +1852,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
 
   - name: KEYBOARD_NUMBER_PAD
@@ -1843,6 +1866,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
 
   - name: KEYBOARD_PHONE_PAD
@@ -1856,6 +1880,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
 
   - name: KEYBOARD_URL
@@ -1867,6 +1892,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
+        removed: "8.0.0"
         notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD

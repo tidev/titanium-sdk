@@ -827,6 +827,17 @@
   }
 }
 
+- (void)setHidesSearchBarWhenScrolling:(id)value
+{
+  ENSURE_UI_THREAD(setHidesSearchBarWhenScrolling, value);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
+
+  [self replaceValue:value forKey:@"hidesSearchBarWhenScrolling" notification:NO];
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [controller navigationItem].hidesSearchBarWhenScrolling = [TiUtils intValue:value def:YES];
+  }
+}
 - (void)setTitlePrompt:(NSString *)title_
 {
   ENSURE_UI_THREAD(setTitlePrompt, title_);
@@ -933,6 +944,8 @@
   SETPROP(@"titlePrompt", setTitlePrompt);
   SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
   SETPROP(@"largeTitleDisplayMode", setLargeTitleDisplayMode);
+  SETPROP(@"hidesSearchBarWhenScrolling", setHidesSearchBarWhenScrolling);
+
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
@@ -974,7 +987,21 @@
 
 - (void)processForSafeArea
 {
-  if (self.shouldExtendSafeArea || ![TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  [self setValue:@{ @"top" : NUMFLOAT(0.0),
+    @"left" : NUMFLOAT(0.0),
+    @"bottom" : NUMFLOAT(0.0),
+    @"right" : NUMFLOAT(0.0) }
+          forKey:@"safeAreaPadding"];
+
+  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    if (self.shouldExtendSafeArea && !hidesStatusBar) {
+      [self setValue:@{ @"top" : NUMFLOAT(20.0),
+        @"left" : NUMFLOAT(0.0),
+        @"bottom" : NUMFLOAT(0.0),
+        @"right" : NUMFLOAT(0.0) }
+              forKey:@"safeAreaPadding"];
+    }
+
     return;
   }
 
@@ -988,6 +1015,20 @@
     edgeInsets = [self navigationGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
   } else {
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
+  }
+
+  if (self.shouldExtendSafeArea) {
+    [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
+      @"left" : NUMFLOAT(edgeInsets.left),
+      @"bottom" : NUMFLOAT(edgeInsets.bottom),
+      @"right" : NUMFLOAT(edgeInsets.right) }
+            forKey:@"safeAreaPadding"];
+
+    if (!UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets)) {
+      self.safeAreaInsetsUpdated = YES;
+    }
+    oldSafeAreaInsets = edgeInsets;
+    return;
   }
 
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];

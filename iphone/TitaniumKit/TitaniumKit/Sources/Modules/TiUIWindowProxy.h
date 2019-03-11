@@ -21,6 +21,7 @@
   UIImageView *barImageView;
   NSURL *oldBaseURL;
   id latch;
+  UIEdgeInsets oldSafeAreaInsets;
 }
 
 - (void)refreshBackButton;

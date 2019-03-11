@@ -12,11 +12,11 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+
 import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -172,42 +172,11 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	/**
-	 * Get the color of the tab when it is active.
-	 *
-	 * @return the active color if specified, otherwise returns zero.
-	 */
-	public int getActiveTabColor()
+	@Override
+	public void release()
 	{
-		Object color = getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
-		if (color == null) {
-			color = tabGroupProxy.getProperty(TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR);
-		}
-
-		if (color != null) {
-			return TiConvert.toColor(color.toString());
-		}
-
-		return 0;
-	}
-
-	/**
-	 * Get the color of the tab when it is inactive.
-	 *
-	 * @return the inactive color if specified, otherwise returns zero.
-	 */
-	public int getTabColor()
-	{
-		Object color = getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
-		if (color == null) {
-			color = tabGroupProxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR);
-		}
-
-		if (color != null) {
-			return TiConvert.toColor(color.toString());
-		}
-
-		return 0;
+		setTabGroup(null);
+		super.release();
 	}
 
 	void onFocusChanged(boolean focused, KrollDict eventData)
@@ -254,8 +223,17 @@ public class TabProxy extends TiViewProxy
 				TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
 			}
 		}
+	}
 
-		((TiUIAbstractTab) view).onSelectionChange(selected);
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		super.onPropertyChanged(name, value);
+		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
+			if (tabGroupProxy != null) {
+				((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).setDrawables();
+			}
+		}
 	}
 
 	@Override

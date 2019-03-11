@@ -8,6 +8,8 @@ module.exports = function (grunt) {
 	const iosSrc = [
 		'iphone/Classes/*.h',
 		'iphone/Classes/*.m',
+		'iphone/Classes/Layout/*.h',
+		'iphone/Classes/Layout/*.m',
 		'iphone/TitaniumKit/TitaniumKit/*.h',
 		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.h',
 		'iphone/TitaniumKit/TitaniumKit/Sources/**/*.m'
@@ -29,7 +31,10 @@ module.exports = function (grunt) {
 				'apidoc/**/*.js',
 				'build/**/*.js',
 				'cli/!(locales)/**/*.js',
+				'common/**/*.js',
 				'android/cli/!(locales)/**/*.js',
+				'android/modules/**/src/js/**/*.js',
+				'android/runtime/common/src/js/**/*.js',
 				'iphone/cli/!(locales)/**/*.js',
 				'tests/Resources/**/*test.js'
 			]
@@ -121,7 +126,6 @@ module.exports = function (grunt) {
 	grunt.registerMultiTask('checkFormat', 'Validates the source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
-	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-appc-js');
 	grunt.loadNpmTasks('grunt-clang-format');
 	grunt.loadNpmTasks('grunt-contrib-clean');

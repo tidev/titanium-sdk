@@ -8,94 +8,53 @@ package org.appcelerator.titanium;
 
 import android.content.Intent;
 import android.os.Bundle;
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
 
+/** The activity that is shown when opening a Titanium "Ti.UI.Window" in JavaScript. */
 public class TiActivity extends TiBaseActivity
 {
-	Intent intent = null;
+	/** Listener that detects when the root activity's onNewIntent() method has been called. */
+	private TiRootActivity.OnNewIntentListener rootNewIntentListener;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		Intent intent = getIntent();
-		if (intent == null) {
-			return;
+
+		// Fetch the root activity.
+		TiRootActivity rootActivity = getTiApp().getRootActivity();
+		if (rootActivity != null) {
+			// Start listening for onNewIntent() calls on the root activity.
+			// This will copy the root activity's intent to this activity whenever it changes.
+			// Note: This is legacy behavior that Titanium app developers currently depend on.
+			this.rootNewIntentListener = new TiRootActivity.OnNewIntentListener() {
+				@Override
+				public void onNewIntent(TiRootActivity activity, Intent intent)
+				{
+					// This copies intent, updates proxy's "intent" property, and fires "newintent" event.
+					TiActivity.this.onNewIntent(intent);
+				}
+			};
+			rootActivity.addOnNewIntentListener(this.rootNewIntentListener);
+
+			// Copy the root activity's intent.
+			onNewIntent(rootActivity.getIntent());
 		}
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		fireOnDestroy();
-		super.onDestroy();
-	}
-
-	@Override
-	protected void onResume()
-	{
+		// Remove the onNewIntent() listener from the root activity.
 		TiRootActivity rootActivity = getTiApp().getRootActivity();
 		if (rootActivity != null) {
-			Intent rootIntent = rootActivity.getIntent();
+			rootActivity.removeOnNewIntentListener(this.rootNewIntentListener);
+		}
+		this.rootNewIntentListener = null;
 
-			// merge root intent extras
-			if (rootIntent != null) {
-				if (intent == null) {
-					intent = getIntent();
-				}
-				if (intent.getComponent().getClassName().equals(TiActivity.class.getName())) {
-					Intent newIntent = new Intent(intent);
-					newIntent.putExtras(rootIntent);
-					newIntent.setData(rootIntent.getData());
-					setIntent(newIntent);
+		// Invoke the activity proxy's "onDestroy" callback.
+		fireOnDestroy();
 
-					// fire 'newintent'
-					ActivityProxy activityProxy = rootActivity.getActivityProxy();
-					if (activityProxy != null) {
-						IntentProxy intentProxy = new IntentProxy(newIntent);
-						KrollDict data = new KrollDict();
-						data.put(TiC.PROPERTY_INTENT, intentProxy);
-						activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
-					}
-				}
-			}
-		}
-		// handle shortcut intents
-		Intent intent = getIntent();
-		String shortcutId =
-			intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT) ? intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT) : null;
-		if (shortcutId != null) {
-			KrollModule appModule = TiApplication.getInstance().getModuleByName("App");
-			if (appModule != null) {
-				KrollDict data = new KrollDict();
-				data.put(TiC.PROPERTY_ID, shortcutId);
-				appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
-			}
-		}
-		super.onResume();
-		if (getTiApp().isRestartPending()) {
-			return;
-		}
-	}
-
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-
-		TiApplication tiApp = getTiApp();
-		TiRootActivity rootActivity = tiApp.getRootActivity();
-		if (rootActivity != null) {
-			Intent rootIntent = rootActivity.getIntent();
-			if (rootIntent != null) {
-				rootIntent.replaceExtras((Bundle) null);
-			}
-		}
-		if (tiApp.isRestartPending()) {
-			return;
-		}
+		// Destroy this activity.
+		super.onDestroy();
 	}
 }

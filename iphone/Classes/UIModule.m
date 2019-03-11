@@ -33,6 +33,12 @@
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
+#ifdef USE_TI_UITABBEDBAR
+#import "TiUITabbedBarProxy.h"
+#endif
+#ifdef USE_TI_UIWEBVIEW
+#import <WebKit/WebKit.h>
+#endif
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
@@ -43,10 +49,6 @@
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIPHONE
-  [self forgetProxy:iphone];
-  RELEASE_TO_NIL(iphone);
-#endif
 #ifdef USE_TI_UIIPAD
   [self forgetProxy:ipad];
   RELEASE_TO_NIL(ipad);
@@ -121,20 +123,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_TYPE_EMAIL, UIKeyboardTypeEmailAddress);
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_WEBSEARCH, UIKeyboardTypeWebSearch);
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_TWITTER, UIKeyboardTypeTwitter);
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_DEFAULT, UIKeyboardTypeDefault, @"UI.KEYBOARD_DEFAULT", @"5.2.0", @"UI.KEYBOARD_TYPE_DEFAULT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_URL, UIKeyboardTypeURL, @"UI.KEYBOARD_URL", @"5.2.0", @"UI.KEYBOARD_TYPE_URL");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_ASCII, UIKeyboardTypeASCIICapable, @"UI.KEYBOARD_ASCII", @"5.2.0", @"UI.KEYBOARD_TYPE_ASCII");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_NUMBERS_PUNCTUATION, UIKeyboardTypeNumbersAndPunctuation, @"UI.KEYBOARD_NUMBERS_PUNCTUATION", @"5.2.0", @"UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_NUMBER_PAD, UIKeyboardTypeNumberPad, @"UI.KEYBOARD_NUMBER_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_NUMBER_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_DECIMAL_PAD, UIKeyboardTypeDecimalPad, @"UI.KEYBOARD_DECIMAL_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_DECIMAL_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_PHONE_PAD, UIKeyboardTypePhonePad, @"UI.KEYBOARD_PHONE_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_PHONE_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_NAMEPHONE_PAD, UIKeyboardTypeNamePhonePad, @"UI.KEYBOARD_NAMEPHONE_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_NAMEPHONE_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_EMAIL, UIKeyboardTypeEmailAddress, @"UI.KEYBOARD_EMAIL", @"5.2.0", @"UI.KEYBOARD_TYPE_EMAIL");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_WEBSEARCH, UIKeyboardTypeWebSearch, @"UI.KEYBOARD_WEBSEARCH", @"5.2.0", @"UI.KEYBOARD_TYPE_WEBSEARCH");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_TWITTER, UIKeyboardTypeTwitter, @"UI.KEYBOARD_TWITTER", @"5.2.0", @"UI.KEYBOARD_TYPE_TWITTER");
-
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DEFAULT, UIKeyboardAppearanceDefault);
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(KEYBOARD_APPEARANCE_ALERT, UIKeyboardAppearanceAlert, @"UI.KEYBOARD_APPEARANCE_ALERT", @"5.4.0", @"7.0.0");
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DARK, UIKeyboardAppearanceDark);
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_LIGHT, UIKeyboardAppearanceLight);
 
@@ -246,16 +235,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #pragma mark Factory methods
 
-- (id)create2DMatrix:(id)args
-{
-  if (args == nil || [args count] == 0) {
-    return [[[Ti2DMatrix alloc] init] autorelease];
-  }
-  ENSURE_SINGLE_ARG(args, NSDictionary);
-  Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
-  return [matrix autorelease];
-}
-
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args
 {
@@ -276,6 +255,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 - (id)createToolbar:(id)args
 {
   return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.Toolbar"] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UITABBEDBAR
+- (id)createTabbedBar:(id)args
+{
+  return [[[TiUITabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -389,7 +375,23 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 #endif
 
-- (Ti3DMatrix *)create3DMatrix:(id)args
+- (id)createMatrix2D:(id)args
+{
+  if (args == nil || [args count] == 0) {
+    return [[[Ti2DMatrix alloc] init] autorelease];
+  }
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
+  return [matrix autorelease];
+}
+
+- (id)create2DMatrix:(id)args
+{
+  DEPRECATED_REPLACED(@"UI.2DMatrix", @"8.0.0", @"UI.Matrix2D");
+  return [self createMatrix2D:args];
+}
+
+- (id)createMatrix3D:(id)args
 {
   if (args == nil || [args count] == 0) {
     return [[[Ti3DMatrix alloc] init] autorelease];
@@ -397,6 +399,12 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   ENSURE_SINGLE_ARG(args, NSDictionary);
   Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
   return [matrix autorelease];
+}
+
+- (id)create3DMatrix:(id)args
+{
+  DEPRECATED_REPLACED(@"UI.3DMatrix", @"8.0.0", @"UI.Matrix3D");
+  return [self createMatrix3D:args];
 }
 
 #ifdef USE_TI_UICLIPBOARD
@@ -414,9 +422,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
-#ifdef USE_TI_UIIPHONE
-  RELEASE_TO_NIL(iphone);
-#endif
 #ifdef USE_TI_UIIPAD
   RELEASE_TO_NIL(ipad);
 #endif
@@ -462,10 +467,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   ENSURE_ARG_COUNT(args, 2);
 
-  NSString *convertFromValue = nil;
+  id convertFromValue = [args objectAtIndex:0];
+  if (![convertFromValue isKindOfClass:[NSNumber class]] && ![convertFromValue isKindOfClass:[NSString class]]) {
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected fromValue to be String or Number, was: %@", OBJTYPE2JS(convertFromValue)] location:CODELOCATION];
+  }
   NSString *convertToUnits = nil;
-
-  ENSURE_ARG_AT_INDEX(convertFromValue, args, 0, NSString);
   ENSURE_ARG_AT_INDEX(convertToUnits, args, 1, NSString);
 
   float result = 0.0;
