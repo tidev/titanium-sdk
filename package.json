@@ -5,7 +5,7 @@
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
-    "windows": "6"
+    "windows": "7"
   },
   "keywords": [
     "appcelerator",

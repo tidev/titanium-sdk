@@ -45,6 +45,10 @@ const util = {
 			return [ 'Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError' ].includes(value.constructor.name);
 
 		},
+		isPromise: value => {
+			const valueType = typeof value;
+			return (valueType === 'object' || valueType === 'function') && value.then && typeof value.then === 'function';
+		},
 		isSet: value => value instanceof Set,
 		isMap: value => value instanceof Map,
 		isDate: value => value instanceof Date,

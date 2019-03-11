@@ -16,7 +16,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
-import ti.modules.titanium.ui.widget.tabgroup.TiUITab;
+
 import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -172,6 +172,13 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
+	@Override
+	public void release()
+	{
+		setTabGroup(null);
+		super.release();
+	}
+
 	void onFocusChanged(boolean focused, KrollDict eventData)
 	{
 		// Windows are lazily opened when the tab is first focused.
@@ -216,8 +223,6 @@ public class TabProxy extends TiViewProxy
 				TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
 			}
 		}
-
-		((TiUITab) view).onSelectionChange(selected);
 	}
 
 	@Override
