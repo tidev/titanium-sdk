@@ -182,7 +182,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			newTab.setIcon(drawable);
 		}
 		// Add the new tab to the TabLayout.
-		this.mTabLayout.addTab(newTab);
+		this.mTabLayout.addTab(newTab, false);
 
 		// Set the drawables for the most recently added Tab.
 		setDrawablesForTab(this.mTabLayout.getTabCount() - 1);
