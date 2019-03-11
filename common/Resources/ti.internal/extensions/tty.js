@@ -1,5 +1,3 @@
-'use strict';
-
 const tty = {
 	isatty: () => false,
 	ReadStream: () => {
@@ -10,4 +8,4 @@ const tty = {
 	}
 };
 
-module.exports = tty;
+export default tty;
