@@ -15,6 +15,8 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+
 import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -219,6 +221,17 @@ public class TabProxy extends TiViewProxy
 			Activity currentActivity = TiApplication.getAppCurrentActivity();
 			if (currentActivity != null) {
 				TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
+			}
+		}
+	}
+
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		super.onPropertyChanged(name, value);
+		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
+			if (tabGroupProxy != null) {
+				((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).setDrawables();
 			}
 		}
 	}

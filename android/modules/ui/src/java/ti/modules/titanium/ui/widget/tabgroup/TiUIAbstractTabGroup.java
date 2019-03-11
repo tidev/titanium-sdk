@@ -82,9 +82,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	/**
 	 * Changes the controller's background color.
 	 *
-	 * @param drawable the new background drawable.
+	 * @param colorInt the new background color.
 	 */
-	public abstract void setBackgroundDrawable(Drawable drawable);
+	public abstract void setBackgroundColor(int colorInt);
+
+	/**
+	 * Changes the tabs background drawables to the proper color states.
+	 */
+	public abstract void setDrawables();
 
 	// region protected fields
 	protected static final String TAG = "TiUITabLayoutTabGroup";
@@ -347,6 +352,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
 		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			setBackgroundColor(TiColorHelper.parseColor(d.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
+		} else {
+			setBackgroundColor(this.colorPrimaryInt);
+		}
 		super.processProperties(d);
 	}
 
@@ -357,6 +367,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			this.swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			setDrawables();
+			setBackgroundColor(TiColorHelper.parseColor(newValue.toString()));
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+			setDrawables();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
