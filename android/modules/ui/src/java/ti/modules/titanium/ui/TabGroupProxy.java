@@ -41,6 +41,7 @@ import android.support.v7.app.AppCompatActivity;
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TABS_BACKGROUND_COLOR,
+		TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR,
 		TiC.PROPERTY_SWIPEABLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
