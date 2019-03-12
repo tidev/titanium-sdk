@@ -133,7 +133,7 @@ public class DatabaseModule extends KrollModule
 
 		// Copy the source database file to the destination directory. (ie: Do the install.)
 		try (InputStream inputStream = new BufferedInputStream(srcDb.getInputStream());
-				OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dbPath))) {
+			 OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dbPath))) {
 
 			byte[] byteBuffer = new byte[8096];
 			int byteCount = 0;
