@@ -53,101 +53,98 @@ public class DatabaseModule extends KrollModule
 	@Kroll.method
 	public TiDatabaseProxy open(Object file)
 	{
-		TiDatabaseProxy dbp = null;
-
-		try {
-			if (file instanceof TiFileProxy) {
-				TiFileProxy tiFile = (TiFileProxy) file;
-				String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
-				Log.d(TAG, "Opening database from filesystem: " + absolutePath);
-
-				SQLiteDatabase db = SQLiteDatabase.openDatabase(
-					absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-				dbp = new TiDatabaseProxy(db);
-			} else {
-				String name = TiConvert.toString(file);
-				SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
-				dbp = new TiDatabaseProxy(name, db);
-			}
-
-			Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
-
-		} catch (SQLException e) {
-			String msg = "Error opening database: " + dbp.getName() + " msg=" + e.getMessage();
-			Log.e(TAG, msg, e);
-			throw e;
+		// Validate argument.
+		if (file == null) {
+			throw new IllegalArgumentException("Ti.Database.open() was given a null argument.");
 		}
 
+		// Attempt to create/open the given database file/name.
+		TiDatabaseProxy dbp = null;
+		if (file instanceof TiFileProxy) {
+			TiFileProxy tiFile = (TiFileProxy) file;
+			String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
+			Log.d(TAG, "Opening database from filesystem: " + absolutePath);
+
+			SQLiteDatabase db = SQLiteDatabase.openDatabase(
+				absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+			if (db != null) {
+				dbp = new TiDatabaseProxy(db);
+			} else {
+				String badPath = (absolutePath != null) ? absolutePath : "(null)";
+				badPath = "'" + badPath + "'";
+				throw new RuntimeException("SQLiteDatabase.openDatabase() returned null for path: " + badPath);
+			}
+		} else {
+			String name = TiConvert.toString(file);
+			SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
+			if (db != null) {
+				dbp = new TiDatabaseProxy(name, db);
+			} else {
+				String badName = (name != null) ? name : "(null)";
+				badName = "'" + badName + "'";
+				throw new RuntimeException("SQLiteDatabase.openOrCreateDatabase() returned null for name: " + badName);
+			}
+		}
+		Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
 		return dbp;
 	}
 
 	@Kroll.method
 	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name) throws IOException
 	{
-		try {
-			Context ctx = TiApplication.getInstance();
-			for (String dbname : ctx.databaseList()) {
-				if (dbname.equals(name)) {
-					return open(name);
-				}
+		// Do not continue if the database has already been installed.
+		// Open a connection to it and stop here.
+		Context ctx = TiApplication.getInstance();
+		for (String dbname : ctx.databaseList()) {
+			if (dbname.equals(name)) {
+				return open(name);
 			}
-			// open an empty one to get the full path and then close and delete it
-			if (name.startsWith("appdata://")) {
-				String path = name.substring(10);
-				if (path != null && path.length() > 0 && path.charAt(0) == '/') {
-					path = path.substring(1);
-				}
-				File f = new File(TiFileFactory.getDataDirectory(false), path);
-				name = f.getAbsolutePath();
-			}
-
-			File dbPath = ctx.getDatabasePath(name);
-
-			Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
-			Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
-
-			TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
-			String path = TiUrl.resolve(tiUrl.baseUrl, url, null);
-
-			TiBaseFile srcDb = TiFileFactory.createTitaniumFile(path, false);
-
-			Log.d(TAG, "new url is = " + url, Log.DEBUG_MODE);
-
-			if (srcDb.isFile()) {
-				InputStream is = null;
-				OutputStream os = null;
-
-				byte[] buf = new byte[8096];
-				int count = 0;
-				try {
-					is = new BufferedInputStream(srcDb.getInputStream());
-					os = new BufferedOutputStream(new FileOutputStream(dbPath));
-
-					while ((count = is.read(buf)) != -1) {
-						os.write(buf, 0, count);
-					}
-				} finally {
-					try {
-						is.close();
-					} catch (Exception ig) {
-					}
-					try {
-						os.close();
-					} catch (Exception ig) {
-					}
-				}
-			}
-			return open(name);
-
-		} catch (SQLException e) {
-			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
-			Log.e(TAG, msg, e);
-			throw e;
-		} catch (IOException e) {
-			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
-			Log.e(TAG, msg, e);
-			throw e;
 		}
+
+		// Fetch a path to the source database file. This is the file to be copied/installed.
+		// Throw an exception if the source database was not found.
+		Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
+		TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
+		String sourcePath = TiUrl.resolve(tiUrl.baseUrl, url, null);
+		TiBaseFile srcDb = TiFileFactory.createTitaniumFile(sourcePath, false);
+		if (srcDb.isFile() == false) {
+			if (url == null) {
+				url = "(null)";
+			}
+			throw new java.io.FileNotFoundException("Failed to find source database file: '" + url + "'");
+		}
+
+		// open an empty one to get the full path and then close and delete it
+		if (name.startsWith("appdata://")) {
+			String path = name.substring(10);
+			if (path != null && path.length() > 0 && path.charAt(0) == '/') {
+				path = path.substring(1);
+			}
+			File f = new File(TiFileFactory.getDataDirectory(false), path);
+			name = f.getAbsolutePath();
+		}
+
+		// Set up the destination path that the source database file will be copied to.
+		File dbPath = ctx.getDatabasePath(name);
+		Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
+
+		// Create the destination directory tree if it doesn't exist.
+		dbPath.getParentFile().mkdirs();
+
+		// Copy the source database file to the destination directory. (ie: Do the install.)
+		try (InputStream inputStream = new BufferedInputStream(srcDb.getInputStream());
+				OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dbPath))) {
+
+			byte[] byteBuffer = new byte[8096];
+			int byteCount = 0;
+			while ((byteCount = inputStream.read(byteBuffer)) > 0) {
+				outputStream.write(byteBuffer, 0, byteCount);
+			}
+			outputStream.flush();
+		}
+
+		// Open a connection to the installed database.
+		return open(name);
 	}
 
 	@Override
