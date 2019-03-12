@@ -16,6 +16,7 @@ const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
 const downloadURL = utils.downloadURL;
+const copyPackageAndDependencies = utils.copyPackageAndDependencies;
 const ROOT_DIR = path.join(__dirname, '..');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
@@ -325,57 +326,6 @@ Packager.prototype.transpile = async function () {
 	console.log('Removing temporary common SDK JS bundle directory');
 	await fs.remove(tmpBundleDir);
 };
-
-/**
- * Given an npm module id, this will copy it and it's dependencies to a
- * destination "node_modules" folder.
- * Note that all of the packages are copied to the top-level of "node_modules",
- * not nested!
- * Also, to shortcut the logic, if the original package has been copied to the
- * destination we will *not* attempt to read it's dependencies and ensure those
- * are copied as well! So if the modules version changes or something goes
- * haywire and the copies aren't full finished due to a failure, the only way to
- * get right is to clean the destination "node_modules" dir before rebuilding.
- *
- * @param  {String} moduleId           The npm package/module to copy (along with it's dependencies)
- * @param  {String} destNodeModulesDir path to the destination "node_modules" folder
- * @param  {Array}  [paths=[]]         Array of additional paths to pass to require.resolve() (in addition to those from require.resolve.paths(moduleId))
- */
-function copyPackageAndDependencies(moduleId, destNodeModulesDir, paths = []) {
-	const destPackage = path.join(destNodeModulesDir, moduleId);
-	if (fs.existsSync(path.join(destPackage, 'package.json'))) {
-		return; // if the module seems to exist in the destination, just skip it.
-	}
-
-	// copy the dependency's folder over
-	let pkgJSONPath;
-	if (require.resolve.paths) {
-		const thePaths = require.resolve.paths(moduleId);
-		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'), { paths: thePaths.concat(paths) });
-	} else {
-		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'));
-	}
-	const srcPackage = path.dirname(pkgJSONPath);
-	const srcPackageNodeModulesDir = path.join(srcPackage, 'node_modules');
-	for (let i = 0; i < 3; i++) {
-		fs.copySync(srcPackage, destPackage, {
-			preserveTimestamps: true,
-			filter: src => !src.startsWith(srcPackageNodeModulesDir)
-		});
-
-		// Quickly verify package copied, I've experienced occurences where it does not.
-		// Retry up to three times if it did not copy correctly.
-		if (fs.existsSync(path.join(destPackage, 'package.json'))) {
-			break;
-		}
-	}
-
-	// Now read it's dependencies and recurse on them
-	const packageJSON = fs.readJSONSync(pkgJSONPath);
-	for (const dependency in packageJSON.dependencies) {
-		copyPackageAndDependencies(dependency, destNodeModulesDir, [ srcPackageNodeModulesDir ]);
-	}
-}
 
 /**
  * [package description]
