@@ -65,6 +65,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
 	private WeakReference<AppCompatActivity> tabGroupActivity;
 	private TabProxy selectedTab;
+	private String tabGroupTitle = null;
 	private boolean isFocused;
 
 	public TabGroupProxy()
@@ -348,6 +349,30 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.getProperty
+	public String getTitle()
+	{
+		// If the native view is drawn get the title value from the SupportActionBar
+		if (view != null) {
+			return ((AppCompatActivity) getActivity()).getSupportActionBar().getTitle().toString();
+		} else {
+			// If the native view is not drawn return tha latest String saved as a title
+			return tabGroupTitle;
+		}
+	}
+
+	@Kroll.setProperty
+	public void setTitle(String title)
+	{
+		// If the native view is drawn directly set the String as a title for the SupportActionBar.
+		if (view != null) {
+			((TiUIAbstractTabGroup) view).updateTitle(title);
+		} else {
+			// If the native view is not yet drawn save the value to be passed during creation.
+			this.tabGroupTitle = title;
+		}
+	}
+
 	private TabProxy handleGetActiveTab()
 	{
 		//selectedTab may not be set when user queries activeTab, so we return
@@ -411,7 +436,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		} else {
 			view = new TiUIBottomNavigationTabGroup(this, activity);
 		}
-
+		// If we have set a title before the creation of the native view, set it now.
+		if (this.tabGroupTitle != null) {
+			((TiUIAbstractTabGroup) view).updateTitle(this.tabGroupTitle);
+		}
 		setModelListener(view);
 
 		handlePostOpen();
