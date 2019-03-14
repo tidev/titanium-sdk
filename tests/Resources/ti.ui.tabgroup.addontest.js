@@ -194,4 +194,20 @@ describe('Titanium.UI.TabGroup', () => {
 		tabGroup.open();
 	});
 
+	it('title after drawing the TabGroup', () => {
+		var winA = Ti.UI.createWindow(),
+			winB = Ti.UI.createWindow(),
+			tabA = Ti.UI.createTab({ title: 'titleA', window: winA }),
+			tabB = Ti.UI.createTab({ title: 'titleB', window: winB }),
+			tabGroup = Ti.UI.createTabGroup({ tabs: [ tabA, tabB ] });
+		tabGroup.addEventListener('open', () => {
+			tabGroup.title = 'newTitle';
+			tabGroup.setActiveTab(tabB);
+		});
+		tabB.addEventListener('selected', () => {
+			should(tabGroup.title).be.a.String;
+			should(tabGroup.title).eql('newTitle');
+		});
+	});
+
 });

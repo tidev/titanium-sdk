@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -111,6 +112,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	private AtomicLong fragmentIdGenerator = new AtomicLong();
 	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
 	private ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
+	private ActionBar actionBar;
 	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)
@@ -153,6 +155,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		this.tabGroupViewPager.setId(android.R.id.tabcontent);
 		this.tabGroupViewPager.setAdapter(this.tabGroupPagerAdapter);
+
+		// Get a reference to the actionBar
+		this.actionBar = activity.getSupportActionBar();
 
 		// Add the tab group's custom insets provider to the activity.
 		// This provides the tab bar as an inset so that it can be excluded from the activity's safe-area.
@@ -384,6 +389,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public TabProxy getSelectedTab()
 	{
 		return ((TabGroupProxy) getProxy()).getTabList().get(this.tabGroupViewPager.getCurrentItem());
+	}
+
+	public void updateTitle(String title)
+	{
+		this.actionBar.setTitle(title);
 	}
 
 	/**
