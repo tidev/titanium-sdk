@@ -912,10 +912,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
@@ -1518,9 +1518,18 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			const manifestHashes = [],
 				nativeHashes = [],
 				bindingsHashes = [],
-				jarHashes = {};
+				jarHashes = {},
+				blacklist = [ 'com.soasta.touchtest' ];
 
 			modules.found.forEach(function (module) {
+
+				// skip modules from blacklist
+				// TODO: remove SOASTA files from project in 8.1.0
+				if (blacklist.includes(module.id)) {
+					this.logger.warn(__('Skipping unsupported module "%s"', module.id.cyan));
+					return;
+				}
+
 				manifestHashes.push(this.hash(JSON.stringify(module.manifest)));
 
 				if (module.platform.indexOf('commonjs') !== -1) {
@@ -1749,11 +1758,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		},
 
 		'createBuildDirs',
+		'removeOldFiles',
 		'copyResources',
 		'generateRequireIndex',
 		'processTiSymbols',
 		'copyModuleResources',
-		'removeOldFiles',
 		'copyGradleTemplate',
 		'generateJavaFiles',
 		'generateAidl',
@@ -2414,9 +2423,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				// if this is a directory, recurse
 				if (isDir) {
-					setImmediate(function () {
-						recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
-					});
+					recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
 					return;
 				}
 
@@ -2669,18 +2676,19 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}, this);
 
 	appc.async.series(this, tasks, function () {
-		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
+		const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
 		// if an app icon hasn't been copied, copy the default one
-		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+		const srcIcon = path.join(templateDir, 'appicon.png');
+		const destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon)) {
-			copyFile.call(this, path.join(templateDir, 'appicon.png'), destIcon);
+			copyFile.call(this, srcIcon, destIcon);
 		}
 		delete this.lastBuildFiles[destIcon];
 
 		const destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
-			copyFile.call(this, destIcon, destIcon2);
+			copyFile.call(this, srcIcon, destIcon2);
 		}
 		delete this.lastBuildFiles[destIcon2];
 

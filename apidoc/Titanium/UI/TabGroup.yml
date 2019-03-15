@@ -281,7 +281,7 @@ methods:
 properties:
   - name: activeTab
     summary: Active tab.
-    type: Titanium.UI.Tab
+    type: [Number, Titanium.UI.Tab]
 
   - name: activity
     summary: |
