@@ -769,11 +769,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
 		}
 
-		if (activityProxy != null) {
-			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
-			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
-		}
-
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
@@ -796,6 +791,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		if (window != null) {
 			window.onWindowActivityCreated();
+		}
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
+			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -1288,24 +1287,23 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// TODO stub
 	}
 
-	private void dispatchCallback(final String name, KrollDict data)
+	private void dispatchCallback(String propertyName, KrollDict data)
 	{
-		if (data == null) {
-			data = new KrollDict();
+		// Do not continue if activity proxy has been released.
+		if (this.activityProxy == null) {
+			return;
 		}
-		data.put("source", activityProxy);
 
-		final KrollDict d = data;
-		if (TiApplication.isUIThread()) {
-			activityProxy.callPropertyAsync(name, new Object[] { d });
-		} else {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run()
-				{
-					activityProxy.callPropertySync(name, new Object[] { d });
-				}
-			});
+		// Invoke callback assigned to given property name.
+		// Note: This must be done synchronously. Especially for "onDestroy" when exiting the app.
+		try {
+			if (data == null) {
+				data = new KrollDict();
+			}
+			data.put(TiC.EVENT_PROPERTY_SOURCE, this.activityProxy);
+			this.activityProxy.callPropertySync(propertyName, new Object[] { data });
+		} catch (Throwable ex) {
+			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, ex);
 		}
 	}
 
@@ -1352,9 +1350,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onPause()
 	{
 		inForeground = false;
-		if (activityProxy != null) {
-			dispatchCallback(TiC.PROPERTY_ON_PAUSE, null);
-		}
+		dispatchCallback(TiC.PROPERTY_ON_PAUSE, null);
 		super.onPause();
 		isResumed = false;
 
@@ -1406,9 +1402,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onResume()
 	{
 		inForeground = true;
-		if (activityProxy != null) {
-			dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
-		}
+		dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -1457,9 +1451,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onStart()
 	{
 		inForeground = true;
-		if (activityProxy != null) {
-			dispatchCallback(TiC.PROPERTY_ON_START, null);
-		}
+		dispatchCallback(TiC.PROPERTY_ON_START, null);
 		super.onStart();
 		if (isFinishing()) {
 			return;
@@ -1508,9 +1500,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onStop()
 	{
 		inForeground = false;
-		if (activityProxy != null) {
-			dispatchCallback(TiC.PROPERTY_ON_STOP, null);
-		}
+		dispatchCallback(TiC.PROPERTY_ON_STOP, null);
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1529,6 +1519,34 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
+		}
+	}
+
+	@Override
+	/**
+	 * Called when the activity was moved from the background to the foreground.
+	 * Will be called after onStop() and before onStart().
+	 */
+	protected void onRestart()
+	{
+		inForeground = true;
+		dispatchCallback(TiC.PROPERTY_ON_RESTART, null);
+		super.onRestart();
+
+		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
+
+		if (activityProxy != null) {
+			// we only want to set the current activity for good in the resume state but we need it right now.
+			// save off the existing current activity, set ourselves to be the new current activity temporarily
+			// so we don't run into problems when we give the proxy the event
+			TiApplication tiApp = getTiApp();
+			Activity tempCurrentActivity = tiApp.getCurrentActivity();
+			tiApp.setCurrentActivity(this, this);
+
+			activityProxy.fireEvent(TiC.EVENT_RESTART, null);
+
+			// set the current activity back to what it was originally
+			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
 	}
 
@@ -1568,9 +1586,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onDestroy()
 	{
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
-		if (activityProxy != null) {
-			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
-		}
+		dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
 
 		// Flag that this activity is no longer in the foreground.
 		this.inForeground = false;
