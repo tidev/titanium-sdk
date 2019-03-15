@@ -2678,9 +2678,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	appc.async.series(this, tasks, function () {
 		const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
-		// if an app icon hasn't been copied, copy the default one
 		const srcIcon = path.join(templateDir, 'appicon.png');
 		const destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+
+		// if an app icon hasn't been copied, copy the default one
 		if (!fs.existsSync(destIcon)) {
 			copyFile.call(this, srcIcon, destIcon);
 		}
@@ -2688,7 +2689,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		const destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
-			copyFile.call(this, srcIcon, destIcon2);
+			// Note, we are explicitly copying destIcon here as we want to ensure that we're
+			// copying the user specified icon, srcIcon is the default Titanium icon
+			copyFile.call(this, destIcon, destIcon2);
 		}
 		delete this.lastBuildFiles[destIcon2];
 
