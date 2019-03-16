@@ -20,9 +20,9 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 	private static final String TAG = "TiApplicationLifecycle";
 
 	private TiApplication tiApp = TiApplication.getInstance();
-	private static int existingActivityCount;
-	private static int visibleActivityCount;
-	private static boolean wasPaused;
+	private int existingActivityCount;
+	private int visibleActivityCount;
+	private boolean wasPaused;
 
 	@Override
 	public void onActivityCreated(Activity activity, Bundle savedInstanceState)
