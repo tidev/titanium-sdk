@@ -40,7 +40,10 @@ module.exports = env => {
 			symlinks: false
 		},
 		node: {
-			fs: 'empty'
+			fs: 'empty',
+			global: false,
+			process: false,
+			setImmediate: false
 		},
 		module: {
 			rules: [
@@ -64,15 +67,14 @@ module.exports = env => {
 					allowExternal: true
 				}
 			),
-			new webpack.optimize.CommonsChunkPlugin({
-				name: 'vendor'
+			new webpack.DefinePlugin({
+				'process.env.TARGET_PLATFORM': JSON.stringify(env.platform)
 			}),
 			new CopyWebpackPlugin([
 				{ context: 'assets', from: '**/*' },
 				{ from: 'platform/**/*', to: '..' }
 			]),
 			new GenerateAppJsPlugin([
-				'vendor',
 				'bundle'
 			]),
 			new TitaniumAngularCompilerPlugin({
