@@ -1,5 +1,3 @@
-'use strict';
-
 const MONTHS = [
 	'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
@@ -533,7 +531,7 @@ util.callbackify = function (original) {
  * @param {string} code deprecation code to use to group warnings
  * @returns {Function} wrapped function
  */
-util.deprecate = function (func, string, code) {
+util.deprecate = function (func, string, code) { // eslint-disable-line no-unused-vars
 	if (process.noDeprecation) {
 		return func; // skip the wrapping!
 	}
@@ -555,4 +553,4 @@ util.debuglog = () => {
 	return noop;
 };
 
-module.exports = util;
+export default util;

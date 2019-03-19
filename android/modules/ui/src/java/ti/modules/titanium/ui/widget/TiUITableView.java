@@ -275,11 +275,11 @@ public class TiUITableView
 	@Override
 	public void release()
 	{
-		// Release search bar if there is one
+		// Release search bar views if there is one
 		if (nativeView instanceof RelativeLayout) {
 			((RelativeLayout) nativeView).removeAllViews();
 			TiViewProxy searchView = (TiViewProxy) (proxy.getProperty(TiC.PROPERTY_SEARCH));
-			searchView.release();
+			searchView.releaseViews();
 		}
 
 		// If a refresh control is currently assigned, then detach it.
