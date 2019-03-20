@@ -5818,7 +5818,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					this.logger.info(__('Processing JavaScript files'));
 					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 
-					async.eachSeries(Object.keys(jsFiles), function (file, next) {
+					async.each(Object.keys(jsFiles), function (file, next) {
 						setImmediate(function () {
 							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
 							// Add it as a require() compatible string to bootstrap array if it's a match.
@@ -5884,7 +5884,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 											// dest doesn't exist, or new contents differs from existing dest file
 											if (!exists || newContents !== fs.readFileSync(to).toString()) {
 												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-												exists && fs.unlinkSync(to);
+												// no need to delete if it exists, writeFile will overwrite anyways
 												fs.writeFileSync(to, newContents);
 												this.jsFilesChanged = true;
 											} else {
