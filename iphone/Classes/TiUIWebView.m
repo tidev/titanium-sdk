@@ -622,6 +622,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   NSString *validDomain = request.URL.host;
 
+  if (validDomain.length <= 0) {
+    return;
+  }
   if (!_tiCookieHandlerAdded) {
     _tiCookieHandlerAdded = YES;
     WKUserContentController *controller = [[[self webView] configuration] userContentController];
