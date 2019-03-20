@@ -5,8 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
 // Add a toJSON() method to all Error objects needed to output non-enumerable properties.
 // The JSON.stringify() will automatically call this method if it exists to provide custom output.
 // Notes:

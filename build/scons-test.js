@@ -61,8 +61,16 @@ function runTests(platforms, branch, next) {
 			exec('git clone --depth 1 https://github.com/appcelerator/titanium-mobile-mocha-suite.git -b ' + branch, { cwd: path.join(__dirname, '..') }, cb);
 		},
 		function (cb) {
-			// Make sure it's dependencies are installed
-			exec('npm install .', { cwd: MOCHA_TESTS_DIR }, cb);
+			// install dependencies of suite scripts
+			exec('npm ci', { cwd: MOCHA_TESTS_DIR }, cb);
+		},
+		function (cb) {
+			// if we have a package.json in our test overrides, run npm install there first
+			if (fs.pathExistsSync(path.join(LOCAL_TESTS, 'Resources/package.json'))) {
+				exec('npm install --production', { cwd: path.join(LOCAL_TESTS, 'Resources') }, cb);
+			} else {
+				cb();
+			}
 		},
 		function (cb) {
 			// Copy over the local overrides from tests folder
