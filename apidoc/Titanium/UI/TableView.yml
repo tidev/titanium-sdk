@@ -1350,6 +1350,19 @@ properties:
     platforms: [iphone, ipad]
     availability: creation
 
+  - name: showSearchBarInNavBar
+    summary: A Boolean indicating whether search bar will be in navigation bar.
+    description: |
+          If you want to show the search bar in navigation bar, set this property `true` during creation. 
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
+          searchbar when scrolling.
+    type: Boolean
+    default: false
+    since: 8.1.0
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+    availability: creation
+    
   - name: searchAsChild
     summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.Android.SearchView) appears as part of the TableView.
     description: Set to false if the search view will be displayed in the action bar.

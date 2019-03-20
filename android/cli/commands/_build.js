@@ -912,10 +912,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
@@ -1518,9 +1518,18 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			const manifestHashes = [],
 				nativeHashes = [],
 				bindingsHashes = [],
-				jarHashes = {};
+				jarHashes = {},
+				blacklist = [ 'com.soasta.touchtest' ];
 
 			modules.found.forEach(function (module) {
+
+				// skip modules from blacklist
+				// TODO: remove SOASTA files from project in 8.1.0
+				if (blacklist.includes(module.id)) {
+					this.logger.warn(__('Skipping unsupported module "%s"', module.id.cyan));
+					return;
+				}
+
 				manifestHashes.push(this.hash(JSON.stringify(module.manifest)));
 
 				if (module.platform.indexOf('commonjs') !== -1) {
@@ -1749,11 +1758,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		},
 
 		'createBuildDirs',
+		'removeOldFiles',
 		'copyResources',
 		'generateRequireIndex',
 		'processTiSymbols',
 		'copyModuleResources',
-		'removeOldFiles',
 		'copyGradleTemplate',
 		'generateJavaFiles',
 		'generateAidl',
@@ -2414,9 +2423,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				// if this is a directory, recurse
 				if (isDir) {
-					setImmediate(function () {
-						recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
-					});
+					recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
 					return;
 				}
 
@@ -2669,17 +2676,21 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}, this);
 
 	appc.async.series(this, tasks, function () {
-		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
+		const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
+
+		const srcIcon = path.join(templateDir, 'appicon.png');
+		const destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
 
 		// if an app icon hasn't been copied, copy the default one
-		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon)) {
-			copyFile.call(this, path.join(templateDir, 'appicon.png'), destIcon);
+			copyFile.call(this, srcIcon, destIcon);
 		}
 		delete this.lastBuildFiles[destIcon];
 
 		const destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
+			// Note, we are explicitly copying destIcon here as we want to ensure that we're
+			// copying the user specified icon, srcIcon is the default Titanium icon
 			copyFile.call(this, destIcon, destIcon2);
 		}
 		delete this.lastBuildFiles[destIcon2];
@@ -2710,6 +2721,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
+		const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				const from = jsFiles[id];
@@ -2749,10 +2761,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							const source = r.contents;
 							// Analyze Ti API usage, possibly also minify/transpile
 							try {
+								// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
+								const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
+								const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
 								const modified = jsanalyze.analyzeJs(source, {
 									filename: from,
-									minify: this.minifyJS,
-									transpile: this.transpile,
+									minify,
+									transpile,
 									sourceMap: this.sourceMaps || this.deployType === 'development',
 									targets: {
 										chrome: this.chromeVersion
@@ -2796,37 +2811,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 			};
 		}), function () {
-			// jsanalyze will copy polyfils into buildBinAssetsResourcesDir and we need
-			// to unmark them here so they won't get removed on subsequent builds
-			if (this.transpile) {
-				/**
-				 * Recursively unmarks a module and it's dependencies from the last
-				 * build files list.
-				 *
-				 * @param {String} moduleId The module to remove from the list of files
-				 * @param {String} nodeModulesPath Path to the node_modules folder
-				 */
-				const unmarkPackageAndDependencies = (moduleId, nodeModulesPath) => {
-					let packageJsonPath;
-					if (require.resolve.paths) {
-						packageJsonPath = require.resolve(path.join(moduleId, 'package.json'), { paths: [ nodeModulesPath ] });
-					} else {
-						packageJsonPath = require.resolve(path.join(moduleId, 'package.json'));
-						packageJsonPath = path.join(nodeModulesPath, packageJsonPath.substring(packageJsonPath.indexOf('node_modules') + 12));
-					}
-					const modulePath = path.dirname(packageJsonPath);
-					Object.keys(this.lastBuildFiles).forEach(p => {
-						if (p.startsWith(modulePath)) {
-							delete this.lastBuildFiles[p];
-						}
-					});
-					const packageJson = fs.readJSONSync(packageJsonPath);
-					for (const dependency in packageJson.dependencies) {
-						unmarkPackageAndDependencies(dependency, nodeModulesPath);
-					}
-				};
-				unmarkPackageAndDependencies('@babel/polyfill', path.join(this.buildBinAssetsResourcesDir, 'node_modules'));
-			}
 
 			// write the properties file
 			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,

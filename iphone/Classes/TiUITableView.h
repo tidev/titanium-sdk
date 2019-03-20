@@ -80,6 +80,7 @@
   UIEdgeInsets rowSeparatorInsets;
   CGPoint tableContentOffset;
   BOOL isSearched;
+  BOOL isSearchBarInNavigation;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
