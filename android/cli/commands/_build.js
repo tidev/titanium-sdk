@@ -912,10 +912,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
@@ -2678,9 +2678,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	appc.async.series(this, tasks, function () {
 		const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
-		// if an app icon hasn't been copied, copy the default one
 		const srcIcon = path.join(templateDir, 'appicon.png');
 		const destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+
+		// if an app icon hasn't been copied, copy the default one
 		if (!fs.existsSync(destIcon)) {
 			copyFile.call(this, srcIcon, destIcon);
 		}
@@ -2688,7 +2689,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		const destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
-			copyFile.call(this, srcIcon, destIcon2);
+			// Note, we are explicitly copying destIcon here as we want to ensure that we're
+			// copying the user specified icon, srcIcon is the default Titanium icon
+			copyFile.call(this, destIcon, destIcon2);
 		}
 		delete this.lastBuildFiles[destIcon2];
 
