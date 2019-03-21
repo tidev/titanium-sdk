@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -36,11 +36,12 @@ import android.os.Build;
 import android.os.Message;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.WindowManager;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TABS_BACKGROUND_COLOR,
+		TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR,
 		TiC.PROPERTY_SWIPEABLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
@@ -325,7 +326,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		if (opening || opened) {
 			if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
-				Activity activity = (tabGroupActivity != null) ? (Activity) (tabGroupActivity.get()) : null;
+				Activity activity = getWindowActivity();
 				if (activity != null) {
 					Intent intent = activity.getIntent();
 					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
@@ -445,14 +446,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		TabProxy activeTab = handleGetActiveTab();
 		if (activeTab != null) {
-			selectedTab = activeTab;
+			selectedTab = null;
 			// If tabHost's selected tab is same as the active tab, we need
 			// to invoke onTabSelected so focus/blur event fire appropriately
-			if (tg.getSelectedTab() == activeTab) {
-				onTabSelected(activeTab);
-			} else {
-				tg.selectTab(activeTab);
-			}
+			tg.selectTab(activeTab);
 		}
 
 		// Selected tab should have been focused by now.
@@ -472,7 +469,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		AppCompatActivity activity = tabGroupActivity.get();
+		AppCompatActivity activity = getWindowActivity();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
@@ -572,7 +569,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			synchronized (tabs)
 			{
 				for (TabProxy t : tabs) {
-					t.setTabGroup(null);
 					t.releaseViews();
 				}
 			}

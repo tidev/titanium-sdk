@@ -153,7 +153,7 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 		// Verify integrity!
 		ssri.checkStream(fs.createReadStream(file), integrity).then(() => {
 			callback(null, file);
-		}).catch((e) => {
+		}).catch(e => {
 			callback(e);
 		});
 	});
@@ -161,7 +161,7 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 
 function cachedDownloadPath(url) {
 	// Use some consistent name so we can cache files!
-	const cacheDir = path.join(tempDir, 'timob-build');
+	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || tempDir, 'timob-build');
 	fs.existsSync(cacheDir) || fs.mkdirsSync(cacheDir);
 
 	const filename = url.slice(url.lastIndexOf('/') + 1);
@@ -230,41 +230,126 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 };
 
 /**
- * @param  {String}   versionTag [description]
- * @param  {Function} next        [description]
+ * @returns {string} absolute path to SDK install root
  */
-Utils.installSDK = function (versionTag, next) {
-	let dest,
-		osName = os.platform();
+Utils.sdkInstallDir = function () {
+	switch (os.platform()) {
+		case 'win32':
+			return path.join(process.env.ProgramData, 'Titanium');
 
-	if (osName === 'win32') {
-		dest = path.join(process.env.ProgramData, 'Titanium');
+		case 'darwin':
+			return path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
+
+		case 'linux':
+		default:
+			return path.join(process.env.HOME, '.titanium');
 	}
+};
 
+/**
+ * @param  {String}   versionTag [description]
+ * @param  {boolean}   [symlinkIfPossible=false] [description]
+ * @returns {Promise<void>}
+ */
+Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
+	const dest = Utils.sdkInstallDir();
+
+	let osName = os.platform();
 	if (osName === 'darwin') {
 		osName = 'osx';
-		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
 	}
 
-	if (osName === 'linux') {
-		osName = 'linux';
-		dest = path.join(process.env.HOME, '.titanium');
+	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
+	try {
+		const destStats = fs.lstatSync(destDir);
+		if (destStats.isDirectory()) {
+			console.log('Destination exists, deleting %s...', destDir);
+			await fs.remove(destDir);
+		} else if (destStats.isSymbolicLink()) {
+			console.log('Destination exists as symlink, unlinking %s...', destDir);
+			fs.unlinkSync(destDir);
+		}
+	} catch (error) {
+		// Do nothing
 	}
 
 	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
-	if (fs.existsSync(zipDir)) {
-		console.log('Installing %s...', zipDir);
-		fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true })
-			.then(() => {
-				fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'), next);
-			})
-			.catch(err => next(err));
-	} else {
-		const zipfile = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}.zip`);
-		console.log('Installing %s...', zipfile);
+	const dirExists = await fs.pathExists(zipDir);
 
-		appc.zip.unzip(zipfile, dest, {}, next);
+	if (dirExists) {
+		console.log('Installing %s...', zipDir);
+		if (symlinkIfPossible) {
+			console.log('Symlinking built SDK to install!');
+			// FIXME: What about modules? Can we symlink those in?
+			return fs.ensureSymlink(path.join(zipDir, 'mobilesdk', osName, versionTag), destDir);
+		}
+		await fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true });
+		return fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'));
 	}
+
+	// try the zip
+	const zipfile = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}.zip`);
+	console.log('Installing %s...', zipfile);
+	return new Promise((resolve, reject) => {
+		appc.zip.unzip(zipfile, dest, {}, function (err) {
+			if (err) {
+				return reject(err);
+			}
+			return resolve();
+		});
+	});
 };
+
+/**
+* Given an npm module id, this will copy it and it's dependencies to a
+* destination "node_modules" folder.
+* Note that all of the packages are copied to the top-level of "node_modules",
+* not nested!
+* Also, to shortcut the logic, if the original package has been copied to the
+* destination we will *not* attempt to read it's dependencies and ensure those
+* are copied as well! So if the modules version changes or something goes
+* haywire and the copies aren't full finished due to a failure, the only way to
+* get right is to clean the destination "node_modules" dir before rebuilding.
+*
+* @param  {String} moduleId           The npm package/module to copy (along with it's dependencies)
+* @param  {String} destNodeModulesDir path to the destination "node_modules" folder
+* @param  {Array}  [paths=[]]         Array of additional paths to pass to require.resolve() (in addition to those from require.resolve.paths(moduleId))
+*/
+function copyPackageAndDependencies(moduleId, destNodeModulesDir, paths = []) {
+	const destPackage = path.join(destNodeModulesDir, moduleId);
+	if (fs.existsSync(path.join(destPackage, 'package.json'))) {
+		return; // if the module seems to exist in the destination, just skip it.
+	}
+
+	// copy the dependency's folder over
+	let pkgJSONPath;
+	if (require.resolve.paths) {
+		const thePaths = require.resolve.paths(moduleId);
+		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'), { paths: thePaths.concat(paths) });
+	} else {
+		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'));
+	}
+	const srcPackage = path.dirname(pkgJSONPath);
+	const srcPackageNodeModulesDir = path.join(srcPackage, 'node_modules');
+	for (let i = 0; i < 3; i++) {
+		fs.copySync(srcPackage, destPackage, {
+			preserveTimestamps: true,
+			filter: src => !src.startsWith(srcPackageNodeModulesDir)
+		});
+
+		// Quickly verify package copied, I've experienced occurences where it does not.
+		// Retry up to three times if it did not copy correctly.
+		if (fs.existsSync(path.join(destPackage, 'package.json'))) {
+			break;
+		}
+	}
+
+	// Now read it's dependencies and recurse on them
+	const packageJSON = fs.readJSONSync(pkgJSONPath);
+	for (const dependency in packageJSON.dependencies) {
+		copyPackageAndDependencies(dependency, destNodeModulesDir, [ srcPackageNodeModulesDir ]);
+	}
+}
+Utils.copyPackageAndDependencies = copyPackageAndDependencies;
 
 module.exports = Utils;

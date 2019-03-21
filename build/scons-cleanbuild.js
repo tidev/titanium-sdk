@@ -102,13 +102,12 @@ async.series([
 					}
 					console.log('Packaging version (%s) complete', versionTag);
 
-					utils.installSDK(versionTag, function (err) {
-						if (err) {
+					utils.installSDK(versionTag) // eslint-disable-line promise/no-promise-in-callback
+						.then(() => process.exit(0))
+						.catch(err => {
 							console.error(err);
 							process.exit(1);
-						}
-						process.exit(0);
-					});
+						});
 				});
 			});
 		});

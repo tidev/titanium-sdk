@@ -25,7 +25,7 @@ const appc = require('node-appc'),
 	},
 
 	tagAttrs = {
-		application: /^(allowTaskReparenting|allowBackup|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
+		application: /^(allowTaskReparenting|allowBackup|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|roundIcon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
 		activity: /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|maxRecents|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/, // eslint-disable-line max-len
 		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
 		data: /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
@@ -482,11 +482,24 @@ function AndroidManifest(filename) {
 						}, this);
 						break;
 
+					case 'uses-feature':
+						this[tag] || (this[tag] = []);
+						src[tag].forEach(function (tagItem) {
+							// Check for already added features.
+							let duplicateItem = this[tag].find(function (nextItem) {
+								// Compare them directly or by name.
+								return (nextItem === tagItem) || (nextItem.name === tagItem.name);
+							});
+							if (!duplicateItem) {
+								this[tag].push(tagItem);
+							}
+						}, this);
+						break;
+
 					case 'instrumentation':
 					case 'permission':
 					case 'permission-group':
 					case 'permission-tree':
-					case 'uses-feature':
 					case 'uses-library':
 						this[tag] || (this[tag] = {});
 						Object.keys(src[tag]).forEach(function (name) {

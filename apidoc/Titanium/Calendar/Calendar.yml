@@ -1011,7 +1011,7 @@ examples:
 
             win.open();
 
-  - title: Create a Recurring Event with Alerts on iOS
+  - title: Create a Recurring Event with Alerts
     example: |
         Create a recurring event with alerts.
 
@@ -1065,9 +1065,11 @@ examples:
                             Ti.API.info(' ' + monthsOfTheYear[j]);
                         }
                         Ti.API.info('daysOfTheYear : ');
-                        var setPositions = eventRule[i].setPositions;
-                        for(var j=0;j<setPositions.length;j++) {
-                            Ti.API.info(' ' + setPositions[j]);
+                        if (osname !== 'android') {
+                            var setPositions = eventRule[i].setPositions;
+                            for(var j=0;j<setPositions.length;j++) {
+                                Ti.API.info(' ' + setPositions[j]);
+                            }
                         }
                     };
                     Ti.API.info('alerts : '+ eventFromCalendar.alerts);

@@ -34,6 +34,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
 import java.util.ArrayList;
@@ -81,9 +82,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	/**
 	 * Changes the controller's background color.
 	 *
-	 * @param drawable the new background drawable.
+	 * @param colorInt the new background color.
 	 */
-	public abstract void setBackgroundDrawable(Drawable drawable);
+	public abstract void setBackgroundColor(int colorInt);
+
+	/**
+	 * Changes the tabs background drawables to the proper color states.
+	 */
+	public abstract void setDrawables();
 
 	// region protected fields
 	protected static final String TAG = "TiUITabLayoutTabGroup";
@@ -97,6 +103,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected int colorPrimaryInt;
 	protected PagerAdapter tabGroupPagerAdapter;
 	protected ViewPager tabGroupViewPager;
+	protected TiInsetsProvider insetsProvider = new TiInsetsProvider();
 	// endregion
 
 	// region private fields
@@ -147,6 +154,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		this.tabGroupViewPager.setId(android.R.id.tabcontent);
 		this.tabGroupViewPager.setAdapter(this.tabGroupPagerAdapter);
 
+		// Add the tab group's custom insets provider to the activity.
+		// This provides the tab bar as an inset so that it can be excluded from the activity's safe-area.
+		activity.addCustomInsetsProvider(this.insetsProvider);
+
 		addViews(activity);
 	}
 
@@ -162,7 +173,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	/**
 	 * Method for handling of the setActiveTab. It is used to set the currently selected page
-	 * throw the code and not clicking/swiping.
+	 * through the code and not clicking/swiping.
 	 * @param tabProxy the TabProxy instance to be set as currently selected
 	 */
 	public void selectTab(TabProxy tabProxy)
@@ -170,7 +181,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		int index = ((TabGroupProxy) getProxy()).getTabList().indexOf(tabProxy);
 		// Guard for trying to set a tab, that is not part of the group, as active.
 		if (index != -1 && !tabsDisabled) {
-			this.tabGroupViewPager.setCurrentItem(index, this.smoothScrollOnTabClick);
+			selectTabItemInController(index);
+			selectTab(index);
 		}
 	}
 
@@ -340,6 +352,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
 		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			setBackgroundColor(TiColorHelper.parseColor(d.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
+		} else {
+			setBackgroundColor(this.colorPrimaryInt);
+		}
 		super.processProperties(d);
 	}
 
@@ -350,6 +367,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			this.swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			setDrawables();
+			setBackgroundColor(TiColorHelper.parseColor(newValue.toString()));
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+			setDrawables();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

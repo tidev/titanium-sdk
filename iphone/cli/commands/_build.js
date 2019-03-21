@@ -157,7 +157,11 @@ function iOSBuilder() {
 
 	// a list of relative paths to js files that need to be encrypted
 	// note: the filename will have all periods replaced with underscores
+	// FIXME: Use a Map from original names -> encrypted names
 	this.jsFilesToEncrypt = [];
+	// a list of relative paths to js files that have been encrypted
+	// note: this is the original filename used by our require _index_.json and referenced within the app
+	this.jsFilesEncrypted = [];
 
 	// set to true if any js files changed so that we can trigger encryption to run
 	this.jsFilesChanged = false;
@@ -1795,7 +1799,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		this.initTiappSettings();
 
 		// Transpilation details
-		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
 		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
@@ -2260,6 +2264,8 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		function (next) {
 			cli.emit('build.pre.build', this, next);
 		},
+
+		'generateRequireIndex', // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
 
 		// build baby, build
 		'invokeXcodeBuild',
@@ -5810,8 +5816,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			series(this, [
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
+					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 
-					async.eachSeries(Object.keys(jsFiles), function (file, next) {
+					async.each(Object.keys(jsFiles), function (file, next) {
 						setImmediate(function () {
 							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
 							// Add it as a require() compatible string to bootstrap array if it's a match.
@@ -5825,9 +5832,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								if (file.indexOf('/') === 0) {
 									file = path.basename(file);
 								}
+								this.jsFilesEncrypted.push(file); // original name
 								file = file.replace(/\./g, '_');
 								info.dest = path.join(this.buildAssetsDir, file);
-								this.jsFilesToEncrypt.push(file);
+								this.jsFilesToEncrypt.push(file); // encrypted name
 							}
 
 							try {
@@ -5847,10 +5855,13 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 										// Read the possibly modified file contents
 										const source = r.contents;
 										// Analyze Ti API usage, possibly also minify/transpile
+										// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
+										const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
+										const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
 										const analyzeOptions = {
 											filename: from,
-											minify: this.minifyJS,
-											transpile: this.transpile,
+											minify,
+											transpile,
 											sourceMap: this.sourceMaps || this.deployType === 'development',
 											resourcesDir: this.xcodeAppDir,
 											logger: this.logger,
@@ -5873,7 +5884,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 											// dest doesn't exist, or new contents differs from existing dest file
 											if (!exists || newContents !== fs.readFileSync(to).toString()) {
 												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-												exists && fs.unlinkSync(to);
+												// no need to delete if it exists, writeFile will overwrite anyways
 												fs.writeFileSync(to, newContents);
 												this.jsFilesChanged = true;
 											} else {
@@ -5904,11 +5915,15 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				function writeBootstrapJson() {
 					this.logger.info(__('Writing bootstrap json'));
 
-					const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : path.join('ti.internal', 'bootstrap.json'),
-						bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath),
-						bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
+					const originalBootstrapJsonName = path.join('ti.internal', 'bootstrap.json');
+					const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : originalBootstrapJsonName;
+					const bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath);
+					const bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
 
-					this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+					if (this.encryptJS) {
+						this.jsFilesEncrypted.push(originalBootstrapJsonName); // original name
+						this.jsFilesToEncrypt.push(bootstrapJsonRelativePath); // encrypted name
+					}
 
 					if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
 						this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
@@ -5929,14 +5944,17 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		function writeAppProps() {
 			this.logger.info(__('Writing app properties'));
 
-			const appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
-				props = {};
+			const appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json');
+			const props = {};
 
-			this.encryptJS && this.jsFilesToEncrypt.push('_app_props__json');
+			if (this.encryptJS) {
+				this.jsFilesEncrypted.push('_app_props_.json'); // original name
+				this.jsFilesToEncrypt.push('_app_props__json'); // encrypted name
+			}
 
-			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(function (prop) {
+			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(prop => {
 				props[prop] = this.tiapp.properties[prop].value;
-			}, this);
+			});
 
 			const contents = JSON.stringify(props);
 			if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile).toString()) {
@@ -6003,12 +6021,10 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 	}
 
 	const titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
-		let tries = 0,
-			completed = false;
+		let tries = 0;
+		let completed = false;
 
-		this.jsFilesToEncrypt.forEach(function (file) {
-			this.logger.debug(__('Preparing %s', file.cyan));
-		}, this);
+		this.jsFilesToEncrypt.forEach(file => this.logger.debug(__('Preparing %s', file.cyan)));
 
 		async.whilst(
 			function () {
@@ -6030,13 +6046,8 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 				child.stdin.write(this.jsFilesToEncrypt.join('\n'));
 				child.stdin.end();
 
-				child.stdout.on('data', function (data) {
-					out += data.toString();
-				});
-
-				child.stderr.on('data', function (data) {
-					err += data.toString();
-				});
+				child.stdout.on('data', data => out += data.toString());
+				child.stderr.on('data', data => err += data.toString());
 
 				child.on('close', function (code) {
 					if (code) {
@@ -6090,6 +6101,41 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		{},
 		next
 	);
+};
+
+iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
+	this.logger.info(__('Writing index.json with listing of JS/JSON files'));
+	const index = {};
+	const binAssetsDir = this.xcodeAppDir.replace(/\\/g, '/');
+
+	// Write _index_.json file with our JS/JSON file listing. This may also be encrypted
+	const destFilename = '_index_.json';
+	const destFile = path.join(this.xcodeAppDir, destFilename);
+
+	// Grab unencrypted JS/JSON files
+	(function walk(dir) {
+		fs.readdirSync(dir).forEach(filename => {
+			const file = path.join(dir, filename);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					walk(file);
+				} else if (/\.js(on)?$/.test(filename)) {
+					const modifiedFilename = file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/');
+					index[modifiedFilename] = 1; // 1 for exists on disk
+				}
+			}
+		});
+	}(this.xcodeAppDir));
+
+	// Grab encrypted JS/JSON files
+	this.jsFilesEncrypted.forEach(file => {
+		index['Resources/' + file.replace(/\\/g, '/')] = 2; // 2 for encrypted
+	});
+
+	delete index['Resources/_app_props_.json'];
+
+	fs.existsSync(destFile) && fs.unlinkSync(destFile);
+	fs.writeFile(destFile, JSON.stringify(index), callback);
 };
 
 iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
@@ -6352,7 +6398,24 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 				// ignore
 			}
 		}, this);
-		done();
+
+		// remove invalid architectures from TitaniumKit.framework for App Store distributions
+		if (this.target === 'dist-appstore') {
+			this.logger.info(__('Removing invalid architectures from TitaniumKit.framework'));
+
+			const titaniumKitPath = path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework', 'TitaniumKit');
+			async.eachSeries([ 'x86_64', 'i386' ], function (architecture, next) {
+				const args = [ '-remove', architecture, titaniumKitPath, '-o', titaniumKitPath ];
+				this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+				appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out) {
+					next();
+				});
+			}.bind(this), function () {
+				done();
+			});
+		} else {
+			done();
+		}
 	});
 
 	hook(function () {

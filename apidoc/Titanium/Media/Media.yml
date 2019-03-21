@@ -1974,7 +1974,7 @@ properties:
         Can be used to size and position the camera or photogallery view behind an overlay view.
         iOS 10 note: There was a [known iOS 10 issue](http://openradar.appspot.com/28232651) caused by Apple
         that breaks the native camera transformation. Apple fixed this issue in the iOS 10.2 release.
-    type: Titanium.UI.2DMatrix
+    type: Titanium.UI.Matrix2D
     default: identity matrix
     platforms: [iphone, ipad]
   - name: inPopOver

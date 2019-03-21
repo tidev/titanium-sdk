@@ -350,7 +350,8 @@ properties:
         Background color for the nav bar, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "8.0.1", iphone: "0.9", ipad: "0.9"}
     type: String
 
   - name: barImage
@@ -554,8 +555,23 @@ properties:
         title view when requested by the current navigation item. To specify when
         the large out-of-line title view appears, see <Titanium.UI.Window.largeTitleDisplayMode>.
     default: false
-    type: String
+    type: Boolean
     since: "6.3.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+
+  - name: hidesSearchBarWhenScrolling
+    summary: A Boolean value indicating whether the integrated search bar is hidden when scrolling any underlying content.
+    description: |
+        When the value of this property is true, the search bar is visible only when the scroll position 
+        equals the top of your content view. When the user scrolls down, the search bar collapses into 
+        the navigation bar. Scrolling back to the top reveals the search bar again. When the value of 
+        this property is false, the search bar remains regardless of the current scroll position. 
+        You must set <Titanium.UI.ListView.showSearchBarInNavBar> or <Titanium.UI.TableView.showSearchBarInNavBar> 
+        property for this property to have any effect.
+    default: true
+    type: Boolean
+    since: "8.1.0"
     platforms: [iphone, ipad]
     osver: {ios: {min: "11.0"}}
 
@@ -1535,16 +1551,16 @@ description: |
 
     `app/controllers/index.js`:
 
-        $.index.transform = Titanium.UI.create2DMatrix().scale(0);
+        $.index.transform = Titanium.UI.createMatrix2D().scale(0);
         $.index.open();
 
         var a = Ti.UI.createAnimation({
-            transform : Ti.UI.create2DMatrix().scale(1.1),
+            transform : Ti.UI.createMatrix2D().scale(1.1),
             duration : 2000,
         });
         a.addEventListener('complete', function() {
             $.index.animate({
-                transform: Ti.UI.create2DMatrix(),
+                transform: Ti.UI.createMatrix2D(),
                 duration: 200
             });
         });
@@ -1625,13 +1641,13 @@ description: |
             transitionTo: {
                 opacity: 1,
                 duration: 300,
-                transform: Ti.UI.create2DMatrix()
+                transform: Ti.UI.createMatrix2D()
             },
             // The hide transition makes the window transparent and rotates it upside down
             transitionFrom: {
                 opacity: 0,
                 duration: 300 / 2,
-                transform: Ti.UI.create2DMatrix().rotate(180),
+                transform: Ti.UI.createMatrix2D().rotate(180),
             }
         });
 
@@ -1657,17 +1673,17 @@ description: |
             transitionTo: {
                 opacity: 1,
                 duration: 300,
-                transform: Ti.UI.create2DMatrix()
+                transform: Ti.UI.createMatrix2D()
             },
             // The hide transition makes the window transparent and rotates it upside down
             transitionFrom: {
                 opacity: 0,
                 duration: 300 / 2,
-                transform: Ti.UI.create2DMatrix().rotate(180),
+                transform: Ti.UI.createMatrix2D().rotate(180),
             }
         });
 
-        $.bluewin.transform = Ti.UI.create2DMatrix().rotate(180);
+        $.bluewin.transform = Ti.UI.createMatrix2D().rotate(180);
 
     ### Android Platform Notes
 
