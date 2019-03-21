@@ -53,11 +53,6 @@ public class DatabaseModule extends KrollModule
 	@Kroll.method
 	public TiDatabaseProxy open(Object file)
 	{
-		// Validate argument.
-		if (file == null) {
-			throw new IllegalArgumentException("Ti.Database.open() was given a null argument.");
-		}
-
 		// Attempt to create/open the given database file/name.
 		TiDatabaseProxy dbp = null;
 		if (file instanceof TiFileProxy) {
@@ -70,21 +65,23 @@ public class DatabaseModule extends KrollModule
 			if (db != null) {
 				dbp = new TiDatabaseProxy(db);
 			} else {
-				String badPath = (absolutePath != null) ? absolutePath : "(null)";
-				badPath = "'" + badPath + "'";
-				throw new RuntimeException("SQLiteDatabase.openDatabase() returned null for path: " + badPath);
+				throw new RuntimeException("SQLiteDatabase.openDatabase() returned null for path: " + absolutePath);
 			}
-		} else {
-			String name = TiConvert.toString(file);
+		} else if (file instanceof String) {
+			String name = (String) file;
 			SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
 			if (db != null) {
 				dbp = new TiDatabaseProxy(name, db);
 			} else {
-				String badName = (name != null) ? name : "(null)";
-				badName = "'" + badName + "'";
-				throw new RuntimeException("SQLiteDatabase.openOrCreateDatabase() returned null for name: " + badName);
+				throw new RuntimeException("SQLiteDatabase.openOrCreateDatabase() returned null for name: " + name);
 			}
+		} else if (file != null) {
+			throw new IllegalArgumentException("Ti.Database.open() argument must be of type 'String' or 'File'.");
+		} else {
+			throw new IllegalArgumentException("Ti.Database.open() was given a null argument.");
 		}
+
+		// Return a proxy to the opened database.
 		Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
 		return dbp;
 	}
@@ -92,6 +89,14 @@ public class DatabaseModule extends KrollModule
 	@Kroll.method
 	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name) throws IOException
 	{
+		// Validate arguments.
+		if ((url == null) || url.isEmpty()) {
+			throw new IllegalArgumentException("Ti.Database.install() 1st argument must be a non-empty string.");
+		}
+		if ((name == null) || name.isEmpty()) {
+			throw new IllegalArgumentException("Ti.Database.install() 2nd argument must be a non-empty string.");
+		}
+
 		// Do not continue if the database has already been installed.
 		// Open a connection to it and stop here.
 		Context ctx = TiApplication.getInstance();
@@ -104,21 +109,26 @@ public class DatabaseModule extends KrollModule
 		// Fetch a path to the source database file. This is the file to be copied/installed.
 		// Throw an exception if the source database was not found.
 		Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
+		if (invocation == null) {
+			throw new RuntimeException("Ti.Database.install() was given a null 'KrollInvocation' object.");
+		}
 		TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
 		String sourcePath = TiUrl.resolve(tiUrl.baseUrl, url, null);
 		TiBaseFile srcDb = TiFileFactory.createTitaniumFile(sourcePath, false);
 		if (srcDb.isFile() == false) {
-			if (url == null) {
-				url = "(null)";
-			}
-			throw new java.io.FileNotFoundException("Failed to find source database file: '" + url + "'");
+			String message = "Ti.Database.install() failed to find 1st argument's source database file: " + url;
+			throw new java.io.FileNotFoundException(message);
 		}
 
 		// open an empty one to get the full path and then close and delete it
 		if (name.startsWith("appdata://")) {
 			String path = name.substring(10);
-			if (path != null && path.length() > 0 && path.charAt(0) == '/') {
+			if ((path != null) && (path.length() > 0) && (path.charAt(0) == '/')) {
 				path = path.substring(1);
+			}
+			if ((path == null) || path.isEmpty()) {
+				String message = "Ti.Database.install() 2nd argument was given invalid destination path: " + name;
+				throw new IllegalArgumentException(message);
 			}
 			File f = new File(TiFileFactory.getDataDirectory(false), path);
 			name = f.getAbsolutePath();
