@@ -1029,8 +1029,12 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundDisabledColor()
 	// clang-format on
 	{
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
 		// Try to get the background drawable if one is available.
-		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
 		// Guard for views without color state backgrounds.
 		if (backgroundDrawable == null) {
 			return null;
