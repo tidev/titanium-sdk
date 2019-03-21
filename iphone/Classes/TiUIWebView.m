@@ -1004,6 +1004,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
+  NSString *scheme = [navigationAction.request.URL.scheme lowercaseString];
+
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
@@ -1025,6 +1027,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
         decisionHandler(WKNavigationActionPolicyCancel);
       }
     }
+  } else if (!([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"] || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) && [[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
+    // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
+    DebugLog(@"[WARN] Please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
+    DebugLog(@"[WARN] It returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
+
+    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    decisionHandler(WKNavigationActionPolicyCancel);
   } else {
     decisionHandler(WKNavigationActionPolicyAllow);
   }
