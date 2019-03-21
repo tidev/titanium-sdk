@@ -112,7 +112,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	private AtomicLong fragmentIdGenerator = new AtomicLong();
 	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
 	private ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
-	private ActionBar actionBar;
 	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)
@@ -155,9 +154,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		this.tabGroupViewPager.setId(android.R.id.tabcontent);
 		this.tabGroupViewPager.setAdapter(this.tabGroupPagerAdapter);
-
-		// Get a reference to the actionBar
-		this.actionBar = activity.getSupportActionBar();
 
 		// Add the tab group's custom insets provider to the activity.
 		// This provides the tab bar as an inset so that it can be excluded from the activity's safe-area.
@@ -393,7 +389,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	public void updateTitle(String title)
 	{
-		this.actionBar.setTitle(title);
+		// Get a reference to the ActionBar
+		ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
+		// Guard for trying to update the ActionBar's title when a theme without one is used.
+		if (actionBar != null) {
+			actionBar.setTitle(title);
+		}
 	}
 
 	/**
