@@ -1,5 +1,3 @@
-'use strict';
-
 const isWin32 = (Ti.Platform.osname === 'windowsphone') || (Ti.Platform.osname === 'windowsstore');
 
 const FORWARD_SLASH = 47; // '/'
@@ -577,4 +575,4 @@ const path = isWin32 ? Win32Path : PosixPath;
 path.win32 = Win32Path;
 path.posix = PosixPath;
 
-module.exports = path;
+export default path;
