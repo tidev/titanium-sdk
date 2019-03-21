@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Message;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 // clang-format off
@@ -354,7 +355,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		// If the native view is drawn get the title value from the SupportActionBar
 		if (view != null) {
-			return ((AppCompatActivity) getActivity()).getSupportActionBar().getTitle().toString();
+			if (getActivity() != null) {
+				ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+				if (actionBar != null) {
+					return actionBar.getTitle().toString();
+				}
+			}
+			return null;
 		} else {
 			// If the native view is not drawn return tha latest String saved as a title
 			return tabGroupTitle;
