@@ -48,7 +48,7 @@ function TitaniumWrapper(context) {
 	this.global = context.global;
 
 	this.Android = new AndroidWrapper(context);
-	this.UI = new UIWrapper(context, this.Android);
+	this.UI = new UIWrapper(context);
 
 	var scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
