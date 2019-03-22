@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 
-const async = require('async'),
-	program = require('commander'),
-	ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
+const clean = require('./lib/clean');
+
+const program = require('commander');
+const ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
 
 program.parse(process.argv);
 
@@ -14,13 +15,9 @@ if (!platforms.length || (platforms.length === 1 && platforms[0] === 'full')) {
 }
 // TODO Replace 'ipad' or 'iphone' with 'ios'
 
-async.each(platforms, function (item, next) {
-	const Platform = require('./' + item); // eslint-disable-line security/detect-non-literal-require
-	new Platform(program).clean(next);
-}, function (err) {
-	if (err) {
+clean(platforms)
+	.then(() => process.exit(0))
+	.catch(err => {
 		console.error(err);
-		process.exit(1);
-	}
-	process.exit(0);
-});
+		return process.exit(1);
+	});
