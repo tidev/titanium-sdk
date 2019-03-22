@@ -2722,7 +2722,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
 		const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
-		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
+		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				const from = jsFiles[id];
 				let to = path.join(this.buildBinAssetsResourcesDir, id);
@@ -2811,7 +2811,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 			};
 		}), function () {
-
 			// write the properties file
 			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
 				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
