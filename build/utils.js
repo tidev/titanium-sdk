@@ -1,16 +1,17 @@
 'use strict';
 
-const path = require('path'),
-	async = require('async'),
-	fs = require('fs-extra'),
-	glob = require('glob'),
-	appc = require('node-appc'),
-	request = require('request'),
-	os = require('os'),
-	ssri = require('ssri'),
-	tempDir = os.tmpdir(),
-	util = require('util'),
-	Utils = {};
+const path = require('path');
+const async = require('async');
+const fs = require('fs-extra');
+const glob = require('glob');
+const appc = require('node-appc');
+const request = require('request');
+const os = require('os');
+const ssri = require('ssri');
+const tempDir = os.tmpdir();
+const util = require('util');
+const promisify = util.promisify;
+const Utils = {};
 
 function leftpad(str, len, ch) {
 	str = String(str);
@@ -162,36 +163,23 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 function cachedDownloadPath(url) {
 	// Use some consistent name so we can cache files!
 	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || tempDir, 'timob-build');
-	fs.existsSync(cacheDir) || fs.mkdirsSync(cacheDir);
+	fs.ensureDirSync(cacheDir);
 
 	const filename = url.slice(url.lastIndexOf('/') + 1);
 	// Place to download file
 	return path.join(cacheDir, filename);
 }
 
-Utils.generateSSRIHashFromURL = function (url, callback) {
+Utils.generateSSRIHashFromURL = async function (url) {
 	if (url.startsWith('file://')) {
 		// Generate integrity hash!
-		ssri.fromStream(fs.createReadStream(url.slice(7))).then(integrity => {
-			callback(null, integrity.toString());
-		}).catch(e => {
-			callback(e);
-		});
-		return;
+		return ssri.fromStream(fs.createReadStream(url.slice(7)));
 	}
+
 	const downloadPath = cachedDownloadPath(url);
-	fs.removeSync(downloadPath);
-	download(url, downloadPath, function (err, file) {
-		if (err) {
-			return callback(err);
-		}
-		// Generate integrity hash!
-		ssri.fromStream(fs.createReadStream(file)).then(integrity => {
-			callback(null, integrity.toString());
-		}).catch(e => {
-			callback(e);
-		});
-	});
+	await fs.remove(downloadPath);
+	const file = await promisify(download)(url, downloadPath);
+	return ssri.fromStream(fs.createReadStream(file));
 };
 
 Utils.downloadURL = function downloadURL(url, integrity, callback) {
