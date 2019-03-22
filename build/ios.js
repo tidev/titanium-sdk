@@ -26,33 +26,29 @@ function IOS(options) {
 	this.timestamp = options.timestamp;
 }
 
-IOS.prototype.clean = function (next) {
+IOS.prototype.clean = async function () {
 	// no-op
-	next();
 };
 
-IOS.prototype.build = function (next) {
+IOS.prototype.build = async function () {
 	console.log('Building TitaniumKit ...');
 
-	const child = spawn(path.join(ROOT_DIR, 'support', 'iphone', 'build_titaniumkit.sh'), [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ]);
+	return new Promise((resolve, reject) => {
+		const buildScript = path.join(ROOT_DIR, 'support', 'iphone', 'build_titaniumkit.sh');
+		const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ]);
+		child.stdout.on('data', data => console.log(`\n${data}`));
+		child.stderr.on('data', data => console.log(`\n${data}`));
 
-	child.stdout.on('data', (data) => {
-		console.log(`\n${data}`);
-	});
+		child.on('exit', code => {
+			if (code) {
+				const err = new Error(`TitaniumKit build exited with code ${code}`);
+				console.error(err);
+				return reject(err);
+			}
 
-	child.stderr.on('data', (data) => {
-		console.log(`\n${data}`);
-	});
-
-	child.on('exit', code => {
-		if (code) {
-			const err = new Error(`TitaniumKit build exited with code ${code}`);
-			console.error(err);
-			return next(err);
-		}
-
-		console.log('TitaniumKit built successfully!');
-		return next();
+			console.log('TitaniumKit built successfully!');
+			return resolve();
+		});
 	});
 };
 

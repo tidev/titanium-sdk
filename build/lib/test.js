@@ -2,7 +2,7 @@
 
 const promisify = require('util').promisify;
 const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const fs= require('fs-extra');
+const fs = require('fs-extra');
 const path = require('path');
 
 const ROOT_DIR = path.join(__dirname, '../..');
