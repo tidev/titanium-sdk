@@ -222,6 +222,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	{
 		TiSound s = getSound();
 		if (s != null) {
+			s.reset();
 			s.release();
 			snd = null;
 		}
