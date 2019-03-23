@@ -148,13 +148,14 @@ methods:
       The `options` parameter can be used to specify two options that affect
       the WebView main content presentation:
 
-      *  `baseURL`. Sets the base URL for the content.
+      *  `baseURL`. Sets the URL that the web content's paths will be relative to.
       *  `mimeType`. Sets the MIME type for the content. Defaults to "text/html" if not specified.
 
       For example:
 
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  {baseURL:'https://developer.appcelerator.com/'});
+                  { baseURL: 'https://developer.appcelerator.com/' });
+
     parameters:
 
       - name: html
@@ -165,6 +166,9 @@ methods:
         summary: Optional parameters for the content. Only used by iOS and Android.
         optional: true
         type: Dictionary
+
+    since: {android: "8.1.0", iphone: "2.0.0", ipad: "2.0.0"}
+    platforms: [android, iphone, ipad]
 
   - name: canGoBack
     summary: Returns `true` if the web view can go back in its history list.
