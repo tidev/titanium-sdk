@@ -705,7 +705,7 @@ public class TiUIWebView extends TiUIView
 	{
 		reloadMethod = reloadTypes.HTML;
 		reloadData = null;
-		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
+		setHtmlInternal(html, null, "text/html");
 	}
 
 	public void setHtml(String html, HashMap<String, Object> d)
@@ -717,7 +717,7 @@ public class TiUIWebView extends TiUIView
 
 		reloadMethod = reloadTypes.HTML;
 		reloadData = d;
-		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+		String baseUrl = null;
 		String mimeType = "text/html";
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
@@ -741,19 +741,40 @@ public class TiUIWebView extends TiUIView
 	 */
 	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
+		// Make sure given html argument is valid.
+		if (html == null) {
+			html = "";
+		}
+
+		// Fetch the WebView to apply the given HTML to.
+		WebView webView = getWebView();
+		if (webView == null) {
+			return;
+		}
+
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
 		// Ti scalesPageToFit property has _not_ been set.
-
-		WebView webView = getWebView();
-		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			webView.getSettings().setLoadWithOverviewMode(false);
-		}
 		boolean enableJavascriptInjection = true;
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-			enableJavascriptInjection =
-				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+		if (this.proxy != null) {
+			if (!this.proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+				webView.getSettings().setLoadWithOverviewMode(false);
+			}
+			if (this.proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+				enableJavascriptInjection =
+					TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+			}
 		}
+
+		// Make sure given base URL is valid. The HTML content's paths will be made relative to this URL.
+		if ((baseUrl == null) || baseUrl.trim().isEmpty()) {
+			// Base URL not provided. Default to the APK's "/assets/Resources/" directory.
+			baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+		} else if (!baseUrl.endsWith(File.separator)) {
+			// External file system paths must end with a path separator to work. (Optional for web URLs.)
+			baseUrl += File.separator;
+		}
+
 		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
 		isLocalHTML = true;
 		enableJavascriptInjection = (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection);
