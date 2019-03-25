@@ -12,6 +12,7 @@ const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const appc = require('node-appc');
 const version = appc.version;
+const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
@@ -104,52 +105,68 @@ class Packager {
 	/**
 	 * @param {String} outputDir path to place the temp files and zipfile
 	 * @param {String} targetOS  'win32', 'linux', or 'osx'
-	 * @param {string[]} platforms The list of SDK platforms to package
-	 * @param {string} version version string to use
-	 * @param {string} versionTag version tag
-	 * @param {string} moduleApiVersion module api version
-	 * @param {string} gitHash git commit SHA
-	 * @param {string} timestamp build date/timestamp
-	 * @param {boolean} [skipZip] Optionally skip zipping up the result
+	 * @param {string[]} platforms The list of SDK platforms to package ('ios', 'windows', 'android')
+	 * @param {object} options the options object passed around
+	 * @param {string} options.sdkVersion version string to use
+	 * @param {string} options.versionTag version tag
+	 * @param {string} options.gitHash git commit SHA
+	 * @param {string} options.timestamp build date/timestamp
+	 * @param {boolean} [options.skipZip] Optionally skip zipping up the result
 	 * @constructor
 	 */
-	constructor(outputDir, targetOS, platforms, version, versionTag, moduleApiVersion, gitHash, timestamp, skipZip) {
+	constructor(outputDir, targetOS, platforms, options) {
 		this.srcDir = ROOT_DIR;
 		this.outputDir = outputDir; // root folder where output is placed
 		this.targetOS = targetOS;
 		this.platforms = platforms;
-		this.version = version;
-		this.versionTag = versionTag;
-		this.moduleApiVersion = moduleApiVersion;
-		this.gitHash = gitHash;
-		this.timestamp = timestamp;
+		this.version = options.sdkVersion;
+		this.versionTag = options.versionTag;
+		this.gitHash = options.gitHash;
+		this.timestamp = options.timestamp;
 		this.zipFile = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}.zip`);
 		// Location where we build up the zip file contents
 		this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 		this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
-		this.skipZip = skipZip;
+		this.skipZip = options.skipZip;
 	}
 
 	/**
 	 * @returns {Promise<void>}
 	 */
 	async package() {
-		// TODO: we should be able to run large chunks of this in parallel!
-		// Really the sstuff in series is:
-		// copying node_modules, pruning, removing node_module/.bin, node-ios-device, hacking titanium-sdk in
-		// virtually all of the rest should be in parallel (after cleaning zip dir)
-
 		await this.cleanZipDir();
-		await this.generateManifestJSON();
+		// do as much in parallel as we can...
+		await Promise.all([
+			// copy, prune, hack, massage node_modules/
+			this.packageNodeModules(),
+			// write manifest.json
+			this.generateManifestJSON(),
+			// copy api.jsca file
+			fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca')),
+			// copy misc dirs/files over
+			await this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
+			// transpile/bundle and copy common/ JS files
+			this.transpile(),
+			// grab down and unzip the native modules
+			this.includePackagedModules(),
+			// copy over support/
+			this.copySupportDir()
+		]);
 
-		console.log('Writing JSCA');
-		await fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca'));
+		// Zip up all the platforms!
+		await this.zipPlatforms();
 
-		console.log('Copying SDK files');
-		// Copy some root files, cli/, templates/, node_modules
-		await this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates' ]);
+		// zip up the full SDK
+		return this.zip();
+	}
 
-		await this.transpile(); // transpiles/bundles common/
+	/**
+	 * Runs the set of modifications to node_modules/ in series
+	 * @returns {Promise<void>}
+	 */
+	async packageNodeModules() {
+		// Copy node_modules/
+		await this.copy([ 'node_modules' ]);
 
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		console.log('Pruning to production npm dependencies');
@@ -173,19 +190,7 @@ class Packager {
 		}
 
 		// hack the fake titanium-sdk npm package in
-		await this.hackTitaniumSDKModule();
-
-		// grab down and unzip the native modules
-		await this.includePackagedModules();
-
-		// copy over support/
-		await this.copySupportDir();
-
-		// Zip up all the platforms!
-		await this.zipPlatforms();
-
-		// zip up the full SDK
-		return this.zip();
+		return this.hackTitaniumSDKModule();
 	}
 
 	/**
@@ -194,11 +199,12 @@ class Packager {
 	 */
 	async cleanZipDir() {
 		console.log('Cleaning previous zipfile and tmp dir');
-		// make sure zipSDKDir exists and is empty
-		await fs.emptyDir(this.zipSDKDir);
-
-		// Remove existing zip
-		return fs.remove(this.zipFile);
+		return Promise.all([
+			// make sure zipSDKDir exists and is empty
+			fs.emptyDir(this.zipSDKDir),
+			// Remove existing zip
+			fs.remove(this.zipFile)
+		]);
 	}
 
 	/**
@@ -211,7 +217,7 @@ class Packager {
 		const json = {
 			name: this.versionTag,
 			version: this.version,
-			moduleAPIVersion: this.moduleApiVersion,
+			moduleAPIVersion: packageJSON.moduleApiVersion,
 			timestamp: this.timestamp,
 			githash: this.gitHash
 		};
@@ -271,6 +277,7 @@ class Packager {
 		await bundle.write({ format: 'cjs', file: `${destDir}/Resources/ti.main.js` });
 
 		// Copy over the files we can't bundle/inline: common/Resources/ti.internal
+		// TODO: Do we need to copy all of this over anymore? I beleive all of extensions folder is bundled. Perhaps everything is?
 		await fs.copy(path.join(this.srcDir, 'common/Resources/ti.internal'), path.join(destDir, 'Resources/ti.internal'));
 
 		// Remove the temp dir we assembled the parts inside!
@@ -294,7 +301,6 @@ class Packager {
 
 	/**
 	 * Includes the pre-packaged pre-built native modules. We now gather them from a JSON file listing URLs to download.
-	 * @returns {Promise<void>}
 	 */
 	async includePackagedModules() {
 		console.log('Zipping packaged modules');
@@ -333,6 +339,15 @@ class Packager {
 		const outDir = this.zipDir;
 		for (const zipFile of zipFiles) {
 			await unzip(zipFile, outDir);
+		}
+
+		// Need to wipe directories of multi-platform modules for platforms we don't need!
+		// i.e. modules/iphone on win32 builds (there because of hyperloop)
+		const subdirs = await fs.readdir(path.join(this.zipDir, 'modules'));
+		for (const subDir of subdirs) {
+			if (!supportedPlatforms.includes(subDir)) {
+				await fs.remove(path.join(this.zipDir, 'modules', subDir));
+			}
 		}
 	}
 
