@@ -276,7 +276,7 @@ class Packager {
 		await bundle.write({ format: 'cjs', file: `${destDir}/Resources/ti.main.js` });
 
 		// We used to have to copy over ti.internal, but it is now bundled into ti.main.js
-		// if we ever have files tehre that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.
+		// if we ever have files there that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.
 
 		// Remove the temp dir we assembled the parts inside!
 		console.log('Removing temporary common SDK JS bundle directory');
