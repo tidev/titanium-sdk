@@ -90,7 +90,7 @@ Utils.copyAndModifyFiles = async function (srcFolder, destFolder, files, substit
 /**
  * @param {string} url the URL of a file to download
  * @param {string} destination where to save the file
- * @returns {Promise<>}
+ * @returns {Promise<string>}
  */
 function download(url, destination) {
 	// TODO Support options arg to disable progress bar/spinner
