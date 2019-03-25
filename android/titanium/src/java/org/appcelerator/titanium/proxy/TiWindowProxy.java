@@ -661,6 +661,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean hasActivityTransitions()
 	{
 		final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
-		return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
+		return LOLLIPOP_OR_GREATER && animated;
 	}
 }
