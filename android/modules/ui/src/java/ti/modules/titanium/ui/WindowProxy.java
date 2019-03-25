@@ -156,7 +156,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					{
 						handleOpen(options);
 					}
-				}, 300);
+				}, Build.VERSION.SDK_INT > Build.VERSION_CODES.M ? 1 : 100);
 				return;
 			}
 		}
