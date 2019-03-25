@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 
 const git = require('./git');
 const utils = require('./utils');
-const packageJSON = require('../../package.json');
+const Packager = require('./packager');
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
@@ -51,11 +51,13 @@ class Builder {
 	}
 
 	async clean() {
+		// TODO: Clean platforms in parallel
 		for (const p of this.platforms) {
 			const Platform = require(`./${p}`); // eslint-disable-line security/detect-non-literal-require
 			const platform = new Platform(this.program);
 			await platform.clean();
 		}
+		// TODO: Construct a Packager and have it clean zipdir/file too?
 	}
 
 	async test() {
@@ -83,6 +85,7 @@ class Builder {
 	async build() {
 		await this.ensureGitHash();
 		console.log('Building MobileSDK version %s, githash %s', this.program.sdkVersion, this.program.gitHash);
+		// TODO: build platforms in parallel
 		for (const item of this.platforms) {
 			const Platform = require(`./${item}`); // eslint-disable-line security/detect-non-literal-require
 			const platform = new Platform(this.program);
@@ -94,16 +97,26 @@ class Builder {
 		await this.ensureGitHash();
 
 		console.log('Packaging Mobile SDK (%s)...', this.program.versionTag);
+		// FIXME: Work on allowing parallel OS packaging
+		// Only hurdle for packaging in parallel seems to be if a commonjs/hyperloop modules needs to
+		// be downloaded (each os would try to grab it simultaneously)
+		// await Promise.all(this.oses.map(currentOS => this.packageForOS(currentOS)));
 
+		// For now, package for each os in series
+		for (const os of this.oses) {
+			await this.packageForOS(os);
+		}
+		console.log(`Packaging version (${this.program.versionTag}) complete`);
+	}
+
+	async packageForOS(currentOS) {
 		// Match our master platform list against OS_TO_PLATFORMS[item] listing.
 		// Only package the platform if its in both arrays
-		const platformsForThisOS = OS_TO_PLATFORMS[this.hostOS];
+		const platformsForThisOS = OS_TO_PLATFORMS[currentOS];
 		const filteredPlatforms = this.platforms.filter(p => platformsForThisOS.includes(p));
 
-		const Packager = require('./packager');
-		const packager = new Packager(DIST_DIR, this.hostOS, filteredPlatforms, this.program.sdkVersion, this.program.versionTag, packageJSON.moduleApiVersion, this.program.gitHash, this.program.timestamp, this.program.skipZip);
-		await packager.package();
-		console.log(`Packaging version (${this.program.versionTag}) complete`);
+		const packager = new Packager(DIST_DIR, currentOS, filteredPlatforms, this.program);
+		return packager.package();
 	}
 
 	async generateDocs() {
