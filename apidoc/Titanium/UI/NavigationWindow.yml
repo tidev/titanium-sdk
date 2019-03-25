@@ -4,7 +4,7 @@ summary: |
     A `NavigationWindow` implements a specialized view that manages the navigation of hierarchical
     content.
 description: |
-    You create a `NavigationWindow` with the <Titanium.UI.createNavigationWindow> factory method, or
+    You create a `NavigationWindow` with the <Titanium.UI.createNavigationWindow> factory method or
     a `<NavigationWindow>` Alloy element.
 
     All `NavigationWindow` objects must have at least one root window that cannot be removed. When
@@ -13,7 +13,7 @@ description: |
     `<NavigationWindow>` element. See examples below.
 
     This object is not meant to be added to other windows. However, it can be used within a <Titanium.UI.iPad.SplitWindow>.
-platforms: [iphone, ipad]
+platforms: [android, iphone, ipad]
 extends: Titanium.UI.Window
 since: "8.0.0"
 excludes:

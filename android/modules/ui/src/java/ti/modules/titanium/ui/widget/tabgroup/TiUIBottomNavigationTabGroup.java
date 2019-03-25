@@ -6,8 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.graphics.drawable.Drawable;
+import android.content.res.ColorStateList;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
@@ -80,14 +81,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			}
 		};
 		this.mBottomNavigationView.setFitsSystemWindows(true);
-
-		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			this.mBottomNavigationView.setBackgroundColor(
-				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
-		} else {
-			this.mBottomNavigationView.setBackgroundColor(this.colorPrimaryInt);
-		}
 
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
@@ -163,18 +156,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 		// Add the MenuItem to the menu of BottomNavigationView.
 		this.mMenuItemsArray.add(menuItem);
-		// TabLayout automatically select the first tab that is added to it,
-		// but BottomNavigationView does not do that, so we manually trigger it.
-		// That's necessary to match the behavior across styles.
-		if (this.mMenuItemsArray.size() == 1) {
-			((TabGroupProxy) getProxy()).onTabSelected(tabProxy);
-			currentlySelectedIndex = 0;
-			selectTab(currentlySelectedIndex);
-		}
 		// Set the drawables.
 		setDrawables();
 		// Handle shift mode.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
+		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
 			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
 				disableShiftMode();
 			}
@@ -186,7 +171,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	 * it rebuilds its menu on every addition of a new item in it.
 	 *
 	 */
-	private void setDrawables()
+	public void setDrawables()
 	{
 		try {
 			ArrayList<TabProxy> tabs = ((TabGroupProxy) proxy).getTabList();
@@ -256,10 +241,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void selectTabItemInController(int position)
 	{
 		// Fire the UNSELECTED event from the currently selected tab.
-		((TabGroupProxy) getProxy())
-			.getTabList()
-			.get(currentlySelectedIndex)
-			.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		if (currentlySelectedIndex != -1) {
+			if (getProxy() != null) {
+				((TabGroupProxy) getProxy())
+					.getTabList()
+					.get(currentlySelectedIndex)
+					.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+			}
+		}
 		currentlySelectedIndex = position;
 		// The ViewPager has changed current page from swiping.
 		// Or any other interaction with it that can cause page change.
@@ -269,15 +258,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		((TabGroupProxy) getProxy()).onTabSelected(position);
 	}
 
-	/**
-	 * Set the background drawable for BottomNavigationView.
-	 *
-	 * @param drawable the new background drawable.
-	 */
 	@Override
-	public void setBackgroundDrawable(Drawable drawable)
+	public void setBackgroundColor(int colorInt)
 	{
-		this.mBottomNavigationView.setBackground(drawable);
+		this.mBottomNavigationView.setBackgroundColor(colorInt);
 	}
 
 	/**
@@ -292,11 +276,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
 		if (index != currentlySelectedIndex) {
-			((TabGroupProxy) getProxy())
-				.getTabList()
-				.get(currentlySelectedIndex)
-				.fireEvent(TiC.EVENT_UNSELECTED, null, false);
-			currentlySelectedIndex = index;
+			if (getProxy() != null) {
+				((TabGroupProxy) getProxy())
+					.getTabList()
+					.get(currentlySelectedIndex)
+					.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+				currentlySelectedIndex = index;
+			}
 		}
 		// Make the ViewPager to select the proper page too.
 		selectTab(index);
