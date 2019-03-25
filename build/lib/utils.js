@@ -90,10 +90,11 @@ Utils.copyAndModifyFiles = async function (srcFolder, destFolder, files, substit
 /**
  * @param {string} url the URL of a file to download
  * @param {string} destination where to save the file
+ * @param {object} [options] options
+ * @param {boolean} [options.progress=true] show progress bar/spinner
  * @returns {Promise<string>}
  */
-function download(url, destination) {
-	// TODO Support options arg to disable progress bar/spinner
+function download(url, destination, options = { progress: true }) {
 	return new Promise((resolve, reject) => {
 		console.log('Downloading %s', url);
 
@@ -118,15 +119,19 @@ function download(url, destination) {
 				return reject(err);
 			} else if (req.headers['content-length']) {
 				// we know how big the file is, display the progress bar
-				const total = parseInt(req.headers['content-length']);
-				const bar = new appc.progress('  :paddedPercent [:bar] :etas', {
-					complete: '='.cyan,
-					incomplete: '.'.grey,
-					width: 40,
-					total: total
-				});
+				let bar;
+				let total;
+				if (options.progress) {
+					total = parseInt(req.headers['content-length']);
+					bar = new appc.progress('  :paddedPercent [:bar] :etas', {
+						complete: '='.cyan,
+						incomplete: '.'.grey,
+						width: 40,
+						total: total
+					});
 
-				req.on('data', buffer => bar.tick(buffer.length)); // increase progress bar
+					req.on('data', buffer => bar.tick(buffer.length)); // increase progress bar
+				}
 
 				tempStream.on('close', () => { // all done
 					if (bar) {
@@ -137,12 +142,17 @@ function download(url, destination) {
 				});
 			} else {
 				// we don't know how big the file is, display a spinner
-				const busy = new appc.busyindicator();
-				busy.start();
+				let spinner;
+				if (options.progress) {
+					spinner = new appc.busyindicator();
+					spinner.start();
+				}
 
 				tempStream.on('close', () => { // all done
-					busy && busy.stop();
-					console.log();
+					if (spinner) {
+						spinner.stop();
+						console.log();
+					}
 					resolve(destination);
 				});
 			}
@@ -155,10 +165,12 @@ function download(url, destination) {
  * @param {string} url URL to download
  * @param {string} downloadPath path to save the file
  * @param {string} integrity ssri integrity hash value to confirm contents
+ * @param {object} [options] options
+ * @param {boolean} [options.progress=true] show progress bar/spinner for download
  * @return {Promise<string>} the path to the downloaded (and verified) file
  */
-async function downloadWithIntegrity(url, downloadPath, integrity) {
-	const file = await download(url, downloadPath);
+async function downloadWithIntegrity(url, downloadPath, integrity, options) {
+	const file = await download(url, downloadPath, options);
 
 	// Verify integrity!
 	await ssri.checkStream(fs.createReadStream(file), integrity);
@@ -190,9 +202,11 @@ Utils.generateSSRIHashFromURL = async function (url) {
 /**
  * @param {string} url URL to module zipfile
  * @param {string} integrity ssri integrity hash
+ * @param {object} [options] options
+ * @param {boolean} [options.progress=true] show progress bar/spinner for download
  * @returns {Promise<string>} path to file
  */
-Utils.downloadURL = async function downloadURL(url, integrity) {
+Utils.downloadURL = async function downloadURL(url, integrity, options) {
 	if (!integrity) {
 		throw new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url);
 	}
@@ -219,12 +233,12 @@ Utils.downloadURL = async function downloadURL(url, integrity) {
 		} catch (e) {
 			// hash doesn't match. Wipe the cached version and re-download
 			await fs.remove(downloadPath);
-			return downloadWithIntegrity(url, downloadPath, integrity);
+			return downloadWithIntegrity(url, downloadPath, integrity, options);
 		}
 	}
 
 	// download and verify integrity
-	return downloadWithIntegrity(url, downloadPath, integrity);
+	return downloadWithIntegrity(url, downloadPath, integrity, options);
 };
 
 /**

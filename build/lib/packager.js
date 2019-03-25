@@ -16,7 +16,6 @@ const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
-const downloadURL = utils.downloadURL;
 const copyPackageAndDependencies = utils.copyPackageAndDependencies;
 
 const ROOT_DIR = path.join(__dirname, '../..');
@@ -331,8 +330,7 @@ class Packager {
 		modules = Array.from(new Set(modules));
 
 		// Fetch the listed modules from URLs...
-		// FIXME Don't show progress bars, because they clobber each other
-		const zipFiles = await Promise.all(modules.map(m => downloadURL(m.url, m.integrity)));
+		const zipFiles = await Promise.all(modules.map(m => utils.downloadURL(m.url, m.integrity, { progress: false })));
 
 		// ...then unzip them
 		// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
