@@ -1,7 +1,6 @@
 'use strict';
 
 const path = require('path');
-const async = require('async');
 const fs = require('fs-extra');
 const ant = require('./ant');
 const utils = require('../utils');
