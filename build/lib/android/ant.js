@@ -17,6 +17,7 @@ const CLASSPATH = [
 ];
 
 async function getJavaHome() {
+	// TODO: Use same code as node-appc's jdk detection!
 	if (process.env.JAVA_HOME) {
 		return process.env.JAVA_HOME;
 	}

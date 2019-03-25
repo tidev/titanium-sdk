@@ -12,6 +12,7 @@ const DEFAULT_API_LEVEL = 28; // FIXME: Use android's package.json compileSDKVer
  * @return {String} detected SDK directory
  */
 function resolve(supplied) {
+	// TODO: Re-use same code as node-titanium-sdk's android detection!
 	let defaultDirs = [ '/opt/android', '/opt/android-sdk', '/usr/android', '/usr/android-sdk' ];
 	if (os.platform() === 'win32') {
 		defaultDirs = [ 'C:\\android-sdk', 'C:\\android', 'C:\\Program Files\\android-sdk', 'C:\\Program Files\\android' ];
