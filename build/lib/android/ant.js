@@ -7,7 +7,7 @@ const fs = require('fs-extra');
 const os = require('os');
 const path = require('path');
 
-const LIB_DIR = path.join(__dirname, '..', 'android', 'build', 'lib');
+const LIB_DIR = path.join(__dirname, '../../../android/build/lib');
 const CLASSPATH = [
 	path.join(LIB_DIR, 'ant.jar'),
 	path.join(LIB_DIR, 'ant-launcher.jar'),

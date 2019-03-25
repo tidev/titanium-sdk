@@ -4,8 +4,8 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
 
-const git = require('../git');
-const utils = require('../utils');
+const git = require('./git');
+const utils = require('./utils');
 const packageJSON = require('../../package.json');
 
 const ROOT_DIR = path.join(__dirname, '../..');
@@ -52,7 +52,7 @@ class Builder {
 
 	async clean() {
 		for (const p of this.platforms) {
-			const Platform = require(`../${p}`); // eslint-disable-line security/detect-non-literal-require
+			const Platform = require(`./${p}`); // eslint-disable-line security/detect-non-literal-require
 			const platform = new Platform(this.program);
 			await platform.clean();
 		}
@@ -84,7 +84,7 @@ class Builder {
 		await this.ensureGitHash();
 		console.log('Building MobileSDK version %s, githash %s', this.program.sdkVersion, this.program.gitHash);
 		for (const item of this.platforms) {
-			const Platform = require(`../${item}`); // eslint-disable-line security/detect-non-literal-require
+			const Platform = require(`./${item}`); // eslint-disable-line security/detect-non-literal-require
 			const platform = new Platform(this.program);
 			await platform.build();
 		}
@@ -92,24 +92,18 @@ class Builder {
 
 	async package() {
 		await this.ensureGitHash();
-		return new Promise((resolve, reject) => {
-			console.log('Packaging MobileSDK (%s)...', this.program.versionTag);
 
-			const Packager = require('../packager');
+		console.log('Packaging Mobile SDK (%s)...', this.program.versionTag);
 
-			// Match our master platform list against OS_TO_PLATFORMS[item] listing.
-			// Only package the platform if its in both arrays
-			const platformsForThisOS = OS_TO_PLATFORMS[this.hostOS];
-			const filteredPlatforms = this.platforms.filter(p => platformsForThisOS.includes(p));
+		// Match our master platform list against OS_TO_PLATFORMS[item] listing.
+		// Only package the platform if its in both arrays
+		const platformsForThisOS = OS_TO_PLATFORMS[this.hostOS];
+		const filteredPlatforms = this.platforms.filter(p => platformsForThisOS.includes(p));
 
-			new Packager(DIST_DIR, this.hostOS, filteredPlatforms, this.program.sdkVersion, this.program.versionTag, packageJSON.moduleApiVersion, this.program.gitHash, this.program.timestamp, this.program.skipZip).package((err, result) => {
-				if (err) {
-					return reject(err);
-				}
-				console.log(`Packaging version (${this.program.versionTag}) complete`);
-				resolve();
-			});
-		});
+		const Packager = require('./packager');
+		const packager = new Packager(DIST_DIR, this.hostOS, filteredPlatforms, this.program.sdkVersion, this.program.versionTag, packageJSON.moduleApiVersion, this.program.gitHash, this.program.timestamp, this.program.skipZip);
+		await packager.package();
+		console.log(`Packaging version (${this.program.versionTag}) complete`);
 	}
 
 	async generateDocs() {
@@ -117,7 +111,7 @@ class Builder {
 			return;
 		}
 
-		const Documentation = require('../docs');
+		const Documentation = require('./docs');
 		const docs = new Documentation(DIST_DIR);
 		return docs.generate();
 	}

@@ -21,10 +21,10 @@ class Windows {
 		// TODO Pull the zipfile down and extract it?
 	}
 
-	package(packager, next) {
+	async package(packager) {
 		console.log('Zipping Windows platform...');
 		// Windows is already all in place. We should be careful to ignore folders/files that don't apply for OS
-		copyFile(packager.srcDir, packager.zipSDKDir, 'windows', next);
+		return copyFile(packager.srcDir, packager.zipSDKDir, 'windows');
 	}
 }
 

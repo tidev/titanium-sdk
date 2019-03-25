@@ -3,7 +3,7 @@
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
 const path = require('path');
-const ROOT_DIR = path.join(__dirname, '..');
+const ROOT_DIR = path.join(__dirname, '../..');
 const DOC_DIR = path.join(ROOT_DIR, 'apidoc');
 
 class Documentation {

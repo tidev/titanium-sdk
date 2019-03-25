@@ -1,16 +1,17 @@
 'use strict';
 
-const path = require('path');
-const async = require('async');
-const fs = require('fs-extra');
-const glob = require('glob');
-const appc = require('node-appc');
-const request = require('request');
-const os = require('os');
-const ssri = require('ssri');
-const tempDir = os.tmpdir();
 const util = require('util');
 const promisify = util.promisify;
+const path = require('path');
+const fs = require('fs-extra');
+const os = require('os');
+
+const glob = promisify(require('glob'));
+const appc = require('node-appc');
+const request = require('request');
+const ssri = require('ssri');
+
+const tempDir = os.tmpdir();
 const Utils = {};
 
 function leftpad(str, len, ch) {
@@ -31,133 +32,137 @@ Utils.timestamp = function () {
 	return '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
 };
 
-Utils.copyFile = function (srcFolder, destFolder, filename, next) {
-	fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename), next);
+Utils.copyFile = async function (srcFolder, destFolder, filename) {
+	return fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename));
 };
 
-Utils.copyFiles = function (srcFolder, destFolder, files, next) {
-	async.each(files, function (file, cb) {
-		Utils.copyFile(srcFolder, destFolder, file, cb);
-	}, next);
+Utils.copyFiles = async function (srcFolder, destFolder, files) {
+	return Promise.all(files.map(f => Utils.copyFile(srcFolder, destFolder, f)));
 };
 
-Utils.globCopy = function (pattern, srcFolder, destFolder, next) {
-	glob(pattern, { cwd: srcFolder }, function (err, files) {
-		if (err) {
-			return next(err);
-		}
-		Utils.copyFiles(srcFolder, destFolder, files, next);
-	});
+Utils.globCopy = async function (pattern, srcFolder, destFolder) {
+	const files = await glob(pattern, { cwd: srcFolder });
+	return Utils.copyFiles(srcFolder, destFolder, files);
 };
 
-Utils.globCopyFlat = function (pattern, srcFolder, destFolder, next) {
-	glob(pattern, { cwd: srcFolder }, function (err, files) {
-		if (err) {
-			console.error(err);
-			return next(err);
-		}
+Utils.globCopyFlat = async function (pattern, srcFolder, destFolder) {
+	const files = await glob(pattern, { cwd: srcFolder });
 
-		async.each(files, function (filename, cb) {
-			const filenameWithoutDirectory = filename.split('/')[1]; // TODO: Refactor to simply copy without it's source directory
-			fs.copy(path.join(srcFolder, filename), path.join(destFolder, filenameWithoutDirectory), cb);
-		}, next);
-	});
+	return Promise.all(files.map(f => {
+		const filenameWithoutDirectory = f.split('/')[1]; // TODO: Refactor to simply copy without it's source directory
+		return fs.copy(path.join(srcFolder, f), path.join(destFolder, filenameWithoutDirectory));
+	}));
 };
 
-Utils.copyAndModifyFile = function (srcFolder, destFolder, filename, substitutions, next) {
+/**
+ * @param {string} srcFolder source directory to copy from
+ * @param {string} destFolder destination directory to copy to
+ * @param {string} filename base filename to copy from `srcFolder` to `destFolder`
+ * @param {object} substitutions a mapping of substitutions to make in the contents while copying
+ * @returns {Promise<void>}
+ */
+Utils.copyAndModifyFile = async function (srcFolder, destFolder, filename, substitutions) {
 	// FIXME If this is a directory, we need to recurse into directory!
 
 	// read in src file, modify contents, write to dest folder
-	fs.readFile(path.join(srcFolder, filename), function (err, data) {
-		if (err) {
-			return next(err);
+	let str = await fs.readFile(path.join(srcFolder, filename), 'utf8');
+
+	// Go through each substitution and replace!
+	for (const key in substitutions) {
+		if (substitutions.hasOwnProperty(key)) {
+			str = str.split(key).join(substitutions[key]);
 		}
-		// Go through each substitution and replace!
-		let str = data.toString();
-		for (const key in substitutions) {
-			if (substitutions.hasOwnProperty(key)) {
-				str = str.split(key).join(substitutions[key]);
-			}
-		}
-		fs.writeFile(path.join(destFolder, filename), str, next);
-	});
+	}
+	return fs.writeFile(path.join(destFolder, filename), str);
 };
 
-Utils.copyAndModifyFiles = function (srcFolder, destFolder, files, substitutions, next) {
-	async.each(files, function (file, cb) {
-		Utils.copyAndModifyFile(srcFolder, destFolder, file, substitutions, cb);
-	}, next);
+/**
+ * @param {string} srcFolder source directory to copy from
+ * @param {string} destFolder destination directory to copy to
+ * @param {string[]} files list of base filenames to copy from `srcFolder` to `destFolder`
+ * @param {object} substitutions a mapping of substitutions to make in the contents while copying
+ * @returns {Promise<void>}
+ */
+Utils.copyAndModifyFiles = async function (srcFolder, destFolder, files, substitutions) {
+	return Promise.all(files.map(f => Utils.copyAndModifyFile(srcFolder, destFolder, f, substitutions)));
 };
 
-function download(url, destination, callback) {
-	console.log('Downloading %s', url);
+/**
+ * @param {string} url the URL of a file to download
+ * @param {string} destination where to save the file
+ * @returns {Promise<>}
+ */
+function download(url, destination) {
+	// TODO Support options arg to disable progress bar/spinner
+	return new Promise((resolve, reject) => {
+		console.log('Downloading %s', url);
 
-	const tempStream = fs.createWriteStream(destination);
-	const req = request({ url: url });
+		const tempStream = fs.createWriteStream(destination);
+		const req = request({ url: url });
 
-	req.pipe(tempStream);
+		req.pipe(tempStream);
 
-	req.on('error', function (err) {
-		fs.existsSync(destination) && fs.unlinkSync(destination);
-		console.log();
-		console.error('Failed to download: %s', err.toString());
-		callback(err);
-	});
-
-	req.on('response', function (req) {
-		if (req.statusCode >= 400) {
-			// something went wrong, abort
+		req.on('error', function (err) {
+			fs.existsSync(destination) && fs.unlinkSync(destination);
 			console.log();
-			const err = util.format('Request for %s failed with HTTP status code %s %s', url, req.statusCode, req.statusMessage);
-			console.error(new Error(err));
-			return callback(err);
-		} else if (req.headers['content-length']) {
-			// we know how big the file is, display the progress bar
-			const total = parseInt(req.headers['content-length']),
-				bar = new appc.progress('  :paddedPercent [:bar] :etas', {
+			console.error('Failed to download: %s', err.toString());
+			reject(err);
+		});
+
+		req.on('response', function (req) {
+			if (req.statusCode >= 400) {
+				// something went wrong, abort
+				console.log();
+				const err = util.format('Request for %s failed with HTTP status code %s %s', url, req.statusCode, req.statusMessage);
+				console.error(new Error(err));
+				return reject(err);
+			} else if (req.headers['content-length']) {
+				// we know how big the file is, display the progress bar
+				const total = parseInt(req.headers['content-length']);
+				const bar = new appc.progress('  :paddedPercent [:bar] :etas', {
 					complete: '='.cyan,
 					incomplete: '.'.grey,
 					width: 40,
 					total: total
 				});
 
-			req.on('data', function (buffer) {
-				bar.tick(buffer.length);
-			});
+				req.on('data', buffer => bar.tick(buffer.length)); // increase progress bar
 
-			tempStream.on('close', function () {
-				if (bar) {
-					bar.tick(total);
-					console.log('\n');
-				}
-				callback(null, destination);
-			});
-		} else {
-			// we don't know how big the file is, display a spinner
-			const busy = new appc.busyindicator();
-			busy.start();
+				tempStream.on('close', () => { // all done
+					if (bar) {
+						bar.tick(total);
+						console.log('\n');
+					}
+					resolve(destination);
+				});
+			} else {
+				// we don't know how big the file is, display a spinner
+				const busy = new appc.busyindicator();
+				busy.start();
 
-			tempStream.on('close', function () {
-				busy && busy.stop();
-				console.log();
-				callback(null, destination);
-			});
-		}
+				tempStream.on('close', () => { // all done
+					busy && busy.stop();
+					console.log();
+					resolve(destination);
+				});
+			}
+		});
 	});
 }
 
-function downloadWithIntegrity(url, downloadPath, integrity, callback) {
-	download(url, downloadPath, function (err, file) {
-		if (err) {
-			return callback(err);
-		}
-		// Verify integrity!
-		ssri.checkStream(fs.createReadStream(file), integrity).then(() => {
-			callback(null, file);
-		}).catch(e => {
-			callback(e);
-		});
-	});
+/**
+ * Downloads a file and verifies the integrity hash matches (or throws)
+ * @param {string} url URL to download
+ * @param {string} downloadPath path to save the file
+ * @param {string} integrity ssri integrity hash value to confirm contents
+ * @return {Promise<string>} the path to the downloaded (and verified) file
+ */
+async function downloadWithIntegrity(url, downloadPath, integrity) {
+	const file = await download(url, downloadPath);
+
+	// Verify integrity!
+	await ssri.checkStream(fs.createReadStream(file), integrity);
+	return file;
 }
 
 function cachedDownloadPath(url) {
@@ -182,39 +187,44 @@ Utils.generateSSRIHashFromURL = async function (url) {
 	return ssri.fromStream(fs.createReadStream(file));
 };
 
-Utils.downloadURL = function downloadURL(url, integrity, callback) {
-	if (url.startsWith('file://')) {
-		if (!fs.existsSync(url.slice(7))) {
-			return callback(new Error('File URL does not exist on disk: %s', url));
-		}
-		// if it passes integrity check, we're all good, return path to file
-		ssri.checkStream(fs.createReadStream(url.slice(7)), integrity).then(() => {
-			// cached copy is still valid, integrity hash matches
-			callback(null, url.slice(7));
-		}).catch(e => callback(e));
-		return;
+/**
+ * @param {string} url URL to module zipfile
+ * @param {string} integrity ssri integrity hash
+ * @returns {Promise<string>} path to file
+ */
+Utils.downloadURL = async function downloadURL(url, integrity) {
+	if (!integrity) {
+		throw new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url);
 	}
 
-	if (!integrity) {
-		return callback(new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url));
+	if (url.startsWith('file://')) {
+		const filePath = url.slice(7);
+		if (!await fs.exists(filePath)) {
+			throw new Error('File URL does not exist on disk: %s', url);
+		}
+
+		// if it passes integrity check, we're all good, return path to file
+		await ssri.checkStream(fs.createReadStream(filePath), integrity);
+		return filePath;
 	}
 
 	const downloadPath = cachedDownloadPath(url);
 	// Check if file already exists and passes integrity check!
-	if (fs.existsSync(downloadPath)) {
-		// if it passes integrity check, we're all good, return path to file
-		ssri.checkStream(fs.createReadStream(downloadPath), integrity).then(() => {
+	if (await fs.exists(downloadPath)) {
+		try {
+			// if it passes integrity check, we're all good, return path to file
+			await ssri.checkStream(fs.createReadStream(downloadPath), integrity);
 			// cached copy is still valid, integrity hash matches
-			callback(null, downloadPath);
-		}).catch(() => {
+			return downloadPath;
+		} catch (e) {
 			// hash doesn't match. Wipe the cached version and re-download
-			fs.removeSync(downloadPath);
-			downloadWithIntegrity(url, downloadPath, integrity, callback);
-		});
-	} else {
-		// download and verify integrity
-		downloadWithIntegrity(url, downloadPath, integrity, callback);
+			await fs.remove(downloadPath);
+			return downloadWithIntegrity(url, downloadPath, integrity);
+		}
 	}
+
+	// download and verify integrity
+	return downloadWithIntegrity(url, downloadPath, integrity);
 };
 
 /**
@@ -261,7 +271,9 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 		// Do nothing
 	}
 
-	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
+	const distDir = path.join(__dirname, '../../dist');
+
+	const zipDir = path.join(distDir, `mobilesdk-${versionTag}-${osName}`);
 	const dirExists = await fs.pathExists(zipDir);
 
 	if (dirExists) {
@@ -276,7 +288,7 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 	}
 
 	// try the zip
-	const zipfile = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}.zip`);
+	const zipfile = path.join(distDir, `mobilesdk-${versionTag}-${osName}.zip`);
 	console.log('Installing %s...', zipfile);
 	return new Promise((resolve, reject) => {
 		appc.zip.unzip(zipfile, dest, {}, function (err) {

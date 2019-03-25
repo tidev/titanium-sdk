@@ -2,7 +2,7 @@
 'use strict';
 
 const program = require('commander');
-const utils = require('./utils');
+const utils = require('./lib/utils');
 
 program.parse(process.argv);
 

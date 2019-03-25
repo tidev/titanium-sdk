@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const utils = require('./utils');
+const utils = require('./lib/utils');
 const fs = require('fs-extra');
 const path = require('path');
 const modulesPath = path.join(__dirname, '../support/module/packaged/modules.json');
