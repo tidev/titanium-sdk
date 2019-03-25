@@ -260,13 +260,17 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 	}
 
 	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
-	const destStats = fs.lstatSync(destDir);
-	if (destStats.isDirectory()) {
-		console.log('Destination exists, deleting %s...', destDir);
-		await fs.remove(destDir);
-	} else if (destStats.isSymbolicLink()) {
-		console.log('Destination exists as symlink, unlinking %s...', destDir);
-		fs.unlinkSync(destDir);
+	try {
+		const destStats = fs.lstatSync(destDir);
+		if (destStats.isDirectory()) {
+			console.log('Destination exists, deleting %s...', destDir);
+			await fs.remove(destDir);
+		} else if (destStats.isSymbolicLink()) {
+			console.log('Destination exists as symlink, unlinking %s...', destDir);
+			fs.unlinkSync(destDir);
+		}
+	} catch (error) {
+		// Do nothing
 	}
 
 	const zipDir = path.join(__dirname, '..', 'dist', `mobilesdk-${versionTag}-${osName}`);
@@ -295,5 +299,57 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 		});
 	});
 };
+
+/**
+* Given an npm module id, this will copy it and it's dependencies to a
+* destination "node_modules" folder.
+* Note that all of the packages are copied to the top-level of "node_modules",
+* not nested!
+* Also, to shortcut the logic, if the original package has been copied to the
+* destination we will *not* attempt to read it's dependencies and ensure those
+* are copied as well! So if the modules version changes or something goes
+* haywire and the copies aren't full finished due to a failure, the only way to
+* get right is to clean the destination "node_modules" dir before rebuilding.
+*
+* @param  {String} moduleId           The npm package/module to copy (along with it's dependencies)
+* @param  {String} destNodeModulesDir path to the destination "node_modules" folder
+* @param  {Array}  [paths=[]]         Array of additional paths to pass to require.resolve() (in addition to those from require.resolve.paths(moduleId))
+*/
+function copyPackageAndDependencies(moduleId, destNodeModulesDir, paths = []) {
+	const destPackage = path.join(destNodeModulesDir, moduleId);
+	if (fs.existsSync(path.join(destPackage, 'package.json'))) {
+		return; // if the module seems to exist in the destination, just skip it.
+	}
+
+	// copy the dependency's folder over
+	let pkgJSONPath;
+	if (require.resolve.paths) {
+		const thePaths = require.resolve.paths(moduleId);
+		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'), { paths: thePaths.concat(paths) });
+	} else {
+		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'));
+	}
+	const srcPackage = path.dirname(pkgJSONPath);
+	const srcPackageNodeModulesDir = path.join(srcPackage, 'node_modules');
+	for (let i = 0; i < 3; i++) {
+		fs.copySync(srcPackage, destPackage, {
+			preserveTimestamps: true,
+			filter: src => !src.startsWith(srcPackageNodeModulesDir)
+		});
+
+		// Quickly verify package copied, I've experienced occurences where it does not.
+		// Retry up to three times if it did not copy correctly.
+		if (fs.existsSync(path.join(destPackage, 'package.json'))) {
+			break;
+		}
+	}
+
+	// Now read it's dependencies and recurse on them
+	const packageJSON = fs.readJSONSync(pkgJSONPath);
+	for (const dependency in packageJSON.dependencies) {
+		copyPackageAndDependencies(dependency, destNodeModulesDir, [ srcPackageNodeModulesDir ]);
+	}
+}
+Utils.copyPackageAndDependencies = copyPackageAndDependencies;
 
 module.exports = Utils;

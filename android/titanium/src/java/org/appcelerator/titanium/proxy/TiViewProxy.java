@@ -488,14 +488,15 @@ public abstract class TiViewProxy extends KrollProxy
 			}
 
 			view = createView(activity);
+			if (view != null) {
+				if (isDecorView && baseActivity != null) {
+					baseActivity.setViewProxy(view.getProxy());
+				}
 
-			if (isDecorView && baseActivity != null) {
-				baseActivity.setViewProxy(view.getProxy());
+				realizeViews(view);
+				view.registerForTouch();
+				view.registerForKeyPress();
 			}
-
-			realizeViews(view);
-			view.registerForTouch();
-			view.registerForKeyPress();
 		}
 		return view;
 	}
@@ -1028,8 +1029,12 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundDisabledColor()
 	// clang-format on
 	{
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
 		// Try to get the background drawable if one is available.
-		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
 		// Guard for views without color state backgrounds.
 		if (backgroundDrawable == null) {
 			return null;
