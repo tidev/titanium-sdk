@@ -1,7 +1,6 @@
 'use strict';
 
 const path = require('path');
-const async = require('async');
 const fs = require('fs-extra');
 const utils = require('./utils');
 const spawn = require('child_process').spawn;  // eslint-disable-line security/detect-child-process
