@@ -275,9 +275,8 @@ class Packager {
 		console.log('Writing common SDK JS bundle to disk');
 		await bundle.write({ format: 'cjs', file: `${destDir}/Resources/ti.main.js` });
 
-		// Copy over the files we can't bundle/inline: common/Resources/ti.internal
-		// TODO: Do we need to copy all of this over anymore? I beleive all of extensions folder is bundled. Perhaps everything is?
-		await fs.copy(path.join(this.srcDir, 'common/Resources/ti.internal'), path.join(destDir, 'Resources/ti.internal'));
+		// We used to have to copy over ti.internal, but it is now bundled into ti.main.js
+		// if we ever have files tehre that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.
 
 		// Remove the temp dir we assembled the parts inside!
 		console.log('Removing temporary common SDK JS bundle directory');
