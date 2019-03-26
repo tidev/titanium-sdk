@@ -728,23 +728,50 @@ public class TiUIWebView extends TiUIView
 		// Fetch optional "baseURL" property from given dictionary.
 		String baseUrl = null;
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
+			// Read the property.
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
-			if ((baseUrl != null) && (this.proxy != null) && TiFileFactory.isLocalScheme(baseUrl)) {
-				// Given base URL references a local file/directory, not a web location.
-				// Attempt to convert URL to a native absolute path that the WebView can use.
-				String resolvedUrl = this.proxy.resolveUrl(null, baseUrl);
-				if (resolvedUrl != null) {
-					TiBaseFile tiFile = TiFileFactory.createTitaniumFile(resolvedUrl, false);
-					if (tiFile != null) {
-						String nativePath = tiFile.nativePath();
-						if (nativePath != null) {
-							// We've successfully obtained the native path. Use it instead of given URL.
-							baseUrl = nativePath;
 
-							// If URL is referencing a directory, then it must end with a path separator to work.
-							if (!baseUrl.endsWith(File.separator) && tiFile.isDirectory()) {
-								baseUrl += File.separator;
-							}
+			// Determine if read string is a valid URL or valid absolute file system path.
+			boolean hasAbsoluteFilePath = false;
+			boolean hasUrlScheme = false;
+			if (baseUrl != null) {
+				if (baseUrl.startsWith(File.separator)) {
+					hasAbsoluteFilePath = true;
+				} else {
+					try {
+						Uri uri = Uri.parse(baseUrl);
+						hasUrlScheme = (uri.getScheme() != null);
+					} catch (Exception ex) {
+					}
+				}
+			}
+			if (!hasAbsoluteFilePath && !hasUrlScheme) {
+				Log.w(TAG, "WebView.setHtml() was given invalid 'baseURL': " + baseUrl);
+			}
+
+			// Check if URL references a local file and needs to be converted to a "file:" URL.
+			// Can happen if given a file system path or a custom Titanium scheme such as "app:", "appdata:", etc.
+			if (hasAbsoluteFilePath || (hasUrlScheme && TiFileFactory.isLocalScheme(baseUrl))) {
+				// Convert custom URL scheme's relative path to absolute, if needed.
+				String resolvedUrl = baseUrl;
+				if (hasUrlScheme && (this.proxy != null)) {
+					String newUrl = this.proxy.resolveUrl(null, baseUrl);
+					if (newUrl != null) {
+						resolvedUrl = newUrl;
+					}
+				}
+
+				// Attempt to fetch the native "file:" path of the URL.
+				TiBaseFile tiFile = TiFileFactory.createTitaniumFile(resolvedUrl, false);
+				if (tiFile != null) {
+					String nativePath = tiFile.nativePath();
+					if (nativePath != null) {
+						// We've successfully obtained the native path. Use it instead of given URL.
+						baseUrl = nativePath;
+
+						// If URL is referencing a directory, then it must end with a path separator to work.
+						if (!baseUrl.endsWith(File.separator) && tiFile.isDirectory()) {
+							baseUrl += File.separator;
 						}
 					}
 				}
