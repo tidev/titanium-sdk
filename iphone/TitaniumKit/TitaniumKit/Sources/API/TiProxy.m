@@ -902,7 +902,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     TiBindingEventSetBubbles(ourEvent, propagate);
     TiBindingEventFire(ourEvent);
   },
-      NO);
+      YES);
 }
 
 //Temporary method until source is removed, for our subclasses.
@@ -925,7 +925,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     TiBindingEventSetBubbles(ourEvent, propagate);
     TiBindingEventFire(ourEvent);
   },
-      NO);
+      YES);
 }
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
