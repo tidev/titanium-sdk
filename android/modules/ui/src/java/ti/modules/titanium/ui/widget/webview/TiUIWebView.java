@@ -635,10 +635,11 @@ public class TiUIWebView extends TiUIView
 						out.append("\n");
 						line = breader.readLine();
 					}
-					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl),
-									"text/html"); // keep app:// etc. intact in case
-												  // html in file contains links
-												  // to JS that use app:// etc.
+					String baseUrl = tiFile.nativePath();
+					if (baseUrl == null) {
+						baseUrl = originalUrlHasScheme ? url : finalUrl;
+					}
+					setHtmlInternal(out.toString(), baseUrl, "text/html");
 					return;
 				} catch (IOException ioe) {
 					Log.e(TAG,
@@ -715,17 +716,42 @@ public class TiUIWebView extends TiUIView
 			return;
 		}
 
-		reloadMethod = reloadTypes.HTML;
-		reloadData = d;
-		String baseUrl = null;
+		this.reloadMethod = TiUIWebView.reloadTypes.HTML;
+		this.reloadData = d;
+
+		// Fetch optional "mimeType" property from given dictionary.
 		String mimeType = "text/html";
-		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
-			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
-		}
 		if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
 			mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
 		}
 
+		// Fetch optional "baseURL" property from given dictionary.
+		String baseUrl = null;
+		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
+			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
+			if ((baseUrl != null) && (this.proxy != null) && TiFileFactory.isLocalScheme(baseUrl)) {
+				// Given base URL references a local file/directory, not a web location.
+				// Attempt to convert URL to a native absolute path that the WebView can use.
+				String resolvedUrl = this.proxy.resolveUrl(null, baseUrl);
+				if (resolvedUrl != null) {
+					TiBaseFile tiFile = TiFileFactory.createTitaniumFile(resolvedUrl, false);
+					if (tiFile != null) {
+						String nativePath = tiFile.nativePath();
+						if (nativePath != null) {
+							// We've successfully obtained the native path. Use it instead of given URL.
+							baseUrl = nativePath;
+
+							// If URL is referencing a directory, then it must end with a path separator to work.
+							if (!baseUrl.endsWith(File.separator) && tiFile.isDirectory()) {
+								baseUrl += File.separator;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Load the given HTML into the WebView.
 		setHtmlInternal(html, baseUrl, mimeType);
 	}
 
@@ -766,13 +792,12 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
-		// Make sure given base URL is valid. The HTML content's paths will be made relative to this URL.
+		// If base URL was not provided, then default it to APK's "/assets/Resources/" directory.
 		if ((baseUrl == null) || baseUrl.trim().isEmpty()) {
-			// Base URL not provided. Default to the APK's "/assets/Resources/" directory.
 			baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
-		} else if (!baseUrl.endsWith(File.separator)) {
-			// External file system paths must end with a path separator to work. (Optional for web URLs.)
-			baseUrl += File.separator;
+			if (!baseUrl.endsWith(File.separator)) {
+				baseUrl += File.separator;
+			}
 		}
 
 		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
