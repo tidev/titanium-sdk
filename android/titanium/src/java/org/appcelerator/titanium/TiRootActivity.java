@@ -201,9 +201,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			// Destroy this activity before it is shown.
 			finish();
 
-			// Disable this activity's enter/exit animation. (Looks bad if we keep it.)
+			// Disable activity's exit animation. (Looks bad if we keep it on a Pixel XL.)
 			// Note: Must be done after calling finish() above.
-			overridePendingTransition(0, 0);
+			overridePendingTransition(android.R.anim.fade_in, 0);
 			return;
 		}
 
@@ -218,7 +218,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				this.isDuplicateInstance = true;
 				activityOnCreate(savedInstanceState);
 				finish();
-				overridePendingTransition(0, 0);
+				overridePendingTransition(android.R.anim.fade_in, 0);
 				final Intent relaunchIntent = isNotMainIntent ? mainIntent : newIntent;
 				if (isNotMainIntent && (newIntent != null)) {
 					// Embed this destroyed activity's intent within the new launch intent.
