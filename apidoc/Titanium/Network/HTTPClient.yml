@@ -483,7 +483,7 @@ properties:
   - name: timeout
     summary: Timeout in milliseconds when the connection should be aborted.
     default: |
-        On iOS is 15000 (15 seconds)
+        On iOS, the default is 15000 (15 seconds).
     type: Number
 
   - name: username
