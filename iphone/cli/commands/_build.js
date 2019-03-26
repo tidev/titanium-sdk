@@ -2254,7 +2254,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		// titanium related tasks
 		'writeDebugProfilePlists',
 		'copyResources',
-		'generateRequireIndex', // has to be run before encryption, since index may be encrypted
 		'encryptJSFiles',
 		'writeI18NFiles',
 		'processTiSymbols',
@@ -2267,6 +2266,8 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		function (next) {
 			cli.emit('build.pre.build', this, next);
 		},
+
+		'generateRequireIndex', // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
 
 		// build baby, build
 		'invokeXcodeBuild',
@@ -5817,8 +5818,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			series(this, [
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
+					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 
-					async.eachSeries(Object.keys(jsFiles), function (file, next) {
+					async.each(Object.keys(jsFiles), function (file, next) {
 						setImmediate(function () {
 							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
 							// Add it as a require() compatible string to bootstrap array if it's a match.
@@ -5855,10 +5857,13 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 										// Read the possibly modified file contents
 										const source = r.contents;
 										// Analyze Ti API usage, possibly also minify/transpile
+										// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
+										const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
+										const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
 										const analyzeOptions = {
 											filename: from,
-											minify: this.minifyJS,
-											transpile: this.transpile,
+											minify,
+											transpile,
 											sourceMap: this.sourceMaps || this.deployType === 'development',
 											resourcesDir: this.xcodeAppDir,
 											logger: this.logger,
@@ -5881,7 +5886,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 											// dest doesn't exist, or new contents differs from existing dest file
 											if (!exists || newContents !== fs.readFileSync(to).toString()) {
 												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-												exists && fs.unlinkSync(to);
+												// no need to delete if it exists, writeFile will overwrite anyways
 												fs.writeFileSync(to, newContents);
 												this.jsFilesChanged = true;
 											} else {
@@ -6101,15 +6106,13 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 };
 
 iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
+	this.logger.info(__('Writing index.json with listing of JS/JSON files'));
 	const index = {};
 	const binAssetsDir = this.xcodeAppDir.replace(/\\/g, '/');
 
 	// Write _index_.json file with our JS/JSON file listing. This may also be encrypted
-	const destFilename = this.encryptJS ? '_index__json' : '_index_.json';
-	const destFile = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, destFilename);
-	if (this.encryptJS) {
-		this.jsFilesToEncrypt.push(destFilename);
-	}
+	const destFilename = '_index_.json';
+	const destFile = path.join(this.xcodeAppDir, destFilename);
 
 	// Grab unencrypted JS/JSON files
 	(function walk(dir) {
@@ -6119,7 +6122,8 @@ iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callba
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
 				} else if (/\.js(on)?$/.test(filename)) {
-					index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/')] = 1; // 1 for exists on disk
+					const modifiedFilename = file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/');
+					index[modifiedFilename] = 1; // 1 for exists on disk
 				}
 			}
 		});

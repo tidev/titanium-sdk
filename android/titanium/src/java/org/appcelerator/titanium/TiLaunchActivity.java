@@ -131,7 +131,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				}
 				startActivity(resumeIntent);
 				finish();
-				overridePendingTransition(0, 0);
+				overridePendingTransition(android.R.anim.fade_in, 0);
 			} else {
 				// Launch a new root activity instance with JSActivity's intent embedded within launch intent.
 				Intent mainIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
@@ -146,7 +146,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 					mainIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, getIntent());
 				}
 				finish();
-				overridePendingTransition(0, 0);
+				overridePendingTransition(android.R.anim.fade_in, 0);
 				startActivity(mainIntent);
 			}
 			return;
