@@ -89,7 +89,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	}
 
 	/**
-	 * Funktion that will be called after the task run finished.
+	 * Function that will be called after the task run finished.
 	 *
 	 * Used to populate values back into the builder and update the task data
 	 * before it gets written to disk.
@@ -133,7 +133,7 @@ class ProcessJsTask extends IncrementalFileTask {
 			}
 			this.builder.jsFilesEncrypted.push(file); // original name
 			file = file.replace(/\./g, '_');
-			info.dest = path.join(this.buildAssetsDir, file);
+			info.dest = path.join(this.builder.buildAssetsDir, file);
 			this.builder.jsFilesToEncrypt.push(file); // encrypted name
 		}
 
@@ -175,7 +175,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	}
 
 	/**
-	 * Transofrms the given JavaScript source by transpiling and minifying it and then copying
+	 * Transforms the given JavaScript source by transpiling and minifying it and then copying
 	 * it to the destination path.
 	 *
 	 * @param {String} source JavaScript source
