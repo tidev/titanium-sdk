@@ -40,15 +40,9 @@ description: |
     determined by the [accuracy](Titanium.Geolocation.accuracy) setting. This can be set
     to one of the following values:
 
-    *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
-    *   [ACCURACY_BEST_FOR_NAVIGATION](Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION)
-    *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH)
-    *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS)
-    *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS)
-    *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER)
-    *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW)
-    *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
-        accuracy and power consumption).
+     *   [ACCURACY_BEST_FOR_NAVIGATION](Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION) (best accuracy and highest power consumption)
+     *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) (high accuracy and higher power consumption)
+     *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) (lowest accuracy and lowest power consumption)
 
     Based on the accuracy you choose, iOS uses its own logic to select location providers
     and filter location updates to provide location updates that meet your accuracy
@@ -114,18 +108,15 @@ description: |
         used when the `manualMode` flag is `false` and the `accuracy` property is
         set to one of the iOS `ACCURACY` constants:
 
-        *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
-        *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS)
-        *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS)
-        *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER)
-        *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
-            accuracy and power consumption).
+        *   [ACCURACY_BEST_FOR_NAVIGATION](Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION) (best accuracy and highest power consumption)
+        *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) (high accuracy and higher power consumption)
+        *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) (lowest accuracy and lowest power consumption)
 
         This mode is deprecated and should not be used for new development.
 
         In this mode, the specified `accuracy` value determines the
         *minimum distance between location updates*. If `accuracy` is set to
-        `ACCURACY_BEST`, no distance filter is used on updates.
+        `ACCURACY_BEST_FOR_NAVIGATION`, no distance filter is used on updates.
 
         In legacy mode, only a single location provider (GPS, network, or passive) is
         enabled at a time. You can specify a the location provider using the
