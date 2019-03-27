@@ -31,6 +31,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fields = require('fields'),
 	fs = require('fs-extra'),
+	glob = require('glob'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
@@ -4299,10 +4300,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			}.bind(this));
 		}),
 		injarsCore = [
-			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
 		].concat(Object.keys(this.jarLibraries)),
-		injarsAll = injarsCore.slice().concat(Object.keys(this.moduleJars)),
+		injarsAndPathToClasses = injarsCore.concat([ this.buildBinClassesDir ]),
+		injarsAll = injarsCore.concat(Object.keys(this.moduleJars)),
+		enableDesugar = this.tiapp.android.enableDesugar,
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
 		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
 		outjar = path.join(this.buildDir, 'mainDexClasses.jar'),
@@ -4316,6 +4318,31 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		'--set-max-idx-number=' + this.dxMaxIdxNumber,
 		'--output=' + this.buildBinClassesDex,
 	];
+	if (!enableDesugar) {
+		// "dx" allows directories in input list
+		injarsAll.unshift(this.buildBinClassesDir);
+	} else {
+		if (!this.androidInfo.sdk.d8 || !fs.existsSync(this.androidInfo.sdk.d8)) {
+			this.logger.error(__('Unable to find d8.jar file') + '\n');
+			process.exit(1);
+		}
+		// "d8": "<input-files> are any combination of dex, class, zip, jar, or apk files"
+		// will add all "*.class" from `this.buildBinClassesDir` to `injarsAll` later
+
+		dexArgs = [
+			'-Xmx' + this.dxMaxMemory,
+			'-XX:-UseGCOverheadLimit',
+			'-classpath', this.androidInfo.sdk.platformTools.path,
+			'-jar', this.androidInfo.sdk.d8,
+			'--classpath', this.buildBinClassesDir,
+			'--lib', this.androidTargetSDK.androidJar,
+			'--output', this.buildBinClassesDex
+		];
+
+		if (this.cli.argv.target === 'dist-playstore') {
+			dexArgs.push('--release');
+		}
+	}
 
 	// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
 	// dexAgent is set in the module's timodule.xml
@@ -4341,7 +4368,9 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
 
 	// Add all Java classes used/declared by the "Application" derived class to main dex file.
-	// We only do this if the min Android OS version supported is less than 5.0.
+	// We do this in two cases:
+	// - the min Android OS version supported is less than 5.0;
+	// - d8 dexer used (currently only when `enableDesugar` is `true`).
 	// Note: Android OS versions older than 5.0 (API Level 21) do not natively support multidexed apps.
 	//       So, we have to call Multidex.install() Java method upon app startup for Android 4.x support.
 	//       Since Java runtime attempts to find all classes used by "Application" derived class before
@@ -4349,8 +4378,24 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	//       main dex file or else the runtime will fail to link those classes and cause a crash on 4.x.
 	async.series([
 		function (done) {
+			if (!enableDesugar) {
+				return done();
+			}
+			glob(path.join(this.buildBinClassesDir, '**', '*.class'), function (err, files) {
+				if (err) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				Array.prototype.push.apply(injarsAll, files);
+				done();
+			}.bind(this));
+		}.bind(this),
+		function (done) {
 			// Skip the below if the min Android OS version supported is 5.0 or higher.
-			if (this.minSDK >= 21) {
+			if (this.minSDK >= 21 && !enableDesugar) {
 				return done();
 			}
 
@@ -4372,8 +4417,8 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 					+ '-dontpreverify\n'
 					+ '-dontwarn **\n'
 					+ '-libraryjars ' + quotePath(shrinkedAndroid) + '\n';
-			for (let index = 0; index < injarsCore.length; index++) {
-				proguardConfig += '-injars ' + quotePath(injarsCore[index]) + '(!META-INF/**)\n';
+			for (let index = 0; index < injarsAndPathToClasses.length; index++) {
+				proguardConfig += '-injars ' + quotePath(injarsAndPathToClasses[index]) + '(!META-INF/**)\n';
 			}
 			proguardConfig += '-outjars ' + quotePath(outjar) + '\n';
 			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
@@ -4402,11 +4447,19 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
 		function (done) {
 			// Skip the below if the min Android OS version supported is 5.0 or higher.
-			if (this.minSDK >= 21) {
+			if (this.minSDK >= 21 && !enableDesugar) {
 				return done();
 			}
 
-			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
+			const exe = this.jdkInfo.executables.java;
+			const args = [
+				'-cp',
+				this.androidInfo.sdk.dx,
+				'com.android.multidex.MainDexListBuilder',
+				outjar,
+				injarsAndPathToClasses.join(pathArraySeparator)
+			];
+			appc.subprocess.run(exe, args, {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
 					this.logger.error(__('Failed to generate main class for dexer:'));
