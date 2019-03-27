@@ -338,6 +338,15 @@ class Packager {
 		for (const zipFile of zipFiles) {
 			await unzip(zipFile, outDir);
 		}
+
+		// Need to wipe directories of multi-platform modules for platforms we don't need!
+		// i.e. modules/iphone on win32 builds (there because of hyperloop)
+		const subdirs = await fs.readdir(path.join(this.zipDir, 'modules'));
+		for (const subDir of subdirs) {
+			if (!supportedPlatforms.includes(subDir)) {
+				await fs.remove(path.join(this.zipDir, 'modules', subDir));
+			}
+		}
 	}
 
 	async copySupportDir() {
