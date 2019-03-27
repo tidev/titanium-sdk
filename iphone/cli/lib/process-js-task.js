@@ -29,13 +29,21 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.builder = taskInfo.builder;
 		this.sdkCOmmonFolder = taskInfo.sdkCOmmonFolder;
 
-		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
-		this.data = {
-			contentHashes: {},
-			jsBootstrapFiles: [],
-			tiSymbols: {},
-			jsFiles: {}
+		const minify = this.builder.minifyJS;
+		const transpile = this.builder.transpile;
+		this.defaultAnalyzeOptions = {
+			minify,
+			transpile,
+			sourceMap: this.builder.sourceMaps || this.builder.deployType === 'development',
+			resourcesDir: this.builder.xcodeAppDir,
+			logger: this.logger,
+			targets: {
+				ios: this.builder.minSupportedIosSdk
+			}
 		};
+
+		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
+		this.resetTaskData();
 	}
 
 	/**
@@ -44,6 +52,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @return {Promise}
 	 */
 	doFullTaskRun() {
+		this.resetTaskData();
 		return Promise.all(Array.from(this.inputFiles).map(filePath => this.processJsFile(filePath)));
 	}
 
@@ -57,8 +66,8 @@ class ProcessJsTask extends IncrementalFileTask {
 	 */
 	doIncrementalTaskRun(changedFiles) {
 		const loaded = this.loadTaskData();
-		if (!(loaded || this.builder.forceCleanBuild)) {
-			this.logger.debug('Unable to load old task data or force clean build is set, falling back to full task run.');
+		const fullBuild = !loaded || this.requiresFullBuild();
+		if (fullBuild) {
 			return this.doFullTaskRun();
 		}
 
@@ -78,12 +87,20 @@ class ProcessJsTask extends IncrementalFileTask {
 	}
 
 	/**
-	 * Loads last run's task data if this task will be skipped entirely
+	 * Loads last run's task data if this task will be skipped entirely.
+	 *
+	 * Note that this function will be called when no input files changed. Since
+	 * we also depend on some config values from the builder this is used to
+	 * fallback to a full task run if required.
 	 *
 	 * @return {Promise}
 	 */
 	loadResultAndSkip() {
-		this.loadTaskData();
+		const loaded = this.loadTaskData();
+		const fullBuild = !loaded || this.requiresFullBuild();
+		if (fullBuild) {
+			return this.doFullTaskRun();
+		}
 
 		return Promise.resolve();
 	}
@@ -99,6 +116,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.data.jsBootstrapFiles = this.jsBootstrapFiles;
 		this.data.jsFiles = this.jsFiles;
+		this.data.analyzeOptionsHash = this.generateHash(JSON.stringify(this.defaultAnalyzeOptions));
 
 		this.saveTaskData();
 
@@ -184,21 +202,14 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {Function} done Callback function
 	 */
 	transformAndCopy(source, from, to, done) {
-		// Analyze Ti API usage, possibly also minify/transpile
 		// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
-		const transpile = from.startsWith(this.sdkCommonFolder) ? false : this.builder.transpile;
-		const minify = from.startsWith(this.sdkCommonFolder) ? false : this.builder.minifyJS;
-		const analyzeOptions = {
+		const transpile = from.startsWith(this.sdkCommonFolder) ? false : this.defaultAnalyzeOptions.transpile;
+		const minify = from.startsWith(this.sdkCommonFolder) ? false : this.defaultAnalyzeOptions.minify;
+		const analyzeOptions = Object.assign({}, this.defaultAnalyzeOptions, {
 			filename: from,
 			minify,
 			transpile,
-			sourceMap: this.builder.sourceMaps || this.builder.deployType === 'development',
-			resourcesDir: this.builder.xcodeAppDir,
-			logger: this.logger,
-			targets: {
-				ios: this.builder.minSupportedIosSdk
-			}
-		};
+		});
 
 		try {
 			const modified = jsanalyze.analyzeJs(source, analyzeOptions);
@@ -292,6 +303,27 @@ class ProcessJsTask extends IncrementalFileTask {
 	}
 
 	/**
+	 * Performs some sanity checks if we can safely perform an incremental build
+	 * or need to fallback to a full build.
+	 *
+	 * @return {Boolean} True if a full build is required, false if not.
+	 */
+	requiresFullBuild() {
+		if (this.builder.forceCleanBuild) {
+			this.logger.trace('Full build required, force clean build flag is set.');
+			return true;
+		}
+
+		const currentAnalyzeOptionsHash = this.generateHash(JSON.stringify(this.defaultAnalyzeOptions));
+		if (!this.data.analyzeOptionsHash || this.data.analyzeOptionsHash !== currentAnalyzeOptionsHash) {
+			this.logger.trace('Full build required, jsanalyze options changed.');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Generates SHA-1 hash from the given string value.
 	 *
 	 * @param {String} value String value to hash.
@@ -324,6 +356,18 @@ class ProcessJsTask extends IncrementalFileTask {
 	 */
 	saveTaskData() {
 		fs.writeFileSync(this.dataFilePath, JSON.stringify(this.data));
+	}
+
+	/**
+	 * Resets the task's data object to an empty state.
+	 */
+	resetTaskData() {
+		this.data = {
+			contentHashes: {},
+			jsBootstrapFiles: [],
+			tiSymbols: {},
+			jsFiles: {}
+		};
 	}
 }
 
