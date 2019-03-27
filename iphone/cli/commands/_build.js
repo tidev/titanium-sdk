@@ -23,7 +23,7 @@ const appc = require('node-appc'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
@@ -5930,9 +5930,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
 						this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
 
-						if (!fs.existsSync(path.dirname(bootstrapJsonAbsolutePath))) {
-							wrench.mkdirSyncRecursive(path.dirname(bootstrapJsonAbsolutePath));
-						}
+						fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
 						fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
 					} else {
 						this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
