@@ -14,8 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -26,6 +24,8 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 
 import android.app.Activity;
 import android.os.Message;
+import android.widget.RelativeLayout;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -137,6 +137,12 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public void release()
 	{
+		// Release search bar proxy if there is one
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			TiViewProxy searchView = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			searchView.release();
+		}
+
 		super.release();
 
 		releaseViews();
