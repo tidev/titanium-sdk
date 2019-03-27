@@ -382,7 +382,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     ENSURE_ARG_COUNT(args, 1);
 
     float compressionQuality = [TiUtils floatValue:[args objectAtIndex:0] def:1.0];
-    return [[[TiBlob alloc] initWithData:UIImageJPEGRepresentation(image, compressionQuality) mimetype:@"image/jpeg"] autorelease];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:UIImageJPEGRepresentation(image, compressionQuality) mimetype:@"image/jpeg"] autorelease];
   }
   return nil;
 }

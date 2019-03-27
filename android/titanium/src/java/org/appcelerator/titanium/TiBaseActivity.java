@@ -1375,11 +1375,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
 		}
-		KrollModule appModule = tiApp.getModuleByName("App");
-		if (appModule != null) {
-			appModule.fireEvent(TiC.EVENT_PAUSE, null);
-			appModule.fireEvent(TiC.EVENT_PAUSED, null);
-		}
 
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -1420,11 +1415,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
-		}
-		KrollModule appModule = tiApp.getModuleByName("App");
-		if (appModule != null) {
-			appModule.fireEvent(TiC.EVENT_RESUME, null);
-			appModule.fireEvent(TiC.EVENT_RESUMED, null);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList())
