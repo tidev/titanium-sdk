@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -384,6 +385,16 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public TabProxy getSelectedTab()
 	{
 		return ((TabGroupProxy) getProxy()).getTabList().get(this.tabGroupViewPager.getCurrentItem());
+	}
+
+	public void updateTitle(String title)
+	{
+		// Get a reference to the ActionBar
+		ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
+		// Guard for trying to update the ActionBar's title when a theme without one is used.
+		if (actionBar != null) {
+			actionBar.setTitle(title);
+		}
 	}
 
 	/**
