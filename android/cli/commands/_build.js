@@ -2829,6 +2829,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			// Note: An empty array indicates the app has no bootstrap files.
 			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
 				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+			fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
 			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
 			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
 			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
