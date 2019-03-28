@@ -200,7 +200,8 @@ events:
         Note that calls to functions that modify the UI during this event may be partially executed,
         **up to** the UI call before the suspension. See [paused](Titanium.App.paused) event. If this happens, the remainder of the code will
         be executed after the application is resumed, but before the `resume` event is triggered.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
 
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
@@ -214,8 +215,8 @@ events:
         [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622997-applicationdidenterbackground?language=objc)
         for the exact behavior that triggers this event.
 
-    platforms: [iphone, ipad]
-    since: '2.1.0'
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "2.1.0", ipad: "2.1.0"}
 
   - name: proximity
     summary: Fired when the proximity sensor changes state.
@@ -280,7 +281,8 @@ events:
         See the `applicationWillEnterForeground` section of the official Apple documentation about
         [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623076-applicationwillenterforeground)
         for the exact behavior that triggers this event.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
 
   - name: resumed
     summary: Fired when the application returns to the foreground.
@@ -296,7 +298,8 @@ events:
         Note: This event will not be fired for URL's in iOS 10+ that are handled by the <Modules.SafariDialog>
         or <Titanium.UI.WebView>, because Apple does not call the `applicationDidBecomeActive` for
         URL-handling anymore. Instead, use the `handleurl` event in <Titanium.App.iOS>.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
 
   - name: started
     summary: Fired after the "app.js" or "alloy.js" gets executed during application startup.
