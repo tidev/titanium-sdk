@@ -3568,7 +3568,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 							extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, entFile) + '"';
 							targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, entFile);
 						} else {
-							src = path.join(ext.basePath, ext.relPath, entFile);
+							src = path.join(ext.basePath, targetName, entFile);
 							if (fs.existsSync(src)) {
 								extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
 								targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
@@ -3588,21 +3588,29 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						const entFile = targetName + '.entitlements';
 						setEntitlementsFile(entFile);
 
-						// create the file reference
-						const entFileRefUuid = this.generateXcodeUuid(xcodeProject);
-						xobjs.PBXFileReference[entFileRefUuid] = {
-							isa: 'PBXFileReference',
-							lastKnownFileType: 'text.xml',
-							path: '"' + entFile + '"',
-							sourceTree: '"<group>"'
-						};
-						xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
+						if (targetInfo.entitlementsFile) {
+							const exists = Object.keys(xobjs.PBXFileReference).some(function (uuid) {
+								return xobjs.PBXFileReference[uuid + '_comment'] === entFile;
+							});
 
-						// add the file to the target's pbx group
-						targetGroup && targetGroup.children.push({
-							value: entFileRefUuid,
-							comment: entFile
-						});
+							if (!exists) {
+								// create the file reference
+								const entFileRefUuid = this.generateXcodeUuid(xcodeProject);
+								xobjs.PBXFileReference[entFileRefUuid] = {
+									isa: 'PBXFileReference',
+									lastKnownFileType: 'text.xml',
+									path: '"' + entFile + '"',
+									sourceTree: '"<group>"'
+								};
+								xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
+
+								// add the file to the target's pbx group
+								targetGroup && targetGroup.children.push({
+									value: entFileRefUuid,
+									comment: entFile
+								});
+							}
+						}
 					}
 
 					if (hasSwiftFiles) {
