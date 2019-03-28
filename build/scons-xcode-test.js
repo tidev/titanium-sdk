@@ -4,7 +4,6 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-// TODO Copy files from titanium-mobile-mocha-suite/Resources?
 const TEST_SUITE_DIR = path.join(__dirname, '..', 'titanium-mobile-mocha-suite');
 const JS_DIR = path.join(TEST_SUITE_DIR, 'Resources');
 const DEST = path.join(__dirname, '..', 'iphone', 'Resources');
@@ -14,20 +13,22 @@ const APP_PROPS_JSON = path.join(TEST_SUITE_DIR, 'scripts', 'mocha', 'build', 'i
 // Test files to skip
 const TO_SKIP = [ 'es6.class.test', 'es6.import.test', 'ti.map.test' ];
 
-fs.copy(JS_DIR, DEST)
-	.then(() => fs.readFile(DEST_APP_JS))
-	.then(data => {
-		const content = data.toString().split(/\r?\n/).filter(line => {
-			return !TO_SKIP.some(blah => line.includes(blah));
-		});
-		return fs.writeFile(DEST_APP_JS, content.join('\n'));
-	})
-	.then(() => fs.pathExists(APP_PROPS_JSON))
-	.then(exists => {
-		if (exists) {
-			fs.copySync(APP_PROPS_JSON, path.join(DEST, '_app_props_.json'));
-		}
-	})
+async function main() {
+	await fs.copy(JS_DIR, DEST);
+	const data = await fs.readFile(DEST_APP_JS);
+
+	const content = data.toString().split(/\r?\n/).filter(line => {
+		return !TO_SKIP.some(blah => line.includes(blah));
+	});
+	await fs.writeFile(DEST_APP_JS, content.join('\n'));
+	if (await fs.pathExists(APP_PROPS_JSON)) {
+		await fs.copy(APP_PROPS_JSON, path.join(DEST, '_app_props_.json'));
+	}
+}
+
+main()
+	.then(() => process.exit(0))
 	.catch(err => {
 		console.error(err);
+		process.exit(1);
 	});
