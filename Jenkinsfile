@@ -17,7 +17,6 @@ def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline br
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
-def runSecurityChecks = isMainlineBranch // run security checks if on mainline branch, by default (dependency check, RetireJS)
 
 // Variables we can change
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
@@ -246,38 +245,6 @@ timestamps {
 					stash includes: 'dist/parity.html', name: 'parity'
 					stash includes: 'tests/', name: 'override-tests'
 				} // end 'Build' stage
-
-				if (runSecurityChecks) {
-					stage('Security') {
-						timeout(25) { // sometimes the upload hangs forever...
-							// Clean up and install only production dependencies
-							if (isGreenKeeper) {
-								sh 'npm install --production'
-							} else {
-								sh 'npm ci --production'
-							}
-
-							// Scan for Dependency Check and RetireJS warnings
-							dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
-							dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
-
-							// Adding appc-license scan, until we can get the output from Dependency Check/Track
-							sh 'npx appc-license > output.csv'
-							archiveArtifacts 'output.csv'
-
-							sh 'npx retire --exitwith 0'
-							step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
-
-							// Don't upload to Threadfix, we do that in a nightly security scan job
-							// re-install dev dependencies for testing later...
-							if (isGreenKeeper) {
-								sh 'npm install'
-							} else {
-								sh(returnStatus: true, script: 'npm ci') // ignore PEERINVALID grunt issue for now
-							}
-						} // timeout
-					} // end 'Security' stage
-				} // if(runSecurityChecks)
 			} // nodeJs
 		} // end node for checkout/build
 
