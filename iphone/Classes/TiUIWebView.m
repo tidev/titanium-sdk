@@ -1028,10 +1028,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       }
     }
   } else if (!([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"] || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) && [[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
-    // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
-    DebugLog(@"[WARN] In iOS, please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
-    DebugLog(@"[WARN] In iOS, it returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
-
+    // Support tel: protocol
     [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
     decisionHandler(WKNavigationActionPolicyCancel);
   } else {
