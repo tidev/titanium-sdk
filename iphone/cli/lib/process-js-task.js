@@ -6,9 +6,12 @@ const crypto = require('crypto');
 const fs = require('fs-extra');
 const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
 const path = require('path');
+const pLimit = require('p-limit');
+const { promisify } = require('util');
 
 const i18n = appc.i18n(__dirname);
 const __ = i18n.__;
+const limit = pLimit(8);
 
 /**
  * Task that processes JS files by applying several transforms and copying them to their
@@ -18,32 +21,37 @@ class ProcessJsTask extends IncrementalFileTask {
 	/**
 	 * Constructs a new processing task.
 	 *
-	 * @param {Object} taskInfo Configuration object for this task
+	 * @param {Object} options Configuration object for this task.
+	 * @param {String} [options.name='process-js'] Name for the task.
+	 * @param {String[]} options.inputFiles Array of input files this task will use.
+	 * @param {String[]} options.incrementalDirectory Path to a folder where incremental task data will be stored.
+	 * @param {Object} options.logger The logger instance used by this task.
+	 * @param {Object} options.builder iOS builder instance.
+	 * @param {String[]} options.jsFiles Array with info about JS files to resolve paths.
+	 * @param {String[]} options.jsBootstrapFiles Array of bootstrap scripts to consider. The task will directly modify this array.
+	 * @param {String} options.sdkCommonFolder Path to common JS files from the SDK.
+	 * @param {Object} options.defaultAnalyzeOptions Default configuration options for jsanalyze.
+	 * @param {Boolean} options.defaultAnalyzeOptions.minify Wether to minify the JS files or not.
+	 * @param {Boolean} options.defaultAnalyzeOptions.transpile Wether to transpile the JS files or not.
+	 * @param {Boolean} options.defaultAnalyzeOptions.sourceMaps Wether to generate source maps or not.
+	 * @param {String} options.defaultAnalyzeOptions.resourcesDir .
+	 * @param {Object} options.defaultAnalyzeOptions.logger Wether to minify the JS files or not.
+	 * @param {Object} options.defaultAnalyzeOptions.targets Wether to minify the JS files or not.
 	 */
-	constructor(taskInfo) {
-		taskInfo.name = taskInfo.name || 'process-js';
-		super(taskInfo);
+	constructor(options) {
+		options.name = options.name || 'process-js';
+		super(options);
 
-		this.jsFiles = taskInfo.jsFiles;
-		this.jsBootstrapFiles = taskInfo.jsBootstrapFiles;
-		this.builder = taskInfo.builder;
-		this.sdkCOmmonFolder = taskInfo.sdkCOmmonFolder;
-
-		const minify = this.builder.minifyJS;
-		const transpile = this.builder.transpile;
-		this.defaultAnalyzeOptions = {
-			minify,
-			transpile,
-			sourceMap: this.builder.sourceMaps || this.builder.deployType === 'development',
-			resourcesDir: this.builder.xcodeAppDir,
-			logger: this.logger,
-			targets: {
-				ios: this.builder.minSupportedIosSdk
-			}
-		};
+		this.builder = options.builder;
+		this.jsFiles = options.jsFiles;
+		this.jsBootstrapFiles = options.jsBootstrapFiles;
+		this.sdkCommonFolder = options.sdkCommonFolder;
+		this.defaultAnalyzeOptions = options.defaultAnalyzeOptions;
 
 		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
 		this.resetTaskData();
+
+		this.createHooks();
 	}
 
 	/**
@@ -53,7 +61,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 */
 	doFullTaskRun() {
 		this.resetTaskData();
-		return Promise.all(Array.from(this.inputFiles).map(filePath => this.processJsFile(filePath)));
+		return Promise.all(Array.from(this.inputFiles).map(filePath => limit(() => this.processJsFile(filePath))));
 	}
 
 	/**
@@ -61,11 +69,11 @@ class ProcessJsTask extends IncrementalFileTask {
 	 *
 	 * For backwards compatibiliy this will currently also call processJsFile for unchanged files.
 	 *
-	 * @param {Map} changedFiles Map of file paths and their current file state (created, changed, deleted)
+	 * @param {Map<String, String>} changedFiles Map of file paths and their current file state (created, changed, deleted)
 	 * @return {Promise}
 	 */
-	doIncrementalTaskRun(changedFiles) {
-		const loaded = this.loadTaskData();
+	async doIncrementalTaskRun(changedFiles) {
+		const loaded = await this.loadTaskData();
 		const fullBuild = !loaded || this.requiresFullBuild();
 		if (fullBuild) {
 			return this.doFullTaskRun();
@@ -74,14 +82,14 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
 
 		const deletedFiles = this.filterFilesByStatus(changedFiles, 'deleted');
-		const deletedPromise = Promise.all(deletedFiles.map(filePath => this.handleDeletedFile(filePath)));
+		const deletedPromise = Promise.all(deletedFiles.map(filePath => limit(() => this.handleDeletedFile(filePath))));
 
 		const updatedFiles = this.filterFilesByStatus(changedFiles, [ 'created', 'changed' ]);
-		const updatedPromise = Promise.all(updatedFiles.map(filePath => this.processJsFile(filePath)));
+		const updatedPromise = Promise.all(updatedFiles.map(filePath => limit(() => this.processJsFile(filePath))));
 
 		// @fixme: can be removed in 9.0 to even further decrease build times on incremental builds
 		const unchangedFiles = Array.from(this.inputFiles).filter(filePath => !changedFiles.has(filePath));
-		const unchangedPromise = Promise.all(unchangedFiles.map(filePath => this.processJsFile(filePath)));
+		const unchangedPromise = Promise.all(unchangedFiles.map(filePath => limit(() => this.processJsFile(filePath))));
 
 		return Promise.all([ deletedPromise, updatedPromise, unchangedPromise ]);
 	}
@@ -95,32 +103,65 @@ class ProcessJsTask extends IncrementalFileTask {
 	 *
 	 * @return {Promise}
 	 */
-	loadResultAndSkip() {
-		const loaded = this.loadTaskData();
+	async loadResultAndSkip() {
+		const loaded = await this.loadTaskData();
 		const fullBuild = !loaded || this.requiresFullBuild();
 		if (fullBuild) {
 			return this.doFullTaskRun();
 		}
 
-		return Promise.resolve();
+		Object.keys(this.data.jsFiles).forEach(relPath => this.builder.unmarkBuildDirFile(this.data.jsFiles[relPath].dest));
 	}
 
 	/**
 	 * Function that will be called after the task run finished.
 	 *
-	 * Used to populate values back into the builder and update the task data
-	 * before it gets written to disk.
+	 * Used to update the task data before it gets written to disk.
 	 */
-	afterTaskAction() {
-		this.builder.tiSymbols = this.data.tiSymbols;
+	async afterTaskAction() {
+		await super.afterTaskAction();
 
 		this.data.jsBootstrapFiles = this.jsBootstrapFiles;
 		this.data.jsFiles = this.jsFiles;
 		this.data.analyzeOptionsHash = this.generateHash(JSON.stringify(this.defaultAnalyzeOptions));
-
-		this.saveTaskData();
+		await this.saveTaskData();
 
 		this.builder.unmarkBuildDirFiles(this.incrementalDirectory);
+	}
+
+	/**
+	 * Creates the hooks that are required during JS processing.
+	 */
+	createHooks() {
+		let compileJsFileHook = this.builder.cli.createHook('build.ios.compileJsFile', this.builder, (r, from, to, done) => {
+			// Read the possibly modified file contents
+			const source = r.contents;
+
+			// If the file didn't change from previous run, return early
+			const currentHash = this.generateHash(source);
+			const previousHash = this.data.contentHashes[from];
+			if (previousHash && previousHash === currentHash) {
+				this.builder.unmarkBuildDirFile(to);
+				return done();
+			}
+
+			this.transformAndCopy(source, from, to).then(() => {
+				this.data.contentHashes[from] = currentHash;
+				done();
+			});
+		});
+
+		this.copyResourceHook = promisify(this.builder.cli.createHook('build.ios.copyResource', this.builder, (from, to, done) => {
+			const originalContents = fs.readFileSync(from).toString();
+
+			const r = {
+				original: originalContents,
+				contents: originalContents,
+				symbols: []
+			};
+
+			compileJsFileHook(r, from, to, done)
+		}));
 	}
 
 	/**
@@ -155,41 +196,7 @@ class ProcessJsTask extends IncrementalFileTask {
 			this.builder.jsFilesToEncrypt.push(file); // encrypted name
 		}
 
-		return new Promise((resolve) => {
-			try {
-				this.builder.cli.createHook('build.ios.copyResource', this.builder, (from, to, cb) => {
-					const originalContents = fs.readFileSync(from).toString();
-
-					const r = {
-						original: originalContents,
-						contents: originalContents,
-						symbols: []
-					};
-
-					this.builder.cli.createHook('build.ios.compileJsFile', this.builder, (r, from, to, cb2) => {
-						// Read the possibly modified file contents
-						const source = r.contents;
-
-						// If the file didn't change from previous run, return early
-						const currentHash = this.generateHash(source);
-						const previousHash = this.data.contentHashes[from];
-						if (previousHash && previousHash === currentHash) {
-							this.builder.unmarkBuildDirFile(to);
-							return cb2();
-						}
-
-						this.transformAndCopy(source, from, to, () => {
-							this.data.contentHashes[from] = currentHash;
-							cb2();
-						});
-					})(r, from, to, cb);
-				})(info.src, info.dest, resolve);
-			} catch (ex) {
-				ex.message.split('\n').forEach(m => this.logger.error(m));
-				this.logger.error(ex);
-				process.exit(1);
-			}
-		});
+		return this.copyResourceHook(info.src, info.dest);
 	}
 
 	/**
@@ -199,12 +206,12 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {String} source JavaScript source
 	 * @param {String} from Path to the file that contains the JavaScript source
 	 * @param {String} to Path where the transformed source should be saved to
-	 * @param {Function} done Callback function
 	 */
-	transformAndCopy(source, from, to, done) {
+	async transformAndCopy(source, from, to) {
 		// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
-		const transpile = from.startsWith(this.sdkCommonFolder) ? false : this.defaultAnalyzeOptions.transpile;
-		const minify = from.startsWith(this.sdkCommonFolder) ? false : this.defaultAnalyzeOptions.minify;
+		const isFileFromCommonFolder = from.startsWith(this.sdkCommonFolder)
+		const transpile = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.transpile;
+		const minify = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.minify;
 		const analyzeOptions = Object.assign({}, this.defaultAnalyzeOptions, {
 			filename: from,
 			minify,
@@ -219,13 +226,12 @@ class ProcessJsTask extends IncrementalFileTask {
 			this.data.tiSymbols[to] = modified.symbols;
 
 			const dir = path.dirname(to);
-			fs.ensureDirSync(dir);
+			await fs.ensureDir(dir);
 
 			this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-			fs.writeFileSync(to, newContents);
+			await fs.writeFile(to, newContents);
 			this.builder.jsFilesChanged = true;
-
-			done();
+			this.builder.unmarkBuildDirFile(to);
 		} catch (err) {
 			err.message.split('\n').forEach(m => this.logger.error(m));
 			this.logger.error(err.stack);
@@ -233,8 +239,6 @@ class ProcessJsTask extends IncrementalFileTask {
 				this.logger.error(err.codeFrame);
 			}
 			process.exit(1);
-		} finally {
-			this.builder.unmarkBuildDirFile(to);
 		}
 	}
 
@@ -297,6 +301,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		if (info) {
 			delete this.data.contentHashes[info.src];
 			delete this.data.tiSymbols[info.dest];
+			delete this.data.jsFiles[file];
 		}
 
 		return Promise.resolve();
@@ -338,13 +343,13 @@ class ProcessJsTask extends IncrementalFileTask {
 	 *
 	 * @return {Boolean} True if the data was sucessfully loaded, false if not.
 	 */
-	loadTaskData() {
-		if (!fs.exists(this.dataFilePath)) {
+	async loadTaskData() {
+		if (!await fs.exists(this.dataFilePath)) {
 			return false;
 		}
 
 		try {
-			this.data = JSON.parse(fs.readFileSync(this.dataFilePath).toString());
+			this.data = await fs.readJson(this.dataFilePath);
 			return true;
 		} catch (e) {
 			return false;
@@ -354,8 +359,8 @@ class ProcessJsTask extends IncrementalFileTask {
 	/**
 	 * Saves current task data for reuse on next run.
 	 */
-	saveTaskData() {
-		fs.writeFileSync(this.dataFilePath, JSON.stringify(this.data));
+	async saveTaskData() {
+		return fs.writeJson(this.dataFilePath, this.data);
 	}
 
 	/**

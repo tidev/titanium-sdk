@@ -5821,13 +5821,32 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					const task = new ProcessJsTask({
 						inputFiles: Object.keys(jsFiles).map(relPath => jsFiles[relPath].src),
 						incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
-						jsFiles,
-						jsBootstrapFiles,
 						logger: this.logger,
 						builder: this,
-						sdkCommonFolder
+						jsFiles,
+						jsBootstrapFiles,
+						sdkCommonFolder,
+						defaultAnalyzeOptions: {
+							minify: this.minifyJS,
+							transpile: this.transpile,
+							sourceMap: this.sourceMaps || this.deployType === 'development',
+							resourcesDir: this.xcodeAppDir,
+							logger: this.logger,
+							targets: {
+								ios: this.minSupportedIosSdk
+							}
+						}
 					});
-					task.run().then(next, next);
+					task.run()
+						.then(() => {
+							this.tiSymbols = task.data.tiSymbols;
+
+							return next();
+						})
+						.catch(e => {
+							this.logger.error(e);
+							process.exit(1);
+						});
 				},
 
 				function writeBootstrapJson() {
