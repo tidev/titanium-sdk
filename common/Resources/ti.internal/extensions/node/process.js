@@ -1,4 +1,5 @@
 import EventEmitter from './events';
+import assertArgumentType from './_errors';
 
 // Start our process uptime timer immediately!
 const startTime = Date.now();
@@ -220,6 +221,35 @@ process.on('warning', warning => {
 		msg += `\n${warning.detail}`;
 	}
 	console.error(msg);
+});
+
+let uncaughtExceptionCallback = null;
+process.hasUncaughtExceptionCaptureCallback = () => uncaughtExceptionCallback !== null;
+process.setUncaughtExceptionCaptureCallback = (fn) => {
+	if (fn === null) {
+		uncaughtExceptionCallback = null;
+		return;
+	}
+	assertArgumentType(fn, 'fn', 'function');
+	if (uncaughtExceptionCallback !== null) {
+		throw new Error('`process.setUncaughtExceptionCaptureCallback()` was called while a capture callback was already active');
+	}
+	uncaughtExceptionCallback = fn;
+};
+
+Ti.App.addEventListener('uncaughtException', function (event) {
+	// Create an Error instance that wraps the data from the event
+	// ideally we'd just forward along the original Error!
+	const error = new Error(event.message);
+	error.stack = event.backtrace;
+	error.fileName = event.sourceName;
+	error.lineNumber = event.line;
+	error.columnNumber = event.lineOffset;
+	if (process.hasUncaughtExceptionCaptureCallback()) {
+		return uncaughtExceptionCallback(error);
+	}
+	// otherwise forward the event!
+	process.emit('uncaughtException', error);
 });
 
 export default process;

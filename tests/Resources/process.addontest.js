@@ -15,6 +15,19 @@ describe('process', () => {
 		should(process).be.ok;
 	});
 
+	it('uncaughtException event', finish => {
+		const errorMessage = 'KABOOM';
+		process.on('uncaughtException', err => {
+			err.should.be.ok;
+			err.message.should.eql(errorMessage); // note that we can't test it is the exact same error object!
+			// that's because we "re-construct" errors from properties
+			finish();
+		});
+		setTimeout(() => {
+			throw new Error(errorMessage);
+		}, 1);
+	});
+
 	describe('#abort()', () => {
 		it('is a function', () => {
 			should(process.abort).be.a.Function;
