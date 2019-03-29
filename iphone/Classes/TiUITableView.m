@@ -287,7 +287,7 @@
 
 @implementation TiUITableView
 #pragma mark Internal
-@synthesize searchString, viewWillDetach;
+@synthesize searchString, viewWillDetach, searchResultIndexes;
 
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
@@ -1005,11 +1005,15 @@
   // see the behavior of, say, Contacts. If users want to hide search, they can do so
   // in an event callback.
 
+  if (viaSearch) {
+    self.isLoaded = NO;
+  }
   if ([target _hasListeners:name]) {
     [target fireEvent:name withObject:eventObject];
   }
 
   if (viaSearch) {
+    self.isLoaded = NO;
     if (hideOnSearch) {
       [self hideSearchScreen:nil];
     } else {
