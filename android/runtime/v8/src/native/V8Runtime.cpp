@@ -23,6 +23,7 @@
 #include "V8Util.h"
 
 #include "V8Runtime.h"
+#include "V8Snapshot.h"
 
 #define TAG "V8Runtime"
 
@@ -225,6 +226,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// Create a new Isolate and make it the current one.
 		Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = &allocator;
+		create_params.snapshot_blob = &snapshot;
 		isolate = Isolate::New(create_params);
 		isolate->Enter();
 
