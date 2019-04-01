@@ -2722,7 +2722,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
 		const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
-		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
+		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				const from = jsFiles[id];
 				let to = path.join(this.buildBinAssetsResourcesDir, id);
@@ -2811,7 +2811,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 			};
 		}), function () {
-
 			// write the properties file
 			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
 				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
@@ -2830,6 +2829,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			// Note: An empty array indicates the app has no bootstrap files.
 			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
 				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+			fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
 			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
 			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
 			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
@@ -2843,9 +2843,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			let titaniumPrep = 'titanium_prep';
 			if (process.platform === 'darwin') {
 				titaniumPrep += '.macos';
-				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
-					titaniumPrep += '.jdk16';
-				}
 			} else if (process.platform === 'win32') {
 				titaniumPrep += '.win32.exe';
 			} else if (process.platform === 'linux') {

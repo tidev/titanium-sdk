@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
 import android.support.design.widget.TabLayout;
@@ -123,6 +124,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 				// Update top inset based on tab bar's height and position in window.
 				super.onLayout(hasChanged, left, top, right, bottom);
 				insetsProvider.setTopBasedOn(this);
+			}
+
+			@Override
+			protected void onConfigurationChanged(Configuration newConfig)
+			{
+				super.onConfigurationChanged(newConfig);
+				if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+					setTabGravity(TabLayout.GRAVITY_FILL);
+				} else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+					setTabGravity(TabLayout.GRAVITY_CENTER);
+				}
 			}
 		};
 		this.mTabLayout.setFitsSystemWindows(true);
