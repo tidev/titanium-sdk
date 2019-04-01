@@ -15,7 +15,9 @@ describe('process', () => {
 		should(process).be.ok;
 	});
 
-	it('uncaughtException event', finish => {
+	// FIXME: this crashes iOS, and Android gets should wrapping the error and re-trhowing an AssertionError
+	// I'm not sure how we can test this...
+	it.allBroken('uncaughtException event', finish => {
 		const errorMessage = 'KABOOM';
 		process.on('uncaughtException', err => {
 			err.should.be.ok;
