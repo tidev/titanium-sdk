@@ -3562,7 +3562,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						extBuildSettings.CODE_SIGN_IDENTITY = buildSettings.CODE_SIGN_IDENTITY;
 					}
 
-					const setEntitlementsFile = entFile => {
+					const setEntitlementsFile = (entFile, warn) => {
 						let src = path.join(ext.basePath, entFile);
 						if (fs.existsSync(src)) {
 							extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, entFile) + '"';
@@ -3575,12 +3575,15 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 							} else {
 								delete extBuildSettings.CODE_SIGN_ENTITLEMENTS;
 								targetInfo.entitlementsFile = null;
+								if (warn) {
+									this.logger.warn(`Unable to find extension target "${targetName}" CODE_SIGN_ENTITLEMENTS file: ${entFile}`);
+								}
 							}
 						}
 					};
 
 					if (extBuildSettings.CODE_SIGN_ENTITLEMENTS) {
-						setEntitlementsFile(extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, ''));
+						setEntitlementsFile(extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, ''), true);
 
 					} else if (haveEntitlements) {
 						haveEntitlements = false;
