@@ -308,6 +308,7 @@
     defaultSeparatorInsets = UIEdgeInsetsZero;
     rowSeparatorInsets = UIEdgeInsetsZero;
     _dimsBackgroundDuringPresentation = YES;
+    self.shouldDelayScrolling = YES;
   }
   return self;
 }
@@ -1006,14 +1007,13 @@
   // in an event callback.
 
   if (viaSearch) {
-    self.isLoaded = NO;
+    self.shouldDelayScrolling = NO;
   }
   if ([target _hasListeners:name]) {
     [target fireEvent:name withObject:eventObject];
   }
 
   if (viaSearch) {
-    self.isLoaded = NO;
     if (hideOnSearch) {
       [self hideSearchScreen:nil];
     } else {

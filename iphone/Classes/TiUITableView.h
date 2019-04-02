@@ -83,7 +83,7 @@
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
-@property (nonatomic, assign) BOOL isLoaded;
+@property (nonatomic, assign) BOOL shouldDelayScrolling;
 @property (nonatomic, retain) NSMutableArray *searchResultIndexes;
 
 #pragma mark Framework

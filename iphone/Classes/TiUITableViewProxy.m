@@ -181,8 +181,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
         searchedRow = searchIndex[section];
 
         [searchedRow enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *_Nonnull stop) {
-          if (idx == row)
+          if (idx == row) {
             *stop = true;
+          }
           rowPosition++;
         }];
         // If search is on, we show only one section
@@ -343,9 +344,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
   ENSURE_UI_THREAD(scrollToIndex, args);
 
-  if (!((TiUITableView *)[self view]).isLoaded) {
+  if (!((TiUITableView *)[self view]).shouldDelayScrolling) {
     [self performSelector:_cmd withObject:args afterDelay:.1];
-    ((TiUITableView *)[self view]).isLoaded = YES;
+    ((TiUITableView *)[self view]).shouldDelayScrolling = YES;
     return;
   }
 
