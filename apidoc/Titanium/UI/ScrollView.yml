@@ -51,7 +51,7 @@ methods:
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
     platforms: [iphone, ipad]
     parameters:
-      - name: contentOffset
+      - name: contentOffsetXY
         summary: |
             X and Y coordinates to which to reposition the top-left point of the scrollable region.
         type: Dictionary
@@ -222,7 +222,7 @@ properties:
         Measured in platform-specific units; pixels on Android, effective pixels on Windows and density-independent pixels (dip) on iOS.
     type: [Number, String]
 
-  - name: contentOffsetXY
+  - name: contentOffset
     summary: X and Y coordinates to which to reposition the top-left point of the scrollable region.
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset.
