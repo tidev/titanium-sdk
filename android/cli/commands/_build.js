@@ -2721,7 +2721,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
-		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
+		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				const from = jsFiles[id];
 				let to = path.join(this.buildBinAssetsResourcesDir, id);
@@ -2870,9 +2870,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			let titaniumPrep = 'titanium_prep';
 			if (process.platform === 'darwin') {
 				titaniumPrep += '.macos';
-				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
-					titaniumPrep += '.jdk16';
-				}
 			} else if (process.platform === 'win32') {
 				titaniumPrep += '.win32.exe';
 			} else if (process.platform === 'linux') {
