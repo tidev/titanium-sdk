@@ -510,7 +510,7 @@ properties:
   - name: ATTRIBUTE_LINE_BREAK
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode> instead.  
+        notes: Use <ParagraphAttribute.lineBreakMode> instead.  
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |

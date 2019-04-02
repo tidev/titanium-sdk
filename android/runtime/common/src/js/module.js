@@ -537,7 +537,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
 			// b. let M = X + (json main field)
 			var m = path.resolve(id, object.exports.main);
 			// c. LOAD_AS_FILE(M)
-			return this.loadAsFile(m, context);
+			return this.loadAsFileOrDirectory(m, context);
 		}
 	}
 

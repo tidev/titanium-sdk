@@ -256,7 +256,7 @@ methods:
 
   - name: setBasicAuthentication
     summary: |
-        Sets the basic authentication for this web view to use on subsequent URl requests.
+        Sets the basic authentication for this web view to use on subsequent URL requests.
     description: |
         The persistence property of this method is only supported on iOS and Titanium SDK 8.0.0+. 
         It is ignored on other platforms and versions.
@@ -296,7 +296,7 @@ methods:
         type: Array
 
   - name: stopListeningToProperties
-    summary: Remove native properties from observing.      
+    summary: Remove native properties from observing.
     platforms: [iphone, ipad]
     since: "8.0.0"
     parameters:
@@ -305,7 +305,7 @@ methods:
         type: Array
 
   - name: takeSnapshot
-    summary: Takes a snapshot of the view's visible viewport.      
+    summary: Takes a snapshot of the view's visible viewport.
     platforms: [iphone, ipad]
     since: "8.0.0"
     parameters:
@@ -314,7 +314,7 @@ methods:
         type: Callback<SnapshotResult>
 
   - name: addUserScript
-    summary: Adds a user script.      
+    summary: Adds a user script.
     platforms: [iphone, ipad]
     since: "8.0.0"
     parameters:
@@ -332,7 +332,7 @@ methods:
         type: Boolean
 
   - name: removeAllUserScripts
-    summary: Removes all associated user scripts.      
+    summary: Removes all associated user scripts.
     platforms: [iphone, ipad]
     since: "8.0.0"
 
@@ -352,7 +352,7 @@ methods:
         type: String
 
   - name: removeScriptMessageHandler
-    summary: Removes a script message handler.     
+    summary: Removes a script message handler.
     platforms: [iphone, ipad]
     since: "8.0.0"
     parameters:
