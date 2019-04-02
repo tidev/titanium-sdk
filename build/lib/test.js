@@ -21,14 +21,12 @@ const LOCAL_TESTS = path.join(ROOT_DIR, 'tests');
  */
 async function runTests(zipfile, platforms, program) {
 	if (await fs.exists(MOCHA_TESTS_DIR)) {
-		// If we have a clone of the tests locally, clean it and pull
-		await exec('git clean -fdx', { cwd: MOCHA_TESTS_DIR });
-		await exec('git pull origin ' + program.branch, { cwd: MOCHA_TESTS_DIR });
-	} else {
-		// clone the common test suite shallow
-		// FIXME Determine the correct branch of the suite to clone like we do in the Jenkinsfile
-		await exec('git clone --depth 1 https://github.com/appcelerator/titanium-mobile-mocha-suite.git -b ' + program.branch, { cwd: ROOT_DIR });
+		// If we have a clone of the tests locally, delete it
+		await fs.remove(MOCHA_TESTS_DIR);
 	}
+	// clone the common test suite shallow
+	// FIXME Determine the correct branch of the suite to clone like we do in the Jenkinsfile
+	await exec('git clone --depth 1 https://github.com/appcelerator/titanium-mobile-mocha-suite.git -b ' + program.branch, { cwd: ROOT_DIR });
 
 	// install dependencies of suite scripts
 	await exec('npm ci', { cwd: MOCHA_TESTS_DIR });
