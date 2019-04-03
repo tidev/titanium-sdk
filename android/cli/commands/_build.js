@@ -2829,6 +2829,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			// Note: An empty array indicates the app has no bootstrap files.
 			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
 				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+			fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
 			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
 			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
 			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
@@ -2842,9 +2843,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			let titaniumPrep = 'titanium_prep';
 			if (process.platform === 'darwin') {
 				titaniumPrep += '.macos';
-				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
-					titaniumPrep += '.jdk16';
-				}
 			} else if (process.platform === 'win32') {
 				titaniumPrep += '.win32.exe';
 			} else if (process.platform === 'linux') {
