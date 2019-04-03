@@ -255,7 +255,7 @@ methods:
 
   - name: setBasicAuthentication
     summary: |
-        Sets the basic authentication for this web view to use on subsequent URl requests.
+        Sets the basic authentication for this web view to use on subsequent URL requests.
     description: |
         The persistence property of this method is only supported on iOS and Titanium SDK 8.0.0+.
         It is ignored on other platforms and versions.

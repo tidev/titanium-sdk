@@ -949,6 +949,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (searchController.isActive) {
     searchController.active = NO;
   }
+
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(dismissSearchController) object:nil];
 }
 
 #pragma mark - SectionIndexTitle Support
