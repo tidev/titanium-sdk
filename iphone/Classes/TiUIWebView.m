@@ -272,7 +272,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[self webView] loadData:[content dataUsingEncoding:NSUTF8StringEncoding]
                    MIMEType:mimeType
       characterEncodingName:@"UTF-8"
-                    baseURL:[NSURL URLWithString:baseURL]];
+                    baseURL:[NSURL fileURLWithPath:baseURL]];
 }
 
 - (void)setDisableBounce_:(id)value
