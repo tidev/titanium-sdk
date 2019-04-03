@@ -265,7 +265,7 @@ events:
     description: |
         This event will only be fired by [Ti.Android.rootActivity](Titanium.Android.rootActivity), which is
         the splash screen activity. This event will never be fired by any of the child activities. The root
-        activity' [intent](Titanium.Android.intent) property will be updated when to the new intent when fired.
+        activity' [intent](Titanium.Android.Intent) property will be updated when to the new intent when fired.
 
         See also:
         [onNewIntent](https://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))

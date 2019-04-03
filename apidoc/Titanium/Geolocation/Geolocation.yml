@@ -89,7 +89,7 @@ description: |
 
     #### Configurating Location Updates on Android
 
-    On Android, three different location service modes are supported: *simple*, *manual*, and *legacy*.
+    On Android, two different location service modes are supported: *simple*, and *manual*.
 
     *   *Simple mode* provides a compromise mode that provides adaquate support for
         undemanding location applications without requiring developers to
@@ -109,31 +109,6 @@ description: |
         Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
         to `true`. In manual mode, the `accuracy` property is not used, and all
         configuration is done through the <Titanium.Geolocation.Android> module.
-
-    *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is
-        used when the `manualMode` flag is `false` and the `accuracy` property is
-        set to one of the iOS `ACCURACY` constants:
-
-        *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
-        *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS)
-        *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS)
-        *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER)
-        *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
-            accuracy and power consumption).
-
-        This mode is deprecated and should not be used for new development.
-
-        In this mode, the specified `accuracy` value determines the
-        *minimum distance between location updates*. If `accuracy` is set to
-        `ACCURACY_BEST`, no distance filter is used on updates.
-
-        In legacy mode, only a single location provider (GPS, network, or passive) is
-        enabled at a time. You can specify a the location provider using the
-        [preferredProvider](Titanium.Geolocation.preferredProvider) property.
-
-        You can also specifying a desired update frequency using the
-        [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
-        and `frequency` properties are not used in any other mode.
 
     As of Titanium SDK 7.1.0 and later, including the [`ti.playservices`](https://github.com/appcelerator-modules/ti.playservices) module will allow Google Play Services 
     to be used by default to obtain location information. This means the provider passed into [createLocationProvider](Titanium.Geolocation.Android.createLocationProvider)
@@ -420,9 +395,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: {android: "2.0.0"}
+    platforms: [iphone, ipad]
 
   - name: ACCURACY_HUNDRED_METERS
     summary: |
@@ -433,9 +406,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: {android: "2.0.0"}
+    platforms: [iphone, ipad]
 
   - name: ACCURACY_KILOMETER
     summary: |
@@ -446,9 +417,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: {android: "2.0.0"}
+    platforms: [iphone, ipad]
 
   - name: ACCURACY_NEAREST_TEN_METERS
     summary: |
@@ -459,9 +428,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: {android: "2.0.0"}
+    platforms: [iphone, ipad]
 
   - name: ACCURACY_THREE_KILOMETERS
     summary: |
@@ -472,9 +439,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: {android: "2.0.0"}
+    platforms: [iphone, ipad]
 
   - name: ACCURACY_HIGH
     summary: |
@@ -612,50 +577,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
 
-  - name: PROVIDER_GPS
-    summary: |
-        Specifies the GPS location provider.
-    description: |
-        Used with [preferredProvider](Titanium.Geolocation.preferredProvider),
-        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
-        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
-
-        In general, the GPS provider has the highest power consumption and the
-        highest accuracy, but this may vary. In some circumstances, the network
-        provider may be more reliable.
-    type: String
-    permission: read-only
-    platforms: [android]
-
-  - name: PROVIDER_NETWORK
-    summary: |
-        Specifies the network location provider.
-    description: |
-        Used with [preferredProvider](Titanium.Geolocation.preferredProvider),
-        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
-        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
-
-        Generally requires less power than the GPS provider and provides less accurate
-        results, but may produce very accurate results in densely-populated areas
-        with many cell towers and WiFi networks.
-    type: String
-    permission: read-only
-    platforms: [android]
-
-  - name: PROVIDER_PASSIVE
-    summary: |
-        Specifies the passive location provider.
-    description: |
-        Used with [preferredProvider](Titanium.Geolocation.preferredProvider),
-        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
-        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
-
-        This provider only uses cached location information, so it does not use
-        any power, but makes no guarantee that the location results are recent.
-    type: String
-    permission: read-only
-    platforms: [android]
-
   - name: ACTIVITYTYPE_OTHER
     summary: The location data is being used for an unknown activity.
     description: |
@@ -721,9 +642,6 @@ properties:
         is recommended to maximize accuracy and battery life.
         See <Titanium.Geolocation.Android> for details on using manual mode.
 
-        Note that for backwards compatibility, Android supports using the iOS accuracy constants.
-        This usage is deprecated. Applications using one of the iOS constants should
-        migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
     constants: Titanium.Geolocation.ACCURACY_*
 
@@ -747,11 +665,9 @@ properties:
     description: |
         Setting a frequency value enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
-
-        Note that the frequency value is used as a guideline: there are no guarantees
+         Note that the frequency value is used as a guideline: there are no guarantees
         that the device will provide updates at the specified frequency.
-
-        A lower frequency value generally increases power consumption.
+         A lower frequency value generally increases power consumption.
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
 
@@ -801,15 +717,13 @@ properties:
     description: |
         Setting a preferred provider enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
-
-        The preferred provider affects power consumption. In general, `PROVIDER_GPS`
+         The preferred provider affects power consumption. In general, `PROVIDER_GPS`
         requires the most power, and `PROVIDER_PASSIVE` requires the least.
-
-        If `undefined`, the preferred provider is auto-detected.
+         If `undefined`, the preferred provider is auto-detected.
     type: String
-    constants: Titanium.Geolocation.PROVIDER_*
+    constants: Titanium.Geolocation.Android.PROVIDER_*
     platforms: [android]
-    default: <Titanium.Geolocation.PROVIDER_NETWORK>
+    default: <Titanium.Geolocation.Android.PROVIDER_NETWORK>
 
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
