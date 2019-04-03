@@ -306,10 +306,10 @@ class GlobalTemplateWriter {
 	/**
 	 * Writes the type definition header required by DefinitelyTyped.
 	 *
-	 * @todo Automatically update the Titanium version string.
 	 */
 	writeHeader() {
-		this.output += '// Type definitions for Titanium 7.1\n';
+		const { version } = require('../../package.json');
+		this.output += `// Type definitions for Titanium ${version}\n`;
 		this.output += '// Project: https://github.com/appcelerator/titanium_mobile\n';
 		this.output += '// Definitions by: Axway Appcelerator <https://github.com/appcelerator>\n';
 		this.output += '//                 Jan Vennemann <https://github.com/janvennemann>\n';
