@@ -176,9 +176,6 @@ timestamps {
 					}
 					// was it a failure?
 					if (npmTestResult != 0) {
-						// empty stashes of test reports, so danger step can still run.
-						stash allowEmpty: true, name: 'test-report-ios'
-						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
 					}
 				}
