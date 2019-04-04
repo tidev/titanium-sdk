@@ -309,13 +309,14 @@ class GlobalTemplateWriter {
 	 */
 	writeHeader() {
 		const { version } = require('../../package.json');
-		this.output += `// Type definitions for Titanium ${version}\n`;
+		const versionSplit = version.split('.');
+		const majorMinor = `${versionSplit[0]}.${versionSplit[1]}`;
+		this.output += `// Type definitions for Titanium ${majorMinor}\n`;
 		this.output += '// Project: https://github.com/appcelerator/titanium_mobile\n';
 		this.output += '// Definitions by: Axway Appcelerator <https://github.com/appcelerator>\n';
 		this.output += '//                 Jan Vennemann <https://github.com/janvennemann>\n';
 		this.output += '// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped\n';
 		this.output += '// TypeScript Version: 2.6\n';
-		this.output += '\n';
 	}
 
 	/**
@@ -380,7 +381,7 @@ class GlobalTemplateWriter {
 		if (interfaceNode.methods.length > 0) {
 			interfaceNode.methods.forEach(methodNode => this.writeMethodNode(methodNode, nestingLevel + 1));
 		}
-		this.output += `${this.indent(nestingLevel)}}\n\n`;
+		this.output += `${this.indent(nestingLevel)}}\n`;
 	}
 
 	/**
