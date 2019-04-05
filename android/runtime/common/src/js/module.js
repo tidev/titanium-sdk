@@ -59,14 +59,12 @@ Module.runModule = function (source, filename, activityOrService) {
 	if (isService) {
 		module = new Module(id, null, {
 			currentService: activityOrService,
-			currentActivity: null,
-			currentWindow: null
+			currentActivity: null
 		});
 	} else {
 		module = new Module(id, null, {
 			currentService: null,
-			currentActivity: activityOrService,
-			currentWindow: activityOrService ? activityOrService.window : null
+			currentActivity: activityOrService
 		});
 	}
 
@@ -537,7 +535,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
 			// b. let M = X + (json main field)
 			var m = path.resolve(id, object.exports.main);
 			// c. LOAD_AS_FILE(M)
-			return this.loadAsFile(m, context);
+			return this.loadAsFileOrDirectory(m, context);
 		}
 	}
 

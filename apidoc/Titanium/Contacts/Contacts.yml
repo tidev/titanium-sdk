@@ -216,8 +216,8 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
-        This method requests `Manifest.permission.READ_CONTACTS` on Android. If you require other permissions, you can also
-        use <Titanium.Android.requestPermissions>.
+        This method requests `Manifest.permission.READ_CONTACTS` and `Manifest.permission.WRITE_CONTACTS` on Android.
+        If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
 
         In iOS 6, Apple introduced the Info.plist key `NSContactsUsageDescription` that is used to display an
         own description while authorizing contacts permissions. In iOS 10, this key is mandatory and the application

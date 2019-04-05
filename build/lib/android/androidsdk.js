@@ -1,9 +1,9 @@
 'use strict';
 
-var os = require('os'),
-	fs = require('fs-extra'),
-	path = require('path'),
-	DEFAULT_API_LEVEL = 28;
+const os = require('os');
+const fs = require('fs-extra');
+const path = require('path');
+const DEFAULT_API_LEVEL = 28; // FIXME: Use android's package.json compileSDKVersion value
 
 /**
  * Given a hinted at location of Android SDK, find one.
@@ -12,6 +12,7 @@ var os = require('os'),
  * @return {String} detected SDK directory
  */
 function resolve(supplied) {
+	// TODO: Re-use same code as node-titanium-sdk's android detection!
 	let defaultDirs = [ '/opt/android', '/opt/android-sdk', '/usr/android', '/usr/android-sdk' ];
 	if (os.platform() === 'win32') {
 		defaultDirs = [ 'C:\\android-sdk', 'C:\\android', 'C:\\Program Files\\android-sdk', 'C:\\Program Files\\android' ];
