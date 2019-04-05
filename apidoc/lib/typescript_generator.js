@@ -311,7 +311,7 @@ class GlobalTemplateWriter {
 		const { version } = require('../../package.json');
 		const versionSplit = version.split('.');
 		const majorMinor = `${versionSplit[0]}.${versionSplit[1]}`;
-		this.output += `// Type definitions for Titanium ${majorMinor}\n`;
+		this.output += `// Type definitions for non-npm package Titanium ${majorMinor}\n`;
 		this.output += '// Project: https://github.com/appcelerator/titanium_mobile\n';
 		this.output += '// Definitions by: Axway Appcelerator <https://github.com/appcelerator>\n';
 		this.output += '//                 Jan Vennemann <https://github.com/janvennemann>\n';
