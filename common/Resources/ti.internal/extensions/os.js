@@ -1,5 +1,3 @@
-'use strict';
-
 const isAndroid = Ti.Platform.osname === 'android';
 const isIOS = !isAndroid && (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
 const isWin32 = !isAndroid && !isIOS && Ti.Platform.name === 'windows';
@@ -526,4 +524,4 @@ if (isIOS) {
 	OS.type = () => 'Linux';
 }
 
-module.exports = OS;
+export default OS;
