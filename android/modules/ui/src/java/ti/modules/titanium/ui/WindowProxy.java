@@ -140,30 +140,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected void handleOpen(final KrollDict options)
+	protected void handleOpen(KrollDict options)
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
 		if (topActivity == null || topActivity.isFinishing()) {
 			return;
 		}
-
-		// for transitions, wait for root activity to be resumed
-		final boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-		if (animated && topActivity instanceof TiBaseActivity) {
-			final TiBaseActivity baseActivity = (TiBaseActivity) topActivity;
-			if (!baseActivity.isResumed) {
-				getMainHandler().postDelayed(new Runnable() {
-					@Override
-					public void run()
-					{
-						handleOpen(options);
-					}
-				}, Build.VERSION.SDK_INT > Build.VERSION_CODES.M ? 1 : 100);
-				return;
-			}
-		}
-
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
@@ -171,6 +154,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
+		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
 		if (!animated) {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			topActivity.startActivity(intent);
