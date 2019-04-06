@@ -146,7 +146,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		fillIntent(topActivity, intent);
 
 		int windowId = TiActivityWindows.addWindow(this);
-		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
@@ -178,7 +177,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
 		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
-		if (activity != null && !activity.isFinishing()) {
+		windowActivity = null;
+		if (activity == null) {
+			return;
+		}
+
+		if (!activity.isFinishing() && !activity.isDestroyed()) {
 			if (super.hasActivityTransitions()) {
 				activity.finishAfterTransition();
 			} else {
@@ -192,10 +196,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 				activity.overridePendingTransition(enterAnimation, exitAnimation);
 			}
-
-			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
-			TiApplication.removeFromActivityStack(activity);
-			windowActivity = null;
 		}
 	}
 
@@ -291,7 +291,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		activity.getActivityProxy().getDecorView().add(this);
-		activity.addWindowToStack(this);
 
 		// Need to handle the cached activity proxy properties and url window in the JS side.
 		callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
@@ -386,7 +385,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
-		windowActivity.get().setSustainMode(mode);
+		Activity activity = getWindowActivity();
+		if (activity instanceof TiBaseActivity) {
+			((TiBaseActivity) activity).setSustainMode(mode);
+		}
 	}
 
 	// clang-format off

@@ -48,8 +48,7 @@ import android.widget.ListView;
 
 public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeListener
 {
-	public static final int TI_TABLE_VIEW_ID = 101;
-	public static final int HEADER_FOOTER_WRAP_ID = 54321;
+	public static final int HEADER_FOOTER_WRAP_ID = View.generateViewId();
 	private static final String TAG = "TiTableView";
 
 	protected int maxClassname = 32;
@@ -325,7 +324,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		this.viewModel = new TableViewModel(proxy);
 		this.listView = TiNestedListView.createUsing(getContext());
-		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);
 		listView.setFocusableInTouchMode(true);

@@ -42,7 +42,7 @@ public class TiUITableView
 {
 	private static final String TAG = "TitaniumTableView";
 
-	private static final int SEARCHVIEW_ID = 102;
+	private static final int SEARCHVIEW_ID = View.generateViewId();
 
 	protected TiTableView tableView;
 

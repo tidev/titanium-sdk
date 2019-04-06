@@ -150,8 +150,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
-	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
-	private static int totalWindowStack = 0;
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -215,52 +213,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	public void addWindowToStack(TiWindowProxy proxy)
-	{
-		if (windowStack.contains(proxy)) {
-			Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
-			return;
-		}
-		boolean isEmpty = windowStack.empty();
-		if (!isEmpty) {
-			windowStack.peek().onWindowFocusChange(false);
-		}
-		windowStack.add(proxy);
-		totalWindowStack++;
-		if (!isEmpty) {
-			proxy.onWindowFocusChange(true);
-		}
-	}
-
-	public void removeWindowFromStack(TiWindowProxy proxy)
-	{
-		proxy.onWindowFocusChange(false);
-
-		boolean isTopWindow = ((!windowStack.isEmpty()) && (windowStack.peek() == proxy)) ? true : false;
-		windowStack.remove(proxy);
-		totalWindowStack--;
-
-		//Fire focus only if activity is not paused and the removed window was topWindow
-		if (!windowStack.empty() && isResumed && isTopWindow) {
-			TiWindowProxy nextWindow = windowStack.peek();
-			nextWindow.onWindowFocusChange(true);
-		}
-	}
-
-	public void resetTotalWindowStack()
-	{
-		totalWindowStack = 0;
-	}
-
-	/**
-	 * Returns the window at the top of the stack.
-	 * @return the top window or null if the stack is empty.
-	 */
-	public TiWindowProxy topWindowOnStack()
-	{
-		return (windowStack.isEmpty()) ? null : windowStack.peek();
-	}
-
 	public static interface ConfigurationChangedListener {
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
@@ -321,7 +273,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void addDialog(DialogWrapper d)
 	{
-		if (!dialogs.contains(d)) {
+		if ((d != null) && !dialogs.contains(d)) {
 			dialogs.add(d);
 		}
 	}
@@ -618,9 +570,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			getWindow().setSoftInputMode(softInputMode);
 		}
 
-		boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
-		if (useActivityWindow) {
-			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+		int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID);
+		if (windowId != TiActivityWindows.INVALID_WINDOW_ID) {
 			TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
 		}
 	}
@@ -949,6 +900,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	public void onBackPressed()
 	{
+		// Notify all listener that the back button was pressed.
 		synchronized (interceptOnBackPressedListeners.synchronizedList())
 		{
 			for (interceptOnBackPressedEvent listener : interceptOnBackPressedListeners.nonNull()) {
@@ -963,50 +915,49 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		TiWindowProxy topWindow = topWindowOnStack();
-
-		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
-			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
-		}
-		// Override default Android behavior for "back" press
-		// if the top window has a callback to handle the event.
-		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
-			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
-			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
-		}
-		if (topWindow == null
-			|| (topWindow != null && !topWindow.hasProperty(TiC.PROPERTY_ON_BACK)
-				&& !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK))) {
-			// check Ti.UI.Window.exitOnClose and either
-			// exit the application or send to background
-			if (topWindow != null) {
-				boolean exitOnClose = TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
-
-				// root window should exitOnClose by default
-				if (totalWindowStack <= 1 && !topWindow.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-					exitOnClose = true;
-				}
-				if (exitOnClose) {
-					Log.d(TAG, "onBackPressed: exit");
-					if (Build.VERSION.SDK_INT >= 16) {
-						finishAffinity();
-					} else {
-						TiApplication.terminateActivityStack();
-					}
-					return;
-
-					// root window has exitOnClose set as false, send to background
-				} else if (totalWindowStack <= 1) {
-					Log.d(TAG, "onBackPressed: suspend to background");
-					this.moveTaskToBack(true);
-					return;
-				}
-				removeWindowFromStack(topWindow);
+		// Let the window proxy handle the back event first, if configured.
+		boolean hasBackEventHandler = false;
+		if (this.window != null) {
+			// Fire an "androidback" event.
+			if (this.window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+				this.window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+				hasBackEventHandler = true;
 			}
 
-			// If event is not handled by custom callback allow default behavior.
-			super.onBackPressed();
+			// Invoke the "onBack" property, if assigned.
+			if (this.window.hasProperty(TiC.PROPERTY_ON_BACK) && (this.activityProxy != null)) {
+				Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
+				if (value instanceof KrollFunction) {
+					KrollFunction onBackCallback = (KrollFunction) value;
+					onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
+					hasBackEventHandler = true;
+				}
+			}
 		}
+
+		// Handle app exit ourselves if both of the following are true:
+		// - The above window proxy did not handle the back event.
+		// - This activity is the 1st window created by Titanium (excluding root splash activity).
+		if (!hasBackEventHandler && (TiActivityWindows.getWindowCount() <= 1)) {
+			boolean exitOnClose = true;
+			if (this.window != null) {
+				exitOnClose = TiConvert.toBoolean(this.window.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
+			}
+			if (exitOnClose) {
+				// Destroy all remaining activitities, including root splash activity.
+				Log.d(TAG, "onBackPressed: exit");
+				finishAffinity();
+				TiApplication.terminateActivityStack();
+			} else {
+				// Don't destroy this activity. Home-out instead.
+				Log.d(TAG, "onBackPressed: suspend to background");
+				moveTaskToBack(true);
+			}
+			return;
+		}
+
+		// Allow the system to finish/destroy this activity.
+		super.onBackPressed();
 	}
 
 	@Override
@@ -1356,8 +1307,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
-		if (!windowStack.empty()) {
-			windowStack.peek().onWindowFocusChange(false);
+		if (this.window != null) {
+			this.window.onWindowFocusChange(false);
 		}
 
 		TiApplication.updateActivityTransitionState(true);
@@ -1405,8 +1356,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onResume", Log.DEBUG_MODE);
 
-		if (!windowStack.empty()) {
-			windowStack.peek().onWindowFocusChange(true);
+		if (this.window != null) {
+			this.window.onWindowFocusChange(true);
 		}
 
 		TiApplication tiApp = getTiApp();
@@ -1589,6 +1540,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			this.safeAreaMonitor.stop();
 		}
 
+		// Notify listeners that this activity is being destroyed.
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1603,57 +1555,59 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		super.onDestroy();
 
+		// "isFinishing" will return true if the Android OS won't restore this destroyed activity later.
+		// This happens when finish() method is called of end-user back navigates out of the activity.
+		// Note: Will breturn false if system intends to restore the activity later, which happens if
+		//       system setting "Don't keep activities" is enabled or "Background process limit" was exceeded.
 		boolean isFinishing = isFinishing();
 
-		// If the activity is finishing, remove the windowId and supportHelperId so the window and supportHelper can be released.
-		// If the activity is forced to destroy by Android OS, keep the windowId and supportHelperId so the activity can be recovered.
+		// If activities is finished (not coming back), then stop tracking the activity and remove from collection.
 		if (isFinishing) {
 			if (this.launchIntent != null) {
-				int windowId = this.launchIntent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+				int windowId = this.launchIntent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID,
+															 TiActivityWindows.INVALID_WINDOW_ID);
 				TiActivityWindows.removeWindow(windowId);
 			}
 			TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
 		}
 
+		// Invoke the Titanium activity proxy's "onDestroy" callback.
 		fireOnDestroy();
 
+		// Release proxy references and resources.
 		if (layout instanceof TiCompositeLayout) {
 			Log.d(TAG, "Layout cleanup.", Log.DEBUG_MODE);
 			((TiCompositeLayout) layout).removeAllViews();
 		}
 		layout = null;
-
-		//LW windows
-		if (window == null && view != null) {
-			view.release();
-			view = null;
-		}
 		if (view != null) {
-			view.releaseViews();
+			if (window != null) {
+				view.releaseViews();
+			} else {
+				view.release();
+			}
 			view = null;
 		}
-
 		if (window != null) {
-			if (windowStack.contains(window)) {
-				removeWindowFromStack(window);
-			}
 			window.closeFromActivity(isFinishing);
-			window.releaseViews();
 			window = null;
 		}
-
 		if (menuHelper != null) {
 			menuHelper.destroy();
 			menuHelper = null;
 		}
-
 		if (activityProxy != null) {
 			activityProxy.release();
 			activityProxy = null;
 		}
 
-		// Don't dispose the runtime if the activity is forced to destroy by Android,
-		// so we can recover the activity later.
+		// Remove this activity from the app-wide Titanium UI stack.
+		TiApplication.removeFromActivityStack(this);
+
+		// Decrement the activity count. Once the counts hits zero, we'll terminate the JavaScript runtime.
+		// Note: If "isFinishing" is false, then the Android OS is temporarily destroying this activity
+		//       and intends to restore it later. We don't want to terminate the JS runtime in this case.
+		//       This happens when "Don't keep activities" is enabled or "Background process limit" is exceeded.
 		KrollRuntime.decrementActivityRefCount(isFinishing);
 	}
 
@@ -1727,6 +1681,22 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
+	public void finishAfterTransition()
+	{
+		// This is only supported on Android 5.0 and above. Do a normal finish on older OS versions.
+		if (Build.VERSION.SDK_INT < 21) {
+			finish();
+			return;
+		}
+
+		// Remove this activity from the app-wide Titanium UI stack.
+		TiApplication.removeFromActivityStack(this);
+
+		// Finish this activity after its exit transition, if supported.
+		super.finishAfterTransition();
+	}
+
+	@Override
 	public void finish()
 	{
 		// Do not continue if already called.
@@ -1740,6 +1710,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (isTiRootActivity && (getTiApp().getRootActivity() == this)) {
 			TiApplication.terminateActivityStack();
 		}
+
+		// Remove this activity from the app-wide Titanium UI stack.
+		TiApplication.removeFromActivityStack(this);
 
 		// Close this activity.
 		super.finish();
