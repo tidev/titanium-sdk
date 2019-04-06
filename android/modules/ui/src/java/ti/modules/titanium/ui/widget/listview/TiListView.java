@@ -98,7 +98,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 					  TiC.PROPERTY_WIDTH, TiC.PROPERTY_HEIGHT, TiC.PROPERTY_IMAGE);
 
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
-	public static final int HEADER_FOOTER_WRAP_ID = 12345;
+	public static final int HEADER_FOOTER_WRAP_ID = View.generateViewId();
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
 	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;

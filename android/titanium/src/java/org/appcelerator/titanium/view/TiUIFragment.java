@@ -18,8 +18,6 @@ import java.util.ArrayList;
 
 public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 {
-	private static int viewId = 1000;
-
 	private Fragment fragment;
 	private boolean fragmentCommitted = false;
 	protected boolean fragmentOnly = false;
@@ -45,7 +43,6 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 					return interceptTouchEvent(ev) || super.dispatchTouchEvent(ev);
 				}
 			};
-			container.setId(viewId++);
 			setNativeView(container);
 
 			FragmentManager manager = ((FragmentActivity) activity).getSupportFragmentManager();

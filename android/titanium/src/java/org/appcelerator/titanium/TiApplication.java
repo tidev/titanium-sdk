@@ -176,7 +176,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	// application (typically when the root activity is destroyed)
 	public static void terminateActivityStack()
 	{
-		if (activityStack == null || activityStack.size() == 0) {
+		// Do not continue if there are no activities on the stack.
+		if ((activityStack == null) || (activityStack.size() <= 0)) {
 			return;
 		}
 
@@ -257,7 +258,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			Activity activity = (activityStack.get(activityStackSize - 1)).get();
 
 			// Skip and remove any activities which are dead or in the process of finishing.
-			if (activity == null || activity.isFinishing()) {
+			if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
 				activityStack.remove(activityStackSize - 1);
 				continue;
 			}
@@ -512,7 +513,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		if (rootActivity != null) {
 			Activity activity = rootActivity.get();
 			if (activity != null) {
-				return !activity.isFinishing();
+				if (!activity.isFinishing() && !activity.isDestroyed()) {
+					return true;
+				}
 			}
 		}
 

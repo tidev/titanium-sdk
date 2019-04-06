@@ -247,9 +247,15 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 	{
 		if (progressDialog != null) {
 			Activity ownerActivity = progressDialog.getOwnerActivity();
-			if (ownerActivity != null && !ownerActivity.isFinishing()) {
+			if (ownerActivity instanceof TiBaseActivity) {
 				((TiBaseActivity) ownerActivity).removeDialog(progressDialog);
-				progressDialog.dismiss();
+				if (!ownerActivity.isFinishing() && !ownerActivity.isDestroyed()) {
+					try {
+						progressDialog.dismiss();
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to hide ProgressIndicator dialog.", ex);
+					}
+				}
 			}
 			progressDialog = null;
 		} else {
