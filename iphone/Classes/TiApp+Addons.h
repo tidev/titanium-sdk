@@ -9,6 +9,8 @@
 
 @interface TiApp (Addons)
 
+NS_ASSUME_NONNULL_BEGIN
+
 #ifdef USE_TI_FETCH
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 #endif
@@ -22,5 +24,7 @@
 #ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler;
 #endif
+
+NS_ASSUME_NONNULL_END
 
 @end
