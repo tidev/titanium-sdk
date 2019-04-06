@@ -1564,8 +1564,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// If activities is finished (not coming back), then stop tracking the activity and remove from collection.
 		if (isFinishing) {
 			if (this.launchIntent != null) {
-				int windowId = this.launchIntent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID,
-															 TiActivityWindows.INVALID_WINDOW_ID);
+				int windowId =
+					this.launchIntent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID);
 				TiActivityWindows.removeWindow(windowId);
 			}
 			TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
