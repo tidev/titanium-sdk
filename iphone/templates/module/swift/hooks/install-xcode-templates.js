@@ -3,7 +3,7 @@
  * Hook that makes sure the Titanium Xcode file templates get installed.
  *
  * @copyright
- * Copyright (c) 2014-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2018-present by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License

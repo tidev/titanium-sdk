@@ -12,7 +12,7 @@ import TitaniumKit
 @objc(<%- moduleIdAsIdentifier %>ExampleProxy)
 class <%- moduleIdAsIdentifier %>ExampleProxy: TiProxy {
 
-  override func _init(withPageContext context: TiEvaluator!) -> <%- moduleIdAsIdentifier %>ExampleProxy! {
+  override func _init(withPageContext context: TiEvaluator!) -> Self? {
     super._init(withPageContext: context)
 
     // Custom proxy init
