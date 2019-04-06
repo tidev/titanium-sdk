@@ -1,10 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiProxy.h>
+#import "TiFile.h"
+#import "TiProxy.h"
 
 typedef enum {
   TiBlobTypeImage = 0,
@@ -143,6 +144,12 @@ typedef enum {
  @return The file path.
  */
 - (NSString *)path;
+
+/**
+ Returns the blob file.
+ @return The file.
+ */
+- (TiFile *)file;
 
 /**
  Returns the blob native path (Android compatibility).

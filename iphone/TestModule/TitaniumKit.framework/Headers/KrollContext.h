@@ -1,15 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 #import <Foundation/Foundation.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 
 @class KrollContext;
 @class KrollCallback;
+@class KrollTimerManager;
 
 @protocol KrollDelegate <NSObject>
 
@@ -40,7 +40,7 @@
   BOOL suspended;
 #endif
   JSGlobalContextRef context;
-  NSMutableDictionary *timers;
+  KrollTimerManager *timerManager;
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
@@ -54,16 +54,13 @@
 
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_;
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
-- (void)invokeBlockOnThread:(void (^)())block;
-+ (void)invokeBlock:(void (^)())block;
+- (void)invokeBlockOnThread:(void (^)(void))block;
++ (void)invokeBlock:(void (^)(void))block;
 
 - (void)evalJS:(NSString *)code;
 - (id)evalJSAndWait:(NSString *)code;
 
 - (void)enqueue:(id)obj;
-
-- (void)registerTimer:(id)timer timerId:(double)timerId;
-- (void)unregisterTimer:(double)timerId;
 
 - (int)forceGarbageCollectNow;
 

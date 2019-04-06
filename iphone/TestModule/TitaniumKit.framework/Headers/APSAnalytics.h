@@ -1,6 +1,6 @@
 /**
  * APS Analytics
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,7 +31,7 @@ extern NSString * const APSDeployTypeProduction;
 /**
  * The session timeout in seconds. If the application has been in the background
  * for longer than the timeout, the analytics service logs an end time to the current user session.
- * Default value is 30 s.
+ * Default: 30s
  */
 @property (atomic, readwrite) NSTimeInterval sessionTimeout;
 
@@ -41,12 +41,18 @@ extern NSString * const APSDeployTypeProduction;
  */
 @property (atomic, strong, readonly) NSString *deployType;
 
-//Analytic Event Generators
+/**
+ * Allows the user to opt out from Analytics during runtime to comply to GPDR.
+ * Default: NO
+ *
+ * @since 2.1.0
+ */
+@property (nonatomic, assign, getter=isOptedOut) BOOL optedOut;
+
 /**
  * Sends a geolocation event.
  * @param location A CLLocation object containing the location data.
  */
-
 - (void)sendAppGeoEvent:(CLLocation *) location;
 
 /**
@@ -68,6 +74,12 @@ extern NSString * const APSDeployTypeProduction;
  */
 - (void)sendAppFeatureEvent:(NSString *)eventName
                    payload:(NSDictionary *)payload;
+
+/**
+ * Sends a crash event.
+ * @param payload crash data to send.
+ */
+- (void)sendAppCrashEvent:(NSDictionary *)payload;
 
 /**
  * Enables Analytics with a given app-key and deploy-type.

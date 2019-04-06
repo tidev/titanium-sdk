@@ -10,7 +10,7 @@
 #import "TiLayoutDimension.h"
 #else
 
-#import <TitaniumKit/TiBase.h>
+#import "TiBase.h"
 #include <math.h>
 
 #define INCH_IN_CM 2.54
@@ -50,6 +50,7 @@ TiDimension TiDimensionFromObject(id object);
 CGFloat convertInchToPixels(CGFloat value);
 CGFloat convertPixelsToDip(CGFloat value);
 CGFloat convertDipToInch(CGFloat value);
+CGFloat convertDipToDefaultUnit(CGFloat value);
 
 CGFloat convertDipToPixels(CGFloat value);
 
@@ -106,7 +107,7 @@ TI_INLINE BOOL TiDimensionDidCalculateValue(TiDimension dimension, CGFloat bound
     *result = dimension.value;
     return YES;
   case TiDimensionTypePercent:
-    *result = roundf(dimension.value * boundingValue);
+    *result = floorf(dimension.value * boundingValue);
     return YES;
   default: {
     break;

@@ -9,15 +9,15 @@
 
 // Helper methods for adding an alpha layer to an image
 
-@import Foundation;
-@import UIKit;
-@import CoreGraphics;
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@interface UIImageAlpha : NSObject {
-}
+@interface UIImageAlpha : NSObject
+
 + (BOOL)hasAlpha:(UIImage *)image;
 + (UIImage *)normalize:(UIImage *)image;
 + (UIImage *)imageWithAlpha:(UIImage *)image;
 + (UIImage *)transparentBorderImage:(NSUInteger)borderSize image:(UIImage *)image;
 + (CGImageRef)newBorderMask:(NSUInteger)borderSize size:(CGSize)size;
+
 @end

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,10 +9,11 @@
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "TiEvaluator.h"
+#import "TiModule.h"
+#import "TiProxy.h"
+
 #import <Foundation/Foundation.h>
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <TitaniumKit/TiModule.h>
-#import <TitaniumKit/TiProxy.h>
 #include <libkern/OSAtomic.h>
 
 @interface TitaniumObject : KrollObject {
@@ -37,7 +38,7 @@ extern NSString *TitaniumModuleRequireFormat;
   KrollContext *context;
   NSDictionary *preload;
   NSMutableDictionary *modules;
-  NSMutableDictionary *pathCache;
+  NSMutableDictionary *packageJSONMainCache;
   TitaniumObject *titanium;
   KrollObject *console;
   BOOL shutdown;

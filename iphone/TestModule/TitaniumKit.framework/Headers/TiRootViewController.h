@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,11 +15,7 @@
   UIView *hostView;
   NSInteger curTransformAngle;
   BOOL forceLayout;
-  UIImageView *defaultImageView;
-
-#ifdef LAUNCHSCREEN_STORYBOARD
-  UIView *storyboardView;
-#endif
+  UIView *defaultImageView;
 
   //Keyboard stuff
   BOOL updatingAccessoryView;
@@ -70,9 +66,7 @@
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
 @property (nonatomic, readonly) BOOL statusBarVisibilityChanged;
 @property (nonatomic, readonly) TiViewProxy<TiKeyboardFocusableView> *keyboardFocusedProxy;
-#if defined(DEBUG) || defined(DEVELOPER)
 - (void)shutdownUi:(id)arg;
-#endif
 - (UIImage *)defaultImageForOrientation:(UIDeviceOrientation)orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom *)imageIdiom;
 
 @end

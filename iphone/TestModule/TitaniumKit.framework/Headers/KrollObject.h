@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 #import <Foundation/Foundation.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 
@@ -83,5 +82,35 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 - (void)storeListener:(id)eventCallbackOrWrapper forEvent:(NSString *)eventName;
 - (void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
 - (void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
+
+/**
+ Checks if a property with the given name exists on our target.
+ 
+ Contains all the magic of valueForKey withouth trying to retrieve any actual
+ value.
+ 
+ The checks for property existance are done in the following order:
+ * The Kroll object's own statics and properties cache
+ * Dynamic getter and setter in the form of getSomeProperty or setSomeProperty
+ * Property on the actual target
+ * "toString" and "valueOf" are always available on all objects
+ * "className" has a special handling with valueForUndefinedKey, return true
+ for the sake of simplicity
+ * Method with the same name on the target and single parameter
+ * Method with the same name on the target and no parameter
+ * Create factory method
+ 
+ As soon as one of the above checks passes this method returns true, meaning
+ the property exists. If none of the checks passed the property does not exists
+ and the method returns false.
+ 
+ @param propertyName The property name to check for.
+ */
+- (BOOL)hasProperty:(NSString *)propertyName;
+
+#ifdef USE_JSCORE_FRAMEWORK
+- (void)applyGarbageCollectionSafeguard;
+- (void)removeGarbageCollectionSafeguard;
+#endif
 
 @end

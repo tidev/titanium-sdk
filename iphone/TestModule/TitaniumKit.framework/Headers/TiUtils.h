@@ -1,11 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiDimension.h>
+#import "TiDimension.h"
 
 @class TiProxy;
 @class TiColor;
@@ -13,17 +13,19 @@
 @class TiBuffer;
 @class WebFont;
 @class TiScriptError;
+@class TiUIView;
+@class TiViewProxy;
 
 /*	NOTE TO MODULE DEVELOPERS:
  *	The following 4 imports will be going away as it's better to simply
  *	forward-declare the classes in headers. If you've been relying on TiUtils
  *	to do the including of TiProxy for you, please fix this. However, to
- *	avoid breaking modules 
+ *	avoid breaking modules
  */
 #import "TiBuffer.h"
 #import "TiColor.h"
-#import <TitaniumKit/TiFile.h>
-#import <TitaniumKit/Webfont.h>
+#import "TiFile.h"
+#import "WebFont.h"
 
 typedef enum {
   BAD_DEST_OFFSET = -1,
@@ -85,13 +87,13 @@ typedef enum {
 /**
  Utilities class.
  */
-@interface TiUtils : NSObject {
-}
+@interface TiUtils : NSObject
 
 + (TiOrientationFlags)TiOrientationFlagsFromObject:(id)args;
 
 /**
  Converts date to UTC format.
+
  @param date The input date.
  @return The date string in UTC format.
  */
@@ -99,6 +101,7 @@ typedef enum {
 
 /**
  Converts string in UTC format into a date.
+
  @param date The date string in UTC format.
  @return The converted date.
  */
@@ -106,18 +109,21 @@ typedef enum {
 
 /**
  Returns current date in UTC format.
+
  @return The date string in UTC format.
  */
 + (NSString *)UTCDate;
 
 /**
  Generates a new UUID.
+
  @return The generate UUID.
  */
 + (NSString *)createUUID;
 
 /**
  Creates a temporary file with name extension.
+
  @param extension The filename extension.
  @return The created temporary file object.
  */
@@ -125,6 +131,7 @@ typedef enum {
 
 /**
  Loads application bundle resource by URL.
+
  @param url The resource URL
  @return The resource data.
  */
@@ -132,6 +139,7 @@ typedef enum {
 
 /**
  Encodes the input string according by escaping illegal characters.
+
  @param unencodedString The input string.
  @return The encoded string.
  */
@@ -139,6 +147,7 @@ typedef enum {
 
 /**
  Encodes the URL query string by escaping illegal characters.
+
  @param unencodedString The input string.
  @return The encoded string.
  */
@@ -149,6 +158,7 @@ typedef enum {
 
 /**
  Changes to image rotation, so the image is facing up.
+
  @param image The image to be rotated.
  @return The rotated image.
  */
@@ -156,6 +166,7 @@ typedef enum {
 
 /**
  Constructs URL from string using provided base URL.
+
  @param relativeString The relative URL
  @param rootPath The base URL.
  @return The absolute URL.
@@ -164,19 +175,19 @@ typedef enum {
 
 /**
  Constructs URL from string using proxy's base URL.
+
  @param relativeString The relative URL
  @param proxy The proxy to use as base URL.
  @return The absolute URL.
  */
 + (NSURL *)toURL:(NSString *)relativeString proxy:(TiProxy *)proxy;
 
-//+(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy;
-
 /**
  Loads and returns image for the provided object.
- 
+
  If the _object_ parameter type is <TiBlob>, it will be converted to image and returned.
  Otherwise if the _object_ type is NSString, it will be first converted to URL using _proxy_ as a base, then the image will be loaded from the URL.
+
  @param object The input object. It could be either <TiBlob> or NSString.
  @param proxy The proxy to use as base URL for image loading if _object_ type is NSString.
  @return The loaded image.
@@ -188,6 +199,7 @@ typedef enum {
 
 /**
  Converts input value into a string.
+
  @param value The input value.
  @return The textual representation of the value.
  */
@@ -199,6 +211,7 @@ typedef enum {
 
 /**
  Converts input value into a boolean.
+
  @param value The input value.
  @return The boolean representation of the value.
  @see boolValue:def:
@@ -207,6 +220,7 @@ typedef enum {
 
 /**
  Converts input value into a boolean with default fallback.
+
  @param value The input value.
  @param def The default value if the input value cannot be converted.
  @return The boolean representation of the value or default value otherwise.
@@ -216,6 +230,7 @@ typedef enum {
 
 /**
  Converts input value into a point type.
+
  @param value The input value of either <TiPoint> type or NSDictionary with {x,y} keys.
  @return The point representation of the value or {0,0} if the input value cannot be converted.
  @see pointValue:valid:
@@ -224,6 +239,7 @@ typedef enum {
 
 /**
  Converts input value into the point type.
+
  @param value The input value of either <TiPoint> type or NSDictionary with {x,y} keys.
  @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
  @return The point representation of the value or {0,0} if the input value cannot be converted.
@@ -237,6 +253,7 @@ typedef enum {
 
 /**
  Converts input value into a float.
+
  @param value The input value.
  @return The float representation of the value.
  @see floatValue:def:
@@ -245,6 +262,7 @@ typedef enum {
 
 /**
  Converts input value into a float with default fallback.
+
  @param value The input value.
  @param def The default value if the input value cannot be converted.
  @return The float representation of the value.
@@ -254,6 +272,7 @@ typedef enum {
 
 /**
  Converts input value into a float with default fallback.
+
  @param value The input value.
  @param def The default value if the input value cannot be converted.
  @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
@@ -264,6 +283,7 @@ typedef enum {
 
 /**
  Converts input value into a double.
+
  @param value The input value.
  @return The double representation of the value.
  @see doubleValue:def:
@@ -272,6 +292,7 @@ typedef enum {
 
 /**
  Converts input value into a double with default fallback.
+
  @param value The input value.
  @param def The default value if the input value cannot be converted.
  @return The double representation of the value.
@@ -281,6 +302,7 @@ typedef enum {
 
 /**
  Converts input value into a double with default fallback.
+
  @param value The input value.
  @param def The default value if the input value cannot be converted.
  @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
@@ -291,6 +313,7 @@ typedef enum {
 
 /**
  Converts input value into an int.
+
  @param value The input value.
  @return The int representation of the value.
  @see intValue:def:
@@ -299,6 +322,7 @@ typedef enum {
 
 /**
  Converts input value into an int with default fallback.
+
  @param value The input value.
  @param def The default value if the input value cannot be converted.
  @return The int representation of the value.
@@ -308,6 +332,7 @@ typedef enum {
 
 /**
  Converts input value into an int with default fallback.
+
  @param value The input value.
  @param def The default value if the input value cannot be converted.
  @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
@@ -318,6 +343,7 @@ typedef enum {
 
 /**
  Converts input value into the color type.
+
  @param value The input value of either TiColor type or class with string representation that could be converted to a color.
  @return The color representation of the value or _nil_ if the input value cannot be converted.
  */
@@ -325,6 +351,7 @@ typedef enum {
 
 /**
  Converts a native color value into the string-color.
+
  @param color The input value of a UIColor type.
  @return The string-representation of the value.
  */
@@ -332,14 +359,17 @@ typedef enum {
 
 /**
  Converts input value into the dimention type.
+
  @param value The input value that could be converted to a color.
  @return The dimension representation of the value or TiDimensionUndefined if the input value cannot be converted.
  */
 + (TiDimension)dimensionValue:(id)value;
 
 + (id)valueFromDimension:(TiDimension)dimension;
+
 /**
  Looks up a value for the key in the provided dictionary and returns it as an int.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -350,6 +380,7 @@ typedef enum {
 
 /**
  Looks up a value for the key in the provided dictionary and returns it as a double.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -360,6 +391,7 @@ typedef enum {
 
 /**
  Looks up a value for the key in the provided dictionary and returns it as a float.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -370,6 +402,7 @@ typedef enum {
 
 /**
  Looks up a value for the key in the provided dictionary and returns it as a boolean.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -380,6 +413,7 @@ typedef enum {
 
 /**
  Looks up a value for the key in the provided dictionary and returns it as a string.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -390,6 +424,7 @@ typedef enum {
 
 /**
  Looks up a value for the key in the provided dictionary and returns it as a point.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -400,6 +435,7 @@ typedef enum {
 
 /**
  Looks up a value for the key in the provided dictionary and returns it as a color.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -411,6 +447,7 @@ typedef enum {
 #ifndef TI_USE_AUTOLAYOUT
 /**
  Looks up a value for the key in the provided dictionary and returns it as a dimension.
+
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
@@ -469,6 +506,7 @@ typedef enum {
 
 /**
  Converts input values in to a NSDictionary.
+
  @param touch The UITouch object. Containing all the UITouch attributes.
  @param view  The view, in which the touch is being used.
  @return NSDictionary containing the point coordinates and UITouch properties.
@@ -498,18 +536,21 @@ typedef enum {
 
 /**
  Whether or not the current device orientation is portrait.
+
  @return _YES_ is the current device orientation is portrait, _NO_ otherwise.
  */
 + (BOOL)isOrientationPortait;
 
 /**
  Whether or not the current device orientation is landscape.
+
  @return _YES_ is the current device orientation is landscape, _NO_ otherwise.
  */
 + (BOOL)isOrientationLandscape;
 
 /**
- Returns the current device orientation.
+ Detects and returns the current device orientation.
+
  @return The current device orientation.
  */
 + (UIInterfaceOrientation)orientation;
@@ -528,10 +569,13 @@ typedef enum {
 
 /**
  Sets the view's bounds and center coordinates.
+
  @param view The view to make changes on.
  @param frameRect The rectangle containing bounds to apply to the view.
  */
 + (void)setView:(UIView *)view positionRect:(CGRect)frameRect;
+
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds;
 
 + (CGRect)viewPositionRect:(UIView *)view;
 
@@ -543,120 +587,177 @@ typedef enum {
 
 /**
  Whether or not the current device interface idiom is iPad.
+
  @return _YES_ if the current device interface idiom is iPad, _NO_ otherwise.
  */
 + (BOOL)isIPad;
 
 /**
- Whether or not the current OS version is equal to or greater than 4.2.
- @return _YES_ if the current OS version is equal to or greater than 4.2, _NO_ otherwise.
- */
-+ (BOOL)isIOS4_2OrGreater;
-
-/**
- Whether or not the current OS version is equal to or greater than 5.0.
- @return _YES_ if the current OS version is equal to or greater than 5.0, _NO_ otherwise.
- */
-+ (BOOL)isIOS5OrGreater;
-
-/**
- Whether or not the current OS version is equal to or greater than 6.0.
- @return _YES_ if the current OS version is equal to or greater than 6.0, _NO_ otherwise.
- */
-+ (BOOL)isIOS6OrGreater;
-
-/**
  Whether or not the current OS version is equal to or greater than 7.0.
+
  @return _YES_ if the current OS version is equal to or greater than 7.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS7OrGreater;
++ (BOOL)isIOS7OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
 
 /**
  Whether or not the current OS version is equal to or greater than 8.0.
+
  @return _YES_ if the current OS version is equal to or greater than 8.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS8OrGreater;
++ (BOOL)isIOS8OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
+
+/**
+ Whether or not the current OS version is equal to or greater than 8.2.
+
+ @return _YES_ if the current OS version is equal to or greater thann 8.2, _NO_ otherwise.
+ */
++ (BOOL)isIOS82rGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
 
 /**
  Whether or not the current OS version is equal to or greater than 9.0.
  @return _YES_ if the current OS version is equal to or greater than 9.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS9OrGreater;
++ (BOOL)isIOS9OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
 
 /**
  Whether or not the current OS version is equal to or greater than 9.1.
+
  @return _YES_ if the current OS version is equal to or greater than 9.1, _NO_ otherwise.
  */
-+ (BOOL)isIOS9_1OrGreater;
++ (BOOL)isIOS9_1OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
 
 /**
  Whether or not the current OS version is equal to or greater than 9.3.
+
  @return _YES_ if the current OS version is equal to or greater than 9.3, _NO_ otherwise.
  */
-+ (BOOL)isIOS9_3OrGreater;
++ (BOOL)isIOS9_3OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
 
 /**
  Whether or not the current OS version is equal to or greater than 10.0.
+
  @return _YES_ if the current OS version is equal to or greater than 10.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS10OrGreater;
++ (BOOL)isIOS10OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
 
 /**
  Whether or not the current OS version is equal to or greater than 11.0.
+
  @return _YES_ if the current OS version is equal to or greater than 11.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS11OrGreater;
++ (BOOL)isIOS11OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
 
 /**
  Whether or not the current OS version is equal to or greater than the specified version.
+
  @param version The version to compare.
  @return _YES_ if the current OS version is equal to or greater than the specified version, _NO_ otherwise.
  */
 + (BOOL)isIOSVersionOrGreater:(NSString *)version;
 
 /**
+ Whether or not the current OS version is lower than the specified version.
+ @param version The version to compare.
+ @return _YES_ if the current OS version is lower than the specified version, _NO_ otherwise.
+ */
++ (BOOL)isIOSVersionLower:(NSString *)version;
+
+/**
  Whether or not the current device is an iPhone 4.
+
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
 + (BOOL)isIPhone4;
 
 /**
+ Whether or not the current device has HD retina display (@3x).
+ @return _YES_ if the current device has HD retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils is3xRetina]` instead.
+ */
++ (BOOL)isRetinaHDDisplay __deprecated_msg("Use `[TiUtils is3xRetina]` instead.");
+
+/**
  Whether or not the current device has retina display.
+
+ @return _YES_ if the current device has retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils is2xRetina]` instead.
+ */
++ (BOOL)isRetinaDisplay __deprecated_msg("Use `[TiUtils is2xRetina]` instead.");
+
+/**
+ Whether or not the current device has HD retina display (@3x).
+ @return _YES_ if the current device has HD retina display, _NO_ otherwise.
+ */
++ (BOOL)is3xRetina;
+
+/**
+ Whether or not the current device has retina display (@2x).
  @return _YES_ if the current device has retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaDisplay;
++ (BOOL)is2xRetina;
 
 /**
  Whether or not the current device has a 4 inch retina display (iPhone5).
+
  @return _YES_ if the current device has a 4 inch retina display, _NO_ otherwise.
  */
 + (BOOL)isRetinaFourInch;
 
 /**
  Whether or not the current device has a 4.7 inch retina display (iPhone 6).
+
+ @return _YES_ if the current device has a 4.7 inch retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils isRetina4_7Inch]` instead.
+ */
++ (BOOL)isRetinaiPhone6 __deprecated_msg("Use `[TiUtils isRetina4_7Inch]` instead.");
+
+/**
+ Whether or not the current device has a 5.5 inch retina display (iPhone 6).
+ @return _YES_ if the current device has a 5.5 inch retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils isRetina5_5Inch]` instead.
+ */
++ (BOOL)isRetinaiPhone6Plus __deprecated_msg("Use `[TiUtils isRetina5_5Inch]` instead.");
+
+/**
+ Whether or not the current device has a 5.8 inch super retina display (iPhone X).
+ @return _YES_ if the current device has a 5.8 inch super retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils isSuperRetina5_8Inch]` instead.
+ */
++ (BOOL)isRetinaiPhoneX __deprecated_msg("Use `[TiUtils isSuperRetina5_8Inch]` instead.");
+
+/**
+ Whether or not the current device has a 4.7 inch retina display (iPhone 6).
  @return _YES_ if the current device has a 4.7 inch retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaiPhone6;
++ (BOOL)isRetina4_7Inch;
 
 /**
  Whether or not the current device has a 5.5 inch retina display (iPhone 6).
  @return _YES_ if the current device has a 5.5 inch retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaiPhone6Plus;
++ (BOOL)isRetina5_5Inch;
 
 /**
- Whether or not the current device has a 5.8 inch retina display (iPhone X).
- @return _YES_ if the current device has a 5.8 inch retina display, _NO_ otherwise.
+ Whether or not the current device has a 5.8 inch super retina display (iPhone X).
+ @return _YES_ if the current device has a 5.8 inch super retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaiPhoneX;
++ (BOOL)isSuperRetina5_8Inch;
+/**
+ Whether or not the current device has a 6.1 inch retina display (iPhone X Max).
+ @return _YES_ if the current device has a 6.1 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetina6_1Inch;
 
 /**
- Whether or not the current device has HD retina display (@3X).
- @return _YES_ if the current device has HD retina display, _NO_ otherwise.
+ Whether or not the current device has a 6.5 inch super retina display (iPhone X Max).
+ @return _YES_ if the current device has a 6.5 inch super retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaHDDisplay;
++ (BOOL)isSuperRetina6_5Inch;
+
 + (void)setVolume:(float)volume onObject:(id)object;
+
 + (float)volumeFromObject:(id)theObject default:(float)def;
+
 + (void)configureController:(UIViewController *)controller withObject:(id)object;
 
 + (CGRect)frameForController:(UIViewController *)theController;
@@ -675,6 +776,7 @@ typedef enum {
 
 /**
  Generates MD5 hash for the provided data.
+
  @param data The input data.
  @return MD5 hash string.
  */
@@ -682,6 +784,7 @@ typedef enum {
 
 /**
  Converts array of byte into a hex string.
+
  @param input The array of bytes.
  @param length The length of the input array.
  @return Hex representation of the input array.
@@ -698,6 +801,7 @@ typedef enum {
 
 /**
  Convenience method to extract a useful error message from NSError, or nil if none exist.
+
  @param error The NSError
  @return error's localizedDescription and userDescription concatenated
  */
@@ -707,6 +811,7 @@ typedef enum {
  Convenience method to create a mutable dictionary prepopulated with success, code, and error values.
  This is for use with callbacks that are not events. While it is possible to use this in events,
  the built-in event error reporting functionality is faster.
+
  @param code The integer representing an error. Use 0 for a success, and -1 for an unknown error.
  @param message The optional string describing the error.
  */
@@ -714,20 +819,38 @@ typedef enum {
 
 /**
  Checks the force touch capability of the current device.
+
  @return _YES_ if the device supported force touch.
  */
 + (BOOL)forceTouchSupported;
 
 /**
  Checks the live photo capability of the current device.
+
  @return _YES_ if the device supported force touch.
  */
 + (BOOL)livePhotoSupported;
 
 /**
  Converts a color into an image.
+
  @return The generated image.
  */
 + (UIImage *)imageWithColor:(UIColor *)color;
+
+/**
+ Checks if this app is using launch-screen storyboards. We may want to deprecate the
+ old image-based launch-screens in the future, but prefer to align with Apples plans.
+
+ @return _YES_ if launch-screen storyboard are used.
+ */
++ (BOOL)isUsingLaunchScreenStoryboard;
+
+/**
+ Checks if Hyperloop is available in this app.
+
+ @return _YES_ if Hyperloop is available, _NO_ otherwise.
+ */
++ (BOOL)isHyperloopAvailable;
 
 @end

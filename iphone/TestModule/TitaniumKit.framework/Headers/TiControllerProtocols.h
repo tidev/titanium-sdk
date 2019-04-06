@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "TiViewProxy.h"
 #import <Foundation/Foundation.h>
-#import <TitaniumKit/TiViewProxy.h>
 
 /**
  Protocol for orientation controller.
@@ -23,6 +23,7 @@
  Protocol for Window
  */
 @protocol TiWindowProtocol <TiOrientationController>
+
 - (void)open:(id)args;
 - (void)close:(id)args;
 - (BOOL)_handleOpen:(id)args;
@@ -31,9 +32,10 @@
 - (BOOL)closing;
 - (BOOL)isModal;
 - (BOOL)hidesStatusBar;
+- (BOOL)homeIndicatorAutoHide;
 - (UIStatusBarStyle)preferredStatusBarStyle;
-@property (nonatomic, readwrite, assign) BOOL isManaged;
-//Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
+
+// Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 - (void)viewWillAppear:(BOOL)animated;
 - (void)viewWillDisappear:(BOOL)animated;
 - (void)viewDidAppear:(BOOL)animated;
@@ -44,12 +46,16 @@
 - (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container;
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
 
-//Focus callbacks from containing or hosting controller
+// Focus callbacks from containing or hosting controller
 - (void)gainFocus;
 - (void)resignFocus;
 - (BOOL)handleFocusEvents;
-//ViewController support. Always returns TiViewController (or subclass).
+
+// ViewController support. Always returns TiViewController (or subclass).
 - (UIViewController *)hostingController;
+
+@property (nonatomic, readwrite, assign) BOOL isManaged;
+
 @end
 
 /**
