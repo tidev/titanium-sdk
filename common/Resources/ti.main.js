@@ -25,11 +25,13 @@ try {
 // Load JS language polyfills
 import '@babel/polyfill';
 
-// Load all JavaScript extensions.
+// Load all JavaScript extensions/polyfills
 import './ti.internal/extensions/Error';
-import './ti.internal/extensions/process';
+// Load extensions to polyfill our own APIs
+import './ti.internal/extensions/ti.blob';
 
 // Load all the node compatible core modules
+import './ti.internal/extensions/process';
 import path from './ti.internal/extensions/path';
 import os from './ti.internal/extensions/os';
 import tty from './ti.internal/extensions/tty';
