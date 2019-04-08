@@ -10,7 +10,7 @@
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 #import <TitaniumKit/WebFont.h>
-#import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/WebColor.h>
 
 @implementation TiUIActivityIndicator
 

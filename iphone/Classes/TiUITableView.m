@@ -16,7 +16,7 @@
 #import <TitaniumKit/TiViewProxy.h>
 #import <TitaniumKit/TiWindowProxy.h>
 #import <TitaniumKit/WebFont.h>
-#import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/WebColor.h>
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0
@@ -2461,7 +2461,7 @@
       color = [self.proxy valueForKey:@"backgroundColor"];
     }
   }
-  UIColor *cellColor = [Webcolor webColorNamed:color];
+  UIColor *cellColor = [WebColor webColorNamed:color];
   if (cellColor == nil) {
     cellColor = [UIColor whiteColor];
   }

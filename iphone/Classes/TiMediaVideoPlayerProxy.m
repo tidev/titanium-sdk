@@ -17,7 +17,7 @@
 #import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/WebColor.h>
 
 /**
  * Design Notes:

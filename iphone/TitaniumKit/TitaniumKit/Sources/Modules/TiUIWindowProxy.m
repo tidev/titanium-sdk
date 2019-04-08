@@ -11,7 +11,7 @@
 #import "TiComplexValue.h"
 #import "TiLayoutQueue.h"
 #import "TiUIViewProxy.h"
-#import "Webcolor.h"
+#import "WebColor.h"
 
 // this is how long we should wait on the new JS context to be loaded
 // holding the UI thread before we return during an window open. we
