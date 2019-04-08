@@ -363,9 +363,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[self webView] setCustomUserAgent:userAgent];
   }
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    [self addCookieHeaderForRequest:request];
-  }
+  [self addCookieHeaderForRequest:request];
 
   [[self webView] loadRequest:request];
 }
@@ -617,13 +615,16 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)addCookieHeaderForRequest:(NSMutableURLRequest *)request
 {
   /*
-   To support cookie for iOS <11
+   To support cookie
    https://stackoverflow.com/questions/26573137
    https://github.com/haifengkao/YWebView
    */
 
   NSString *validDomain = request.URL.host;
 
+  if (validDomain.length <= 0) {
+    return;
+  }
   if (!_tiCookieHandlerAdded) {
     _tiCookieHandlerAdded = YES;
     WKUserContentController *controller = [[[self webView] configuration] userContentController];
@@ -782,7 +783,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"] && [message.name isEqualToString:@"_Ti_Cookie_"]) {
+  if ([message.name isEqualToString:@"_Ti_Cookie_"]) {
     NSArray<NSString *> *cookies = [message.body componentsSeparatedByString:@"; "];
     for (NSString *cookie in cookies) {
       // Get this cookie's name and value

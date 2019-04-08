@@ -531,6 +531,14 @@
 
 #pragma mark Cookies
 
+// This whole cookie code is not getting used. Reason is -
+// 1. If we use this, parity can not be managed for cookies
+// 2. WKHTTPCookieStore, which manages cookie in WKWebView, is supported in iOS 11+
+// 3. We are using following to implement cookies-
+//  https://stackoverflow.com/questions/26573137
+//  https://github.com/haifengkao/YWebView
+// TO DO: If we can make parity using WKHTTPCookieStore, we should start using WKHTTPCookieStore APIs
+
 - (id<TiEvaluator>)evaluationContext
 {
   id<TiEvaluator> context = [self executionContext];
