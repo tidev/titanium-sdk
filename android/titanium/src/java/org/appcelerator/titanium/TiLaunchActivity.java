@@ -175,8 +175,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
-		super.onResume();
 		loadScript();
+		super.onResume();
 	}
 
 	@Override
