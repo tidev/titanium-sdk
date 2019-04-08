@@ -178,3 +178,4 @@ EventEmitter.defaultMaxListeners = 10;
 EventEmitter.listenerCount = function (emitter, eventName) {
 	return emitter.listenerCount(eventName);
 };
+EventEmitter.EventEmitter = EventEmitter;
