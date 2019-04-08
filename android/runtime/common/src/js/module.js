@@ -59,14 +59,12 @@ Module.runModule = function (source, filename, activityOrService) {
 	if (isService) {
 		module = new Module(id, null, {
 			currentService: activityOrService,
-			currentActivity: null,
-			currentWindow: null
+			currentActivity: null
 		});
 	} else {
 		module = new Module(id, null, {
 			currentService: null,
-			currentActivity: activityOrService,
-			currentWindow: activityOrService ? activityOrService.window : null
+			currentActivity: activityOrService
 		});
 	}
 
