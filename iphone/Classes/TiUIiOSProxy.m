@@ -7,7 +7,7 @@
 
 #import "TiUIiOSProxy.h"
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIIOS
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT

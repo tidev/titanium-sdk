@@ -14,7 +14,7 @@
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
 #import "TiSharedConfig.h"
-#import "WebColor.h"
+#import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreSpotlight/CoreSpotlight.h>
@@ -1025,7 +1025,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
               withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   applicationInMemoryPanic = YES;
-  [WebColor flushCache];
+  [Webcolor flushCache];
 
   [self performSelector:@selector(clearMemoryPanic)
              withObject:nil

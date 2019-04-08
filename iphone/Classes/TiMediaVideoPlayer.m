@@ -9,7 +9,7 @@
 #import "TiMediaVideoPlayer.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation TiMediaVideoPlayer
 
@@ -80,7 +80,7 @@
   if (bgcolor != nil) {
     // check to see if the background is a dark color and if so, we want to
     // show the white indicator instead
-    if ([WebColor isDarkColor:[bgcolor _color]]) {
+    if ([Webcolor isDarkColor:[bgcolor _color]]) {
       style = UIActivityIndicatorViewStyleWhite;
     }
   }

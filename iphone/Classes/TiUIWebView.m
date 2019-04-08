@@ -21,7 +21,7 @@
 #import <TitaniumKit/TiHost.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
@@ -1091,7 +1091,7 @@ static NSString *UIKitLocalizedString(NSString *string)
   TiColor *backgroundColor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
   UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
 
-  if (backgroundColor != nil && [WebColor isDarkColor:backgroundColor.color]) {
+  if (backgroundColor != nil && [Webcolor isDarkColor:backgroundColor.color]) {
     style = UIActivityIndicatorViewStyleWhite;
   }
   _loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];

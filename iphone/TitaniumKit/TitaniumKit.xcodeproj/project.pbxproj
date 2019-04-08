@@ -60,8 +60,8 @@
 		DB15FC581F0A84B700A82C45 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC561F0A84B700A82C45 /* TiFile.m */; };
 		DB15FC5B1F0A84C000A82C45 /* TiHost.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC591F0A84C000A82C45 /* TiHost.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FC5C1F0A84C000A82C45 /* TiHost.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC5A1F0A84C000A82C45 /* TiHost.m */; };
-		DB15FC5F1F0A84C900A82C45 /* WebColor.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC5D1F0A84C900A82C45 /* WebColor.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15FC601F0A84C900A82C45 /* WebColor.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC5E1F0A84C900A82C45 /* WebColor.m */; };
+		DB15FC5F1F0A84C900A82C45 /* Webcolor.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC5D1F0A84C900A82C45 /* Webcolor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB15FC601F0A84C900A82C45 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC5E1F0A84C900A82C45 /* Webcolor.m */; };
 		DB15FC651F0A84E000A82C45 /* TiBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC611F0A84E000A82C45 /* TiBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FC661F0A84E000A82C45 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FC621F0A84E000A82C45 /* TiBuffer.m */; };
 		DB15FC671F0A84E000A82C45 /* TiStylesheet.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FC631F0A84E000A82C45 /* TiStylesheet.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -214,8 +214,8 @@
 		DB15FC561F0A84B700A82C45 /* TiFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFile.m; sourceTree = "<group>"; };
 		DB15FC591F0A84C000A82C45 /* TiHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiHost.h; sourceTree = "<group>"; };
 		DB15FC5A1F0A84C000A82C45 /* TiHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiHost.m; sourceTree = "<group>"; };
-		DB15FC5D1F0A84C900A82C45 /* WebColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebColor.h; sourceTree = "<group>"; };
-		DB15FC5E1F0A84C900A82C45 /* WebColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebColor.m; sourceTree = "<group>"; };
+		DB15FC5D1F0A84C900A82C45 /* Webcolor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Webcolor.h; sourceTree = "<group>"; };
+		DB15FC5E1F0A84C900A82C45 /* Webcolor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Webcolor.m; sourceTree = "<group>"; };
 		DB15FC611F0A84E000A82C45 /* TiBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBuffer.h; sourceTree = "<group>"; };
 		DB15FC621F0A84E000A82C45 /* TiBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBuffer.m; sourceTree = "<group>"; };
 		DB15FC631F0A84E000A82C45 /* TiStylesheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStylesheet.h; sourceTree = "<group>"; };
@@ -544,8 +544,8 @@
 				DB15FC7E1F0A855F00A82C45 /* UIImage+Resize.m */,
 				DB15FC871F0A859700A82C45 /* UIImage+RoundedCorner.h */,
 				DB15FC881F0A859700A82C45 /* UIImage+RoundedCorner.m */,
-				DB15FC5D1F0A84C900A82C45 /* WebColor.h */,
-				DB15FC5E1F0A84C900A82C45 /* WebColor.m */,
+				DB15FC5D1F0A84C900A82C45 /* Webcolor.h */,
+				DB15FC5E1F0A84C900A82C45 /* Webcolor.m */,
 				DB15FC471F0A83A700A82C45 /* WebFont.h */,
 				DB15FC481F0A83A700A82C45 /* WebFont.m */,
 			);
@@ -691,7 +691,7 @@
 				DB258CD21F09757E000D0D8D /* TitaniumKit.h in Headers */,
 				DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */,
 				DB15FCCC1F0A87A400A82C45 /* TiErrorController.h in Headers */,
-				DB15FC5F1F0A84C900A82C45 /* WebColor.h in Headers */,
+				DB15FC5F1F0A84C900A82C45 /* Webcolor.h in Headers */,
 				DB258DA31F097680000D0D8D /* TiViewTemplate.h in Headers */,
 				DB15FD1A1F0A89A400A82C45 /* TiUIWindow.h in Headers */,
 			);
@@ -836,7 +836,7 @@
 				DB15FC781F0A851A00A82C45 /* TiRootViewController.m in Sources */,
 				DB15FCD11F0A87C100A82C45 /* NSData+Additions.m in Sources */,
 				DB15FCCD1F0A87A400A82C45 /* TiErrorController.m in Sources */,
-				DB15FC601F0A84C900A82C45 /* WebColor.m in Sources */,
+				DB15FC601F0A84C900A82C45 /* Webcolor.m in Sources */,
 				DB15FC8A1F0A859800A82C45 /* TiExceptionHandler.m in Sources */,
 				DB24E0512076824C0033B2B1 /* TiSharedConfig.m in Sources */,
 				DB15FC951F0A860600A82C45 /* TiAnimation.m in Sources */,

@@ -10,7 +10,7 @@
 
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
@@ -246,7 +246,7 @@
 
 - (void)setBackgroundColor_:(id)color
 {
-  [[self textWidgetView] setBackgroundColor:[WebColor webColorNamed:color]];
+  [[self textWidgetView] setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
 - (void)setPadding_:(id)args
