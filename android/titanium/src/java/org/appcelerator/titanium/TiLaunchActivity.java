@@ -167,16 +167,16 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		super.onCreate(savedInstanceState);
 	}
 
-	@Override
-	protected void windowCreated(Bundle savedInstanceState)
-	{
-		super.windowCreated(savedInstanceState);
-		loadScript();
-	}
-
 	public boolean isJSActivity()
 	{
 		return false;
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		loadScript();
 	}
 
 	@Override
