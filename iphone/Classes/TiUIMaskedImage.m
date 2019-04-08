@@ -9,7 +9,7 @@
 #import "TiUIMaskedImage.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation TiUIMaskedImage
 
@@ -92,7 +92,7 @@
 - (void)setTint_:(id)tint_
 {
   RELEASE_TO_NIL(tint);
-  tint = [[WebColor webColorNamed:tint_] retain];
+  tint = [[Webcolor webColorNamed:tint_] retain];
   [self setNeedsDisplay];
 }
 

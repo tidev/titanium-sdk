@@ -11,7 +11,7 @@
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIACTIVITYINDICATOR
 #import "TiUIActivityIndicator.h"
 #endif
@@ -273,16 +273,16 @@
     if (sbgColor == nil) {
       switch (self.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        sbgColor = [WebColor webColorNamed:@"#bbb"];
+        sbgColor = [Webcolor webColorNamed:@"#bbb"];
         break;
       case UITableViewCellSelectionStyleNone:
         sbgColor = [UIColor clearColor];
         break;
       case UITableViewCellSelectionStyleBlue:
-        sbgColor = [WebColor webColorNamed:@"#0272ed"];
+        sbgColor = [Webcolor webColorNamed:@"#0272ed"];
         break;
       default:
-        sbgColor = [WebColor webColorNamed:@"#e0e0e0"];
+        sbgColor = [Webcolor webColorNamed:@"#e0e0e0"];
         break;
       }
     }

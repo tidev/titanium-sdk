@@ -8,7 +8,7 @@
 
 #import "TiUICanvasView.h"
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 
 enum {
   TiCanvasFillStyle = 0,

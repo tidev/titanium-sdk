@@ -43,7 +43,7 @@
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/WebColor.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation UIModule
 
@@ -213,13 +213,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 - (void)setBackgroundColor:(id)color
 {
   TiRootViewController *controller = [[TiApp app] controller];
-  [controller setBackgroundColor:[WebColor webColorNamed:color]];
+  [controller setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
 - (void)setTintColor:(id)color
 {
   UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
-  [controller setTintColor:[WebColor webColorNamed:color]];
+  [controller setTintColor:[Webcolor webColorNamed:color]];
 }
 
 - (void)setBackgroundImage:(id)image
