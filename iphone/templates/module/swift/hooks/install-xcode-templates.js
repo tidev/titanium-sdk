@@ -21,12 +21,12 @@ exports.cliVersion = '>=3.2';
  * plugin to invoke.
  *
  * @param {Object} logger The logger instance.
- * @param {Object} config The hook config.
- * @param {Object}cli The Titanium CLI instance.
+ * @param {Object} _config The hook config.
+ * @param {Object} cli The Titanium CLI instance.
  * @param {Object} appc The Appcelerator CLI instance.
  */
-exports.init = function (logger, config, cli, appc) {
-	cli.on('create.post.module', function (creator) {
+exports.init = function (logger, _config, cli, appc) {
+	cli.on('create.post.module', function () {
 		var __ = appc.i18n(__dirname).__;
 
 		logger.info(__('Installing Titanium Xcode templates (Swift), if needed'));
