@@ -1,18 +1,18 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import <TitaniumKit/TiBlob.h>
-#import <TitaniumKit/TiHost.h>
-#import <TitaniumKit/TiUtils.h>
+@import TitaniumKit.TiBlob;
+@import TitaniumKit.TiHost;
+@import TitaniumKit.TiUtils;
 
+#import "TiUIWebViewProxy.h"
 #import "TiNetworkCookieProxy.h"
 #import "TiUIWebView.h"
-#import "TiUIWebViewProxy.h"
 
 @implementation TiUIWebViewProxy
 
