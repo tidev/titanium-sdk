@@ -15,7 +15,7 @@
 #import <TitaniumKit/TiLayoutQueue.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/WebColor.h>
 #import <libkern/OSAtomic.h>
 
 NSString *const defaultRowTableClass = @"_default_";
@@ -416,7 +416,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       ((UIImageView *)cell.selectedBackgroundView).image = image;
     }
 
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [WebColor webColorNamed:selBgColor];
     cell.selectedBackgroundView.backgroundColor = ((theColor == nil) ? [UIColor clearColor] : theColor);
   } else {
     if (![cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
@@ -424,20 +424,20 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     }
     TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView *)cell.selectedBackgroundView;
     selectedBGView.grouped = [[table tableView] style] == UITableViewStyleGrouped;
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [WebColor webColorNamed:selBgColor];
     if (theColor == nil) {
       switch (cell.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        theColor = [Webcolor webColorNamed:@"#bbb"];
+        theColor = [WebColor webColorNamed:@"#bbb"];
         break;
       case UITableViewCellSelectionStyleNone:
         theColor = [UIColor clearColor];
         break;
       case UITableViewCellSelectionStyleBlue:
-        theColor = [Webcolor webColorNamed:@"#0272ed"];
+        theColor = [WebColor webColorNamed:@"#0272ed"];
         break;
       default:
-        theColor = [Webcolor webColorNamed:@"#e0e0e0"];
+        theColor = [WebColor webColorNamed:@"#e0e0e0"];
         break;
       }
     }

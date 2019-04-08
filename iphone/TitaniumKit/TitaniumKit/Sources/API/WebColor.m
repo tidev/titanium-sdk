@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "Webcolor.h"
+#import "WebColor.h"
 #import "TiBase.h"
 #import "TiUtils.h"
 
@@ -20,7 +20,7 @@ NSMutableDictionary *colorLookup = nil;
 BOOL isASCIIHexDigit(unichar c) { return (c >= '0' && c <= '9') || ((c | 0x20) >= 'a' && (c | 0x20) <= 'f'); }
 int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
 
-@implementation Webcolor
+@implementation WebColor
 
 + (UIColor *)checkmarkColor
 {
@@ -61,15 +61,15 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
                                                [UIColor clearColor], IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
                                                [UIColor clearColor], IOS_COLOR_UNDER_PAGE_BACKGROUND,
                                                // these are also defined by the W3C HTML spec so we support them
-                                               [Webcolor colorForHex:@"0ff"], @"aqua",
-                                               [Webcolor colorForHex:@"f0f"], @"fuchsia",
-                                               [Webcolor colorForHex:@"0f0"], @"lime",
-                                               [Webcolor colorForHex:@"800"], @"maroon",
-                                               [Webcolor colorForHex:@"FFC0CB"], @"pink",
-                                               [Webcolor colorForHex:@"000080"], @"navy",
-                                               [Webcolor colorForHex:@"c0c0c0"], @"silver",
-                                               [Webcolor colorForHex:@"808000"], @"olive",
-                                               [Webcolor colorForHex:@"008080"], @"teal",
+                                               [WebColor colorForHex:@"0ff"], @"aqua",
+                                               [WebColor colorForHex:@"f0f"], @"fuchsia",
+                                               [WebColor colorForHex:@"0f0"], @"lime",
+                                               [WebColor colorForHex:@"800"], @"maroon",
+                                               [WebColor colorForHex:@"FFC0CB"], @"pink",
+                                               [WebColor colorForHex:@"000080"], @"navy",
+                                               [WebColor colorForHex:@"c0c0c0"], @"silver",
+                                               [WebColor colorForHex:@"808000"], @"olive",
+                                               [WebColor colorForHex:@"008080"], @"teal",
 
                                                white, @"fff",
                                                white, @"ffff",
@@ -91,10 +91,10 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
     return result;
   }
 
-  result = [Webcolor colorForHex:colorName];
+  result = [WebColor colorForHex:colorName];
 
   if (result == nil) {
-    result = [Webcolor colorForRGBFunction:colorName];
+    result = [WebColor colorForRGBFunction:colorName];
   }
 
   if (result != nil) {
