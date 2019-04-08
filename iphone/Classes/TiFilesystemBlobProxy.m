@@ -137,10 +137,10 @@ FILENOOP(setHidden
   return NUMBOOL(NO);
 }
 
-- (id)read:(id)args
+- (TiBlob *)read:(id)args
 {
   NSString *mimetype = [Mimetypes mimeTypeForExtension:[[url path] lastPathComponent]];
-  return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:data mimetype:mimetype] autorelease];
+  return [[[TiBlob alloc] initWithData:data mimetype:mimetype] autorelease];
 }
 
 - (id)append:(id)args

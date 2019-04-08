@@ -11,6 +11,7 @@
 #import "NSData+Additions.h"
 #import "TiApp.h"
 #import "TiBase.h"
+#import "TiBlob.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
 #import "TiSharedConfig.h"
