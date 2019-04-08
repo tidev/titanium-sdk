@@ -14,12 +14,13 @@ exports.init = init;
  * Main entry point for our plugin which looks for the platform specific
  * plugin to invoke.
  *
- * @param {Object} _logger The logger instance.
- * @param {Object} _config The hook config.
+ * @param {Object} logger The logger instance.
+ * @param {Object} config The hook config.
  * @param {Object} cli The Titanium CLI instance.
- * @param {Object} _appc The Appcelerator CLI instance.
+ * @param {Object} appc The Appcelerator CLI instance.
  */
-function init(_logger, _config, cli, _appc) {
+// eslint-disable-next-line no-unused-vars
+function init(logger, config, cli, appc) {
 	cli.on('build.ios.xcodeproject', {
 		pre: function (data) {
 			var xobjs = data.args[0].hash.project.objects;
