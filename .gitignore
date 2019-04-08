@@ -39,3 +39,5 @@ android/.idea/vcs.xml
 /iphone/TitaniumKit/docs
 /iphone/TitaniumKit/build
 /iphone/lib/libTiCore.a
+
+.vscode/
