@@ -71,13 +71,15 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 						sh 'npm ci'
 						dir('scripts') {
 							try {
-								timeout(20) {
-									if ('ios'.equals(os)) {
+								if ('ios'.equals(os)) {
+									timeout(20) {
 										sh "node test.js -b ../../${zipName} -p ${os}"
-									} else {
+									}
+								} else {
+									timeout(30) {
 										sh "node test.js -C android-28-playstore-x86 -T emulator -b ../../${zipName} -p ${os}"
 									}
-								} // timeout
+								}
 							} catch (e) {
 								if ('ios'.equals(os)) {
 									// Gather the crash report(s)
@@ -176,9 +178,6 @@ timestamps {
 					}
 					// was it a failure?
 					if (npmTestResult != 0) {
-						// empty stashes of test reports, so danger step can still run.
-						stash allowEmpty: true, name: 'test-report-ios'
-						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
 					}
 				}
