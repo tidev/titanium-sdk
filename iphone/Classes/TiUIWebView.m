@@ -1071,7 +1071,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if (!navigationAction.targetFrame.isMainFrame) {
     [webView loadRequest:navigationAction.request];
   }
-  
+
   return nil;
 }
 #pragma mark Internal Utilities
