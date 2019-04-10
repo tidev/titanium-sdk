@@ -741,8 +741,26 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void softRestart()
 	{
 		// Fetch the root activity hosting the JavaScript runtime.
-		TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		TiRootActivity rootActivity = getRootActivity();
 		if (rootActivity == null) {
+			// Root activity not found. This can happen when:
+			// - No UI is currently displayed. (Never launched or has been fully exited.)
+			// - The UI is in the middle of exiting. (CLEAR_TOP flag usually destroys root activity first.)
+			// - System setting "Don't keep activities" is enabled. (This destroys parent/backgrounded activites.)
+			Activity currentActivity = getCurrentActivity();
+			if (currentActivity != null) {
+				// We have a child activity. Do a "hard" restart by relaunching the root activity.
+				// The CLEAR_TOP flag will destroy all child activities for us and terminate JS runtime gracefully.
+				Intent mainIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+				mainIntent.setPackage(null);
+				mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				mainIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+				currentActivity.startActivity(mainIntent);
+			} else {
+				// We don't have any UI. Give up.
+				Log.w(TAG, "Unable to soft-restart Titanium runtime.");
+			}
 			return;
 		}
 
