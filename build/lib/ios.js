@@ -6,8 +6,6 @@ const utils = require('./utils');
 const spawn = require('child_process').spawn;  // eslint-disable-line security/detect-child-process
 const copyFiles = utils.copyFiles;
 const copyAndModifyFile = utils.copyAndModifyFile;
-const globCopy = utils.globCopy;
-const globCopyFlat = utils.globCopyFlat;
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const IOS_ROOT = path.join(ROOT_DIR, 'iphone');
