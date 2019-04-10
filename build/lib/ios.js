@@ -54,17 +54,23 @@ class IOS {
 	}
 
 	async package(packager) {
-		// FIXME This is a hot mess. Why can't we place artifacts in their proper location already like Windows?
+		// FIXME: This is a hot mess. Why can't we place artifacts in their proper location already like Windows?
 		console.log('Packaging iOS platform...');
 		const DEST_IOS = path.join(packager.zipSDKDir, 'iphone');
 
-		// Copy legacy copies of TiBase.h, TiApp.h etc into 'include/' to retain backwards compatibility in SDK 8.0.0
-		// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0
-		await globCopyFlat('**/*.h', path.join(IOS_ROOT, 'TitaniumKit/TitaniumKit/Sources'), path.join(DEST_IOS, 'include'));
-
-		// Copy legacy copies of APSAnalytics.h and APSHTTPClient.h into 'include/' to retain backwards compatibility in SDK 8.0.0
-		// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0
-		await globCopy('**/*.h', path.join(IOS_ROOT, 'TitaniumKit/TitaniumKit/Libraries'), path.join(DEST_IOS, 'include'));
+		// Gather all the *.h files in TitaniumKit, create "redirecting" headers in iphone/include that point to the TitaniumKit ones
+		await fs.ensureDir(path.join(DEST_IOS, 'include'));
+		const subdirs = await fs.readdir(path.join(IOS_ROOT, 'TitaniumKit/build/Release-iphoneuniversal/TitaniumKit.framework/Headers'));
+		for (const file of subdirs) {
+			// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0
+			await fs.writeFile(path.join(DEST_IOS, 'include', file), `#include <TitaniumKit/${file}>\n`);
+		}
+		// Copy legacy copies of APSAnalytics.h and APSHTTPClient.h into 'include/' subdirs 'APSAnalytics' and 'APSHTTPClient' to retain backwards compatibility in SDK 8.0.0
+		await fs.ensureDir(path.join(DEST_IOS, 'include/APSAnalytics'));
+		await fs.move(path.join(DEST_IOS, 'include/APSAnalytics.h'), path.join(DEST_IOS, 'include/APSAnalytics/APSAnalytics.h'));
+		await fs.ensureDir(path.join(DEST_IOS, 'include/APSHTTPClient'));
+		await fs.move(path.join(DEST_IOS, 'include/APSHTTPClient.h'), path.join(DEST_IOS, 'include/APSHTTPClient/APSHTTPClient.h'));
+		// TODO: Wipe the other APSUtility.h and APSHTTP*.h headers?
 
 		// Copy meta files and directories
 		await copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ]);
