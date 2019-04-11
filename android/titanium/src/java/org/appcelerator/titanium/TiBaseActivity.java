@@ -1269,7 +1269,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			//they are non-persistent
 			if (finish || !persistent) {
 				if (dialog != null && dialog.isShowing()) {
-					dialog.dismiss();
+					try {
+						dialog.dismiss();
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to hide dialog.", ex);
+					}
 				}
 				dialogs.remove(p);
 			}

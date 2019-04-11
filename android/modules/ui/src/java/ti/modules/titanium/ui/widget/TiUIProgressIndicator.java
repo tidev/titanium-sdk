@@ -176,7 +176,10 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 		if (location == STATUS_BAR) {
 			incrementFactor = 10000 / (max - min);
 			Activity parent = (Activity) proxy.getActivity();
-
+			if ((parent == null) || parent.isFinishing() || parent.isDestroyed()) {
+				Log.w(TAG, "Cannot show progress indicator in status bar. No activities are available to host it.");
+				return;
+			}
 			if (type == INDETERMINANT) {
 				parent.setProgressBarIndeterminate(true);
 				parent.setProgressBarIndeterminateVisibility(true);
@@ -195,8 +198,9 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 			incrementFactor = 1;
 			if (progressDialog == null) {
 				Activity a = TiApplication.getInstance().getCurrentActivity();
-				if (a == null) {
-					a = TiApplication.getInstance().getRootActivity();
+				if ((a == null) || a.isFinishing() || a.isDestroyed()) {
+					Log.w(TAG, "Cannot show progress indicator dialog. No activities are available to host it.");
+					return;
 				}
 				progressDialog = new ProgressDialog(a);
 				if (a instanceof TiBaseActivity) {
@@ -228,7 +232,11 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 			} else {
 				Log.w(TAG, "Unknown type: " + type);
 			}
-			progressDialog.show();
+			try {
+				progressDialog.show();
+			} catch (Exception ex) {
+				Log.e(TAG, "Failed to show progress indicator dialog.", ex);
+			}
 		} else {
 			Log.w(TAG, "Unknown location: " + location);
 		}
