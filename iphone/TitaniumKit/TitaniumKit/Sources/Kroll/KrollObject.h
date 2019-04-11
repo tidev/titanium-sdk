@@ -28,7 +28,6 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
   NSMutableDictionary *properties;
   NSMutableDictionary *statics;
   JSObjectRef _jsobject;
-  JSObjectRef propsObject;
   BOOL targetable;
   BOOL finalized;
   BOOL protecting;
@@ -59,7 +58,6 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 //TODO: Lots of copypasted code in these methods could be refactored out.
 @property (nonatomic, assign) JSObjectRef propsObject;
 - (JSObjectRef)jsobject;
-- (void)invalidateJsobject;
 - (JSValueRef)jsvalueForUndefinedKey:(NSString *)key;
 
 - (void)noteKeylessKrollObject:(KrollObject *)value;
