@@ -1,0 +1,24 @@
+#ifndef V8_SNAPSHOT_H
+#define V8_SNAPSHOT_H
+
+#include <v8.h>
+
+<% function DEFINE_SNAPSHOT (target, blob) { -%>
+<% if (!blob) return -%>
+#ifdef __<%- target -%>__
+static const unsigned char snapshot_data[] = {
+<% for (let i = 0; i < blob.length - 1; i++) { -%>
+<%- blob.readUInt8(i) + ',' -%>
+<% } -%>
+<%- blob.readUInt8(blob.length - 1) %>
+};
+#endif
+<% } -%>
+<% DEFINE_SNAPSHOT('i386', x86) -%>
+<% DEFINE_SNAPSHOT('arm', arm) -%>
+<% DEFINE_SNAPSHOT('aarch64', arm64) -%>
+
+static const int snapshot_size = sizeof(snapshot_data);
+static v8::StartupData snapshot = { (const char*) snapshot_data, snapshot_size };
+
+#endif

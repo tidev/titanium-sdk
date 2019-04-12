@@ -6,7 +6,7 @@ description: |
     Android always uses only the first element in the array passed to [recurrenceRules](Titanium.Calendar.Event.recurrenceRules).
 
     In case of having [daysOfTheWeek](Titanium.Calendar.RecurrenceRule.daysOfTheWeek) and [daysOfTheMonth](Titanium.Calendar.RecurrenceRule.daysOfTheWeek)
-    for an event with a recurrence rule of type [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY) only 
+    for an event with a recurrence rule of type [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY) only
     [daysOfTheWeek] will be used.
 extends: Titanium.Proxy
 platforms: [android, iphone, ipad]
@@ -16,7 +16,7 @@ createable: false
 properties:
 
   - name: calendarID
-    summary: Identifier for the recurrence rule's calendar. 
+    summary: Identifier for the recurrence rule's calendar.
     type: String
     permission: read-only
 
@@ -29,7 +29,7 @@ properties:
 
   - name: interval
     summary: |
-        The interval between instances of this recurrence. For example, a weekly 
+        The interval between instances of this recurrence. For example, a weekly
         recurrence rule with an interval of 2 occurs every other week. Must be greater than 0.
     type: Number
     default: 1
@@ -37,53 +37,53 @@ properties:
 
   - name: daysOfTheWeek
     summary: |
-        The days of the week that the event occurs, as an Dictionay of `daysOfWeek` and `Week`. 
+        The days of the week that the event occurs, as an Dictionay of `daysOfWeek` and `Week`.
     description: |
         On Android daysOfTheWeek is not valid for recurrence rules of type
         [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
-    type: daysOfTheWeekDictionary
+    type: Array<daysOfTheWeekDictionary>
     permission: read-only
 
   - name: daysOfTheMonth
     summary: |
-        The days of the month that the event occurs, as an array of number objects. 
-        Values can be from 1 to 31 and from -1 to -31. This parameter is only valid for 
-        recurrence rules of type 
+        The days of the month that the event occurs, as an array of number objects.
+        Values can be from 1 to 31 and from -1 to -31. This parameter is only valid for
+        recurrence rules of type
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY).
     type: Array<Number>
     permission: read-only
 
   - name: monthsOfTheYear
     summary: |
-        The months of the year that the event occurs, as an array of Number objects. 
-        Values can be from 1 to 12. This parameter is only valid for recurrence rules of 
+        The months of the year that the event occurs, as an array of Number objects.
+        Values can be from 1 to 12. This parameter is only valid for recurrence rules of
         type [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Array<Number>
     permission: read-only
 
   - name: weeksOfTheYear
     summary: |
-        The weeks of the year that the event occurs, as an array of number objects. 
-        Values can be from 1 to 53 and from -1 to -53. This parameter is only valid for 
+        The weeks of the year that the event occurs, as an array of number objects.
+        Values can be from 1 to 53 and from -1 to -53. This parameter is only valid for
         recurrence rules of type [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Array<Number>
     permission: read-only
 
   - name: daysOfTheYear
     summary: |
-        The days of the year that the event occurs, as an array of number objects. 
-        Values can be from 1 to 366 and from -1 to -366. This parameter is only valid for 
+        The days of the year that the event occurs, as an array of number objects.
+        Values can be from 1 to 366 and from -1 to -366. This parameter is only valid for
         recurrence rules of type [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Array<Number>
     permission: read-only
 
   - name: setPositions
     summary: |
-        An array of ordinal numbers that filters which recurrences to include in the 
-        recurrence rule's frequency. For example, a yearly recurrence rule that has a 
-        [daysOfTheWeek](Titanium.Calendar.RecurrenceRule.daysOfTheWeek) value that specifies 
-        Monday through Friday, and a `setPositions` array containing 2 and -1, occurs only 
-        on the second weekday and last weekday of every year. 
+        An array of ordinal numbers that filters which recurrences to include in the
+        recurrence rule's frequency. For example, a yearly recurrence rule that has a
+        [daysOfTheWeek](Titanium.Calendar.RecurrenceRule.daysOfTheWeek) value that specifies
+        Monday through Friday, and a `setPositions` array containing 2 and -1, occurs only
+        on the second weekday and last weekday of every year.
     type: Array<Number>
     permission: read-only
     platforms: [iphone, ipad]
@@ -91,9 +91,9 @@ properties:
   - name: end
     summary: End of a recurrence rule.
     description: |
-        The recurrence end can be specified by a date (date-based) or by a maximum count 
-        of occurrences (count-based). An event which is set to never end **should not** 
-        have its `recurrenceEnd set. Either `endDate` or `occurrenceCount` property will be 
+        The recurrence end can be specified by a date (date-based) or by a maximum count
+        of occurrences (count-based). An event which is set to never end **should not**
+        have its `recurrenceEnd set. Either `endDate` or `occurrenceCount` property will be
         present.
     type: recurrenceEndDictionary
     permission: read-only
@@ -112,7 +112,7 @@ properties:
   - name: week
     summary: |
         The week number of the day of the week.
-        Values range from -53 to 53. A negative value indicates a value from the end of 
+        Values range from -53 to 53. A negative value indicates a value from the end of
         the range. 0 indicates the week number is irrelevant.
     type: Number
 
@@ -124,9 +124,9 @@ platforms: [iphone, ipad]
 
 properties:
   - name: endDate
-    summary: End date of the recurrence end, or undefined if the recurrence end is count-based. 
+    summary: End date of the recurrence end, or undefined if the recurrence end is count-based.
     type: Date
-    
+
   - name: occurrenceCount
-    summary: Occurrence count of the recurrence end, or 0 if the recurrence end is date-based. 
+    summary: Occurrence count of the recurrence end, or 0 if the recurrence end is date-based.
     type: Number
