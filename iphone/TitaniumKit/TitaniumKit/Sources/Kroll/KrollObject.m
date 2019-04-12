@@ -92,8 +92,6 @@ void KrollFinalizer(JSObjectRef ref)
   waitForMemoryPanicCleared();
   id o = (id)JSObjectGetPrivate(ref);
 
-  NSLog(@"KrollFinalizer %@ jsObject:<JSObjectRef (%p)>", o, ref);
-
   if ((o == nil) || [o isKindOfClass:[KrollContext class]]) {
     return;
   }
@@ -243,8 +241,6 @@ JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSString
         jsResult = jsResult2;
       }
     }
-
-    NSLog(@"KrollGetProperty jsObject:<JSObjectRef (%p)>, name: %@, result:%p,", object, name, jsResult);
 
 #if KOBJECT_DEBUG == 1
     NSLog(@"[KROLL DEBUG] KROLL GET PROPERTY: %@=%@", name, result);
