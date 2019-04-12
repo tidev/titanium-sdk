@@ -44,7 +44,7 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 
 	protected boolean visible;
 	protected ProgressDialog progressDialog;
-	protected String statusBarTitle;
+	protected CharSequence statusBarTitle;
 	protected int incrementFactor;
 	protected int location;
 	protected int min;
@@ -183,13 +183,13 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 			if (type == INDETERMINANT) {
 				parent.setProgressBarIndeterminate(true);
 				parent.setProgressBarIndeterminateVisibility(true);
-				statusBarTitle = parent.getTitle().toString();
+				statusBarTitle = parent.getTitle();
 				parent.setTitle(message);
 			} else if (type == DETERMINANT) {
 				parent.setProgressBarIndeterminate(false);
 				parent.setProgressBarIndeterminateVisibility(false);
 				parent.setProgressBarVisibility(true);
-				statusBarTitle = parent.getTitle().toString();
+				statusBarTitle = parent.getTitle();
 				parent.setTitle(message);
 			} else {
 				Log.w(TAG, "Unknown type: " + type);
@@ -205,7 +205,7 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 				progressDialog = new ProgressDialog(a);
 				if (a instanceof TiBaseActivity) {
 					TiBaseActivity baseActivity = (TiBaseActivity) a;
-					baseActivity.addDialog(baseActivity.new DialogWrapper(
+					baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
 						progressDialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 					progressDialog.setOwnerActivity(a);
 				}
@@ -267,11 +267,15 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 			}
 			progressDialog = null;
 		} else {
-			Activity parent = (Activity) proxy.getActivity();
-			parent.setProgressBarIndeterminate(false);
-			parent.setProgressBarIndeterminateVisibility(false);
-			parent.setProgressBarVisibility(false);
-			parent.setTitle(statusBarTitle);
+			Activity parent = proxy.getActivity();
+			if (parent != null) {
+				parent.setProgressBarIndeterminate(false);
+				parent.setProgressBarIndeterminateVisibility(false);
+				parent.setProgressBarVisibility(false);
+				if (visible) {
+					parent.setTitle(statusBarTitle);
+				}
+			}
 			statusBarTitle = null;
 		}
 		visible = false;
