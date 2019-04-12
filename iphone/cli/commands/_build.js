@@ -3356,7 +3356,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						ta.SystemCapabilities || (ta.SystemCapabilities = {});
 						if (cap === 'app-groups') {
 							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
-							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = 1;
 						}
 					});
 				}
@@ -3562,32 +3562,58 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						extBuildSettings.CODE_SIGN_IDENTITY = buildSettings.CODE_SIGN_IDENTITY;
 					}
 
+					const setEntitlementsFile = (entFile, warn) => {
+						let src = path.join(ext.basePath, entFile);
+						if (fs.existsSync(src)) {
+							extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, entFile) + '"';
+							targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, entFile);
+						} else {
+							src = path.join(ext.basePath, targetName, entFile);
+							if (fs.existsSync(src)) {
+								extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
+								targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+							} else {
+								delete extBuildSettings.CODE_SIGN_ENTITLEMENTS;
+								targetInfo.entitlementsFile = null;
+								if (warn) {
+									this.logger.warn(`Unable to find extension target "${targetName}" CODE_SIGN_ENTITLEMENTS file: ${entFile}`);
+								}
+							}
+						}
+					};
+
 					if (extBuildSettings.CODE_SIGN_ENTITLEMENTS) {
-						const entFile = extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, '');
-						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
-						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+						setEntitlementsFile(extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, ''), true);
+
 					} else if (haveEntitlements) {
 						haveEntitlements = false;
 
 						const entFile = targetName + '.entitlements';
-						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
-						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+						setEntitlementsFile(entFile);
 
-						// create the file reference
-						const entFileRefUuid = this.generateXcodeUuid(xcodeProject);
-						xobjs.PBXFileReference[entFileRefUuid] = {
-							isa: 'PBXFileReference',
-							lastKnownFileType: 'text.xml',
-							path: '"' + entFile + '"',
-							sourceTree: '"<group>"'
-						};
-						xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
+						if (targetInfo.entitlementsFile) {
+							const exists = Object.keys(xobjs.PBXFileReference).some(function (uuid) {
+								return xobjs.PBXFileReference[uuid + '_comment'] === entFile;
+							});
 
-						// add the file to the target's pbx group
-						targetGroup && targetGroup.children.push({
-							value: entFileRefUuid,
-							comment: entFile
-						});
+							if (!exists) {
+								// create the file reference
+								const entFileRefUuid = this.generateXcodeUuid(xcodeProject);
+								xobjs.PBXFileReference[entFileRefUuid] = {
+									isa: 'PBXFileReference',
+									lastKnownFileType: 'text.xml',
+									path: '"' + entFile + '"',
+									sourceTree: '"<group>"'
+								};
+								xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
+
+								// add the file to the target's pbx group
+								targetGroup && targetGroup.children.push({
+									value: entFileRefUuid,
+									comment: entFile
+								});
+							}
+						}
 					}
 
 					if (hasSwiftFiles) {
