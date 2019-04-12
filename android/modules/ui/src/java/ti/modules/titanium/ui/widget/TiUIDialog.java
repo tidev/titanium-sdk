@@ -360,12 +360,20 @@ public class TiUIDialog extends TiUIView
 		// Dismiss the dialog.
 		// Note: Will throw an exception if the hosting activity is destroyed or about to be destroyed.
 		//       If "Do not keep activities" is enabled, then isFinishing() will return false for destroyed activity.
+		boolean wasDismissed = false;
 		try {
 			if (!activity.isFinishing() && !activity.isDestroyed()) {
 				dialog.dismiss();
+				wasDismissed = true;
 			}
 		} catch (Exception ex) {
 			Log.e(TAG, "Failed to hide AlertDialog.", ex);
+		}
+
+		// If we were not able to dismiss the dialog above, then assume its hosting activity was destroyed.
+		// We need to null out the activity assigned to the dialog so that it can be re-used later.
+		if (!wasDismissed) {
+			this.dialogWrapper.setActivity(null);
 		}
 	}
 
@@ -379,7 +387,7 @@ public class TiUIDialog extends TiUIView
 			//Native dialogs are persistent by default.
 			TiBaseActivity dialogActivity = (TiBaseActivity) currentActivity;
 			dialogWrapper =
-				dialogActivity.new DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
+				new TiBaseActivity.DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
 		} else {
 			Log.e(TAG, "Unable to find an activity for dialog.");
 		}

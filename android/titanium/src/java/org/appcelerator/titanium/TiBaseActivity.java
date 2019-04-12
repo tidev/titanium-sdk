@@ -158,7 +158,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	private boolean overridenLayout;
 
-	public class DialogWrapper
+	public static class DialogWrapper
 	{
 		boolean isPersistent;
 		Dialog dialog;
