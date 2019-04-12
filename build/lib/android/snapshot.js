@@ -39,11 +39,14 @@ async function generateBlob(target) {
 
 	// Snapshot already exists, skip...
 	if (await fs.exists(BLOB_PATH)) {
+		console.warn(`Snapshot blob for ${target} already exists, skipping...`);
 		return;
 	}
 
 	// Set correct permissions for 'mksnapshot'
 	await fs.chmod(MKSNAPSHOT_PATH, 0o755);
+
+	console.warn(`Generating snapshot blob for ${target}...`);
 
 	// Generate snapshot
 	return promisify(exec)(MKSNAPSHOT_PATH, args);
@@ -66,6 +69,8 @@ async function generateHeader() {
 		}
 	}));
 
+	console.log(`Generating V8Snapshots.h for ${Object.keys(blobs).join(', ')}...`);
+
 	// Generate 'V8Snapshots.h' from template
 	const output = await promisify(ejs.renderFile)(path.join(__dirname, 'V8Snapshots.h.ejs'), blobs, {});
 	return fs.writeFile(path.join(ANDROID_DIR, 'runtime', 'v8', 'src', 'native', 'V8Snapshots.h'), output);
@@ -80,10 +85,11 @@ async function generateHeader() {
 async function build() {
 	// Only macOS is supports creating snapshots
 	if (os.platform() !== 'darwin') {
+		console.warn('Snapshot generation is only supported on macOS, skipping...');
 		return;
 	}
 
-	// generate snapshots in parallel
+	// Generate snapshots in parallel
 	await Promise.all(TARGETS.map(target => generateBlob(target)));
 	return generateHeader();
 }
