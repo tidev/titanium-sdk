@@ -45,15 +45,6 @@ Utils.globCopy = async function (pattern, srcFolder, destFolder) {
 	return Utils.copyFiles(srcFolder, destFolder, files);
 };
 
-Utils.globCopyFlat = async function (pattern, srcFolder, destFolder) {
-	const files = await glob(pattern, { cwd: srcFolder });
-
-	return Promise.all(files.map(f => {
-		const filenameWithoutDirectory = f.split('/')[1]; // TODO: Refactor to simply copy without it's source directory
-		return fs.copy(path.join(srcFolder, f), path.join(destFolder, filenameWithoutDirectory));
-	}));
-};
-
 /**
  * @param {string} srcFolder source directory to copy from
  * @param {string} destFolder destination directory to copy to
