@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs-extra');
+const AndroidSDK = require('./androidsdk');
 const ant = require('./ant');
 const utils = require('../utils');
 const copyFile = utils.copyFile;
@@ -27,25 +28,32 @@ class Android {
 		this.apiLevel = options.apiLevel;
 		this.sdkVersion = options.sdkVersion;
 		this.gitHash = options.gitHash;
-	}
-
-	async clean() {
-		return ant.build(ANDROID_BUILD_XML, [ 'clean' ], {});
-	}
-
-	async build() {
-		const AndroidSDK = require('./androidsdk');
-		const sdk = new AndroidSDK(this.androidSDK, this.apiLevel);
-		const properties = {
+		this.sdk = new AndroidSDK(this.androidSDK, this.apiLevel);
+		this.antProperties = {
 			'build.version': this.sdkVersion,
 			'build.githash': this.gitHash,
-			'android.sdk': sdk.getAndroidSDK(),
-			'android.platform': sdk.getPlatformDir(),
-			'google.apis': sdk.getGoogleApisDir(),
+			'android.sdk': this.sdk.getAndroidSDK(),
+			'android.platform': this.sdk.getPlatformDir(),
+			'google.apis': this.sdk.getGoogleApisDir(),
 			'kroll.v8.build.x86': 1,
 			'android.ndk': this.androidNDK
 		};
-		return ant.build(ANDROID_BUILD_XML, [ 'full.build' ], properties);
+	}
+
+	async clean() {
+		return ant.build(ANDROID_BUILD_XML, [ 'clean' ], this.antProperties);
+	}
+
+	async build() {
+		// Clean build and download V8
+		await this.clean().catch(error => console.error(error));
+
+		// Generate snapshots
+		const snapshot = require('./snapshot');
+		await snapshot.build().catch(error => console.error(error));
+
+		// Build Titanium Android
+		return ant.build(ANDROID_BUILD_XML, [ 'build' ], this.antProperties);
 	}
 
 	async package(packager) {
