@@ -1066,6 +1066,14 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+  if (!navigationAction.targetFrame.isMainFrame) {
+    [webView loadRequest:navigationAction.request];
+  }
+
+  return nil;
+}
 #pragma mark Internal Utilities
 
 static NSString *UIKitLocalizedString(NSString *string)
