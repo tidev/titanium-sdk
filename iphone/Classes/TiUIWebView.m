@@ -365,9 +365,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[self webView] setCustomUserAgent:userAgent];
   }
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    [self addCookieHeaderForRequest:request];
-  }
+  [self addCookieHeaderForRequest:request];
 
   [[self webView] loadRequest:request];
 }
@@ -619,13 +617,16 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)addCookieHeaderForRequest:(NSMutableURLRequest *)request
 {
   /*
-   To support cookie for iOS <11
+   To support cookie
    https://stackoverflow.com/questions/26573137
    https://github.com/haifengkao/YWebView
    */
 
   NSString *validDomain = request.URL.host;
 
+  if (validDomain.length <= 0) {
+    return;
+  }
   if (!_tiCookieHandlerAdded) {
     _tiCookieHandlerAdded = YES;
     WKUserContentController *controller = [[[self webView] configuration] userContentController];
@@ -746,25 +747,37 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       NSString *method = [[message body] objectForKey:@"method"];
       NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";
 
-      id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
-      TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
-      [tiModule setExecutionContext:context];
+      // FIXME: This doesn't play nice with the new obj-c based modules!
+      // Unify the special handling for init with the code in KrollBridge?
+      // Maybe just fork the behavior altogether here, since I don't think the event stuff will work properly?
+      id module;
+      if ([moduleName isEqualToString:@"API"]) {
+        // Really we need to grab the same instance we stuck into the Ti namespace, not a brand new one. But how?
+        // Maybe grab Ti from global and just ask for property with module name?
+        Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", moduleName]);
+        module = [[moduleClass alloc] init];
+      } else {
+        id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
+        TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
+        [tiModule setExecutionContext:context];
+        module = tiModule;
+      }
 
       if ([method isEqualToString:@"fireEvent"]) {
-        [tiModule fireEvent:name withObject:payload];
+        [module fireEvent:name withObject:payload];
       } else if ([method isEqualToString:@"addEventListener"]) {
         id listenerid = [event objectForKey:@"id"];
-        [tiModule addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+        [module addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"removeEventListener"]) {
         id listenerid = [event objectForKey:@"id"];
-        [tiModule removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+        [module removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"log"]) {
         NSString *level = [event objectForKey:@"level"];
         NSString *message = [event objectForKey:@"message"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([tiModule respondsToSelector:@selector(log:)]) {
-          [tiModule performSelector:@selector(log:) withObject:@[ level, message ]];
+        if ([module respondsToSelector:@selector(log:)]) {
+          [module performSelector:@selector(log:) withObject:@[ level, message ]];
         }
 #pragma clang diagnostic pop
       }
@@ -772,7 +785,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"] && [message.name isEqualToString:@"_Ti_Cookie_"]) {
+  if ([message.name isEqualToString:@"_Ti_Cookie_"]) {
     NSArray<NSString *> *cookies = [message.body componentsSeparatedByString:@"; "];
     for (NSString *cookie in cookies) {
       // Get this cookie's name and value
@@ -1006,6 +1019,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
+  NSString *scheme = [navigationAction.request.URL.scheme lowercaseString];
+
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
@@ -1020,13 +1035,17 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
             NO);
       } else {
         // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
-        DebugLog(@"[WARN] Please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
-        DebugLog(@"[WARN] It returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
+        DebugLog(@"[WARN] In iOS, please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
+        DebugLog(@"[WARN] In iOS, it returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
 
         [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
         decisionHandler(WKNavigationActionPolicyCancel);
       }
     }
+  } else if (!([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"] || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) && [[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
+    // Support tel: protocol
+    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    decisionHandler(WKNavigationActionPolicyCancel);
   } else {
     decisionHandler(WKNavigationActionPolicyAllow);
   }
@@ -1049,6 +1068,14 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+  if (!navigationAction.targetFrame.isMainFrame) {
+    [webView loadRequest:navigationAction.request];
+  }
+
+  return nil;
+}
 #pragma mark Internal Utilities
 
 static NSString *UIKitLocalizedString(NSString *string)

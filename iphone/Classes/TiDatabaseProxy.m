@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,8 +8,8 @@
 
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
-#import <TitaniumKit/TiFilesystemFileProxy.h>
-#import <TitaniumKit/TiUtils.h>
+@import TitaniumKit.TiFilesystemFileProxy;
+@import TitaniumKit.TiUtils;
 
 @implementation TiDatabaseProxy
 
@@ -170,25 +170,42 @@
   }
 }
 
-- (id)execute:(id)args
+- (NSArray *)sqlParams:(NSArray *)array
 {
-  ENSURE_TYPE(args, NSArray);
+  NSMutableArray *result = [NSMutableArray arrayWithCapacity:[array count]];
+  for (JSValue *jsValue in array) {
+    // This uses the Titanium conversion method. We could probably write a nicer one
+    // that simply used the Obj-C JSC API checking isString/isDate/isArray/isObject/isBoolean/isNumber
+    id value = [self JSValueToNative:jsValue];
+    if (value == nil) {
+      [result addObject:[NSNull null]];
+    } else {
+      [result addObject:value];
+    }
+  }
 
-  NSString *sql = [[args objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+  return result;
+}
+
+- (TiDatabaseResultSetProxy *)execute:(NSString *)sql
+{
+  sql = [sql stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
   NSError *error = nil;
   PLSqlitePreparedStatement *statement = (PLSqlitePreparedStatement *)[database prepareStatement:sql error:&error];
   if (error != nil) {
     [self throwException:@"invalid SQL statement" subreason:[error description] location:CODELOCATION];
   }
-
-  if ([args count] > 1) {
-    NSArray *params = [args objectAtIndex:1];
-
-    if (![params isKindOfClass:[NSArray class]]) {
-      params = [args subarrayWithRange:NSMakeRange(1, [args count] - 1)];
+  // Check for varargs for perepared statement params
+  NSArray *currentArgs = [JSContext currentArguments];
+  if ([currentArgs count] > 1) {
+    JSValue *possibleParams = [currentArgs objectAtIndex:1];
+    NSArray *params;
+    if ([possibleParams isArray]) {
+      params = [possibleParams toArray];
+    } else {
+      params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, [currentArgs count] - 1)]];
     }
-
     [statement bindParameters:params];
   }
 
@@ -197,7 +214,7 @@
   if ([[result fieldNames] count] == 0) {
     [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
     [result close];
-    return [NSNull null];
+    return nil;
   }
 
   if (statements == nil) {
@@ -206,12 +223,12 @@
 
   [statements addObject:result];
 
-  TiDatabaseResultSetProxy *proxy = [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self pageContext:[self pageContext]] autorelease];
+  TiDatabaseResultSetProxy *proxy = [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self] autorelease];
 
   return proxy;
 }
 
-- (void)close:(id)args
+- (void)close
 {
   if (statements != nil) {
     for (PLSqliteResultSet *result in statements) {
@@ -232,36 +249,41 @@
   }
 }
 
-- (void)remove:(id)args
+- (void)remove
 {
   NSString *dbPath = [self dbPath:name];
   [[NSFileManager defaultManager] removeItemAtPath:dbPath error:nil];
 }
 
-- (NSNumber *)lastInsertRowId
+- (NSUInteger)lastInsertRowId
 {
   if (database != nil) {
-    return NUMLONGLONG([database lastInsertRowId]);
+    return [database lastInsertRowId];
   }
-  return NUMINT(0);
+  return 0;
 }
+GETTER_IMPL(NSUInteger, lastInsertRowId, LastInsertRowId);
 
-- (NSNumber *)rowsAffected
+- (NSUInteger)rowsAffected
 {
   if (database != nil) {
-    return NUMINT(sqlite3_changes([database sqliteDB]));
+    return sqlite3_changes([database sqliteDB]);
   }
-  return NUMINT(0);
+  return 0;
 }
+GETTER_IMPL(NSUInteger, rowsAffected, RowsAffected);
 
 - (NSString *)name
 {
   return name;
 }
-- (TiFilesystemFileProxy *)file
+GETTER_IMPL(NSString *, name, Name);
+
+- (JSValue *)file
 {
-  return [[[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]] autorelease];
+  return [self NativeToJSValue:[[[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]] autorelease]];
 }
+GETTER_IMPL(JSValue *, file, File);
 
 #pragma mark Internal
 - (PLSqliteDatabase *)database

@@ -16,7 +16,7 @@ methods:
         summary: Properties of the event
         type: Dictionary<Titanium.Calendar.Event>
     platforms: [android, iphone, ipad]
-        
+
   - name: getEventById
     summary: Gets the event with the specified identifier.
     returns:
@@ -24,9 +24,9 @@ methods:
     parameters:
       - name: id
         summary: Identifier of the event.
-        type: Number
+        type: String
     platforms: [android, iphone, ipad]
-        
+
   - name: getEventsBetweenDates
     summary: Gets events that occur between two dates.
     returns:
@@ -35,12 +35,12 @@ methods:
       - name: date1
         summary: Start date.
         type: [Date,String]
-        
+
       - name: date2
         summary: End date.
         type: [Date,String]
     platforms: [android, iphone, ipad]
-        
+
   - name: getEventsInDate
     summary: Gets events that occur on a specified date.
     returns:
@@ -49,16 +49,19 @@ methods:
       - name: year
         summary: Year of the events.
         type: Number
-        
+
       - name: month
         summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
-        
+
       - name: day
         summary: Day of the month of the events.
         type: Number
     platforms: [android, iphone, ipad]
-        
+    deprecated:
+      since: "7.0.0"
+      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
+
   - name: getEventsInMonth
     summary: Gets events that occur during a specified month.
     returns:
@@ -67,7 +70,7 @@ methods:
       - name: year
         summary: Year of the events.
         type: Number
-        
+
       - name: month
         summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
@@ -75,7 +78,7 @@ methods:
     deprecated:
       since: "7.0.0"
       notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
-        
+
   - name: getEventsInYear
     summary: Gets all events that occur during a specified year.
     returns:
@@ -88,7 +91,7 @@ methods:
     deprecated:
       since: "7.0.0"
       notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
-        
+
 properties:
   - name: hidden
     summary: Indicates whether this calendar can be edited or deleted.
@@ -96,14 +99,14 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: id
     summary: Identifier of this calendar.
     type: String
     permission: read-only
     osver: {ios: {min: "5.0"}}
     platforms: [android, iphone, ipad]
-    
+
   - name: name
     summary: Display name of this calendar.
     type: String

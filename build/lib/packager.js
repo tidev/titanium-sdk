@@ -22,6 +22,13 @@ const ROOT_DIR = path.join(__dirname, '../..');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
+const TITANIUM_PREP_LOCATIONS = [
+	'android/titanium_prep.linux32',
+	'android/titanium_prep.linux64',
+	'android/titanium_prep.macos',
+	'iphone/titanium_prep'
+];
+
 /**
  * Given a folder we'd like to zip up and the destination filename, this will zip up the directory contents.
  * Be aware that the top-level of the zip will not be the directory itself, but it's contents.
@@ -366,7 +373,14 @@ class Packager {
 			}
 			return true;
 		};
-		return fs.copy(SUPPORT_DIR, this.zipSDKDir, { filter });
+		await fs.copy(SUPPORT_DIR, this.zipSDKDir, { filter });
+		for (let location of TITANIUM_PREP_LOCATIONS) {
+			location = path.join(this.zipSDKDir, location);
+			if (!await fs.exists(location)) {
+				continue;
+			}
+			await fs.chmod(location, 0o755);
+		}
 	}
 
 	async zipPlatforms() {
