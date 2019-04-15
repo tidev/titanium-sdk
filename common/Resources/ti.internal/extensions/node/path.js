@@ -1,3 +1,5 @@
+import assertArgumentType from './_errors';
+
 const isWin32 = (Ti.Platform.osname === 'windowsphone') || (Ti.Platform.osname === 'windowsstore');
 
 const FORWARD_SLASH = 47; // '/'
@@ -13,27 +15,13 @@ function isWindowsDeviceName(charCode) {
 }
 
 /**
- * [assertType description]
- * @param  {*} arg      passed in argument value
- * @param  {string} name     name of the argument
- * @param  {string} typename i.e. 'string'
- * @return {void}
- */
-function assertType(arg, name, typename) {
-	const type = typeof arg;
-	if (type !== typename) {
-		throw new TypeError(`The "${name}" argument must be of type ${typename}. Received type ${type}`);
-	}
-}
-
-/**
  * [isAbsolute description]
  * @param  {boolean} isPosix whether this impl is for POSIX or not
  * @param  {string} filepath   input file path
  * @return {Boolean}          [description]
  */
 function isAbsolute(isPosix, filepath) {
-	assertType(filepath, 'path', 'string');
+	assertArgumentType(filepath, 'path', 'string');
 
 	const length = filepath.length;
 	// empty string special case
@@ -67,7 +55,7 @@ function isAbsolute(isPosix, filepath) {
  * @return {string}            [description]
  */
 function dirname(separator, filepath) {
-	assertType(filepath, 'path', 'string');
+	assertArgumentType(filepath, 'path', 'string');
 
 	const length = filepath.length;
 	if (length === 0) {
@@ -112,7 +100,7 @@ function dirname(separator, filepath) {
  * @return {string}            [description]
  */
 function extname(separator, filepath) {
-	assertType(filepath, 'path', 'string');
+	assertArgumentType(filepath, 'path', 'string');
 
 	const index = filepath.lastIndexOf('.');
 	if (index === -1 || index === 0) {
@@ -144,9 +132,9 @@ function lastIndexWin32Separator(filepath, index) {
  * @return {string}            [description]
  */
 function basename(separator, filepath, ext) {
-	assertType(filepath, 'path', 'string');
+	assertArgumentType(filepath, 'path', 'string');
 	if (ext !== undefined) {
-		assertType(ext, 'ext', 'string');
+		assertArgumentType(ext, 'ext', 'string');
 	}
 	const length = filepath.length;
 	if (length === 0) {
@@ -201,7 +189,7 @@ function basename(separator, filepath, ext) {
  * @return {string} [description]
  */
 function normalize(separator, filepath) {
-	assertType(filepath, 'path', 'string');
+	assertArgumentType(filepath, 'path', 'string');
 	if (filepath.length === 0) {
 		return '.';
 	}
@@ -330,8 +318,8 @@ function resolve(separator, paths) {
  * @return {string}      [description]
  */
 function relative(separator, from, to) {
-	assertType(from, 'from', 'string');
-	assertType(to, 'to', 'string');
+	assertArgumentType(from, 'from', 'string');
+	assertArgumentType(to, 'to', 'string');
 
 	if (from === to) {
 		return '';
@@ -383,7 +371,7 @@ function relative(separator, from, to) {
  * @return {object}
  */
 function parse(separator, filepath) {
-	assertType(filepath, 'path', 'string');
+	assertArgumentType(filepath, 'path', 'string');
 
 	const result = { root: '', dir: '', base: '', ext: '', name: '' };
 	const length = filepath.length;
@@ -444,7 +432,7 @@ function parse(separator, filepath) {
  * @return {string}
  */
 function format(separator, pathObject) {
-	assertType(pathObject, 'pathObject', 'object');
+	assertArgumentType(pathObject, 'pathObject', 'object');
 
 	const base = pathObject.base || `${pathObject.name || ''}${pathObject.ext || ''}`;
 

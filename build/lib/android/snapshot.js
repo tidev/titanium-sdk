@@ -1,6 +1,7 @@
 'use strict';
 
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
+const promisify = require('util').promisify;
+const exec = require('child_process').execFile; // eslint-disable-line security/detect-child-process
 const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
@@ -36,25 +37,19 @@ async function generateBlob(target) {
 		'--startup_blob=' + BLOB_PATH
 	];
 
+	// Snapshot already exists, skip...
+	if (await fs.exists(BLOB_PATH)) {
+		console.warn(`Snapshot blob for ${target} already exists, skipping...`);
+		return;
+	}
+
 	// Set correct permissions for 'mksnapshot'
-	fs.chmodSync(MKSNAPSHOT_PATH, 0o755);
+	await fs.chmod(MKSNAPSHOT_PATH, 0o755);
 
-	return new Promise((resolve, reject) => {
+	console.warn(`Generating snapshot blob for ${target}...`);
 
-		// Snapshot already exists, skip...
-		if (fs.existsSync(BLOB_PATH)) {
-			resolve();
-		}
-
-		// Generate snapshot
-		const p = spawn(MKSNAPSHOT_PATH, args);
-		p.on('close', code => {
-			if (code !== 0) {
-				return reject(`"mksnapshot ${args.join(' ')}" failed with exit code: ${code}`);
-			}
-			resolve();
-		});
-	});
+	// Generate snapshot
+	return promisify(exec)(MKSNAPSHOT_PATH, args);
 }
 
 /**
@@ -65,26 +60,20 @@ async function generateHeader() {
 	const blobs = {};
 
 	// Load snapshots for each architecture
-	for (const target of TARGETS) {
+	await Promise.all(TARGETS.map(async target => {
 		const V8_LIB_TARGET_DIR = path.resolve(V8_LIB_DIR, target);
 		const BLOB_PATH = path.join(V8_LIB_TARGET_DIR, 'blob.bin');
 
-		if (fs.existsSync(BLOB_PATH)) {
-			blobs[target] = Buffer.from(fs.readFileSync(BLOB_PATH, 'binary'), 'binary');
+		if (await fs.exists(BLOB_PATH)) {
+			blobs[target] = Buffer.from(await fs.readFile(BLOB_PATH, 'binary'), 'binary');
 		}
-	}
+	}));
 
-	return new Promise(async (resolve, reject) => {
+	console.log(`Generating V8Snapshots.h for ${Object.keys(blobs).join(', ')}...`);
 
-		// Generate 'V8Snapshots.h' from template
-		ejs.renderFile(path.join(__dirname, 'V8Snapshots.h.ejs'), blobs, {}, (error, output) => {
-			if (error) {
-				return reject(error);
-			}
-			fs.writeFileSync(path.join(ANDROID_DIR, 'runtime', 'v8', 'src', 'native', 'V8Snapshots.h'), output);
-			resolve();
-		});
-	});
+	// Generate 'V8Snapshots.h' from template
+	const output = await promisify(ejs.renderFile)(path.join(__dirname, 'V8Snapshots.h.ejs'), blobs, {});
+	return fs.writeFile(path.join(ANDROID_DIR, 'runtime', 'v8', 'src', 'native', 'V8Snapshots.h'), output);
 }
 
 /**
@@ -94,17 +83,15 @@ async function generateHeader() {
  * @returns {Promise<void>}
  */
 async function build() {
-	return new Promise(async (resolve, reject) => {
+	// Only macOS is supports creating snapshots
+	if (os.platform() !== 'darwin') {
+		console.warn('Snapshot generation is only supported on macOS, skipping...');
+		return;
+	}
 
-		// Only macOS is supports creating snapshots
-		if (os.platform() === 'darwin') {
-			for (const target of TARGETS) {
-				await generateBlob(target).catch(error => reject(error));
-			}
-			await generateHeader().catch(error => reject(error));
-		}
-		resolve();
-	});
+	// Generate snapshots in parallel
+	await Promise.all(TARGETS.map(target => generateBlob(target)));
+	return generateHeader();
 }
 
 module.exports = { build };
