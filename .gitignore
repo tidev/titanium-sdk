@@ -35,9 +35,11 @@ android/.idea/modules.xml
 android/.idea/scopes/scope_settings.xml
 android/.idea/vcs.xml
 *.iml
+
 /iphone/TitaniumKit/Carthage
 /iphone/TitaniumKit/docs
 /iphone/TitaniumKit/build
 /iphone/lib/libTiCore.a
 
 .vscode/
+android/runtime/v8/src/native/V8Snapshots.h
