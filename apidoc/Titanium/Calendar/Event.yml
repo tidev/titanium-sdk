@@ -2,7 +2,7 @@
 name: Titanium.Calendar.Event
 summary: An object that represents a single event in a calendar.
 description: |
-    The API supports retrieving information about existing events and creating new events.  
+    The API supports retrieving information about existing events and creating new events.
     On iOS, existing events can be modified or deleted. On Android, only recurrence rules
     can be modified.
 
@@ -58,7 +58,7 @@ methods:
   - name: createRecurrenceRule
     summary: |
         Creates an recurrence pattern for a recurring event.
-        All of the properties for the recurrence rule must be set during creation. 
+        All of the properties for the recurrence rule must be set during creation.
         The recurrence rule properties cannot be modified.
     returns:
         type: Titanium.Calendar.RecurrenceRule
@@ -72,10 +72,10 @@ methods:
   - name: save
     summary: Saves changes to an event permanently.
     description: |
-        This method raises an exception if it is passed an event from another event store. 
-        
-        When an event is saved, it is updated in the Calendar database. Any fields you did 
-        not modify are updated to reflect the most recent value in the database. If the 
+        This method raises an exception if it is passed an event from another event store.
+
+        When an event is saved, it is updated in the Calendar database. Any fields you did
+        not modify are updated to reflect the most recent value in the database. If the
         event has been deleted from the database, it is re-created as a new event.
 
         On Android, this method only updates the recurrence rule (if set). See [TIMOB-24248](https://jira.appcelerator.org/browse/TIMOB-24248)
@@ -85,7 +85,7 @@ methods:
     parameters:
       - name: span
         summary: |
-            The span to use. Indicates whether the save affects future instances of the 
+            The span to use. Indicates whether the save affects future instances of the
             event in the case of a recurring event.
         type: Number
         constants: Titanium.Calendar.SPAN_*
@@ -102,7 +102,7 @@ methods:
     parameters:
       - name: span
         summary: |
-            The span to use. Indicates whether to remove future instances of the event in 
+            The span to use. Indicates whether to remove future instances of the event in
             the case of a recurring event.
         type: Number
         constants: Titanium.Calendar.SPAN_*
@@ -112,10 +112,10 @@ methods:
   - name: refresh
     summary: Updates the event's data with the current information in the Calendar database.
     description: |
-        This method should be only used on events that your application is editing, and only 
-        when your application receives the [change](Titanium.Calendar.change) notification. 
-        If this method returns NO, the event has been deleted or otherwise invalidated, 
-        and you should not continue to use it. 
+        This method should be only used on events that your application is editing, and only
+        when your application receives the [change](Titanium.Calendar.change) notification.
+        If this method returns NO, the event has been deleted or otherwise invalidated,
+        and you should not continue to use it.
     returns:
         type: Boolean
     platforms: [iphone, ipad]
@@ -203,7 +203,7 @@ properties:
         This property is read-only on Android.
     type: String
     platforms: [android, iphone, ipad]
-    
+
   - name: reminders
     summary: Existing reminders for this event.
     type: Array<Titanium.Calendar.Reminder>
@@ -221,21 +221,20 @@ properties:
     summary: Availability of this event.
     type: Number
     constants: Titanium.Calendar.AVAILABILITY_*
-    permission: read-only
     platforms: [iphone, ipad]
 
   - name: isDetached
     summary: |
-        Boolean value that indicates whether an event is a detached instance of a 
+        Boolean value that indicates whether an event is a detached instance of a
         repeating event.
     description: |
-        This value is `YES` if and only if the event is part of a repeating event 
-        and one or more of its attributes have been modified from the repeating event's 
+        This value is `YES` if and only if the event is part of a repeating event
+        and one or more of its attributes have been modified from the repeating event's
         default attributes.
     type: Boolean
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: title
     summary: Title of this event.
     description: |
@@ -246,7 +245,7 @@ properties:
   - name: recurrenceRules
     summary: The recurrence rules for the calendar item.
     description: |
-        On Android, only the first element of the recurrenceRules is taken into account 
+        On Android, only the first element of the recurrenceRules is taken into account
         due to the way it handles conditions for recurrence rules.
     type: Array<Titanium.Calendar.RecurrenceRule>
     osver: {ios: {min: "5.0"}}
