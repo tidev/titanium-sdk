@@ -6,8 +6,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
+
+@class TiBlob; // forward declare
 
 // TODO: Support array-style access of bytes
 /**
@@ -49,7 +50,7 @@
 
 /**
  Provides access to the data byte order.
- 
+
  The byte order values are: 1 - little-endian, 2 - big-endian.
  */
 @property (nonatomic, retain) NSNumber *byteOrder;

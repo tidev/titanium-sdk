@@ -912,10 +912,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
@@ -2678,9 +2678,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	appc.async.series(this, tasks, function () {
 		const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
-		// if an app icon hasn't been copied, copy the default one
 		const srcIcon = path.join(templateDir, 'appicon.png');
 		const destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+
+		// if an app icon hasn't been copied, copy the default one
 		if (!fs.existsSync(destIcon)) {
 			copyFile.call(this, srcIcon, destIcon);
 		}
@@ -2688,7 +2689,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		const destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
-			copyFile.call(this, srcIcon, destIcon2);
+			// Note, we are explicitly copying destIcon here as we want to ensure that we're
+			// copying the user specified icon, srcIcon is the default Titanium icon
+			copyFile.call(this, destIcon, destIcon2);
 		}
 		delete this.lastBuildFiles[destIcon2];
 
@@ -2719,7 +2722,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		// copy js files into assets directory and minify if needed
 		this.logger.info(__('Processing JavaScript files'));
 		const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
-		appc.async.series(this, Object.keys(jsFiles).map(function (id) {
+		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
 			return function (done) {
 				const from = jsFiles[id];
 				let to = path.join(this.buildBinAssetsResourcesDir, id);
@@ -2808,7 +2811,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 			};
 		}), function () {
-
 			// write the properties file
 			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
 				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
@@ -2827,6 +2829,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			// Note: An empty array indicates the app has no bootstrap files.
 			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
 				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+			fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
 			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
 			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
 			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
@@ -2840,9 +2843,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			let titaniumPrep = 'titanium_prep';
 			if (process.platform === 'darwin') {
 				titaniumPrep += '.macos';
-				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
-					titaniumPrep += '.jdk16';
-				}
 			} else if (process.platform === 'win32') {
 				titaniumPrep += '.win32.exe';
 			} else if (process.platform === 'linux') {
