@@ -572,7 +572,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			String color = TiConvert.toString(d, TiC.PROPERTY_SEPARATOR_COLOR);
 			setSeparatorColor(color);
 		}
-
+		if (d.containsKey(TiC.PROPERTY_SEPARATOR_STYLE)) {
+			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE),
+											  UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
+		}
 		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
 			listView.setFooterDividersEnabled(enabled);
@@ -838,6 +841,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 		}
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dHeight);
+	}
+
+	public void setSeparatorStyle(int style)
+	{
+		if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
+			listView.setDividerHeight(0);
+		} else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
+			listView.setDividerHeight(dividerHeight);
+		}
 	}
 
 	private void refreshItems()
