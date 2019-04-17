@@ -6,6 +6,28 @@
  * implementation. We then intercept require calls to handle requests for these modules
  * and lazily load the file.
  */
+import Module from './node/module';
+const isAndroid = Ti.Platform.osname === 'android';
+const isIOS = !isAndroid && (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
+
+if (!isAndroid) {
+	// Hack in our own Module impl for iOS/Windows!
+	global.Module = Module;
+
+	if (!Module.main) {
+		const main = new Module('.', null, {});
+		main.filename = '/ti.main.js';
+		main.path = '/';
+		main.paths = main.nodeModulesPaths(main.path);
+		Module.cache[main.filename] = main;
+		main.loaded = true;
+		Module.main = main;
+	}
+
+	global.require = function (moduleId) {
+		return Module.main.require(moduleId);
+	};
+}
 
 /**
  * Used by @function bindObjectToCoreModuleId
@@ -34,7 +56,7 @@ function isHijackableModuleId(path) {
 
 // Hack require to point to this as a core module "binding"
 const originalRequire = global.require;
-// This works for iOS as-is, and also intercepts the call on Android for ti.main.js (the first file executed)
+// This works for Windows as-is, and also intercepts the call on Android/iOS for ti.main.js (the first file executed)
 global.require = function (moduleId) {
 
 	if (bindings.has(moduleId)) {
@@ -47,8 +69,8 @@ global.require = function (moduleId) {
 	return originalRequire(moduleId);
 };
 
-if (Ti.Platform.name === 'android') {
-	// ... but we still need to hack it when requiring from other files for Android
+if (isAndroid || isIOS) {
+	// ... but we still need to hack it when requiring from other files for Android/iOS (due to module.js impl)
 	const originalModuleRequire = global.Module.prototype.require;
 	global.Module.prototype.require = function (path, context) {
 
@@ -108,8 +130,9 @@ export function redirect(moduleId, filepath) {
 	redirects.set(moduleId, filepath);
 }
 
-const binding = {
-	register,
-	redirect
-};
-global.binding = binding;
+// FIXME: There's a collision here with global.binding declared in KrollBridge.m on iOS
+if (!global.binding) {
+	global.binding = {};
+}
+global.binding.register = register;
+global.binding.redirect = redirect;
