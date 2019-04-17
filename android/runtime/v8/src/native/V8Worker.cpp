@@ -138,29 +138,6 @@ JNIEXPORT void JNICALL Java_ti_modules_titanium_worker_V8Worker_nativeOnMessage(
 	Local<Value> jsValue = TypeConverter::javaObjectToJsValue(isolate, env, message);
 	Local<Value> argv[1] = { jsValue };
 	
-	// ti.worker API
-	MaybeLocal<Value> maybeWorker = global->Get(context, STRING_NEW(isolate, "worker"));
-	if (!maybeWorker.IsEmpty()) {
-		Local<Value> workerValue = maybeWorker.ToLocalChecked();
-		if (workerValue->IsObject()) {
-			Local<Object> worker = workerValue.As<Object>();
-			MaybeLocal<Value> maybeOnMessage = worker->Get(context, STRING_NEW(isolate, "onmessage"));
-			if (!maybeOnMessage.IsEmpty()) {
-				Local<Value> onMessage = maybeOnMessage.ToLocalChecked();
-				if (onMessage->IsFunction()) {
-					TryCatch tryCatch(isolate);
-					onMessage.As<Function>()->Call(context, worker, 1, argv);
-					if (tryCatch.HasCaught()) {
-						V8Util::openJSErrorDialog(isolate, tryCatch);
-						V8Util::reportException(isolate, tryCatch, true);
-						return;
-					}
-				}
-			}
-		}
-	}
-	
-	// Web Workers API
 	MaybeLocal<Value> maybeOnMessage = global->Get(context, STRING_NEW(isolate, "onmessage"));
 	if (!maybeOnMessage.IsEmpty()) {
 		Local<Value> onMessage = maybeOnMessage.ToLocalChecked();

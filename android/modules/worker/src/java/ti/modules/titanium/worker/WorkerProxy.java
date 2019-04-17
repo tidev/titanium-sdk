@@ -62,4 +62,13 @@ public class WorkerProxy extends KrollProxy
 		worker.terminate();
 		worker = null;
 	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getApiName()
+	// clang-format on
+	{
+		return "Ti.Worker";
+	}
 }
