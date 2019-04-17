@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,8 @@
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiUtils.h>
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
@@ -520,10 +522,10 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   TiBlob *blob;
   if ([[self response] saveToFile]) {
-    blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[[self response] filePath]];
+    blob = [[TiBlob alloc] initWithFile:[[self response] filePath]];
   } else {
     NSString *contentType = [TiUtils stringValue:[[self responseHeaders] valueForKey:@"Content-Type"]];
-    blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andData:[[self response] responseData] mimetype:contentType];
+    blob = [[TiBlob alloc] initWithData:[[self response] responseData] mimetype:contentType];
   }
   return [blob autorelease];
 }

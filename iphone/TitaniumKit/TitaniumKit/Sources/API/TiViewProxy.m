@@ -705,7 +705,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     }
   }
   callback = (KrollCallback *)obj;
-  TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
+  __block TiBlob *blob = nil;
   // we spin on the UI thread and have him convert and then add back to the blob
   // if you pass a callback function, we'll run the render asynchronously, if you
   // don't, we'll do it synchronously
@@ -741,7 +741,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
     [myview.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    [blob setImage:image];
+    blob = [[[TiBlob alloc] initWithImage:image] autorelease];
     [blob setMimeType:@"image/png" type:TiBlobTypeImage];
     UIGraphicsEndImageContext();
     if (callback != nil) {

@@ -81,6 +81,10 @@
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
+#import <TitaniumKit/TiBlob.h>
+#endif
+
 #if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
 #import <PhotosUI/PhotosUI.h>
 #endif
@@ -598,7 +602,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
     return nil;
   }
 
-  TiBlob *image = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge] autorelease];
+  TiBlob *image = [[[TiBlob alloc] initWithImage:badge] autorelease];
 
   return image;
 }
