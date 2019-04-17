@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_NETWORK
 
 #import "TiNetworkTCPSocketProxy.h"
+#import <TitaniumKit/TiBlob.h>
 
 #include <CFNetwork/CFSocketStream.h>
 #import <netdb.h>
@@ -277,7 +278,7 @@ const CFOptionFlags writeStreamEventFlags = kCFStreamEventCanAcceptBytes | kCFSt
     free(buffer);
   }
 
-  TiBlob *dataBlob = [[[TiBlob alloc] _initWithPageContext:[self executionContext] andData:data mimetype:@"application/octet-stream"] autorelease];
+  TiBlob *dataBlob = [[[TiBlob alloc] initWithData:data mimetype:@"application/octet-stream"] autorelease];
   [self fireEvent:@"read"
        withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:remoteSocket], @"from",
                                 dataBlob, @"data",
