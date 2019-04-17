@@ -28,7 +28,6 @@ extern NSString *TitaniumModuleRequireFormat;
   NSMutableDictionary *modules;
   NSMutableDictionary *packageJSONMainCache;
   NSMutableDictionary *pathCache;
-  KrollObject *console;
   BOOL shutdown;
   BOOL evaluationError;
   //NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
