@@ -512,7 +512,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.androidMkTemplateFile = path.join(this.moduleGenTemplateDir, 'Android.mk.ejs');
 	this.applicationMkTemplateFile = path.join(this.moduleGenTemplateDir, 'Application.mk.ejs');
 	this.commonJsSourceTemplateFile = path.join(this.moduleGenTemplateDir, 'CommonJsSourceProvider.java.ejs');
-	this.assetCryptImplTemplateFile = path.join(this.moduleGenTemplateDir, 'AssetCryptImpl.java.ejs');
+	this.assetCryptImplTemplateFile = path.join(this.platformPath, 'templates', 'build', 'AssetCryptImpl.java');
 
 	this.moduleJarName = this.manifest.name + '.jar';
 	this.moduleJarFile = path.join(this.distDir, this.moduleJarName);
@@ -1454,8 +1454,6 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 					});
 				}
 
-				fs.existsSync(this.buildGenAssetJavaFile) && fs.unlinkSync(this.buildGenAssetJavaFile);
-
 				// write the encrypted JS bytes to the generated Java file
 				fs.writeFileSync(
 					this.buildGenAssetJavaFile,
@@ -1466,7 +1464,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 				);
 
 				fs.writeFileSync(
-					path.join(this.buildGenJavaDir, 'CommonJsSourceProvider.java'),
+					path.join(this.buildGenJavaDir, this.moduleIdSubDir, 'CommonJsSourceProvider.java'),
 					ejs.render(fs.readFileSync(this.commonJsSourceTemplateFile).toString(), { moduleid: this.manifest.moduleid })
 				);
 
