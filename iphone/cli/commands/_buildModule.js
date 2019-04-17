@@ -210,7 +210,15 @@ iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) 
 		bindingReg = /\$\(([^$]+)\)/g;
 
 	if (fs.existsSync(this.tiXcconfigFile)) {
-		fs.readFileSync(this.tiXcconfigFile).toString().split('\n').forEach(function (line) {
+		const contents = fs.readFileSync(this.tiXcconfigFile).toString();
+		// with move to 8.0.0, we needed to add FRAMEWORK_SEARCH_PATHS to titanium.xcconfig
+		if (!contents.includes('FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"')) {
+			this.logger.warn(`Build may fail due to missing FRAMEWORK_SEARCH_PATHS value in ${this.tiXcconfigFile.cyan}
+Please append the following line to that file:
+
+FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"`);
+		}
+		contents.split('\n').forEach(function (line) {
 			const match = line.match(re);
 			if (match) {
 				const keyList = [];
