@@ -147,7 +147,9 @@ process.emitWarning = function (warning, options, code, ctor) { // eslint-disabl
 	}
 	this.emit('warning', warning);
 };
-process.env = {};
+process.env = {
+	// DEBUG: '*' // uncomment to make use of npm 'debug' module. TODO: have CLI pass along env vars in some file/property for dev builds?
+};
 process.execArgv = [];
 process.execPath = ''; // FIXME: What makes sense here? Path to titanium CLI here?
 process.exit = () => {
@@ -253,3 +255,72 @@ Ti.App.addEventListener('uncaughtException', function (event) {
 });
 
 export default process;
+
+// FIXME: nextTick vs setImmediate should be handled in a semi-smart way
+// Basically nextTick needs to drain the full queue (and can cause infinite loops if nextTick callback calls nextTick!)
+// Then we should go through the "immediate" queue
+// http://plafer.github.io/2015/09/08/nextTick-vs-setImmediate/
+// Right now the two queues know nothing about one another
+
+// process.nextTick implementation oringally from browserify and modified
+let queue = [];
+let draining = false;
+
+function drainQueue() {
+	if (draining) {
+		return;
+	}
+	draining = true;
+
+	do {
+		const tick = queue.shift();
+		tick.run();
+	} while (queue.length);
+	draining = false;
+}
+
+process.nextTick = function (fun, ...args) {
+	queue.push(new Item(fun, args));
+	if (queue.length === 1 && !draining) {
+		setTimeout(drainQueue, 0);
+	}
+};
+
+// v8 likes predictible objects
+class Item {
+	constructor(fun, args) {
+		this.fun = fun;
+		this.args = args;
+	}
+
+	run () {
+		if (this.args) {
+			this.fun.apply(null, this.args);
+		} else {
+			this.fun();
+		}
+	}
+}
+
+// setImmediate impl - from ti-mocha
+const immediateQueue = [];
+let immediateTimeout;
+
+function timeslice() {
+	const immediateStart = Date.now();
+	while (immediateQueue.length && (Date.now() - immediateStart) < 100) {
+		immediateQueue.shift()();
+	}
+	if (immediateQueue.length) {
+		immediateTimeout = setTimeout(timeslice, 0);
+	} else {
+		immediateTimeout = null;
+	}
+}
+
+global.setImmediate = function (callback) {
+	immediateQueue.push(callback);
+	if (!immediateTimeout) {
+		immediateTimeout = setTimeout(timeslice, 0);
+	}
+};
