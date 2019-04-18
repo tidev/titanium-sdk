@@ -62,7 +62,7 @@ properties:
         the view's top-left corner, `{0.5, 0.5}` at its center and `{1, 1}` at its bottom-right
         corner.
 
-        This property's value will overwrite the [anchorPoint](Ti.UI.Matrix2D.Matrix2DCreationDict.anchorPoint) used in the matrix's creation dictionary.
+        This property's value will overwrite the [anchorPoint](Matrix2DCreationDict.anchorPoint) used in the matrix's creation dictionary.
 
         See the "Using an anchorPoint" example for a demonstration.
     type: Point

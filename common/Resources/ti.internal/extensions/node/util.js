@@ -1,3 +1,5 @@
+import assertArgumentType from './_errors';
+
 const MONTHS = [
 	'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
@@ -456,16 +458,9 @@ util.format = (...args) => {
  * @returns {void}
  */
 util.inherits = function (constructor, superConstructor) {
-	// TODO Extract common code for enforcing types of arguments. We use this logic in path.js too!
-	if (constructor == null) { // eslint-disable-line eqeqeq, no-eq-null
-		throw new TypeError(`The "constructor" argument must be of type Function. Received type ${typeof constructor}`);
-	}
-	if (superConstructor == null) { // eslint-disable-line eqeqeq, no-eq-null
-		throw new TypeError(`The "superConstructor" argument must be of type Function. Received type ${typeof superConstructor}`);
-	}
-	if (superConstructor.prototype === undefined) {
-		throw new TypeError('The "superConstructor.prototype" argument must be of type Object. Received type undefined');
-	}
+	assertArgumentType(constructor, 'constructor', 'Function');
+	assertArgumentType(superConstructor, 'superConstructor', 'Function');
+	assertArgumentType(superConstructor.prototype, 'superConstructor.prototype', 'Object');
 
 	Object.defineProperty(constructor, 'super_', { value: superConstructor });
 	Object.setPrototypeOf(constructor.prototype, superConstructor.prototype);
@@ -476,9 +471,7 @@ util.inherits = function (constructor, superConstructor) {
  * @returns {Function} function that returns a Promise
  */
 util.promisify = function (original) {
-	if (typeof original !== 'function') {
-		throw new TypeError(`The "original" argument must be of type Function. Received type ${typeof original}`);
-	}
+	assertArgumentType(original, 'original', 'Function');
 
 	function wrapped(...args) {
 		return new Promise((resolve, reject) => {
@@ -502,9 +495,7 @@ util.promisify = function (original) {
  * @returns {Function} wrapped function
  */
 util.callbackify = function (original) {
-	if (typeof original !== 'function') {
-		throw new TypeError(`The "original" argument must be of type Function. Received type ${typeof original}`);
-	}
+	assertArgumentType(original, 'original', 'Function');
 
 	function wrapped(...args) {
 		const callback = args.pop();
