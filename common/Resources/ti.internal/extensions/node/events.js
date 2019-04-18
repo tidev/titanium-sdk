@@ -6,6 +6,9 @@
  * @returns {EventEmitter}
  */
 function _addListener(emitter, eventName, listener, prepend) {
+	if (!emitter._eventsToListeners) { // no events/listeners registered
+		emitter._eventsToListeners = {}; // initialize it
+	}
 	// if there's someone listening to 'newListener' events, emit that **before** we add the listener (to avoid infinite recursion)
 	if (emitter._eventsToListeners.newListener) {
 		emitter.emit('newListener', eventName, listener);
@@ -48,6 +51,8 @@ function onceWrap(emitter, eventName, listener) {
 	return bound;
 }
 
+// many consumers make use of this via util.inherits, which does not chain constructor calls!
+// so we need to be aware that _eventsToListeners maye be null/undefined on instances, and check in methods before accessing it
 export default class EventEmitter {
 	constructor() {
 		this._eventsToListeners = {};
@@ -75,6 +80,9 @@ export default class EventEmitter {
 	}
 
 	removeListener(eventName, listener) {
+		if (!this._eventsToListeners) { // no events/listeners registered
+			return this;
+		}
 		const eventListeners = this._eventsToListeners[eventName] || [];
 		const length = eventListeners.length;
 		let foundIndex = -1;
@@ -107,29 +115,41 @@ export default class EventEmitter {
 	}
 
 	emit(eventName, ...args) {
+		if (!this._eventsToListeners) { // no events/listeners registered
+			return false;
+		}
 		const eventListeners = this._eventsToListeners[eventName] || [];
-		for (const listener of eventListeners) {
+		for (const listener of eventListeners.slice()) { // must operate on copy because listeners ,ay get remove as side-effect of calling
 			listener.call(this, ...args);
 		}
 		return eventListeners.length !== 0;
 	}
 
 	listenerCount(eventName) {
+		if (!this._eventsToListeners) { // no events/listeners registered
+			return 0;
+		}
 		const eventListeners = this._eventsToListeners[eventName] || [];
 		return eventListeners.length;
 	}
 
 	eventNames() {
-		return Object.getOwnPropertyNames(this._eventsToListeners);
+		return Object.getOwnPropertyNames(this._eventsToListeners || {});
 	}
 
 	listeners(eventName) {
+		if (!this._eventsToListeners) { // no events/listeners registered
+			return [];
+		}
 		// Need to "unwrap" once wrappers!
 		const raw = (this._eventsToListeners[eventName] || []);
 		return raw.map(l => l.listener || l);  // here we unwrap the once wrapper if there is one or fall back to listener function
 	}
 
 	rawListeners(eventName) {
+		if (!this._eventsToListeners) { // no events/listeners registered
+			return [];
+		}
 		return (this._eventsToListeners[eventName] || []).slice(0); // return a copy
 	}
 
@@ -143,6 +163,9 @@ export default class EventEmitter {
 	}
 
 	removeAllListeners(eventName) {
+		if (!this._eventsToListeners) { // no events/listeners registered
+			this._eventsToListeners = {}; // initialize it
+		}
 		if (!this._eventsToListeners.removeListener) {
 			// no need to emit! we can just wipe!
 			if (eventName === undefined) {

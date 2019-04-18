@@ -61,7 +61,6 @@
   UIButton *searchScreenView;
   NSString *filterAttribute;
   NSString *searchString;
-  NSMutableArray *searchResultIndexes;
   BOOL searchActivated;
   BOOL filterAnchored;
   BOOL filterCaseInsensitive;
@@ -84,6 +83,8 @@
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
+@property (nonatomic, assign) BOOL shouldDelayScrolling;
+@property (nonatomic, retain) NSMutableArray *searchResultIndexes;
 
 #pragma mark Framework
 - (CGFloat)tableRowHeight:(CGFloat)height;
