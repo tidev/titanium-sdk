@@ -1,18 +1,41 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiProxy.h>
-
 #ifdef USE_TI_DATABASE
-
+@import JavaScriptCore;
+@import TitaniumKit.ObjcProxy;
+#import "DatabaseModule.h"
 #import "PlausibleDatabase.h"
 
-@class TiDatabaseProxy;
+@class TiDatabaseProxy; // forward declare
 
-@interface TiDatabaseResultSetProxy : TiProxy {
+@protocol TiDatabaseResultSetProxyExports <JSExport>
+// Properties (and accessors)
+READONLY_PROPERTY(NSInteger, fieldCount, FieldCount);
+READONLY_PROPERTY(NSInteger, rowCount, RowCount);
+READONLY_PROPERTY(BOOL, validRow, ValidRow);
+
+// Methods
+- (void)close;
+JSExportAs(field,
+           -(JSValue *)field
+           : (NSInteger)index withType
+           : (JSValue *)optionalType);
+JSExportAs(fieldByName,
+           -(JSValue *)fieldByName
+           : (NSString *)name withType
+           : (JSValue *)optionalType);
+- (NSString *)fieldName:(NSInteger)index;
+- (NSString *)getFieldName:(NSInteger)index;
+- (BOOL)isValidRow;
+- (BOOL)next;
+
+@end
+
+@interface TiDatabaseResultSetProxy : ObjcProxy <TiDatabaseResultSetProxyExports> {
   @private
   TiDatabaseProxy *database;
   PLSqliteResultSet *results;
@@ -20,10 +43,7 @@
   int rowCount;
 }
 
-- (id)initWithResults:(PLSqliteResultSet *)results database:(TiDatabaseProxy *)database pageContext:(id<TiEvaluator>)context;
-
-@property (nonatomic, readonly) NSNumber *rowCount;
-@property (nonatomic, readonly) NSNumber *validRow;
+- (id)initWithResults:(PLSqliteResultSet *)results database:(TiDatabaseProxy *)database;
 
 @end
 

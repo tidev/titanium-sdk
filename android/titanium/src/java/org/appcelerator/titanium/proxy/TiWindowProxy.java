@@ -22,6 +22,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -642,7 +643,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
 		ActivityOptionsCompat options = null;
-		if (hasActivityTransitions()) {
+
+		// Do NOT apply transitions to launch activity.
+		if (hasActivityTransitions() && !(activity instanceof TiLaunchActivity)) {
 			if (!sharedElementPairs.isEmpty()) {
 				options = ActivityOptionsCompat.makeSceneTransitionAnimation(
 					activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
