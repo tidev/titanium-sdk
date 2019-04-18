@@ -9,6 +9,8 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const util = require('util');
+
 let EventEmitter;
 
 describe('EventEmitter', () => {
@@ -223,6 +225,24 @@ describe('EventEmitter', () => {
 			e.listenerCount('ping').should.eql(1);
 			e.removeListener('ping', noop);
 			e.listenerCount('ping').should.eql(0);
+		});
+
+		it('does not interfere with other listeners when removing itself', () => {
+			// special test case for bug that occurred when iterating over original listener array
+			// while firing events. This basically tests that we copy listener array before iterating
+			// if we didn't iterator gets confused and second listener never gets event
+			const e = new EventEmitter();
+			let callCount = 0;
+			e.once('ping', () => {
+				callCount++;
+			});
+			e.on('ping', () => {
+				callCount++;
+			});
+			e.listenerCount('ping').should.eql(2);
+			e.emit('ping'); // emit shoudl fire to *both* listeners and remove the first once listener
+			e.listenerCount('ping').should.eql(1);
+			callCount.should.eql(2);
 		});
 	});
 
@@ -440,6 +460,19 @@ describe('EventEmitter', () => {
 			e.off('removeListener', shouldNeverGetInvoked);
 			listenerFirings.should.eql([ 'removeListener' ]);
 		});
+	});
+
+	it('handles being extended by util.inherits with constructor chaining', () => {
+		function Subclass() {
+		}
+
+		util.inherits(Subclass, EventEmitter);
+		const e = new Subclass();
+		const listenerFirings = [];
+		e.addListener('newListener', eventName => listenerFirings.push(eventName));
+		e.addListener('ping', () => {});
+		e.once('pong', () => {});
+		listenerFirings.should.eql([ 'ping', 'pong' ]);
 	});
 
 	// TODO: test registering for and receiving newListener removeListener events baked in

@@ -102,9 +102,13 @@ async function main(tmpBundleDir) {
 	await fs.copy(commonSDKJS, tmpBundleDir); // copy our common SDK JS files to tmp location
 	await copyPolyfills(tmpBundleDir); // copy @babel/polyfill there too
 	await generateBundle(tmpBundleDir, appDir); // run rollup/babel to generate single bundled ti.main.js in app
+	console.log(`Removing temp dir used for bundling: ${tmpBundleDir}`);
 	await fs.remove(tmpBundleDir); // remove tmp location
-	await fs.copy(xcodeProjectResources, appDir); // copy our xcode app resources
+	console.log(`Copying xcode resources: ${xcodeProjectResources} -> ${appDir}`);
+	await fs.copy(xcodeProjectResources, appDir, { dereference: true }); // copy our xcode app resources
+	console.log('Creating i18n files');
 	await exec(`${localeCompiler} "${path.join(projectDir, '..')}" ios simulator "${appDir}"`); // create i18n files
+	console.log('Generating index.json');
 	await generateIndexJSON(appDir); // generate _index_.json file for require file existence checks
 }
 
