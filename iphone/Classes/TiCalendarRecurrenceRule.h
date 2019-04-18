@@ -1,23 +1,37 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiProxy.h>
 #ifdef USE_TI_CALENDAR
+@import JavaScriptCore;
+@import TitaniumKit.ObjcProxy;
+@import EventKit;
 
-#import <EventKit/EventKit.h>
+@protocol TiCalendarRecurrenceRuleExports <JSExport>
 
-@class CalendarModule;
+// properties (and accessors)
+READONLY_PROPERTY(NSString *, calendarID, CalendarID);
+READONLY_PROPERTY(NSArray<NSNumber *> *, daysOfTheMonth, DaysOfTheMonth);
+READONLY_PROPERTY(NSArray<NSDictionary *> *, daysOfTheWeek, DaysOfTheWeek);
+READONLY_PROPERTY(NSArray<NSNumber *> *, daysOfTheYear, DaysOfTheYear);
+READONLY_PROPERTY(NSDictionary *, end, End);
+READONLY_PROPERTY(EKRecurrenceFrequency, frequency, Frequency);
+READONLY_PROPERTY(NSUInteger, interval, Interval);
+READONLY_PROPERTY(NSArray<NSNumber *> *, monthsOfTheYear, MonthsOfTheYear);
+READONLY_PROPERTY(NSArray<NSNumber *> *, setPositions, SetPositions);
+READONLY_PROPERTY(NSArray<NSNumber *> *, weeksOfTheYear, WeeksOfTheYear);
 
-@interface TiCalendarRecurrenceRule : TiProxy {
+@end
+
+@interface TiCalendarRecurrenceRule : ObjcProxy <TiCalendarRecurrenceRuleExports> {
   @private
 
   EKRecurrenceRule *rule;
 }
 
-- (id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule *)rule_;
+- (id)initWithRule:(EKRecurrenceRule *)rule_;
 - (EKRecurrenceRule *)ruleForRecurrence;
 @end
 
