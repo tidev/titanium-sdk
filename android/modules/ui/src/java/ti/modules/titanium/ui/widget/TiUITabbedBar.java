@@ -12,10 +12,12 @@ import android.support.design.widget.TabLayout;
 import android.view.MenuItem;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
@@ -27,12 +29,11 @@ import ti.modules.titanium.ui.android.AndroidModule;
 
 public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickListener, TabLayout.OnTabSelectedListener
 {
-
 	private static final String TAG = "TiUITabbedBar";
 
 	private TabLayout tabLayout;
 	private BottomNavigationView bottomNavigationView;
-	private int style;
+	private int style = AndroidModule.TABS_STYLE_DEFAULT;
 	private ArrayList<MenuItem> bottomNavigationMenuItems = new ArrayList<>();
 	private int bottomNavigationIndex = -1;
 
@@ -45,7 +46,17 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public TiUITabbedBar(TiViewProxy proxy)
 	{
 		super(proxy);
-		this.style = ((Integer) getProxy().getProperty(TiC.PROPERTY_STYLE));
+
+		Object styleObject = proxy.getProperty(TiC.PROPERTY_STYLE);
+		if (styleObject instanceof Number) {
+			this.style = TiConvert.toInt(styleObject, this.style);
+		} else if (styleObject != null) {
+			Log.w(TAG, "TabbedBar '" + TiC.PROPERTY_STYLE
+						   + "' property must be set to a 'Ti.UI.Module' TABS_STYLE constant.");
+		} else {
+			proxy.setProperty(TiC.PROPERTY_STYLE, this.style);
+		}
+
 		switch (this.style) {
 			case AndroidModule.TABS_STYLE_DEFAULT:
 				createTabLayout();
@@ -53,7 +64,12 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
 				createBottomNavigationView();
 				break;
-				// end of switch
+			default:
+				Log.w(TAG, "TabbedBar '" + TiC.PROPERTY_STYLE
+							   + "' property was assigned an unknown value. Using default style instead.");
+				this.style = AndroidModule.TABS_STYLE_DEFAULT;
+				createTabLayout();
+				break;
 		}
 	}
 
@@ -94,6 +110,41 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		// For now by default select the first index.
 		bottomNavigationIndex = 0;
 		setNativeView(this.bottomNavigationView);
+	}
+
+	@Override
+	public void processProperties(KrollDict properties)
+	{
+		// Validate.
+		if (properties == null) {
+			return;
+		}
+
+		// Apply given properties to view.
+		if (properties.containsKey(TiC.PROPERTY_INDEX)) {
+			setSelectedIndex(properties.get(TiC.PROPERTY_INDEX));
+		}
+
+		// Let base class handle all other view property settings.
+		super.processProperties(properties);
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		// Validate.
+		if (key == null) {
+			return;
+		}
+
+		// Handle property change.
+		if (key.equals(TiC.PROPERTY_INDEX)) {
+			setSelectedIndex(newValue);
+		} else if (key.equals(TiC.PROPERTY_LABELS)) {
+			setNewLabels();
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 
 	private void parseDataSet()
@@ -219,8 +270,27 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		parseDataSet();
 	}
 
+	private void setSelectedIndex(Object value)
+	{
+		if (value instanceof Number) {
+			setSelectedIndex(TiConvert.toInt(value, -1));
+		} else if (value != null) {
+			Log.w(TAG, "TabbedBar '" + TiC.PROPERTY_INDEX + "' property must be set to a number.");
+		} else {
+			Log.w(TAG, "TabbedBar '" + TiC.PROPERTY_INDEX
+						   + "' property does not support null assignments to clear the selection on Android.");
+		}
+	}
+
 	public void setSelectedIndex(int i)
 	{
+		// Validate argument.
+		if ((i < 0) || (i >= getTabCount())) {
+			Log.e(TAG, "Given TabbedBar index '" + i + "' is out of range.");
+			return;
+		}
+
+		// Select the indexed tab.
 		switch (this.style) {
 			case AndroidModule.TABS_STYLE_DEFAULT:
 				this.tabLayout.getTabAt(i).select();
@@ -248,20 +318,30 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public boolean onMenuItemClick(MenuItem item)
 	{
 		this.bottomNavigationIndex = this.bottomNavigationMenuItems.indexOf(item);
-		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_INDEX, this.bottomNavigationIndex);
-		proxy.fireEvent(TiC.EVENT_CLICK, data);
-		getProxy().setProperty(TiC.PROPERTY_INDEX, this.bottomNavigationIndex);
+		onTabIndexChangedTo(this.bottomNavigationIndex);
 		return false;
 	}
 
 	@Override
 	public void onTabSelected(TabLayout.Tab tab)
 	{
-		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_INDEX, tab.getPosition());
-		getProxy().setProperty(TiC.PROPERTY_INDEX, tab.getPosition());
-		proxy.fireEvent(TiC.EVENT_CLICK, data);
+		if (tab != null) {
+			onTabIndexChangedTo(tab.getPosition());
+		}
+	}
+
+	private void onTabIndexChangedTo(int index)
+	{
+		KrollProxy proxy = getProxy();
+		if (proxy != null) {
+			// First, update the proxy's "index" property.
+			proxy.setProperty(TiC.PROPERTY_INDEX, index);
+
+			// Last, fire a "click" event.
+			KrollDict data = new KrollDict();
+			data.put(TiC.PROPERTY_INDEX, index);
+			proxy.fireEvent(TiC.EVENT_CLICK, data);
+		}
 	}
 
 	@Override
@@ -274,5 +354,16 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public void onTabReselected(TabLayout.Tab tab)
 	{
 		// No override
+	}
+
+	private int getTabCount()
+	{
+		switch (this.style) {
+			case AndroidModule.TABS_STYLE_DEFAULT:
+				return this.tabLayout.getTabCount();
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
+				return this.bottomNavigationView.getMenu().size();
+		}
+		return 0;
 	}
 }

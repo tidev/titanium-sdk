@@ -12,7 +12,6 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
@@ -53,7 +52,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
-import android.view.WindowManager;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -286,7 +284,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 			activity.getSupportActionBar().setHomeButtonEnabled(
 				!getProperties().optBoolean(TiC.PROPERTY_HIDES_BACK_BUTTON, false));
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			// Get a reference to the root window in the NavigationWindow.
+			WindowProxy rootWindowProxy = ((NavigationWindowProxy) this.getNavigationWindow()).getRootWindowProxy();
+			// If the root window matches this window do not show the Up navigation button.
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootWindowProxy != this);
 		}
 
 		activity.getActivityProxy().getDecorView().add(this);

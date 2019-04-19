@@ -4,11 +4,13 @@ const path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
 	utils = require('./utils'),
+	util = require('util'),
+	promisify = util.promisify,
+	callbackify = util.callbackify,
+	glob = promisify(require('glob')),
 	{ spawn } = require('child_process'),  // eslint-disable-line security/detect-child-process
 	copyFiles = utils.copyFiles,
 	copyAndModifyFile = utils.copyAndModifyFile,
-	globCopy = utils.globCopy,
-	globCopyFlat = utils.globCopyFlat,
 	ROOT_DIR = path.join(__dirname, '..'),
 	IOS_ROOT = path.join(ROOT_DIR, 'iphone'),
 	IOS_LIB = path.join(IOS_ROOT, 'lib');
@@ -56,35 +58,72 @@ IOS.prototype.build = function (next) {
 	});
 };
 
+/**
+ * This generates "redirecting" headers in built SDK's iphone/include directory that points to the "real" headers
+ * whether they are in TitaniumKit's framework, or the iphone/Classes directory
+ * This should retain backwards compatibility for module builds and allow iphone/include to be a sort of single header path that can be used
+ *
+ * @param {string} DEST_IOS destination directory to copy files to
+ */
+async function copyLegacyHeaders(DEST_IOS) {
+	// Gather all the *.h files in TitaniumKit, create "redirecting" headers in iphone/include that point to the TitaniumKit ones
+	await fs.ensureDir(path.join(DEST_IOS, 'include'));
+	const subdirs = await fs.readdir(path.join(IOS_ROOT, 'TitaniumKit/build/Release-iphoneuniversal/TitaniumKit.framework/Headers'));
+	// create them all in parallel
+	await Promise.all(subdirs.map(file => {
+		// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0?
+		return fs.writeFile(path.join(DEST_IOS, 'include', file), `#import <TitaniumKit/${file}>\n`);
+	}));
+
+	// re-arrange redirecting headers for iphone/TitaniumKit/TitankumKit/Libraries/*/*.h files
+	const libDirs = await fs.readdir(path.join(IOS_ROOT, 'TitaniumKit/TitaniumKit/Libraries'));
+	for (const libDir of libDirs) {
+		const fullLibDir = path.join(IOS_ROOT, 'TitaniumKit/TitaniumKit/Libraries', libDir);
+		if (!(await fs.lstat(fullLibDir)).isDirectory()) { // if not a directory (like .DS_Store), move on
+			continue;
+		}
+		await fs.ensureDir(path.join(DEST_IOS, 'include', libDir));
+		const libFiles = await fs.readdir(fullLibDir);
+		for (const libFile of libFiles) {
+			if (libFile.endsWith('.h') && libFile !== 'APSUtility.h') { // for whatever reason APSUtility.h seems not to get copied as part of framework?
+				await fs.move(path.join(DEST_IOS, 'include', libFile), path.join(DEST_IOS, 'include', libDir, libFile));
+			}
+		}
+	}
+
+	// Create redirecting headers in iphone/include/ pointing to iphone/Classes/ headers
+	// TODO: Use map and Promise.all to run these in parallel
+	const classesHeaders = await glob('**/*.h', { cwd: path.join(IOS_ROOT, 'Classes') });
+	for (const classHeader of classesHeaders) {
+		let depth = 1;
+		if (classHeader.includes(path.sep)) { // there's a sub-directory
+			await fs.ensureDir(path.join(DEST_IOS, 'include', path.dirname(classHeader))); // make sure we create destination
+			depth = classHeader.split(path.sep).length;
+		}
+		// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0?
+		await fs.writeFile(path.join(DEST_IOS, 'include', classHeader), `#import "${'../'.repeat(depth)}Classes/${classHeader}"\n`);
+	}
+}
+
 IOS.prototype.package = function (packager, next) {
-	// FIXME This is a hot mess. Why can't we place artifacts in their proper location already like Windows?
+	// FIXME: This is a hot mess. Why can't we place artifacts in their proper location already like Windows?
 	console.log('Zipping iOS platform...');
 	const DEST_IOS = path.join(packager.zipSDKDir, 'iphone');
 
 	async.parallel([
 		function (callback) {
 			async.series([
-				// Copy legacy copies of TiBase.h, TiApp.h etc into 'include/' to retain backwards compatibility in SDK 8.0.0
-				// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0
-				function copyLegacyCoreHeaders (cb) {
-					globCopyFlat('**/*.h', path.join(IOS_ROOT, 'TitaniumKit', 'TitaniumKit', 'Sources'), path.join(DEST_IOS, 'include'), cb);
-				},
-				// Copy legacy copies of APSAnalytics.h and APSHTTPClient.h into 'include/' to retain backwards compatibility in SDK 8.0.0
-				// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0
-				function copyLegacyLibraryHeaders (cb) {
-					globCopy('**/*.h', path.join(IOS_ROOT, 'TitaniumKit', 'TitaniumKit', 'Libraries'), path.join(DEST_IOS, 'include'), cb);
+				function copyMetaFiles (cb) {
+					callbackify(copyLegacyHeaders)(DEST_IOS, cb);
 				},
 				// Copy meta files and directories
+				// Copy module templates (Swift & Obj-C)
 				function copyMetaFiles (cb) {
 					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ], cb);
 				},
 				// Copy TitaniumKit
 				function copyTitaniumKit (cb) {
 					copyFiles(path.join(IOS_ROOT, 'TitaniumKit', 'build', 'Release-iphoneuniversal'), path.join(DEST_IOS, 'Frameworks'), [ 'TitaniumKit.framework' ], cb);
-				},
-				// Copy module templates (Swift & Obj-C)
-				function copyModuleTemplates (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ], cb);
 				},
 				// Copy and inject values for special source files
 				function injectSDKConstants (cb) {
