@@ -30,7 +30,8 @@
   __block id bself = self;
   TiThreadPerformOnMainThread(^{
     [bself unregisterForNotifications];
-  }, YES);
+  },
+      YES);
 
   RELEASE_TO_NIL(host);
   if (classNameLookup != NULL) {
@@ -114,7 +115,8 @@
   }
   TiThreadPerformOnMainThread(^{
     [self registerForNotifications];
-  }, NO);
+  },
+      NO);
 
   // Prevent JavascriptCore from releasing module proxy.
   [self rememberSelf];
