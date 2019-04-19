@@ -3117,6 +3117,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TAB_MODE = "tabMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TAG = "tag";
 
 	/**

@@ -280,4 +280,9 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	public void onTabReselected(TabLayout.Tab tab)
 	{
 	}
+
+	public void setTabMode(int value)
+	{
+		this.mTabLayout.setTabMode(value);
+	}
 }
