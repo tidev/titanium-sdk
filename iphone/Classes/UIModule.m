@@ -326,6 +326,14 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   return UIFontTextStyleCallout;
 }
+- (NSString *)TEXT_STYLE_LARGE_TITLE
+{
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return UIFontTextStyleLargeTitle;
+  }
+
+  return @"";
+}
 - (NSNumber *)isLandscape:(id)args
 {
   return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
