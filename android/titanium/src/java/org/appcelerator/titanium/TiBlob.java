@@ -720,8 +720,11 @@ public class TiBlob extends KrollProxy
 
 			opts = new BitmapFactory.Options();
 			opts.inSampleSize = sampleSize;
-			opts.inDensity = imgWidth;
-			opts.inTargetDensity = dstWidth * sampleSize;
+			if (dstWidth == dstHeight) {
+				// square images
+				opts.inDensity = imgWidth;
+				opts.inTargetDensity = dstWidth * sampleSize;
+			}
 			opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		}
 
@@ -758,7 +761,13 @@ public class TiBlob extends KrollProxy
 				matrix.postRotate(rotation);
 				imageResized = Bitmap.createBitmap(img, 0, 0, imgWidth, imgHeight, matrix, true);
 			} else {
-				imageResized = img;
+				if (dstWidth == dstHeight) {
+					// squared image
+					imageResized = img;
+				} else {
+					// non squared image
+					imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+				}
 			}
 			if (img != image && img != imageResized) {
 				img.recycle();
