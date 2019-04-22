@@ -35,7 +35,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 		if ('ios'.equals(os)) {
 			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
 		} else {
-			labels = 'git && osx && android-emulator && android-sdk && ginsu-macos02' // FIXME get working on windows/linux!
+			labels = 'git && osx && android-emulator && android-sdk && macos-rocket' // FIXME get working on windows/linux!
 		}
 		node(labels) {
 			try {
@@ -77,7 +77,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 									}
 								} else {
 									timeout(30) {
-										sh "node test.js -T device -b ../../${zipName} -p ${os}"
+										sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
 									}
 								}
 							} catch (e) {
@@ -97,20 +97,20 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 									sh 'rm -f mocha_*.crash'
 								} else {
 									// gather crash reports/tombstones for Android
-									// sh 'adb pull /data/tombstones'
-									// archiveArtifacts 'tombstones/'
-									// sh 'rm -f tombstones/'
+									sh './adb-all.sh pull /data/tombstones'
+									archiveArtifacts 'tombstones/'
+									sh 'rm -f tombstones/'
 									// // wipe tombstones and re-build dir with proper permissions/ownership on emulator
-									// sh 'adb shell rm -rf /data/tombstones'
-									// sh 'adb shell mkdir -m 771 /data/tombstones'
-									// sh 'adb shell chown system:system /data/tombstones'
+									sh './adb-all.sh shell rm -rf /data/tombstones'
+									sh './adb-all.sh shell mkdir -m 771 /data/tombstones'
+									sh './adb-all.sh shell chown system:system /data/tombstones'
 								}
 								throw e
 							} finally {
 								// Kill the emulators!
 								if ('android'.equals(os)) {
-									sh 'adb -d shell am force-stop com.appcelerator.testApp.testing'
-									sh 'adb -d uninstall com.appcelerator.testApp.testing'
+									sh './adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
+									sh './adb-all.sh uninstall com.appcelerator.testApp.testing'
 									// killAndroidEmulators()
 								} // if
 							} // finally
