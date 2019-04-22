@@ -134,6 +134,7 @@ class Packager {
 		this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 		this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
 		this.skipZip = options.skipZip;
+		this.options = options;
 	}
 
 	/**
@@ -142,22 +143,25 @@ class Packager {
 	async package() {
 		await this.cleanZipDir();
 		// do as much in parallel as we can...
-		await Promise.all([
+		const tasks = [
 			// copy, prune, hack, massage node_modules/
 			this.packageNodeModules(),
 			// write manifest.json
 			this.generateManifestJSON(),
-			// copy api.jsca file
-			fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca')),
 			// copy misc dirs/files over
-			await this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
+			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
 			// transpile/bundle and copy common/ JS files
 			this.transpile(),
 			// grab down and unzip the native modules
 			this.includePackagedModules(),
 			// copy over support/
 			this.copySupportDir()
-		]);
+		];
+		if (this.options.docs) {
+			// copy api.jsca file
+			tasks.push(fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca')));
+		}
+		await Promise.all(tasks);
 
 		// Zip up all the platforms!
 		await this.zipPlatforms();
