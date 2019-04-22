@@ -22,6 +22,13 @@ const ROOT_DIR = path.join(__dirname, '../..');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
+const TITANIUM_PREP_LOCATIONS = [
+	'android/titanium_prep.linux32',
+	'android/titanium_prep.linux64',
+	'android/titanium_prep.macos',
+	'iphone/titanium_prep'
+];
+
 /**
  * Given a folder we'd like to zip up and the destination filename, this will zip up the directory contents.
  * Be aware that the top-level of the zip will not be the directory itself, but it's contents.
@@ -127,6 +134,7 @@ class Packager {
 		this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 		this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
 		this.skipZip = options.skipZip;
+		this.options = options;
 	}
 
 	/**
@@ -135,22 +143,25 @@ class Packager {
 	async package() {
 		await this.cleanZipDir();
 		// do as much in parallel as we can...
-		await Promise.all([
+		const tasks = [
 			// copy, prune, hack, massage node_modules/
 			this.packageNodeModules(),
 			// write manifest.json
 			this.generateManifestJSON(),
-			// copy api.jsca file
-			fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca')),
 			// copy misc dirs/files over
-			await this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
+			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
 			// transpile/bundle and copy common/ JS files
 			this.transpile(),
 			// grab down and unzip the native modules
 			this.includePackagedModules(),
 			// copy over support/
 			this.copySupportDir()
-		]);
+		];
+		if (this.options.docs) {
+			// copy api.jsca file
+			tasks.push(fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca')));
+		}
+		await Promise.all(tasks);
 
 		// Zip up all the platforms!
 		await this.zipPlatforms();
@@ -366,7 +377,14 @@ class Packager {
 			}
 			return true;
 		};
-		return fs.copy(SUPPORT_DIR, this.zipSDKDir, { filter });
+		await fs.copy(SUPPORT_DIR, this.zipSDKDir, { filter });
+		for (let location of TITANIUM_PREP_LOCATIONS) {
+			location = path.join(this.zipSDKDir, location);
+			if (!await fs.exists(location)) {
+				continue;
+			}
+			await fs.chmod(location, 0o755);
+		}
 	}
 
 	async zipPlatforms() {

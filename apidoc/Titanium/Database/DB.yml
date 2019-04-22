@@ -9,10 +9,10 @@ platforms: [android, iphone, ipad]
 methods:
   - name: close
     summary: |
-      Closes the database and releases resources from memory. Once closed, this instance is no 
-      longer valid and should not be used. On iOS, also closes all <Titanium.Database.ResultSet> 
+      Closes the database and releases resources from memory. Once closed, this instance is no
+      longer valid and should not be used. On iOS, also closes all <Titanium.Database.ResultSet>
       instances that exist.
-    
+
   - name: execute
     summary: |
       Executes an SQL statement against the database and returns a `ResultSet`.
@@ -22,7 +22,7 @@ methods:
       - name: sql
         summary: SQL to execute. May include placeholders for parameter substitution.
         type: String
-        
+
       - name: vararg
         summary: |
           Either a variable ordered list of zero or more values, or an array of values,
@@ -32,44 +32,44 @@ methods:
     examples:
     - title: Executing a Query
       example: |
-        The following code will install a database using 
-        [Titanium.Database.install](Titanium.Database.install) and execute SQL statements that will 
+        The following code will install a database using
+        [Titanium.Database.install](Titanium.Database.install) and execute SQL statements that will
         create a table, insert data and query the table.
-        
+
             var db = Ti.Database.install('mydb1', 'mydb1Installed');
             db.execute('DELETE FROM people');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
-            
+
             var thisName = 'Arthur';
             var thisPhoneNo = '1-617-000-0000';
             var thisCity = 'Mountain View';
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
-            
+
             var personArray = ['Paul','020 7000 0000', 'London'];
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
-            
+
             var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
             db.close();
-            
+
             while (rows.isValidRow())
             {
               Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
               rows.next();
             }
             rows.close();
-        
+
         Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
         column, which is a SQLite-specific column that stores the unique identifier for each row.
-    
+
   - name: remove
     summary: |
-        Removes the database files for this instance from disk. WARNING: this is a destructive 
+        Removes the database files for this instance from disk. WARNING: this is a destructive
         operation and cannot be reversed. All data in the database will be lost; use with caution.
 
 properties:
   - name: file
     summary: |
-      A `File` object representing the file where this database is stored. Must only be used for 
+      A `File` object representing the file where this database is stored. Must only be used for
       setting file properties.
     type: Titanium.Filesystem.File
     permission: read-only
@@ -78,18 +78,18 @@ properties:
         android: 5.4.0
         iphone: 2.0.0
         ipad: 2.0.0
-    
+
   - name: lastInsertRowId
     summary: The identifier of the last populated row.
     type: Number
+    permission: read-only
 
-    
   - name: name
     summary: The name of the database.
     type: String
+    permission: read-only
 
-    
   - name: rowsAffected
     summary: The number of rows affected by the last query.
     type: Number
-
+    permission: read-only

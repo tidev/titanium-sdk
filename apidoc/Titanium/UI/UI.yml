@@ -2410,7 +2410,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: TEXT_STYLE_HEADLINE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2420,7 +2420,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_SUBHEADLINE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for subheadings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2430,7 +2430,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_BODY
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for body texts.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2440,7 +2440,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_FOOTNOTE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used in footnotes.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2450,7 +2450,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION1
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for standard captions.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2460,7 +2460,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION2
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for alternate captions.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2470,7 +2470,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_CALLOUT
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for callouts.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2480,7 +2480,7 @@ properties:
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE1
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for first level hierarchical headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2490,7 +2490,7 @@ properties:
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE2
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for second level hierarchical headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2500,7 +2500,7 @@ properties:
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE3
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for third level hierarchical headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2508,6 +2508,16 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
     since: "6.0.0"
+
+  - name: TEXT_STYLE_LARGE_TITLE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+    since: "8.1.0"
 
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
