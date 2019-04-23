@@ -1,4 +1,5 @@
 import util from './util';
+import assertArgumentType from './_errors';
 
 const DEFAULT_MESSAGES = {
 	deepStrictEqual: 'Expected values to be strictly deep-equal:',
@@ -481,10 +482,7 @@ assert.fail = (message = 'Failed') => throwError({ message });
 
 const NO_EXCEPTION = {};
 function execute(fn) {
-	const fnType = typeof fn;
-	if (fnType !== 'function') {
-		throw new TypeError(`The "fn" argument must be of type Function. Received type ${fnType}`);
-	}
+	assertArgumentType(fn, 'fn', 'Function');
 	try {
 		fn();
 	} catch (e) {

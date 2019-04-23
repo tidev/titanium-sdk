@@ -53,7 +53,7 @@ enum {
 
 // Have to distinguish between filterable and nonfilterable properties
 #if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
-static NSDictionary *TI_itemProperties;
+static NSMutableDictionary *TI_itemProperties;
 static NSDictionary *TI_filterableItemProperties;
 #endif
 
@@ -150,30 +150,36 @@ static NSDictionary *TI_filterableItemProperties;
 + (NSDictionary *)itemProperties
 {
   if (TI_itemProperties == nil) {
-    TI_itemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
-                                              MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
-                                              MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
-                                              MPMediaItemPropertyDiscNumber, @"discNumber",
-                                              MPMediaItemPropertyDiscCount, @"discCount",
-                                              MPMediaItemPropertyLyrics, @"lyrics",
-                                              MPMediaItemPropertySkipCount, @"skipCount",
-                                              MPMediaItemPropertyRating, @"rating",
-                                              MPMediaItemPropertyAssetURL, @"assetURL",
-                                              MPMediaItemPropertyIsExplicit, @"isExplicit",
-                                              MPMediaItemPropertyReleaseDate, @"releaseDate",
-                                              MPMediaItemPropertyBeatsPerMinute, @"beatsPerMinute",
-                                              MPMediaItemPropertyComments, @"comments",
-                                              MPMediaItemPropertyLastPlayedDate, @"lastPlayedDate",
-                                              MPMediaItemPropertyUserGrouping, @"userGrouping",
-                                              MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
+    TI_itemProperties = [[NSMutableDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
+                                                     MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
+                                                     MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
+                                                     MPMediaItemPropertyDiscNumber, @"discNumber",
+                                                     MPMediaItemPropertyDiscCount, @"discCount",
+                                                     MPMediaItemPropertyLyrics, @"lyrics",
+                                                     MPMediaItemPropertySkipCount, @"skipCount",
+                                                     MPMediaItemPropertyRating, @"rating",
+                                                     MPMediaItemPropertyAssetURL, @"assetURL",
+                                                     MPMediaItemPropertyIsExplicit, @"isExplicit",
+                                                     MPMediaItemPropertyReleaseDate, @"releaseDate",
+                                                     MPMediaItemPropertyBeatsPerMinute, @"beatsPerMinute",
+                                                     MPMediaItemPropertyComments, @"comments",
+                                                     MPMediaItemPropertyLastPlayedDate, @"lastPlayedDate",
+                                                     MPMediaItemPropertyUserGrouping, @"userGrouping",
+                                                     MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
+                                                     nil];
+
 #ifdef __IPHONE_10_0
-                                              MPMediaItemPropertyDateAdded, @"dateAdded",
-#endif
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+      TI_itemProperties[@"dateAdded"] = MPMediaItemPropertyDateAdded;
 #ifdef __IPHONE_10_3
-                                              MPMediaItemPropertyPlaybackStoreID, @"playbackStoreID",
+      if ([TiUtils isIOSVersionOrGreater:@"10.3"]) {
+        TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
+      }
 #endif
-                                              nil];
+    }
   }
+#endif
+
   return TI_itemProperties;
 }
 #endif
@@ -1161,47 +1167,47 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self sendPickerError:MediaModuleErrorNoMusicPlayer];
 #else
 
-  if (args != nil) {
-    MPMediaType mediaTypes = 0;
-    id mediaList = [args objectForKey:@"mediaTypes"];
+    if (args != nil) {
+      MPMediaType mediaTypes = 0;
+      id mediaList = [args objectForKey:@"mediaTypes"];
 
-    if (mediaList != nil) {
-      if ([mediaList isKindOfClass:[NSArray class]]) {
-        for (NSNumber *type in mediaList) {
-          switch ([type integerValue]) {
+      if (mediaList != nil) {
+        if ([mediaList isKindOfClass:[NSArray class]]) {
+          for (NSNumber *type in mediaList) {
+            switch ([type integerValue]) {
+            case MPMediaTypeMusic:
+            case MPMediaTypeAnyAudio:
+            case MPMediaTypeAudioBook:
+            case MPMediaTypePodcast:
+            case MPMediaTypeAny:
+              mediaTypes |= [type integerValue];
+            }
+          }
+        } else {
+          ENSURE_TYPE(mediaList, NSNumber);
+          switch ([mediaList integerValue]) {
           case MPMediaTypeMusic:
           case MPMediaTypeAnyAudio:
           case MPMediaTypeAudioBook:
           case MPMediaTypePodcast:
           case MPMediaTypeAny:
-            mediaTypes |= [type integerValue];
+            mediaTypes = [mediaList integerValue];
           }
         }
-      } else {
-        ENSURE_TYPE(mediaList, NSNumber);
-        switch ([mediaList integerValue]) {
-        case MPMediaTypeMusic:
-        case MPMediaTypeAnyAudio:
-        case MPMediaTypeAudioBook:
-        case MPMediaTypePodcast:
-        case MPMediaTypeAny:
-          mediaTypes = [mediaList integerValue];
-        }
       }
+
+      if (mediaTypes == 0) {
+        mediaTypes = MPMediaTypeAny;
+      }
+
+      musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
+      musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
+    } else {
+      musicPicker = [[MPMediaPickerController alloc] init];
     }
+    [musicPicker setDelegate:self];
 
-    if (mediaTypes == 0) {
-      mediaTypes = MPMediaTypeAny;
-    }
-
-    musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
-    musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
-  } else {
-    musicPicker = [[MPMediaPickerController alloc] init];
-  }
-  [musicPicker setDelegate:self];
-
-  [self displayModalPicker:musicPicker settings:args];
+    [self displayModalPicker:musicPicker settings:args];
 #endif
 }
 
@@ -1668,8 +1674,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #ifndef TI_USE_AUTOLAYOUT
       ApplyConstraintToViewWithBounds([cameraViewProxy layoutProperties], (TiUIView *)view, [[UIScreen mainScreen] bounds]);
 #else
-      [TiUtils setView:view
-          positionRect:view.bounds];
+        [TiUtils setView:view
+            positionRect:view.bounds];
 #endif
 
       [cameraView windowWillOpen];

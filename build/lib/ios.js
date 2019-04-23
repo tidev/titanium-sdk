@@ -73,8 +73,12 @@ class IOS {
 		// re-arrange redirecting headers for iphone/TitaniumKit/TitankumKit/Libraries/*/*.h files
 		const libDirs = await fs.readdir(path.join(IOS_ROOT, 'TitaniumKit/TitaniumKit/Libraries'));
 		for (const libDir of libDirs) {
+			const fullLibDir = path.join(IOS_ROOT, 'TitaniumKit/TitaniumKit/Libraries', libDir);
+			if (!(await fs.lstat(fullLibDir)).isDirectory()) { // if not a directory (like .DS_Store), move on
+				continue;
+			}
 			await fs.ensureDir(path.join(DEST_IOS, 'include', libDir));
-			const libFiles = await fs.readdir(path.join(IOS_ROOT, 'TitaniumKit/TitaniumKit/Libraries', libDir));
+			const libFiles = await fs.readdir(fullLibDir);
 			for (const libFile of libFiles) {
 				if (libFile.endsWith('.h') && libFile !== 'APSUtility.h') { // for whatever reason APSUtility.h seems not to get copied as part of framework?
 					await fs.move(path.join(DEST_IOS, 'include', libFile), path.join(DEST_IOS, 'include', libDir, libFile));

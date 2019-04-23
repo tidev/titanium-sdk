@@ -45,14 +45,15 @@ class Android {
 	}
 
 	async build() {
+
 		// Clean build and download V8
-		await this.clean().catch(error => console.error(error));
+		await this.clean();
 
 		// Generate snapshots
 		const snapshot = require('./snapshot');
-		await snapshot.build().catch(error => console.error(error));
+		await snapshot.build().catch(error => console.warn('Failed to generate snapshots: ' + error));
 
-		// Build Titanium Android
+		// Build Titanium Android SDK
 		return ant.build(ANDROID_BUILD_XML, [ 'build' ], this.antProperties);
 	}
 
