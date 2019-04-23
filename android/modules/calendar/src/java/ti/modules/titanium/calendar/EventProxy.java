@@ -171,11 +171,11 @@ public class EventProxy extends KrollProxy
 			visibility = "visibility";
 		}
 
-		Cursor eventCursor = contentResolver.query(uri,
-												   new String[] { "_id", "title", "description", "eventLocation",
-																  "dtstart", "dtend", "allDay", "hasAlarm",
-																  "eventStatus", visibility, "hasExtendedProperties" },
-												   query, queryArgs, orderBy);
+		Cursor eventCursor = contentResolver.query(
+			uri,
+			new String[] { "_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm",
+						   "eventStatus", visibility, Events.RRULE, Events.CALENDAR_ID, "hasExtendedProperties" },
+			query, queryArgs, orderBy);
 
 		while (eventCursor.moveToNext()) {
 			EventProxy event = new EventProxy();
@@ -189,8 +189,17 @@ public class EventProxy extends KrollProxy
 			event.hasAlarm = !eventCursor.getString(7).equals("0");
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
-			event.hasExtendedProperties = !eventCursor.getString(10).equals("0");
-
+			event.hasExtendedProperties = !eventCursor.getString(12).equals("0");
+			// Guarding against Cursor implementations which would throw an exception
+			// instead of returning null if no recurrence rule is added to the event
+			String recurrenceRule = null;
+			try {
+				recurrenceRule = eventCursor.getString(10);
+			} catch (Exception e) {
+				Log.w(TAG, "Trying to get a recurrence rule for an event without one.");
+				e.printStackTrace();
+			}
+			event.setRecurrenceRules(recurrenceRule, eventCursor.getInt(11));
 			events.add(event);
 		}
 		eventCursor.close();
