@@ -256,38 +256,9 @@ Ti.App.addEventListener('uncaughtException', function (event) {
 
 export default process;
 
-// FIXME: nextTick vs setImmediate should be handled in a semi-smart way
-// Basically nextTick needs to drain the full queue (and can cause infinite loops if nextTick callback calls nextTick!)
-// Then we should go through the "immediate" queue
-// http://plafer.github.io/2015/09/08/nextTick-vs-setImmediate/
-// Right now the two queues know nothing about one another
-
-// process.nextTick implementation oringally from browserify and modified
-let queue = [];
-let draining = false;
-
-function drainQueue() {
-	if (draining) {
-		return;
-	}
-	draining = true;
-
-	do {
-		const tick = queue.shift();
-		tick.run();
-	} while (queue.length);
-	draining = false;
-}
-
-process.nextTick = function (fun, ...args) {
-	queue.push(new Item(fun, args));
-	if (queue.length === 1 && !draining) {
-		setTimeout(drainQueue, 0);
-	}
-};
-
-// v8 likes predictible objects
-class Item {
+// Use a nice predictable class/structure for our timers
+// JS engine should be able to optimize easier
+class Timer {
 	constructor(fun, args) {
 		this.fun = fun;
 		this.args = args;
@@ -301,26 +272,86 @@ class Item {
 		}
 	}
 }
-
-// setImmediate impl - from ti-mocha
+// nextTick vs setImmediate should be handled in a semi-smart way
+// Basically nextTick needs to drain the full queue (and can cause infinite loops if nextTick callback calls nextTick!)
+// Then we should go through the "immediate" queue
+// http://plafer.github.io/2015/09/08/nextTick-vs-setImmediate/
+const tickQueue = [];
 const immediateQueue = [];
-let immediateTimeout;
+let drainingTickQueue = false;
+let drainQueuesTimeout = null;
 
-function timeslice() {
-	const immediateStart = Date.now();
-	while (immediateQueue.length && (Date.now() - immediateStart) < 100) {
-		immediateQueue.shift()();
+/**
+ * Iteratively runs all "ticks" until there are no more.
+ * This can cause infinite recursion if a tick schedules another forever.
+ */
+function drainTickQueue() {
+	if (drainingTickQueue) {
+		return;
 	}
-	if (immediateQueue.length) {
-		immediateTimeout = setTimeout(timeslice, 0);
+	drainingTickQueue = true;
+
+	while (tickQueue.length) {
+		const tick = tickQueue.shift();
+		tick.run();
+	}
+	drainingTickQueue = false;
+}
+
+function drainQueues() {
+	// drain the full tick queue first...
+	drainTickQueue();
+	// tick queue should be empty!
+	const immediatesRemaining = processImmediateQueue();
+	if (immediatesRemaining !== 0) {
+		// re-schedule draining our queues, as we have at least one more "immediate" to handle
+		drainQueuesTimeout = setTimeout(drainQueues, 0);
 	} else {
-		immediateTimeout = null;
+		drainQueuesTimeout = null;
 	}
 }
 
-global.setImmediate = function (callback) {
-	immediateQueue.push(callback);
-	if (!immediateTimeout) {
-		immediateTimeout = setTimeout(timeslice, 0);
+/**
+ * Attempts to process "immediates" (in a much more leisurely way than ticks)
+ * We give a 100ms window to run them in before re-scheduling the timeout to process them again.
+ * If any ticks are added during invocation of immediate, we drain the tick queue fully before
+ * proceeding to next immediate (if we still have time in our window).
+ * @returns {number} number of remaining immediates to be processed
+ */
+function processImmediateQueue() {
+	const immediateDeadline = Date.now() + 100; // give us up to 100ms to process immediates
+	while (immediateQueue.length && (Date.now() < immediateDeadline)) {
+		const immediate = immediateQueue.shift();
+		immediate.run();
+		if (tickQueue.length > 0) {
+			// they added a tick! drain the tick queue before we do anything else (this *may* eat up our deadline/window to process any more immediates)
+			drainTickQueue();
+		}
+	}
+	return immediateQueue.length;
+}
+
+process.nextTick = function (callback, ...args) {
+	assertArgumentType(callback, 'callback', 'function');
+	tickQueue.push(new Timer(callback, args));
+	if (!drainQueuesTimeout) {
+		drainQueuesTimeout = setTimeout(drainQueues, 0);
+	}
+};
+
+global.setImmediate = function (callback, ...args) {
+	assertArgumentType(callback, 'callback', 'function');
+	const immediate = new Timer(callback, args);
+	immediateQueue.push(immediate);
+	if (!drainQueuesTimeout) {
+		drainQueuesTimeout = setTimeout(drainQueues, 0);
+	}
+	return immediate;
+};
+
+global.clearImmediate = function (immediate) {
+	const index = immediateQueue.indexOf(immediate);
+	if (index !== -1) {
+		immediateQueue.splice(index, 1);
 	}
 };
