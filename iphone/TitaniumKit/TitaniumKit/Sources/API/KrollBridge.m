@@ -714,6 +714,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+  [ourKrollObject applyGarbageCollectionSafeguard];
 
   [self registerProxy:proxy
           krollObject:ourKrollObject];
