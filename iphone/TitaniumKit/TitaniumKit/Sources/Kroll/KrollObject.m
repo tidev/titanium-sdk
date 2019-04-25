@@ -435,7 +435,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
     jsContext = [context context];
     bridge = (KrollBridge *)[context_ delegate];
     targetable = [target conformsToProtocol:@protocol(KrollTargetable)];
-    
+
     self.gcSafeguarded = NO;
   }
   return self;
@@ -1342,11 +1342,11 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
   if (self.isGcSafeguarded == YES) {
     return;
   }
-  
+
   if (finalized == YES || jsContext == NULL || self.jsobject == NULL) {
     return;
   }
-  
+
   JSValueProtect(jsContext, self.jsobject);
   self.gcSafeguarded = YES;
 }
@@ -1362,11 +1362,11 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
   if (self.isGcSafeguarded == NO) {
     return;
   }
-  
+
   if (finalized == YES || jsContext == NULL || self.jsobject == NULL) {
     return;
   }
-  
+
   JSValueUnprotect(jsContext, self.jsobject);
   self.gcSafeguarded = NO;
 }
