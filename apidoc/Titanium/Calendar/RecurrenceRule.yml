@@ -102,7 +102,7 @@ properties:
 name: daysOfTheWeekDictionary
 summary: Dictionary containing `daysOfWeek` and `week`.
 since: "3.1.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, android]
 
 properties:
   - name: daysOfWeek
