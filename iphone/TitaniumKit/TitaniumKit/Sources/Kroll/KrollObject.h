@@ -81,4 +81,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 - (void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
 - (void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
 
+- (void)applyGarbageCollectionSafeguard;
+- (void)removeGarbageCollectionSafeguard;
+
 @end

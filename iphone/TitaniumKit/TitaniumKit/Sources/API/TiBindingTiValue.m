@@ -202,7 +202,9 @@ JSValueRef TiBindingTiValueFromProxy(JSContextRef jsContext, TiProxy *obj)
       return [[ourBridge registerProxy:obj] jsobject];
     }
     KrollObject *objKrollObject = [ourBridge krollObjectForProxy:obj];
-    return [objKrollObject jsobject];
+    JSValueRef valueRef = [objKrollObject jsobject];
+    [objKrollObject removeGarbageCollectionSafeguard];
+    return valueRef;
   }
 
   DebugLog(@"[WARN] Generating a new JSObject for KrollObject %@ because the contexts %@ and its context %@ differed.", obj, context, ourBridge);

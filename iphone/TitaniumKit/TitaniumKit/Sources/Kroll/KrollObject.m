@@ -375,6 +375,15 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   return false;
 }
 
+@interface KrollObject ()
+
+/**
+ Boolean flag indicating whether the underlying JSObjectRef was protected from JSC GC.
+ */
+@property (nonatomic, assign, getter=isGcSafeguarded) BOOL gcSafeguarded;
+
+@end
+
 @implementation KrollObject
 
 @synthesize finalized, bridge;
@@ -426,13 +435,15 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
     jsContext = [context context];
     bridge = (KrollBridge *)[context_ delegate];
     targetable = [target conformsToProtocol:@protocol(KrollTargetable)];
+    
+    self.gcSafeguarded = NO;
   }
   return self;
 }
 
 - (JSObjectRef)jsobject
 {
-  if (_jsobject == NULL) {
+  if (_jsobject == NULL && !finalized) {
     _jsobject = JSObjectMake(jsContext, [[self class] jsClassRef], self);
   }
   return _jsobject;
@@ -440,7 +451,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
 
 - (JSObjectRef)propsObject
 {
-  if (_propsObject == NULL) {
+  if (_propsObject == NULL && !finalized) {
     JSObjectRef propsObject = JSObjectMake(jsContext, NULL, NULL);
     JSObjectSetProperty(jsContext, self.jsobject, kTiStringTiPropertyKey, propsObject, kJSPropertyAttributeDontEnum, NULL);
     _propsObject = propsObject;
@@ -1314,6 +1325,50 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
       [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
     }
   }
+}
+
+/**
+ Protects the underlying JSObjectRef from being accidentally GC'ed.
+ 
+ The KrollObject's JSObjectRef is stored on the heap and therefore not automatically
+ protected against GC unless it is referenced via a variable on the stack or inside
+ the JS object graph!
+ 
+ If JSC's garbage collection runs while the JSObjectRef is not protected it is lost and
+ eventually leads to crashes inside the JSC runtime.
+ */
+- (void)applyGarbageCollectionSafeguard
+{
+  if (self.isGcSafeguarded == YES) {
+    return;
+  }
+  
+  if (finalized == YES || jsContext == NULL || self.jsobject == NULL) {
+    return;
+  }
+  
+  JSValueProtect(jsContext, self.jsobject);
+  self.gcSafeguarded = YES;
+}
+
+/**
+ Removes the garbage collection safeguard by unprotecting the JSObjectRef again.
+ 
+ This may only be called when the JSObjectRef is referenced on the stack or in the
+ JS object graph.
+ */
+- (void)removeGarbageCollectionSafeguard
+{
+  if (self.isGcSafeguarded == NO) {
+    return;
+  }
+  
+  if (finalized == YES || jsContext == NULL || self.jsobject == NULL) {
+    return;
+  }
+  
+  JSValueUnprotect(jsContext, self.jsobject);
+  self.gcSafeguarded = NO;
 }
 
 @end
