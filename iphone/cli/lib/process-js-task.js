@@ -181,7 +181,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {String} filePathAndName Full path to the JavaScript file
 	 * @return {Promise}
 	 */
-	processJsFile(filePathAndName) {
+	async processJsFile(filePathAndName) {
 		let file = this.resolveRelativePath(filePathAndName);
 		if (!file) {
 			throw new Error(`Unable to resolve relative path for ${filePathAndName}.`);
