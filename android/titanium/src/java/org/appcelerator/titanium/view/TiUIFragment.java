@@ -12,14 +12,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
 public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 {
-	private static int viewId = 1000;
-
 	private Fragment fragment;
 	private boolean fragmentCommitted = false;
 	protected boolean fragmentOnly = false;
@@ -45,7 +44,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 					return interceptTouchEvent(ev) || super.dispatchTouchEvent(ev);
 				}
 			};
-			container.setId(viewId++);
+			container.setId(View.generateViewId());
 			setNativeView(container);
 
 			FragmentManager manager = ((FragmentActivity) activity).getSupportFragmentManager();
