@@ -269,7 +269,7 @@
 
 - (void)pushOnUIThread:(NSArray *)args
 {
-  if (transitionIsAnimating || transitionWithGesture) {
+  if (transitionIsAnimating || transitionWithGesture || !navController) {
     [self performSelector:_cmd withObject:args afterDelay:0.1];
     return;
   }
