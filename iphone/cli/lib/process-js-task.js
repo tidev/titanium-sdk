@@ -148,6 +148,13 @@ class ProcessJsTask extends IncrementalFileTask {
 			this.transformAndCopy(source, from, to).then(() => {
 				this.data.contentHashes[from] = currentHash;
 				done();
+			}).catch(e => {
+				// if we have a nicely formatted pointer to syntax error from babel, print it!
+				if (e.codeFrame) {
+					this.logger.error(e.codeFrame);
+				}
+
+				done(e);
 			});
 		});
 
@@ -218,28 +225,19 @@ class ProcessJsTask extends IncrementalFileTask {
 			transpile,
 		});
 
-		try {
-			const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-			const newContents = modified.contents;
+		const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+		const newContents = modified.contents;
 
-			// we want to sort by the "to" filename so that we correctly handle file overwriting
-			this.data.tiSymbols[to] = modified.symbols;
+		// we want to sort by the "to" filename so that we correctly handle file overwriting
+		this.data.tiSymbols[to] = modified.symbols;
 
-			const dir = path.dirname(to);
-			await fs.ensureDir(dir);
+		const dir = path.dirname(to);
+		await fs.ensureDir(dir);
 
-			this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-			await fs.writeFile(to, newContents);
-			this.builder.jsFilesChanged = true;
-			this.builder.unmarkBuildDirFile(to);
-		} catch (err) {
-			err.message.split('\n').forEach(m => this.logger.error(m));
-			this.logger.error(err.stack);
-			if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
-				this.logger.error(err.codeFrame);
-			}
-			process.exit(1);
-		}
+		this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+		await fs.writeFile(to, newContents);
+		this.builder.jsFilesChanged = true;
+		this.builder.unmarkBuildDirFile(to);
 	}
 
 	/**
