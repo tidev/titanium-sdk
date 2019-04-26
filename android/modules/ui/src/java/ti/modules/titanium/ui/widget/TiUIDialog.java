@@ -126,7 +126,7 @@ public class TiUIDialog extends TiUIView
 	{
 		Builder builder = getBuilder();
 		if (builder == null) {
-            return;
+			return;
 		}
 
 		if (selectedIndex != -1) {
@@ -140,7 +140,7 @@ public class TiUIDialog extends TiUIView
 			});
 		} else {
 			builder.setItems(optionText, new DialogInterface.OnClickListener() {
-                @Override
+				@Override
 				public void onClick(DialogInterface dialog, int which)
 				{
 					handleEvent(which);
@@ -241,7 +241,7 @@ public class TiUIDialog extends TiUIView
 			processButtons(TiConvert.toStringArray((Object[]) newValue));
 		} else if (key.equals(TiC.PROPERTY_OK) && !proxy.hasProperty(TiC.PROPERTY_BUTTON_NAMES)) {
 			dismissDialog();
-			processButtons(new String[] { TiConvert.toString(newValue) }); 
+			processButtons(new String[] { TiConvert.toString(newValue) });
 		} else if (key.equals(TiC.PROPERTY_OPTIONS)) {
 			dismissDialog();
 			Builder builder = getBuilder();
