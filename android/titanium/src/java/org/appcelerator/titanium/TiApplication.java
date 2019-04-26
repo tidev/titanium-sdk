@@ -250,6 +250,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
 	 * @module.api
 	 */
+	@Override
 	public Activity getCurrentActivity()
 	{
 		int activityStackSize;
@@ -314,6 +315,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	@Override
 	public void loadAppProperties()
 	{
 		// Load the JSON file:
@@ -589,6 +591,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	/**
 	 * @return the app's GUID. Each application has a unique GUID.
 	 */
+	@Override
 	public String getAppGUID()
 	{
 		return getAppInfo().getGUID();
@@ -633,6 +636,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return
 	 * Always returns true as of Titanium 8.0.0. The "run-on-main-thread" property is no longer supported.
 	 */
+	@Override
 	public boolean runOnMainThread()
 	{
 		return true;
@@ -658,6 +662,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return false;
 	}
 
+	@Override
 	public String getDeployType()
 	{
 		return getAppInfo().getDeployType();
@@ -671,6 +676,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return buildVersion;
 	}
 
+	@Override
 	public String getSDKVersion()
 	{
 		return getTiBuildVersion();
@@ -686,6 +692,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return buildHash;
 	}
 
+	@Override
 	public String getDefaultUnit()
 	{
 		if (defaultUnit == null) {
@@ -700,6 +707,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return defaultUnit;
 	}
 
+	@Override
 	public int getThreadStackSize()
 	{
 		return getAppProperties().getInt(PROPERTY_THREAD_STACK_SIZE, DEFAULT_THREAD_STACK_SIZE);
@@ -710,11 +718,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppProperties().getBool(PROPERTY_COMPILE_JS, false);
 	}
 
+	@Override
 	public TiDeployData getDeployData()
 	{
 		return deployData;
 	}
 
+	@Override
 	public boolean isFastDevMode()
 	{
 		/* Fast dev is enabled by default in development mode, and disabled otherwise
@@ -792,6 +802,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		runtime.doRunModule(KrollAssetHelper.readAsset(appPath), appPath, rootActivity.getActivityProxy());
 	}
 
+	@Override
 	public TiTempFileHelper getTempFileHelper()
 	{
 		return tempFileHelper;
@@ -829,11 +840,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		modules.put(name, new WeakReference<KrollModule>(module));
 	}
 
+	@Override
 	public void waitForCurrentActivity(CurrentActivityListener l)
 	{
 		TiUIHelper.waitForCurrentActivity(l);
 	}
 
+	@Override
 	public boolean isDebuggerEnabled()
 	{
 		return getDeployData().isDebuggerEnabled();
@@ -897,6 +910,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		unregisterReceiver(externalStorageReceiver);
 	}
 
+	@Override
 	public void dispose()
 	{
 		TiActivityWindows.dispose();
@@ -904,6 +918,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiFileHelper.getInstance().destroyTempFiles();
 	}
 
+	@Override
 	public void cancelTimers()
 	{
 		TitaniumModule.cancelTimers();

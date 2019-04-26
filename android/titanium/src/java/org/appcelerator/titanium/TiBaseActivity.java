@@ -570,9 +570,17 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			getWindow().setSoftInputMode(softInputMode);
 		}
 
+		// If this activity was created by a Window/TabGroup proxy, then give it this activity's reference.
 		int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID);
 		if (windowId != TiActivityWindows.INVALID_WINDOW_ID) {
-			TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
+			if (TiActivityWindows.hasWindow(windowId)) {
+				// Pass this activity to the proxy so that it can add views to it.
+				TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
+			} else {
+				// This activity's assigned proxy was not found.
+				// This happens when proxy has been closed before activity was created. Destroy this activity.
+				finish();
+			}
 		}
 	}
 
@@ -916,15 +924,16 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		// Let the window proxy handle the back event first, if configured.
-		boolean hasBackEventHandler = false;
 		if (this.window != null) {
-			// Fire an "androidback" event.
+			boolean hasBackEventHandler = false;
+
+			// Fire an "androidback" event if a listener exists.
 			if (this.window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 				this.window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 				hasBackEventHandler = true;
 			}
 
-			// Invoke the "onBack" property, if assigned.
+			// Invoke the "onBack" property's callback if assigned.
 			if (this.window.hasProperty(TiC.PROPERTY_ON_BACK) && (this.activityProxy != null)) {
 				Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
 				if (value instanceof KrollFunction) {
@@ -933,26 +942,29 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					hasBackEventHandler = true;
 				}
 			}
+
+			// Do not allow the system to handle back press if window proxy has an event handler.
+			// In this case, the JS code must explicity close() or finish() the activity window itself.
+			if (hasBackEventHandler) {
+				return;
+			}
 		}
 
-		// Handle app exit ourselves if both of the following are true:
-		// - The above window proxy did not handle the back event.
-		// - This activity is the 1st window created by Titanium (excluding root splash activity).
-		if (!hasBackEventHandler && (TiActivityWindows.getWindowCount() <= 1)) {
-			boolean exitOnClose = true;
-			if (this.window != null) {
-				exitOnClose = TiConvert.toBoolean(this.window.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
-			}
-			if (exitOnClose) {
-				// Destroy all remaining activitities, including root splash activity.
-				Log.d(TAG, "onBackPressed: exit");
-				finishAffinity();
-				TiApplication.terminateActivityStack();
-			} else {
-				// Don't destroy this activity. Home-out instead.
-				Log.d(TAG, "onBackPressed: suspend to background");
-				moveTaskToBack(true);
-			}
+		// Handle app exit ourselves since the above window proxy did not handle the back event.
+		boolean exitOnClose = true;
+		if (this.window != null) {
+			exitOnClose = TiConvert.toBoolean(this.window.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
+		}
+		if (exitOnClose) {
+			// Destroy all remaining activitities, including root splash activity.
+			Log.d(TAG, "onBackPressed: exit");
+			finishAffinity();
+			TiApplication.terminateActivityStack();
+			return;
+		} else if (TiActivityWindows.getWindowCount() <= 1) {
+			// Don't destroy this activity if it's the last one left. Home-out instead.
+			Log.d(TAG, "onBackPressed: suspend to background");
+			moveTaskToBack(true);
 			return;
 		}
 
@@ -1675,13 +1687,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	protected boolean shouldFinishRootActivity()
+	private boolean shouldFinishRootActivity()
 	{
-		boolean isIntentRequestingFinishRoot = false;
-		if (this.launchIntent != null) {
-			isIntentRequestingFinishRoot = this.launchIntent.getBooleanExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
+		if (TiBaseActivity.canFinishRoot == false) {
+			return false;
 		}
-		return TiBaseActivity.canFinishRoot && isIntentRequestingFinishRoot;
+
+		boolean exitOnClose = (TiActivityWindows.getWindowCount() <= 1);
+		if ((this.window != null) && this.window.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			exitOnClose = TiConvert.toBoolean(this.window.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
+		} else if (this.launchIntent != null) {
+			exitOnClose = this.launchIntent.getBooleanExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, exitOnClose);
+		}
+		return exitOnClose;
 	}
 
 	@Override
@@ -1727,6 +1745,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			TiRootActivity rootActivity = getTiApp().getRootActivity();
 			if (rootActivity != null) {
 				rootActivity.finish();
+			} else {
+				finishAffinity();
+				TiApplication.terminateActivityStack();
 			}
 		}
 	}
