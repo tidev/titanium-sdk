@@ -82,7 +82,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
 
 		const deletedFiles = this.filterFilesByStatus(changedFiles, 'deleted');
-		const deletedPromise = Promise.all(deletedFiles.map(filePath => limit(() => this.handleDeletedFile(filePath))));
+		deletedFiles.map(filePath => this.handleDeletedFile(filePath));
 
 		const updatedFiles = this.filterFilesByStatus(changedFiles, [ 'created', 'changed' ]);
 		const updatedPromise = Promise.all(updatedFiles.map(filePath => limit(() => this.processJsFile(filePath))));
@@ -91,7 +91,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		const unchangedFiles = Array.from(this.inputFiles).filter(filePath => !changedFiles.has(filePath));
 		const unchangedPromise = Promise.all(unchangedFiles.map(filePath => limit(() => this.processJsFile(filePath))));
 
-		return Promise.all([ deletedPromise, updatedPromise, unchangedPromise ]);
+		return Promise.all([ updatedPromise, unchangedPromise ]);
 	}
 
 	/**
@@ -301,8 +301,6 @@ class ProcessJsTask extends IncrementalFileTask {
 			delete this.data.tiSymbols[info.dest];
 			delete this.data.jsFiles[file];
 		}
-
-		return Promise.resolve();
 	}
 
 	/**
