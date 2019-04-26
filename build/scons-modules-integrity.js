@@ -8,16 +8,16 @@ const modulesPath = path.join(__dirname, '../support/module/packaged/modules.jso
 
 /**
  * Re-generates a new integrity value for a given module's url property
- * @param {object} modObj the module object from modules.json
- * @param {string} modName the name of the module
+ * @param {object} moduleObject the module object from modules.json
+ * @param {string} moduleName the name of the module
  * @returns {Promise<object>}
  */
-async function handleModule(modObj, modName) {
-	const hash = await utils.generateSSRIHashFromURL(modObj.url);
-	const obj = {};
-	modObj.integrity = hash.toString();
-	obj[modName] = modObj;
-	return obj;
+async function handleModule(moduleObject, moduleName) {
+	const hash = await utils.generateSSRIHashFromURL(moduleObject.url);
+	moduleObject.integrity = hash.toString();
+	return {
+		[moduleName]: moduleObject
+	};
 }
 
 /**
@@ -26,18 +26,14 @@ async function handleModule(modObj, modName) {
  * @returns {Promise<object>}
  */
 async function handlePlatform(modules, platform) {
-	const platformModuleNames = Object.keys(modules[platform]);
-	// for each entry in platformModuleNames, handleModule
-	const modifiedModules = await Promise.all(platformModuleNames.map(modName => {
-		const modObj = modules[platform][modName];
-		return handleModule(modObj, modName);
-	}));
+	const moduleNames = Object.keys(modules[platform]);
+
+	let updatedModules = await Promise.all(moduleNames.map(name => handleModule(modules[platform][name], name)));
 
 	// Merge the modules array into a single object
-	const merged = Object.assign({}, ...modifiedModules);
-	const platformObj = {};
-	platformObj[platform] = merged;
-	return platformObj;
+	return {
+		[platform]: Object.assign({}, ...updatedModules)
+	};
 }
 
 async function main() {
@@ -47,17 +43,16 @@ async function main() {
 	}
 
 	const modules = require(modulesPath); // eslint-disable-line security/detect-non-literal-require
-
 	const platforms = Object.keys(modules);
-	const results = await Promise.all(platforms.map(p => handlePlatform(modules, p)));
-	// Merge the platforms array into a single object
-	const merged = Object.assign({}, ...results);
-	const formattedJSON = JSON.stringify(merged, null, '\t');
+
+	console.log('Attempting to download...');
+
+	let results = await Promise.all(platforms.map(platform => handlePlatform(modules, platform)));
 
 	console.log('\nUpdating modules.json ...');
 
 	// Write updated modules.json to filesystem
-	await fs.writeFile(modulesPath, formattedJSON);
+	await fs.writeJson(modulesPath, Object.assign({}, ...results), { spaces: '\t' });
 	console.log('Successfully updated modules.json!');
 }
 
