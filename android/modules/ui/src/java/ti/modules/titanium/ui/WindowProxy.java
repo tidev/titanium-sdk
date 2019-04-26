@@ -180,6 +180,16 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleClose(KrollDict options)
 	{
+		// Fetch this window's "exitOnClose" property setting.
+		boolean exitOnClose = (TiActivityWindows.getWindowCount() <= 1);
+		exitOnClose = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
+
+		// Remove this window proxy from the active/open collection.
+		// Note: If the activity's onCreate() can't find this proxy, then it'll automatically destroy itself.
+		//       This is needed in case the proxy's close() method was called before the activity was created.
+		TiActivityWindows.removeWindow(this);
+
+		// Fetch this proxy's assigned activity, if opened.
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
 		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
 		windowActivity = null;
@@ -187,20 +197,24 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			return;
 		}
 
-		if (!activity.isFinishing() && !activity.isDestroyed()) {
-			if (super.hasActivityTransitions()) {
-				activity.finishAfterTransition();
-			} else {
-				activity.finish();
-			}
-			if (!animated) {
-				activity.overridePendingTransition(0, 0);
-			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-					   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
-				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
-				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
-				activity.overridePendingTransition(enterAnimation, exitAnimation);
-			}
+		// Do not continue if the activity is already being destroyed.
+		if (activity.isFinishing() || activity.isDestroyed()) {
+			return;
+		}
+
+		// Destroy the activity and apply exit animations if configured.
+		if (!exitOnClose && super.hasActivityTransitions()) {
+			activity.finishAfterTransition();
+		} else {
+			activity.finish();
+		}
+		if (!animated) {
+			activity.overridePendingTransition(0, 0);
+		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
+					|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+			activity.overridePendingTransition(enterAnimation, exitAnimation);
 		}
 	}
 
@@ -371,12 +385,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					   || TiC.PROPERTY_LEFT.equals(name) || TiC.PROPERTY_RIGHT.equals(name)) {
 				// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
 				return;
-			} else if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
-				Activity activity = (windowActivity != null) ? (Activity) (windowActivity.get()) : null;
-				if (activity != null) {
-					Intent intent = activity.getIntent();
-					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
-				}
 			} else if (TiC.PROPERTY_HIDES_BACK_BUTTON.equals(name)) {
 				if (windowActivity != null && windowActivity.get() != null
 					&& windowActivity.get().getSupportActionBar() != null) {

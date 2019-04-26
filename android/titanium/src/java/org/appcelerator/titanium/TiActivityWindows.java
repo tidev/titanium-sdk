@@ -58,11 +58,28 @@ public final class TiActivityWindows
 		}
 	}
 
+	public static void removeWindow(TiActivityWindow window)
+	{
+		if (window != null) {
+			for (HashMap.Entry<Integer, TiActivityWindow> nextEntry : windowMap.entrySet()) {
+				if ((nextEntry != null) && (nextEntry.getValue() == window)) {
+					windowMap.remove(nextEntry.getKey());
+					break;
+				}
+			}
+		}
+	}
+
 	public static void removeWindow(int windowId)
 	{
 		if (windowId != INVALID_WINDOW_ID) {
 			windowMap.remove(Integer.valueOf(windowId));
 		}
+	}
+
+	public static boolean hasWindow(int windowId)
+	{
+		return (windowMap.get(Integer.valueOf(windowId)) != null);
 	}
 
 	public static int getWindowCount()

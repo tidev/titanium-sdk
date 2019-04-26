@@ -323,21 +323,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Override
-	public void onPropertyChanged(String name, Object value)
-	{
-		if (opening || opened) {
-			if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
-				Activity activity = getWindowActivity();
-				if (activity != null) {
-					Intent intent = activity.getIntent();
-					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
-				}
-			}
-		}
-		super.onPropertyChanged(name, value);
-	}
-
 	@Kroll.method
 	public TabProxy getActiveTab()
 	{
@@ -500,12 +485,20 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
 
+		// Remove this TabGroup proxy from the active/open collection.
+		// Note: If the activity's onCreate() can't find this proxy, then it'll automatically destroy itself.
+		//       This is needed in case the proxy's close() method was called before the activity was created.
+		TiActivityWindows.removeWindow(this);
+
+		// Fire a "close" event.
 		fireEvent(TiC.EVENT_CLOSE, null);
 
+		// Release views/resources.
 		modelListener = null;
 		releaseViews();
 		view = null;
 
+		// Destroy this proxy's activity.
 		AppCompatActivity activity = (tabGroupActivity != null) ? tabGroupActivity.get() : null;
 		tabGroupActivity = null;
 		if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
