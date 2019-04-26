@@ -232,7 +232,7 @@ public class TiUIHelper
 											 .create();
 					if (activity instanceof TiBaseActivity) {
 						TiBaseActivity baseActivity = (TiBaseActivity) activity;
-						baseActivity.addDialog(baseActivity.new DialogWrapper(
+						baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
 							dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
