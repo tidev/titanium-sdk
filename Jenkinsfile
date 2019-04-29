@@ -29,7 +29,7 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
-def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
+def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, isMainlineBranch) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
@@ -261,8 +261,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
+				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch, isMainlineBranch),
+				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch, isMainlineBranch),
 				failFast: true
 			)
 		}
