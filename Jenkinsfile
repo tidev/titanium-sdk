@@ -35,7 +35,12 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 		if ('ios'.equals(os)) {
 			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
 		} else {
-			labels = 'git && osx && android-emulator && android-sdk && macos-rocket' // FIXME get working on windows/linux!
+			// run main branch tests on devices, use node with devices connected
+			if (isMainlineBranch) {
+				labels = 'git && osx && android-emulator && android-sdk && macos-rocket' // FIXME get working on windows/linux!
+			} else {
+				labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
+			}
 		}
 		node(labels) {
 			try {
@@ -76,8 +81,17 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 										sh "node test.js -b ../../${zipName} -p ${os}"
 									}
 								} else {
-									timeout(30) {
-										sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
+									// run main branch tests on devices
+									if (isMainlineBranch) {
+										timeout(30) {
+											sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
+										}
+
+									// run PR tests on emulator
+									} else {
+										timeout(30) {
+											sh "node test.js -T emulator -C android-28-playstore-x86 -b ../../${zipName} -p ${os}"
+										}
 									}
 								}
 							} catch (e) {
