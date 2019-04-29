@@ -81,18 +81,15 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 										sh "node test.js -b ../../${zipName} -p ${os}"
 									}
 								} else {
-									// run main branch tests on devices
-									if (isMainlineBranch) {
 										timeout(30) {
-											sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
+											// run main branch tests on devices
+											if (isMainlineBranch) {
+												sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
+											// run PR tests on emulator
+											} else {
+												sh "node test.js -T emulator -C android-28-playstore-x86 -b ../../${zipName} -p ${os}"
+											}
 										}
-
-									// run PR tests on emulator
-									} else {
-										timeout(30) {
-											sh "node test.js -T emulator -C android-28-playstore-x86 -b ../../${zipName} -p ${os}"
-										}
-									}
 								}
 							} catch (e) {
 								if ('ios'.equals(os)) {
