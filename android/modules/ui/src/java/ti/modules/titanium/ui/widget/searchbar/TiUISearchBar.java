@@ -32,6 +32,7 @@ import android.widget.TextView;
 @SuppressWarnings("deprecation")
 public class TiUISearchBar extends TiUIText
 {
+	private static int CANCEL_BUTTON_ID = View.generateViewId();
 	protected ImageButton cancelBtn;
 	private EditText tv;
 	private TextView promptText;
@@ -66,7 +67,7 @@ public class TiUISearchBar extends TiUIText
 		// Steal the Text's nativeView. We're going to replace it with our layout.
 		cancelBtn = new ImageButton(proxy.getActivity());
 		cancelBtn.isFocusable();
-		cancelBtn.setId(101);
+		cancelBtn.setId(CANCEL_BUTTON_ID);
 		cancelBtn.setImageResource(android.R.drawable.ic_input_delete);
 		// set some minimum dimensions for the cancel button, in a density-independent way.
 		final float scale = cancelBtn.getContext().getResources().getDisplayMetrics().density;
@@ -103,7 +104,7 @@ public class TiUISearchBar extends TiUIText
 		params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
-		params.addRule(RelativeLayout.LEFT_OF, 101);
+		params.addRule(RelativeLayout.LEFT_OF, CANCEL_BUTTON_ID);
 		//		params.setMargins(4, 4, 4, 4);
 		layout.addView(getNativeView(), params);
 
