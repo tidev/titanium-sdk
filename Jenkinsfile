@@ -17,6 +17,7 @@ def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline br
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
+def testOnDevices = isMainlineBranch || true // run tests on devices
 
 // Variables we can change
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
@@ -29,14 +30,14 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
-def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, isMainlineBranch) {
+def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
 			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
 		} else {
 			// run main branch tests on devices, use node with devices connected
-			if (isMainlineBranch) {
+			if (testOnDevices) {
 				labels = 'git && osx && android-emulator && android-sdk && macos-rocket' // FIXME get working on windows/linux!
 			} else {
 				labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
@@ -83,7 +84,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, isMainlineBranch) {
 								} else {
 										timeout(30) {
 											// run main branch tests on devices
-											if (isMainlineBranch) {
+											if (testOnDevices) {
 												sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
 											// run PR tests on emulator
 											} else {
@@ -261,8 +262,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch, isMainlineBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch, isMainlineBranch),
+				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch, testOnDevices),
+				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch, testOnDevices),
 				failFast: true
 			)
 		}
