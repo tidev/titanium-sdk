@@ -2827,6 +2827,18 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
 			delete this.lastBuildFiles[appPropsFile];
 
+			// write the env variables file
+			const envVarsFile = path.join(buildAssetsPath, '_env_.json');
+			Object.keys(this.tiapp.properties).forEach(function (prop) {
+				props[prop] = this.tiapp.properties[prop].value;
+			}, this);
+			fs.writeFileSync(
+				envVarsFile,
+				JSON.stringify(process.env)
+			);
+			this.encryptJS && jsFilesToEncrypt.push('_env_.json');
+			delete this.lastBuildFiles[envVarsFile];
+
 			// Write the "bootstrap.json" file, even if the bootstrap array is empty.
 			// Note: An empty array indicates the app has no bootstrap files.
 			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
