@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.CharBuffer;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.lang.reflect.Method;
@@ -16,23 +17,22 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import android.os.Debug;
 
-
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
-
-	private static class Range {
+	private static class Range
+	{
 		int offset;
 		int length;
-		public Range(int offset, int length) {
+		public Range(int offset, int length)
+		{
 			this.offset = offset;
 			this.length = length;
 		}
 	}
 
-	<%- encryptedAssets %>
+	<% -encryptedAssets %>
 
-	@Override
-	public InputStream openAsset(String path)
+		@Override public InputStream openAsset(String path)
 	{
 		byte[] bytes = fetchFilteredAssetBytes(path);
 		if (bytes == null) {
@@ -52,7 +52,8 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 	}
 
 	@Override
-	public Collection<String> getAssetPaths() {
+	public Collection<String> getAssetPaths()
+	{
 		return assets.keySet();
 	}
 
@@ -81,8 +82,8 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 	{
 		try {
 			Class clazz = Class.forName("org.appcelerator.titanium.TiVerify");
-			Method method = clazz.getMethod("filterDataInRange", new Class[] {data.getClass(), int.class, int.class});
-			return (byte[])method.invoke(clazz, new Object[] { data, offset, length });
+			Method method = clazz.getMethod("filterDataInRange", new Class[] { data.getClass(), int.class, int.class });
+			return (byte[]) method.invoke(clazz, new Object[] { data, offset, length });
 		} catch (Exception e) {
 			Log.e("AssetCryptImpl", "Unable to load asset data.", e);
 		}

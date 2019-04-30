@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Message;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 // clang-format off
@@ -65,6 +66,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
 	private WeakReference<AppCompatActivity> tabGroupActivity;
 	private TabProxy selectedTab;
+	private String tabGroupTitle = null;
 	private boolean isFocused;
 
 	public TabGroupProxy()
@@ -321,21 +323,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Override
-	public void onPropertyChanged(String name, Object value)
-	{
-		if (opening || opened) {
-			if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
-				Activity activity = getWindowActivity();
-				if (activity != null) {
-					Intent intent = activity.getIntent();
-					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
-				}
-			}
-		}
-		super.onPropertyChanged(name, value);
-	}
-
 	@Kroll.method
 	public TabProxy getActiveTab()
 	{
@@ -345,6 +332,36 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		} else {
 			return (TabProxy) TiMessenger.sendBlockingMainMessage(
 				getMainHandler().obtainMessage(MSG_GET_ACTIVE_TAB, tab));
+		}
+	}
+
+	@Kroll.getProperty
+	public String getTitle()
+	{
+		// If the native view is drawn get the title value from the SupportActionBar
+		if (view != null) {
+			if (getActivity() != null) {
+				ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+				if (actionBar != null) {
+					return actionBar.getTitle().toString();
+				}
+			}
+			return null;
+		} else {
+			// If the native view is not drawn return tha latest String saved as a title
+			return tabGroupTitle;
+		}
+	}
+
+	@Kroll.setProperty
+	public void setTitle(String title)
+	{
+		// If the native view is drawn directly set the String as a title for the SupportActionBar.
+		if (view != null) {
+			((TiUIAbstractTabGroup) view).updateTitle(title);
+		} else {
+			// If the native view is not yet drawn save the value to be passed during creation.
+			this.tabGroupTitle = title;
 		}
 	}
 
@@ -373,7 +390,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		fillIntent(topActivity, intent);
 
 		int windowId = TiActivityWindows.addWindow(this);
-		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
@@ -388,11 +404,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
 		} else {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
-			} else {
-				topActivity.startActivity(intent);
-			}
+			topActivity.startActivity(intent);
 		}
 	}
 
@@ -411,18 +423,30 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		} else {
 			view = new TiUIBottomNavigationTabGroup(this, activity);
 		}
-
+		// If we have set a title before the creation of the native view, set it now.
+		if (this.tabGroupTitle != null) {
+			((TiUIAbstractTabGroup) view).updateTitle(this.tabGroupTitle);
+		}
 		setModelListener(view);
-
-		handlePostOpen();
-
-		// Push the tab group onto the window stack. It needs to intercept
-		// stack changes to properly dispatch tab focus and blur events
-		// when windows open and close on top of it.
-		activity.addWindowToStack(this);
 
 		// Need to handle the cached activity proxy properties in the JS side.
 		callPropertySync(PROPERTY_POST_TAB_GROUP_CREATED, null);
+	}
+
+	@Override
+	public void onWindowActivityCreated()
+	{
+		// Flag that this tab group has been opened.
+		opened = true;
+		opening = false;
+
+		// Fire open event before we load and focus on first tab.
+		fireEvent(TiC.EVENT_OPEN, null);
+
+		// Finish open handling by loading proxy settings.
+		handlePostOpen();
+
+		super.onWindowActivityCreated();
 	}
 
 	@Override
@@ -430,11 +454,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super.handlePostOpen();
 
-		opened = true;
-		opening = false;
-
-		// First open before we load and focus our first tab.
-		fireEvent(TiC.EVENT_OPEN, null);
+		if (view == null) {
+			return;
+		}
 
 		// Load any tabs added before the tab group opened.
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
@@ -463,14 +485,23 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
 
+		// Remove this TabGroup proxy from the active/open collection.
+		// Note: If the activity's onCreate() can't find this proxy, then it'll automatically destroy itself.
+		//       This is needed in case the proxy's close() method was called before the activity was created.
+		TiActivityWindows.removeWindow(this);
+
+		// Fire a "close" event.
 		fireEvent(TiC.EVENT_CLOSE, null);
 
+		// Release views/resources.
 		modelListener = null;
 		releaseViews();
 		view = null;
 
-		AppCompatActivity activity = getWindowActivity();
-		if (activity != null && !activity.isFinishing()) {
+		// Destroy this proxy's activity.
+		AppCompatActivity activity = (tabGroupActivity != null) ? tabGroupActivity.get() : null;
+		tabGroupActivity = null;
+		if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
 			activity.finish();
 		}
 	}
@@ -482,7 +513,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		for (TabProxy tab : tabs) {
 			tab.close(activityIsFinishing);
 		}
-		tabs.clear();
+
 		// Call super to fire the close event on the tab group.
 		// This event must fire after each tab has been closed.
 		super.closeFromActivity(activityIsFinishing);
@@ -566,11 +597,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super.releaseViews();
 		if (tabs != null) {
-			synchronized (tabs)
-			{
-				for (TabProxy t : tabs) {
-					t.releaseViews();
-				}
+			for (TabProxy t : tabs) {
+				t.releaseViews();
 			}
 		}
 	}
@@ -580,13 +608,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super.releaseViews();
 		if (tabs != null) {
-			synchronized (tabs)
-			{
-				for (TabProxy t : tabs) {
-					// Need to keep the relationship between tabgroup and tabs, window and tab, window and tabgroup,
-					// in order to recover from forced-destroy activity.
-					t.releaseViewsForActivityForcedToDestroy();
-				}
+			for (TabProxy t : tabs) {
+				t.releaseViewsForActivityForcedToDestroy();
 			}
 		}
 	}
@@ -604,11 +627,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Create a shallow copy of the tab proxy collection owned by this TabGroup.
 		// We need to do this since a tab's event handler can remove a tab, which would break iteration.
-		ArrayList<TabProxy> clonedTabList = null;
-		synchronized (this.tabs)
-		{
-			clonedTabList = (ArrayList<TabProxy>) this.tabs.clone();
-		}
+		ArrayList<TabProxy> clonedTabList = (ArrayList<TabProxy>) this.tabs.clone();
 		if (clonedTabList == null) {
 			return;
 		}

@@ -24,24 +24,8 @@ try {
 
 // Load JS language polyfills
 import '@babel/polyfill';
-
-// Load all JavaScript extensions.
-import './ti.internal/extensions/Error';
-import './ti.internal/extensions/process';
-
-// Load all the node compatible core modules
-import path from './ti.internal/extensions/path';
-import os from './ti.internal/extensions/os';
-import tty from './ti.internal/extensions/tty';
-import util from './ti.internal/extensions/util';
-import assert from './ti.internal/extensions/assert';
-// hook our implementations to get loaded by require
-import { bindObjectToCoreModuleId } from './ti.internal/extensions/binding';
-bindObjectToCoreModuleId('path', path);
-bindObjectToCoreModuleId('os', os);
-bindObjectToCoreModuleId('tty', tty);
-bindObjectToCoreModuleId('util', util);
-bindObjectToCoreModuleId('assert', assert);
+// import all of our polyfills/extensions
+import './ti.internal/extensions';
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
