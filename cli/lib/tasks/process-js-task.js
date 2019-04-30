@@ -1,5 +1,3 @@
-'use strict';
-
 const appc = require('node-appc');
 const { IncrementalFileTask } = require('appc-tasks');
 const crypto = require('crypto');
@@ -148,7 +146,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 			this.transformAndCopy(source, from, to).then(() => {
 				this.data.contentHashes[from] = currentHash;
-				done();
+				return done();
 			}).catch(e => {
 				// if we have a nicely formatted pointer to syntax error from babel, print it!
 				if (e.codeFrame) {
@@ -168,7 +166,7 @@ class ProcessJsTask extends IncrementalFileTask {
 				symbols: []
 			};
 
-			compileJsFileHook(r, from, to, done)
+			compileJsFileHook(r, from, to, done);
 		}));
 	}
 
@@ -220,7 +218,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 */
 	async transformAndCopy(source, from, to) {
 		// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
-		const isFileFromCommonFolder = from.startsWith(this.sdkCommonFolder)
+		const isFileFromCommonFolder = from.startsWith(this.sdkCommonFolder);
 		const transpile = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.transpile;
 		const minify = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.minify;
 		const analyzeOptions = Object.assign({}, this.defaultAnalyzeOptions, {
@@ -360,6 +358,8 @@ class ProcessJsTask extends IncrementalFileTask {
 
 	/**
 	 * Saves current task data for reuse on next run.
+	 *
+	 * @return {Promise}
 	 */
 	async saveTaskData() {
 		return fs.writeJson(this.dataFilePath, this.data);
