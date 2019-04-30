@@ -5995,6 +5995,31 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			}
 
 			this.unmarkBuildDirFile(appPropsFile);
+		},
+
+		function writeEnvironmentVariables() {
+			this.logger.info(__('Writing ENV variables'));
+
+			const envVarsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_env__json') : path.join(this.xcodeAppDir, '_env_.json');
+
+			if (this.encryptJS) {
+				this.jsFilesEncrypted.push('_env_.json'); // original name
+				this.jsFilesToEncrypt.push('_env__json'); // encrypted name
+			}
+
+			const contents = JSON.stringify(process.env);
+			if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile).toString()) {
+				this.logger.debug(__('Writing %s', envVarsFile.cyan));
+
+				if (this.encryptJS && !fs.existsSync(this.buildAssetsDir)) {
+					wrench.mkdirSyncRecursive(this.buildAssetsDir);
+				}
+				fs.writeFileSync(envVarsFile, contents);
+			} else {
+				this.logger.trace(__('No change, skipping %s', envVarsFile.cyan));
+			}
+
+			this.unmarkBuildDirFile(envVarsFile);
 		}
 	], next);
 };
@@ -6127,6 +6152,14 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		{},
 		next
 	);
+};
+
+iOSBuilder.prototype.generateEnvJson = function generateEnvJson(callback) {
+	const binAssetsDir = this.buildBinAssetsDir.replace(/\\/g, '/');
+	const destFile = path.join(binAssetsDir, 'env.json');
+
+	fs.existsSync(destFile) && fs.unlinkSync(destFile);
+	fs.writeJson(destFile, process.env, callback);
 };
 
 iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
