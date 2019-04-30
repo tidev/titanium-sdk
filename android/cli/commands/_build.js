@@ -25,6 +25,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	archiver = require('archiver'),
 	async = require('async'),
 	Builder = require('../lib/base-builder.js'),
+	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
@@ -1758,11 +1759,11 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		},
 
 		'createBuildDirs',
-		'removeOldFiles',
 		'copyResources',
 		'generateRequireIndex',
 		'processTiSymbols',
 		'copyModuleResources',
+		'removeOldFiles',
 		'copyGradleTemplate',
 		'generateJavaFiles',
 		'generateAidl',
@@ -2675,6 +2676,67 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	}, this);
 
+	tasks.push(done => {
+		// copy js files into assets directory and minify if needed
+		this.logger.info(__('Processing JavaScript files'));
+
+		const inputFiles = [];
+		const copyUnmodified = [];
+		Object.keys(jsFiles).forEach(relPath => {
+			const from = jsFiles[relPath];
+			if (htmlJsFiles[relPath]) {
+				// this js file is referenced from an html file, so don't minify or encrypt
+				copyUnmodified.push(from);
+			} else {
+				inputFiles.push(from);
+			}
+		});
+
+		const task = new ProcessJsTask({
+			inputFiles,
+			incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
+			logger: this.logger,
+			builder: this,
+			jsFiles: Object.keys(jsFiles).reduce((jsFilesInfo, relPath) => {
+				jsFilesInfo[relPath] = {
+					src: jsFiles[relPath],
+					dest: path.join(this.buildBinAssetsResourcesDir, relPath)
+				};
+				return jsFilesInfo;
+			}, {}),
+			jsBootstrapFiles,
+			sdkCommonFolder: path.join(this.titaniumSdkPath, 'common', 'Resources'),
+			defaultAnalyzeOptions: {
+				minify: this.minifyJS,
+				transpile: this.transpile,
+				sourceMap: this.sourceMaps || this.deployType === 'development',
+				resourcesDir: this.xcodeAppDir,
+				logger: this.logger,
+				targets: {
+					chrome: this.chromeVersion
+				}
+			}
+		});
+		task.run()
+			.then(() => {
+				this.tiSymbols = task.data.tiSymbols;
+
+				appc.async.parallel(this, copyUnmodified.map(relPath => {
+					return next => {
+						const from = jsFiles[relPath];
+						const to = path.join(this.buildBinAssetsResourcesDir, relPath);
+						copyFile.call(this, from, to, next);
+					};
+				}), done);
+
+				return null;
+			})
+			.catch(e => {
+				this.logger.error(e);
+				process.exit(1);
+			});
+	});
+
 	appc.async.series(this, tasks, function () {
 		const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
@@ -2719,211 +2781,150 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			}
 		}
 
-		// copy js files into assets directory and minify if needed
-		this.logger.info(__('Processing JavaScript files'));
-		const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
-		appc.async.parallel(this, Object.keys(jsFiles).map(function (id) {
-			return function (done) {
-				const from = jsFiles[id];
-				let to = path.join(this.buildBinAssetsResourcesDir, id);
-
-				if (htmlJsFiles[id]) {
-					// this js file is referenced from an html file, so don't minify or encrypt
-					delete this.lastBuildFiles[to];
-					return copyFile.call(this, from, to, done);
+		// jsanalyze will copy polyfils into buildBinAssetsResourcesDir and we need
+		// to unmark them here so they won't get removed on subsequent builds
+		if (this.transpile) {
+			/**
+			 * Recursively unmarks a module and it's dependencies from the last
+			 * build files list.
+			 *
+			 * @param {String} moduleId The module to remove from the list of files
+			 * @param {String} nodeModulesPath Path to the node_modules folder
+			 */
+			const unmarkPackageAndDependencies = (moduleId, nodeModulesPath) => {
+				let packageJsonPath;
+				if (require.resolve.paths) {
+					packageJsonPath = require.resolve(path.join(moduleId, 'package.json'), { paths: [ nodeModulesPath ] });
+				} else {
+					packageJsonPath = require.resolve(path.join(moduleId, 'package.json'));
+					packageJsonPath = path.join(nodeModulesPath, packageJsonPath.substring(packageJsonPath.indexOf('node_modules') + 12));
 				}
-
-				// we have a js file that may be minified or encrypted
-
-				// if we're encrypting the JavaScript, copy the files to the assets dir
-				// for processing later
-				if (this.encryptJS) {
-					to = path.join(this.buildAssetsDir, id);
-					jsFilesToEncrypt.push(id);
-				}
-				delete this.lastBuildFiles[to];
-
-				try {
-					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-						const originalContents = fs.readFileSync(from).toString();
-						// Populate an initial object to pass in. This won't have modified
-						// contents or symbols populated, which it used to at this point,
-						// but I don't think any plugin relied on that behavior, while
-						// hyperloop would clobber the contents if we didn't do the mods
-						// inside the compile hook.
-						const r = {
-							original: originalContents,
-							contents: originalContents,
-							symbols: []
-						};
-						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-							// Read the possibly modified file contents
-							const source = r.contents;
-							// Analyze Ti API usage, possibly also minify/transpile
-							try {
-								// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
-								const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
-								const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
-								const modified = jsanalyze.analyzeJs(source, {
-									filename: from,
-									minify,
-									transpile,
-									sourceMap: this.sourceMaps || this.deployType === 'development',
-									targets: {
-										chrome: this.chromeVersion
-									},
-									resourcesDir: this.buildBinAssetsResourcesDir,
-									logger: this.logger
-								});
-								const newContents = modified.contents;
-
-								// we want to sort by the "to" filename so that we correctly handle file overwriting
-								this.tiSymbols[to] = modified.symbols;
-
-								const dir = path.dirname(to);
-								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-								if (symlinkFiles && newContents === originalContents) {
-									this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-									copyFile.call(this, from, to, cb2);
-								} else {
-									// TODO If dest file exists and contents match, don't do anything?
-									this.logger.debug(__('Writing modified contents to %s', to.cyan));
-									// if it exists, wipe it first, as it may be a symlink back to the original, and updating that would be BAD.
-									// See TIMOB-25875
-									fs.existsSync(to) && fs.unlinkSync(to);
-									fs.writeFile(to, newContents, cb2);
-								}
-							} catch (err) {
-								err.message.split('\n').forEach(this.logger.error);
-								if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
-									this.logger.log(err.codeFrame);
-								}
-								this.logger.log();
-								process.exit(1);
-							}
-						})(r, from, to, cb);
-					})(from, to, done);
-				} catch (ex) {
-					ex.message.split('\n').forEach(this.logger.error);
-					this.logger.log();
-					process.exit(1);
+				const modulePath = path.dirname(packageJsonPath);
+				Object.keys(this.lastBuildFiles).forEach(p => {
+					if (p.startsWith(modulePath)) {
+						delete this.lastBuildFiles[p];
+					}
+				});
+				const packageJson = fs.readJSONSync(packageJsonPath);
+				for (const dependency in packageJson.dependencies) {
+					unmarkPackageAndDependencies(dependency, nodeModulesPath);
 				}
 			};
-		}), function () {
-			// write the properties file
-			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
-				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
-				props = {};
-			Object.keys(this.tiapp.properties).forEach(function (prop) {
-				props[prop] = this.tiapp.properties[prop].value;
-			}, this);
-			fs.writeFileSync(
-				appPropsFile,
-				JSON.stringify(props)
-			);
-			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
-			delete this.lastBuildFiles[appPropsFile];
+			unmarkPackageAndDependencies('@babel/polyfill', path.join(this.buildBinAssetsResourcesDir, 'node_modules'));
+		}
 
-			// Write the "bootstrap.json" file, even if the bootstrap array is empty.
-			// Note: An empty array indicates the app has no bootstrap files.
-			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
-				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
-			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
-			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
-			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
+		// write the properties file
+		const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
+			appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
+			props = {};
+		Object.keys(this.tiapp.properties).forEach(function (prop) {
+			props[prop] = this.tiapp.properties[prop].value;
+		}, this);
+		fs.writeFileSync(
+			appPropsFile,
+			JSON.stringify(props)
+		);
+		this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
+		delete this.lastBuildFiles[appPropsFile];
 
-			if (!jsFilesToEncrypt.length) {
-				// nothing to encrypt, continue
-				return next();
+		// Write the "bootstrap.json" file, even if the bootstrap array is empty.
+		// Note: An empty array indicates the app has no bootstrap files.
+		const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
+			bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+		fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
+		this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+		delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
+
+		if (!jsFilesToEncrypt.length) {
+			// nothing to encrypt, continue
+			return next();
+		}
+
+		// figure out which titanium prep to run
+		let titaniumPrep = 'titanium_prep';
+		if (process.platform === 'darwin') {
+			titaniumPrep += '.macos';
+			if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
+				titaniumPrep += '.jdk16';
 			}
+		} else if (process.platform === 'win32') {
+			titaniumPrep += '.win32.exe';
+		} else if (process.platform === 'linux') {
+			titaniumPrep += '.linux' + (process.arch === 'x64' ? '64' : '32');
+		}
 
-			// figure out which titanium prep to run
-			let titaniumPrep = 'titanium_prep';
-			if (process.platform === 'darwin') {
-				titaniumPrep += '.macos';
-				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
-					titaniumPrep += '.jdk16';
+		// encrypt the javascript
+		const titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
+			this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(1).join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					return done({
+						code: code,
+						msg: err.trim()
+					});
 				}
-			} else if (process.platform === 'win32') {
-				titaniumPrep += '.win32.exe';
-			} else if (process.platform === 'linux') {
-				titaniumPrep += '.linux' + (process.arch === 'x64' ? '64' : '32');
-			}
 
-			// encrypt the javascript
-			const titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
-				this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(1).join('" "') + '"').cyan));
-				appc.subprocess.run(exe, args, opts, function (code, out, err) {
-					if (code) {
-						return done({
-							code: code,
-							msg: err.trim()
-						});
-					}
-
-					// write the encrypted JS bytes to the generated Java file
-					fs.writeFileSync(
-						path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
-						ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
-							appid: this.appid,
-							encryptedAssets: out
-						})
-					);
-
-					done();
-				}.bind(this));
-			});
-			let args = [ this.tiapp.guid, this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt);
-			if (process.platform === 'win32') {
-				const fileListing = path.join(this.buildDir, 'titanium_prep_listing.txt');
-				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir, '--file-listing', fileListing ];
-				fs.writeFileSync(fileListing, jsFilesToEncrypt.join('\n'));
-			}
-
-			const opts = {
-					env: appc.util.mix({}, process.env, {
-						// we force the JAVA_HOME so that titaniumprep doesn't complain
-						JAVA_HOME: this.jdkInfo.home
+				// write the encrypted JS bytes to the generated Java file
+				fs.writeFileSync(
+					path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
+					ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
+						appid: this.appid,
+						encryptedAssets: out
 					})
-				},
-				fatal = function fatal(err) {
-					this.logger.error(__('Failed to encrypt JavaScript files'));
-					err.msg.split('\n').forEach(this.logger.error);
-					this.logger.log();
-					process.exit(1);
-				}.bind(this);
+				);
 
-			titaniumPrepHook(
-				path.join(this.platformPath, titaniumPrep),
-				args.slice(0),
-				opts,
-				function (err) {
-					if (!err) {
-						return next();
-					}
-
-					if (process.platform !== 'win32' || !/jvm\.dll/i.test(err.msg)) {
-						fatal(err);
-					}
-
-					// windows 64-bit failed, try again using 32-bit
-					this.logger.debug(__('32-bit titanium prep failed, trying again using 64-bit'));
-					titaniumPrep = 'titanium_prep.win64.exe';
-					titaniumPrepHook(
-						path.join(this.platformPath, titaniumPrep),
-						args,
-						opts,
-						function (err) {
-							if (err) {
-								fatal(err);
-							}
-							next();
-						}
-					);
-				}.bind(this)
-			);
+				done();
+			}.bind(this));
 		});
+		let args = [ this.tiapp.guid, this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt);
+		if (process.platform === 'win32') {
+			const fileListing = path.join(this.buildDir, 'titanium_prep_listing.txt');
+			args = [ this.tiapp.guid, this.appid, this.buildAssetsDir, '--file-listing', fileListing ];
+			fs.writeFileSync(fileListing, jsFilesToEncrypt.join('\n'));
+		}
+
+		const opts = {
+				env: appc.util.mix({}, process.env, {
+					// we force the JAVA_HOME so that titaniumprep doesn't complain
+					JAVA_HOME: this.jdkInfo.home
+				})
+			},
+			fatal = function fatal(err) {
+				this.logger.error(__('Failed to encrypt JavaScript files'));
+				err.msg.split('\n').forEach(this.logger.error);
+				this.logger.log();
+				process.exit(1);
+			}.bind(this);
+
+		titaniumPrepHook(
+			path.join(this.platformPath, titaniumPrep),
+			args.slice(0),
+			opts,
+			function (err) {
+				if (!err) {
+					return next();
+				}
+
+				if (process.platform !== 'win32' || !/jvm\.dll/i.test(err.msg)) {
+					fatal(err);
+				}
+
+				// windows 64-bit failed, try again using 32-bit
+				this.logger.debug(__('32-bit titanium prep failed, trying again using 64-bit'));
+				titaniumPrep = 'titanium_prep.win64.exe';
+				titaniumPrepHook(
+					path.join(this.platformPath, titaniumPrep),
+					args,
+					opts,
+					function (err) {
+						if (err) {
+							fatal(err);
+						}
+						next();
+					}
+				);
+			}.bind(this)
+		);
 	});
 };
 

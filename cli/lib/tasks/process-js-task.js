@@ -43,6 +43,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		super(options);
 
 		this.builder = options.builder;
+		this.platform = this.builder.cli.argv.platform;
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
@@ -82,7 +83,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
 
 		const deletedFiles = this.filterFilesByStatus(changedFiles, 'deleted');
-		deletedFiles.map(filePath => this.handleDeletedFile(filePath));
+		const deletedPromise = Promise.all(deletedFiles.map(filePath => limit(() => this.handleDeletedFile(filePath))));
 
 		const updatedFiles = this.filterFilesByStatus(changedFiles, [ 'created', 'changed' ]);
 		const updatedPromise = Promise.all(updatedFiles.map(filePath => limit(() => this.processJsFile(filePath))));
@@ -91,7 +92,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		const unchangedFiles = Array.from(this.inputFiles).filter(filePath => !changedFiles.has(filePath));
 		const unchangedPromise = Promise.all(unchangedFiles.map(filePath => limit(() => this.processJsFile(filePath))));
 
-		return Promise.all([ updatedPromise, unchangedPromise ]);
+		return Promise.all([ deletedPromise, updatedPromise, unchangedPromise ]);
 	}
 
 	/**
@@ -194,11 +195,14 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		const info = this.jsFiles[file];
 		if (this.builder.encryptJS) {
-			if (file.indexOf('/') === 0) {
-				file = path.basename(file);
+			if (this.platform === 'ios') {
+				if (file.indexOf('/') === 0) {
+					file = path.basename(file);
+				}
+				this.builder.jsFilesEncrypted.push(file); // original name
+				file = file.replace(/\./g, '_');
 			}
-			this.builder.jsFilesEncrypted.push(file); // original name
-			file = file.replace(/\./g, '_');
+
 			info.dest = path.join(this.builder.buildAssetsDir, file);
 			this.builder.jsFilesToEncrypt.push(file); // encrypted name
 		}
@@ -285,7 +289,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {String} filePathAndName Full path to the deleted file
 	 * @return {Promise}
 	 */
-	handleDeletedFile(filePathAndName) {
+	async handleDeletedFile(filePathAndName) {
 		let file = this.resolveRelativePath(filePathAndName, this.data.jsFiles);
 		const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
 		if (bootstrapPath.endsWith('.bootstrap')) {
@@ -297,9 +301,11 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		const info = this.data.jsFiles[file];
 		if (info) {
+			this.logger.debug(`Removing ${info.dest.cyan}`);
 			delete this.data.contentHashes[info.src];
 			delete this.data.tiSymbols[info.dest];
 			delete this.data.jsFiles[file];
+			return fs.remove(info.dest);
 		}
 	}
 
