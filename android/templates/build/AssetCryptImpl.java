@@ -30,9 +30,10 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		}
 	}
 
-	<% -encryptedAssets %>
+	<%- encryptedAssets %>
 
-		@Override public InputStream openAsset(String path)
+	@Override
+	public InputStream openAsset(String path)
 	{
 		byte[] bytes = fetchFilteredAssetBytes(path);
 		if (bytes == null) {
