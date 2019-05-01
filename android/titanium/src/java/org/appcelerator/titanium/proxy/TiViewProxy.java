@@ -1035,16 +1035,16 @@ public abstract class TiViewProxy extends KrollProxy
 		// If only backgroundColor is defined then no ColorStateList is created,
 		// we resort to only the color defined.
 		if (backgroundDrawable == null) {
-			// Guard for not having the nativeView set.
-			if (getOrCreateView().getNativeView() != null) {
-				if (getOrCreateView().getNativeView().getBackground() instanceof ColorDrawable) {
-					return TiUIHelper.transcriptColorIntToString(((ColorDrawable) getOrCreateView().getNativeView().getBackground()).getColor());
+			View view = getOrCreateView().getNativeView();
+			if (view != null) {
+				if (view.getBackground() instanceof ColorDrawable) {
+					return TiUIHelper.hexStringFrom(((ColorDrawable) view.getBackground()).getColor());
 				}
 			}
 			return null;
 		} else {
 			// It shouldn't matter if we request the color for DEFAULT_STATE_1 or DEFAULT_STATE_2. They are the same.
-			return TiUIHelper.getColorOfBackgroundForState(backgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
+			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
 		}
 	}
 
@@ -1064,7 +1064,7 @@ public abstract class TiViewProxy extends KrollProxy
 		if (backgroundDrawable == null) {
 			return null;
 		} else {
-			return TiUIHelper.getColorOfBackgroundForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
+			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
 		}
 	}
 
@@ -1080,7 +1080,7 @@ public abstract class TiViewProxy extends KrollProxy
 		if (backgroundDrawable == null) {
 			return null;
 		} else {
-			return TiUIHelper.getColorOfBackgroundForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
+			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
 		}
 	}
 
@@ -1096,7 +1096,7 @@ public abstract class TiViewProxy extends KrollProxy
 		if (backgroundDrawable == null) {
 			return null;
 		} else {
-			return TiUIHelper.getColorOfBackgroundForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
+			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 		}
 	}
 

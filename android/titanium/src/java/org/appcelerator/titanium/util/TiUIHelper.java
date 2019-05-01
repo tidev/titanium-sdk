@@ -1227,7 +1227,7 @@ public class TiUIHelper
 	 * Helper method for getting the actual color values for Views with defined custom backgrounds
 	 * that take advantage of color state lists.
 	 */
-	public static String getColorOfBackgroundForState(TiBackgroundDrawable backgroundDrawable, int[] state)
+	public static String getBackgroundColorForState(TiBackgroundDrawable backgroundDrawable, int[] state)
 	{
 		try {
 			// TiBackgroundDrawable's background can be either PaintDrawable or StateListDrawable.
@@ -1238,47 +1238,44 @@ public class TiUIHelper
 				if (state != TiUIHelper.BACKGROUND_DEFAULT_STATE_1) {
 					return null;
 				}
-				return transcriptColorIntToString(((PaintDrawable) simpleDrawable).getPaint().getColor());
-			}
-			// Get the backgroundDrawable background as a StateListDrawable.
-			StateListDrawable stateListDrawable = ((StateListDrawable) simpleDrawable);
-			// Get the reflection methods.
-			Method getStateDrawableIndexMethod =
-				StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
-			Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
-			// Get the disabled state's (as defined in TiUIHelper) index.
-			int index = (int) getStateDrawableIndexMethod.invoke(stateListDrawable, state);
-			// Get the drawable at the index.
-			Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
-			// Try to get the 0 index of the result.
-			if (drawable instanceof LayerDrawable) {
-				Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
-				// Cast it as a ColorDrawable.
-				if (drawableFromLayer instanceof ColorDrawable) {
-					// Transcript the color int to HexString.
-					String strColor = transcriptColorIntToString(((ColorDrawable) drawableFromLayer).getColor());
-					return strColor;
+				return hexStringFrom(((PaintDrawable) simpleDrawable).getPaint().getColor());
+			} else if (simpleDrawable instanceof StateListDrawable) {
+				// Get the backgroundDrawable background as a StateListDrawable.
+				StateListDrawable stateListDrawable = (StateListDrawable) simpleDrawable;
+				// Get the reflection methods.
+				Method getStateDrawableIndexMethod =
+					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
+				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
+				// Get the disabled state's (as defined in TiUIHelper) index.
+				int index = (int) getStateDrawableIndexMethod.invoke(stateListDrawable, state);
+				// Get the drawable at the index.
+				Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
+				// Try to get the 0 index of the result.
+				if (drawable instanceof LayerDrawable) {
+					Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
+					// Cast it as a ColorDrawable.
+					if (drawableFromLayer instanceof ColorDrawable) {
+						// Transcript the color int to HexString.
+						String strColor = hexStringFrom(((ColorDrawable) drawableFromLayer).getColor());
+						return strColor;
+					} else {
+						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
+									   + drawableFromLayer.getClass().toString());
+						return null;
+					}
 				} else {
-					Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
-								   + drawableFromLayer.getClass().toString());
+					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
+								   + drawable.getClass().toString());
 					return null;
 				}
-			} else {
-				Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
-							   + drawable.getClass().toString());
-				return null;
 			}
-		} catch (NoSuchMethodException e) {
-			Log.w(TAG, "Unable to get a method for reflection.");
-		} catch (IllegalAccessException e) {
-			Log.w(TAG, "Unable to access a method for reflection.");
-		} catch (InvocationTargetException e) {
-			Log.w(TAG, "Unable to invoke a method for reflection.");
+		} catch (Exception e) {
+			Log.w(TAG, e.toString());
 		}
 		return null;
 	}
 
-	public static String transcriptColorIntToString(int colorInt)
+	public static String hexStringFrom(int colorInt)
 	{
 		return String.format("#%08X", 0xFFFFFFFF & colorInt);
 	}
