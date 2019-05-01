@@ -186,7 +186,7 @@ Utils.generateSSRIHashFromURL = async function (url) {
 
 	const downloadPath = cachedDownloadPath(url);
 	await fs.remove(downloadPath);
-	const file = await promisify(download)(url, downloadPath);
+	const file = await download(url, downloadPath);
 	return ssri.fromStream(fs.createReadStream(file));
 };
 
