@@ -1029,6 +1029,10 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundColor()
 	// clang - format on
 	{
+		// Return property if available.
+		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			return getProperties().getString(TiC.PROPERTY_BACKGROUND_COLOR);
+		}
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
 		// If only backgroundColor is defined then no ColorStateList is created, we resort to only the color defined.
@@ -1051,6 +1055,10 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundSelectedColor()
 	// clang - format on
 	{
+		// Return property if available.
+		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			return getProperties().getString(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+		}
 		TiUIView view = getOrCreateView();
 		if (view == null) {
 			return null;
@@ -1069,6 +1077,10 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundFocusedColor()
 	// clang - format on
 	{
+		// Return property if available.
+		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
+			return getProperties().getString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
+		}
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
 		if (backgroundDrawable == null) {
@@ -1083,6 +1095,10 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundDisabledColor()
 	// clang - format on
 	{
+		// Return property if available.
+		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR)) {
+			return getProperties().getString(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
+		}
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
 		if (backgroundDrawable == null) {
