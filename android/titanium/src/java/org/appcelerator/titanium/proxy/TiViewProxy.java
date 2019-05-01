@@ -1020,7 +1020,6 @@ public abstract class TiViewProxy extends KrollProxy
 		if (this.parent == null) {
 			return null;
 		}
-
 		return this.parent.get();
 	}
 
@@ -1032,8 +1031,7 @@ public abstract class TiViewProxy extends KrollProxy
 	{
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
-		// If only backgroundColor is defined then no ColorStateList is created,
-		// we resort to only the color defined.
+		// If only backgroundColor is defined then no ColorStateList is created, we resort to only the color defined.
 		if (backgroundDrawable == null) {
 			View view = getOrCreateView().getNativeView();
 			if (view != null) {
@@ -1042,10 +1040,9 @@ public abstract class TiViewProxy extends KrollProxy
 				}
 			}
 			return null;
-		} else {
-			// It shouldn't matter if we request the color for DEFAULT_STATE_1 or DEFAULT_STATE_2. They are the same.
-			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
 		}
+		// It shouldn't matter if we request the color for DEFAULT_STATE_1 or DEFAULT_STATE_2. They are the same.
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
 	}
 
 	// clang-format off
@@ -1060,12 +1057,10 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = view.getBackground();
-		// Guard for views without color state backgrounds.
 		if (backgroundDrawable == null) {
 			return null;
-		} else {
-			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
 		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
 	}
 
 	// clang-format off
@@ -1076,12 +1071,10 @@ public abstract class TiViewProxy extends KrollProxy
 	{
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
-		// Guard for views without color state backgrounds.
 		if (backgroundDrawable == null) {
 			return null;
-		} else {
-			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
 		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
 	}
 
 	// clang-format off
@@ -1092,12 +1085,10 @@ public abstract class TiViewProxy extends KrollProxy
 	{
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
-		// Guard for views without color state backgrounds.
 		if (backgroundDrawable == null) {
 			return null;
-		} else {
-			return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 	}
 
 	public void setParent(TiViewProxy parent)
@@ -1137,8 +1128,9 @@ public abstract class TiViewProxy extends KrollProxy
 	public TiViewProxy[] getChildren()
 	// clang-format on
 	{
-		if (children == null)
+		if (children == null) {
 			return new TiViewProxy[0];
+		}
 		return children.toArray(new TiViewProxy[children.size()]);
 	}
 
