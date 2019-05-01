@@ -1,18 +1,18 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import <TitaniumKit/TiBlob.h>
-#import <TitaniumKit/TiHost.h>
-#import <TitaniumKit/TiUtils.h>
+@import TitaniumKit.TiBlob;
+@import TitaniumKit.TiHost;
+@import TitaniumKit.TiUtils;
 
+#import "TiUIWebViewProxy.h"
 #import "TiNetworkCookieProxy.h"
 #import "TiUIWebView.h"
-#import "TiUIWebViewProxy.h"
 
 @implementation TiUIWebViewProxy
 
@@ -530,6 +530,14 @@
 }
 
 #pragma mark Cookies
+
+// This whole cookie code is not getting used. Reason is -
+// 1. If we use this, parity can not be managed for cookies
+// 2. WKHTTPCookieStore, which manages cookie in WKWebView, is supported in iOS 11+
+// 3. We are using following to implement cookies-
+//  https://stackoverflow.com/questions/26573137
+//  https://github.com/haifengkao/YWebView
+// TO DO: If we can make parity using WKHTTPCookieStore, we should start using WKHTTPCookieStore APIs
 
 - (id<TiEvaluator>)evaluationContext
 {
