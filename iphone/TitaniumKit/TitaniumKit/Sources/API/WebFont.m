@@ -34,25 +34,10 @@
   return size < 4;
 }
 
-- (BOOL)isValidTextStyle:(NSString *)theStyle
-{
-  return (
-      [theStyle isEqualToString:UIFontTextStyleBody] ||
-      [theStyle isEqualToString:UIFontTextStyleCaption1] ||
-      [theStyle isEqualToString:UIFontTextStyleCaption2] ||
-      [theStyle isEqualToString:UIFontTextStyleHeadline] ||
-      [theStyle isEqualToString:UIFontTextStyleSubheadline] ||
-      [theStyle isEqualToString:UIFontTextStyleFootnote] ||
-      [theStyle isEqualToString:UIFontTextStyleCallout] ||
-      [theStyle isEqualToString:UIFontTextStyleTitle3] ||
-      [theStyle isEqualToString:UIFontTextStyleTitle2] ||
-      [theStyle isEqualToString:UIFontTextStyleTitle1]);
-}
-
 - (UIFont *)font
 {
   if (font == nil) {
-    if (textStyle != nil && [self isValidTextStyle:textStyle]) {
+    if (textStyle != nil && [textStyle isKindOfClass:[NSString class]]) {
       font = [[UIFont preferredFontForTextStyle:textStyle] retain];
     } else {
       if (family != nil) {

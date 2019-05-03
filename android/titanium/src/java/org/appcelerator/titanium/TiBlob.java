@@ -720,23 +720,23 @@ public class TiBlob extends KrollProxy
 
 			opts = new BitmapFactory.Options();
 			opts.inSampleSize = sampleSize;
+			if (dstWidth == dstHeight) {
+				// square images
+				opts.inDensity = imgWidth;
+				opts.inTargetDensity = dstWidth * sampleSize;
+			}
 			opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		}
 
-		Bitmap img = getImage(opts);
-		if (img == null) {
-			return null;
-		}
-
+		String nativePath = getNativePath();
 		int rotation = 0;
 		if (type == TYPE_FILE) {
-			rotation = TiImageHelper.getOrientation(getNativePath());
+			rotation = TiImageHelper.getOrientation(nativePath);
 		}
 
-		String nativePath = getNativePath();
 		String key = null;
 		if (nativePath != null) {
-			key = getNativePath() + "_imageAsResized_" + rotation + "_" + dstWidth + "_" + dstHeight;
+			key = nativePath + "_imageAsResized_" + rotation + "_" + dstWidth + "_" + dstHeight;
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
@@ -747,21 +747,27 @@ public class TiBlob extends KrollProxy
 			}
 		}
 
+		Bitmap img = getImage(opts);
+		if (img == null) {
+			return null;
+		}
+
 		try {
 			Bitmap imageResized = null;
 			imgWidth = img.getWidth();
 			imgHeight = img.getHeight();
 			if (rotation != 0) {
-				float scaleWidth = (float) dstWidth / imgWidth;
-				float scaleHeight = (float) dstHeight / imgHeight;
 				Matrix matrix = new Matrix();
-				//resize
-				matrix.postScale(scaleWidth, scaleHeight);
-				//rotate
 				matrix.postRotate(rotation);
-				imageResized = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+				imageResized = Bitmap.createBitmap(img, 0, 0, imgWidth, imgHeight, matrix, true);
 			} else {
-				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+				if (dstWidth == dstHeight) {
+					// squared image
+					imageResized = img;
+				} else {
+					// non squared image
+					imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+				}
 			}
 			if (img != image && img != imageResized) {
 				img.recycle();

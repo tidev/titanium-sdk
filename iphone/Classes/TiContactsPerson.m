@@ -330,7 +330,7 @@ static NSDictionary *iOS9propertyKeys;
   }
 
   if (person.imageDataAvailable) {
-    TiBlob *imageBlob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImage imageWithData:person.imageData]] autorelease];
+    TiBlob *imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:person.imageData]] autorelease];
     return imageBlob;
   }
 
