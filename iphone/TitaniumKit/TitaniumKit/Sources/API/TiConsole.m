@@ -1,22 +1,21 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 #import "TiConsole.h"
+#import "TiBase.h"
 
 @implementation TiConsole
 
-- (void)log:(NSArray *)args
+- (void)log:(id)level withMessage:(id)args
 {
-  [self logMessage:args severity:@"info"];
+  [self info:level];
 }
 
-- (void)time:(id)label
+- (void)time:(NSString *)label
 {
-  ENSURE_SINGLE_ARG_OR_NIL(label, NSString);
   if (label == nil) {
     label = @"default";
   }
@@ -32,9 +31,8 @@
   [_times setObject:[NSDate date] forKey:label];
 }
 
-- (void)timeEnd:(id)label
+- (void)timeEnd:(NSString *)label
 {
-  ENSURE_SINGLE_ARG_OR_NIL(label, NSString);
   if (label == nil) {
     label = @"default";
   }
@@ -50,10 +48,12 @@
   [_times removeObjectForKey:label];
 }
 
-- (void)timeLog:(id)args
+- (void)timeLog:(NSString *)label withData:(NSArray *)logData
 {
-  NSString *label = [args objectAtIndex:0] ?: @"default";
-  NSArray *logData = [args count] > 1 ? [args subarrayWithRange:NSMakeRange(1, [args count] - 1)] : nil;
+  if (label == nil) {
+    label = @"default";
+  }
+
   NSDate *startTime = _times[label];
   if (startTime == nil) {
     NSString *logMessage = [NSString stringWithFormat:@"Label \"%@\" does not exist", label];

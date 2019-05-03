@@ -1,11 +1,82 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiFile.h"
-#import "TiProxy.h"
+#import "ObjcProxy.h"
+#import <JavaScriptCore/JavaScriptCore.h>
+
+//@class TiFile; // forward declare
+@class TiBlob;
+@class UIImage;
+
+@protocol BlobExports <JSExport>
+
+// Properties (and accessors)
+// FIXME: Change to TiFile* once it's been moved to a new obj-c proxy
+/**
+ Returns the blob file.
+ @return The file.
+ */
+READONLY_PROPERTY(JSValue *, file, File);
+/**
+ Returns height if the blob object is an image, _0_ otherwise.
+ */
+READONLY_PROPERTY(NSUInteger, height, Height);
+/**
+ Returns the data length.
+ */
+READONLY_PROPERTY(NSUInteger, length, Length);
+/**
+ Returns the blob mime type.
+ @return The mime type string.
+ */
+READONLY_PROPERTY(NSString *, mimeType, MimeType);
+/**
+ Returns the blob native path (Android compatibility).
+ @return The blob native path.
+ */
+READONLY_PROPERTY(NSString *, nativePath, NativePath);
+/**
+ Return the data size.
+ 
+ For file, data returns the size in bytes, for image, returns the width x height.
+ */
+READONLY_PROPERTY(NSUInteger, size, Size);
+/**
+ Return a textual representation of the blob.
+ 
+ The method converts data into a textual representation. Appropriate only for types TiBlobTypeFile and TiBlobTypeData.
+ */
+READONLY_PROPERTY(NSString *, text, Text);
+/**
+ Returns width if the blob object is an image, _0_ otherwise.
+ */
+READONLY_PROPERTY(NSUInteger, width, Width);
+
+// Methods
+- (void)append:(TiBlob *)blob;
+- (TiBlob *)imageAsCompressed:(float)compressionQuality;
+- (TiBlob *)imageAsCropped:(NSDictionary *)options;
+JSExportAs(imageAsResized,
+           -(TiBlob *)imageAsResized
+           : (NSUInteger)width withHeight
+           : (NSUInteger)height);
+JSExportAs(imageAsThumbnail,
+           -(TiBlob *)imageAsThumbnail
+           : (NSUInteger)size withBorder
+           : (NSNumber *)optionalBorderSize withRadius
+           : (NSNumber *)optionalCornerRadius);
+- (TiBlob *)imageWithAlpha;
+JSExportAs(imageWithRoundedCorner,
+           -(TiBlob *)imageWithRoundedCorner
+           : (NSUInteger)cornerSize withBorder
+           : (NSNumber *)optionalBorderSize);
+- (TiBlob *)imageWithTransparentBorder:(NSUInteger)size;
+- (NSString *)toString; // FIXME This doesn't seem to override the JS impl. I think we need to find a way to modify the property post-init to override it!
+
+@end
 
 typedef enum {
   TiBlobTypeImage = 0,
@@ -16,7 +87,7 @@ typedef enum {
 /**
  Blob object class.
  */
-@interface TiBlob : TiProxy {
+@interface TiBlob : ObjcProxy <BlobExports> {
   @private
   TiBlobType type;
   NSString *mimetype;
@@ -25,57 +96,6 @@ typedef enum {
   NSString *path;
   BOOL imageLoadAttempted;
 }
-
-/**
- Returns width if the blob object is an image, _0_ otherwise.
- */
-@property (nonatomic, readonly) NSInteger width;
-
-/**
- Returns height if the blob object is an image, _0_ otherwise.
- */
-@property (nonatomic, readonly) NSInteger height;
-
-/**
- Return a textual representation of the blob.
- 
- The method converts data into a textual representation. Appropriate only for types TiBlobTypeFile and TiBlobTypeData.
- */
-@property (nonatomic, readonly) NSString *text;
-
-/**
- Returns the data length.
- */
-@property (nonatomic, readonly) NSNumber *length;
-
-/**
- Return the data size.
- 
- For file, data returns the size in bytes, for image, returns the width x height.
- */
-@property (nonatomic, readonly) NSInteger size;
-
-/**
- Initialize the proxy context and the blob with an image.
- @param context The proxy context
- @param image_ The image
- */
-- (id)_initWithPageContext:(id<TiEvaluator>)context andImage:(UIImage *)image_;
-
-/**
- Initialize the proxy context and the blob with data.
- @param context The proxy context
- @param data_ The raw data.
- @param mimetype_ The data mime type.
- */
-- (id)_initWithPageContext:(id<TiEvaluator>)context andData:(NSData *)data_ mimetype:(NSString *)mimetype_;
-
-/**
- Initialize the proxy context and the blob with contents of a file.
- @param context The proxy context
- @param path_ The path to the file.
- */
-- (id)_initWithPageContext:(id<TiEvaluator>)context andFile:(NSString *)path_;
 
 /**
  Initialize the blob with an image.
@@ -122,12 +142,6 @@ typedef enum {
 - (TiBlobType)type;
 
 /**
- Returns the blob mime type.
- @return The mime type string.
- */
-- (NSString *)mimeType;
-
-/**
  Returns the blob raw data.
  @return The raw data.
  */
@@ -144,18 +158,6 @@ typedef enum {
  @return The file path.
  */
 - (NSString *)path;
-
-/**
- Returns the blob file.
- @return The file.
- */
-- (TiFile *)file;
-
-/**
- Returns the blob native path (Android compatibility).
- @return The blob native path.
- */
-- (id)nativePath;
 
 /**
  Tells the blob to write its data to a file.

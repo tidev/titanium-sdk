@@ -1009,9 +1009,9 @@ properties:
     summary: Separator style constant.
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
-    since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"}
+    since: {android: "8.1.0", iphone: "3.2.0", ipad: "3.2.0"}
 
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
 
   - name: style
     summary: Style of the list view.
@@ -1093,6 +1093,19 @@ properties:
     default: true
     since: 6.2.0
     platforms: [iphone, ipad]
+    availability: creation
+
+  - name: showSearchBarInNavBar
+    summary: A Boolean indicating whether search bar will be in navigation bar.
+    description: |
+          If you want to show the search bar in navigation bar, set this property `true` during creation. 
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
+          searchbar when scrolling.
+    type: Boolean
+    default: false
+    since: 8.1.0
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: resultsBackgroundColor

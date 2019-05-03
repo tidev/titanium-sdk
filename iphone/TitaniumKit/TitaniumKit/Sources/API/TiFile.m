@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -61,12 +61,12 @@
   return [result unsignedLongLongValue];
 }
 
-- (id)blob
+- (TiBlob *)blob
 {
-  return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:path] autorelease];
+  return [[[TiBlob alloc] initWithFile:path] autorelease];
 }
 
-- (id)toBlob:(id)args
+- (TiBlob *)toBlob:(id)args
 {
   return [self blob];
 }
