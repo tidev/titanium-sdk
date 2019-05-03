@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@
 
 #import "TiMediaItem.h"
 #import "MediaModule.h"
+#import <TitaniumKit/TiBlob.h>
 
 @implementation TiMediaItem
 
@@ -44,7 +45,7 @@
 {
   MPMediaItemArtwork *artwork = [item artwork];
   if (artwork != nil) {
-    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[artwork imageWithSize:[artwork imageCropRect].size]] autorelease];
+    return [[[TiBlob alloc] initWithImage:[artwork imageWithSize:[artwork imageCropRect].size]] autorelease];
   }
   return nil;
 }

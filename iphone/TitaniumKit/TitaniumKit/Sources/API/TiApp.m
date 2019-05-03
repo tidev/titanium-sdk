@@ -11,6 +11,7 @@
 #import "NSData+Additions.h"
 #import "TiApp.h"
 #import "TiBase.h"
+#import "TiBlob.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
 #import "TiSharedConfig.h"
@@ -219,12 +220,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)boot
 {
-  DebugLog(@"[INFO] %@/%@ (%s.%@)",
-      [[TiSharedConfig defaultConfig] applicationName],
-      [[TiSharedConfig defaultConfig] applicationVersion],
-      TI_VERSION_STR,
-      [[TiSharedConfig defaultConfig] sdkVersion]);
-
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
 
@@ -1005,15 +1000,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #ifndef DISABLE_TI_LOG_SERVER
   [[TiLogServer defaultLogServer] start];
 #endif
-
-  // THE CODE BELOW IS WRONG.
-  // It only waits until ONE context has signialed that it has shut down; then we proceed along our merry way.
-  // This might lead to problems like contexts not getting cleaned up properly due to premature app termination.
-  // Plus, it blocks the main thread... meaning that we can have deadlocks if any context is currently executing
-  // a request that requires operations on the main thread.
-  [condition lock];
-  [condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:SHUTDOWN_TIMEOUT_IN_SEC]];
-  [condition unlock];
 
   //This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];

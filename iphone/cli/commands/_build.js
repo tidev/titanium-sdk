@@ -23,7 +23,7 @@ const appc = require('node-appc'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
@@ -739,6 +739,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 				relistOnError: true,
 				complete: true,
 				suggest: false,
+				autoSelectOne: true,
 				options: developerCerts
 			}));
 		},
@@ -1136,6 +1137,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				relistOnError: true,
 				complete: true,
 				suggest: false,
+				autoSelectOne: true,
 				options: provisioningProfiles
 			}));
 		},
@@ -1205,7 +1207,7 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 				case 'device':
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
-					iosInfo.provisioning.development.forEach(function (p) {
+					iosInfo.provisioning.development.forEach(p => {
 						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 					_t.conf.options['developer-name'].required = true;
@@ -1222,10 +1224,10 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					_t.conf.options['distribution-name'].required = true;
 					_t.conf.options['pp-uuid'].required = true;
 
-					iosInfo.provisioning.adhoc.forEach(function (p) {
+					iosInfo.provisioning.adhoc.forEach(p => {
 						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
-					iosInfo.provisioning.enterprise.forEach(function (p) {
+					iosInfo.provisioning.enterprise.forEach(p => {
 						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 
@@ -2252,7 +2254,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		// titanium related tasks
 		'writeDebugProfilePlists',
 		'copyResources',
-		'generateRequireIndex', // has to be run before encryption, since index may be encrypted
 		'encryptJSFiles',
 		'writeI18NFiles',
 		'processTiSymbols',
@@ -2265,6 +2266,8 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		function (next) {
 			cli.emit('build.pre.build', this, next);
 		},
+
+		'generateRequireIndex', // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
 
 		// build baby, build
 		'invokeXcodeBuild',
@@ -3353,7 +3356,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						ta.SystemCapabilities || (ta.SystemCapabilities = {});
 						if (cap === 'app-groups') {
 							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
-							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = 1;
 						}
 					});
 				}
@@ -3559,32 +3562,58 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						extBuildSettings.CODE_SIGN_IDENTITY = buildSettings.CODE_SIGN_IDENTITY;
 					}
 
+					const setEntitlementsFile = (entFile, warn) => {
+						let src = path.join(ext.basePath, entFile);
+						if (fs.existsSync(src)) {
+							extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, entFile) + '"';
+							targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, entFile);
+						} else {
+							src = path.join(ext.basePath, targetName, entFile);
+							if (fs.existsSync(src)) {
+								extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
+								targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+							} else {
+								delete extBuildSettings.CODE_SIGN_ENTITLEMENTS;
+								targetInfo.entitlementsFile = null;
+								if (warn) {
+									this.logger.warn(`Unable to find extension target "${targetName}" CODE_SIGN_ENTITLEMENTS file: ${entFile}`);
+								}
+							}
+						}
+					};
+
 					if (extBuildSettings.CODE_SIGN_ENTITLEMENTS) {
-						const entFile = extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, '');
-						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
-						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+						setEntitlementsFile(extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, ''), true);
+
 					} else if (haveEntitlements) {
 						haveEntitlements = false;
 
 						const entFile = targetName + '.entitlements';
-						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
-						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+						setEntitlementsFile(entFile);
 
-						// create the file reference
-						const entFileRefUuid = this.generateXcodeUuid(xcodeProject);
-						xobjs.PBXFileReference[entFileRefUuid] = {
-							isa: 'PBXFileReference',
-							lastKnownFileType: 'text.xml',
-							path: '"' + entFile + '"',
-							sourceTree: '"<group>"'
-						};
-						xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
+						if (targetInfo.entitlementsFile) {
+							const exists = Object.keys(xobjs.PBXFileReference).some(function (uuid) {
+								return xobjs.PBXFileReference[uuid + '_comment'] === entFile;
+							});
 
-						// add the file to the target's pbx group
-						targetGroup && targetGroup.children.push({
-							value: entFileRefUuid,
-							comment: entFile
-						});
+							if (!exists) {
+								// create the file reference
+								const entFileRefUuid = this.generateXcodeUuid(xcodeProject);
+								xobjs.PBXFileReference[entFileRefUuid] = {
+									isa: 'PBXFileReference',
+									lastKnownFileType: 'text.xml',
+									path: '"' + entFile + '"',
+									sourceTree: '"<group>"'
+								};
+								xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
+
+								// add the file to the target's pbx group
+								targetGroup && targetGroup.children.push({
+									value: entFileRefUuid,
+									comment: entFile
+								});
+							}
+						}
 					}
 
 					if (hasSwiftFiles) {
@@ -5815,8 +5844,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			series(this, [
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
+					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 
-					async.eachSeries(Object.keys(jsFiles), function (file, next) {
+					async.each(Object.keys(jsFiles), function (file, next) {
 						setImmediate(function () {
 							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
 							// Add it as a require() compatible string to bootstrap array if it's a match.
@@ -5853,10 +5883,13 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 										// Read the possibly modified file contents
 										const source = r.contents;
 										// Analyze Ti API usage, possibly also minify/transpile
+										// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
+										const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
+										const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
 										const analyzeOptions = {
 											filename: from,
-											minify: this.minifyJS,
-											transpile: this.transpile,
+											minify,
+											transpile,
 											sourceMap: this.sourceMaps || this.deployType === 'development',
 											resourcesDir: this.xcodeAppDir,
 											logger: this.logger,
@@ -5879,7 +5912,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 											// dest doesn't exist, or new contents differs from existing dest file
 											if (!exists || newContents !== fs.readFileSync(to).toString()) {
 												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-												exists && fs.unlinkSync(to);
+												// no need to delete if it exists, writeFile will overwrite anyways
 												fs.writeFileSync(to, newContents);
 												this.jsFilesChanged = true;
 											} else {
@@ -5923,9 +5956,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
 						this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
 
-						if (!fs.existsSync(path.dirname(bootstrapJsonAbsolutePath))) {
-							wrench.mkdirSyncRecursive(path.dirname(bootstrapJsonAbsolutePath));
-						}
+						fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
 						fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
 					} else {
 						this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
@@ -6099,15 +6130,13 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 };
 
 iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
+	this.logger.info(__('Writing index.json with listing of JS/JSON files'));
 	const index = {};
 	const binAssetsDir = this.xcodeAppDir.replace(/\\/g, '/');
 
 	// Write _index_.json file with our JS/JSON file listing. This may also be encrypted
-	const destFilename = this.encryptJS ? '_index__json' : '_index_.json';
-	const destFile = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, destFilename);
-	if (this.encryptJS) {
-		this.jsFilesToEncrypt.push(destFilename);
-	}
+	const destFilename = '_index_.json';
+	const destFile = path.join(this.xcodeAppDir, destFilename);
 
 	// Grab unencrypted JS/JSON files
 	(function walk(dir) {
@@ -6117,7 +6146,8 @@ iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callba
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
 				} else if (/\.js(on)?$/.test(filename)) {
-					index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/')] = 1; // 1 for exists on disk
+					const modifiedFilename = file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/');
+					index[modifiedFilename] = 1; // 1 for exists on disk
 				}
 			}
 		});
