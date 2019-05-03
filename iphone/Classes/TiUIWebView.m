@@ -776,8 +776,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
         NSString *message = [event objectForKey:@"message"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([module respondsToSelector:@selector(log:)]) {
-          [module performSelector:@selector(log:) withObject:@[ level, message ]];
+        if ([module respondsToSelector:@selector(log:withMessage:)]) {
+          [module performSelector:@selector(log:withMessage:) withObject:level withObject:message];
         }
 #pragma clang diagnostic pop
       }
