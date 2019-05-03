@@ -62,7 +62,7 @@ properties:
         the view's top-left corner, `{0.5, 0.5}` at its center and `{1, 1}` at its bottom-right
         corner.
 
-        This property's value will overwrite the [anchorPoint](Ti.UI.Matrix2D.Matrix2DCreationDict.anchorPoint) used in the matrix's creation dictionary.
+        This property's value will overwrite the [anchorPoint](Matrix2DCreationDict.anchorPoint) used in the matrix's creation dictionary.
 
         See the "Using an anchorPoint" example for a demonstration.
     type: Point
@@ -106,6 +106,16 @@ properties:
     constants: Titanium.UI.ANIMATION_CURVE_*
     platforms: [android, iphone, ipad]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
+  
+  - name: dampingRatio
+    summary: |
+        The damping ratio for the spring animation as it approaches its quiescent state.
+    description: |
+        Use a value between 0 and 1. For a smoother deceleration use values closer to 1.
+        To increase oscillation use value closer to 0.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "8.1.0"
 
   - name: delay
     summary: Delay, in milliseconds before starting the animation.
@@ -142,6 +152,17 @@ properties:
   - name: right
     summary: Value of the `right` property at the end of the animation.
     type: Number
+    
+  - name: springVelocity
+    summary: The initial spring velocity.
+    description: |
+        For smooth start to the animation, match this value to the velocity of view as it was prior to attachment.
+        A value of 1 corresponds to the total animation distance traversed in one second. 
+        For example, if the total animation distance is 200 points and you want the start of the 
+        animation to match a view velocity of 100 pt/s, use a value of 0.5.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "8.1.0"
 
   - name: top
     summary: Value of the `top` property at the end of the animation.

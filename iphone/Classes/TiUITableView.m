@@ -287,7 +287,7 @@
 
 @implementation TiUITableView
 #pragma mark Internal
-@synthesize searchString, viewWillDetach;
+@synthesize searchString, viewWillDetach, searchResultIndexes;
 
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
@@ -308,6 +308,7 @@
     defaultSeparatorInsets = UIEdgeInsetsZero;
     rowSeparatorInsets = UIEdgeInsetsZero;
     _dimsBackgroundDuringPresentation = YES;
+    self.shouldDelayScrolling = YES;
   }
   return self;
 }
@@ -1005,6 +1006,9 @@
   // see the behavior of, say, Contacts. If users want to hide search, they can do so
   // in an event callback.
 
+  if (viaSearch) {
+    self.shouldDelayScrolling = NO;
+  }
   if ([target _hasListeners:name]) {
     [target fireEvent:name withObject:eventObject];
   }
@@ -1434,17 +1438,21 @@
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
-  UIView *searchSuperView = [searchController.view superview];
-  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+    UIView *searchSuperView = [searchController.view superview];
+    searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
 
-  CGFloat width = [searchField view].frame.size.width;
-  UIView *view = searchController.searchBar.superview;
-  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
-  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
-  [searchField ensureSearchBarHierarchy];
+    CGFloat width = [searchField view].frame.size.width;
+    UIView *view = searchController.searchBar.superview;
+    view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+    searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+    [searchField ensureSearchBarHierarchy];
+  }
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1552,7 +1560,9 @@
     [[searchField searchBar] setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [TiUtils setView:searchView positionRect:wrapperFrame];
     [tableHeaderView addSubview:searchView];
-    [tableview setTableHeaderView:tableHeaderView];
+    if (!isSearchBarInNavigation) {
+      [tableview setTableHeaderView:tableHeaderView];
+    }
     [searchView sizeToFit];
   }
 }
@@ -1784,12 +1794,16 @@
   RELEASE_TO_NIL(searchField);
   RELEASE_TO_NIL(searchController);
 
+  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+
   if (search != nil) {
     //TODO: now that we're using the search controller, we can move away from
     //doing our own custom search screen since the controller gives this to us
     //for free
     searchField = [search retain];
-    [searchField windowWillOpen];
+    if (!isSearchBarInNavigation) {
+      [searchField windowWillOpen];
+    }
     [searchField setDelegate:self];
     [self tableView];
     [self updateSearchView];
@@ -2341,6 +2355,23 @@
 
 - (void)viewGetFocus
 {
+#if IS_XCODE_9
+  if (isSearchBarInNavigation) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    UIViewController *controller;
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      controller = [[proxy windowHoldingController] retain];
+    } else {
+      controller = [[[TiApp app] controller] retain];
+    }
+    if (!controller.navigationItem.searchController) {
+      controller.navigationItem.searchController = searchController;
+    }
+  }
+#endif
   if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
     searchController.searchBar.text = self.searchedString;
