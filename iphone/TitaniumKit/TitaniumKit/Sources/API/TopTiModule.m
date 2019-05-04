@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,43 +13,45 @@
 
 @implementation TopTiModule
 
-- (id)version
+- (NSString *)version
 {
-  return @"8.0.0";
+  return @"__VERSION__";
 }
 
-- (id)buildDate
+GETTER_IMPL(NSString *, version, Version);
+
+- (NSString *)buildDate
 {
-  return @"10/30/2018 15:30";
+  return @"__TIMESTAMP__";
 }
 
-- (id)buildHash
+GETTER_IMPL(NSString *, buildDate, BuildDate);
+
+- (NSString *)buildHash
 {
-  return @"1e8bd7d11f";
+  return @"__GITHASH__";
 }
 
-+ (BOOL)shouldRegisterOnInit
-{
-  return NO;
-}
+GETTER_IMPL(NSString *, buildHash, BuildHash);
 
-- (id)userAgent
+- (NSString *)userAgent
 {
   return [[TiApp app] userAgent];
 }
 
-- (void)setUserAgent:(id)value
+- (void)setUserAgent:(NSString *)value
 {
-  ENSURE_TYPE(value, NSString);
-  [[TiApp app] setUserAgent:[TiUtils stringValue:value]];
+  [[TiApp app] setUserAgent:value];
 }
+
+READWRITE_IMPL(NSString *, userAgent, UserAgent);
 
 - (NSString *)apiName
 {
   return @"Ti";
 }
 
-- (TiBuffer *)createBuffer:(id)arg
+- (JSValue *)createBuffer:(id)arg
 {
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary);
 
@@ -65,7 +67,12 @@
   ENSURE_ARG_OR_NIL_FOR_KEY(type, arg, @"type", NSString);
   ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, arg, @"byteOrder", hasByteOrder);
 
-  TiBuffer *buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+  // Hack to get our KrollBridge
+  JSContext *objcJsContext = [JSContext currentContext];
+  JSGlobalContextRef contextRef = [objcJsContext JSGlobalContextRef];
+  KrollContext *context = GetKrollContext(contextRef);
+  KrollBridge *ourBridge = (KrollBridge *)[context delegate];
+  TiBuffer *buffer = [[[TiBuffer alloc] _initWithPageContext:ourBridge] autorelease];
   if (hasLength) {
     [buffer setLength:[NSNumber numberWithInt:length]];
   }
@@ -85,7 +92,8 @@
       switch ([TiUtils encodeString:data toBuffer:buffer charset:charset offset:0 sourceOffset:0 length:encodeLength]) {
       case BAD_DEST_OFFSET: // Data length == 0 : return our empty buffer
       case BAD_SRC_OFFSET: { // String length == 0 : return our empty buffer (no string encoded into it)
-        return buffer;
+        KrollObject *o = [[[KrollObject alloc] initWithTarget:buffer context:context] autorelease];
+        return [JSValue valueWithJSValueRef:JSObjectMake(contextRef, KrollObjectClassRef, o) inContext:objcJsContext];
         break;
       }
       case BAD_ENCODING: {
@@ -143,7 +151,8 @@
                 location:CODELOCATION];
   }
 
-  return buffer;
+  KrollObject *o = [[[KrollObject alloc] initWithTarget:buffer context:context] autorelease];
+  return [JSValue valueWithJSValueRef:[o jsobject] inContext:objcJsContext];
 }
 
 @end

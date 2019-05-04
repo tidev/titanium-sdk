@@ -96,7 +96,7 @@
   NSMutableArray *result = [NSMutableArray array];
 
   for (UIImage *image in [self controller].icons) {
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image];
+    TiBlob *blob = [[TiBlob alloc] initWithImage:image];
     [result addObject:image];
     [blob release];
   }
