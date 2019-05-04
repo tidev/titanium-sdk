@@ -41,6 +41,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 */
 	public abstract String getUrl();
 
+	private boolean hasLoadedScript = false;
+
 	/**
 	 * The JavaScript URL that should be ran for the given TiJSActivity derived class name.
 	 * Will only return a result if given activity class was launched at least once.
@@ -167,16 +169,20 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		super.onCreate(savedInstanceState);
 	}
 
-	@Override
-	protected void windowCreated(Bundle savedInstanceState)
-	{
-		super.windowCreated(savedInstanceState);
-		loadScript();
-	}
-
 	public boolean isJSActivity()
 	{
 		return false;
+	}
+
+	@Override
+	protected void onResume()
+	{
+		// Prevent script from loading on future resumes
+		if (!hasLoadedScript) {
+			hasLoadedScript = true;
+			loadScript();
+		}
+		super.onResume();
 	}
 
 	@Override

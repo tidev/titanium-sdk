@@ -64,9 +64,13 @@ async function checkJIRA() {
 // Check that if we modify the Android or iOS SDK, we also update the tests
 // Also, assign labels based on changes to different dir paths
 async function checkChangedFileLocations() {
+	let modifiedTopTiModule = false;
 	const modified = danger.git.modified_files.concat(danger.git.created_files);
 	const modifiedAndroidFiles = modified.filter(p => p.startsWith('android/') && p.endsWith('.java'));
 	const modifiedIOSFiles = modified.filter(p => {
+		if (p.endsWith('TopTiModule.m')) {
+			modifiedTopTiModule = true;
+		}
 		return p.startsWith('iphone/') && (p.endsWith('.h') || p.endsWith('.m'));
 	});
 
@@ -100,6 +104,11 @@ async function checkChangedFileLocations() {
 		// If it has the "needs tests" label, remove it
 		labelsToRemove.add(Label.NEEDS_TESTS);
 	}
+
+	if (modifiedTopTiModule) {
+		warn('It looks like you have modified the TopTiModule.m file. Are you sure you meant to do that?');
+	}
+
 }
 
 // Does the PR have merge conflicts?

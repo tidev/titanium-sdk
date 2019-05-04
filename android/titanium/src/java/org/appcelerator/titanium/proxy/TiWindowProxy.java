@@ -22,6 +22,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -38,9 +39,10 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
-import android.util.Pair;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -554,15 +556,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
 		}
 
+		boolean exitOnClose = false;
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
-							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+			exitOnClose = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
 		} else {
 			// If launching child activity from Titanium root activity, then have it exit out of the app.
 			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
-			boolean isRoot = activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity());
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, isRoot);
+			exitOnClose = activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity());
+			setProperty(TiC.PROPERTY_EXIT_ON_CLOSE, exitOnClose);
 		}
+		intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, exitOnClose);
 
 		// Set the theme property
 		if (hasProperty(TiC.PROPERTY_THEME)) {
@@ -640,15 +643,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
-		if (hasActivityTransitions()) {
-			Bundle b = ActivityOptions
-						   .makeSceneTransitionAnimation(
-							   activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]))
-						   .toBundle();
-			return b;
+		ActivityOptionsCompat options = null;
+
+		// Do NOT apply transitions to launch activity.
+		if (hasActivityTransitions() && !(activity instanceof TiLaunchActivity)) {
+			if (!sharedElementPairs.isEmpty()) {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+					activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
+			} else {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity);
+			}
 		} else {
-			return null;
+			options = ActivityOptionsCompat.makeBasic();
 		}
+		return options.toBundle();
 	}
 
 	/**
@@ -657,6 +665,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean hasActivityTransitions()
 	{
 		final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
-		return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
+		return LOLLIPOP_OR_GREATER && animated;
 	}
 }
