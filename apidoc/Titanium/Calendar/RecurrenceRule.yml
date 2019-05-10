@@ -37,7 +37,7 @@ properties:
 
   - name: daysOfTheWeek
     summary: |
-        The days of the week that the event occurs, as an Dictionay of `daysOfWeek` and `Week`.
+        The days of the week that the event occurs, as an array of objects `daysOfWeek` and `Week`.
     description: |
         On Android daysOfTheWeek is not valid for recurrence rules of type
         [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
