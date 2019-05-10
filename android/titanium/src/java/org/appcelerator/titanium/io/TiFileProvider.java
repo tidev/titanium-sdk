@@ -120,11 +120,8 @@ public class TiFileProvider extends ContentProvider
 			columnNames = (String[]) projection.clone();
 		} else {
 			// Have this query provide the following column data by default since caller did not specify.
-			columnNames = new String[] {
-				OpenableColumns.DISPLAY_NAME,
-				OpenableColumns.SIZE,
-				MediaStore.MediaColumns.MIME_TYPE
-			};
+			columnNames =
+				new String[] { OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE, MediaStore.MediaColumns.MIME_TYPE };
 		}
 
 		// Fetch file info based on the given column names.
@@ -257,7 +254,7 @@ public class TiFileProvider extends ContentProvider
 
 		// Fetch a native URL to the given file.
 		// Note: This does not return Titanium's internal URL schemes such as "app:", "appdata:", etc.
-		String fileUrl = tiFile.nativePath(); 
+		String fileUrl = tiFile.nativePath();
 		if ((fileUrl == null) || fileUrl.isEmpty()) {
 			return null;
 		}

@@ -192,9 +192,10 @@ public class TiMimeTypeHelper
 				if (isContent) {
 					try (AssetFileDescriptor descriptor = contentResolver.openAssetFileDescriptor(uri, "r")) {
 						if (descriptor != null) {
-							mediaRetriever.setDataSource(
-								descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
-							String mimeType = mediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+							mediaRetriever.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(),
+														 descriptor.getLength());
+							String mimeType =
+								mediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
 							if (mimeType != null) {
 								return mimeType;
 							}
@@ -204,7 +205,8 @@ public class TiMimeTypeHelper
 					try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r")) {
 						if (descriptor != null) {
 							mediaRetriever.setDataSource(descriptor.getFileDescriptor());
-							String mimeType = mediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+							String mimeType =
+								mediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
 							if (mimeType != null) {
 								return mimeType;
 							}
