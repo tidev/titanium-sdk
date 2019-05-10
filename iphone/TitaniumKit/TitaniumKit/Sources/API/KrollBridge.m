@@ -714,11 +714,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
-#ifdef USE_JSCORE_FRAMEWORK
-  if (![proxy isKindOfClass:[TiModule class]]) {
-    [ourKrollObject applyGarbageCollectionSafeguard];
-  }
-#endif
+  [ourKrollObject applyGarbageCollectionSafeguard];
 
   [self registerProxy:proxy
           krollObject:ourKrollObject];
