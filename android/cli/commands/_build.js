@@ -1857,7 +1857,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
-	this.mainActivity = '.' + this.classname + 'Activity';
 
 	this.buildOnly = argv['build-only'];
 
@@ -3732,9 +3731,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		tiMethodActivities = {
 			'Map.createView': {
 				activity: {
-					name: 'ti.modules.titanium.map.TiMapActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					launchMode: 'singleTask'
+					name: 'ti.modules.titanium.map.TiMapActivity'
 				},
 				'uses-library': {
 					name: 'com.google.android.maps'
@@ -3743,15 +3740,12 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			'Media.createVideoPlayer': {
 				activity: {
 					name: 'ti.modules.titanium.media.TiVideoActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					theme: '@style/Theme.AppCompat.Fullscreen',
-					launchMode: 'singleTask'
+					theme: '@style/Theme.AppCompat.Fullscreen'
 				}
 			},
 			'Media.showCamera': {
 				activity: {
 					name: 'ti.modules.titanium.media.TiCameraActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
 					theme: '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
 				}
 			}
@@ -3859,14 +3853,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				this.logger.warn(__('Setting "%s" is not recommended for activity "%s"', 'android:launchMode'.red, activity.cyan));
 			}
 		}
-
-		// TIMOB-24917: make sure the main activity is themed
-		if (tiappAndroidManifest.application.activity && tiappAndroidManifest.application.activity[this.mainActivity]) {
-			const parameters = tiappAndroidManifest.application.activity[this.mainActivity];
-			if (!parameters.theme) {
-				parameters.theme = '@style/Theme.Titanium';
-			}
-		}
 	}
 
 	// gather activities
@@ -3882,7 +3868,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 					a[key.replace(/^android:/, '')] = activity[key];
 				}
 			});
-			a.configChanges || (a.configChanges = [ 'keyboardHidden', 'orientation' ]);
 			finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
 			finalAndroidManifest.application.activity[a.name] = a;
 		}
@@ -3979,33 +3964,44 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	});
 
-	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
-	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
-	// elements, otherwise changes in orientation will cause the app to restart
-	if (this.realTargetSDK >= 13) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			const activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = [ 'screenSize' ];
-			} else if (activity.configChanges.indexOf('screenSize') === -1) {
-				activity.configChanges.push('screenSize');
-			}
-		});
+	// Set up array of all <activity/> attribute "android:configChanges" values for the target API Level.
+	// These must be added to all activities to prevent the UI from disappearing when that config changes dynamically.
+	const defaultActivityConfigChanges = [
+		'fontScale',
+		'keyboard',
+		'keyboardHidden',
+		'layoutDirection',
+		'locale',
+		'mcc',
+		'mnc',
+		'navigation',
+		'orientation',
+		'screenLayout',
+		'screenSize',
+		'smallestScreenSize',
+		'touchscreen',
+		'uiMode'
+	];
+	if (this.realTargetSDK >= 24) {
+		defaultActivityConfigChanges.push('density');
 	}
+
+	// Add above "configChanges" attribute values to all activities.
+	Object.keys(finalAndroidManifest.application.activity).forEach(function (activityName) {
+		const activity = finalAndroidManifest.application.activity[activityName];
+		if (Array.isArray(activity.configChanges)) {
+			for (let nextValue of defaultActivityConfigChanges) {
+				if (!activity.configChanges.includes(nextValue)) {
+					activity.configChanges.push(nextValue);
+				}
+			}
+		} else {
+			activity.configChanges = defaultActivityConfigChanges.slice(0);
+		}
+	});
 
 	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
 		finalAndroidManifest.application.resizeableActivity = true;
-	}
-
-	if (this.realTargetSDK >= 24) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			const activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = [ 'density' ];
-			} else if (activity.configChanges.indexOf('density') === -1) {
-				activity.configChanges.push('density');
-			}
-		});
 	}
 
 	// add permissions
