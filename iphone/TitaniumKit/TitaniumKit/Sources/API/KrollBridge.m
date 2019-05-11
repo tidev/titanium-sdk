@@ -1367,7 +1367,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // failed to resolve it!
   if (resolved == nil) {
     NSString *arch = [TiUtils currentArchitecture];
-    @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+    NSString *errorCode = [NSString stringWithFormat:@"new Error('Could not find module: %@ for architecture: %@');", path, arch];
+    id error = [context evalJSAndWait:errorCode];
+    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:error]];
+    return;
   }
 
   ModuleType type = resolved->type;
@@ -1421,7 +1424,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // should never happen!
   // 4. THROW "not found"
   NSString *arch = [TiUtils currentArchitecture];
-  @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+  NSString *errorCode = [NSString stringWithFormat:@"new Error('Could not find module: %@ for architecture: %@');", path, arch];
+  id error = [context evalJSAndWait:errorCode];
+  [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:error]];
+  return;
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
