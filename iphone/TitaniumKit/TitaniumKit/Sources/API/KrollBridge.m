@@ -1427,7 +1427,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
   NSString *errorCode = [NSString stringWithFormat:@"new Error('Could not find module: %@ for architecture: %@');", path, arch];
   id error = [context evalJSAndWait:errorCode];
   [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:error]];
-  return;
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
