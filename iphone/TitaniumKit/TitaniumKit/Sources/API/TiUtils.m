@@ -1420,11 +1420,22 @@ If the new path starts with / and the base url is app://..., we have to massage 
   ApplyConstraintToViewWithBounds([proxy layoutProperties], view, bounds);
 }
 
-+ (NSString *)composeAccessibilityIdentifier:(TiUIView *)view
++ (NSString *)composeAccessibilityIdentifier:(id)object
 {
-  NSString *accessibilityLabel = view.accessibilityLabel;
-  NSString *accessibilityValue = view.accessibilityValue;
-  NSString *accessibilityHint = view.accessibilityHint;
+  NSString *accessibilityLabel = nil;
+  NSString *accessibilityValue = nil;
+  NSString *accessibilityHint = nil;
+  if ([object isKindOfClass:[TiUIView class]]) {
+    accessibilityLabel = [(TiUIView *)object accessibilityLabel];
+    accessibilityValue = [(TiUIView *)object accessibilityValue];
+    accessibilityHint = [(TiUIView *)object accessibilityHint];
+  } else if ([object isKindOfClass:[UIAccessibilityElement class]]) {
+    accessibilityLabel = [(UIAccessibilityElement *)object accessibilityLabel];
+    accessibilityValue = [(UIAccessibilityElement *)object accessibilityValue];
+    accessibilityHint = [(UIAccessibilityElement *)object accessibilityHint];
+  } else {
+    return nil;
+  }
   NSString *pattern = @"^.*[!\"#$%&'()*+,\\-./:;<=>?@\\[\\]^_`{|}~]\\s*$";
   NSString *dot = @".";
   NSString *space = @" ";

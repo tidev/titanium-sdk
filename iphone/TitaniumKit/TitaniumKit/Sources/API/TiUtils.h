@@ -577,7 +577,7 @@ typedef enum {
 
 + (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds;
 
-+ (NSString *)composeAccessibilityIdentifier:(TiUIView *)view;
++ (NSString *)composeAccessibilityIdentifier:(id)object;
 
 + (CGRect)viewPositionRect:(UIView *)view;
 
