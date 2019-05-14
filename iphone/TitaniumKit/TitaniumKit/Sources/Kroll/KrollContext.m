@@ -174,7 +174,12 @@ static JSValueRef LCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSOb
     return [KrollObject toValue:ctx value:result];
   }
   @catch (NSException *e) {
-    return ThrowException(jsContext, [e reason], exception);
+    NSString *errorCode = [NSString stringWithFormat:@"new Error('%@');", [e reason]];
+    id error = [ctx evalJSAndWait:errorCode];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:error];
+    [dict setObject:[e.userInfo objectForKey:@"sourceURL"] forKey:@"sourceURL"];
+
+    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:dict]];
   }
 }
 
