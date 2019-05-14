@@ -456,13 +456,34 @@ function AndroidManifest(filename) {
 								case 'uses-library':
 									this[tag][subtag] || (this[tag][subtag] = {});
 									Object.keys(src[tag][subtag]).forEach(function (key) {
+										// Copy source's XML tag attributes and child tags to target.
 										const nextSource = src[tag][subtag][key];
 										const nextTarget = this[tag][subtag][key];
 										if (!nextTarget) {
+											// Insert source's attribute or sub tag to target.
 											this[tag][subtag][key] = nextSource;
 										} else {
 											Object.keys(nextSource).forEach(function (subKey) {
-												nextTarget[subKey] = nextSource[subKey];
+												if (subKey === 'configChanges') {
+													// For <activity/> "android:configChanges" attribute, only copy
+													// the attribute values from source that are missing in target.
+													const sourceArray = nextSource[subKey];
+													if (Array.isArray(sourceArray)) {
+														const targetArray = nextTarget[subKey];
+														if (Array.isArray(targetArray)) {
+															for (let nextValue of sourceArray) {
+																if (!targetArray.includes(nextValue)) {
+																	targetArray.push(nextValue);
+																}
+															}
+														} else {
+															nextSource[subKey] = sourceArray;
+														}
+													}
+												} else {
+													// Overwrite target's attribute or sub tag with source.
+													nextTarget[subKey] = nextSource[subKey];
+												}
 											});
 										}
 									}, this);
