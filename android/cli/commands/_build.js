@@ -3721,60 +3721,49 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			'Contacts.getAllGroups': contactsReadPermissions,
 			'Contacts.getGroupByID': contactsReadPermissions,
 
-			'Map.createView': geoPermissions,
-
 			'Media.Android.setSystemWallpaper': wallpaperPermissions,
 			'Media.showCamera': cameraPermissions,
 			'Media.vibrate': vibratePermissions,
 		},
 
-		tiMethodActivities = {
-			'Map.createView': {
-				activity: {
-					name: 'ti.modules.titanium.map.TiMapActivity'
-				},
-				'uses-library': {
-					name: 'com.google.android.maps'
-				}
-			},
-			'Media.createVideoPlayer': {
-				activity: {
-					name: 'ti.modules.titanium.media.TiVideoActivity',
-					theme: '@style/Theme.AppCompat.Fullscreen'
-				}
-			},
-			'Media.showCamera': {
-				activity: {
-					name: 'ti.modules.titanium.media.TiCameraActivity',
-					theme: '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
-				}
-			}
-		},
-
 		googleAPIs = [
-			'Map.createView'
+			// Example: 'Map.createView'
 		],
 
 		enableGoogleAPIWarning = this.target === 'emulator' && this.emulator && !this.emulator.googleApis,
 
-		fill = function (str) {
-			// first we replace all legacy variable placeholders with EJS style placeholders
-			str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
-				// if the property is the "id", we want to force our scrubbed "appid"
-				if (m2 === 'id') {
-					m2 = 'appid';
-				} else {
-					m2 = 'tiapp.' + m2;
-				}
-				return '<%- ' + m2 + ' %>';
-			});
-			// then process the string as an EJS template
-			return ejs.render(str, this);
-		}.bind(this),
-
-		finalAndroidManifest = (new AndroidManifest()).parse(fill(fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString())),
 		customAndroidManifest = this.customAndroidManifest,
 		tiappAndroidManifest = this.tiappAndroidManifest;
+
+	// Create a string of all known <activity/> attribute "android:configChanges" values for the target API Level.
+	// This variable will be referenced by name by an EJS "AndroidManifest.xml" template.
+	// Ex: <activity android:name="MyActivity" android:configChanges="<%- allActivityConfigChanges %>" />
+	this.allActivityConfigChanges
+		= 'fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation'
+		+ '|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode';
+	if (this.realTargetSDK >= 24) {
+		this.allActivityConfigChanges += '|density';
+	}
+
+	// Function used to EJS render Titanium's main "AndroidManfiest.xml" template and "timodule.xml" templates.
+	const ejsRenderManifest = function (str) {
+		// first we replace all legacy variable placeholders with EJS style placeholders
+		str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
+			// if the property is the "id", we want to force our scrubbed "appid"
+			if (m2 === 'id') {
+				m2 = 'appid';
+			} else {
+				m2 = 'tiapp.' + m2;
+			}
+			return '<%- ' + m2 + ' %>';
+		});
+		// then process the string as an EJS template
+		return ejs.render(str, this);
+	}.bind(this);
+
+	// Fetch main Titanium "AndroidManifest.xml" template's settings, resolving all template variables via EJS.
+	const finalAndroidManifest = (new AndroidManifest()).parse(ejsRenderManifest(
+		fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString()));
 
 	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
 	if (!this.config.get('android.mergeCustomAndroidManifest', true) && this.customAndroidManifest) {
@@ -3815,18 +3804,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				tiMethodPermissions[symbol].forEach(function (perm) {
 					permissions[perm] = 1;
 				});
-			}
-
-			const obj = tiMethodActivities[symbol];
-			if (obj) {
-				if (obj.activity) {
-					finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
-					finalAndroidManifest.application.activity[obj.activity.name] = obj.activity;
-				}
-				if (obj['uses-library']) {
-					finalAndroidManifest.application['uses-library'] || (finalAndroidManifest.application['uses-library'] = {});
-					finalAndroidManifest.application['uses-library'][obj['uses-library'].name] = obj['uses-library'];
-				}
 			}
 
 			if (enableGoogleAPIWarning && googleAPIs.indexOf(symbol) !== -1) {
@@ -3929,7 +3906,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			const moduleXml = new tiappxml(moduleXmlFile);
 			if (moduleXml.android && moduleXml.android.manifest) {
 				const am = new AndroidManifest();
-				am.parse(fill(moduleXml.android.manifest));
+				am.parse(ejsRenderManifest(moduleXml.android.manifest));
 				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
 				delete am.__attr__;
 				delete am['supports-screens'];
@@ -3961,42 +3938,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			delete libraryManifest['supports-screens'];
 			delete libraryManifest['uses-sdk'];
 			finalAndroidManifest.merge(libraryManifest);
-		}
-	});
-
-	// Set up array of all <activity/> attribute "android:configChanges" values for the target API Level.
-	// These must be added to all activities to prevent the UI from disappearing when that config changes dynamically.
-	const defaultActivityConfigChanges = [
-		'fontScale',
-		'keyboard',
-		'keyboardHidden',
-		'layoutDirection',
-		'locale',
-		'mcc',
-		'mnc',
-		'navigation',
-		'orientation',
-		'screenLayout',
-		'screenSize',
-		'smallestScreenSize',
-		'touchscreen',
-		'uiMode'
-	];
-	if (this.realTargetSDK >= 24) {
-		defaultActivityConfigChanges.push('density');
-	}
-
-	// Add above "configChanges" attribute values to all activities.
-	Object.keys(finalAndroidManifest.application.activity).forEach(function (activityName) {
-		const activity = finalAndroidManifest.application.activity[activityName];
-		if (Array.isArray(activity.configChanges)) {
-			for (let nextValue of defaultActivityConfigChanges) {
-				if (!activity.configChanges.includes(nextValue)) {
-					activity.configChanges.push(nextValue);
-				}
-			}
-		} else {
-			activity.configChanges = defaultActivityConfigChanges.slice(0);
 		}
 	});
 
