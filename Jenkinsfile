@@ -71,13 +71,15 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 						sh 'npm ci'
 						dir('scripts') {
 							try {
-								timeout(20) {
-									if ('ios'.equals(os)) {
+								if ('ios'.equals(os)) {
+									timeout(20) {
 										sh "node test.js -b ../../${zipName} -p ${os}"
-									} else {
+									}
+								} else {
+									timeout(30) {
 										sh "node test.js -C android-28-playstore-x86 -T emulator -b ../../${zipName} -p ${os}"
 									}
-								} // timeout
+								}
 							} catch (e) {
 								if ('ios'.equals(os)) {
 									// Gather the crash report(s)
@@ -94,21 +96,20 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 									archiveArtifacts 'mocha_*.crash'
 									sh 'rm -f mocha_*.crash'
 								} else {
-									// gather crash reports/tombstones for Android
-									sh 'adb pull /data/tombstones'
+									sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: 'adb -e pull /data/tombstones'
 									archiveArtifacts 'tombstones/'
 									sh 'rm -f tombstones/'
 									// wipe tombstones and re-build dir with proper permissions/ownership on emulator
-									sh 'adb shell rm -rf /data/tombstones'
-									sh 'adb shell mkdir -m 771 /data/tombstones'
-									sh 'adb shell chown system:system /data/tombstones'
+									sh returnStatus: true, script: 'adb -e shell rm -rf /data/tombstones'
+									sh returnStatus: true, script: 'adb -e shell mkdir -m 771 /data/tombstones'
+									sh returnStatus: true, script: 'adb -e shell chown system:system /data/tombstones'
 								}
 								throw e
 							} finally {
 								// Kill the emulators!
 								if ('android'.equals(os)) {
-									sh 'adb shell am force-stop com.appcelerator.testApp.testing'
-									sh 'adb uninstall com.appcelerator.testApp.testing'
+									sh returnStatus: true, script: 'adb -e shell am force-stop com.appcelerator.testApp.testing'
+									sh returnStatus: true, script: 'adb -e uninstall com.appcelerator.testApp.testing'
 									killAndroidEmulators()
 								} // if
 							} // finally
@@ -176,9 +177,6 @@ timestamps {
 					}
 					// was it a failure?
 					if (npmTestResult != 0) {
-						// empty stashes of test reports, so danger step can still run.
-						stash allowEmpty: true, name: 'test-report-ios'
-						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
 					}
 				}

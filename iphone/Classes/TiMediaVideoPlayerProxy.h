@@ -9,7 +9,6 @@
 #import "TiMediaTypes.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
-#import <MediaPlayer/MediaPlayer.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiViewProxy.h>

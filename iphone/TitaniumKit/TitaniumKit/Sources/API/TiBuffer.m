@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "TiBuffer.h"
+#import "TiBlob.h"
 #import "TiUtils.h"
 
 NSArray *bufferKeySequence = nil;
@@ -278,7 +279,7 @@ NSArray *bufferKeySequence = nil;
 - (TiBlob *)toBlob:(id)_void
 {
   //TODO: Static analysis finds we're leaking the [data copy]. We should have an autorelease here, but for later.
-  return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andData:[[data copy] autorelease] mimetype:@"application/octet-stream"] autorelease];
+  return [[[TiBlob alloc] initWithData:[[data copy] autorelease] mimetype:@"application/octet-stream"] autorelease];
 }
 
 - (NSString *)toString:(id)_void

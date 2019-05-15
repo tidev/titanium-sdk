@@ -1,19 +1,21 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_CALENDAR
 #import "TiCalendarAttendee.h"
+@import EventKit;
+@import TitaniumKit.TiUtils;
 
 @implementation TiCalendarAttendee
 
 #pragma mark - Internals
 
-- (id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant *)participant_
+- (id)initWithParticipant:(EKParticipant *)participant_
 {
-  if (self = [super _initWithPageContext:context]) {
+  if (self = [super init]) {
     participant = [participant_ retain];
   }
   return self;
@@ -41,6 +43,7 @@
 {
   return [[self participant] name];
 }
+GETTER_IMPL(NSString *, name, Name);
 
 - (NSString *)email
 {
@@ -50,26 +53,31 @@
 
   return [[[self participant] URL] resourceSpecifier];
 }
+GETTER_IMPL(NSString *, email, Email);
 
-- (NSNumber *)role
+- (EKParticipantRole)role
 {
-  return NUMUINT([[self participant] participantRole]);
+  return [[self participant] participantRole];
 }
+GETTER_IMPL(EKParticipantRole, role, Role);
 
-- (NSNumber *)type
+- (EKParticipantType)type
 {
-  return NUMUINT([[self participant] participantType]);
+  return [[self participant] participantType];
 }
+GETTER_IMPL(EKParticipantType, type, Type);
 
-- (NSNumber *)status
+- (EKParticipantStatus)status
 {
-  return NUMUINT([[self participant] participantStatus]);
+  return [[self participant] participantStatus];
 }
+GETTER_IMPL(EKParticipantStatus, status, Status);
 
-- (NSNumber *)isOrganizer
+- (BOOL)isOrganizer
 {
-  return NUMBOOL([[self participant] isCurrentUser]);
+  return [[self participant] isCurrentUser];
 }
+GETTER_IMPL(BOOL, isOrganizer, IsOrganizer);
 
 @end
 

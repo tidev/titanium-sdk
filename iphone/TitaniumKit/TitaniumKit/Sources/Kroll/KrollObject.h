@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,8 +27,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
   @private
   NSMutableDictionary *properties;
   NSMutableDictionary *statics;
-  JSObjectRef jsobject;
-  JSObjectRef propsObject;
+  JSObjectRef _jsobject;
   BOOL targetable;
   BOOL finalized;
   BOOL protecting;
@@ -59,7 +58,6 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 //TODO: Lots of copypasted code in these methods could be refactored out.
 @property (nonatomic, assign) JSObjectRef propsObject;
 - (JSObjectRef)jsobject;
-- (void)invalidateJsobject;
 - (JSValueRef)jsvalueForUndefinedKey:(NSString *)key;
 
 - (void)noteKeylessKrollObject:(KrollObject *)value;
@@ -83,9 +81,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 - (void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
 - (void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
 
-#ifdef USE_JSCORE_FRAMEWORK
 - (void)applyGarbageCollectionSafeguard;
 - (void)removeGarbageCollectionSafeguard;
-#endif
 
 @end
