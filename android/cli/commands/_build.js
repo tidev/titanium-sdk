@@ -2834,7 +2834,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			}, this);
 			fs.writeFileSync(
 				envVarsFile,
-				JSON.stringify(process.env)
+				// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
+				this.deployType === 'development' ? JSON.stringify(process.env) : {}
 			);
 			this.encryptJS && jsFilesToEncrypt.push('_env_.json');
 			delete this.lastBuildFiles[envVarsFile];

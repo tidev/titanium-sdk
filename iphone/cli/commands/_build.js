@@ -6007,7 +6007,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				this.jsFilesToEncrypt.push('_env__json'); // encrypted name
 			}
 
-			const contents = JSON.stringify(process.env);
+			// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
+			const contents = this.deployType === 'development' ? JSON.stringify(process.env) : {};
 			if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile).toString()) {
 				this.logger.debug(__('Writing %s', envVarsFile.cyan));
 
@@ -6152,14 +6153,6 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		{},
 		next
 	);
-};
-
-iOSBuilder.prototype.generateEnvJson = function generateEnvJson(callback) {
-	const binAssetsDir = this.buildBinAssetsDir.replace(/\\/g, '/');
-	const destFile = path.join(binAssetsDir, 'env.json');
-
-	fs.existsSync(destFile) && fs.unlinkSync(destFile);
-	fs.writeJson(destFile, process.env, callback);
 };
 
 iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
