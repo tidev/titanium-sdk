@@ -98,6 +98,34 @@ typedef enum {
 }
 
 /**
+ Initialize the blob with no arguments.
+ @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `init` instead.
+ */
+- (id)_initWithPageContext:(__unused id<TiEvaluator>)pageContext __attribute__((deprecated));
+
+/**
+ Initialize the blob with an image.
+ @param image The image
+ @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithImage:` instead.
+ */
+- (id)_initWithPageContext:(__unused id<TiEvaluator>)pageContext andImage:(UIImage *)image __attribute__((deprecated));
+
+/**
+ Initialize the blob with data.
+ @param data The raw data.
+ @param mimetype The data mime type.
+ @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithData:mimeType:` instead.
+ */
+- (id)_initWithPageContext:(__unused id<TiEvaluator>)pageContext andData:(NSData *)data mimetype:(NSString *)mimetype __attribute__((deprecated));
+
+/**
+ Initialize the blob with contents of a file.
+ @param path The path to the file.
+ @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithFile:` instead.
+ */
+- (id)_initWithPageContext:(__unused id<TiEvaluator>)pageContext andFile:(NSString *)path __attribute__((deprecated));
+
+/**
  Initialize the blob with an image.
  @param image The image
  */
