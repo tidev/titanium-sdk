@@ -1422,20 +1422,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (NSString *)composeAccessibilityIdentifier:(id)object
 {
-  NSString *accessibilityLabel = nil;
-  NSString *accessibilityValue = nil;
-  NSString *accessibilityHint = nil;
-  if ([object isKindOfClass:[TiUIView class]]) {
-    accessibilityLabel = [(TiUIView *)object accessibilityLabel];
-    accessibilityValue = [(TiUIView *)object accessibilityValue];
-    accessibilityHint = [(TiUIView *)object accessibilityHint];
-  } else if ([object isKindOfClass:[UIAccessibilityElement class]]) {
-    accessibilityLabel = [(UIAccessibilityElement *)object accessibilityLabel];
-    accessibilityValue = [(UIAccessibilityElement *)object accessibilityValue];
-    accessibilityHint = [(UIAccessibilityElement *)object accessibilityHint];
-  } else {
-    return nil;
-  }
+  NSString *accessibilityLabel = [object accessibilityLabel];
+  NSString *accessibilityValue = [object accessibilityValue];
+  NSString *accessibilityHint = [object accessibilityHint];
+
   NSString *pattern = @"^.*[!\"#$%&'()*+,\\-./:;<=>?@\\[\\]^_`{|}~]\\s*$";
   NSString *dot = @".";
   NSString *space = @" ";
