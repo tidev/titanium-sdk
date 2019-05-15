@@ -148,7 +148,13 @@ static JSValueRef CommonJSRequireCallback(JSContextRef jsContext, JSObjectRef js
     return [KrollObject toValue:ctx value:result];
   }
   @catch (NSException *e) {
-    return ThrowException(jsContext, [e reason], exception);
+    JSContext *currentContext = [JSContext contextWithJSGlobalContextRef:[ctx context]];
+    JSValue *errorValue = [JSValue valueWithNewErrorFromMessage:[e reason] inContext:currentContext];
+
+    NSMutableDictionary *errorDict = [NSMutableDictionary dictionaryWithDictionary:[errorValue toDictionary]];
+    [errorDict setObject:[[errorValue valueForProperty:@"stack"] toObject] forKey:@"stack"];
+    [errorDict setObject:[[errorValue valueForProperty:@"message"] toObject] forKey:@"message"];
+    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:errorDict]];
   }
 }
 
@@ -174,12 +180,7 @@ static JSValueRef LCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSOb
     return [KrollObject toValue:ctx value:result];
   }
   @catch (NSException *e) {
-    NSString *errorCode = [NSString stringWithFormat:@"new Error('%@');", [e reason]];
-    id error = [ctx evalJSAndWait:errorCode];
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:error];
-    [dict setObject:[e.userInfo objectForKey:@"sourceURL"] forKey:@"sourceURL"];
-
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:dict]];
+    return ThrowException(jsContext, [e reason], exception);
   }
 }
 

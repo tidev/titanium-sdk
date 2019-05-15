@@ -449,8 +449,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
   } else {
     jcode = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:&error];
   }
-    jsFileName =  [url_ path];
-    
   if (error != nil) {
     NSLog(@"[ERROR] Error loading path: %@, %@", path, error);
 
@@ -1368,7 +1366,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // failed to resolve it!
   if (resolved == nil) {
     NSString *arch = [TiUtils currentArchitecture];
-    @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:@{@"sourceURL": jsFileName}]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+    @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
   }
 
   ModuleType type = resolved->type;
@@ -1422,7 +1420,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // should never happen!
   // 4. THROW "not found"
   NSString *arch = [TiUtils currentArchitecture];
-  @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:@{@"sourceURL": jsFileName}]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+  @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy

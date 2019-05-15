@@ -48,7 +48,6 @@ extern NSString *TitaniumModuleRequireFormat;
   CFMutableDictionaryRef registeredProxies;
   NSCondition *shutdownCondition;
   OSSpinLock proxyLock;
-  NSString *jsFileName;
 }
 - (void)boot:(id)callback url:(NSURL *)url_ preload:(NSDictionary *)preload_;
 - (void)evalJSWithoutResult:(NSString *)code;
