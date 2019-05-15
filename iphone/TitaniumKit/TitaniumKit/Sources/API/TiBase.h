@@ -523,14 +523,12 @@ enum {
   }
 #endif
 
-#ifndef DebugLog
 #define DebugLog(...)                                  \
   {                                                    \
     if ([TiSharedConfig defaultConfig].debugEnabled) { \
       NSLog(__VA_ARGS__);                              \
     }                                                  \
   }
-#endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
 
