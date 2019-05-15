@@ -13,13 +13,11 @@
 #import "TiRootViewController.h"
 #import "XHRBridge.h"
 
-extern BOOL applicationInMemoryPanic;
+extern BOOL applicationInMemoryPanic; // TODO: Remove in SDK 9.0+
 
+// TODO: Remove in SDK 9.0+
 TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 {
-  while (applicationInMemoryPanic) {
-    [NSThread sleepForTimeInterval:0.01];
-  }
 }
 
 /**
