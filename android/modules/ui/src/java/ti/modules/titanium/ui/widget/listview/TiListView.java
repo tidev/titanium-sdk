@@ -98,7 +98,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 					  TiC.PROPERTY_WIDTH, TiC.PROPERTY_HEIGHT, TiC.PROPERTY_IMAGE);
 
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
-	public static final int HEADER_FOOTER_WRAP_ID = 12345;
+	public static final int HEADER_FOOTER_WRAP_ID = View.generateViewId();
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
 	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
@@ -572,7 +572,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			String color = TiConvert.toString(d, TiC.PROPERTY_SEPARATOR_COLOR);
 			setSeparatorColor(color);
 		}
-
+		if (d.containsKey(TiC.PROPERTY_SEPARATOR_STYLE)) {
+			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE),
+											  UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
+		}
 		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
 			listView.setFooterDividersEnabled(enabled);
@@ -838,6 +841,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 		}
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dHeight);
+	}
+
+	public void setSeparatorStyle(int style)
+	{
+		if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
+			listView.setDividerHeight(0);
+		} else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
+			listView.setDividerHeight(dividerHeight);
+		}
 	}
 
 	private void refreshItems()

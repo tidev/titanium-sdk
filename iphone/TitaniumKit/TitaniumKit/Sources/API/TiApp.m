@@ -11,8 +11,10 @@
 #import "NSData+Additions.h"
 #import "TiApp.h"
 #import "TiBase.h"
+#import "TiBlob.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
+#import "TiLogServer.h"
 #import "TiSharedConfig.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
@@ -20,9 +22,6 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
-#ifndef DISABLE_TI_LOG_SERVER
-#import "TiLogServer.h"
-#endif
 
 TiApp *sharedApp;
 
@@ -219,12 +218,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)boot
 {
-  DebugLog(@"[INFO] %@/%@ (%s.%@)",
-      [[TiSharedConfig defaultConfig] applicationName],
-      [[TiSharedConfig defaultConfig] applicationVersion],
-      TI_VERSION_STR,
-      [[TiSharedConfig defaultConfig] sdkVersion]);
-
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
 
@@ -279,9 +272,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationDidFinishLaunching:(UIApplication *)application
 {
   [TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
   [self initController];
   [self launchToUrl];
   [self boot];
@@ -349,9 +342,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   started = [NSDate timeIntervalSinceReferenceDate];
   [TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   // Initialize the root-window
   window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -1002,18 +995,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   // These shutdowns return immediately, yes, but the main will still run the close that's in their queue.
   [kjsBridge shutdown:condition];
 
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
-
-  // THE CODE BELOW IS WRONG.
-  // It only waits until ONE context has signialed that it has shut down; then we proceed along our merry way.
-  // This might lead to problems like contexts not getting cleaned up properly due to premature app termination.
-  // Plus, it blocks the main thread... meaning that we can have deadlocks if any context is currently executing
-  // a request that requires operations on the main thread.
-  [condition lock];
-  [condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:SHUTDOWN_TIMEOUT_IN_SEC]];
-  [condition unlock];
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   //This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
