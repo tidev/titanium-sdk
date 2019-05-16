@@ -21,13 +21,13 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 
 @Kroll.module
 public class DatabaseModule extends KrollModule
@@ -53,13 +53,51 @@ public class DatabaseModule extends KrollModule
 	@Kroll.method
 	public TiDatabaseProxy open(Object file)
 	{
+		// Acquire database name or file object providing full file path from argument.
+		TiBaseFile dbTiBaseFile = null;
+		String dbName = null;
+		if (file instanceof TiFileProxy) {
+			// We were given a file proxy. Fetch its file object.
+			dbTiBaseFile = ((TiFileProxy) file).getBaseFile();
+		} else if (file instanceof String) {
+			String fileString = (String) file;
+			if (fileString.startsWith(File.separator)) {
+				// Assume we were given an absolute file system path.
+				dbTiBaseFile = TiFileFactory.createTitaniumFile(fileString, false);
+			} else if (Uri.parse(fileString).getScheme() != null) {
+				// We were given a URL. Box it in a Titanium file object if it's a known file scheme.
+				if (TiFileFactory.isLocalScheme(fileString)) {
+					dbTiBaseFile = TiFileFactory.createTitaniumFile(fileString, false);
+				}
+				if (dbTiBaseFile == null) {
+					throw new IllegalArgumentException("Ti.Database.open() was given invalid URL: " + fileString);
+				}
+			} else {
+				// Assume we were given a databas file name only. (This is the most common case.)
+				dbName = fileString;
+			}
+		} else if (file != null) {
+			throw new IllegalArgumentException("Ti.Database.open() argument must be of type 'String' or 'File'.");
+		} else {
+			throw new IllegalArgumentException("Ti.Database.open() was given a null argument.");
+		}
+
 		// Attempt to create/open the given database file/name.
 		TiDatabaseProxy dbp = null;
-		if (file instanceof TiFileProxy) {
-			TiFileProxy tiFile = (TiFileProxy) file;
-			String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
+		if (dbTiBaseFile != null) {
+			// We were given a file object. Fetch its absolute path and open the database there.
+			String absolutePath = null;
+			if (dbTiBaseFile instanceof TiFile) {
+				File actualFile = ((TiFile) dbTiBaseFile).getFile();
+				if (actualFile != null) {
+					absolutePath = actualFile.getAbsolutePath();
+				}
+			}
+			if (absolutePath == null) {
+				String message = "Ti.Database.open() was given invalid path: " + dbTiBaseFile.nativePath();
+				throw new IllegalArgumentException(message);
+			}
 			Log.d(TAG, "Opening database from filesystem: " + absolutePath);
-
 			SQLiteDatabase db = SQLiteDatabase.openDatabase(
 				absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 			if (db != null) {
@@ -67,18 +105,16 @@ public class DatabaseModule extends KrollModule
 			} else {
 				throw new RuntimeException("SQLiteDatabase.openDatabase() returned null for path: " + absolutePath);
 			}
-		} else if (file instanceof String) {
-			String name = (String) file;
-			SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
+		} else if (dbName != null) {
+			// We were given a database name only. Open it under app's default database directory.
+			SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null);
 			if (db != null) {
-				dbp = new TiDatabaseProxy(name, db);
+				dbp = new TiDatabaseProxy(dbName, db);
 			} else {
-				throw new RuntimeException("SQLiteDatabase.openOrCreateDatabase() returned null for name: " + name);
+				throw new RuntimeException("Context.openOrCreateDatabase() returned null for name: " + dbName);
 			}
-		} else if (file != null) {
-			throw new IllegalArgumentException("Ti.Database.open() argument must be of type 'String' or 'File'.");
 		} else {
-			throw new IllegalArgumentException("Ti.Database.open() was given a null argument.");
+			throw new IllegalArgumentException("Ti.Database.open() failed to extract path from argument: " + file);
 		}
 
 		// Return a proxy to the opened database.
@@ -109,29 +145,35 @@ public class DatabaseModule extends KrollModule
 		// Fetch a path to the source database file. This is the file to be copied/installed.
 		// Throw an exception if the source database was not found.
 		Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
-		if (invocation == null) {
-			throw new RuntimeException("Ti.Database.install() was given a null 'KrollInvocation' object.");
+		String resolveUrl = url;
+		if (invocation != null) {
+			TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
+			resolveUrl = TiUrl.resolve(tiUrl.baseUrl, url, null);
 		}
-		TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
-		String sourcePath = TiUrl.resolve(tiUrl.baseUrl, url, null);
-		TiBaseFile srcDb = TiFileFactory.createTitaniumFile(sourcePath, false);
+		TiBaseFile srcDb = TiFileFactory.createTitaniumFile(resolveUrl, false);
 		if (srcDb.isFile() == false) {
 			String message = "Ti.Database.install() failed to find 1st argument's source database file: " + url;
 			throw new java.io.FileNotFoundException(message);
 		}
 
-		// open an empty one to get the full path and then close and delete it
-		if (name.startsWith("appdata://")) {
-			String path = name.substring(10);
-			if ((path != null) && (path.length() > 0) && (path.charAt(0) == '/')) {
-				path = path.substring(1);
+		// If target DB path/name is a URL such as "file://" or "appdata://", then turn it into a file system path.
+		// Note: Normally you would set this to a file name, but Android also supports absolute file systems paths.
+		if (Uri.parse(name).getScheme() != null) {
+			boolean wasSuccessful = false;
+			if (TiFileFactory.isLocalScheme(name)) {
+				TiBaseFile tiBaseFile = TiFileFactory.createTitaniumFile(name, false);
+				if (tiBaseFile instanceof TiFile) {
+					File file = ((TiFile) tiBaseFile).getFile();
+					if (file != null) {
+						name = file.getAbsolutePath();
+						wasSuccessful = true;
+					}
+				}
 			}
-			if ((path == null) || path.isEmpty()) {
+			if (!wasSuccessful) {
 				String message = "Ti.Database.install() 2nd argument was given invalid destination path: " + name;
 				throw new IllegalArgumentException(message);
 			}
-			File f = new File(TiFileFactory.getDataDirectory(false), path);
-			name = f.getAbsolutePath();
 		}
 
 		// Set up the destination path that the source database file will be copied to.
