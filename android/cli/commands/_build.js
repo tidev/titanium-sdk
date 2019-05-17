@@ -3867,12 +3867,28 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// set the app icon
 	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 
-	// merge the custom android manifest
-	finalAndroidManifest.merge(customAndroidManifest);
+	// Merge in "AndroidManifest.xml" files belonging to all AAR libraries.
+	this.androidLibraries.forEach(libraryInfo => {
+		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
+		if (fs.existsSync(libraryManifestPath)) {
+			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
 
-	// merge the tiapp.xml android manifest
-	finalAndroidManifest.merge(tiappAndroidManifest);
+			// handle injected build variables such as ${applicationId}
+			// https://developer.android.com/studio/build/manifest-build-variables
+			libraryManifestContent = libraryManifestContent.replace(/\$\{applicationId\}/g, this.appid); // eslint-disable-line no-template-curly-in-string
 
+			const libraryManifest = new AndroidManifest();
+			libraryManifest.parse(libraryManifestContent);
+
+			// we don't want android libraries to override the <supports-screens> or <uses-sdk> tags
+			delete libraryManifest.__attr__;
+			delete libraryManifest['supports-screens'];
+			delete libraryManifest['uses-sdk'];
+			finalAndroidManifest.merge(libraryManifest);
+		}
+	});
+
+	// Merge in "AndroidManifest.xml" settings embedded within all "timodule.xml" files.
 	this.modules.forEach(function (module) {
 		const moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
 		if (fs.existsSync(moduleXmlFile)) {
@@ -3894,25 +3910,12 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
-	this.androidLibraries.forEach(libraryInfo => {
-		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
-		if (fs.existsSync(libraryManifestPath)) {
-			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
+	// Merge in the custom android manifest file.
+	finalAndroidManifest.merge(customAndroidManifest);
 
-			// handle injected build variables such as ${applicationId}
-			// https://developer.android.com/studio/build/manifest-build-variables
-			libraryManifestContent = libraryManifestContent.replace(/\$\{applicationId\}/g, this.appid); // eslint-disable-line no-template-curly-in-string
-
-			const libraryManifest = new AndroidManifest();
-			libraryManifest.parse(libraryManifestContent);
-
-			// we don't want android libraries to override the <supports-screens> or <uses-sdk> tags
-			delete libraryManifest.__attr__;
-			delete libraryManifest['supports-screens'];
-			delete libraryManifest['uses-sdk'];
-			finalAndroidManifest.merge(libraryManifest);
-		}
-	});
+	// Merge in the "tiapp.xml" file's android manifest settings.
+	// Must be done last so app developer can override manifest settings such as <activity/>, <receiver/>, etc.
+	finalAndroidManifest.merge(tiappAndroidManifest);
 
 	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
 		finalAndroidManifest.application.resizeableActivity = true;
