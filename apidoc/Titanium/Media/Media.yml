@@ -2073,6 +2073,13 @@ properties:
     type: Boolean
     platforms: [android]
     since: "6.0.0"
+  - name: allowTranscoding
+    summary: Specifies if the video should be transcoded (using highest quality preset) . If set to false no video transcoding will be performed.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    since: "8.1.0"
+    osver: {ios: {min: "11.0"}}
 
 ---
 name: CameraMediaItemType

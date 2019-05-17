@@ -4186,14 +4186,6 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 
 	classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
 
-	if (this.allowDebugging && this.debugPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
-	}
-
-	if (this.allowProfiling && this.profilerPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
-	}
-
 	// find all java files and write them to the temp file
 	const javaFiles = [],
 		javaRegExp = /\.java$/,
@@ -4322,14 +4314,6 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	// dexAgent is set in the module's timodule.xml
 	if (this.dexAgent) {
 		dexArgs.unshift('-javaagent:' + this.dexAgent);
-	}
-
-	if (this.allowDebugging && this.debugPort) {
-		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
-	}
-
-	if (this.allowProfiling && this.profilerPort) {
-		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
 	// nuke and create the folder holding all the classes*.dex files

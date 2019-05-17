@@ -14,6 +14,7 @@
 #import "TiBlob.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
+#import "TiLogServer.h"
 #import "TiSharedConfig.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
@@ -21,9 +22,6 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
-#ifndef DISABLE_TI_LOG_SERVER
-#import "TiLogServer.h"
-#endif
 
 TiApp *sharedApp;
 
@@ -274,9 +272,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationDidFinishLaunching:(UIApplication *)application
 {
   [TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
   [self initController];
   [self launchToUrl];
   [self boot];
@@ -344,9 +342,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   started = [NSDate timeIntervalSinceReferenceDate];
   [TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   // Initialize the root-window
   window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -997,9 +995,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   // These shutdowns return immediately, yes, but the main will still run the close that's in their queue.
   [kjsBridge shutdown:condition];
 
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   //This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
