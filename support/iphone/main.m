@@ -45,7 +45,10 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
-#ifndef DISABLE_TI_LOG_SERVER
+#ifdef DISABLE_TI_LOG_SERVER
+  [[TiSharedConfig defaultConfig] setLogServerEnabled:NO];
+#else
+  [[TiSharedConfig defaultConfig] setLogServerEnabled:YES];
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
 #endif
 
