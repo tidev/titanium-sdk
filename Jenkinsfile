@@ -120,10 +120,10 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 							} finally {
 								// Kill the emulators!
 								if ('android'.equals(os)) {
-                  timeout(5) {
-                    sh returnStatus: true, script: './adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
-                    sh returnStatus: true, script: './adb-all.sh uninstall com.appcelerator.testApp.testing'
-                  }
+									timeout(5) {
+										sh returnStatus: true, script: './adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
+										sh returnStatus: true, script: './adb-all.sh uninstall com.appcelerator.testApp.testing'
+									}
 									killAndroidEmulators()
 								} // if
 							} // finally
