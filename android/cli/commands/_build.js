@@ -798,8 +798,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											_t.keystoreAliases.pop();
 										}
 
+										// Parse the keystore's alias name and signature algorithm.
+										// Note: Algorithm can return "MD5withRSA (weak)" on JDK 8 and higher.
+										//       Only extract 1st token since we need a valid algorithm name.
 										const aliasRegExp = /Alias name: (.+)/,
-											sigalgRegExp = /Signature algorithm name: (.+)/;
+											sigalgRegExp = /Signature algorithm name: (.[^\s]+)/;
 										out.split('\n\n').forEach(function (chunk) {
 											chunk = chunk.trim();
 											const m = chunk.match(aliasRegExp);
@@ -807,7 +810,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 												const sigalg = chunk.match(sigalgRegExp);
 												_t.keystoreAliases.push({
 													name: m[1],
-													sigalg: sigalg && sigalg[1]
+													sigalg: sigalg && sigalg[1] && sigalg[1].trim()
 												});
 											}
 										});
@@ -4186,14 +4189,6 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 
 	classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
 
-	if (this.allowDebugging && this.debugPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
-	}
-
-	if (this.allowProfiling && this.profilerPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
-	}
-
 	// find all java files and write them to the temp file
 	const javaFiles = [],
 		javaRegExp = /\.java$/,
@@ -4322,14 +4317,6 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	// dexAgent is set in the module's timodule.xml
 	if (this.dexAgent) {
 		dexArgs.unshift('-javaagent:' + this.dexAgent);
-	}
-
-	if (this.allowDebugging && this.debugPort) {
-		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
-	}
-
-	if (this.allowProfiling && this.profilerPort) {
-		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
 	// nuke and create the folder holding all the classes*.dex files
