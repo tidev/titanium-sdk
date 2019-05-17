@@ -116,7 +116,7 @@
     "husky": "^2.1.0",
     "js-yaml": "^3.13.1",
     "lint-staged": "^8.1.5",
-    "pagedown": "~1.1.0",
+    "markdown-it": "^8.4.2",
     "rollup": "^1.10.1",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.3.4",
