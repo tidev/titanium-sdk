@@ -111,8 +111,8 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 									timeout(5) {
 										sh returnStatus: true, script: 'adb -e shell am force-stop com.appcelerator.testApp.testing'
 										sh returnStatus: true, script: 'adb -e uninstall com.appcelerator.testApp.testing'
-										killAndroidEmulators()
 									}
+									killAndroidEmulators()
 								} // if
 							} // finally
 							// save the junit reports as artifacts explicitly so danger.js can use them later
