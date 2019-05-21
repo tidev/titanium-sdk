@@ -374,7 +374,9 @@ public class PlatformModule extends KrollModule
 		List<Processor> processors = getProcessors();
 		List<KrollDict> result = new ArrayList<KrollDict>(processors.size());
 		for (Processor p : processors) {
-			result.add(p.toKrollDict());
+			if (p.details.containsKey("processor")) {
+				result.add(p.toKrollDict());
+			}
 		}
 		return result.toArray();
 	}
@@ -575,8 +577,11 @@ public class PlatformModule extends KrollModule
 			if (this.index != null) {
 				return this.index;
 			}
-			this.index = Integer.valueOf(this.details.get("processor"));
-			return this.index;
+			if (this.details.containsKey("processor")) {
+				this.index = Integer.valueOf(this.details.get("processor"));
+				return this.index;
+			}
+			return 0;
 		}
 		// TODO: try to group key/value pairs per-processor?
 		// What we really want here is to pull out "model name" and "cpu MHz" for each grouping

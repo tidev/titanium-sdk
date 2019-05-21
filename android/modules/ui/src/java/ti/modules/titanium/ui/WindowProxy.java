@@ -144,7 +144,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
-		if (topActivity == null || topActivity.isFinishing()) {
+		if (topActivity == null || topActivity.isFinishing() || topActivity.isDestroyed()) {
 			return;
 		}
 		Intent intent = new Intent(topActivity, TiActivity.class);
@@ -165,7 +165,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
 		} else {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
 			} else {
 				topActivity.startActivity(intent);
