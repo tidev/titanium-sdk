@@ -5739,6 +5739,26 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						imageSets = {},
 						imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
+					const checked = new Set();
+					const duplicates = new Set();
+
+					Object.keys(imageAssets).forEach(assetName => {
+						const asset = imageAssets[assetName].name;
+
+						if (!checked.has(asset)) {
+							checked.add(asset);
+						} else if (!duplicates.has(asset)) {
+							duplicates.add(asset);
+						}
+					});
+
+					if (duplicates.size > 0) {
+						duplicates.forEach(asset => {
+							this.logger.error(__('Image asset name "%s" used multiple times, asset names should be unique in Titanium SDK 8.0.0+', asset));
+						}, this);
+						process.exit(1);
+					}
+
 					Object.keys(imageAssets).forEach(function (file) {
 						const imageName = imageAssets[file].name,
 							match = file.match(imageNameRegExp);
@@ -5746,8 +5766,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						if (match) {
 							const imageExt = imageAssets[file].ext;
 							const imageSetName = match[1];
-							const imageSetNameSHA = sha1(imageSetName + '.' + imageExt);
-							const imageSetRelPath = imageSetNameSHA + '.imageset';
+							const imageSetRelPath = path.basename(imageSetName) + '.imageset';
 
 							// update image file's destination
 							const dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
