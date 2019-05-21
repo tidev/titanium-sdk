@@ -29,12 +29,12 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {String[]} options.jsBootstrapFiles Array of bootstrap scripts to consider. The task will directly modify this array.
 	 * @param {String} options.sdkCommonFolder Path to common JS files from the SDK.
 	 * @param {Object} options.defaultAnalyzeOptions Default configuration options for jsanalyze.
-	 * @param {Boolean} options.defaultAnalyzeOptions.minify Wether to minify the JS files or not.
-	 * @param {Boolean} options.defaultAnalyzeOptions.transpile Wether to transpile the JS files or not.
-	 * @param {Boolean} options.defaultAnalyzeOptions.sourceMaps Wether to generate source maps or not.
-	 * @param {String} options.defaultAnalyzeOptions.resourcesDir .
-	 * @param {Object} options.defaultAnalyzeOptions.logger Wether to minify the JS files or not.
-	 * @param {Object} options.defaultAnalyzeOptions.targets Wether to minify the JS files or not.
+	 * @param {Boolean} options.defaultAnalyzeOptions.minify Whether to minify the JS files or not.
+	 * @param {Boolean} options.defaultAnalyzeOptions.transpile Whether to transpile the JS files or not.
+	 * @param {Boolean} options.defaultAnalyzeOptions.sourceMaps Whether to generate source maps or not.
+	 * @param {String} options.defaultAnalyzeOptions.resourcesDir Path to the directory where JS files will be copied to.
+	 * @param {Object} options.defaultAnalyzeOptions.logger Appc logger instance.
+	 * @param {Object} options.defaultAnalyzeOptions.targets Transpilation target configuration used by Babel.
 	 */
 	constructor(options) {
 		options.name = options.name || 'process-js';

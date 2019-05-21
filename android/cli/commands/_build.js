@@ -2857,7 +2857,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					fatal(err);
 				}
 
-				// windows 64-bit failed, try again using 32-bit
 				this.logger.debug(__('32-bit titanium prep failed, trying again using 64-bit'));
 				titaniumPrep = 'titanium_prep.win64.exe';
 				titaniumPrepHook(
