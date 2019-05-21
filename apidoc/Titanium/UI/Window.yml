@@ -139,7 +139,7 @@ events:
     description: |
         Setting a listener disables the default key handling for the Back button.
         To restore default behavior, remove the listener. It is recommended that you only
-        have one handler per heavyweight window.
+        have one handler per window.
 
   - name: android:camera
     deprecated:
@@ -149,7 +149,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
 
   - name: android:focus
@@ -160,7 +160,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
 
   - name: android:search
@@ -171,7 +171,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have
-        one handler per heavyweight window.
+        one handler per window.
     platforms: [android]
 
   - name: android:voldown
@@ -182,7 +182,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
 
   - name: android:volup
@@ -193,7 +193,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
 
   - name: androidback
@@ -232,7 +232,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
     since: '3.0.0'
 
@@ -241,7 +241,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
     since: '3.0.0'
 
@@ -250,7 +250,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have
-        one handler per heavyweight window.
+        one handler per window.
     platforms: [android]
     since: '3.0.0'
 
@@ -259,7 +259,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
     since: '3.0.0'
 
@@ -268,7 +268,7 @@ events:
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
+        handler per window.
     platforms: [android]
     since: '3.0.0'
 
@@ -309,9 +309,7 @@ events:
 properties:
   - name: activity
     summary: |
-        For lightweight windows, this property returns undefined.
-        For heavyweight windows, this property contains a reference to the
-        Android Activity object associated with this window.
+        Contains a reference to the Android Activity object associated with this window.
     description: |
         An Activity object is not created until the window is opened.
         Before the window is opened, `activity` refers to an empty JavaScript object.
@@ -367,9 +365,7 @@ properties:
   - name: bottom
     summary: Window's bottom position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
@@ -472,10 +468,6 @@ properties:
         then the property is set to the value for UIStatusBarHidden defined in tiapp.xml.
         If that is not defined it is treated as **explicit false**. On earlier versions, opening a window with this property
         undefined would not effect the status bar appearance.
-
-        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0.
-        See "Android Heavyweight and Lightweight Windows" in the main description of this class for more
-        information.
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
@@ -594,9 +586,7 @@ properties:
   - name: left
     summary: Window's left position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
@@ -753,9 +743,6 @@ properties:
 
         #### Android Orientation Modes
 
-        On Android, `orientationModes` only takes effect when specified on a heavyweight
-        window.
-
         On Android, orientation behavior is dependent on the Android SDK level
         of the device itself. Devices running Android 2.3 and above support "sensor portait
         mode" and "sensor landscape mode," in these modes, the device is locked into
@@ -831,9 +818,7 @@ properties:
   - name: right
     summary: Window's right position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
@@ -1081,9 +1066,7 @@ properties:
   - name: top
     summary: Window's top position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
@@ -1153,16 +1136,13 @@ properties:
 
   - name: windowSoftInputMode
     summary: |
-        Determines whether a heavyweight window's soft input area (ie software keyboard) is visible
+        Determines whether a window's soft input area (ie software keyboard) is visible
         as it receives focus and how the window behaves in order to accomodate it while keeping its
         contents in view.
     description: |
         In order for this property to take effect on an emulator, its Android Virtual Device (AVD)
         must be configured with the `Keyboard Support` setting set to `No`. Note that it is always
         recommended to test an application on a physical device to understand its true behavior.
-
-        Setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android Heavyweight
-        and Lightweight Windows" in the main description of this class for more information.
 
         This property is capable of representing two settings from the soft input *visibility*
         constatns and soft input *adjustment* constants
@@ -1459,14 +1439,12 @@ description: |
 
     #### Android Behavior
 
-    The Android platform does not have a concept of a modal window but instead uses modal
-    dialogs. You may want to use a <Titanium.UI.AlertDialog> or <Titanium.UI.OptionDialog> and
-    use the `androidView` property rather than a modal window.
+    The Android platform does not has the concept of a modal window but instead uses modal
+    dialogs. You are probably looking for a <Titanium.UI.AlertDialog> or <Titanium.UI.OptionDialog> and
+    the `androidView` property rather than a modal window.
 
-    For Android, Titanium creates a heavyweight window with a translucent background
-    (if the background properties are not set). Before API level 14 (Android 4.x), the
-    modal window will blur the background.  On API level 14 and above, the Android OS no longer
-    supports the blur effect.
+    However, if you know what you are doing and use `modal`, Titanium creates a window with
+    a translucent background (if the background properties are not set).
 
     The combination of `fullscreen:true` and `modal:true` will not work as expected.
     If the background window displays the status bar or action bar, it will be visible behind the modal
@@ -1569,9 +1547,8 @@ description: |
             $.index.animate(a);
         }
 
-    Note that to animate an Android heavyweight window while you open it, you need
-    to follow a specific procedure which is explained below in "Heavyweight
-    Window Transitions in Android".
+    Note that to animate an Android window while you open it, you need to follow a specific
+    procedure which is explained below in "Window Transitions in Android".
 
     ### iOS Platform Notes
 
@@ -1687,41 +1664,12 @@ description: |
 
     ### Android Platform Notes
 
-    #### Android Heavyweight and Lightweight Windows
+    #### Window Transitions in Android
 
-    Prior to Release Titanium 3.2.0 in Android, Titanium windows can be heavyweight or lightweight:
-
-    - A *heavyweight* window is associated with a new Android
-      [Activity](Titanium.Android.Activity).
-
-    - A *lightweight* window is a fullscreen view, and runs in the current Android Activity.
-
-    The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window
-    if any of the following properties are defined (set to either `true` or `false`)
-    on creation:
-
-    * `fullscreen`
-    * `navBarHidden`
-    * `modal`
-    * `windowSoftInputMode`
-
-    Starting with Release 3.2.0 in Android, all the windows are heavyweight. If you still want
-    the old behavior, you can enable the `ti.android.useLegacyWindow` property in the `tiapp.xml`:
-
-        <property name="ti.android.useLegacyWindow" type="bool">true</property>
-
-    Note that this property only works with Release 3.2.x. It has no effect on other releases.
-
-    A heavyweight window is always created when you open a new window from inside a
-    [TabGroup](Titanium.UI.TabGroup).
-
-    #### Heavyweight Window Transitions in Android
-
-    As explained above, heavyweight windows are their own Android Activity. The only way
+    A window is associated with a new Android [Activity](Titanium.Android.Activity). The only way
     to animate the opening or closing of an Activity in Android is to apply an animation _resource_
-    to it.  Passing a <Titanium.UI.Animation> object as a parameter to <Titanium.UI.Window.open>
-    or <Titanium.UI.Window.close> will have no effect if the window being opened/closed is heavyweight
-    and thus opens/closes its own Activity.
+    to it. Passing a <Titanium.UI.Animation> object as a parameter to <Titanium.UI.Window.open>
+    or <Titanium.UI.Window.close> will have no effect.
 
     Instead, in the parameter dictionary you pass to <Titanium.UI.Window.open> or <Titanium.UI.Window.close>,
     you should set the `activityEnterAnimation` and `activityExitAnimation` keys to
@@ -1735,10 +1683,7 @@ description: |
     As an example, you may wish for the window that you are opening to fade in while the window
     you are leaving should fade out:
 
-        var win2 = Ti.UI.createWindow({
-            fullscreen: false // Makes it heavyweight before Titanium 3.2.0
-        });
-
+        var win2 = Ti.UI.createWindow();
         win2.open({
             activityEnterAnimation: Ti.Android.R.anim.fade_in,
             activityExitAnimation: Ti.Android.R.anim.fade_out
@@ -1848,11 +1793,9 @@ properties:
     summary: |
         Determines whether to use an animated effect when the window is shown.
     description: |
-        On Android, this property supports animated transitions on heavyweight windows
-        except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
-        Windows" in the main description of Titanium.UI.Window for more information. The
-        transitions are on by default, but you can disable this behavior by setting this value
-        to `false`.
+        On Android, this property supports animated transitions on windows
+        except for modal windows (`modal:true`). The transitions are on by default, but
+        you can disable this behavior by setting this value to `false`.
 
         On iOS, only use this property to disable animated transitions on modal windows.
         This property has unintended side effects on non-modal windows if it is defined.
@@ -1862,9 +1805,7 @@ properties:
   - name: bottom
     summary: Window's bottom position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
@@ -1876,9 +1817,6 @@ properties:
   - name: height
     summary: Window's height, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
         On Windows Phone and Windows 10 Mobile, this property does not take any effect.
         On Windows 10 Store App, resizing Window takes no effect in following cases
         according to [Windows Runtime API document](https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.viewmanagement.applicationview.tryresizeview).
@@ -1891,9 +1829,7 @@ properties:
   - name: left
     summary: Window's left position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
@@ -1926,18 +1862,14 @@ properties:
   - name: right
     summary: Window's right position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
   - name: top
     summary: Window's top position, in platform-specific units.
     description: |
-        On Android, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
+        On Android, this property has no effect.
     type: [Number,String]
     default: 0
 
@@ -1951,9 +1883,6 @@ properties:
   - name: width
     summary: Window's width, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
-        See "Android Heavyweight and Lightweight Windows" in the main description
-        of Titanium.UI.Window for more information.
         On Windows Phone and Windows 10 Mobile, this property does not take any effect.
         On Windows 10 Store App, resizing Window takes no effect in following cases
         according to [Windows Runtime API document](https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.viewmanagement.applicationview.tryresizeview).
@@ -1965,10 +1894,10 @@ properties:
     type: [Number,String]
 
   - name: activityEnterAnimation
-    summary: Animation resource to run on the activity (heavyweight window) being opened.
+    summary: Animation resource to run on the activity being opened.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
     platforms: [android]
@@ -1984,10 +1913,10 @@ properties:
 
   - name: activityExitAnimation
     summary: Animation resource to run on the activity that is being put in background
-        as a heavyweight window is being opened above it.
+        as a window is being opened above it.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
     platforms: [android]
@@ -2030,10 +1959,8 @@ properties:
     summary: |
         Determines whether to use an animated effect when the window is closed.
     description: |
-        This property supports animated transitions on heavyweight windows
-        except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
-        Windows" in the main description of Titanium.UI.Window for more information. The
-        transitions are on by default, but you can disable this behavior by setting this value
+        This property supports animated transitions on windows except for modal windows (`modal:true`).
+        The transitions are on by default, but you can disable this behavior by setting this value
         to `false`.
     type: Boolean
     default: true
@@ -2042,15 +1969,15 @@ properties:
     summary: Animation resource to use for the incoming activity.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
 
   - name: activityExitAnimation
-    summary: Animation resource to use for the outgoing activity (heavyweight window).
+    summary: Animation resource to use for the outgoing activity.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
     examples:
