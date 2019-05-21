@@ -1752,7 +1752,6 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'computeHashes',
 		'readBuildManifest',
 		'checkIfNeedToRecompile',
-		'getLastBuildState',
 
 		function (next) {
 			cli.emit('build.pre.compile', this, next);
@@ -1919,6 +1918,11 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	const suffix = this.debugPort || this.profilerPort ? '-dev' + (this.debugPort ? '-debug' : '') + (this.profilerPort ? '-profiler' : '') : '';
 	this.unsignedApkFile            = path.join(this.buildBinDir, 'app-unsigned' + suffix + '.apk');
 	this.apkFile                    = path.join(this.buildBinDir, this.tiapp.name + suffix + '.apk');
+
+	// Assign base builder file list for backwards compatibility with existing
+	// hooks that may use lastBuildFiles.
+	// TODO: remove in 9.0
+	this.lastBuildFiles = this.buildDirFiles;
 
 	next();
 };
@@ -2256,24 +2260,6 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 	next();
 };
 
-AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
-	var lastBuildFiles = this.lastBuildFiles = {};
-
-	// walk the entire build dir and build a map of all files
-	(function walk(dir) {
-		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
-			var file = path.join(dir, name);
-			if (fs.existsSync(file) && fs.statSync(file).isDirectory()) {
-				walk(file);
-			} else {
-				lastBuildFiles[file] = 1;
-			}
-		});
-	}(this.buildDir));
-
-	next();
-};
-
 AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
 	// Alloy generate an app.js, it may not have existed during validate(), but should exist now
@@ -2286,12 +2272,8 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
 		fs.existsSync(dir) && wrench.rmdirSyncRecursive(dir);
-		Object.keys(this.lastBuildFiles).forEach(function (file) {
-			if (file.indexOf(dir + '/') === 0) {
-				delete this.lastBuildFiles[file];
-			}
-		}, this);
 		wrench.mkdirSyncRecursive(dir);
+		this.unmarkBuildDirFiles(this.buildAssetsDir);
 	} else if (!fs.existsSync(dir)) {
 		wrench.mkdirSyncRecursive(dir);
 	}
@@ -2487,7 +2469,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (ext && ext[1] !== 'js') {
 					// we exclude js files because we'll check if they need to be removed after all files have been copied
-					delete _t.lastBuildFiles[to];
+					_t.unmarkBuildDirFile(to);
 				}
 
 				switch (ext && ext[1]) {
@@ -2710,7 +2692,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				minify: this.minifyJS,
 				transpile: this.transpile,
 				sourceMap: this.sourceMaps || this.deployType === 'development',
-				resourcesDir: this.xcodeAppDir,
+				resourcesDir: this.buildBinAssetsResourcesDir,
 				logger: this.logger,
 				targets: {
 					chrome: this.chromeVersion
@@ -2747,7 +2729,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		if (!fs.existsSync(destIcon)) {
 			copyFile.call(this, srcIcon, destIcon);
 		}
-		delete this.lastBuildFiles[destIcon];
+		this.unmarkBuildDirFile(destIcon);
 
 		const destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
 		if (!fs.existsSync(destIcon2)) {
@@ -2755,7 +2737,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			// copying the user specified icon, srcIcon is the default Titanium icon
 			copyFile.call(this, destIcon, destIcon2);
 		}
-		delete this.lastBuildFiles[destIcon2];
+		this.unmarkBuildDirFile(destIcon2);
 
 		// make sure we have a splash screen
 		const backgroundRegExp = /^background(\.9)?\.(png|jpg)$/,
@@ -2763,7 +2745,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			nodpiDir = path.join(this.buildResDir, 'drawable-nodpi');
 		if (!fs.readdirSync(this.buildResDrawableDir).some(function (name) {
 			if (backgroundRegExp.test(name)) {
-				delete this.lastBuildFiles[path.join(this.buildResDrawableDir, name)];
+				this.unmarkBuildDirFile(path.join(this.buildResDrawableDir, name));
 				return true;
 			}
 			return false;
@@ -2771,12 +2753,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			// no background image in drawable, but what about drawable-nodpi?
 			if (!fs.existsSync(nodpiDir) || !fs.readdirSync(nodpiDir).some(function (name) {
 				if (backgroundRegExp.test(name)) {
-					delete this.lastBuildFiles[path.join(nodpiDir, name)];
+					this.unmarkBuildDirFile(path.join(nodpiDir, name));
 					return true;
 				}
 				return false;
 			}, this)) {
-				delete this.lastBuildFiles[destBg];
+				this.unmarkBuildDirFile(destBg);
 				copyFile.call(this, path.join(templateDir, 'default.png'), destBg);
 			}
 		}
@@ -2793,7 +2775,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			JSON.stringify(props)
 		);
 		this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
-		delete this.lastBuildFiles[appPropsFile];
+		this.unmarkBuildDirFile(appPropsFile);
 
 		// Write the "bootstrap.json" file, even if the bootstrap array is empty.
 		// Note: An empty array indicates the app has no bootstrap files.
@@ -2802,7 +2784,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
 		fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
 		this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
-		delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
+		this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
 
 		if (!jsFilesToEncrypt.length) {
 			// nothing to encrypt, continue
@@ -3193,7 +3175,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 			var from = path.join(src, filename),
 				to = path.join(dest, filename);
 			if (fs.existsSync(from)) {
-				delete _t.lastBuildFiles[to];
+				_t.unmarkBuildDirFile(to);
 				if (fs.statSync(from).isDirectory()) {
 					copy(from, to);
 				} else if (path.extname(filename) === '.xml') {
@@ -3269,7 +3251,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 };
 
 AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
-	Object.keys(this.lastBuildFiles).forEach(function (file) {
+	Object.keys(this.buildDirFiles).forEach(function (file) {
 		if (path.dirname(file) === this.buildDir
 			|| file.indexOf(this.buildAssetsDir) === 0
 			|| file.indexOf(this.buildBinAssetsResourcesDir) === 0
