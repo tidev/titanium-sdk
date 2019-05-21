@@ -5754,7 +5754,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					if (duplicates.size > 0) {
 						duplicates.forEach(asset => {
-							this.logger.error(__('Image asset name "%s" used multiple times, asset names should be unique in Titanium SDK 8.0.0+', asset));
+							this.logger.error(__('Image asset name "%s" used multiple times, asset names should be unique in Titanium SDK 9.0.0+', asset));
 						}, this);
 						process.exit(1);
 					}
