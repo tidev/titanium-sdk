@@ -136,7 +136,7 @@ description: |
 
     #### Accessibility
 
-    Four accessibility-related view properties became available in Titanium Mobile 3.0.0 for iOS
+    Four accessibility-related view properties are available in Titanium Mobile for iOS
     and Android:
 
     * <Titanium.UI.View.accessibilityLabel>
@@ -182,7 +182,7 @@ description: |
 
     #### iOS Clipping Behavior
 
-    Four new view related properties became available in Titanium Mobile 3.3.0 for iOS.
+    Four view related properties are available in Titanium Mobile for iOS.
 
     * <Titanium.UI.View.viewShadowRadius>
     * <Titanium.UI.View.viewShadowColor>
@@ -1448,55 +1448,73 @@ properties:
             (For example, if `height`, `center.y` and `bottom` are all specified, the
             `height` and `center.y` values take precedence.)
 
-            <table cellpadding="6px" border="1" rules="all">
-            <tr>
-            <th>Scenario</th><th>Behavior</th>
-            </tr>
-            <tr>
-            <td><code>height</code> & <code>top</code> specified</td><td>Child positioned <code>top</code> unit from
-            parent's top, using specified <code>height</code>;
-            any <code>center.y</code> and <code>bottom</code> values are ignored.</td>
-            </tr>
-            <tr>
-            <td><code>height</code> & <code>center.y</code> specified</td><td>Child positioned with center at
-            <code>center.y</code>, using specified <code>height</code>; any <code>bottom</code> value is ignored.</td>
-            </tr>
-            <tr>
-            <td><code>height</code> & <code>bottom</code> specified</td><td>Child positioned <code>bottom</code> units from
-            parent's bottom, using specified <code>height</code>.</td>
-            </tr>
-            <tr>
-            <td><code>top</code> & <code>center.y</code> specified</td><td>Child positioned with top edge <code>top</code> units from
-            parent's top and center at <code>center.y</code>. Height is determined implicitly;
-            any <code>bottom</code> value is ignored.</td>
-            </tr>
-            <tr>
-            <td><code>top</code> & <code>bottom</code> specified</td><td>Child positioned with top edge <code>top</code> units from
-            parent's top and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
-            implicitly. </td>
-            </tr>
-            <tr>
-            <td>Only <code>top</code> specified</td><td>Child positioned <code>top</code> units from parent's
-            top, and uses the default height calculation for the view type.</td>
-            </tr>
-            <tr>
-            <td><code>center.y</code> and <code>bottom</code> specified</td><td>Child positioned with center at
-            <code>center.y</code> and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
-            implicitly.</td>
-            </tr>
-            <tr>
-            <td>Only <code>center.y</code> specified</td><td>Child positioned with center at
-            <code>center.y</code>, and uses the default height calculation for the view type.</td>
-            </tr>
-            <tr>
-            <td>Only <code>bottom</code> specified</td><td>Child positioned with bottom edge <code>bottom</code>
-            units from parent's bottom, and uses the default height calculation for the view type.</td>
-            </tr>
-            <tr>
-            <td><code>height</code>, <code>top</code>, <code>center.y</code>, and <code>bottom</code> unspecified</td><td>Child
-            centered vertically in the parent and uses the default height calculation
-            for the child view type.</td>
-            </tr>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Behavior</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>height</code> & <code>top</code> specified</td>
+                  <td>
+                    Child positioned <code>top</code> unit from parent's top, using specified <code>height</code>;
+                    any <code>center.y</code> and <code>bottom</code> values are ignored.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>height</code> & <code>center.y</code> specified</td>
+                  <td>
+                    Child positioned with center at <code>center.y</code>, using specified <code>height</code>;
+                    any <code>bottom</code> value is ignored.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>height</code> & <code>bottom</code> specified</td>
+                  <td>Child positioned <code>bottom</code> units from parent's bottom, using specified <code>height</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>top</code> & <code>center.y</code> specified</td>
+                  <td>
+                    Child positioned with top edge <code>top</code> units from parent's top and center at
+                    <code>center.y</code>. Height is determined implicitly; any <code>bottom</code> value is ignored.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>top</code> & <code>bottom</code> specified</td>
+                  <td>
+                    Child positioned with top edge <code>top</code> units from parent's top and bottom edge
+                    <code>bottom</code> units from parent's bottom. Height is determined implicitly.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Only <code>top</code> specified</td>
+                  <td>
+                    Child positioned <code>top</code> units from parent's top, and uses the default height
+                    calculation for the view type.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>center.y</code> and <code>bottom</code> specified</td>
+                  <td>
+                    Child positioned with center at <code>center.y</code> and bottom edge <code>bottom</code>
+                    units from parent's bottom. Height is determined implicitly.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Only <code>center.y</code> specified</td>
+                  <td>Child positioned with center at <code>center.y</code>, and uses the default height calculation for the view type.</td>
+                </tr>
+                <tr>
+                  <td>Only <code>bottom</code> specified</td>
+                  <td>Child positioned with bottom edge <code>bottom</code> units from parent's bottom, and uses the default height calculation for the view type.</td>
+                </tr>
+                <tr>
+                  <td><code>height</code>, <code>top</code>, <code>center.y</code>, and <code>bottom</code> unspecified</td>
+                  <td>Child entered vertically in the parent and uses the default height calculation for the child view type.</td>
+                </tr>
+              </tbody>
             </table>
 
             Horizontal positioning works like vertical positioning, except that the
@@ -1521,11 +1539,10 @@ properties:
             it is wrapped to a new row. The height of each row is equal to the maximum height of
             the children in that row.
 
-            Wrapping behavior is available on iOS and Android (Release 2.1.0 and later).
-            When the `horizontalWrap` property is set to true, the first row is placed at the top of the
-            parent view, and successive rows are placed below the first row. Each child is
-            positioned vertically _within its row_ somewhat like composite layout mode.
-            In particular:
+            Wrapping behavior is available on iOS and Android. When the `horizontalWrap` property is
+            set to true, the first row is placed at the top of the parent view, and successive rows
+            are placed below the first row. Each child is positioned vertically _within its row_ somewhat
+            like composite layout mode. In particular:
 
             *   If neither `top` or `bottom` is specified, the child is centered in the
                 row.
@@ -1538,9 +1555,6 @@ properties:
             Children are laid or horizontally from left to right in a single row. The `left` and
             `right` properties are used as padding between the children, and the `top` and `bottom`
             properties are used to position the children vertically.
-
-            On Android and iOS _prior to_ Release
-            2.1.0, the horizontal layout always wraps and the `horizontalWrap` property is not supported.
 
             Defaults to Composite layout.
 

@@ -324,6 +324,7 @@ function exportAPIs(api, type) {
 exports.exportData = function exportJSON(apis) {
 	const rv = {};
 	doc = apis; // TODO make doc a field on a type, rather than this weird file-global!
+	common.createMarkdown(doc);
 
 	common.log(common.LOG_INFO, 'Annotating JSON-specific attributes...');
 
