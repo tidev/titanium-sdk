@@ -6470,7 +6470,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				}
 			}
 		});
-	}(this.xcodeAppDir, /^(PlugIns|Watch|TitaniumKit\.framework)$/i));
+	}(this.xcodeAppDir, /^(PlugIns|Watch|\.framework)$/i));
 
 	parallel(this, [
 		function (next) {
