@@ -33,7 +33,6 @@ const appc = require('node-appc'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
-	wrench = require('wrench'),
 	xcode = require('xcode'),
 	xcodeParser = require('xcode/lib/parser/pbxproj'),
 	i18n = appc.i18n(__dirname),
@@ -1800,6 +1799,9 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		// this may have already been called in an option validate() callback
 		this.initTiappSettings();
 
+		// Do we write out process.env into a file in the app to use?
+		this.writeEnvVars = this.deployType !== 'production';
+
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
 		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
@@ -2866,15 +2868,13 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 
 	if (this.forceCleanBuild && buildDirExists) {
 		this.logger.debug(__('Recreating %s', cyan(this.buildDir)));
-		wrench.rmdirSyncRecursive(this.buildDir);
-		wrench.mkdirSyncRecursive(this.buildDir);
 	} else if (!buildDirExists) {
 		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
-		wrench.mkdirSyncRecursive(this.buildDir);
 		this.forceCleanBuild = true;
 	}
+	fs.emptyDirSync(this.buildDir);
 
-	fs.existsSync(this.xcodeAppDir) || wrench.mkdirSyncRecursive(this.xcodeAppDir);
+	fs.ensureDirSync(this.xcodeAppDir);
 };
 
 iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject) {
@@ -3817,7 +3817,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				this.forceRebuild = true;
 			}
 			this.logger.debug(__('Writing %s', dest.cyan));
-			fs.existsSync(parent) || wrench.mkdirSyncRecursive(parent);
+			fs.ensureDirSync(parent);
 			fs.writeFileSync(dest, contents);
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
@@ -3885,7 +3885,7 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 				this.forceRebuild = true;
 			}
 			this.logger.debug(__('Writing %s', dest.cyan));
-			fs.existsSync(parent) || wrench.mkdirSyncRecursive(parent);
+			fs.ensureDirSync(parent);
 			fs.writeFileSync(dest, contents);
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
@@ -4405,7 +4405,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	this.logger.info(__('Copying Titanium libraries'));
 
 	const libDir = path.join(this.buildDir, 'lib');
-	fs.existsSync(libDir) || wrench.mkdirSyncRecursive(libDir);
+	fs.ensureDirSync(libDir);
 
 	[ 'libtiverify.a' ].forEach(function (filename) {
 		const src = path.join(this.platformPath, filename),
@@ -4565,7 +4565,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 
 		if (fileChanged) {
 			this.logger.debug(__('Writing %s', dest.cyan));
-			fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+			fs.ensureDirSync(destDir);
 			fs.writeFileSync(dest, contents);
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
@@ -4791,7 +4791,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 				} else {
 					done = true;
 					lastErr = null;
-					fs.existsSync(this.xcodeAppDir) || wrench.mkdirSyncRecursive(this.xcodeAppDir);
+					fs.ensureDirSync(this.xcodeAppDir);
 					out.split('\n').forEach(function (line) {
 						line = line.trim();
 						line && this.logger.trace(line);
@@ -5045,7 +5045,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				this.forceRebuild = true;
 			}
 			this.logger.debug(__('Writing %s', dest.cyan));
-			fs.existsSync(parent) || wrench.mkdirSyncRecursive(parent);
+			fs.ensureDirSync(parent);
 			fs.writeFileSync(dest, contents);
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
@@ -5139,7 +5139,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						}
 					}, this);
 
-					fs.existsSync(appIconSetDir) || wrench.mkdirSyncRecursive(appIconSetDir);
+					fs.ensureDirSync(appIconSetDir);
 
 					Object.keys(appIcons).forEach(function (filename) {
 						const info = appIcons[filename];
@@ -5332,7 +5332,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								};
 							let launchLogo = null;
 
-							fs.existsSync(assetCatalogDir) || wrench.mkdirSyncRecursive(assetCatalogDir);
+							fs.ensureDirSync(assetCatalogDir);
 
 							// loop over each of the launch logos that we found, then for each remove it from the lookup
 							// anything left in the lookup will be considered missing
@@ -5643,7 +5643,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						},
 						found = {};
 
-					fs.existsSync(launchImageDir) || wrench.mkdirSyncRecursive(launchImageDir);
+					fs.ensureDirSync(launchImageDir);
 
 					Object.keys(launchImages).forEach(function (filename) {
 						const info = launchImages[filename];
@@ -5831,7 +5831,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				if (this.minifyCSS) {
 					this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
 					const dir = path.dirname(info.dest);
-					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+					fs.ensureDirSync(dir);
 					fs.writeFileSync(info.dest, new CleanCSS({ processImport: false }).minify(fs.readFileSync(info.src).toString()).styles);
 				} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
 					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
@@ -5906,7 +5906,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 											this.tiSymbols[to] = modified.symbols;
 
 											const dir = path.dirname(to);
-											fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+											fs.ensureDirSync(dir);
 
 											const exists = fs.existsSync(to);
 											// dest doesn't exist, or new contents differs from existing dest file
@@ -5986,8 +5986,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile).toString()) {
 				this.logger.debug(__('Writing %s', appPropsFile.cyan));
 
-				if (this.encryptJS && !fs.existsSync(this.buildAssetsDir)) {
-					wrench.mkdirSyncRecursive(this.buildAssetsDir);
+				if (this.encryptJS) {
+					fs.ensureDirSync(this.buildAssetsDir);
 				}
 				fs.writeFileSync(appPropsFile, contents);
 			} else {
@@ -5998,7 +5998,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		},
 
 		function writeEnvironmentVariables() {
-			this.logger.info(__('Writing ENV variables'));
+			this.logger.debug(__('Writing ENV variables'));
 
 			const envVarsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_env__json') : path.join(this.xcodeAppDir, '_env_.json');
 
@@ -6008,12 +6008,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			}
 
 			// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-			const contents = this.deployType === 'development' ? JSON.stringify(process.env) : {};
+			const contents = this.writeEnvVars ? JSON.stringify(process.env) : {};
 			if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile).toString()) {
 				this.logger.debug(__('Writing %s', envVarsFile.cyan));
 
-				if (this.encryptJS && !fs.existsSync(this.buildAssetsDir)) {
-					wrench.mkdirSyncRecursive(this.buildAssetsDir);
+				if (this.encryptJS) {
+					fs.ensureDirSync(this.buildAssetsDir);
 				}
 				fs.writeFileSync(envVarsFile, contents);
 			} else {
@@ -6232,7 +6232,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 	if (keys.length) {
 		keys.forEach(function (lang) {
 			const dir = path.join(this.xcodeAppDir, lang + '.lproj');
-			fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+			fs.ensureDirSync(dir);
 
 			add.call(this, data[lang].app, path.join(dir, 'InfoPlist.strings'), { appname: 'CFBundleDisplayName' });
 			add.call(this, data[lang].strings, path.join(dir, 'Localizable.strings'));
@@ -6741,7 +6741,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 
 iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
-		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.ensureDirSync(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})(this.currentBuildManifest, next);
