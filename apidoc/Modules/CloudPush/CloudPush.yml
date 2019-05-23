@@ -11,13 +11,8 @@ description: |
 
     #### Push Protocols
 
-    As of Release 3.2.0, the CloudPush module only supports Google Cloud Messaging (GCM) for push
-    notifications. MQTT support is deprecated and support was removed in Release 3.2.0. Upgrade your
-    application to use the GCM protocol.
-
-    GCM supports devices that run Android 2.2 and later, and requires that the Google Play Store
-    application be installed. For pre-4.0 devices, the user is required to set up their Google
-    account.
+    The CloudPush module only supports [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) (FCM) for push
+    notifications.
 
     #### Getting Started
 
@@ -67,7 +62,7 @@ description: |
     #### Virtual Private Cloud Configuration
 
     If you are using a virtual private cloud (VPC), you need to configure your Arrow Push dispatcher
-    URL in order to send push notifications with GCM.  In the `tiapp.xml` file, add the `acs-push-api-url`
+    URL in order to send push notifications with FCM.  In the `tiapp.xml` file, add the `acs-push-api-url`
     application property and set the node text to the push dispatcher URL provided to you.  The URL may
     be the same as your custom ArrowDB endpoint and have deployment-specific settings, that is, two
     URLs--one for production and another for the development environment.
