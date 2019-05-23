@@ -1860,7 +1860,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
-	this.mainActivity = '.' + this.classname + 'Activity';
 
 	this.buildOnly = argv['build-only'];
 
@@ -3698,65 +3697,49 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			'Contacts.getAllGroups': contactsReadPermissions,
 			'Contacts.getGroupByID': contactsReadPermissions,
 
-			'Map.createView': geoPermissions,
-
 			'Media.Android.setSystemWallpaper': wallpaperPermissions,
 			'Media.showCamera': cameraPermissions,
 			'Media.vibrate': vibratePermissions,
 		},
 
-		tiMethodActivities = {
-			'Map.createView': {
-				activity: {
-					name: 'ti.modules.titanium.map.TiMapActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					launchMode: 'singleTask'
-				},
-				'uses-library': {
-					name: 'com.google.android.maps'
-				}
-			},
-			'Media.createVideoPlayer': {
-				activity: {
-					name: 'ti.modules.titanium.media.TiVideoActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					theme: '@style/Theme.AppCompat.Fullscreen',
-					launchMode: 'singleTask'
-				}
-			},
-			'Media.showCamera': {
-				activity: {
-					name: 'ti.modules.titanium.media.TiCameraActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					theme: '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
-				}
-			}
-		},
-
 		googleAPIs = [
-			'Map.createView'
+			// Example: 'Map.createView'
 		],
 
 		enableGoogleAPIWarning = this.target === 'emulator' && this.emulator && !this.emulator.googleApis,
 
-		fill = function (str) {
-			// first we replace all legacy variable placeholders with EJS style placeholders
-			str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
-				// if the property is the "id", we want to force our scrubbed "appid"
-				if (m2 === 'id') {
-					m2 = 'appid';
-				} else {
-					m2 = 'tiapp.' + m2;
-				}
-				return '<%- ' + m2 + ' %>';
-			});
-			// then process the string as an EJS template
-			return ejs.render(str, this);
-		}.bind(this),
-
-		finalAndroidManifest = (new AndroidManifest()).parse(fill(fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString())),
 		customAndroidManifest = this.customAndroidManifest,
 		tiappAndroidManifest = this.tiappAndroidManifest;
+
+	// Create a string of all known <activity/> attribute "android:configChanges" values for the target API Level.
+	// This variable will be referenced by name by an EJS "AndroidManifest.xml" template.
+	// Ex: <activity android:name="MyActivity" android:configChanges="<%- allActivityConfigChanges %>" />
+	this.allActivityConfigChanges
+		= 'fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation'
+		+ '|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode';
+	if (this.realTargetSDK >= 24) {
+		this.allActivityConfigChanges += '|density';
+	}
+
+	// Function used to EJS render Titanium's main "AndroidManfiest.xml" template and "timodule.xml" templates.
+	const ejsRenderManifest = function (str) {
+		// first we replace all legacy variable placeholders with EJS style placeholders
+		str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
+			// if the property is the "id", we want to force our scrubbed "appid"
+			if (m2 === 'id') {
+				m2 = 'appid';
+			} else {
+				m2 = 'tiapp.' + m2;
+			}
+			return '<%- ' + m2 + ' %>';
+		});
+		// then process the string as an EJS template
+		return ejs.render(str, this);
+	}.bind(this);
+
+	// Fetch main Titanium "AndroidManifest.xml" template's settings, resolving all template variables via EJS.
+	const finalAndroidManifest = (new AndroidManifest()).parse(ejsRenderManifest(
+		fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString()));
 
 	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
 	if (!this.config.get('android.mergeCustomAndroidManifest', true) && this.customAndroidManifest) {
@@ -3799,18 +3782,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				});
 			}
 
-			const obj = tiMethodActivities[symbol];
-			if (obj) {
-				if (obj.activity) {
-					finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
-					finalAndroidManifest.application.activity[obj.activity.name] = obj.activity;
-				}
-				if (obj['uses-library']) {
-					finalAndroidManifest.application['uses-library'] || (finalAndroidManifest.application['uses-library'] = {});
-					finalAndroidManifest.application['uses-library'][obj['uses-library'].name] = obj['uses-library'];
-				}
-			}
-
 			if (enableGoogleAPIWarning && googleAPIs.indexOf(symbol) !== -1) {
 				const fn = 'Titanium.' + symbol + '()';
 				if (this.emulator.googleApis === null) {
@@ -3835,14 +3806,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				this.logger.warn(__('Setting "%s" is not recommended for activity "%s"', 'android:launchMode'.red, activity.cyan));
 			}
 		}
-
-		// TIMOB-24917: make sure the main activity is themed
-		if (tiappAndroidManifest.application.activity && tiappAndroidManifest.application.activity[this.mainActivity]) {
-			const parameters = tiappAndroidManifest.application.activity[this.mainActivity];
-			if (!parameters.theme) {
-				parameters.theme = '@style/Theme.Titanium';
-			}
-		}
 	}
 
 	// gather activities
@@ -3858,7 +3821,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 					a[key.replace(/^android:/, '')] = activity[key];
 				}
 			});
-			a.configChanges || (a.configChanges = [ 'keyboardHidden', 'orientation' ]);
 			finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
 			finalAndroidManifest.application.activity[a.name] = a;
 		}
@@ -3908,33 +3870,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// set the app icon
 	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 
-	// merge the custom android manifest
-	finalAndroidManifest.merge(customAndroidManifest);
-
-	// merge the tiapp.xml android manifest
-	finalAndroidManifest.merge(tiappAndroidManifest);
-
-	this.modules.forEach(function (module) {
-		const moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
-		if (fs.existsSync(moduleXmlFile)) {
-			const moduleXml = new tiappxml(moduleXmlFile);
-			if (moduleXml.android && moduleXml.android.manifest) {
-				const am = new AndroidManifest();
-				am.parse(fill(moduleXml.android.manifest));
-				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
-				delete am.__attr__;
-				delete am['supports-screens'];
-				delete am['uses-sdk'];
-				finalAndroidManifest.merge(am);
-			}
-
-			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
-			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
-				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
-			}
-		}
-	}, this);
-
+	// Merge in "AndroidManifest.xml" files belonging to all AAR libraries.
 	this.androidLibraries.forEach(libraryInfo => {
 		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
 		if (fs.existsSync(libraryManifestPath)) {
@@ -3955,33 +3891,37 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	});
 
-	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
-	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
-	// elements, otherwise changes in orientation will cause the app to restart
-	if (this.realTargetSDK >= 13) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			const activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = [ 'screenSize' ];
-			} else if (activity.configChanges.indexOf('screenSize') === -1) {
-				activity.configChanges.push('screenSize');
+	// Merge in "AndroidManifest.xml" settings embedded within all "timodule.xml" files.
+	this.modules.forEach(function (module) {
+		const moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
+		if (fs.existsSync(moduleXmlFile)) {
+			const moduleXml = new tiappxml(moduleXmlFile);
+			if (moduleXml.android && moduleXml.android.manifest) {
+				const am = new AndroidManifest();
+				am.parse(ejsRenderManifest(moduleXml.android.manifest));
+				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
+				delete am.__attr__;
+				delete am['supports-screens'];
+				delete am['uses-sdk'];
+				finalAndroidManifest.merge(am);
 			}
-		});
-	}
+
+			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
+			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
+				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
+			}
+		}
+	}, this);
+
+	// Merge in the custom android manifest file.
+	finalAndroidManifest.merge(customAndroidManifest);
+
+	// Merge in the "tiapp.xml" file's android manifest settings.
+	// Must be done last so app developer can override manifest settings such as <activity/>, <receiver/>, etc.
+	finalAndroidManifest.merge(tiappAndroidManifest);
 
 	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
 		finalAndroidManifest.application.resizeableActivity = true;
-	}
-
-	if (this.realTargetSDK >= 24) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			const activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = [ 'density' ];
-			} else if (activity.configChanges.indexOf('density') === -1) {
-				activity.configChanges.push('density');
-			}
-		});
 	}
 
 	// add permissions
