@@ -41,7 +41,6 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	url = require('url'),
 	util = require('util'),
-	wrench = require('wrench'),
 
 	afs = appc.fs,
 	i18nLib = appc.i18n(__dirname),
@@ -969,6 +968,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (cli.argv['skip-js-minify']) {
 		this.minifyJS = false;
 	}
+
+	// Do we write out process.env into a file in the app to use?
+	this.writeEnvVars = this.deployType !== 'production';
 
 	// check the app name
 	if (cli.tiapp.name.indexOf('&') !== -1) {
@@ -2245,10 +2247,11 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 	// check if we need to do a rebuild
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 
-	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
-		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
+	if (this.forceRebuild) {
+		fs.emptyDirSync(this.buildGenAppIdDir);
+	} else {
+		fs.ensureDirSync(this.buildGenAppIdDir);
 	}
-	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
 
 	// now that we've read the build manifest, delete it so if this build
 	// becomes incomplete, the next build will be a full rebuild
@@ -2281,34 +2284,30 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// that build.pre.compile was fired.
 	ti.validateAppJsExists(this.projectDir, this.logger, 'android');
 
-	fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+	fs.ensureDirSync(this.buildDir);
 
 	// make directories if they don't already exist
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
-		fs.existsSync(dir) && wrench.rmdirSyncRecursive(dir);
+		fs.emptyDirSync(dir);
 		Object.keys(this.lastBuildFiles).forEach(function (file) {
 			if (file.indexOf(dir + '/') === 0) {
 				delete this.lastBuildFiles[file];
 			}
 		}, this);
-		wrench.mkdirSyncRecursive(dir);
-	} else if (!fs.existsSync(dir)) {
-		wrench.mkdirSyncRecursive(dir);
+	} else {
+		fs.ensureDirSync(dir);
 	}
 
 	// we always destroy and rebuild the res directory
-	if (fs.existsSync(this.buildResDir)) {
-		wrench.rmdirSyncRecursive(this.buildResDir);
-	}
-	wrench.mkdirSyncRecursive(this.buildResDir);
+	fs.emptyDirSync(this.buildResDir);
 
-	fs.existsSync(dir = this.buildBinAssetsResourcesDir)       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'gen'))       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'lib'))       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildResDrawableDir)              || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildSrcDir)                      || wrench.mkdirSyncRecursive(dir);
+	fs.ensureDirSync(this.buildBinAssetsResourcesDir);
+	fs.ensureDirSync(path.join(this.buildDir, 'gen'));
+	fs.ensureDirSync(path.join(this.buildDir, 'lib'));
+	fs.ensureDirSync(this.buildResDrawableDir);
+	fs.ensureDirSync(path.join(this.buildResDir, 'values'));
+	fs.ensureDirSync(this.buildSrcDir);
 
 	// create the deploy.json file which contains debugging/profiling info
 	const deployJsonFile = path.join(this.buildBinAssetsDir, 'deploy.json'),
@@ -2359,7 +2358,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 	function copyFile(from, to, next) {
 		var d = path.dirname(to);
-		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
+		fs.ensureDirSync(d);
 
 		if (fs.existsSync(to)) {
 			_t.logger.warn(__('Overwriting file %s', to.cyan));
@@ -2482,7 +2481,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// if the destination directory does not exists, create it
-				fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+				fs.ensureDirSync(destDir);
 
 				const ext = filename.match(extRegExp);
 
@@ -2783,7 +2782,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 								this.tiSymbols[to] = modified.symbols;
 
 								const dir = path.dirname(to);
-								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+								fs.ensureDirSync(dir);
 
 								if (symlinkFiles && newContents === originalContents) {
 									this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
@@ -2835,7 +2834,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			fs.writeFileSync(
 				envVarsFile,
 				// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-				this.deployType === 'development' ? JSON.stringify(process.env) : {}
+				this.writeEnvVars ? JSON.stringify(process.env) : {}
 			);
 			this.encryptJS && jsFilesToEncrypt.push('_env_.json');
 			delete this.lastBuildFiles[envVarsFile];
@@ -3272,8 +3271,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
 
 			const tmp = temp.path();
-			fs.existsSync(tmp) && wrench.rmdirSyncRecursive(tmp);
-			wrench.mkdirSyncRecursive(tmp);
+			fs.emptyDirSync(tmp);
 
 			appc.zip.unzip(resFile, tmp, {}, function (ex) {
 				if (ex) {
@@ -3957,9 +3955,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	this.ap_File = path.join(this.buildBinDir, 'app.ap_');
 	const bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
-	if (!fs.existsSync(bundlesPath)) {
-		wrench.mkdirSyncRecursive(bundlesPath);
-	}
+	fs.ensureDirSync(bundlesPath);
 
 	const aaptHook = this.cli.createHook('build.android.aapt', this, function (exe, args, opts, done) {
 			this.logger.info(__('Running AAPT: %s', (exe + ' "' + args.join('" "') + '"').cyan));
@@ -4162,10 +4158,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"').replace(/\\/g, '/') + '"');
 
 	// if we're recompiling the java files, then nuke the classes dir
-	if (fs.existsSync(this.buildBinClassesDir)) {
-		wrench.rmdirSyncRecursive(this.buildBinClassesDir);
-	}
-	wrench.mkdirSyncRecursive(this.buildBinClassesDir);
+	fs.emptyDirSync(this.buildBinClassesDir);
 
 	const javacHook = this.cli.createHook('build.android.javac', this, function (exe, args, opts, done) {
 		this.logger.info(__('Building Java source files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
@@ -4273,10 +4266,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	}
 
 	// nuke and create the folder holding all the classes*.dex files
-	if (fs.existsSync(this.buildBinClassesDex)) {
-		wrench.rmdirSyncRecursive(this.buildBinClassesDex);
-	}
-	wrench.mkdirSyncRecursive(this.buildBinClassesDex);
+	fs.emptyDirSync(this.buildBinClassesDex);
 
 	// Wipe existing outjar
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
@@ -4646,7 +4636,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 	this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
 
 	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
-		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.ensureDirSync(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
