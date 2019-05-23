@@ -35,6 +35,11 @@ READONLY_PROPERTY(NSUInteger, rowsAffected, RowsAffected);
   NSMutableArray *statements;
 }
 
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `init` instead.
+  */
+- (id)_initWithPageContext:(__unused id<TiEvaluator>)pageContext __attribute__((deprecated));
+
 - (void)install:(NSString *)path name:(NSString *)name_;
 - (void)open:(NSString *)name_;
 

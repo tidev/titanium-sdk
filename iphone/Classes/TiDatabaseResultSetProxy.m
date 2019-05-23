@@ -20,6 +20,11 @@
   [super dealloc];
 }
 
+- (id)initWithResults:(PLSqliteResultSet *)results database:(TiDatabaseProxy *)database pageContext:(id<TiEvaluator>)context
+{
+  return [[TiDatabaseResultSetProxy alloc] initWithResults:results_ database:database_];
+}
+
 - (id)initWithResults:(PLSqliteResultSet *)results_ database:(TiDatabaseProxy *)database_
 {
   if (self = [self init]) {

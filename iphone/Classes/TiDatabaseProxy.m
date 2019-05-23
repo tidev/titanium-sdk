@@ -22,6 +22,11 @@
   [super dealloc];
 }
 
+- (id)_initWithPageContext:(__unused id<TiEvaluator>)pageContext
+{
+  return [[TiDatabaseProxy alloc] init];
+}
+
 - (void)shutdown:(id)sender
 {
   if (database != nil) {
