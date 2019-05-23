@@ -15,6 +15,11 @@
 
 #pragma mark - Internals
 
+- (id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule *)rule_
+{
+  return [[TiCalendarRecurrenceRule alloc] initWithRule:rule];
+}
+
 - (id)initWithRule:(EKRecurrenceRule *)rule_
 {
   if (self = [super init]) {
