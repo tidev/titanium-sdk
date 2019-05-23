@@ -387,7 +387,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [(TiUIWebViewProxy *)self.proxy setPageToken:_pageToken];
   }
 
-  NSString *source = @"var callbacks = {}; var Ti = {}; var Titanium = {}; Ti.pageToken = %@; \
+  NSString *source = @"var callbacks = {}; var Ti = {}; var Titanium = Ti; Ti.pageToken = %@; \
     Ti._listener_id = 1; Ti._listeners={}; %@\
     Ti.App = { \
                 fireEvent: function(name, payload) { \
@@ -428,64 +428,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     entry.callback.call(entry.callback,evt) \
     }}}}}; \
     Ti.API = { \
-    debug: function(message) { \
-    window.webkit.messageHandlers._Ti_.postMessage({name:'debug', method: 'log', callback: Ti._JSON({level:'debug', message:message},1)},'*'); \
-    }, \
-    error: function(message) { \
-    window.webkit.messageHandlers._Ti_.postMessage({name:'error', method: 'log', callback: Ti._JSON({level:'error', message:message},1)},'*'); \
-    }, \
-    info: function(message){ \
-    window.webkit.messageHandlers._Ti_.postMessage({name:'info', method: 'log', callback: Ti._JSON({level:'info', message:message},1)},'*'); \
-    }, \
-    fatal: function(message){ \
-    window.webkit.messageHandlers._Ti_.postMessage({name:'fatal', method: 'log', callback: Ti._JSON({level:'fatal', message:message},1)},'*'); \
-    }, \
-    warn: function(message){ \
-    window.webkit.messageHandlers._Ti_.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
-    }, \
-    log: function(level, message){ \
-    window.webkit.messageHandlers._Ti_.postMessage({name:'level', method: 'log', callback: Ti._JSON({level:'level', message:message},1)},'*'); \
-    }, \
-    }; \
-    Titanium.App = { \
-    fireEvent: function(name, payload) { \
-    var _payload = payload; \
-    if (typeof payload === 'string') { \
-    _payload = JSON.parse(payload); \
-    } \
-    if (callbacks[name]) { \
-    callbacks[name](_payload); \
-    } \
-    window.webkit.messageHandlers._Ti_.postMessage({name: name, payload: _payload, method: 'fireEvent'},'*'); \
-    }, \
-    addEventListener: function(name, callback) { \
-    callbacks[name] = callback; \
-    var listeners=Ti._listeners[name]; \
-    if(typeof(listeners)=='undefined'){ \
-    listeners=[];Ti._listeners[name]=listeners} \
-    var newid=Ti.pageToken+Ti._listener_id++; \
-    listeners.push({callback:callback,id:newid});\
-    window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'addEventListener', callback: Ti._JSON({name:name, id:newid},1)},'*'); \
-    }, \
-    removeEventListener: function(name, fn) { \
-    var listeners=Ti._listeners[name]; \
-    if(listeners){ \
-    for(var c=0;c<listeners.length;c++){ \
-    var entry=listeners[c]; \
-    if(entry.callback==fn){ \
-    listeners.splice(c,1);\
-    window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'removeEventListener', callback: Ti._JSON({name:name, id:entry.id},1)},'*'); \
-    delete callbacks[name]; break}}}\
-    }, \
-    _dispatchEvent: function(type,evtid,evt){ \
-    var listeners=Ti._listeners[type]; \
-    if(listeners){ \
-    for(var c=0;c<listeners.length;c++){ \
-    var entry=listeners[c]; \
-    if(entry.id==evtid){ \
-    entry.callback.call(entry.callback,evt) \
-    }}}}}; \
-    Titanium.API = { \
     debug: function(message) { \
     window.webkit.messageHandlers._Ti_.postMessage({name:'debug', method: 'log', callback: Ti._JSON({level:'debug', message:message},1)},'*'); \
     }, \
