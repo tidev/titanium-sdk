@@ -11,9 +11,8 @@
 const fs = require('fs'),
 	nodeappc = require('node-appc'),
 	colors = require('colors'), // eslint-disable-line no-unused-vars
-	common = require('./lib/common.js'),
-	pagedown = require('pagedown'),
-	converter = new pagedown.Converter();
+	common = require('./lib/common.js');
+
 let doc = {},
 	errorCount = 0,
 	standaloneFlag = false;
@@ -452,7 +451,7 @@ function validateMarkdown(str) {
 	}
 
 	try {
-		converter.makeHtml(str);
+		common.markdownToHTML(str);
 	} catch (e) {
 		return 'Error parsing markdown block "' + str + '": ' + e;
 	}
@@ -787,6 +786,8 @@ if (Object.keys(doc).length === 0) {
 	common.log(common.LOG_ERROR, 'Could not find YAML files in %s', basePath);
 	process.exit(1);
 }
+
+common.createMarkdown(doc);
 
 // FIXME This needs to handle type hierarchy. If a method/property/event overrides a parent, then the parent may have "filled out" a required field/value!
 

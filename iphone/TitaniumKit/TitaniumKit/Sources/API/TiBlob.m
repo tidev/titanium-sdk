@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -63,7 +63,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   }
 }
 
-- (NSInteger)width
+- (NSUInteger)width
 {
   [self ensureImageLoaded];
   if (image != nil) {
@@ -71,8 +71,9 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   }
   return 0;
 }
+GETTER_IMPL(NSUInteger, width, Width);
 
-- (NSInteger)height
+- (NSUInteger)height
 {
   [self ensureImageLoaded];
   if (image != nil) {
@@ -80,8 +81,9 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   }
   return 0;
 }
+GETTER_IMPL(NSUInteger, height, Height);
 
-- (NSInteger)size
+- (NSUInteger)size
 {
   [self ensureImageLoaded];
   if (image != nil) {
@@ -107,20 +109,11 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   }
   return 0;
 }
+GETTER_IMPL(NSUInteger, size, Size);
 
 - (id)initWithImage:(UIImage *)image_
 {
   if (self = [super init]) {
-    image = [image_ retain];
-    type = TiBlobTypeImage;
-    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
-  }
-  return self;
-}
-
-- (id)_initWithPageContext:(id<TiEvaluator>)context andImage:(UIImage *)image_
-{
-  if (self = [super _initWithPageContext:context]) {
     image = [image_ retain];
     type = TiBlobTypeImage;
     mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
@@ -138,29 +131,9 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   return self;
 }
 
-- (id)_initWithPageContext:(id<TiEvaluator>)context andData:(NSData *)data_ mimetype:(NSString *)mimetype_
-{
-  if (self = [super _initWithPageContext:context]) {
-    data = [data_ retain];
-    type = TiBlobTypeData;
-    mimetype = [mimetype_ copy];
-  }
-  return self;
-}
-
 - (id)initWithFile:(NSString *)path_
 {
   if (self = [super init]) {
-    type = TiBlobTypeFile;
-    path = [path_ retain];
-    mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
-  }
-  return self;
-}
-
-- (id)_initWithPageContext:(id<TiEvaluator>)context andFile:(NSString *)path_
-{
-  if (self = [super _initWithPageContext:context]) {
     type = TiBlobTypeFile;
     path = [path_ retain];
     mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
@@ -177,6 +150,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   return mimetype;
 }
+GETTER_IMPL(NSString *, mimeType, Mimetype);
 
 - (NSString *)text
 {
@@ -195,6 +169,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   // anything else we refuse to write out
   return nil;
 }
+GETTER_IMPL(NSString *, text, Text);
 
 - (NSData *)data
 {
@@ -243,26 +218,36 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   return path;
 }
 
-- (TiFile *)file
+// FIXME Move to addon in filesystem module!
+// FIXME: Change to TiFile * once it's been moved to a new obj-c proxy
+- (JSValue *)file
 {
   if (path != nil) {
-    return [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];
+    JSContext *objcJsContext = [JSContext currentContext];
+    JSGlobalContextRef contextRef = [objcJsContext JSGlobalContextRef];
+    KrollContext *context = GetKrollContext(contextRef);
+    TiFile *file = [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];
+    KrollObject *o = [[[KrollObject alloc] initWithTarget:file context:context] autorelease];
+    return [JSValue valueWithJSValueRef:JSObjectMake(contextRef, KrollObjectClassRef, o) inContext:objcJsContext];
   }
   NSLog(@"[ERROR] Blob.file property requested but the Filesystem API was never requested.") return nil;
 }
+GETTER_IMPL(JSValue *, file, File);
 
-- (id)nativePath
+- (NSString *)nativePath
 {
   if (path != nil) {
     return [[NSURL fileURLWithPath:path] absoluteString];
   }
-  return [NSNull null];
+  return nil;
 }
+GETTER_IMPL(NSString *, nativePath, NativePath);
 
-- (NSNumber *)length
+- (NSUInteger)length
 {
-  return NUMLONGLONG([[self data] length]);
+  return [[self data] length];
 }
+GETTER_IMPL(NSUInteger, length, Length);
 
 - (void)setMimeType:(NSString *)mime type:(TiBlobType)type_
 {
@@ -294,123 +279,122 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   return NO;
 }
 
-- (void)append:(id)args
+- (void)append:(TiBlob *)blob
 {
-  id arg = [args objectAtIndex:0];
-  if ([arg isKindOfClass:[TiBlob class]]) {
-    NSData *otherData = [(TiBlob *)arg data]; // other Blob's data
+  NSData *otherData = [blob data]; // other Blob's data
 
-    NSMutableData *newData = [[NSMutableData alloc] initWithData:[self data]];
-    [newData appendData:otherData];
+  NSMutableData *newData = [[NSMutableData alloc] initWithData:[self data]];
+  [newData appendData:otherData];
 
-    [self setData:newData];
-    RELEASE_TO_NIL(newData);
-  }
+  [self setData:newData];
+  RELEASE_TO_NIL(newData);
 }
 
 #pragma mark Image Manipulations
 
-- (id)imageWithAlpha:(id)args
+- (TiBlob *)imageWithAlpha
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageAlpha imageWithAlpha:image]];
+    TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageAlpha imageWithAlpha:image]];
     return [blob autorelease];
   }
   return nil;
 }
 
-- (id)imageWithTransparentBorder:(id)args
+- (TiBlob *)imageWithTransparentBorder:(NSUInteger)size
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    ENSURE_SINGLE_ARG(args, NSObject);
-    NSUInteger size = [TiUtils intValue:args];
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageAlpha transparentBorderImage:size image:image]];
+    TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageAlpha transparentBorderImage:size image:image]];
     return [blob autorelease];
   }
   return nil;
 }
 
-- (id)imageWithRoundedCorner:(id)args
+- (TiBlob *)imageWithRoundedCorner:(NSUInteger)cornerSize withBorder:(NSNumber *)optionalBorderSize
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    NSUInteger cornerSize = [TiUtils intValue:[args objectAtIndex:0]];
-    NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageRoundedCorner roundedCornerImage:cornerSize borderSize:borderSize image:image]];
+    // border is optional and should default to 1 if not specified! (or if negative)
+    OPTIONAL_UINT_ARGUMENT(optionalBorderSize, borderSize, 1);
+    TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageRoundedCorner roundedCornerImage:cornerSize borderSize:borderSize image:image]];
     return [blob autorelease];
   }
   return nil;
 }
 
-- (id)imageAsThumbnail:(id)args
+- (TiBlob *)imageAsThumbnail:(NSUInteger)size withBorder:(NSNumber *)optionalBorderSize withRadius:(NSNumber *)optionalCornerRadius
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    NSUInteger size = [TiUtils intValue:[args objectAtIndex:0]];
-    NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
-    NSUInteger cornerRadius = [args count] > 2 ? [TiUtils intValue:[args objectAtIndex:2]] : 0;
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext]
-                                               andImage:[UIImageResize thumbnailImage:size
-                                                                    transparentBorder:borderSize
-                                                                         cornerRadius:cornerRadius
-                                                                 interpolationQuality:kCGInterpolationHigh
-                                                                                image:image]];
+    // border is optional and should default to 1 if not specified! (or if negative)
+    OPTIONAL_UINT_ARGUMENT(optionalBorderSize, borderSize, 1);
+    // radius is optional and should default to 0 if not specified! (or if negative)
+    OPTIONAL_UINT_ARGUMENT(optionalCornerRadius, cornerRadius, 0);
+    TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageResize thumbnailImage:size
+                                                             transparentBorder:borderSize
+                                                                  cornerRadius:cornerRadius
+                                                          interpolationQuality:kCGInterpolationHigh
+                                                                         image:image]];
     return [blob autorelease];
   }
   return nil;
 }
 
-- (id)imageAsResized:(id)args
+- (TiBlob *)imageAsResized:(NSUInteger)width withHeight:(NSUInteger)height
 {
+  // How do we test that they didn't send us a "bad" value (i.e. negative, or double/float)? It'll get coerced here. Do we care?
+  if (isnan(width)) {
+    THROW_INVALID_ARG(@"width argument must be an integer value");
+  }
+  if (isnan(height)) {
+    THROW_INVALID_ARG(@"height argument must be an integer value");
+  }
   [self ensureImageLoaded];
   if (image != nil) {
-    ENSURE_ARG_COUNT(args, 2);
-    NSUInteger width = [TiUtils intValue:[args objectAtIndex:0]];
-    NSUInteger height = [TiUtils intValue:[args objectAtIndex:1]];
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image hires:NO]];
+    TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image hires:NO]];
     return [blob autorelease];
   }
   return nil;
 }
 
-- (id)imageAsCompressed:(id)args
+- (TiBlob *)imageAsCompressed:(float)compressionQuality
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    ENSURE_ARG_COUNT(args, 1);
-
-    float compressionQuality = [TiUtils floatValue:[args objectAtIndex:0] def:1.0];
+    // if unspecified, use 1.0 as default
+    if (isnan(compressionQuality)) {
+      compressionQuality = 1.0f;
+    }
     return [[[TiBlob alloc] initWithData:UIImageJPEGRepresentation(image, compressionQuality) mimetype:@"image/jpeg"] autorelease];
   }
   return nil;
 }
 
-- (id)imageAsCropped:(id)args
+- (TiBlob *)imageAsCropped:(NSDictionary *)args
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    ENSURE_SINGLE_ARG(args, NSDictionary);
     CGRect bounds;
     CGSize imageSize = [image size];
     bounds.size.width = [TiUtils floatValue:@"width" properties:args def:imageSize.width];
     bounds.size.height = [TiUtils floatValue:@"height" properties:args def:imageSize.height];
     bounds.origin.x = [TiUtils floatValue:@"x" properties:args def:(imageSize.width - bounds.size.width) / 2.0];
     bounds.origin.y = [TiUtils floatValue:@"y" properties:args def:(imageSize.height - bounds.size.height) / 2.0];
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageResize croppedImage:bounds image:image]];
+    TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageResize croppedImage:bounds image:image]];
     return [blob autorelease];
   }
   return nil;
 }
 
-- (id)toString:(id)args
+- (NSString *)toString
 {
-  id t = [self text];
+  NSString *t = [self text];
   if (t != nil) {
     return t;
   }
-  return [super toString:args];
+  return [super toString];
 }
 
 @end

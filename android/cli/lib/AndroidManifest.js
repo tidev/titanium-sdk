@@ -25,18 +25,18 @@ const appc = require('node-appc'),
 	},
 
 	tagAttrs = {
-		application: /^(allowTaskReparenting|allowBackup|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|roundIcon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
-		activity: /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|maxRecents|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/, // eslint-disable-line max-len
+		application: /^(allowTaskReparenting|allowBackup|allowClearUserData|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|roundIcon|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
+		activity: /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|colorMode|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|immersive|label|launchMode|lockTaskMode|maxRecents|maxAspectRatio|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/, // eslint-disable-line max-len
 		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
 		data: /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
 		'intent-filter': /^(icon|label|priority)$/,
 		'meta-data': /^(name|resource|value)$/,
 		'path-permission': /^(path|pathPrefix|pathPattern|permission|readPermissions|writePermissions)$/,
-		provider: /^(authorities|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
-		receiver: /^(enabled|exported|icon|label|name|permission|process)$/,
-		service: /^(enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
+		provider: /^(authorities|directBootAware|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
+		receiver: /^(directBootAware|enabled|exported|icon|label|name|permission|process)$/,
+		service: /^(description|directBootAware|enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
 		'uses-library': /^(name|required)$/,
-		'uses-sdk': /^(name|required)$/
+		'uses-sdk': /^(maxSdkVersion|minSdkVersion|targetSdkVersion)$/
 	};
 
 module.exports = AndroidManifest;
@@ -456,7 +456,36 @@ function AndroidManifest(filename) {
 								case 'uses-library':
 									this[tag][subtag] || (this[tag][subtag] = {});
 									Object.keys(src[tag][subtag]).forEach(function (key) {
-										this[tag][subtag][key] = src[tag][subtag][key];
+										// Copy source's XML tag attributes and child tags to target.
+										const nextSource = src[tag][subtag][key];
+										const nextTarget = this[tag][subtag][key];
+										if (!nextTarget) {
+											// Insert source's attribute or sub tag to target.
+											this[tag][subtag][key] = nextSource;
+										} else {
+											Object.keys(nextSource).forEach(function (subKey) {
+												if (subKey === 'configChanges') {
+													// For <activity/> "android:configChanges" attribute, only copy
+													// the attribute values from source that are missing in target.
+													const sourceArray = nextSource[subKey];
+													if (Array.isArray(sourceArray)) {
+														const targetArray = nextTarget[subKey];
+														if (Array.isArray(targetArray)) {
+															for (let nextValue of sourceArray) {
+																if (!targetArray.includes(nextValue)) {
+																	targetArray.push(nextValue);
+																}
+															}
+														} else {
+															nextSource[subKey] = sourceArray;
+														}
+													}
+												} else {
+													// Overwrite target's attribute or sub tag with source.
+													nextTarget[subKey] = nextSource[subKey];
+												}
+											});
+										}
 									}, this);
 									break;
 								default:

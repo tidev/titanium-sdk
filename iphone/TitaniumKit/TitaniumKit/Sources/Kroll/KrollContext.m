@@ -186,7 +186,7 @@ static JSValueRef AlertCallback(JSContextRef jsContext, JSObjectRef jsFunction, 
   }
 
   KrollContext *ctx = GetKrollContext(jsContext);
-  NSString *message = [KrollObject toID:ctx value:args[0]];
+  NSString *message = [TiUtils stringValue:[KrollObject toID:ctx value:args[0]]];
 
   [[[TiApp app] controller] incrementActiveAlertControllerCount];
 

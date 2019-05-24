@@ -4,12 +4,20 @@ summary: |
     A control used to select one or more fixed values.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/picker/picker_android.png" height="150" /></td>
-        <td><img src="images/picker/picker_ios.png" height="75" style="border: 1px solid black;"/></td>
-        <td><img src="images/picker/picker_wp.gif" height="150" style="border: 1px solid black;"/></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/picker/picker_android.png" height="150" /></td>
+          <td><img src="images/picker/picker_ios.png" height="75" /></td>
+          <td><img src="images/picker/picker_wp.gif" height="150" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.

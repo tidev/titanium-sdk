@@ -39,8 +39,8 @@
 			"integrity": "sha512-LM73iq9PPV9qqW4dXU0bgZkNJwnIyRft6CWN6bON1HgHS5e6KD0xjvjRk2sWAgvEXE+FazDCRZ5e14SUN+T2Fg=="
 		},
 		"ti.cloudpush": {
-			"url": "https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.2.0.zip",
-			"integrity": "sha512-4TNH0K/rDUA7MOwNaieLiklG7aUkckpdr2H2tK3iaBevRZtO7MTGaSS/oNgi0KL9z2RreuAzRwdOs9vW3Z9IZA=="
+			"url": "https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-6.0.1.zip",
+			"integrity": "sha512-jWm02Frq1M0mMfG9sVqgYmcgUQKJvtu1SWYoCmajZR/m8NKANPNtDVD0VH5Znx7X2KB87nF6I7L4kEYXaeXzNQ=="
 		},
 		"ti.map": {
 			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/android-4.3.1/ti.map-android-4.3.1.zip",
@@ -55,8 +55,8 @@
 			"integrity": "sha512-G30ZTwV1VI+GI5FmRWJLGZUQgckvMYTiX7mYhWDLCGZac8cSQDpG4xylJlSp6B/isNqa6TBX4ZPE3ieJ50p0mA=="
 		},
 		"ti.playservices": {
-			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip",
-			"integrity": "sha512-bLhpzOjnmiTWFRjMuFfvqf0ePd1kbTdXLMVZJ+EsPrfn4JmxvkINS9Nu6ivjV+fmH9cBYVjZ5k9nGCeUdqZOlQ=="
+			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/16.1.3/ti.playservices-android-16.1.3.zip",
+			"integrity": "sha512-RLMty/5JrQLvu6qtns9/3VBrAWBHu9L0SUYjkTnHpPu7yWb91z830XS+E8WiwSY1X1jVCX1vBi1Ll+8HVK9F5w=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.1.0/ti.identity-android-2.1.0.zip",
@@ -71,8 +71,8 @@
 	},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.1/hyperloop-4.0.1.zip",
-			"integrity": "sha512-QDBUBBHXKzcus9o3xlwWnKvPKPaPArMZvttYlU9pPuwIGsnygRwMG6i+SlCIE4jKpRs28jBRfBtt2OpJzBl51A=="
+			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.2/hyperloop-4.0.2.zip",
+			"integrity": "sha512-oKxHxWEyW1K+6/XgMoXB8Lt4+aZh4yl6L/+Q0F0lr1IlHkgfEUzzUVDsGfJOJ/KCDfP2WYXFKLz4VssJDJRHWg=="
 		}
 	}
 }

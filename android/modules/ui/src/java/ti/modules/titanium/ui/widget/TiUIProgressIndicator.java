@@ -44,7 +44,7 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 
 	protected boolean visible;
 	protected ProgressDialog progressDialog;
-	protected String statusBarTitle;
+	protected CharSequence statusBarTitle;
 	protected int incrementFactor;
 	protected int location;
 	protected int min;
@@ -176,17 +176,20 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 		if (location == STATUS_BAR) {
 			incrementFactor = 10000 / (max - min);
 			Activity parent = (Activity) proxy.getActivity();
-
+			if ((parent == null) || parent.isFinishing() || parent.isDestroyed()) {
+				Log.w(TAG, "Cannot show progress indicator in status bar. No activities are available to host it.");
+				return;
+			}
 			if (type == INDETERMINANT) {
 				parent.setProgressBarIndeterminate(true);
 				parent.setProgressBarIndeterminateVisibility(true);
-				statusBarTitle = parent.getTitle().toString();
+				statusBarTitle = parent.getTitle();
 				parent.setTitle(message);
 			} else if (type == DETERMINANT) {
 				parent.setProgressBarIndeterminate(false);
 				parent.setProgressBarIndeterminateVisibility(false);
 				parent.setProgressBarVisibility(true);
-				statusBarTitle = parent.getTitle().toString();
+				statusBarTitle = parent.getTitle();
 				parent.setTitle(message);
 			} else {
 				Log.w(TAG, "Unknown type: " + type);
@@ -195,13 +198,14 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 			incrementFactor = 1;
 			if (progressDialog == null) {
 				Activity a = TiApplication.getInstance().getCurrentActivity();
-				if (a == null) {
-					a = TiApplication.getInstance().getRootActivity();
+				if ((a == null) || a.isFinishing() || a.isDestroyed()) {
+					Log.w(TAG, "Cannot show progress indicator dialog. No activities are available to host it.");
+					return;
 				}
 				progressDialog = new ProgressDialog(a);
 				if (a instanceof TiBaseActivity) {
 					TiBaseActivity baseActivity = (TiBaseActivity) a;
-					baseActivity.addDialog(baseActivity.new DialogWrapper(
+					baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
 						progressDialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 					progressDialog.setOwnerActivity(a);
 				}
@@ -228,7 +232,11 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 			} else {
 				Log.w(TAG, "Unknown type: " + type);
 			}
-			progressDialog.show();
+			try {
+				progressDialog.show();
+			} catch (Exception ex) {
+				Log.e(TAG, "Failed to show progress indicator dialog.", ex);
+			}
 		} else {
 			Log.w(TAG, "Unknown location: " + location);
 		}
@@ -247,17 +255,27 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 	{
 		if (progressDialog != null) {
 			Activity ownerActivity = progressDialog.getOwnerActivity();
-			if (ownerActivity != null && !ownerActivity.isFinishing()) {
+			if (ownerActivity instanceof TiBaseActivity) {
 				((TiBaseActivity) ownerActivity).removeDialog(progressDialog);
-				progressDialog.dismiss();
+				if (!ownerActivity.isFinishing() && !ownerActivity.isDestroyed()) {
+					try {
+						progressDialog.dismiss();
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to hide ProgressIndicator dialog.", ex);
+					}
+				}
 			}
 			progressDialog = null;
 		} else {
-			Activity parent = (Activity) proxy.getActivity();
-			parent.setProgressBarIndeterminate(false);
-			parent.setProgressBarIndeterminateVisibility(false);
-			parent.setProgressBarVisibility(false);
-			parent.setTitle(statusBarTitle);
+			Activity parent = proxy.getActivity();
+			if (parent != null) {
+				parent.setProgressBarIndeterminate(false);
+				parent.setProgressBarIndeterminateVisibility(false);
+				parent.setProgressBarVisibility(false);
+				if (visible) {
+					parent.setTitle(statusBarTitle);
+				}
+			}
 			statusBarTitle = null;
 		}
 		visible = false;

@@ -1,39 +1,53 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <Foundation/Foundation.h>
-#import <TitaniumKit/TiModule.h>
-
 #ifdef USE_TI_CODEC
+@import Foundation;
+@import TitaniumKit.ObjcProxy;
 
-@interface CodecModule : TiModule {
+@import JavaScriptCore;
+
+@protocol CodecExports <JSExport>
+
+// Constants
+// These conflict with reserved names, so we need to temporarily undefine and then redefine them
+#define OLD_BIG_ENDIAN BIG_ENDIAN
+#undef BIG_ENDIAN
+CONSTANT(NSNumber *, BIG_ENDIAN);
+#define BIG_ENDIAN OLD_BIG_ENDIAN
+#define OLD_LITTLE_ENDIAN LITTLE_ENDIAN
+#undef LITTLE_ENDIAN
+CONSTANT(NSNumber *, LITTLE_ENDIAN);
+#define LITTLE_ENDIAN OLD_LITTLE_ENDIAN
+
+CONSTANT(NSString *, CHARSET_ASCII);
+CONSTANT(NSString *, CHARSET_ISO_LATIN_1);
+CONSTANT(NSString *, CHARSET_UTF8);
+CONSTANT(NSString *, CHARSET_UTF16);
+CONSTANT(NSString *, CHARSET_UTF16BE);
+CONSTANT(NSString *, CHARSET_UTF16LE);
+CONSTANT(NSString *, TYPE_BYTE);
+CONSTANT(NSString *, TYPE_SHORT);
+CONSTANT(NSString *, TYPE_INT);
+CONSTANT(NSString *, TYPE_LONG);
+CONSTANT(NSString *, TYPE_FLOAT);
+CONSTANT(NSString *, TYPE_DOUBLE);
+
+// Methods
+// FIXME: Convert JSValue * to NSDictionary * once TiBuffer is an ObjcProxy subclass?
+- (NSNumber *)encodeNumber:(JSValue *)args;
+- (NSNumber *)decodeNumber:(JSValue *)args;
+- (NSNumber *)encodeString:(JSValue *)args;
+- (NSString *)decodeString:(JSValue *)args;
+- (NSNumber *)getNativeByteOrder;
+
+@end
+
+@interface CodecModule : ObjcProxy <CodecExports> {
 }
-// Public constants
-@property (nonatomic, readonly) NSString *CHARSET_ASCII;
-@property (nonatomic, readonly) NSString *CHARSET_ISO_LATIN_1;
-@property (nonatomic, readonly) NSString *CHARSET_UTF8;
-@property (nonatomic, readonly) NSString *CHARSET_UTF16;
-@property (nonatomic, readonly) NSString *CHARSET_UTF16BE;
-@property (nonatomic, readonly) NSString *CHARSET_UTF16LE;
-@property (nonatomic, readonly) NSString *TYPE_BYTE;
-@property (nonatomic, readonly) NSString *TYPE_SHORT;
-@property (nonatomic, readonly) NSString *TYPE_INT;
-@property (nonatomic, readonly) NSString *TYPE_LONG;
-@property (nonatomic, readonly) NSString *TYPE_FLOAT;
-@property (nonatomic, readonly) NSString *TYPE_DOUBLE;
-// These conflict with reserved names, so we can't declare them as properties
-// BIG_ENDIAN
-// LITTLE_ENDIAN
-
-// Public API
-- (NSNumber *)encodeNumber:(id)args;
-- (NSNumber *)decodeNumber:(id)args;
-- (NSNumber *)encodeString:(id)args;
-- (NSString *)decodeString:(id)args;
-- (NSNumber *)getNativeByteOrder:(id)_void;
 
 @end
 #endif
