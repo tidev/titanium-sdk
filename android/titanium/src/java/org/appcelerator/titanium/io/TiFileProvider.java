@@ -175,7 +175,7 @@ public class TiFileProvider extends ContentProvider
 
 	/**
 	 * Gets the mime type of the file reference by the given "content://" URI.
-	 * @param uri A content URI returnd by this class' createUriFrom() method. Cannot be null.
+	 * @param uri A content URI returned by this class' createUriFrom() method. Cannot be null.
 	 * @return Returns a mime type string for the URI's referenced file.
 	 */
 	@Override
@@ -314,7 +314,7 @@ public class TiFileProvider extends ContentProvider
 	 * Will only return true for URIs returned by this class' createUriFrom() methods.
 	 * @param uri The URI to check. Can be null.
 	 * @return
-	 * Returns true if given "content://" URI can be opend by this Titanium app's ContentProvider.
+	 * Returns true if given "content://" URI can be opened by this Titanium app's ContentProvider.
 	 * <p>
 	 * Returns false if given an invalid URI or given "content://" URI belongs to another ContentProvider.
 	 */
@@ -392,10 +392,12 @@ public class TiFileProvider extends ContentProvider
 	{
 		// Convert given URI to an absolute path in case it contains any "." or ".." segments.
 		try {
-			URI normalizedUri = URI.create(uri.toString()).normalize();
-			Uri newUri = Uri.parse(normalizedUri.toString());
-			if (newUri != null) {
-				uri = newUri;
+			if (uri != null) {
+				URI normalizedUri = URI.create(uri.toString()).normalize();
+				Uri newUri = Uri.parse(normalizedUri.toString());
+				if (newUri != null) {
+					uri = newUri;
+				}
 			}
 		} catch (Exception ex) {
 		}

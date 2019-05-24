@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -81,7 +80,7 @@ public class TiMimeTypeHelper
 		}
 
 		// Extract and decode the file path part of the URI. This will:
-		// - Exclude the scheme, domain, anchor tag, and query paratemers.
+		// - Exclude the scheme, domain, anchor tag, and query parameters.
 		// - Will decode the %-encoded characters in the URI.
 		String path = uri.getPath();
 		if (path == null) {
