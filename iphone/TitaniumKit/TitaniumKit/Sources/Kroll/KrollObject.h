@@ -27,8 +27,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
   @private
   NSMutableDictionary *properties;
   NSMutableDictionary *statics;
-  JSObjectRef jsobject;
-  JSObjectRef propsObject;
+  JSObjectRef _jsobject;
   BOOL targetable;
   BOOL finalized;
   BOOL protecting;
@@ -50,6 +49,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 + (JSValueRef)toValue:(KrollContext *)context value:(id)obj;
 + (id)nonNull:(id)value;
 
+- (BOOL)hasProperty:(NSString *)propertyName;
 - (id)valueForKey:(NSString *)key;
 - (void)deleteKey:(NSString *)key;
 - (void)setValue:(id)value forKey:(NSString *)key;
@@ -59,7 +59,6 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 //TODO: Lots of copypasted code in these methods could be refactored out.
 @property (nonatomic, assign) JSObjectRef propsObject;
 - (JSObjectRef)jsobject;
-- (void)invalidateJsobject;
 - (JSValueRef)jsvalueForUndefinedKey:(NSString *)key;
 
 - (void)noteKeylessKrollObject:(KrollObject *)value;
@@ -108,9 +107,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
  */
 - (BOOL)hasProperty:(NSString *)propertyName;
 
-#ifdef USE_JSCORE_FRAMEWORK
 - (void)applyGarbageCollectionSafeguard;
 - (void)removeGarbageCollectionSafeguard;
-#endif
 
 @end

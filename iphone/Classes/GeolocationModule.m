@@ -780,7 +780,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
       [authorizationCallback release];
       authorizationCallback = nil;
     }
-    authorizationCallback = [JSManagedValue managedValueWithValue:callback andOwner:self];
+    authorizationCallback = [[JSManagedValue managedValueWithValue:callback andOwner:self] retain];
     [callback.context.virtualMachine addManagedReference:authorizationCallback withOwner:self];
   }
 
