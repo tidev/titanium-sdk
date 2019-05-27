@@ -118,19 +118,16 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		super(proxy);
 
-		// Getting the value for colorPrimary from the currently used theme.
-		TypedValue colorPrimaryTypedValue = new TypedValue();
-		TypedArray colorPrimary =
-			activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
-		this.colorPrimaryInt = colorPrimary.getColor(0, 0);
-		// Getting the value for textColorPrimary for the currently used theme.
-		TypedValue typedValue = new TypedValue();
-		TypedArray textColor =
-			activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
-		this.textColorInt = textColor.getColor(0, 0);
+		TypedValue colorPrimaryValue = new TypedValue();
+		activity.getTheme().resolveAttribute(android.R.attr.colorPrimary, colorPrimaryValue, true);
 
-		this.tabGroupPagerAdapter =
-			new TabGroupFragmentPagerAdapter(((AppCompatActivity) activity).getSupportFragmentManager());
+		TypedValue textColorPrimaryValue = new TypedValue();
+		activity.getTheme().resolveAttribute(android.R.attr.textColorPrimary, textColorPrimaryValue, true);
+
+		this.colorPrimaryInt = colorPrimaryValue.data;
+		this.textColorInt = textColorPrimaryValue.data;
+
+		this.tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(activity.getSupportFragmentManager());
 
 		this.tabGroupViewPager = (new ViewPager(proxy.getActivity()) {
 			@Override
@@ -144,13 +141,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			{
 				return swipeable && !tabsDisabled ? super.onInterceptTouchEvent(event) : false;
 			}
-
-			@Override
-			public void onRestoreInstanceState(Parcelable state)
-			{
-				super.onRestoreInstanceState(state);
-			}
 		});
+
+		// The default pager limit is 1. This means only 1 tab to the left and right of current tab is kept in memory.
+		// Tab fragments outside of this limit will be destroyed and later recreated/restored when selecting that tab.
+		// We don't want to lose the current UI state of offscreen tabs. So, set limit to a high value to avoid it.
+		this.tabGroupViewPager.setOffscreenPageLimit(128);
 
 		this.tabGroupViewPager.setId(android.R.id.tabcontent);
 		this.tabGroupViewPager.setAdapter(this.tabGroupPagerAdapter);
@@ -493,9 +489,19 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
+			// Remove this fragment from the fragment manager if no longer assigned a tab reference.
+			// This will cause fragment manager to request a new fragment from FragmentPagerAdapter.getItem() method.
+			// Note: This can happen when fragment is restored from a bundle since we don't save tab settings
+			//       via onSaveInstanceState() method. Restore happens when activity is destroyed, but not finished.
 			if (tab == null) {
+				FragmentManager fragmentManager = getFragmentManager();
+				if (fragmentManager != null) {
+					fragmentManager.beginTransaction().remove(this).commit();
+				}
 				return null;
 			}
+
+			// We have our tab object. Have it generate the tab's views and return them.
 			return tab.getContentView();
 		}
 	}

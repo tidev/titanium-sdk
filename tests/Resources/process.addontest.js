@@ -15,7 +15,7 @@ describe('process', () => {
 		should(process).be.ok;
 	});
 
-	// FIXME: this crashes iOS, and Android gets should wrapping the error and re-trhowing an AssertionError
+	// FIXME: this crashes iOS, and Android gets should wrapping the error and re-throwing an AssertionError
 	// I'm not sure how we can test this...
 	it.allBroken('uncaughtException event', finish => {
 		const errorMessage = 'KABOOM';
@@ -205,6 +205,102 @@ describe('process', () => {
 	describe('.versions', () => {
 		it('is an object', () => {
 			should(process.versions).be.an.Object;
+		});
+	});
+
+	describe('#nextTick()', () => {
+		it('is a function', () => {
+			should(process.nextTick).be.a.Function;
+		});
+
+		it('drains all ticks before timeout called', finish => {
+			const calls = [];
+			process.nextTick(function () {
+				calls.push('foo');
+				process.nextTick(() => {
+					try {
+						calls.push('baz');
+						calls.should.eql([ 'bar', 'foo', 'yeah', 'man', 'baz' ]);
+						finish();
+					} catch (e) {
+						finish(e);
+					}
+				});
+			});
+			process.nextTick(function () {
+				calls.push('yeah');
+			});
+			process.nextTick(function () {
+				calls.push('man');
+			});
+			calls.push('bar');
+			setTimeout(() => {
+				calls.push('setTimeout');
+			}, 1);
+		});
+
+		it('drains all ticks before setImmediate called', finish => {
+			const calls = [];
+			setImmediate(() => {
+				calls.push('immediate1');
+			});
+			setImmediate(() => {
+				calls.push('immediate2');
+			});
+			setImmediate(() => {
+				calls.push('immediate3');
+			});
+			process.nextTick(() => {
+				calls.push('foo');
+				process.nextTick(() => {
+					try {
+						calls.push('baz');
+						calls.should.eql([ 'bar', 'foo', 'yeah', 'man', 'baz' ]);
+						finish();
+					} catch (e) {
+						finish(e);
+					}
+				});
+			});
+			process.nextTick(() => {
+				calls.push('yeah');
+			});
+			process.nextTick(() => {
+				calls.push('man');
+			});
+			calls.push('bar');
+		});
+
+		it('drains all ticks added by an immediate before next immediate called', finish => {
+			const calls = [];
+			setImmediate(() => {
+				calls.push('immediate1');
+				setImmediate(() => {
+					calls.push('immediate2');
+				});
+				setImmediate(() => {
+					calls.push('immediate3');
+				});
+				process.nextTick(() => {
+					calls.push('foo');
+					process.nextTick(() => {
+						try {
+							calls.push('baz');
+							calls.should.eql([ 'immediate1', 'bar', 'foo', 'yeah', 'man', 'baz' ]);
+							finish();
+						} catch (e) {
+							finish(e);
+						}
+					});
+				});
+				process.nextTick(function () {
+					calls.push('yeah');
+				});
+				process.nextTick(function () {
+					calls.push('man');
+				});
+				calls.push('bar');
+			});
 		});
 	});
 });

@@ -4,9 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#ifndef DISABLE_TI_LOG_SERVER
-
 #import "TiLogServer.h"
 #import "TiBase.h"
 #import "TiSharedConfig.h"
@@ -353,5 +350,3 @@ __unused static int counter = 0;
 }
 
 @end // end TiLogServer
-
-#endif /* DISABLE_TI_LOG_SERVER */

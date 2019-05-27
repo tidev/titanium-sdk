@@ -42,27 +42,14 @@
 
 @interface APSUtility : NSObject
 
-+(BOOL)isiPad;
 +(NSString*)deviceModel;
-+(NSString *)stringFromHexString:(NSString *)hexString;
 +(NSString*)jsonStringify:(id)value error:(NSError**)error;
 +(id)jsonParse:(NSString*)value error:(NSError**)error;
-+(void) mergeDictionary:(NSDictionary *) source destination:(NSMutableDictionary *) destination;
-+(NSString *) UTCDate;
-+(NSString *)UTCDateForDate:(NSDate*)date;
 +(NSString*)createUUID;
 +(NSString*)appIdentifier;
-+(NSNumber *) numCores;
-+(NSString *)ostype;
 +(NSString *)getArchitecture;
-+(BOOL)isOnline;
-+(NSString *)systemVersion;
-+(NSString *)deviceName;
-+(NSString *)networkType;
 +(NSString*)stringValue:(id)value;
-+(NSDate *)dateForString:(NSString *)dateString;
-+(BOOL) isEmptyString:(NSString*)value;
-+(NSTimeInterval)timeBetweenStartDate:(NSDate *)startDate andEndDate:(NSDate*)endDate;
++(BOOL)isEmptyString:(NSString*)value;
 +(NSDictionary *)locationDictionary:(CLLocation *)newLocation;
 
 @end
