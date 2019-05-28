@@ -20,7 +20,7 @@
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context event:(EKEvent *)event_ calendar:(EKCalendar *)calendar_ module:(CalendarModule *)module_
 {
-  return [[TiCalendarEvent alloc] initWithEvent:event_ calendar:calendar_ module:module_];
+  return [self initWithEvent:event_ calendar:calendar_ module:module_];
 }
 
 - (id)initWithEvent:(EKEvent *)event_ calendar:(EKCalendar *)calendar_ module:(CalendarModule *)module_

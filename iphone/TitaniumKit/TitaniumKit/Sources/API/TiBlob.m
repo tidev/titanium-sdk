@@ -111,24 +111,19 @@ GETTER_IMPL(NSUInteger, height, Height);
 }
 GETTER_IMPL(NSUInteger, size, Size);
 
-- (id)_initWithPageContext:(id<TiEvaluator>)pageContext
-{
-  return [[TiBlob alloc] init];
-}
-
 - (id)_initWithPageContext:(id<TiEvaluator>)pageContext andImage:(UIImage *)image
 {
-  return [[TiBlob alloc] initWithImage:image];
+  return [self initWithImage:image];
 }
 
 - (id)_initWithPageContext:(id<TiEvaluator>)pageContext andData:(NSData *)data mimetype:(NSString *)mimetype
 {
-  return [[TiBlob alloc] initWithData:data mimetype:mimetype];
+  return [self initWithData:data mimetype:mimetype];
 }
 
 - (id)_initWithPageContext:(id<TiEvaluator>)pageContext andFile:(NSString *)path
 {
-  return [[TiBlob alloc] initWithFile:path];
+  return [self initWithFile:path];
 }
 
 - (id)initWithImage:(UIImage *)image_

@@ -98,12 +98,6 @@ typedef enum {
 }
 
 /**
- Initialize the blob with no arguments.
- @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `init` instead.
- */
-- (id)_initWithPageContext:(__unused id<TiEvaluator>)pageContext __attribute__((deprecated));
-
-/**
  Initialize the blob with an image.
  @param image The image
  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithImage:` instead.

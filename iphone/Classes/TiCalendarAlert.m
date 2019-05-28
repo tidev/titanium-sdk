@@ -16,7 +16,7 @@
                      alert:(EKAlarm *)alert_
                     module:(CalendarModule *)module_;
 {
-  return [[TiCalendarAlert alloc] initWithAlert:alert_ module:module_];
+  return [self initWithAlert:alert_ module:module_];
 }
 
 - (id)initWithAlert:(EKAlarm *)alert_

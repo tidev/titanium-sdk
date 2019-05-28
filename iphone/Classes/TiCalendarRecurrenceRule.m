@@ -17,7 +17,7 @@
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule *)rule_
 {
-  return [[TiCalendarRecurrenceRule alloc] initWithRule:rule];
+  return [self initWithRule:rule];
 }
 
 - (id)initWithRule:(EKRecurrenceRule *)rule_

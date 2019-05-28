@@ -15,7 +15,7 @@
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant *)participant_
 {
-  return [[TiCalendarAttendee alloc] initWithParticipant:participant_];
+  return [self initWithParticipant:participant_];
 }
 
 - (id)initWithParticipant:(EKParticipant *)participant_
