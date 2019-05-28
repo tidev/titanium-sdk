@@ -3,12 +3,20 @@ name: Titanium.UI.Slider
 summary: A slider component with a draggable thumb.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/slider/slider_android.png" height="25" /></td>
-        <td><img src="images/slider/slider_ios.png" height="25" /></td>
-        <td><img src="images/slider/slider_wp.png" height="25" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/slider/slider_android.png" height="25" /></td>
+          <td><img src="images/slider/slider_ios.png" height="25" /></td>
+          <td><img src="images/slider/slider_wp.png" height="25" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     A slider lets the user select from a range of values by dragging the slider thumb.
