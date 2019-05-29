@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2019 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.database;
 
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -18,145 +19,233 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Looper;
+
+import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @Kroll.proxy(parentModule = DatabaseModule.class)
 public class TiDatabaseProxy extends KrollProxy
 {
 	private static final String TAG = "TiDB";
 
+	private static Thread thread;
+	private static BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+
 	protected SQLiteDatabase db;
 	protected String name;
-	boolean statementLogging, readOnly;
 
+	/**
+	 * Create a TiDatabaseProxy for SQLiteDatabase instance.
+	 * @param name Database name.
+	 * @param db SQLiteDatabase instance.
+	 */
 	public TiDatabaseProxy(String name, SQLiteDatabase db)
 	{
 		super();
+
+		if (this.thread == null) {
+
+			// Query execution thread.
+			this.thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+
+						// Query execution loop.
+						while (true) {
+
+							// Obtain query and execute.
+							// NOTE: This will block until a query is available.
+							queue.take().run();
+
+							// Queue empty? Send notify event.
+							if (queue.isEmpty()) {
+								synchronized (queue) {
+									queue.notify();
+								}
+							}
+						}
+					} catch (InterruptedException e) {
+					}
+				}
+			});
+			this.thread.start();
+		}
+
 		this.name = name;
 		this.db = db;
-		statementLogging = false;
-		readOnly = false;
 	}
 
-	// readonly database
+	/**
+	 * Create a TiDatabaseProxy for SQLiteDatabase instance.
+	 * @param db SQLiteDatabase instance.
+	 */
 	public TiDatabaseProxy(SQLiteDatabase db)
 	{
-		super();
-		this.name = db.getPath();
-		this.db = db;
-		statementLogging = false;
-		readOnly = true;
+		this(db.getPath(), db);
 	}
 
+	/**
+	 * Close database.
+	 */
 	@Kroll.method
 	public void close()
 	{
 		if (db.isOpen()) {
-			Log.d(TAG, "Closing database: " + name, Log.DEBUG_MODE);
 			db.close();
-		} else {
-			Log.d(TAG, "Database is not open, ignoring close for " + name, Log.DEBUG_MODE);
 		}
 	}
 
+	/**
+	 * Synchronously execute a single SQL query.
+	 * @param query SQL query to execute on database.
+	 * @param parameterObjects Parameters for `query`
+	 */
 	@Kroll.method
-	public TiResultSetProxy execute(String sql, Object... args)
+	private TiResultSetProxy execute(String query, Object... parameterObjects)
 	{
-		// Handle the cases where an array is passed containing the SQL query arguments.
-		// Otherwise use the variable argument list for the SQL query.
-		Object[] sqlArgs;
-		if (args != null && args.length == 1 && args[0] instanceof Object[]) {
-			sqlArgs = (Object[]) args[0];
-		} else {
-			sqlArgs = args;
+		// Validate and parse parameter objects.
+		if (parameterObjects != null && parameterObjects.length == 1 && parameterObjects[0] instanceof Object[]) {
+			parameterObjects = (Object[]) parameterObjects[0];
 		}
-
-		if (statementLogging) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Executing SQL: ").append(sql).append("\n  Args: [ ");
-			boolean needsComma = false;
-
-			for (Object s : sqlArgs) {
-				if (needsComma) {
-					sb.append(", \"");
-				} else {
-					sb.append(" \"");
-					needsComma = true;
-				}
-				sb.append(TiConvert.toString(s)).append("\"");
-			}
-			sb.append(" ]");
-			Log.v(TAG, sb.toString(), Log.DEBUG_MODE);
-		}
-
-		TiResultSetProxy rs = null;
-		Cursor c = null;
-		try {
-			String lcSql = sql.toLowerCase().trim();
-			// You must use execSQL unless you are expecting a resultset, changes aren't committed
-			// if you don't. Just expecting them on select or pragma may be enough, but
-			// it may need additional tuning. The better solution would be to expose
-			// both types of queries through the Titanium API.
-			if (lcSql.startsWith("select") || (lcSql.startsWith("pragma") && !lcSql.contains("="))) {
-				String[] selectArgs = null;
-				if (sqlArgs != null) {
-					selectArgs = new String[sqlArgs.length];
-					for (int i = 0; i < sqlArgs.length; i++) {
-						selectArgs[i] = TiConvert.toString(sqlArgs[i]);
-					}
-				}
-				c = db.rawQuery(sql, selectArgs);
-				if (c != null) {
-					// Most non-SELECT statements won't actually return data, but some such as
-					// PRAGMA do. If there are no results, just return null.
-					// Thanks to brion for working through the logic, based off of commit
-					// https://github.com/brion/titanium_mobile/commit/8d3251fca69e10df6a96a2a9ae513159494d17c3
-					if (c.getColumnCount() > 0) {
-						rs = new TiResultSetProxy(c);
-						if (rs.isValidRow()) {
-							rs.next(); // Position on first row if we have data.
-						}
-					} else {
-						c.close();
-						c = null;
-						rs = null;
-					}
-				} else {
-					// Leaving for historical purposes, but walking through several different
-					// types of statements never hit this branch. (create, drop, select, pragma)
-					rs = new TiResultSetProxy(null); // because iPhone does it this way.
-				}
+		for (int i = 0; i < parameterObjects.length; i++) {
+			if (parameterObjects[i] instanceof TiBlob) {
+				parameterObjects[i] = ((TiBlob) parameterObjects[i]).getBytes();
 			} else {
-				Object[] newArgs = null;
-				if (sqlArgs != null) {
-					newArgs = new Object[sqlArgs.length];
-					for (int i = 0; i < sqlArgs.length; i++) {
-						if (sqlArgs[i] instanceof TiBlob) {
-							newArgs[i] = ((TiBlob) sqlArgs[i]).getBytes();
-						} else {
-							newArgs[i] = TiConvert.toString(sqlArgs[i]);
+				parameterObjects[i] = TiConvert.toString(parameterObjects[i]);
+			}
+		}
+
+		// If this is a synchronous call on the main thread, wait for all queued queries
+		// to maintain correct execution order and prevent write-locks.
+		if (Looper.getMainLooper() == Looper.myLooper()) {
+			try {
+
+				// Wait until query queue is empty.
+				while(!queue.isEmpty()) {
+					synchronized (queue) {
+						queue.wait();
+					}
+				}
+
+				// Continue execution, retaining correct order.
+
+			} catch (InterruptedException e) {
+				// Ignore...
+			}
+		}
+
+		// Log.d(TAG, "execute: " + query);
+
+		TiResultSetProxy result = null;
+		Cursor cursor = null;
+		try {
+			String lowerCaseQuery = query.toLowerCase().trim();
+
+			// Execute query using rawQuery() in order to receive results.
+			if (lowerCaseQuery.startsWith("select") || lowerCaseQuery.startsWith("insert") || lowerCaseQuery.startsWith("update")
+					|| lowerCaseQuery.startsWith("delete") || (lowerCaseQuery.startsWith("pragma") && !lowerCaseQuery.contains("="))) {
+
+				// Query parameters must be strings.
+				ArrayList<String> parameters = new ArrayList<>();
+				for (Object parameter : parameterObjects) {
+					parameters.add(TiConvert.toString(parameter));
+				}
+
+				cursor = db.rawQuery(query, parameters.toArray(new String[0]));
+				if (cursor != null) {
+
+					// Validate and set query result.
+					if (cursor.getColumnCount() > 0) {
+						result = new TiResultSetProxy(cursor);
+						if (result.isValidRow()) {
+							result.next();
 						}
 					}
 				}
-				db.execSQL(sql, newArgs);
+
+			// Query does not return result, use execSQL()
+			} else {
+				db.execSQL(query, parameterObjects);
 			}
-		} catch (SQLException e) {
-			String msg = "Error executing sql: " + e.getMessage();
-			Log.e(TAG, msg, e);
-			if (c != null) {
+		} finally {
+
+			// Cleanup result.
+			if (cursor != null) {
 				try {
-					c.close();
-				} catch (SQLException e2) {
-					// Ignore
+					cursor.close();
+				} catch (Exception e) {
+					// Ignore...
 				}
 			}
-			throw e;
 		}
 
-		return rs;
+		return result;
 	}
 
+	/**
+	 * Asynchronously execute a single SQL query.
+	 * @param callback Result callback for query execution.
+	 * @param query SQL query to execute on database.
+	 * @param parameters Parameters for `query`
+	 */
+	@Kroll.method
+	public void executeAsync(final KrollFunction callback, final String query, final Object... parameters)
+	{
+		try {
+			queue.put(new Runnable() {
+				@Override
+				public void run() {
+					final TiResultSetProxy result = execute(query, parameters);
+					callback.callAsync(getKrollObject(), new Object[] { result });
+				}
+			});
+		} catch (InterruptedException e) {
+		}
+	}
+
+	/**
+	 * Synchronously execute a multiple SQL queries.
+	 * @param queries SQL queries to execute on database.
+	 */
+	@Kroll.method
+	public Object[] executeAll(final String[] queries)
+	{
+		ArrayList<TiResultSetProxy> results = new ArrayList<>();
+		for (String query : queries) {
+			final TiResultSetProxy result = execute(query);
+			results.add(result);
+		}
+		return results.toArray();
+	}
+
+	/**
+	 * Asynchronously execute a multiple SQL queries.
+	 * @param callback Result callback for query execution.
+	 * @param queries SQL queries to execute on database.
+	 */
+	@Kroll.method
+	public void executeAllAsync(final KrollFunction callback, final String[] queries)
+	{
+		try {
+			queue.put(new Runnable() {
+				@Override
+				public void run() {
+					final Object[] results = executeAll(queries);
+					callback.callAsync(getKrollObject(), new Object[] { results });
+				}
+			});
+		} catch (InterruptedException e) {
+		}
+	}
+
+	/**
+	 * Get database name.
+	 * @return Database name.
+	 */
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
@@ -166,6 +255,10 @@ public class TiDatabaseProxy extends KrollProxy
 		return name;
 	}
 
+	/**
+	 * Get last inserted row identifier.
+	 * @return Row identifier.
+	 */
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
@@ -175,6 +268,10 @@ public class TiDatabaseProxy extends KrollProxy
 		return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
 	}
 
+	/**
+	 * Get number of rows affected by last query.
+	 * @return Number of rows.
+	 */
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
@@ -184,26 +281,29 @@ public class TiDatabaseProxy extends KrollProxy
 		return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
 	}
 
+	/**
+	 * Remove database from device. This closes and deletes the database.
+	 */
 	@Kroll.method
 	public void remove()
 	{
-		if (readOnly) {
-			Log.w(TAG, name + " is a read-only database, cannot remove");
-			return;
-		}
+		// Close database.
+		this.close();
 
-		if (db.isOpen()) {
-			Log.w(TAG, "Attempt to remove open database. Closing then removing " + name);
-			db.close();
-		}
+		// Delete database from device.
 		Context ctx = TiApplication.getInstance();
 		if (ctx != null) {
 			ctx.deleteDatabase(name);
+			Log.w(TAG, "Removed database: '" + name + "''");
 		} else {
-			Log.w(TAG, "Unable to remove database, context has been reclaimed by GC: " + name);
+			Log.w(TAG, "Unable to remove database: '" + name + "''");
 		}
 	}
 
+	/**
+	 * Get database file.
+	 * @return `Ti.File` reference of SQLiteDatabase.
+	 */
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
@@ -214,9 +314,22 @@ public class TiDatabaseProxy extends KrollProxy
 		return new TiFileProxy(TiFileFactory.createTitaniumFile(path, false));
 	}
 
+	/**
+	 * Get proxy name.
+	 * @return Proxy name.
+	 */
 	@Override
 	public String getApiName()
 	{
 		return "Ti.Database.DB";
+	}
+
+	/**
+	 * Close and release database instance.
+	 */
+	@Override
+	public void release() {
+		this.close();
+		this.db = null;
 	}
 }
