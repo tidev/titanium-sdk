@@ -128,9 +128,11 @@ KrollContext *GetKrollContext(JSContextRef context)
 
 JSValueRef ThrowException(JSContextRef ctx, NSString *message, JSValueRef *exception)
 {
-  JSStringRef jsString = JSStringCreateWithCFString((CFStringRef)message);
-  *exception = JSValueMakeString(ctx, jsString);
-  JSStringRelease(jsString);
+  JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(ctx);
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:globalContextRef];
+  JSValue *value = [JSValue valueWithNewErrorFromMessage:message inContext:context];
+  *exception = value.JSValueRef;
+
   return JSValueMakeUndefined(ctx);
 }
 
@@ -148,13 +150,7 @@ static JSValueRef CommonJSRequireCallback(JSContextRef jsContext, JSObjectRef js
     return [KrollObject toValue:ctx value:result];
   }
   @catch (NSException *e) {
-    JSContext *currentContext = [JSContext contextWithJSGlobalContextRef:[ctx context]];
-    JSValue *errorValue = [JSValue valueWithNewErrorFromMessage:[e reason] inContext:currentContext];
-
-    NSMutableDictionary *errorDict = [NSMutableDictionary dictionaryWithDictionary:[errorValue toDictionary]];
-    [errorDict setObject:[[errorValue valueForProperty:@"stack"] toObject] forKey:@"stack"];
-    [errorDict setObject:[[errorValue valueForProperty:@"message"] toObject] forKey:@"message"];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:errorDict]];
+    return ThrowException(jsContext, [e reason], exception);
   }
 }
 

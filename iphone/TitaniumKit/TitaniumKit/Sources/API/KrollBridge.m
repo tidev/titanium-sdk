@@ -449,6 +449,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   } else {
     jcode = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:&error];
   }
+
   if (error != nil) {
     NSLog(@"[ERROR] Error loading path: %@, %@", path, error);
 
