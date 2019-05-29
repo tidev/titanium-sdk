@@ -96,13 +96,16 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 									archiveArtifacts 'mocha_*.crash'
 									sh 'rm -f mocha_*.crash'
 								} else {
-									sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: 'adb -e pull /data/tombstones'
-									archiveArtifacts 'tombstones/'
-									sh 'rm -f tombstones/'
-									// wipe tombstones and re-build dir with proper permissions/ownership on emulator
-									sh returnStatus: true, script: 'adb -e shell rm -rf /data/tombstones'
-									sh returnStatus: true, script: 'adb -e shell mkdir -m 771 /data/tombstones'
-									sh returnStatus: true, script: 'adb -e shell chown system:system /data/tombstones'
+									// gather crash reports/tombstones for Android
+									timeout(5) {
+										sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: 'adb -e pull /data/tombstones'
+										archiveArtifacts allowEmptyArchive: true, artifacts: 'tombstones/'
+										sh returnStatus: true, 'rm -rf tombstones/'
+										// wipe tombstones and re-build dir with proper permissions/ownership on emulator
+										sh returnStatus: true, script: 'adb -e shell rm -rf /data/tombstones'
+										sh returnStatus: true, script: 'adb -e shell mkdir -m 771 /data/tombstones'
+										sh returnStatus: true, script: 'adb -e shell chown system:system /data/tombstones'
+									}
 								}
 								throw e
 							} finally {
