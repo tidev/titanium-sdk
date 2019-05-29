@@ -112,7 +112,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 									timeout(5) {
 										sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './adb-all.sh pull /data/tombstones'
 										archiveArtifacts allowEmptyArchive: true, artifacts: 'tombstones/'
-										sh returnStatus: true, 'rm -rf tombstones/'
+										sh returnStatus: true, script: 'rm -rf tombstones/'
 										// wipe tombstones and re-build dir with proper permissions/ownership on emulator
 										sh returnStatus: true, script: './adb-all.sh shell rm -rf /data/tombstones'
 										sh returnStatus: true, script: './adb-all.sh shell mkdir -m 771 /data/tombstones'
