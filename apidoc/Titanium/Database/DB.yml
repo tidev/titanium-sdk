@@ -85,12 +85,12 @@ methods:
     summary: |
       Synchronously executes an array of SQL statements against the database and fires a callback with an array of `ResultSet`.
     returns:
-        type: Titanium.Database.ResultSet[]
+        type: Array<Titanium.Database.ResultSet>
     platforms: [android]
     parameters:
       - name: queries
         summary: Array of SQL queries to execute.
-        type: String[]
+        type: Array<String>
     since: { android: "8.1.0" }
 
   - name: executeAllAsync
@@ -100,11 +100,11 @@ methods:
     parameters:
       - name: callback
         summary: Callback when query execution has completed.
-        type: Callback<ResultSet[]>
+        type: Callback<Array<ResultSet>>
 
       - name: queries
         summary: Array of SQL queries to execute.
-        type: String[]
+        type: Array<String>
     since: { android: "8.1.0" }
 
   - name: remove
