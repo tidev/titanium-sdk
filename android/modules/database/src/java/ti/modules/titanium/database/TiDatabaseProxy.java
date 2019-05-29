@@ -51,7 +51,8 @@ public class TiDatabaseProxy extends KrollProxy
 			// Query execution thread.
 			this.thread = new Thread(new Runnable() {
 				@Override
-				public void run() {
+				public void run()
+				{
 					try {
 
 						// Query execution loop.
@@ -63,7 +64,8 @@ public class TiDatabaseProxy extends KrollProxy
 
 							// Queue empty? Send notify event.
 							if (queue.isEmpty()) {
-								synchronized (queue) {
+								synchronized (queue)
+								{
 									queue.notify();
 								}
 							}
@@ -125,8 +127,9 @@ public class TiDatabaseProxy extends KrollProxy
 			try {
 
 				// Wait until query queue is empty.
-				while(!queue.isEmpty()) {
-					synchronized (queue) {
+				while (!queue.isEmpty()) {
+					synchronized (queue)
+					{
 						queue.wait();
 					}
 				}
@@ -146,8 +149,9 @@ public class TiDatabaseProxy extends KrollProxy
 			String lowerCaseQuery = query.toLowerCase().trim();
 
 			// Execute query using rawQuery() in order to receive results.
-			if (lowerCaseQuery.startsWith("select") || lowerCaseQuery.startsWith("insert") || lowerCaseQuery.startsWith("update")
-					|| lowerCaseQuery.startsWith("delete") || (lowerCaseQuery.startsWith("pragma") && !lowerCaseQuery.contains("="))) {
+			if (lowerCaseQuery.startsWith("select") || lowerCaseQuery.startsWith("insert")
+				|| lowerCaseQuery.startsWith("update") || lowerCaseQuery.startsWith("delete")
+				|| (lowerCaseQuery.startsWith("pragma") && !lowerCaseQuery.contains("="))) {
 
 				// Query parameters must be strings.
 				ArrayList<String> parameters = new ArrayList<>();
@@ -167,7 +171,7 @@ public class TiDatabaseProxy extends KrollProxy
 					}
 				}
 
-			// Query does not return result, use execSQL()
+				// Query does not return result, use execSQL()
 			} else {
 				db.execSQL(query, parameterObjects);
 			}
@@ -198,7 +202,8 @@ public class TiDatabaseProxy extends KrollProxy
 		try {
 			queue.put(new Runnable() {
 				@Override
-				public void run() {
+				public void run()
+				{
 					final TiResultSetProxy result = execute(query, parameters);
 					callback.callAsync(getKrollObject(), new Object[] { result });
 				}
@@ -233,7 +238,8 @@ public class TiDatabaseProxy extends KrollProxy
 		try {
 			queue.put(new Runnable() {
 				@Override
-				public void run() {
+				public void run()
+				{
 					final Object[] results = executeAll(queries);
 					callback.callAsync(getKrollObject(), new Object[] { results });
 				}
@@ -328,7 +334,8 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Close and release database instance.
 	 */
 	@Override
-	public void release() {
+	public void release()
+	{
 		this.close();
 		this.db = null;
 	}
