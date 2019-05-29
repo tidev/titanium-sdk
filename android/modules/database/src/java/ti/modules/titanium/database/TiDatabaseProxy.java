@@ -25,6 +25,7 @@ import android.os.Looper;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Kroll.proxy(parentModule = DatabaseModule.class)
 public class TiDatabaseProxy extends KrollProxy
@@ -33,6 +34,7 @@ public class TiDatabaseProxy extends KrollProxy
 
 	private static Thread thread;
 	private static BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+	private static AtomicBoolean executingQueue = new AtomicBoolean(false);
 
 	protected SQLiteDatabase db;
 	protected String name;
@@ -64,9 +66,10 @@ public class TiDatabaseProxy extends KrollProxy
 
 							// Queue empty? Send notify event.
 							if (queue.isEmpty()) {
-								synchronized (queue)
+								synchronized (executingQueue)
 								{
-									queue.notify();
+									executingQueue.set(false);
+									executingQueue.notify();
 								}
 							}
 						}
@@ -127,10 +130,10 @@ public class TiDatabaseProxy extends KrollProxy
 			try {
 
 				// Wait until query queue is empty.
-				while (!queue.isEmpty()) {
-					synchronized (queue)
-					{
-						queue.wait();
+				synchronized (executingQueue)
+				{
+					while (executingQueue.get()) {
+						executingQueue.wait();
 					}
 				}
 
@@ -199,6 +202,7 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public void executeAsync(final KrollFunction callback, final String query, final Object... parameters)
 	{
+		executingQueue.set(true);
 		try {
 			queue.put(new Runnable() {
 				@Override
@@ -235,6 +239,7 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public void executeAllAsync(final KrollFunction callback, final String[] queries)
 	{
+		executingQueue.set(true);
 		try {
 			queue.put(new Runnable() {
 				@Override
