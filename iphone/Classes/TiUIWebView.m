@@ -444,7 +444,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     window.webkit.messageHandlers._Ti_.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
     }, \
     log: function(level, message){ \
-    window.webkit.messageHandlers._Ti_.postMessage({name:'level', method: 'log', callback: Ti._JSON({level:'level', message:message},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name: level, method: 'log', callback: Ti._JSON({level: level, message:message},1)},'*'); \
     }, \
     }; \
     ";
