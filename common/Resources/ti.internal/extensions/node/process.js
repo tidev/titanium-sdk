@@ -147,9 +147,25 @@ process.emitWarning = function (warning, options, code, ctor) { // eslint-disabl
 	}
 	this.emit('warning', warning);
 };
-process.env = {
-	// DEBUG: '*' // uncomment to make use of npm 'debug' module. TODO: have CLI pass along env vars in some file/property for dev builds?
-};
+function loadEnvJson() {
+	try {
+		const jsonFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '_env_.json');
+		if (jsonFile.exists()) {
+			return JSON.parse(jsonFile.read().text);
+		}
+	} catch (error) {
+		Ti.API.error(`Failed to read "_env_.json". Reason: ${error.message}`);
+	}
+	return {};
+}
+Object.defineProperty(process, 'env', {
+	get: function () {
+		delete this.env;
+		return this.env = loadEnvJson();
+	},
+	enumerable: true,
+	configurable: true
+});
 process.execArgv = [];
 process.execPath = ''; // FIXME: What makes sense here? Path to titanium CLI here?
 process.exit = () => {
