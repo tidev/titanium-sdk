@@ -248,7 +248,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   if (path != nil) {
     return [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];
   }
-  NSLog(@"[ERROR] Blob.file property requested but the Filesystem API was never requested.") return nil;
+  return nil;
 }
 
 - (id)nativePath
