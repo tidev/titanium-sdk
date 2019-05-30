@@ -556,15 +556,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
 		}
 
+		boolean exitOnClose = false;
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
-							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+			exitOnClose = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
 		} else {
 			// If launching child activity from Titanium root activity, then have it exit out of the app.
 			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
-			boolean isRoot = activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity());
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, isRoot);
+			exitOnClose = activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity());
+			setProperty(TiC.PROPERTY_EXIT_ON_CLOSE, exitOnClose);
 		}
+		intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, exitOnClose);
 
 		// Set the theme property
 		if (hasProperty(TiC.PROPERTY_THEME)) {

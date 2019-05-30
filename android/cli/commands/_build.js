@@ -41,7 +41,6 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	url = require('url'),
 	util = require('util'),
-	wrench = require('wrench'),
 
 	afs = appc.fs,
 	i18nLib = appc.i18n(__dirname),
@@ -798,8 +797,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											_t.keystoreAliases.pop();
 										}
 
+										// Parse the keystore's alias name and signature algorithm.
+										// Note: Algorithm can return "MD5withRSA (weak)" on JDK 8 and higher.
+										//       Only extract 1st token since we need a valid algorithm name.
 										const aliasRegExp = /Alias name: (.+)/,
-											sigalgRegExp = /Signature algorithm name: (.+)/;
+											sigalgRegExp = /Signature algorithm name: (.[^\s]+)/;
 										out.split('\n\n').forEach(function (chunk) {
 											chunk = chunk.trim();
 											const m = chunk.match(aliasRegExp);
@@ -807,7 +809,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 												const sigalg = chunk.match(sigalgRegExp);
 												_t.keystoreAliases.push({
 													name: m[1],
-													sigalg: sigalg && sigalg[1]
+													sigalg: sigalg && sigalg[1] && sigalg[1].trim()
 												});
 											}
 										});
@@ -966,6 +968,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (cli.argv['skip-js-minify']) {
 		this.minifyJS = false;
 	}
+
+	// Do we write out process.env into a file in the app to use?
+	this.writeEnvVars = this.deployType !== 'production';
 
 	// check the app name
 	if (cli.tiapp.name.indexOf('&') !== -1) {
@@ -1857,7 +1862,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
-	this.mainActivity = '.' + this.classname + 'Activity';
 
 	this.buildOnly = argv['build-only'];
 
@@ -2243,10 +2247,11 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 	// check if we need to do a rebuild
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 
-	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
-		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
+	if (this.forceRebuild) {
+		fs.emptyDirSync(this.buildGenAppIdDir);
+	} else {
+		fs.ensureDirSync(this.buildGenAppIdDir);
 	}
-	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
 
 	// now that we've read the build manifest, delete it so if this build
 	// becomes incomplete, the next build will be a full rebuild
@@ -2279,34 +2284,30 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// that build.pre.compile was fired.
 	ti.validateAppJsExists(this.projectDir, this.logger, 'android');
 
-	fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+	fs.ensureDirSync(this.buildDir);
 
 	// make directories if they don't already exist
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
-		fs.existsSync(dir) && wrench.rmdirSyncRecursive(dir);
+		fs.emptyDirSync(dir);
 		Object.keys(this.lastBuildFiles).forEach(function (file) {
 			if (file.indexOf(dir + '/') === 0) {
 				delete this.lastBuildFiles[file];
 			}
 		}, this);
-		wrench.mkdirSyncRecursive(dir);
-	} else if (!fs.existsSync(dir)) {
-		wrench.mkdirSyncRecursive(dir);
+	} else {
+		fs.ensureDirSync(dir);
 	}
 
 	// we always destroy and rebuild the res directory
-	if (fs.existsSync(this.buildResDir)) {
-		wrench.rmdirSyncRecursive(this.buildResDir);
-	}
-	wrench.mkdirSyncRecursive(this.buildResDir);
+	fs.emptyDirSync(this.buildResDir);
 
-	fs.existsSync(dir = this.buildBinAssetsResourcesDir)       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'gen'))       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildDir, 'lib'))       || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildResDrawableDir)              || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = path.join(this.buildResDir, 'values')) || wrench.mkdirSyncRecursive(dir);
-	fs.existsSync(dir = this.buildSrcDir)                      || wrench.mkdirSyncRecursive(dir);
+	fs.ensureDirSync(this.buildBinAssetsResourcesDir);
+	fs.ensureDirSync(path.join(this.buildDir, 'gen'));
+	fs.ensureDirSync(path.join(this.buildDir, 'lib'));
+	fs.ensureDirSync(this.buildResDrawableDir);
+	fs.ensureDirSync(path.join(this.buildResDir, 'values'));
+	fs.ensureDirSync(this.buildSrcDir);
 
 	// create the deploy.json file which contains debugging/profiling info
 	const deployJsonFile = path.join(this.buildBinAssetsDir, 'deploy.json'),
@@ -2357,7 +2358,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 	function copyFile(from, to, next) {
 		var d = path.dirname(to);
-		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
+		fs.ensureDirSync(d);
 
 		if (fs.existsSync(to)) {
 			_t.logger.warn(__('Overwriting file %s', to.cyan));
@@ -2480,7 +2481,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// if the destination directory does not exists, create it
-				fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+				fs.ensureDirSync(destDir);
 
 				const ext = filename.match(extRegExp);
 
@@ -2781,7 +2782,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 								this.tiSymbols[to] = modified.symbols;
 
 								const dir = path.dirname(to);
-								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+								fs.ensureDirSync(dir);
 
 								if (symlinkFiles && newContents === originalContents) {
 									this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
@@ -2824,6 +2825,19 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			);
 			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
 			delete this.lastBuildFiles[appPropsFile];
+
+			// write the env variables file
+			const envVarsFile = path.join(buildAssetsPath, '_env_.json');
+			Object.keys(this.tiapp.properties).forEach(function (prop) {
+				props[prop] = this.tiapp.properties[prop].value;
+			}, this);
+			fs.writeFileSync(
+				envVarsFile,
+				// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
+				this.writeEnvVars ? JSON.stringify(process.env) : {}
+			);
+			this.encryptJS && jsFilesToEncrypt.push('_env_.json');
+			delete this.lastBuildFiles[envVarsFile];
 
 			// Write the "bootstrap.json" file, even if the bootstrap array is empty.
 			// Note: An empty array indicates the app has no bootstrap files.
@@ -3257,8 +3271,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 			this.logger.info(__('Extracting module resources: %s', resFile.cyan));
 
 			const tmp = temp.path();
-			fs.existsSync(tmp) && wrench.rmdirSyncRecursive(tmp);
-			wrench.mkdirSyncRecursive(tmp);
+			fs.emptyDirSync(tmp);
 
 			appc.zip.unzip(resFile, tmp, {}, function (ex) {
 				if (ex) {
@@ -3695,65 +3708,49 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			'Contacts.getAllGroups': contactsReadPermissions,
 			'Contacts.getGroupByID': contactsReadPermissions,
 
-			'Map.createView': geoPermissions,
-
 			'Media.Android.setSystemWallpaper': wallpaperPermissions,
 			'Media.showCamera': cameraPermissions,
 			'Media.vibrate': vibratePermissions,
 		},
 
-		tiMethodActivities = {
-			'Map.createView': {
-				activity: {
-					name: 'ti.modules.titanium.map.TiMapActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					launchMode: 'singleTask'
-				},
-				'uses-library': {
-					name: 'com.google.android.maps'
-				}
-			},
-			'Media.createVideoPlayer': {
-				activity: {
-					name: 'ti.modules.titanium.media.TiVideoActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					theme: '@style/Theme.AppCompat.Fullscreen',
-					launchMode: 'singleTask'
-				}
-			},
-			'Media.showCamera': {
-				activity: {
-					name: 'ti.modules.titanium.media.TiCameraActivity',
-					configChanges: [ 'keyboardHidden', 'orientation' ],
-					theme: '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
-				}
-			}
-		},
-
 		googleAPIs = [
-			'Map.createView'
+			// Example: 'Map.createView'
 		],
 
 		enableGoogleAPIWarning = this.target === 'emulator' && this.emulator && !this.emulator.googleApis,
 
-		fill = function (str) {
-			// first we replace all legacy variable placeholders with EJS style placeholders
-			str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
-				// if the property is the "id", we want to force our scrubbed "appid"
-				if (m2 === 'id') {
-					m2 = 'appid';
-				} else {
-					m2 = 'tiapp.' + m2;
-				}
-				return '<%- ' + m2 + ' %>';
-			});
-			// then process the string as an EJS template
-			return ejs.render(str, this);
-		}.bind(this),
-
-		finalAndroidManifest = (new AndroidManifest()).parse(fill(fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString())),
 		customAndroidManifest = this.customAndroidManifest,
 		tiappAndroidManifest = this.tiappAndroidManifest;
+
+	// Create a string of all known <activity/> attribute "android:configChanges" values for the target API Level.
+	// This variable will be referenced by name by an EJS "AndroidManifest.xml" template.
+	// Ex: <activity android:name="MyActivity" android:configChanges="<%- allActivityConfigChanges %>" />
+	this.allActivityConfigChanges
+		= 'fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation'
+		+ '|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode';
+	if (this.realTargetSDK >= 24) {
+		this.allActivityConfigChanges += '|density';
+	}
+
+	// Function used to EJS render Titanium's main "AndroidManfiest.xml" template and "timodule.xml" templates.
+	const ejsRenderManifest = function (str) {
+		// first we replace all legacy variable placeholders with EJS style placeholders
+		str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
+			// if the property is the "id", we want to force our scrubbed "appid"
+			if (m2 === 'id') {
+				m2 = 'appid';
+			} else {
+				m2 = 'tiapp.' + m2;
+			}
+			return '<%- ' + m2 + ' %>';
+		});
+		// then process the string as an EJS template
+		return ejs.render(str, this);
+	}.bind(this);
+
+	// Fetch main Titanium "AndroidManifest.xml" template's settings, resolving all template variables via EJS.
+	const finalAndroidManifest = (new AndroidManifest()).parse(ejsRenderManifest(
+		fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString()));
 
 	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
 	if (!this.config.get('android.mergeCustomAndroidManifest', true) && this.customAndroidManifest) {
@@ -3796,18 +3793,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				});
 			}
 
-			const obj = tiMethodActivities[symbol];
-			if (obj) {
-				if (obj.activity) {
-					finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
-					finalAndroidManifest.application.activity[obj.activity.name] = obj.activity;
-				}
-				if (obj['uses-library']) {
-					finalAndroidManifest.application['uses-library'] || (finalAndroidManifest.application['uses-library'] = {});
-					finalAndroidManifest.application['uses-library'][obj['uses-library'].name] = obj['uses-library'];
-				}
-			}
-
 			if (enableGoogleAPIWarning && googleAPIs.indexOf(symbol) !== -1) {
 				const fn = 'Titanium.' + symbol + '()';
 				if (this.emulator.googleApis === null) {
@@ -3832,14 +3817,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				this.logger.warn(__('Setting "%s" is not recommended for activity "%s"', 'android:launchMode'.red, activity.cyan));
 			}
 		}
-
-		// TIMOB-24917: make sure the main activity is themed
-		if (tiappAndroidManifest.application.activity && tiappAndroidManifest.application.activity[this.mainActivity]) {
-			const parameters = tiappAndroidManifest.application.activity[this.mainActivity];
-			if (!parameters.theme) {
-				parameters.theme = '@style/Theme.Titanium';
-			}
-		}
 	}
 
 	// gather activities
@@ -3855,7 +3832,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 					a[key.replace(/^android:/, '')] = activity[key];
 				}
 			});
-			a.configChanges || (a.configChanges = [ 'keyboardHidden', 'orientation' ]);
 			finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
 			finalAndroidManifest.application.activity[a.name] = a;
 		}
@@ -3905,33 +3881,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// set the app icon
 	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 
-	// merge the custom android manifest
-	finalAndroidManifest.merge(customAndroidManifest);
-
-	// merge the tiapp.xml android manifest
-	finalAndroidManifest.merge(tiappAndroidManifest);
-
-	this.modules.forEach(function (module) {
-		const moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
-		if (fs.existsSync(moduleXmlFile)) {
-			const moduleXml = new tiappxml(moduleXmlFile);
-			if (moduleXml.android && moduleXml.android.manifest) {
-				const am = new AndroidManifest();
-				am.parse(fill(moduleXml.android.manifest));
-				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
-				delete am.__attr__;
-				delete am['supports-screens'];
-				delete am['uses-sdk'];
-				finalAndroidManifest.merge(am);
-			}
-
-			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
-			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
-				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
-			}
-		}
-	}, this);
-
+	// Merge in "AndroidManifest.xml" files belonging to all AAR libraries.
 	this.androidLibraries.forEach(libraryInfo => {
 		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
 		if (fs.existsSync(libraryManifestPath)) {
@@ -3952,33 +3902,37 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	});
 
-	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
-	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
-	// elements, otherwise changes in orientation will cause the app to restart
-	if (this.realTargetSDK >= 13) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			const activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = [ 'screenSize' ];
-			} else if (activity.configChanges.indexOf('screenSize') === -1) {
-				activity.configChanges.push('screenSize');
+	// Merge in "AndroidManifest.xml" settings embedded within all "timodule.xml" files.
+	this.modules.forEach(function (module) {
+		const moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
+		if (fs.existsSync(moduleXmlFile)) {
+			const moduleXml = new tiappxml(moduleXmlFile);
+			if (moduleXml.android && moduleXml.android.manifest) {
+				const am = new AndroidManifest();
+				am.parse(ejsRenderManifest(moduleXml.android.manifest));
+				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
+				delete am.__attr__;
+				delete am['supports-screens'];
+				delete am['uses-sdk'];
+				finalAndroidManifest.merge(am);
 			}
-		});
-	}
+
+			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
+			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
+				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
+			}
+		}
+	}, this);
+
+	// Merge in the custom android manifest file.
+	finalAndroidManifest.merge(customAndroidManifest);
+
+	// Merge in the "tiapp.xml" file's android manifest settings.
+	// Must be done last so app developer can override manifest settings such as <activity/>, <receiver/>, etc.
+	finalAndroidManifest.merge(tiappAndroidManifest);
 
 	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
 		finalAndroidManifest.application.resizeableActivity = true;
-	}
-
-	if (this.realTargetSDK >= 24) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			const activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = [ 'density' ];
-			} else if (activity.configChanges.indexOf('density') === -1) {
-				activity.configChanges.push('density');
-			}
-		});
 	}
 
 	// add permissions
@@ -4001,9 +3955,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	this.ap_File = path.join(this.buildBinDir, 'app.ap_');
 	const bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
-	if (!fs.existsSync(bundlesPath)) {
-		wrench.mkdirSyncRecursive(bundlesPath);
-	}
+	fs.ensureDirSync(bundlesPath);
 
 	const aaptHook = this.cli.createHook('build.android.aapt', this, function (exe, args, opts, done) {
 			this.logger.info(__('Running AAPT: %s', (exe + ' "' + args.join('" "') + '"').cyan));
@@ -4186,14 +4138,6 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 
 	classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
 
-	if (this.allowDebugging && this.debugPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
-	}
-
-	if (this.allowProfiling && this.profilerPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
-	}
-
 	// find all java files and write them to the temp file
 	const javaFiles = [],
 		javaRegExp = /\.java$/,
@@ -4214,10 +4158,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"').replace(/\\/g, '/') + '"');
 
 	// if we're recompiling the java files, then nuke the classes dir
-	if (fs.existsSync(this.buildBinClassesDir)) {
-		wrench.rmdirSyncRecursive(this.buildBinClassesDir);
-	}
-	wrench.mkdirSyncRecursive(this.buildBinClassesDir);
+	fs.emptyDirSync(this.buildBinClassesDir);
 
 	const javacHook = this.cli.createHook('build.android.javac', this, function (exe, args, opts, done) {
 		this.logger.info(__('Building Java source files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
@@ -4324,19 +4265,8 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		dexArgs.unshift('-javaagent:' + this.dexAgent);
 	}
 
-	if (this.allowDebugging && this.debugPort) {
-		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
-	}
-
-	if (this.allowProfiling && this.profilerPort) {
-		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
-	}
-
 	// nuke and create the folder holding all the classes*.dex files
-	if (fs.existsSync(this.buildBinClassesDex)) {
-		wrench.rmdirSyncRecursive(this.buildBinClassesDex);
-	}
-	wrench.mkdirSyncRecursive(this.buildBinClassesDex);
+	fs.emptyDirSync(this.buildBinClassesDex);
 
 	// Wipe existing outjar
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
@@ -4706,7 +4636,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 	this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
 
 	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
-		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.ensureDirSync(this.buildDir);
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
