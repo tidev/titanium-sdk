@@ -1380,6 +1380,8 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				requestPending = false;
+
 				KrollDict data = new KrollDict();
 				data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);

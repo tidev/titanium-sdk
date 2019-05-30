@@ -118,16 +118,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		super(proxy);
 
-		// Getting the value for colorPrimary from the currently used theme.
-		TypedValue colorPrimaryTypedValue = new TypedValue();
-		TypedArray colorPrimary =
-			activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
-		this.colorPrimaryInt = colorPrimary.getColor(0, 0);
-		// Getting the value for textColorPrimary for the currently used theme.
-		TypedValue typedValue = new TypedValue();
-		TypedArray textColor =
-			activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
-		this.textColorInt = textColor.getColor(0, 0);
+		TypedValue colorPrimaryValue = new TypedValue();
+		activity.getTheme().resolveAttribute(android.R.attr.colorPrimary, colorPrimaryValue, true);
+
+		TypedValue textColorPrimaryValue = new TypedValue();
+		activity.getTheme().resolveAttribute(android.R.attr.textColorPrimary, textColorPrimaryValue, true);
+
+		this.colorPrimaryInt = colorPrimaryValue.data;
+		this.textColorInt = textColorPrimaryValue.data;
 
 		this.tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(activity.getSupportFragmentManager());
 
