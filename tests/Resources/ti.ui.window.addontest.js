@@ -24,8 +24,8 @@ describe('Titanium.UI.Window', function () {
 	// Performs an Android shared-element transition animation between 2 windows.
 	// Labels from parent window will move to child window's label positions during open animation.
 	it.android('#addSharedElement()', function (finish) {
-		this.slow(2000);
-		this.timeout(3000);
+		this.slow(3000);
+		this.timeout(5000);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
@@ -79,8 +79,8 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	describe.android('activity transitions', function () {
-		this.slow(2000);
-		this.timeout(3000);
+		this.slow(3000);
+		this.timeout(5000);
 
 		function doTransitionTest(windowSettings, finish) {
 			windowSettings.title = 'Child Window';
