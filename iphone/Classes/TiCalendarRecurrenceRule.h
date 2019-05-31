@@ -31,6 +31,10 @@ READONLY_PROPERTY(NSArray<NSNumber *> *, weeksOfTheYear, WeeksOfTheYear);
   EKRecurrenceRule *rule;
 }
 
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithRule:` instead.
+  */
+- (id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule *)rule_ __attribute__((deprecated));
 - (id)initWithRule:(EKRecurrenceRule *)rule_;
 - (EKRecurrenceRule *)ruleForRecurrence;
 @end
