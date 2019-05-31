@@ -17,7 +17,7 @@
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule *)rule_
 {
-  return [self initWithRule:rule];
+  return [self initWithRule:rule_];
 }
 
 - (id)initWithRule:(EKRecurrenceRule *)rule_
