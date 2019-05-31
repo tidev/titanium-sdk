@@ -3413,18 +3413,21 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					});
 				}
 
+				const handledBuildPhases = [ 'PBXSourcesBuildPhase', 'PBXFrameworksBuildPhase', 'PBXResourcesBuildPhase', 'PBXCopyFilesBuildPhase' ];
+
 				// add the build phases
 				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
 					let type;
-					if (extObjs.PBXSourcesBuildPhase[phase.value]) {
-						type = 'PBXSourcesBuildPhase';
-					} else if (extObjs.PBXFrameworksBuildPhase[phase.value]) {
-						type = 'PBXFrameworksBuildPhase';
-					} else if (extObjs.PBXResourcesBuildPhase[phase.value]) {
-						type = 'PBXResourcesBuildPhase';
-					} else if (extObjs.PBXCopyFilesBuildPhase[phase.value]) {
-						type = 'PBXCopyFilesBuildPhase';
-					} else {
+
+					for (const handledBuildPhase of handledBuildPhases) {
+						if (extObjs[handledBuildPhase] && extObjs[handledBuildPhase][phase.value]) {
+							type = handledBuildPhase;
+							break;
+						}
+					}
+
+					if (!type) {
+						this.logger.warn(`No build phases found for extension target "${targetName}"`);
 						return;
 					}
 

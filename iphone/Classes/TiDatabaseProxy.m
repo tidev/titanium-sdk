@@ -25,7 +25,7 @@
 - (void)shutdown:(id)sender
 {
   if (database != nil) {
-    [self performSelector:@selector(close:) withObject:nil];
+    [self performSelector:@selector(close) withObject:nil];
   }
 }
 
