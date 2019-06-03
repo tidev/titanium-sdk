@@ -22,6 +22,7 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,9 +33,9 @@ public class TiDatabaseProxy extends KrollProxy
 {
 	private static final String TAG = "TiDB";
 
-	private static Thread thread;
-	private static BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-	private static AtomicBoolean executingQueue = new AtomicBoolean(false);
+	private Thread thread;
+	private BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+	private AtomicBoolean executingQueue = new AtomicBoolean(false);
 
 	protected SQLiteDatabase db;
 	protected String name;
@@ -100,6 +101,7 @@ public class TiDatabaseProxy extends KrollProxy
 	public void close()
 	{
 		if (db.isOpen()) {
+			Log.d(TAG, "Closing database: " + name);
 			db.close();
 		}
 	}
@@ -110,17 +112,28 @@ public class TiDatabaseProxy extends KrollProxy
 	 * @param parameterObjects Parameters for `query`
 	 */
 	@Kroll.method
-	private TiResultSetProxy execute(String query, Object... parameterObjects)
+	public TiResultSetProxy execute(String query, Object... parameterObjects)
 	{
-		// Validate and parse parameter objects.
-		if (parameterObjects != null && parameterObjects.length == 1 && parameterObjects[0] instanceof Object[]) {
-			parameterObjects = (Object[]) parameterObjects[0];
+		// Validate `query` parameter.
+		if (query == null) {
+			throw new InvalidParameterException("'query' parameter is required");
 		}
-		for (int i = 0; i < parameterObjects.length; i++) {
-			if (parameterObjects[i] instanceof TiBlob) {
-				parameterObjects[i] = ((TiBlob) parameterObjects[i]).getBytes();
-			} else {
-				parameterObjects[i] = TiConvert.toString(parameterObjects[i]);
+
+		// Validate and parse `parameterObjects`.
+		if (parameterObjects != null) {
+
+			// Only an array is defined, use that for parameters
+			if (parameterObjects.length == 1 && parameterObjects[0] instanceof Object[]) {
+				parameterObjects = (Object[]) parameterObjects[0];
+			}
+
+			// Validate query parameters, must be either String or Blob.
+			for (int i = 0; i < parameterObjects.length; i++) {
+				if (parameterObjects[i] instanceof TiBlob) {
+					parameterObjects[i] = ((TiBlob) parameterObjects[i]).getBytes();
+				} else {
+					parameterObjects[i] = TiConvert.toString(parameterObjects[i]);
+				}
 			}
 		}
 
@@ -148,46 +161,45 @@ public class TiDatabaseProxy extends KrollProxy
 
 		TiResultSetProxy result = null;
 		Cursor cursor = null;
-		try {
-			String lowerCaseQuery = query.toLowerCase().trim();
 
-			// Execute query using rawQuery() in order to receive results.
-			if (lowerCaseQuery.startsWith("select") || lowerCaseQuery.startsWith("insert")
-				|| lowerCaseQuery.startsWith("update") || lowerCaseQuery.startsWith("delete")
-				|| (lowerCaseQuery.startsWith("pragma") && !lowerCaseQuery.contains("="))) {
+		// Execute query using rawQuery() in order to receive results.
+		String lowerCaseQuery = query.toLowerCase().trim();
+		if (lowerCaseQuery.startsWith("select")
+			|| (lowerCaseQuery.startsWith("pragma") && !lowerCaseQuery.contains("="))) {
 
-				// Query parameters must be strings.
-				ArrayList<String> parameters = new ArrayList<>();
-				for (Object parameter : parameterObjects) {
-					parameters.add(TiConvert.toString(parameter));
+			// Query parameters must be strings.
+			String parameters[] = new String[parameterObjects.length];
+			if (parameterObjects.length > 0) {
+				for (int i = 0; i < parameterObjects.length; i++) {
+					parameters[i] = TiConvert.toString(parameterObjects[i]);
 				}
+			}
 
-				cursor = db.rawQuery(query, parameters.toArray(new String[0]));
-				if (cursor != null) {
+			cursor = db.rawQuery(query, parameters);
+			if (cursor != null) {
 
-					// Validate and set query result.
-					if (cursor.getColumnCount() > 0) {
-						result = new TiResultSetProxy(cursor);
-						if (result.isValidRow()) {
-							result.next();
+				// Validate and set query result.
+				if (cursor.getColumnCount() > 0) {
+					result = new TiResultSetProxy(cursor);
+					if (result.isValidRow()) {
+						result.next();
+					}
+				} else {
+
+					// Cleanup result.
+					if (cursor != null) {
+						try {
+							cursor.close();
+						} catch (Exception e) {
+							// Ignore...
 						}
 					}
 				}
-
-				// Query does not return result, use execSQL()
-			} else {
-				db.execSQL(query, parameterObjects);
 			}
-		} finally {
 
-			// Cleanup result.
-			if (cursor != null) {
-				try {
-					cursor.close();
-				} catch (Exception e) {
-					// Ignore...
-				}
-			}
+			// Query does not return result, use execSQL().
+		} else {
+			db.execSQL(query, parameterObjects);
 		}
 
 		return result;
@@ -195,13 +207,18 @@ public class TiDatabaseProxy extends KrollProxy
 
 	/**
 	 * Asynchronously execute a single SQL query.
-	 * @param callback Result callback for query execution.
 	 * @param query SQL query to execute on database.
 	 * @param parameters Parameters for `query`
+	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
-	public void executeAsync(final KrollFunction callback, final String query, final Object... parameters)
+	public void executeAsync(final String query, final Object[] parameters, final KrollFunction callback)
 	{
+		// Validate `query` and `callback` parameters.
+		if (query == null || callback == null) {
+			throw new InvalidParameterException("'query' and 'callback' parameters are required");
+		}
+
 		executingQueue.set(true);
 		try {
 			queue.put(new Runnable() {
@@ -213,6 +230,7 @@ public class TiDatabaseProxy extends KrollProxy
 				}
 			});
 		} catch (InterruptedException e) {
+			// Ignore...
 		}
 	}
 
@@ -223,7 +241,12 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public Object[] executeAll(final String[] queries)
 	{
-		ArrayList<TiResultSetProxy> results = new ArrayList<>();
+		// Validate `queries` parameter.
+		if (queries == null || queries.length == 0) {
+			throw new InvalidParameterException("'query' parameter is required");
+		}
+
+		ArrayList<TiResultSetProxy> results = new ArrayList<>(queries.length);
 		for (String query : queries) {
 			final TiResultSetProxy result = execute(query);
 			results.add(result);
@@ -233,12 +256,17 @@ public class TiDatabaseProxy extends KrollProxy
 
 	/**
 	 * Asynchronously execute a multiple SQL queries.
-	 * @param callback Result callback for query execution.
 	 * @param queries SQL queries to execute on database.
+	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
-	public void executeAllAsync(final KrollFunction callback, final String[] queries)
+	public void executeAllAsync(final String[] queries, final KrollFunction callback)
 	{
+		// Validate `queries` and `callback` parameters.
+		if (queries == null || queries.length == 0 || callback == null) {
+			throw new InvalidParameterException("'query' and 'callback' parameters are required");
+		}
+
 		executingQueue.set(true);
 		try {
 			queue.put(new Runnable() {
@@ -250,6 +278,7 @@ public class TiDatabaseProxy extends KrollProxy
 				}
 			});
 		} catch (InterruptedException e) {
+			// Ignore...
 		}
 	}
 
@@ -305,9 +334,8 @@ public class TiDatabaseProxy extends KrollProxy
 		Context ctx = TiApplication.getInstance();
 		if (ctx != null) {
 			ctx.deleteDatabase(name);
-			Log.w(TAG, "Removed database: '" + name + "''");
 		} else {
-			Log.w(TAG, "Unable to remove database: '" + name + "''");
+			Log.w(TAG, "Unable to remove database, context has been reclaimed by GC: " + name);
 		}
 	}
 
@@ -343,5 +371,11 @@ public class TiDatabaseProxy extends KrollProxy
 	{
 		this.close();
 		this.db = null;
+
+		// Interrupt and dereference thread.
+		if (this.thread != null) {
+			this.thread.interrupt();
+			this.thread = null;
+		}
 	}
 }
