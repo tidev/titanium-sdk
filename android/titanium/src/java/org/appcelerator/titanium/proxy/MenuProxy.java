@@ -117,6 +117,8 @@ public class MenuProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_VISIBLE)) {
 			mip.setVisible(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE));
 		}
+
+		mip.setContentDescription(d);
 		return mip;
 	}
 

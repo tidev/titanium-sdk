@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
@@ -17,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -34,6 +36,8 @@ public class MenuItemProxy extends KrollProxy
 
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 1000;
+
+	public KrollDict accessibility = new KrollDict();
 
 	private final class CompatActionExpandListener implements MenuItemCompat.OnActionExpandListener
 	{
@@ -141,6 +145,103 @@ public class MenuItemProxy extends KrollProxy
 	// clang-format on
 	{
 		return item.isVisible();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityLabel()
+	// clang-format on
+	{
+		return TiConvert.toString(accessibility, TiC.PROPERTY_ACCESSIBILITY_LABEL);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityHint()
+	// clang-format on
+	{
+		return TiConvert.toString(accessibility, TiC.PROPERTY_ACCESSIBILITY_HINT);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityValue()
+	// clang-format on
+	{
+		return TiConvert.toString(accessibility, TiC.PROPERTY_ACCESSIBILITY_VALUE);
+	}
+
+	private MenuItemProxy updateContentDescription()
+	{
+		String contentDescription = TiUIView.composeContentDescription(accessibility);
+		MenuItemCompat.setContentDescription(item, contentDescription);
+		return this;
+	}
+
+	public MenuItemProxy setContentDescription(KrollDict d)
+	{
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_ACCESSIBILITY_LABEL)) {
+			accessibility.put(TiC.PROPERTY_ACCESSIBILITY_LABEL, d.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
+		} else {
+			accessibility.remove(TiC.PROPERTY_ACCESSIBILITY_LABEL);
+		}
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT)) {
+			accessibility.put(TiC.PROPERTY_ACCESSIBILITY_HINT, d.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
+		} else {
+			accessibility.remove(TiC.PROPERTY_ACCESSIBILITY_HINT);
+		}
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE)) {
+			accessibility.put(TiC.PROPERTY_ACCESSIBILITY_VALUE, d.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
+		} else {
+			accessibility.remove(TiC.PROPERTY_ACCESSIBILITY_VALUE);
+		}
+		return updateContentDescription();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setAccessibilityLabel(String label)
+	// clang-format on
+	{
+		if (label != null && label.length() != 0) {
+			accessibility.put(TiC.PROPERTY_ACCESSIBILITY_LABEL, label);
+		} else {
+			accessibility.remove(TiC.PROPERTY_ACCESSIBILITY_LABEL);
+		}
+		return updateContentDescription();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setAccessibilityHint(String hint)
+	// clang-format on
+	{
+		if (hint != null && hint.length() != 0) {
+			accessibility.put(TiC.PROPERTY_ACCESSIBILITY_HINT, hint);
+		} else {
+			accessibility.remove(TiC.PROPERTY_ACCESSIBILITY_HINT);
+		}
+		return updateContentDescription();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setAccessibilityValue(String value)
+	// clang-format on
+	{
+		if (value != null && value.length() != 0) {
+			accessibility.put(TiC.PROPERTY_ACCESSIBILITY_VALUE, value);
+		} else {
+			accessibility.remove(TiC.PROPERTY_ACCESSIBILITY_VALUE);
+		}
+
+		return updateContentDescription();
 	}
 
 	// clang-format off
