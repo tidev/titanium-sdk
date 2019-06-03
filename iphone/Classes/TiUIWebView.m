@@ -387,7 +387,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [(TiUIWebViewProxy *)self.proxy setPageToken:_pageToken];
   }
 
-  NSString *source = @"var callbacks = {}; var Ti = {}; Ti.pageToken = %@; \
+  NSString *titanium = [NSString stringWithFormat:@"%@%s", @"Ti", "tanium"];
+  NSString *source = @"var callbacks = {}; var Ti = {}; var %@ = Ti; Ti.pageToken = %@; \
     Ti._listener_id = 1; Ti._listeners={}; %@\
     Ti.App = { \
                 fireEvent: function(name, payload) { \
@@ -446,7 +447,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }; \
     ";
 
-  NSString *sourceString = [NSString stringWithFormat:source, _pageToken, baseInjectScript];
+  NSString *sourceString = [NSString stringWithFormat:source, titanium, _pageToken, baseInjectScript];
   return [[[WKUserScript alloc] initWithSource:sourceString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
 }
 
