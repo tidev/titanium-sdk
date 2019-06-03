@@ -90,12 +90,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 	 * However, since Android randomly selects a cached view to recycle, our cached properties
 	 * will not be in sync with the native view's properties when user changes those values via
 	 * User Interaction - i.e click. For this reason, we create a list that contains the properties
-	 * that must be reset every time a view is recycled, to ensure synchronization. Currently, only
-	 * "value" is in this list to correctly update the value of Ti.UI.Switch.
+	 * that must be reset every time a view is recycled, to ensure synchronization.
 	 */
 	public static List<String> MUST_SET_PROPERTIES =
-		Arrays.asList(TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_TEXT, TiC.PROPERTY_HTML,
-					  TiC.PROPERTY_WIDTH, TiC.PROPERTY_HEIGHT, TiC.PROPERTY_IMAGE);
+		Arrays.asList(TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL,
+					  TiC.PROPERTY_ACCESSIBILITY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_HEIGHT, TiC.PROPERTY_HTML,
+					  TiC.PROPERTY_IMAGE, TiC.PROPERTY_TEXT, TiC.PROPERTY_VALUE, TiC.PROPERTY_WIDTH);
 
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final int HEADER_FOOTER_WRAP_ID = View.generateViewId();

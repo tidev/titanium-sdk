@@ -338,7 +338,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);
 
-		applyAccessibilityProperties();
+		applyAccessibilityProperties(proxy.getProperties());
 	}
 
 	protected void setLayoutParams(LayoutParams layoutParams)
@@ -924,7 +924,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 
 		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
-			applyContentDescription();
+			applyContentDescription(proxy.getProperties());
 
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
@@ -1076,7 +1076,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_LABEL)
 			|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
-			applyAccessibilityProperties();
+			applyAccessibilityProperties(d);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ELEVATION) && !nativeViewNull) {
@@ -2144,12 +2144,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		animatedAlpha = Float.MIN_VALUE;                                         // we use min val to signal no val.
 	}
 
-	private void applyContentDescription()
+	private void applyContentDescription(KrollDict d)
 	{
 		if (proxy == null || nativeView == null) {
 			return;
 		}
-		String contentDescription = composeContentDescription();
+		String contentDescription = composeContentDescription(d);
 		if (contentDescription != null) {
 			nativeView.setContentDescription(contentDescription);
 		}
@@ -2214,10 +2214,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return buffer.toString();
 	}
 
-	private void applyAccessibilityProperties()
+	private void applyAccessibilityProperties(KrollDict d)
 	{
 		if (nativeView != null) {
-			applyContentDescription();
+			applyContentDescription(d);
 			applyAccessibilityHidden();
 		}
 	}
