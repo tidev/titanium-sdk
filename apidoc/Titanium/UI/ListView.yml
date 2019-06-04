@@ -99,7 +99,7 @@ description: |
     `TableViewSection` is implicitly created and added to the `TableView`.
 
     A `ListItem` object is not created in the same method as a `TableViewRow`.
-    A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
+    A `ListItem` is created by passing an array of `ListDataItem` objects to the `ListSection`.
 
     You cannot add views to a `ListItem` using the `add` method, which could be done with a
     `TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
@@ -1336,7 +1336,7 @@ examples:
         Creates a list with three sections, each with two rows.
         Adds two sections to the table before and one after it is rendered.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            var win = Ti.UI.createWindow({backgroundColor: 'gray'});
             var listView = Ti.UI.createListView();
             var sections = [];
 

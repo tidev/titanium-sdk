@@ -189,6 +189,11 @@ public class TiHTTPClient
 					if (baseFile instanceof TiFile) {
 						responseFile = (TiFile) baseFile;
 					}
+				} else if (f instanceof TiFileProxy) {
+					TiBaseFile baseFile = ((TiFileProxy) f).getBaseFile();
+					if (baseFile instanceof TiFile) {
+						responseFile = (TiFile) baseFile;
+					}
 				}
 				if (responseFile == null && Log.isDebugModeEnabled()) {
 					Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
