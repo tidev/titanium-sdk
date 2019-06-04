@@ -12,7 +12,7 @@ const should = require('./utilities/assertions');
 
 describe.only('Titanium.Database', function () {
 	describe('#executeAsync()', () => {
-		it('is a function', () => {
+		it.android('is a function', () => {
 			const db = Ti.Database.open('execute_async.db');
 			try {
 				should(db.executeAsync).be.a.Function;
@@ -21,7 +21,7 @@ describe.only('Titanium.Database', function () {
 			}
 		});
 
-		it('executes asynchronously', function (finish) {
+		it.android('executes asynchronously', function (finish) {
 			this.timeout(5000);
 			const db = Ti.Database.open('execute_async.db');
 			// Execute a query to create a test table
@@ -42,7 +42,7 @@ describe.only('Titanium.Database', function () {
 							try {
 								// Validate the returned 'rows' object
 								should(rows).be.a.Object;
-								should(rows.rowCount).be.eql(2);
+								should(rows.rowCount).be.eql(1);
 								should(rows.fieldCount).be.eql(3);
 								should(rows.validRow).be.true;
 
@@ -62,7 +62,7 @@ describe.only('Titanium.Database', function () {
 	});
 
 	describe('#executeAll()', () => {
-		it('is a function', () => {
+		it.android('is a function', () => {
 			const db = Ti.Database.open('execute_all.db');
 			try {
 				should(db.executeAll).be.a.Function;
@@ -71,7 +71,7 @@ describe.only('Titanium.Database', function () {
 			}
 		});
 
-		it('executes synchronously', function (finish) {
+		it.android('executes synchronously', function (finish) {
 			this.timeout(5000);
 			const db = Ti.Database.open('execute_all.db');
 
@@ -126,7 +126,7 @@ describe.only('Titanium.Database', function () {
 			}
 		});
 
-		it('executes asynchronously', function (finish) {
+		it.android('executes asynchronously', function (finish) {
 			this.timeout(5000);
 			const db = Ti.Database.open('execute_all.db');
 
