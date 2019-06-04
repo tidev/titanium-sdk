@@ -208,15 +208,28 @@ public class TiDatabaseProxy extends KrollProxy
 	/**
 	 * Asynchronously execute a single SQL query.
 	 * @param query SQL query to execute on database.
-	 * @param parameters Parameters for `query`
+	 * @param parameterObjects Parameters for `query`
 	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
-	public void executeAsync(final String query, final Object[] parameters, final KrollFunction callback)
+	public void executeAsync(final String query, final Object... parameterObjects)
 	{
 		// Validate `query` and `callback` parameters.
-		if (query == null || callback == null) {
+		if (query == null || parameterObjects == null || parameterObjects.length == 0) {
 			throw new InvalidParameterException("'query' and 'callback' parameters are required");
+		}
+
+		// Last parameter MUST be the callback function.
+		final Object lastParameter = parameterObjects[parameterObjects.length - 1];
+		if (!(lastParameter instanceof KrollFunction)) {
+			throw new InvalidParameterException("'callback' is not a valid function");
+		}
+		final KrollFunction callback = (KrollFunction) lastParameter;
+
+		// Reconstruct parameters array without `callback` element.
+		final Object parameters[] = new Object[parameterObjects.length - 1];
+		for (int i = 0; i < parameters.length; i++) {
+			parameters[i] = parameterObjects[i];
 		}
 
 		executingQueue.set(true);
@@ -230,7 +243,6 @@ public class TiDatabaseProxy extends KrollProxy
 				}
 			});
 		} catch (InterruptedException e) {
-			// Ignore...
 		}
 	}
 
