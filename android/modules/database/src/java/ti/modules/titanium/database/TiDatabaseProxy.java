@@ -243,6 +243,7 @@ public class TiDatabaseProxy extends KrollProxy
 				}
 			});
 		} catch (InterruptedException e) {
+			// Ignore...
 		}
 	}
 
@@ -389,5 +390,7 @@ public class TiDatabaseProxy extends KrollProxy
 			this.thread.interrupt();
 			this.thread = null;
 		}
+
+		super.release();
 	}
 }
