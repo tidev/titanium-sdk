@@ -128,9 +128,11 @@ KrollContext *GetKrollContext(JSContextRef context)
 
 JSValueRef ThrowException(JSContextRef ctx, NSString *message, JSValueRef *exception)
 {
-  JSStringRef jsString = JSStringCreateWithCFString((CFStringRef)message);
-  *exception = JSValueMakeString(ctx, jsString);
-  JSStringRelease(jsString);
+  JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(ctx);
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:globalContextRef];
+  JSValue *value = [JSValue valueWithNewErrorFromMessage:message inContext:context];
+  *exception = value.JSValueRef;
+
   return JSValueMakeUndefined(ctx);
 }
 
