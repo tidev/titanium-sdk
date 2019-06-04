@@ -100,6 +100,14 @@ description: |
 
     Starting with Release 3.6.0, you can set the TLS version for the Android and iOS platforms.
     Prior to Release 3.6.0, you can only set the TLS version for iOS.
+    
+    #### Caching Data
+
+    You can also use the HTTP client API to cache image, response data or related. A convenient
+    way to do so is by setting the <Titanium.Network.HTTPClient.file> property to a path or target
+    file, which will be populated with the response data in a successful case (e.g. in the `onload`
+    callback). For more complex use cases, make sure to check [To.ImageCache](https://github.com/Topener/To.ImageCache/)
+    which also supports expire-handling and extended cache control.
 
     #### Android Platform Implementation Notes
 
@@ -357,14 +365,11 @@ properties:
     platforms: [iphone, ipad]
 
   - name: file
-    summary: Target local file to receive data.
+    summary: Target local file or file path to receive data.
     description: |
-        On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
-
-
-        On Android, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        This property can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
-    type: String
+    type: [String, Titanium.Filesystem.File]
     platforms: [android, iphone, ipad]
     since: {android: 3.4.0}
 
