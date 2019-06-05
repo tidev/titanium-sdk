@@ -184,10 +184,9 @@
 
 - (void)setTintColor_:(id)color
 {
-  TiColor *ticolor = [TiUtils colorValue:color];
-  UIColor *theColor = [ticolor _color];
-  [[self searchBar] setTintColor:theColor];
-  [self setTintColor:theColor];
+  TiColor *tiColor = [TiUtils colorValue:color];
+  [[self searchBar] setTintColor:tiColor.color];
+  [self setTintColor:tiColor.color];
 }
 
 - (void)setBarColor_:(id)value

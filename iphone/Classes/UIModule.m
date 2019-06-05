@@ -213,13 +213,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 - (void)setBackgroundColor:(id)color
 {
   TiRootViewController *controller = [[TiApp app] controller];
-  [controller setBackgroundColor:[Webcolor webColorNamed:color]];
+  [controller setBackgroundColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setTintColor:(id)color
 {
   UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
-  [controller setTintColor:[Webcolor webColorNamed:color]];
+  [controller setTintColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setBackgroundImage:(id)image

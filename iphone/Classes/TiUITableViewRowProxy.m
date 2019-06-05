@@ -416,7 +416,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       ((UIImageView *)cell.selectedBackgroundView).image = image;
     }
 
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     cell.selectedBackgroundView.backgroundColor = ((theColor == nil) ? [UIColor clearColor] : theColor);
   } else {
     if (![cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
@@ -424,11 +424,11 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     }
     TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView *)cell.selectedBackgroundView;
     selectedBGView.grouped = [[table tableView] style] == UITableViewStyleGrouped;
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     if (theColor == nil) {
       switch (cell.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        theColor = [Webcolor webColorNamed:@"#bbb"];
+        theColor = [Webcolor webColorNamed:@"#d9d9d9"];
         break;
       case UITableViewCellSelectionStyleNone:
         theColor = [UIColor clearColor];

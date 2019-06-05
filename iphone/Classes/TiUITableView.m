@@ -2465,7 +2465,7 @@
       color = [self.proxy valueForKey:@"backgroundColor"];
     }
   }
-  UIColor *cellColor = [Webcolor webColorNamed:color];
+  UIColor *cellColor = [TiUtils colorValue:color].color;
   if (cellColor == nil) {
     cellColor = [UIColor whiteColor];
   }
