@@ -30,6 +30,7 @@ const appc = require('node-appc'),
 	net = require('net'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
+	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
@@ -5848,99 +5849,35 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
 					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
-
-					async.each(Object.keys(jsFiles), function (file, next) {
-						setImmediate(function () {
-							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
-							// Add it as a require() compatible string to bootstrap array if it's a match.
-							const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
-							if (bootstrapPath.endsWith('.bootstrap')) {
-								jsBootstrapFiles.push(bootstrapPath);
+					const task = new ProcessJsTask({
+						inputFiles: Object.keys(jsFiles).map(relPath => jsFiles[relPath].src),
+						incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
+						logger: this.logger,
+						builder: this,
+						jsFiles,
+						jsBootstrapFiles,
+						sdkCommonFolder,
+						defaultAnalyzeOptions: {
+							minify: this.minifyJS,
+							transpile: this.transpile,
+							sourceMap: this.sourceMaps || this.deployType === 'development',
+							resourcesDir: this.xcodeAppDir,
+							logger: this.logger,
+							targets: {
+								ios: this.minSupportedIosSdk
 							}
+						}
+					});
+					task.run()
+						.then(() => {
+							this.tiSymbols = task.data.tiSymbols;
 
-							const info = jsFiles[file];
-							if (this.encryptJS) {
-								if (file.indexOf('/') === 0) {
-									file = path.basename(file);
-								}
-								this.jsFilesEncrypted.push(file); // original name
-								file = file.replace(/\./g, '_');
-								info.dest = path.join(this.buildAssetsDir, file);
-								this.jsFilesToEncrypt.push(file); // encrypted name
-							}
-
-							try {
-								this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-									const originalContents = fs.readFileSync(from).toString();
-									// Populate an initial object to pass in. This won't have modified
-									// contents or symbols populated, which it used to at this point,
-									// but I don't think any plugin relied on that behavior, while
-									// hyperloop would clobber the contents if we didn't do the mods
-									// inside the compile hook.
-									const r = {
-										original: originalContents,
-										contents: originalContents,
-										symbols: []
-									};
-									this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-										// Read the possibly modified file contents
-										const source = r.contents;
-										// Analyze Ti API usage, possibly also minify/transpile
-										// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
-										const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
-										const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
-										const analyzeOptions = {
-											filename: from,
-											minify,
-											transpile,
-											sourceMap: this.sourceMaps || this.deployType === 'development',
-											resourcesDir: this.xcodeAppDir,
-											logger: this.logger,
-											targets: {
-												ios: this.minSupportedIosSdk
-											}
-										};
-
-										try {
-											const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-											const newContents = modified.contents;
-
-											// we want to sort by the "to" filename so that we correctly handle file overwriting
-											this.tiSymbols[to] = modified.symbols;
-
-											const dir = path.dirname(to);
-											fs.ensureDirSync(dir);
-
-											const exists = fs.existsSync(to);
-											// dest doesn't exist, or new contents differs from existing dest file
-											if (!exists || newContents !== fs.readFileSync(to).toString()) {
-												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-												// no need to delete if it exists, writeFile will overwrite anyways
-												fs.writeFileSync(to, newContents);
-												this.jsFilesChanged = true;
-											} else {
-												this.logger.trace(__('No change, skipping %s', to.cyan));
-											}
-											cb2();
-										} catch (err) {
-											err.message.split('\n').forEach(this.logger.error);
-											if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
-												this.logger.log(err.codeFrame);
-											}
-											this.logger.log();
-											process.exit(1);
-										} finally {
-											this.unmarkBuildDirFile(to);
-										}
-									})(r, from, to, cb);
-								})(info.src, info.dest, next);
-							} catch (ex) {
-								ex.message.split('\n').forEach(this.logger.error);
-								this.logger.log();
-								process.exit(1);
-							}
-						}.bind(this));
-					}.bind(this), next);
+							return next();
+						})
+						.catch(e => {
+							this.logger.error(e);
+							process.exit(1);
+						});
 				},
 
 				function writeBootstrapJson() {
