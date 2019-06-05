@@ -2814,8 +2814,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// write the encrypted JS bytes to the generated Java file
+				const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
+				this.unmarkBuildDirFile(assetCryptDest);
 				fs.writeFileSync(
-					path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
+					assetCryptDest,
 					ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
 						appid: this.appid,
 						encryptedAssets: out
