@@ -1,12 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "AnalyticsModule.h"
-#import <TitaniumKit/APSAnalytics.h>
+@import TitaniumKit.APSAnalytics;
+@import TitaniumKit.TiBase;
+@import TitaniumKit.TiUtils;
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 static NSMutableArray *_filteredEvents;
@@ -28,6 +30,7 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   RELEASE_TO_NIL(_filteredEvents);
   [super dealloc];
 }
+
 - (NSString *)apiName
 {
   return @"Ti.Analytics";
@@ -38,34 +41,38 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   return [[APSAnalytics sharedInstance] performSelector:@selector(getLastEvent)];
 }
 
-- (void)navEvent:(id)args
+- (void)navEvent:(NSString *)from to:(NSString *)to withName:(NSString *)name withData:(NSDictionary *)data
 {
   if (!TI_APPLICATION_ANALYTICS) {
     DebugLog(@"[ERROR] Analytics service is not enabled in your app. Please set analytics to true in the tiapp.xml. ");
     return;
   }
-  if ([args count] < 2) {
+  if (from == nil || to == nil) {
     [self throwException:@"invalid number of arguments, expected at least 2" subreason:nil location:CODELOCATION];
     return;
   }
-  NSString *from = [args objectAtIndex:0];
-  NSString *to = [args objectAtIndex:1];
-  NSString *event = [args count] > 2 ? [args objectAtIndex:2] : @"";
-  id data = [args count] > 3 ? [args objectAtIndex:3] : [NSDictionary dictionary];
-  [[APSAnalytics sharedInstance] sendAppNavEventFromView:from toView:to withName:event payload:data];
+
+  if (name == nil) {
+    name = @"";
+  }
+  if (data == nil) {
+    data = [NSDictionary dictionary];
+  }
+  [[APSAnalytics sharedInstance] sendAppNavEventFromView:from toView:to withName:name payload:data];
 }
 
-- (NSInteger)featureEvent:(id)args
+- (NSInteger)featureEvent:(NSString *)name withData:(id)data
 {
   if (!TI_APPLICATION_ANALYTICS) {
     DebugLog(@"[ERROR] Analytics service is not enabled in your app. Please set analytics to true in the tiapp.xml.");
     return ANALYTICS_DISABLED;
   }
-  if ([args count] < 1) {
+  if (name == nil) {
     [self throwException:@"invalid number of arguments, expected at least 1" subreason:nil location:CODELOCATION];
   }
-  NSString *event = [args objectAtIndex:0];
-  id data = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
+  if (data == nil) {
+    data = [NSDictionary dictionary];
+  }
   if (data != nil && ![data isKindOfClass:[NSDictionary class]]) {
     id value = nil;
     if ([data isKindOfClass:[NSString class]]) {
@@ -80,24 +87,23 @@ static const NSInteger ANALYTICS_DISABLED = -2;
     data = value;
   }
   if ([AnalyticsModule validatePayload:data level:0]) {
-    [[APSAnalytics sharedInstance] sendAppFeatureEvent:event payload:data];
+    [[APSAnalytics sharedInstance] sendAppFeatureEvent:name payload:data];
     return JSON_VALIDATION_PASSED;
-  } else {
-    DebugLog(@"[WARN] Feature event '%@' not conforming to recommended usage.", event);
-    return JSON_VALIDATION_FAILED;
   }
+
+  DebugLog(@"[WARN] Feature event '%@' not conforming to recommended usage.", name);
+  return JSON_VALIDATION_FAILED;
 }
 
-- (void)filterEvents:(id)args
+- (void)filterEvents:(NSArray *)events
 {
-  ENSURE_SINGLE_ARG(args, NSArray);
   if (_filteredEvents == nil) {
     _filteredEvents = [[NSMutableArray array] retain];
   } else {
     [_filteredEvents removeAllObjects];
   }
 
-  for (id event in args) {
+  for (id event in events) {
     ENSURE_STRING(event);
     if (![_filteredEvents containsObject:event]) {
       [_filteredEvents addObject:event];
@@ -105,16 +111,17 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   }
 }
 
-- (void)setOptedOut:(id)optedOut
+- (void)setOptedOut:(BOOL)optedOut
 {
-  ENSURE_TYPE(optedOut, NSNumber);
-  [[APSAnalytics sharedInstance] setOptedOut:[TiUtils boolValue:optedOut]];
+  [[APSAnalytics sharedInstance] setOptedOut:optedOut];
 }
 
-- (NSNumber *)optedOut
+- (BOOL)optedOut
 {
-  return @([[APSAnalytics sharedInstance] isOptedOut]);
+  return [[APSAnalytics sharedInstance] isOptedOut];
 }
+
+READWRITE_IMPL(BOOL, optedOut, OptedOut);
 
 + (BOOL)isEventFiltered:(NSString *)eventName
 {

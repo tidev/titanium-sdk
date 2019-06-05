@@ -748,7 +748,6 @@ public class TiC
 	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
 	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
 	public static final String INTENT_PROPERTY_START_MODE = "startMode";
-	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
 	public static final String LAYOUT_FILL = "fill";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
@@ -1033,6 +1032,9 @@ public class TiC
 	 */
 	public static final String PROPERTY_BACKGROUND_PREFIX = "background";
 
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_REPEAT = "backgroundRepeat";
 
 	/**
@@ -2722,6 +2724,9 @@ public class TiC
 	 */
 	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
 
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REVERSE = "reverse";
 
 	/**
@@ -3570,6 +3575,7 @@ public class TiC
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
 	public static final String URL_APP_JS = "app://app.js";
-	public static final String URL_ANDROID_ASSET_RESOURCES = "file:///android_asset/Resources/";
+	public static final String URL_ANDROID_ASSET = "file:///android_asset/";
+	public static final String URL_ANDROID_ASSET_RESOURCES = URL_ANDROID_ASSET + "Resources/";
 	public static final String PATH_APP_JS = "Resources/app.js";
 }

@@ -55,7 +55,8 @@ function convertAPIToLink(apiName) {
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 
 		if (!(cls in doc) && !apiName.startsWith('Modules.')) {
-			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
+			common.log(common.LOG_WARN, 'Cannot find class: %s, referenced by %s', cls, apiName);
+			console.log(apiName);
 			return apiName;
 		} else {
 			if (common.findAPI(doc, cls, member, 'properties')) {
@@ -518,6 +519,7 @@ exports.exportData = function exportHTML(apis) {
 		property: []
 	};
 	doc = apis;
+	common.createMarkdown(doc);
 
 	common.log(common.LOG_INFO, 'Annotating HTML-specific attributes...');
 

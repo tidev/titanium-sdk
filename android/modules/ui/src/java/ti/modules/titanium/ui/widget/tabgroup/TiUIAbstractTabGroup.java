@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -82,9 +83,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	/**
 	 * Changes the controller's background color.
 	 *
-	 * @param drawable the new background drawable.
+	 * @param colorInt the new background color.
 	 */
-	public abstract void setBackgroundDrawable(Drawable drawable);
+	public abstract void setBackgroundColor(int colorInt);
+
+	/**
+	 * Changes the tabs background drawables to the proper color states.
+	 */
+	public abstract void setDrawables();
 
 	// region protected fields
 	protected static final String TAG = "TiUITabLayoutTabGroup";
@@ -112,19 +118,16 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		super(proxy);
 
-		// Getting the value for colorPrimary from the currently used theme.
-		TypedValue colorPrimaryTypedValue = new TypedValue();
-		TypedArray colorPrimary =
-			activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
-		this.colorPrimaryInt = colorPrimary.getColor(0, 0);
-		// Getting the value for textColorPrimary for the currently used theme.
-		TypedValue typedValue = new TypedValue();
-		TypedArray textColor =
-			activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
-		this.textColorInt = textColor.getColor(0, 0);
+		TypedValue colorPrimaryValue = new TypedValue();
+		activity.getTheme().resolveAttribute(android.R.attr.colorPrimary, colorPrimaryValue, true);
 
-		this.tabGroupPagerAdapter =
-			new TabGroupFragmentPagerAdapter(((AppCompatActivity) activity).getSupportFragmentManager());
+		TypedValue textColorPrimaryValue = new TypedValue();
+		activity.getTheme().resolveAttribute(android.R.attr.textColorPrimary, textColorPrimaryValue, true);
+
+		this.colorPrimaryInt = colorPrimaryValue.data;
+		this.textColorInt = textColorPrimaryValue.data;
+
+		this.tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(activity.getSupportFragmentManager());
 
 		this.tabGroupViewPager = (new ViewPager(proxy.getActivity()) {
 			@Override
@@ -138,13 +141,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			{
 				return swipeable && !tabsDisabled ? super.onInterceptTouchEvent(event) : false;
 			}
-
-			@Override
-			public void onRestoreInstanceState(Parcelable state)
-			{
-				super.onRestoreInstanceState(state);
-			}
 		});
+
+		// The default pager limit is 1. This means only 1 tab to the left and right of current tab is kept in memory.
+		// Tab fragments outside of this limit will be destroyed and later recreated/restored when selecting that tab.
+		// We don't want to lose the current UI state of offscreen tabs. So, set limit to a high value to avoid it.
+		this.tabGroupViewPager.setOffscreenPageLimit(128);
 
 		this.tabGroupViewPager.setId(android.R.id.tabcontent);
 		this.tabGroupViewPager.setAdapter(this.tabGroupPagerAdapter);
@@ -347,6 +349,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
 		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			setBackgroundColor(TiColorHelper.parseColor(d.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
+		} else {
+			setBackgroundColor(this.colorPrimaryInt);
+		}
 		super.processProperties(d);
 	}
 
@@ -357,6 +364,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			this.swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			setDrawables();
+			setBackgroundColor(TiColorHelper.parseColor(newValue.toString()));
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+			setDrawables();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -369,6 +381,16 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public TabProxy getSelectedTab()
 	{
 		return ((TabGroupProxy) getProxy()).getTabList().get(this.tabGroupViewPager.getCurrentItem());
+	}
+
+	public void updateTitle(String title)
+	{
+		// Get a reference to the ActionBar
+		ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
+		// Guard for trying to update the ActionBar's title when a theme without one is used.
+		if (actionBar != null) {
+			actionBar.setTitle(title);
+		}
 	}
 
 	/**
@@ -467,9 +489,19 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
+			// Remove this fragment from the fragment manager if no longer assigned a tab reference.
+			// This will cause fragment manager to request a new fragment from FragmentPagerAdapter.getItem() method.
+			// Note: This can happen when fragment is restored from a bundle since we don't save tab settings
+			//       via onSaveInstanceState() method. Restore happens when activity is destroyed, but not finished.
 			if (tab == null) {
+				FragmentManager fragmentManager = getFragmentManager();
+				if (fragmentManager != null) {
+					fragmentManager.beginTransaction().remove(this).commit();
+				}
 				return null;
 			}
+
+			// We have our tab object. Have it generate the tab's views and return them.
 			return tab.getContentView();
 		}
 	}

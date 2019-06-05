@@ -23,12 +23,13 @@ events:
 methods:
   - name: canOpenURL
     summary: |
-        Returns whether the system is configured with a default application to handle the URL's protocol.
+        Returns whether the system is configured with a default application to handle the URL's protocol/scheme.
     description: |
         On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
         summary: The url to check.
@@ -52,8 +53,20 @@ methods:
 
   - name: openURL
     summary: |
-        Opens this URL using the system's default application for its protocol.
+        Opens this URL using the system's default application for its protocol/scheme.
     description: |
+        Here are some example URL strings this can be set to.
+
+          * `'https://www.appcelerator.com'`  (Opens in web browser.)
+          * `'mailto:user@domain.com'`  (Opens a new draft in e-mail app.)
+          * `'mailto:user@domain.com?cc=johndoe@domain.com,janedoe@domain.com&subject=My%20Subject&body=The%20body.'`
+          * `'tel:123-456-7890'`  (Opens phone app if applicable.)
+          * `'geo:37.774,-122.431?z=12'`  (Opens map on Android.)
+          * `'maps:?address=London,UK'`  (Opens map on iOS.)
+
+        You can use the <Titanium.Platform.canOpenURL> method to determine if the system has a registered
+        application for the given URL before invoking the <Titanium.Platform.openURL> method.
+
         **iOS Note**: For iOS 10 and later, this method is performed asynchronously
         and will call the function passed as an (optional) third parameter instead
         of returning a boolean synchronously.
