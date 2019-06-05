@@ -9,7 +9,8 @@ const { promisify } = require('util');
 
 const i18n = appc.i18n(__dirname);
 const __ = i18n.__;
-const limit = pLimit(8);
+const MAX_SIMULTANEOUS_FILES = 256;
+const limit = pLimit(MAX_SIMULTANEOUS_FILES);
 
 /**
  * Task that processes JS files by applying several transforms and copying them to their
