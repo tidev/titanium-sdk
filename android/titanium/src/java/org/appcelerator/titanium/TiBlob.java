@@ -164,7 +164,7 @@ public class TiBlob extends KrollProxy
 	 */
 	public static TiBlob blobFromData(byte[] data)
 	{
-		return blobFromData(data, "application/octet-stream");
+		return blobFromData(data, TiMimeTypeHelper.MIME_TYPE_OCTET_STREAM);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class TiBlob extends KrollProxy
 	public static TiBlob blobFromData(byte[] data, String mimetype)
 	{
 		if (mimetype == null || mimetype.length() == 0) {
-			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
+			return new TiBlob(TYPE_DATA, data, TiMimeTypeHelper.MIME_TYPE_OCTET_STREAM);
 		}
 		TiBlob blob = new TiBlob(TYPE_DATA, data, mimetype);
 		blob.loadBitmapInfo();
@@ -414,17 +414,9 @@ public class TiBlob extends KrollProxy
 				result = (String) data;
 			case TYPE_DATA:
 			case TYPE_FILE:
-				// Don't try to return a string if we can see the
-				// mimetype is binary, unless it's application/octet-stream, which means
-				// we don't really know what it is, so assume the user-developer knows
-				// what she's doing.
-				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype)
-					&& !mimetype.equals("application/octet-stream")) {
-					return null;
-				}
 				try {
 					result = new String(getBytes(), "utf-8");
-				} catch (UnsupportedEncodingException e) {
+				} catch (Exception ex) {
 					Log.w(TAG, "Unable to convert to string.");
 				}
 				break;
@@ -504,13 +496,27 @@ public class TiBlob extends KrollProxy
 	@Kroll.method
 	public String toString()
 	{
-		// blob should return the text value on toString
-		// if it's not null
-		String text = getText();
-		if (text != null) {
-			return text;
+		// Determine if this blob references binary data instead of text.
+		// Note: If mime-type is "application/octet-stream", then type is unknown. Assume it is text.
+		boolean isBinary = false;
+		if ((this.mimetype != null) && TiMimeTypeHelper.isBinaryMimeType(this.mimetype)) {
+			if (!this.mimetype.equals(TiMimeTypeHelper.MIME_TYPE_OCTET_STREAM)) {
+				isBinary = true;
+			}
 		}
-		return "[object TiBlob]";
+
+		// Attempt to fetch text from the blob, but only if it's NOT a known binary type.
+		// Ex: Don't let Javascript toString() waste huge amounts of memory on a blob that wraps an image file.
+		String text = null;
+		if (!isBinary) {
+			text = getText();
+		}
+		if (text == null) {
+			text = "[object TiBlob]";
+		}
+
+		// Return the blob's text.
+		return text;
 	}
 
 	// clang-format off
