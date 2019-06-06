@@ -104,7 +104,7 @@
     "commitizen": "^3.1.1",
     "core-js": "^2.6.5",
     "cz-conventional-changelog": "^2.1.0",
-    "danger": "^7.1.4",
+    "danger": "^8.0.0",
     "eslint": "^5.16.0",
     "eslint-config-axway": "^4.2.2",
     "eslint-plugin-mocha": "^5.3.0",
