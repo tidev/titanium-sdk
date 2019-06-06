@@ -2669,7 +2669,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			const from = jsFiles[relPath];
 			if (htmlJsFiles[relPath]) {
 				// this js file is referenced from an html file, so don't minify or encrypt
-				copyUnmodified.push(from);
+				copyUnmodified.push(relPath);
 			} else {
 				inputFiles.push(from);
 			}
@@ -2814,8 +2814,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// write the encrypted JS bytes to the generated Java file
+				const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
+				this.unmarkBuildDirFile(assetCryptDest);
 				fs.writeFileSync(
-					path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
+					assetCryptDest,
 					ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
 						appid: this.appid,
 						encryptedAssets: out
