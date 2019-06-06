@@ -8,9 +8,8 @@
 
 const appc = require('node-appc'),
 	DOMParser = require('xmldom').DOMParser,
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
-	wrench = require('wrench'),
 	xml = appc.xml,
 	__ = appc.i18n(__dirname).__,
 
@@ -628,7 +627,7 @@ function AndroidManifest(filename) {
 	Object.defineProperty(this, 'save', {
 		value: function (file) {
 			if (file) {
-				wrench.mkdirSyncRecursive(path.dirname(file));
+				fs.ensureDirSync(path.dirname(file));
 				fs.writeFileSync(file, this.toString('xml'));
 			}
 			return this;
