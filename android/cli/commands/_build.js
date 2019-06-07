@@ -923,7 +923,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-	this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
+	this.sourceMaps = cli.tiapp['source-maps'] === true || cli.argv['source-maps'] || this.deployType !== 'production'; // opt-in to generate inline source maps
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
 	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
@@ -2692,7 +2692,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			defaultAnalyzeOptions: {
 				minify: this.minifyJS,
 				transpile: this.transpile,
-				sourceMap: this.sourceMaps || this.deployType === 'development',
+				sourceMap: this.sourceMaps,
 				resourcesDir: this.buildBinAssetsResourcesDir,
 				logger: this.logger,
 				targets: {

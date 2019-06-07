@@ -440,6 +440,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'force-copy': {
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
 						},
+						'hide-error-controller': {
+							hidden: true
+						},
 						'launch-watch-app': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app and the main app', 'simulator'.cyan)
 						},
@@ -476,9 +479,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'developer-name':             this.configOptionDeveloperName(170),
 						'distribution-name':          this.configOptionDistributionName(180),
 						'device-family':              this.configOptionDeviceFamily(120), // this MUST be processed before --device-id
-						'hide-error-controller': {
-							hidden: true
-						},
 						'ios-version':                this.configOptioniOSVersion(130),
 						keychain:                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
@@ -1793,7 +1793,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (cli.argv['skip-js-minify']) {
 			this.minifyJS = false;
 		}
-		if (cli.argv.hasOwnProperty('hide-error-controller')) {
+		if (cli.argv['hide-error-controller']) {
 			this.showErrorController = false;
 		}
 
@@ -1805,7 +1805,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-		this.sourceMaps = cli.tiapp['source-maps'] === true || cli.argv.hasOwnProperty('source-maps'); // opt-in to generate inline source maps
+		this.sourceMaps = cli.tiapp['source-maps'] === true || this.cli.argv['source-maps']; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
