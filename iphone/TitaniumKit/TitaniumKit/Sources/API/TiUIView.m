@@ -337,6 +337,7 @@ DEFINE_EXCEPTIONS
   if (accessibilityElement != nil) {
     [accessibilityElement setIsAccessibilityElement:YES];
     [accessibilityElement setAccessibilityLabel:[TiUtils stringValue:accessibilityLabel]];
+    [accessibilityElement setAccessibilityIdentifier:[TiUtils composeAccessibilityIdentifier:accessibilityElement]];
   }
 }
 
@@ -346,6 +347,7 @@ DEFINE_EXCEPTIONS
   if (accessibilityElement != nil) {
     [accessibilityElement setIsAccessibilityElement:YES];
     [accessibilityElement setAccessibilityValue:[TiUtils stringValue:accessibilityValue]];
+    [accessibilityElement setAccessibilityIdentifier:[TiUtils composeAccessibilityIdentifier:accessibilityElement]];
   }
 }
 
@@ -355,6 +357,7 @@ DEFINE_EXCEPTIONS
   if (accessibilityElement != nil) {
     [accessibilityElement setIsAccessibilityElement:YES];
     [accessibilityElement setAccessibilityHint:[TiUtils stringValue:accessibilityHint]];
+    [accessibilityElement setAccessibilityIdentifier:[TiUtils composeAccessibilityIdentifier:accessibilityElement]];
   }
 }
 

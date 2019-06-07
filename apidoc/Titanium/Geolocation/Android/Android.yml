@@ -47,7 +47,7 @@ description: |
     To enable manual configuration mode, set the [manualMode](Titanium.Geolocation.Android.manualMode) 
     property to `true`. In manual configuration mode, the location providers and location
     rules set through this module control the generation of location updates.
-    
+
     When `manualMode` is `true`, the following configuration settings in the
     <Titanium.Geolocation> module are ignored:
 
@@ -55,13 +55,13 @@ description: |
     *   [Geolocation.frequency](Titanium.Geolocation.frequency)
     *   [Geolocation.preferredProvider](Titanium.Geolocation.preferredProvider)
 
-    When `manualMode` is `false`, the `accuracy`, `frequency` and `preferredProvider` 
+    When `manualMode` is `false`, the `accuracy`, `frequency` and `preferredProvider`
     settings from <Titanium.Geolocation> are used to configure location updates.
     Any location providers and location rules set in <Titanium.Geolocation.Android> 
     are retained, but they have no effect.
 
     #### Location Providers
-        
+
     Android supports three kinds of location providers: GPS, network, and the 
     "passive" location provider, which provides only cached information. 
 
@@ -76,8 +76,8 @@ description: |
     To specify a location provider, create a new provider object, then register it
     with [addLocationProvider](Titanium.Geolocation.Android.createLocationProvider):
 
-        gpsProvider = Ti.Geolocation.Android.createLocationProvider({
-            name: Ti.Geolocation.PROVIDER_GPS,
+        var gpsProvider = Ti.Geolocation.Android.createLocationProvider({
+            name: Ti.Geolocation.Android.PROVIDER_GPS,
             minUpdateTime: 60, 
             minUpdateDistance: 100
         });
@@ -168,7 +168,45 @@ properties:
         properties in the <Titanium.Geolocation> module.
     type: Boolean
     default: false
-    
+
+  - name: PROVIDER_GPS
+    summary: |
+        Specifies the GPS location provider.
+    description: |
+        Used with [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+         In general, the GPS provider has the highest power consumption and the
+        highest accuracy, but this may vary. In some circumstances, the network
+        provider may be more reliable.
+    type: String
+    permission: read-only
+    platforms: [android]
+
+  - name: PROVIDER_NETWORK
+    summary: |
+        Specifies the network location provider.
+    description: |
+        Used with [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+         Generally requires less power than the GPS provider and provides less accurate
+        results, but may produce very accurate results in densely-populated areas
+        with many cell towers and WiFi networks.
+    type: String
+    permission: read-only
+    platforms: [android]
+
+  - name: PROVIDER_PASSIVE
+    summary: |
+        Specifies the passive location provider.
+    description: |
+        Used with [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+         This provider only uses cached location information, so it does not use
+        any power, but makes no guarantee that the location results are recent.
+    type: String
+    permission: read-only
+    platforms: [android]
+
 methods:
 
   - name: addLocationProvider

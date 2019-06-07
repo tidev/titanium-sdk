@@ -287,7 +287,7 @@
 
 @implementation TiUITableView
 #pragma mark Internal
-@synthesize searchString, viewWillDetach;
+@synthesize searchString, viewWillDetach, searchResultIndexes;
 
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
@@ -308,6 +308,7 @@
     defaultSeparatorInsets = UIEdgeInsetsZero;
     rowSeparatorInsets = UIEdgeInsetsZero;
     _dimsBackgroundDuringPresentation = YES;
+    self.shouldDelayScrolling = YES;
   }
   return self;
 }
@@ -1005,6 +1006,9 @@
   // see the behavior of, say, Contacts. If users want to hide search, they can do so
   // in an event callback.
 
+  if (viaSearch) {
+    self.shouldDelayScrolling = NO;
+  }
   if ([target _hasListeners:name]) {
     [target fireEvent:name withObject:eventObject];
   }
