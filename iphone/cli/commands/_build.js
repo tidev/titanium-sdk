@@ -5860,7 +5860,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						defaultAnalyzeOptions: {
 							minify: this.minifyJS,
 							transpile: this.transpile,
-							sourceMap: this.sourceMaps || this.deployType === 'development',
+							sourceMap: this.sourceMaps,
 							resourcesDir: this.xcodeAppDir,
 							logger: this.logger,
 							targets: {
