@@ -224,6 +224,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		const minify = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.minify;
 		const analyzeOptions = Object.assign({}, this.defaultAnalyzeOptions, {
 			filename: from,
+			dest: to,
 			minify,
 			transpile,
 		});
