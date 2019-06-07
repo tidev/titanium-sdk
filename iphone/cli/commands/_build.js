@@ -1805,7 +1805,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
+		this.sourceMaps = cli.tiapp['source-maps'] === true || cli.argv.hasOwnProperty('source-maps'); // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
