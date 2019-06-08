@@ -1908,6 +1908,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
 	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
+	this.buildIncrementalDir        = path.join(this.buildDir, 'incremental');
 	this.buildIntermediatesDir      = path.join(this.buildDir, 'intermediates');
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
@@ -2276,8 +2277,9 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// make directories if they don't already exist
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
+		fs.emptyDirSync(this.buildIncrementalDir);
 		fs.emptyDirSync(dir);
-		this.unmarkBuildDirFiles(this.buildAssetsDir);
+		this.unmarkBuildDirFiles(dir);
 	} else {
 		fs.ensureDirSync(dir);
 	}
@@ -2677,7 +2679,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		const task = new ProcessJsTask({
 			inputFiles,
-			incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
+			incrementalDirectory: path.join(this.buildIncrementalDir, 'process-js'),
 			logger: this.logger,
 			builder: this,
 			jsFiles: Object.keys(jsFiles).reduce((jsFilesInfo, relPath) => {
