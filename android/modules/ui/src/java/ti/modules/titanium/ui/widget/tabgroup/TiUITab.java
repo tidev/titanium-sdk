@@ -22,7 +22,6 @@ public class TiUITab extends TiUIView
 	public TiUITab(TabProxy proxy)
 	{
 		super(proxy);
-		proxy.setModelListener(this);
 		proxy.setView(this);
 	}
 

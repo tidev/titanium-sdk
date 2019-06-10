@@ -147,19 +147,26 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mMenuItemsArray.add(menuItem);
 		// Get the MenuItem index
 		int index = this.mMenuItemsArray.size() - 1;
-		// Set the title.
-		updateTabTitle(index);
-		// Set the title text color.
-		updateTabTitleColor(index);
-		// Set the background drawable.
-		updateTabBackgroundDrawable(index);
-		// Set the icon.
-		updateTabIcon(index);
+		updateDrawablesAfterNewItem(index);
 		// Handle shift mode.
 		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
 			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
 				disableShiftMode();
 			}
+		}
+	}
+
+	private void updateDrawablesAfterNewItem(int index)
+	{
+		// Set the title.
+		updateTabTitle(index);
+		// Set the icon.
+		updateTabIcon(index);
+		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
+			// Set the title text color.
+			updateTabTitleColor(i);
+			// Set the background drawable.
+			updateTabBackgroundDrawable(i);
 		}
 	}
 
@@ -240,11 +247,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			BottomNavigationMenuView bottomMenuView =
 				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
-			for (int i = 0; i < this.mMenuItemsArray.size(); i++) {
-				TiViewProxy tabProxy = tabs.get(i).getProxy();
-				Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-				bottomMenuView.getChildAt(i).setBackground(backgroundDrawable);
-			}
+			TiViewProxy tabProxy = tabs.get(index).getProxy();
+			Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+			bottomMenuView.getChildAt(index).setBackground(backgroundDrawable);
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -264,12 +269,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			BottomNavigationMenuView bottomMenuView =
 				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
-			for (int i = 0; i < this.mMenuItemsArray.size(); i++) {
-				TiViewProxy tabProxy = tabs.get(i).getProxy();
-				// Set the TextView textColor.
-				((BottomNavigationItemView) bottomMenuView.getChildAt(i))
-					.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
-			}
+			TiViewProxy tabProxy = tabs.get(index).getProxy();
+			// Set the TextView textColor.
+			((BottomNavigationItemView) bottomMenuView.getChildAt(index))
+				.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
