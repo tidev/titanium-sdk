@@ -101,7 +101,27 @@ public class TiDatabaseProxy extends KrollProxy
 	public void close()
 	{
 		if (db.isOpen()) {
-			Log.d(TAG, "Closing database: " + name);
+
+			// Wait for all queued queries.
+			if (Looper.getMainLooper() == Looper.myLooper()) {
+				try {
+
+					// Wait until query queue is empty.
+					synchronized (executingQueue)
+					{
+						while (executingQueue.get()) {
+							executingQueue.wait();
+						}
+					}
+
+					// Continue...
+
+				} catch (InterruptedException e) {
+					// Ignore...
+				}
+			}
+
+			// Close database.
 			db.close();
 		}
 	}
