@@ -49,6 +49,13 @@
         "ecmaVersion": 2017,
         "sourceType": "module"
       }
+    },
+    {
+      "files": [ "cli/lib/tasks/*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
+      }
     }
   ]
 }
