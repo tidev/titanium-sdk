@@ -95,6 +95,31 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 
 	/**
+	 * Wait for query queue when executing on main thread.
+	 */
+	private void waitForQueue()
+	{
+		// Wait for all queued queries.
+		if (Looper.getMainLooper() == Looper.myLooper()) {
+			try {
+
+				// Wait until query queue is empty.
+				synchronized (executingQueue)
+				{
+					while (executingQueue.get()) {
+						executingQueue.wait();
+					}
+				}
+
+				// Continue...
+
+			} catch (InterruptedException e) {
+				// Ignore...
+			}
+		}
+	}
+
+	/**
 	 * Close database.
 	 */
 	@Kroll.method
@@ -102,24 +127,8 @@ public class TiDatabaseProxy extends KrollProxy
 	{
 		if (db.isOpen()) {
 
-			// Wait for all queued queries.
-			if (Looper.getMainLooper() == Looper.myLooper()) {
-				try {
-
-					// Wait until query queue is empty.
-					synchronized (executingQueue)
-					{
-						while (executingQueue.get()) {
-							executingQueue.wait();
-						}
-					}
-
-					// Continue...
-
-				} catch (InterruptedException e) {
-					// Ignore...
-				}
-			}
+			// Wait for query queue to empty.
+			waitForQueue();
 
 			// Close database.
 			db.close();
@@ -159,23 +168,7 @@ public class TiDatabaseProxy extends KrollProxy
 
 		// If this is a synchronous call on the main thread, wait for all queued queries
 		// to maintain correct execution order and prevent write-locks.
-		if (Looper.getMainLooper() == Looper.myLooper()) {
-			try {
-
-				// Wait until query queue is empty.
-				synchronized (executingQueue)
-				{
-					while (executingQueue.get()) {
-						executingQueue.wait();
-					}
-				}
-
-				// Continue execution, retaining correct order.
-
-			} catch (InterruptedException e) {
-				// Ignore...
-			}
-		}
+		waitForQueue();
 
 		// Log.d(TAG, "execute: " + query);
 
