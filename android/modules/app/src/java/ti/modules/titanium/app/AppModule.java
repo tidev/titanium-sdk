@@ -218,7 +218,15 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.method(name = "_restart")
 	public void restart()
 	{
-		TiApplication.getInstance().softRestart();
+		// Restart the JavaScript runtime on the next message pump.
+		// We don't want to terminate the JS runtime while it's still on the stack.
+		getMainHandler().post(new Runnable() {
+			@Override
+			public void run()
+			{
+				TiApplication.getInstance().softRestart();
+			}
+		});
 	}
 
 	@Kroll.method
