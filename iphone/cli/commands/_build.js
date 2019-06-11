@@ -1805,8 +1805,16 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-		this.sourceMaps = cli.tiapp['source-maps'] === true || this.cli.argv['source-maps']; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
+		// If they're passing flag to do source-mapping, that overrides everything, so turn it on
+		if (cli.argv['source-maps']) {
+			this.sourceMaps = true;
+			// if they haven't, respect the tiapp.xml value if set one way or the other
+		} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+			this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
+		} else { // otherwise turn on by default for non-production builds
+			this.sourceMaps = this.deployType !== 'production';
+		}
 
 		// check for blacklisted files in the Resources directory
 		[	path.join(this.projectDir, 'Resources'),
