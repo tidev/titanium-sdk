@@ -247,7 +247,7 @@ timestamps {
 							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 						} // timeout
 						ansiColor('xterm') {
-							timeout(15) {
+							timeout(25) {
 								if (includeWindows) {
 									sh "node scons.js package --version-tag ${vtag} --all"
 								} else {
