@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -35,6 +36,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -118,14 +120,21 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		super(proxy);
 
-		TypedValue colorPrimaryValue = new TypedValue();
-		activity.getTheme().resolveAttribute(android.R.attr.colorPrimary, colorPrimaryValue, true);
-
-		TypedValue textColorPrimaryValue = new TypedValue();
-		activity.getTheme().resolveAttribute(android.R.attr.textColorPrimary, textColorPrimaryValue, true);
-
-		this.colorPrimaryInt = colorPrimaryValue.data;
-		this.textColorInt = textColorPrimaryValue.data;
+		// Fetch primary background and text colors from ActionBar style assigned to activity theme.
+		// Note: We use ActionBar style for backward compatibility with Titanium versions older than 8.0.0.
+		this.colorPrimaryInt = 0xFF212121; // Default to dark gray.
+		this.textColorInt = 0xFFFFFFFF;    // Default to white.
+		try {
+			int styleAttributeId = TiRHelper.getResource("attr.actionBarStyle");
+			int[] idArray = new int[] { TiRHelper.getResource("attr.colorPrimary"),
+										TiRHelper.getResource("attr.textColorPrimary") };
+			TypedArray typedArray = activity.obtainStyledAttributes(null, idArray, styleAttributeId, 0);
+			this.colorPrimaryInt = typedArray.getColor(0, this.colorPrimaryInt);
+			this.textColorInt = typedArray.getColor(1, this.textColorInt);
+			typedArray.recycle();
+		} catch (Exception ex) {
+			Log.e(TAG, "Failed to fetch color from theme.", ex);
+		}
 
 		this.tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(activity.getSupportFragmentManager());
 
