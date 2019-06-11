@@ -306,16 +306,17 @@ class GlobalTemplateWriter {
 	/**
 	 * Writes the type definition header required by DefinitelyTyped.
 	 *
-	 * @todo Automatically update the Titanium version string.
 	 */
 	writeHeader() {
-		this.output += '// Type definitions for Titanium 7.1\n';
+		const { version } = require('../../package.json');
+		const versionSplit = version.split('.');
+		const majorMinor = `${versionSplit[0]}.${versionSplit[1]}`;
+		this.output += `// Type definitions for non-npm package Titanium ${majorMinor}\n`;
 		this.output += '// Project: https://github.com/appcelerator/titanium_mobile\n';
 		this.output += '// Definitions by: Axway Appcelerator <https://github.com/appcelerator>\n';
 		this.output += '//                 Jan Vennemann <https://github.com/janvennemann>\n';
 		this.output += '// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped\n';
 		this.output += '// TypeScript Version: 2.6\n';
-		this.output += '\n';
 	}
 
 	/**
@@ -380,7 +381,7 @@ class GlobalTemplateWriter {
 		if (interfaceNode.methods.length > 0) {
 			interfaceNode.methods.forEach(methodNode => this.writeMethodNode(methodNode, nestingLevel + 1));
 		}
-		this.output += `${this.indent(nestingLevel)}}\n\n`;
+		this.output += `${this.indent(nestingLevel)}}\n`;
 	}
 
 	/**
