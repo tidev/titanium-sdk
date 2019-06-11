@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
@@ -83,6 +83,7 @@
     "node-appc": "^0.3.2",
     "node-titanium-sdk": "^3.1.2",
     "node-uuid": "1.4.8",
+    "p-limit": "^2.2.0",
     "pngjs": "^3.4.0",
     "request": "^2.87.0",
     "semver": "^6.1.1",
@@ -120,7 +121,7 @@
     "rollup": "^1.13.1",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.0.0",
-    "rollup-plugin-node-resolve": "^4.2.1",
+    "rollup-plugin-node-resolve": "^5.0.1",
     "ssri": "^6.0.1"
   },
   "repository": {
