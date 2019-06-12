@@ -17,8 +17,8 @@
 			"integrity": "sha512-t/vHb0hckmfqQmElsRV6mG67m0P+dTe0lXHPYIIX6wAO5thz2kbWjVwgp53hx2IAfJtCsCO9bX15+V5nGZ5DUw=="
 		},
 		"ti.safaridialog": {
-			"url": "https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-2.0.0/ti.safaridialog-iphone-2.0.0.zip",
-			"integrity": "sha512-Ervb0b68VDfLF7A3QX7+myG/1MFRkNbhYCZu8+hawRRRfpG0cmIFyTC+2JyNLxuJCoef7s/2JkcfhiC/2du8Hw=="
+			"url": "https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
+			"integrity": "sha512-6g3Qi9RUCl3uf06OnrThm9fpxhcxhtRzyoFRE5PJpenTFN45QYGRZeEQAqgTKcvEB0ardUfGMOyZcA8WoCfWTw=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/appcelerator-modules/titanium-web-dialog/releases/download/ios-1.1.0/ti.webdialog-iphone-1.1.0.zip",
