@@ -14,6 +14,7 @@
 #import "TiBlob.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
+#import "TiLogServer.h"
 #import "TiSharedConfig.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
@@ -21,9 +22,6 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
-#ifndef DISABLE_TI_LOG_SERVER
-#import "TiLogServer.h"
-#endif
 
 TiApp *sharedApp;
 
@@ -274,9 +272,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationDidFinishLaunching:(UIApplication *)application
 {
   [TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
   [self initController];
   [self launchToUrl];
   [self boot];
@@ -344,9 +342,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   started = [NSDate timeIntervalSinceReferenceDate];
   [TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   // Initialize the root-window
   window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -589,7 +587,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
 
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, notification, responseInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, notification, responseInfo, [completionHandler copy], nil]];
 
   [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
 }
@@ -598,7 +596,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, responseInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, responseInfo, [completionHandler copy], nil]];
 
   [self handleRemoteNotificationWithIdentifier:identifier
                                    andUserInfo:userInfo
@@ -997,9 +995,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   // These shutdowns return immediately, yes, but the main will still run the close that's in their queue.
   [kjsBridge shutdown:condition];
 
-#ifndef DISABLE_TI_LOG_SERVER
-  [[TiLogServer defaultLogServer] start];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   //This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
@@ -1111,98 +1109,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   [self endBackgrounding];
 }
-
-#pragma mark Handoff Delegates
-
-#ifdef USE_TI_APPIOS
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler
-{
-  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
-
-  if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
-    if ([userActivity userInfo] != nil) {
-      [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
-    }
-  }
-
-  if ([userActivity title] != nil) {
-    [dict setObject:[userActivity title] forKey:@"title"];
-  }
-
-  if ([userActivity webpageURL] != nil) {
-    [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
-  }
-
-  if ([userActivity userInfo] != nil) {
-    [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
-  }
-
-  // Update launchOptions so that we send only expected values rather than NSUserActivity
-  NSMutableDictionary *userActivityDict = [NSMutableDictionary dictionaryWithDictionary:launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]];
-  [userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
-  [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
-
-  [self tryToInvokeSelector:@selector(application:continueUserActivity:restorationHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, [restorationHandler copy], nil]];
-
-  if (appBooted) {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
-  } else {
-    [[self queuedBootEvents] setObject:dict forKey:kTiContinueActivity];
-  }
-
-  return YES;
-}
-#endif
-
-#pragma mark Push Notification Delegates
-
-#ifdef USE_TI_NETWORKREGISTERFORPUSHNOTIFICATIONS
-
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-{
-  // NOTE: this is called when the app is *running* after receiving a push notification
-  // otherwise, if the app is started from a push notification, this method will not be
-  // called
-  RELEASE_TO_NIL(remoteNotification);
-  [self generateNotification:userInfo];
-
-  [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, nil]];
-}
-
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-{
-  NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<" withString:@""]
-      stringByReplacingOccurrencesOfString:@">"
-                                withString:@""]
-      stringByReplacingOccurrencesOfString:@" "
-                                withString:@""];
-
-  RELEASE_TO_NIL(remoteDeviceUUID);
-  remoteDeviceUUID = [token copy];
-
-  NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
-  if (curKey == nil || ![curKey isEqualToString:remoteDeviceUUID]) {
-    // this is the first time being registered, we need to indicate to our backend that we have a
-    // new registered device to enable this device to receive notifications from the cloud
-    [[NSUserDefaults standardUserDefaults] setObject:remoteDeviceUUID forKey:@"APNSRemoteDeviceUUID"];
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:remoteDeviceUUID forKey:@"deviceid"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteDeviceUUIDNotification object:self userInfo:userInfo];
-    DebugLog(@"[DEBUG] Registered new device for remote push notifications: %@", remoteDeviceUUID);
-  }
-
-  [self tryToInvokeSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, deviceToken, nil]];
-}
-
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-{
-  [self tryToInvokeSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, error, nil]];
-}
-
-#endif
 
 //TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message

@@ -1420,6 +1420,52 @@ If the new path starts with / and the base url is app://..., we have to massage 
   ApplyConstraintToViewWithBounds([proxy layoutProperties], view, bounds);
 }
 
++ (NSString *)composeAccessibilityIdentifier:(id)object
+{
+  NSString *accessibilityLabel = [object accessibilityLabel];
+  NSString *accessibilityValue = [object accessibilityValue];
+  NSString *accessibilityHint = [object accessibilityHint];
+
+  NSString *pattern = @"^.*[!\"#$%&'()*+,\\-./:;<=>?@\\[\\]^_`{|}~]\\s*$";
+  NSString *dot = @".";
+  NSString *space = @" ";
+  NSError *error = nil;
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+  NSMutableArray *array = [NSMutableArray array];
+  NSUInteger numberOfMatches;
+
+  if (accessibilityLabel != nil && accessibilityLabel.length) {
+    [array addObject:accessibilityLabel];
+    numberOfMatches = [regex numberOfMatchesInString:accessibilityLabel options:0 range:NSMakeRange(0, [accessibilityLabel length])];
+    if (numberOfMatches == 0) {
+      [array addObject:dot];
+    }
+  }
+
+  if (accessibilityValue != nil && accessibilityValue.length) {
+    if ([array count] > 0) {
+      [array addObject:space];
+    }
+    [array addObject:accessibilityValue];
+    numberOfMatches = [regex numberOfMatchesInString:accessibilityValue options:0 range:NSMakeRange(0, [accessibilityValue length])];
+    if (numberOfMatches == 0) {
+      [array addObject:dot];
+    }
+  }
+
+  if (accessibilityHint != nil && accessibilityHint.length) {
+    if ([array count] > 0) {
+      [array addObject:space];
+    }
+    [array addObject:accessibilityHint];
+    numberOfMatches = [regex numberOfMatchesInString:accessibilityHint options:0 range:NSMakeRange(0, [accessibilityHint length])];
+    if (numberOfMatches == 0) {
+      [array addObject:dot];
+    }
+  }
+  return [array componentsJoinedByString:@""];
+}
+
 + (CGRect)viewPositionRect:(UIView *)view
 {
 #if USEFRAME
