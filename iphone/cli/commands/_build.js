@@ -440,6 +440,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'force-copy': {
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
 						},
+						'hide-error-controller': {
+							hidden: true
+						},
 						'launch-watch-app': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app and the main app', 'simulator'.cyan)
 						},
@@ -476,9 +479,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'developer-name':             this.configOptionDeveloperName(170),
 						'distribution-name':          this.configOptionDistributionName(180),
 						'device-family':              this.configOptionDeviceFamily(120), // this MUST be processed before --device-id
-						'hide-error-controller': {
-							hidden: true
-						},
 						'ios-version':                this.configOptioniOSVersion(130),
 						keychain:                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
@@ -1793,7 +1793,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (cli.argv['skip-js-minify']) {
 			this.minifyJS = false;
 		}
-		if (cli.argv.hasOwnProperty('hide-error-controller')) {
+		if (cli.argv['hide-error-controller']) {
 			this.showErrorController = false;
 		}
 
@@ -1805,8 +1805,16 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
+		// If they're passing flag to do source-mapping, that overrides everything, so turn it on
+		if (cli.argv['source-maps']) {
+			this.sourceMaps = true;
+			// if they haven't, respect the tiapp.xml value if set one way or the other
+		} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+			this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
+		} else { // otherwise turn on by default for non-production builds
+			this.sourceMaps = this.deployType !== 'production';
+		}
 
 		// check for blacklisted files in the Resources directory
 		[	path.join(this.projectDir, 'Resources'),
@@ -5860,7 +5868,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						defaultAnalyzeOptions: {
 							minify: this.minifyJS,
 							transpile: this.transpile,
-							sourceMap: this.sourceMaps || this.deployType === 'development',
+							sourceMap: this.sourceMaps,
 							resourcesDir: this.xcodeAppDir,
 							logger: this.logger,
 							targets: {
