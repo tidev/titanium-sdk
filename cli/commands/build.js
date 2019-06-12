@@ -64,7 +64,10 @@ exports.config = function config(logger, config, cli) {
 						'skip-js-minify': {
 							default: false,
 							desc: __('bypasses JavaScript minification; %s builds are never minified; only supported for %s and %s', 'simulator'.cyan, 'Android'.cyan, 'iOS'.cyan)
-						}
+						},
+						'source-maps': {
+							desc: __('generate inline source maps for transpiled JS files')
+						},
 					},
 					options: appc.util.mix({
 						platform: {

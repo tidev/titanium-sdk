@@ -21,10 +21,12 @@ import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+		TiC.PROPERTY_ICON,
 		TiC.PROPERTY_TITLE,
-		TiC.PROPERTY_TITLEID,
-		TiC.PROPERTY_ICON
-})
+		TiC.PROPERTY_TITLE_COLOR,
+		TiC.PROPERTY_TITLEID
+	})
 // clang-format on
 public class TabProxy extends TiViewProxy
 {
@@ -143,6 +145,16 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
+	/*@Kroll.getProperty
+	public String getTitle()
+	{
+		// Validate tabGroup proxy.
+		if (tabGroupProxy == null ) {
+			return null;
+		}
+		return ((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).getTabTitle(tabGroupProxy.getTabIndex(this));
+	}*/
+
 	public void setWindowId(int id)
 	{
 		windowId = id;
@@ -229,10 +241,23 @@ public class TabProxy extends TiViewProxy
 	public void onPropertyChanged(String name, Object value)
 	{
 		super.onPropertyChanged(name, value);
+		// Check if the Tab Group proxy has been released.
+		if (tabGroupProxy == null) {
+			return;
+		}
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
-			if (tabGroupProxy != null) {
-				((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).setDrawables();
-			}
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView())
+				.updateTabBackgroundDrawable(tabGroupProxy.getTabIndex(this));
+		}
+		if (name.equals(TiC.PROPERTY_TITLE)) {
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabTitle(tabGroupProxy.getTabIndex(this));
+		}
+		if (name.equals(TiC.PROPERTY_TITLE_COLOR) || name.equals(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView())
+				.updateTabTitleColor(tabGroupProxy.getTabIndex(this));
+		}
+		if (name.equals(TiC.PROPERTY_ICON)) {
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabIcon(tabGroupProxy.getTabIndex(this));
 		}
 	}
 
