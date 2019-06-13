@@ -116,7 +116,7 @@
     "grunt-contrib-clean": "^2.0.0",
     "husky": "^2.3.0",
     "js-yaml": "^3.13.1",
-    "lint-staged": "^8.1.7",
+    "lint-staged": "^8.2.1",
     "markdown-it": "^8.4.2",
     "rollup": "^1.15.6",
     "rollup-plugin-babel": "^4.3.2",
