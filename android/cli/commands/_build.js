@@ -923,7 +923,16 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-	this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
+	// If they're passing flag to do source-mapping, that overrides everything, so turn it on
+	if (cli.argv['source-maps']) {
+		this.sourceMaps = true;
+		// if they haven't, respect the tiapp.xml value if set one way or the other
+	} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+		this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
+	} else { // otherwise turn on by default for non-production builds
+		this.sourceMaps = this.deployType !== 'production';
+	}
+
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
 	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
@@ -1908,6 +1917,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
 	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
+	this.buildIncrementalDir        = path.join(this.buildDir, 'incremental');
 	this.buildIntermediatesDir      = path.join(this.buildDir, 'intermediates');
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
@@ -2071,6 +2081,22 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: JavaScript encryption flag changed'));
 		this.logger.info('  ' + __('Was: %s', manifest.encryptJS));
 		this.logger.info('  ' + __('Now: %s', this.encryptJS));
+		return true;
+	}
+
+	// if sourceMaps changed, then we need to re-process all of the JS files
+	if (this.sourceMaps !== manifest.sourceMaps) {
+		this.logger.info(__('Forcing rebuild: JavaScript sourceMaps flag changed'));
+		this.logger.info('  ' + __('Was: %s', manifest.sourceMaps));
+		this.logger.info('  ' + __('Now: %s', this.sourceMaps));
+		return true;
+	}
+
+	// if transpile changed, then we need to re-process all of the JS files
+	if (this.transpile !== manifest.transpile) {
+		this.logger.info(__('Forcing rebuild: JavaScript transpile flag changed'));
+		this.logger.info('  ' + __('Was: %s', manifest.transpile));
+		this.logger.info('  ' + __('Now: %s', this.transpile));
 		return true;
 	}
 
@@ -2276,8 +2302,9 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// make directories if they don't already exist
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
+		fs.emptyDirSync(this.buildIncrementalDir);
 		fs.emptyDirSync(dir);
-		this.unmarkBuildDirFiles(this.buildAssetsDir);
+		this.unmarkBuildDirFiles(dir);
 	} else {
 		fs.ensureDirSync(dir);
 	}
@@ -2669,7 +2696,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			const from = jsFiles[relPath];
 			if (htmlJsFiles[relPath]) {
 				// this js file is referenced from an html file, so don't minify or encrypt
-				copyUnmodified.push(from);
+				copyUnmodified.push(relPath);
 			} else {
 				inputFiles.push(from);
 			}
@@ -2677,7 +2704,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		const task = new ProcessJsTask({
 			inputFiles,
-			incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
+			incrementalDirectory: path.join(this.buildIncrementalDir, 'process-js'),
 			logger: this.logger,
 			builder: this,
 			jsFiles: Object.keys(jsFiles).reduce((jsFilesInfo, relPath) => {
@@ -2692,7 +2719,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			defaultAnalyzeOptions: {
 				minify: this.minifyJS,
 				transpile: this.transpile,
-				sourceMap: this.sourceMaps || this.deployType === 'development',
+				sourceMap: this.sourceMaps,
 				resourcesDir: this.buildBinAssetsResourcesDir,
 				logger: this.logger,
 				targets: {
@@ -2814,8 +2841,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// write the encrypted JS bytes to the generated Java file
+				const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
+				this.unmarkBuildDirFile(assetCryptDest);
 				fs.writeFileSync(
-					path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
+					assetCryptDest,
 					ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
 						appid: this.appid,
 						encryptedAssets: out
@@ -4602,6 +4631,8 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', true),
 		encryptJS: this.encryptJS,
+		sourceMaps: this.sourceMaps,
+		transpile: this.transpile,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,
 		propertiesHash: this.propertiesHash,
