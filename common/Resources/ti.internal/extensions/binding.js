@@ -83,3 +83,8 @@ export function redirectCoreModuleIdToPath(coreModuleId, internalPath) {
 export function bindObjectToCoreModuleId(coreModuleId, object) {
 	bindings.set(coreModuleId, object);
 }
+
+global.redirectCoreModuleIdToPath = redirectCoreModuleIdToPath;
+global.bindObjectToCoreModuleId = bindObjectToCoreModuleId;
+global.bindings = bindings;
+global.redirects = redirects;
