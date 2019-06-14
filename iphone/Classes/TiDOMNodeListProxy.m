@@ -8,57 +8,50 @@
 
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMNodeProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDOMNodeListProxy
 
--(void)dealloc
+- (id)_initWithPageContext:(id<TiEvaluator>)context nodes:(NSArray *)nodeList document:(GDataXMLDocument *)theDocument;
 {
-	[nodes release];
-	[super dealloc];
+  if (self = [super _initWithPageContext:context]) {
+    nodes = [nodeList retain];
+    document = [theDocument retain];
+  }
+  return self;
 }
 
--(NSString*)apiName
+- (void)dealloc
 {
-    return @"Ti.XML.NodeList";
+  [nodes release];
+  [document release];
+  [super dealloc];
 }
 
--(void)setNodes:(NSArray*)nodes_
+- (NSString *)apiName
 {
-    if (nodes == nodes_) {
-        return;
-    }
-    for (TiDOMNodeProxy *node in nodes) {
-        if (![nodes_ containsObject:node]) {
-            [self forgetProxy:node];
-        }
-    }
-	[nodes release];
-	nodes = [nodes_ retain];
-    for (TiDOMNodeProxy *node in nodes) {
-        [[self pageContext] registerProxy:node];
-        [self rememberProxy:node];
-    }
+  return @"Ti.XML.NodeList";
 }
 
--(id)item:(id)args
+- (id)item:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
-	int index = [TiUtils intValue:args];
-    
-	if ( (index < [nodes count]) && (index >=0) )
-	{
-		return [nodes objectAtIndex:index];
-	}
-	return [NSNull null];
+  ENSURE_SINGLE_ARG(args, NSObject);
+  int index = [TiUtils intValue:args];
+
+  if ((index < [nodes count]) && (index >= 0)) {
+    GDataXMLNode *theNode = [nodes objectAtIndex:index];
+    id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
+    id nodeProxy = [TiDOMNodeProxy makeNode:theNode context:context];
+    [(TiDOMNodeProxy *)nodeProxy setDocument:document];
+    return nodeProxy;
+  }
+  return [NSNull null];
 }
 
--(NSNumber*)length
+- (NSNumber *)length
 {
-    return NUMINT([nodes count]);
+  return NUMUINTEGER([nodes count]);
 }
-
-
 
 @end
 

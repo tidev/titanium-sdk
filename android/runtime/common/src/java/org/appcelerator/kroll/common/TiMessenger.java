@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
 
 /**
  * A messenger interface that maintains a {@link android.os.MessageQueue}, and
@@ -47,13 +46,13 @@ public class TiMessenger implements Handler.Callback
 	private static final int MSG_RUN = 3000;
 
 	protected static TiMessenger mainMessenger;
-	protected static TiMessenger runtimeMessenger;
 
 	protected static ThreadLocal<TiMessenger> threadLocalMessenger = new ThreadLocal<TiMessenger>() {
 		protected TiMessenger initialValue()
 		{
 			if (Looper.myLooper() == null) {
-				synchronized (threadLocalMessenger) {
+				synchronized (threadLocalMessenger)
+				{
 					if (Looper.myLooper() == null) {
 						Looper.prepare();
 					}
@@ -65,9 +64,6 @@ public class TiMessenger implements Handler.Callback
 			long currentThreadId = Thread.currentThread().getId();
 			if (currentThreadId == Looper.getMainLooper().getThread().getId()) {
 				mainMessenger = messenger;
-
-			} else if (currentThreadId == KrollRuntime.getInstance().getThreadId()) {
-				runtimeMessenger = messenger;
 			}
 
 			return messenger;
@@ -84,15 +80,18 @@ public class TiMessenger implements Handler.Callback
 
 	public static final int DEFAULT_TIMEOUT = 50;
 
-
 	public static TiMessenger getMessenger()
 	{
 		return threadLocalMessenger.get();
 	}
 
 	/**
-	 * @return the main TiMessenger instance. This is used for sending messages to the Main thread.
-	 * See {@link #sendBlockingMainMessage(Message, Object)} for more details.
+	 * Gets a TiMessenger instance used for sending messages to the main UI thread.
+	 * See {@link #sendBlockingRuntimeMessage(Message, Object)} for more details.
+	 * <p>
+	 * As of Titanium 8.0.0, the JavaScript runtime only supports running on the main thread. This means
+	 * that getMainMessenger() and getRuntimeMessenger() will always return the same TiMessenger instance.
+	 * @return the main UI thread TiMessenger instance.
 	 * @module.api
 	 */
 	public static TiMessenger getMainMessenger()
@@ -101,35 +100,33 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * @return the KrollRuntime TiMessenger instance. This is used for sending messages to the KrollRuntime thread.
-	 * See {@link #sendBlockingRuntimeMessage(Message, Object)} for more details.
+	 * Gets a TiMessenger instance used for sending messages to the thread that Titanium's JavaScript
+	 * runtime is running on. See {@link #sendBlockingRuntimeMessage(Message, Object)} for more details.
+	 * <p>
+	 * As of Titanium 8.0.0, the JavaScript runtime only supports running on the main thread. This means
+	 * that getMainMessenger() and getRuntimeMessenger() will always return the same TiMessenger instance.
+	 * @return the KrollRuntime TiMessenger instance.
 	 * @module.api
 	 */
 	public static TiMessenger getRuntimeMessenger()
 	{
-		return runtimeMessenger;
+		return getMainMessenger();
 	}
 
 	public static void postOnMain(Runnable runnable)
 	{
-		if (mainMessenger == null) {
+		TiMessenger messenger = getMainMessenger();
+		if (messenger == null) {
 			Log.w(TAG, "Unable to post runnable on main thread, main messenger is null");
-
 			return;
 		}
 
-		mainMessenger.handler.post(runnable);
+		messenger.handler.post(runnable);
 	}
 
 	public static void postOnRuntime(Runnable runnable)
 	{
-		if (runtimeMessenger == null) {
-			Log.w(TAG, "Unable to post runnable on runtime thread, runtime messenger is null");
-
-			return;
-		}
-
-		runtimeMessenger.handler.post(runnable);
+		postOnMain(runnable);
 	}
 
 	/**
@@ -142,7 +139,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingMainMessage(Message message)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, mainMessenger, null, -1);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getMainMessenger(), null, -1);
 	}
 
 	/**
@@ -156,7 +153,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingMainMessage(Message message, Object asyncArg)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, mainMessenger, asyncArg, -1);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getMainMessenger(), asyncArg, -1);
 	}
 
 	/**
@@ -169,7 +166,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, runtimeMessenger, null, -1);
+		return sendBlockingMainMessage(message);
 	}
 
 	/**
@@ -183,7 +180,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, runtimeMessenger, asyncArg, -1);
+		return sendBlockingMainMessage(message, asyncArg);
 	}
 
 	/**
@@ -199,9 +196,8 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg, long maxTimeout)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, runtimeMessenger, asyncArg, maxTimeout);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getRuntimeMessenger(), asyncArg, maxTimeout);
 	}
-
 
 	private TiMessenger()
 	{
@@ -233,7 +229,8 @@ public class TiMessenger implements Handler.Callback
 	 * @param maxTimeout the maximum time to wait for a permit from the semaphore.
 	 * @return The getResult() value of the AsyncResult put on the message.
 	 */
-	private Object sendBlockingMessage(Message message, TiMessenger targetMessenger, Object asyncArg, final long maxTimeout)
+	private Object sendBlockingMessage(Message message, TiMessenger targetMessenger, Object asyncArg,
+									   final long maxTimeout)
 	{
 		@SuppressWarnings("serial")
 		AsyncResult wrappedAsyncResult = new AsyncResult(asyncArg) {
@@ -346,7 +343,7 @@ public class TiMessenger implements Handler.Callback
 	public boolean handleMessage(Message message)
 	{
 		if (message.what == MSG_RUN) {
-			((Runnable)message.obj).run();
+			((Runnable) message.obj).run();
 
 			return true;
 		}
@@ -416,4 +413,3 @@ public class TiMessenger implements Handler.Callback
 		return false;
 	}
 }
-

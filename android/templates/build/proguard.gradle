@@ -1,0 +1,55 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2018 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+import proguard.gradle.ProGuardTask
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'net.sf.proguard:proguard-gradle:5.3.3'
+	}
+}
+
+task proguard(type: proguard.gradle.ProGuardTask) {
+	// Disable gradle's incremental build support for this task so that it'll always execute.
+	outputs.upToDateWhen { false }
+	
+	// Do not continue if not given a 'configuration' property. It's required.
+	if (!project.hasProperty('configuration')) {
+		throw new InvalidUserDataException(
+				'You must set a "configuration" property referencing a Proguard config file.')
+	}
+
+	// Extract file path(s) from given 'configuration' property and pass them over to the ProGuard task.
+	// Note: Multiple file paths can be provided like how it works with a PATH environment variable.
+	//       On Windows, file paths are separated by a ';' semicolon.
+	//       On Mac/Linux, file paths are separated by a ':' colon.
+	def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+	def arraySeparator = isWindows ? ';' : ':'
+	def configFileArray = project.properties.configuration.split(arraySeparator)
+	for (nextFile in configFileArray) {
+		// Verify that the given file exists.
+		if ((new File(nextFile)).exists() == false) {
+			throw new InvalidUserDataException('Given file not found: ' + nextFile)
+		}
+
+		// Copy the config file path to the ProGuard task.
+		configuration nextFile
+	}
+
+	// Enable ProGuard's force processing feature if property was set in gradle.
+	// Note: This feature cannot be enabled in a ProGuard config file.
+	if (project.hasProperty('forceprocessing') && project.properties.forceprocessing.toBoolean()) {
+		forceprocessing
+	}
+
+	// The ProGuard task will execute using the above config file(s) at the end of this gradle task.
+}
+
+defaultTasks 'proguard'

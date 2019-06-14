@@ -1,0 +1,27 @@
+---
+name: Titanium.UI.iOS.ListViewStyle
+summary: |
+    A set of constants for the style that can be used for the `style` property of 
+    <Titanium.UI.ListView>.
+extends: Titanium.Proxy
+excludes:
+    properties: [bubbleParent]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
+platforms: [iphone, ipad]
+since: "3.1.0"
+createable: false
+
+properties:
+  - name: GROUPED
+    summary: |
+        A list view whose sections present distinct groups of rows. The section headers and footers 
+        do not float.
+    type: Number
+    permission: read-only
+    
+  - name: PLAIN
+    summary: |
+        A plain list view. Any section headers or footers are displayed as inline separators and 
+        float when the list view is scrolled.
+    type: Number
+    permission: read-only

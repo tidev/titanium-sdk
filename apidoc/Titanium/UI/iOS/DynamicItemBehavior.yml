@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.DynamicItemBehavior
 summary: Base dynamic configuration for an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A dynamic item behavior configures the physics attributes for one or more items. These
     attributes, such as density and resistance, affects the behavior of the object when other behaviors,
     such as push forces or collisions, are applied to it.  To define a dynamic behavior for an item:
@@ -85,7 +83,7 @@ methods:
     summary: Adds an item to this behavior.
     parameters:
       - name: item
-        summary: 
+        summary: View object to add to the behavior.
         type: Titanium.UI.View
 
   - name: addLinearVelocityForItem
@@ -130,6 +128,8 @@ examples:
         The following example create two blocks, which are pushed towards each other.  Because the
         red block is more dense and has higher resistance than the blue block, the red block moves
         steadily to the left, while the blue block spins around unpredictably.
+
+        <img src="images/animator/dynamicitem.gif" height="455" style="border:1px solid black"/>
 
             var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
             

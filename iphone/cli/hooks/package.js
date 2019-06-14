@@ -1,132 +1,292 @@
 /*
  * package.js: Titanium iOS CLI package hook
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
-	async = require('async'),
-	wrench = require('wrench'),
-	exec = require('child_process').exec;
+	exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
 
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
+	cli.on('build.ios.xcodebuild', {
+		pre: function (data, finished) {
+			if (this.target !== 'dist-appstore' && this.target !== 'dist-adhoc') {
+				return finished();
+			}
 
-	cli.addHook('build.post.compile', {
+			const stagingArchiveDir = path.join(this.buildDir, this.tiapp.name + '.xcarchive');
+			fs.removeSync(stagingArchiveDir);
+
+			// inject the temporary archive path into the xcodebuild args
+			const args = data.args[1];
+			const p = args.indexOf('-archivePath');
+			if (p === -1) {
+				args.push('-archivePath', stagingArchiveDir);
+			} else {
+				args[p + 1] = stagingArchiveDir;
+			}
+
+			finished();
+		}
+	});
+
+	cli.on('build.post.compile', {
 		priority: 8000,
-		post: function (build, finished) {
-			if (!/dist-(appstore|adhoc)/.test(cli.argv.target)) return finished();
+		post: function (builder, finished) {
+			const target = cli.argv.target;
 
-			switch (cli.argv.target) {
+			if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
+				return finished();
+			}
+
+			const name = builder.tiapp.name;
+			const stagingArchiveDir = path.join(builder.buildDir, name + '.xcarchive');
+			if (!fs.existsSync(stagingArchiveDir)) {
+				return finished(new Error(__('Staging archive directory does not exist')));
+			}
+
+			const now = new Date();
+			const destInfoPlist = path.join(stagingArchiveDir, 'Info.plist');
+			if (!fs.existsSync(destInfoPlist)) {
+				const origPlist = new appc.plist(path.join(builder.buildDir, 'Info.plist'));
+				const newPlist = new appc.plist();
+				const appBundle = 'Applications/' + name + '.app';
+
+				appc.util.mix(newPlist, {
+					ApplicationProperties: {
+						ApplicationPath: appBundle,
+						CFBundleIdentifier: origPlist.CFBundleIdentifier || builder.tiapp.id,
+						CFBundleShortVersionString: origPlist.CFBundleShortVersionString || '1.0',
+						CFBundleVersion: origPlist.CFBundleVersion || '1.0',
+						SigningIdentity: 'iPhone Distribution: ' + builder.certDistributionName,
+						IconPaths: [
+							appBundle + '/' + builder.tiapp.icon
+						]
+					},
+					ArchiveVersion: newPlist.type('integer', 2),
+					CreationDate: now,
+					Name: name,
+					SchemeName: name
+				}).save(destInfoPlist);
+			}
+
+			switch (target) {
 				case 'dist-appstore':
-					logger.info('Packaging for App Store distribution');
+					logger.info(__('Preparing xcarchive'));
 
-					var name = build.tiapp.name,
-						now = new Date(),
-						month = now.getMonth() + 1,
-						day = now.getDate(),
-						hours = now.getHours(),
-						minutes = now.getMinutes(),
-						seconds = now.getSeconds(),
-						archiveBundle = afs.resolvePath('~/Library/Developer/Xcode/Archives',
-							now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day) + path.sep +
-							name + '_' + (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' +
-							(seconds >= 10 ? seconds : '0' + seconds) + '.xcarchive'),
-						archiveApp = path.join(archiveBundle, 'Products', 'Applications', name + '.app'),
-						archiveDsym = path.join(archiveBundle, 'dSYM');
+					const productsDir = path.join(builder.buildDir, 'build', 'Products');
+					if (!fs.existsSync(productsDir)) {
+						return finished(new Error(__('Products directory does not exist')));
+					}
 
-					wrench.mkdirSyncRecursive(archiveApp);
-					wrench.mkdirSyncRecursive(archiveDsym);
-
-					async.parallel([
-						function (next) {
-							logger.info(__('Archiving app bundle to %s', archiveApp.cyan));
-							exec('ditto "' + build.xcodeAppDir + '" "' + archiveApp + '"', next);
-						},
-						function (next) {
-							logger.info(__('Archiving debug symbols to %s', archiveDsym.cyan));
-							exec('ditto "' + build.xcodeAppDir + '.dSYM" "' + archiveDsym + '"', next);
-						},
-						function (next) {
-							var tempPlist = path.join(archiveBundle, 'Info.xml.plist');
-
-							exec('/usr/bin/plutil -convert xml1 -o "' + tempPlist + '" "' + path.join(build.xcodeAppDir, 'Info.plist') + '"', function (err, stdout, strderr) {
-								var origPlist = new appc.plist(tempPlist),
-									newPlist = new appc.plist(),
-									appBundle = 'Applications/' + name + '.app';
-
-								fs.unlinkSync(tempPlist);
-
-								appc.util.mix(newPlist, {
-									ApplicationProperties: {
-										ApplicationPath: appBundle,
-										CFBundleIdentifier: origPlist.CFBundleIdentifier,
-										CFBundleShortVersionString: appc.version.format(origPlist.CFBundleVersion, 3, 3),
-										IconPaths: [
-											appBundle + '/' + build.tiapp.icon
-										]
-									},
-									ArchiveVersion: newPlist.type('real', 1),
-									CreationDate: now,
-									Name: name,
-									SchemeName: name
-								}).save(path.join(archiveBundle, 'Info.plist'));
-
-								next();
+					// copy symbols
+					const archiveDsymDir = path.join(stagingArchiveDir, 'dSYMs');
+					fs.ensureDirSync(archiveDsymDir);
+					const bcSymbolMapsDir = path.join(stagingArchiveDir, 'BCSymbolMaps');
+					fs.ensureDirSync(bcSymbolMapsDir);
+					const dsymRegExp = /\.dSYM$/;
+					const bcSymbolMapsRegExp = /\.bcsymbolmap$/;
+					fs.readdirSync(productsDir).forEach(function (name) {
+						var subdir = path.join(productsDir, name);
+						if (fs.existsSync(subdir) && fs.statSync(subdir).isDirectory()) {
+							fs.readdirSync(subdir).forEach(function (name) {
+								var file = path.join(subdir, name);
+								if (dsymRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isDirectory()) {
+									logger.info(__('Archiving debug symbols: %s', file.cyan));
+									fs.copySync(file, path.join(archiveDsymDir, name), { overwrite: false });
+								} else if (bcSymbolMapsRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isFile()) {
+									const dest = path.join(bcSymbolMapsDir, name);
+									logger.info(__('Archiving Bitcode Symbol Map: %s', file.cyan));
+									fs.writeFileSync(dest, fs.readFileSync(file));
+								}
 							});
 						}
-					], function () {
-						// workaround for dumb Xcode4 bug that doesn't update the organizer unless files are touched in a very specific manner
-						var temp = afs.resolvePath('~/Library/Developer/Xcode/Archives/temp');
-						fs.renameSync(archiveBundle, temp);
-						fs.renameSync(temp, archiveBundle);
+					});
 
-						// open xcode + organizer after packaging
-						logger.info(__('Launching Xcode: %s', build.xcodeEnv.xcodeapp.cyan));
-						exec('open -a "' + build.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
-							exec('osascript "' + path.join(build.titaniumIosSdkPath, 'xcode_organizer.scpt') + '"', function (err, stdout, stderr) {
+					// if output-dir don't move the archive, instead export it into an IPA
+					if (cli.argv['output-dir']) {
+						exportIPA(builder, target, stagingArchiveDir, cli.argv['output-dir'], finished);
+						return;
+					}
+
+					const month = now.getMonth() + 1;
+					const day = now.getDate();
+					const hours = now.getHours();
+					const minutes = now.getMinutes();
+					const seconds = now.getSeconds();
+					const date = now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day);
+					const time = (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' + (seconds >= 10 ? seconds : '0' + seconds);
+
+					const archivesDir = afs.resolvePath('~/Library/Developer/Xcode/Archives', date);
+					const dest = path.join(archivesDir, name + ' ' + date + ' ' + time + '.xcarchive');
+
+					// move the finished archive directory into the correct location
+					fs.ensureDirSync(archivesDir);
+					appc.fs.copyDirSyncRecursive(stagingArchiveDir, dest, {
+						logger: logger.debug
+					});
+
+					// if not build-only open xcode + organizer after packaging, otherwise finish
+					if (!cli.argv['build-only']) {
+						logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
+						exec('open -a "' + builder.xcodeEnv.xcodeapp + '"', function () {
+							process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
+							exec('osascript "' + path.join(builder.platformPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function () {
 								logger.info(__('Packaging complete'));
 								finished();
 							});
 						});
-					});
-					break;
+					} else {
+						logger.info(__('Packaging complete'));
+						finished();
+					}
+					return;
 
 				case 'dist-adhoc':
-					logger.info('Packaging for Ad Hoc distribution');
-					var pkgapp = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
-					exec('"' + pkgapp + '" "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
-						if (err) {
-							logger.error(__('Failed to package application'));
-							stderr.split('\n').forEach(logger.error);
-							return finished();
-						}
-
-						var ipa = path.join(path.dirname(build.xcodeAppDir), build.tiapp.name + '.ipa'),
-							dest = ipa,
-							outputDir = cli.argv['output-dir'] && afs.resolvePath(cli.argv['output-dir']);
-
-						if (outputDir && outputDir != path.dirname(dest)) {
-							fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
-							dest = path.join(outputDir, build.tiapp.name + '.ipa');
-							fs.existsSync(dest) && fs.unlinkSync(dest);
-							afs.copyFileSync(ipa, dest, { logger: logger.debug });
-						}
-
-						logger.info(__('Packaging complete'));
-						logger.info(__('Package location: %s', dest.cyan));
-
-						finished();
-					});
-					break;
+					logger.info(__('Packaging for Ad Hoc distribution'));
+					exportIPA(builder, target, stagingArchiveDir, cli.argv['output-dir'], finished);
+					return;
 			}
+
+			finished();
 		}
 	});
 
+	/**
+	 * Centralized function to export build into an IPA
+	 * @param  {object}   builder           builder object
+	 * @param  {string}   target            target store/consumer
+	 * @param  {string}   stagingArchiveDir path to staging dir
+	 * @param  {string}   outputDirArg      path to ultimate output dir
+	 * @param  {Function} callback          callback function
+	 * @return {undefined}
+	 */
+	function exportIPA(builder, target, stagingArchiveDir, outputDirArg, callback) {
+		logger.debug(__('Packaging IPA for target %s', target.cyan));
+
+		const outputDir = outputDirArg && afs.resolvePath(outputDirArg);
+		if (!outputDir) {
+			logger.warn(__('Invalid output directory %s, skipping packaging', '--output-dir'.cyan));
+			return callback();
+		}
+
+		// make sure the output directory is good to go
+		fs.ensureDirSync(outputDir);
+
+		const ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
+		if (fs.existsSync(ipaFile)) {
+			logger.debug(__('Deleting old .ipa file'));
+			fs.unlinkSync(ipaFile);
+		}
+
+		const exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
+		const exportsOptions = new appc.plist();
+		const pp = builder.provisioningProfile;
+
+		// Build the options plist file
+		if (target === 'dist-appstore') {
+			exportsOptions.method = 'app-store';
+		} else {
+			exportsOptions.method = 'ad-hoc';
+
+			if (pp.type === 'enterprise') {
+				exportsOptions.method = 'enterprise';
+			}
+
+			if (builder.teamId || (pp && (pp.team || pp.appPrefix))) {
+				// NOTE: if there isn't an explicit <team-id> in the tiapp.xml and there is no
+				// teams or more than 1 team in the provisioning profile, then we use the appPrefix
+				// which should be the team id, but can differ and since we don't check it, this
+				// next line of code could be problematic
+				exportsOptions.teamId = builder.teamId || (pp.team.length === 1 ? pp.team[0] : pp.appPrefix);
+			}
+		}
+
+		const keychains = builder.iosInfo.certs.keychains;
+		Object.keys(keychains).some(function (keychain) {
+			return (keychains[keychain].distribution || []).some(function (d) {
+				if (!d.invalid && d.name === builder.certDistributionName) {
+					exportsOptions.signingCertificate = d.fullname;
+					return true;
+				}
+				return false;
+			}, this);
+		}, this);
+
+		exportsOptions.provisioningProfiles = {};
+		exportsOptions.provisioningProfiles[builder.tiapp.id] = pp.uuid;
+
+		builder.extensions.forEach(function (ext) {
+			const nativeTargets = ext.objs.PBXNativeTarget;
+			ext.targets.forEach(function (extTarget) {
+				if (extTarget.ppUUIDs[target]) {
+					const targetUUID = Object.keys(nativeTargets).filter(uuid => typeof nativeTargets[uuid] === 'object' && nativeTargets[uuid].name.replace(/^"/, '').replace(/"$/, '') === extTarget.name)[0];
+					const buildConf = targetUUID && ext.objs.XCConfigurationList[nativeTargets[targetUUID].buildConfigurationList].buildConfigurations.filter(c => c.comment === 'Release');
+					const confUUID = buildConf && buildConf.length && buildConf[0].value;
+					const id = confUUID && ext.objs.XCBuildConfiguration[confUUID].buildSettings.PRODUCT_BUNDLE_IDENTIFIER;
+					if (id) {
+						exportsOptions.provisioningProfiles[id] = extTarget.ppUUIDs[target];
+					}
+				}
+			});
+		});
+
+		// check if the app is using CloudKit
+		const entitlementsFile = path.join(builder.buildDir, builder.tiapp.name + '.entitlements');
+		if (fs.existsSync(entitlementsFile)) {
+			const plist = new appc.plist(entitlementsFile);
+			if (Object.keys(plist).indexOf('com.apple.developer.icloud-container-identifiers') !== -1) {
+				exportsOptions.iCloudContainerEnvironment = 'Production';
+			}
+		}
+
+		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
+
+		// construct the command
+		const cmd = [
+			builder.xcodeEnv.executables.xcodebuild,
+			'-exportArchive',
+			'-archivePath', '"' + stagingArchiveDir + '"',
+			'-exportPath', '"' + outputDir + '"',
+			'-exportOptionsPlist', '"' + exportsOptionsPlistFile + '"'
+		].join(' ');
+
+		// execute!
+		logger.debug(__('Running: %s', cmd.cyan));
+		exec(cmd, function (err, stdout, stderr) {
+			if (err) {
+				const output = stderr.trim();
+				output.split('\n').forEach(logger.trace);
+				logger.error(__('Failed to export archive to ipa'));
+
+				const targetName = target === 'dist-appstore' ? 'Distribution' : 'Ad Hoc';
+
+				if (pp) {
+					if (pp.type === 'distribution' && target === 'dist-adhoc') {
+						logger.error(__('The selected provisioning profile "%s (%s)" appears to be a Distribution provisioning profile and not an Ad Hoc provisioning profile.', pp.name, pp.uuid));
+					} else if (pp.type === 'adhoc' && target === 'dist-appstore') {
+						logger.error(__('The selected provisioning profile "%s (%s)" appears to be an Ad Hoc provisioning profile and not a Distribution provisioning profile.', pp.name, pp.uuid));
+					} else {
+						logger.error(__('The selected provisioning profile "%s (%s)" is most likely not a valid %s provisioning profile.', pp.name, pp.uuid, targetName));
+					}
+				} else {
+					logger.error(__('The selected provisioning profile doesn\'t appear to be a %s provisioning profile or match the signing identity.', targetName));
+				}
+				logger.error(__('Please ensure you are using a valid %s provisioning that is linked to the signing identity, then try again.', targetName));
+			} else {
+				logger.info(__('Packaging complete'));
+				logger.info(__('Package location: %s', ipaFile.cyan));
+			}
+			callback();
+		});
+	}
 };

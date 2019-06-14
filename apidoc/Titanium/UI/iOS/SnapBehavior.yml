@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.SnapBehavior
 summary: Dynamic behavior defining an item's movement to a specific point.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A snap behavior specifies how an item moves towards a specified point with a spring-like
     effect, ending with an oscillation.
 
@@ -40,6 +38,8 @@ examples:
   - title: Simple Example
     example: |
         The following example snaps the block to the location of a click on the window.
+
+        <img src="images/animator/snapbehavior.gif" height="455" style="border:1px solid black"/>
 
             var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
             

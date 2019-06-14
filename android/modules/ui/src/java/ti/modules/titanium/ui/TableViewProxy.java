@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,31 +14,40 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+
 import android.app.Activity;
 import android.os.Message;
+import android.widget.RelativeLayout;
 
-@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { 
-	TiC.PROPERTY_FILTER_ATTRIBUTE,
-	TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
-	TiC.PROPERTY_HEADER_TITLE,
-	TiC.PROPERTY_HEADER_VIEW,
-	TiC.PROPERTY_FOOTER_TITLE,
-	TiC.PROPERTY_FOOTER_VIEW,
-	TiC.PROPERTY_SEARCH,
-	TiC.PROPERTY_SEPARATOR_COLOR,
-	TiC.PROPERTY_OVER_SCROLL_MODE,
-	TiC.PROPERTY_MIN_ROW_HEIGHT
-})
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_FILTER_ATTRIBUTE,
+		TiC.PROPERTY_FILTER_ANCHORED,
+		TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
+		TiC.PROPERTY_HEADER_TITLE,
+		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_FOOTER_TITLE,
+		TiC.PROPERTY_FOOTER_VIEW,
+		TiC.PROPERTY_SEARCH,
+		TiC.PROPERTY_SEPARATOR_COLOR,
+		TiC.PROPERTY_SEPARATOR_STYLE,
+		TiC.PROPERTY_OVER_SCROLL_MODE,
+		TiC.PROPERTY_MIN_ROW_HEIGHT,
+		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
+		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
+		TiC.PROPERTY_MAX_CLASSNAME,
+		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_SCROLLABLE
+	})
+// clang-format on
 public class TableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewProxy";
@@ -48,17 +57,9 @@ public class TableViewProxy extends TiViewProxy
 	private static final int INSERT_SECTION_BEFORE = 0;
 	private static final int INSERT_SECTION_AFTER = 1;
 
-	private static final int MSG_UPDATE_VIEW = TiViewProxy.MSG_LAST_ID + 5001;
 	private static final int MSG_SCROLL_TO_INDEX = TiViewProxy.MSG_LAST_ID + 5002;
-	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5003;
-	private static final int MSG_DELETE_ROW = TiViewProxy.MSG_LAST_ID + 5004;
-	private static final int MSG_INSERT_ROW = TiViewProxy.MSG_LAST_ID + 5005;
-	private static final int MSG_APPEND_ROW = TiViewProxy.MSG_LAST_ID + 5006;
 	private static final int MSG_SCROLL_TO_TOP = TiViewProxy.MSG_LAST_ID + 5007;
 	private static final int MSG_SELECT_ROW = TiViewProxy.MSG_LAST_ID + 5008;
-	private static final int MSG_APPEND_SECTION = TiViewProxy.MSG_LAST_ID + 5009;
-	private static final int MSG_DELETE_SECTION = TiViewProxy.MSG_LAST_ID + 5010;
-	private static final int MSG_INSERT_SECTION = TiViewProxy.MSG_LAST_ID + 5011;
 
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
@@ -79,12 +80,8 @@ public class TableViewProxy extends TiViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
+		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
 		// eventManager.addOnEventChangeListener(this);
-	}
-
-	public TableViewProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -98,8 +95,8 @@ public class TableViewProxy extends TiViewProxy
 				dict.remove(TiC.PROPERTY_DATA); // don't override our data accessor
 			}
 		}
-		// Treat sections in the creation dict just like data. Unlike the setter, we don't 
-		// check whether the items are sections first. This is consistent with the handling 
+		// Treat sections in the creation dict just like data. Unlike the setter, we don't
+		// check whether the items are sections first. This is consistent with the handling
 		// of the data property--a bad object is dropped silently.
 		if (dict.containsKey(TiC.PROPERTY_SECTIONS)) {
 			Object o = dict.get(TiC.PROPERTY_SECTIONS);
@@ -129,10 +126,30 @@ public class TableViewProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
+
 		if (localSections != null) {
 			for (TableViewSectionProxy section : localSections) {
 				section.releaseViews();
 			}
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		// Release search bar proxy if there is one
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			TiViewProxy searchView = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			searchView.release();
+		}
+
+		super.release();
+
+		releaseViews();
+
+		if (localSections != null) {
+			localSections.clear();
+			localSections = null;
 		}
 	}
 
@@ -186,7 +203,8 @@ public class TableViewProxy extends TiViewProxy
 			rowIndex = rr.rowIndexInSection;
 		} else if (row instanceof TableViewRowProxy) {
 			ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-			sectionLoop: for (int i = 0; i < sections.size(); i++) {
+		sectionLoop:
+			for (int i = 0; i < sections.size(); i++) {
 				ArrayList<TableViewRowProxy> rows = sections.get(i).rows;
 				for (int j = 0; j < rows.size(); j++) {
 					if (rows.get(j) == row) {
@@ -204,7 +222,6 @@ public class TableViewProxy extends TiViewProxy
 		}
 		if (sectionProxy != null) {
 			sectionProxy.updateRowAt(rowIndex, rowProxy);
-			getTableView().setModelDirty();
 			updateView();
 		} else {
 			Log.e(TAG, "Unable to update row. Non-existent row: " + row);
@@ -231,7 +248,6 @@ public class TableViewProxy extends TiViewProxy
 					oldSection.setParent(null);
 				}
 			}
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
 			Log.e(TAG, "Unable to update section. Index out of range. Non-existent section at " + index);
@@ -241,17 +257,6 @@ public class TableViewProxy extends TiViewProxy
 	// options argument exists in order to maintain parity with iOS, do not remove
 	@Kroll.method
 	public void appendRow(Object rows, @Kroll.argument(optional = true) KrollDict options)
-	{
-		if (TiApplication.isUIThread()) {
-			handleAppendRow(rows);
-
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
-	}
-	
-	private void handleAppendRow(Object rows)
 	{
 		Object[] rowList = null;
 
@@ -277,22 +282,11 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 
-		getTableView().setModelDirty();
 		updateView();
 	}
 
 	@Kroll.method
 	public void appendSection(Object sections, @Kroll.argument(optional = true) KrollDict options)
-	{
-		if (TiApplication.isUIThread()) {
-			handleAppendSection(sections);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_SECTION), sections);
-	}
-
-	private void handleAppendSection(Object sections)
 	{
 		Object[] sectionList = null;
 
@@ -311,33 +305,17 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 
-		getTableView().setModelDirty();
 		updateView();
 	}
 
 	@Kroll.method
 	public void deleteRow(Object row, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleDeleteRow(row);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_ROW), row);
-
-		if (asyncResult instanceof IllegalStateException) {
-			throw (IllegalStateException) asyncResult;
-		}
-	}
-
-	private void handleDeleteRow(Object row) throws IllegalStateException
-	{
 		if (row instanceof Integer) {
 			int index = (Integer) row;
 			RowResult rr = new RowResult();
 			if (locateIndex(index, rr)) {
 				rr.section.removeRowAt(rr.rowIndexInSection);
-				getTableView().setModelDirty();
 				updateView();
 			} else {
 				Log.e(TAG, "Unable to delete row. Index out of range. Non-existent row at " + index);
@@ -347,7 +325,6 @@ public class TableViewProxy extends TiViewProxy
 			TiViewProxy section = rowProxy.getParent();
 			if (section instanceof TableViewSectionProxy) {
 				((TableViewSectionProxy) section).remove(rowProxy);
-				getTableView().setModelDirty();
 				updateView();
 			} else {
 				Log.e(TAG, "Unable to delete row. The row is not added to the table yet.");
@@ -357,22 +334,16 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
-	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict options)
+	private void setModelDirtyIfNecessary()
 	{
-		if (TiApplication.isUIThread()) {
-			handleDeleteSection(index);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_SECTION), index);
-
-		if (asyncResult instanceof IllegalStateException) {
-			Log.e(TAG, ((IllegalStateException)asyncResult).getMessage());
+		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
+		if (nativeTableViewReference != null) {
+			nativeTableViewReference.setModelDirty();
 		}
 	}
 
-	private void handleDeleteSection(int index) throws IllegalStateException
+	@Kroll.method
+	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict options)
 	{
 		ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
 		try {
@@ -381,10 +352,10 @@ public class TableViewProxy extends TiViewProxy
 			if (section.getParent() == this) {
 				section.setParent(null);
 			}
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalStateException("Unable to delete section. Index out of range. Non-existent section at " + index);
+			throw new IllegalStateException("Unable to delete section. Index out of range. Non-existent section at "
+											+ index);
 		}
 	}
 
@@ -414,21 +385,6 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertRowBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleInsertRowBefore(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_ROW, INSERT_ROW_BEFORE, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			throw (IllegalStateException) asyncResult;
-		}
-	}
-
-	private void handleInsertRowBefore(int index, Object data) throws IllegalStateException
-	{
 		if (getSectionsArray().size() > 0) {
 			if (index < 0) {
 				index = 0;
@@ -446,27 +402,12 @@ public class TableViewProxy extends TiViewProxy
 			Object[] args = { rowProxyFor(data) };
 			processData(args);
 		}
-		getTableView().setModelDirty();
+
 		updateView();
 	}
 
 	@Kroll.method
 	public void insertSectionBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		if (TiApplication.isUIThread()) {
-			handleInsertRowBefore(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_SECTION, INSERT_SECTION_BEFORE, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			Log.e(TAG, ((IllegalStateException)asyncResult).getMessage());
-		}
-	}
-
-	private void handleInsertSectionBefore(int index, Object data) throws IllegalStateException
 	{
 		TableViewSectionProxy sectionProxy = sectionProxyFor(data);
 		if (sectionProxy == null) {
@@ -477,37 +418,21 @@ public class TableViewProxy extends TiViewProxy
 			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
 			currentSections.add(index, sectionProxy);
 			sectionProxy.setParent(this);
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at " + index);
+			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
+											+ index);
 		}
 	}
 
 	@Kroll.method
 	public void insertRowAfter(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleInsertRowAfter(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_ROW, INSERT_ROW_AFTER, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			throw (IllegalStateException) asyncResult;
-		}
-	}
-
-	private void handleInsertRowAfter(int index, Object data) throws IllegalStateException
-	{
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
 			// TODO check for section
 			TableViewRowProxy rowProxy = rowProxyFor(data);
 			rr.section.insertRowAt(rr.rowIndexInSection + 1, rowProxy);
-			getTableView().setModelDirty();
 			updateView();
 		} else {
 			throw new IllegalStateException("Index out of range. Non-existent row at " + index);
@@ -517,50 +442,42 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertSectionAfter(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
-		if (TiApplication.isUIThread()) {
-			handleInsertSectionAfter(index, data);
-			return;
-		}
-
-		Object asyncResult = TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_INSERT_SECTION, INSERT_SECTION_AFTER, index), data);
-
-		if (asyncResult instanceof IllegalStateException) {
-			Log.e(TAG, ((IllegalStateException)asyncResult).getMessage());
-		}
-	}
-
-	private void handleInsertSectionAfter(int index, Object data) throws IllegalStateException
-	{
 		TableViewSectionProxy sectionProxy = sectionProxyFor(data);
 		if (sectionProxy == null) {
 			throw new IllegalStateException("Unable to insert section. Invalid type for section: " + data);
 		}
 
 		if (index < 0) {
-			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at " + index);
+			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
+											+ index);
 		}
 
 		try {
 			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
-			currentSections.add(index+1, sectionProxy);
+			currentSections.add(index + 1, sectionProxy);
 			sectionProxy.setParent(this);
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at " + index);
+			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
+											+ index);
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
+	// clang-format on
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		return sections.toArray(new TableViewSectionProxy[sections.size()]);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getSectionCount()
+	// clang-format on
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		return sections.size();
@@ -640,62 +557,62 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 	}
-	
+
 	private void cleanupSections()
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		for (TableViewSectionProxy section : sections) {
+			section.releaseViews();
 			section.setParent(null);
 		}
 		sections.clear();
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setData(Object[] args)
+	// clang-format on
 	{
 		Object[] data = args;
 		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
 			data = (Object[]) args[0];
 		}
-		if (TiApplication.isUIThread()) {
-			handleSetData(data);
-
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_DATA), data);
-		}
+		handleSetData(data);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setSections(Object[] args)
+	// clang-format on
 	{
 		Object[] data = args;
 		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
 			data = (Object[]) args[0];
 		}
 		for (Object section : data) {
-			if (! (section instanceof TableViewSectionProxy)) {
+			if (!(section instanceof TableViewSectionProxy)) {
 				Log.e(TAG, "Unable to set sections. Invalid type for section: " + section);
 				return;
 			}
 		}
-		if (TiApplication.isUIThread()) {
-			handleSetData(data);
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_DATA), data);
-		}
+		handleSetData(data);
 	}
 
 	private void handleSetData(Object[] data)
 	{
 		if (data != null) {
 			processData(data);
-			getTableView().setModelDirty();
 			updateView();
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Object[] getData()
+	// clang-format on
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		if (sections != null) {
@@ -712,7 +629,7 @@ public class TableViewProxy extends TiViewProxy
 		if (row instanceof TableViewRowProxy) {
 			rowProxy = (TableViewRowProxy) row;
 			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, new KrollDict(rowProxy.getProperties()));
-			
+
 		} else {
 			KrollDict rowDict = null;
 			if (row instanceof KrollDict) {
@@ -734,7 +651,8 @@ public class TableViewProxy extends TiViewProxy
 		}
 
 		if (rowProxy == null) {
-			Log.e(TAG,
+			Log.e(
+				TAG,
 				"Unable to create table view row proxy for object, likely an error in the type of the object passed in...");
 			return null;
 		}
@@ -747,7 +665,7 @@ public class TableViewProxy extends TiViewProxy
 	{
 		TableViewSectionProxy sectionProxy = null;
 		if (section instanceof TableViewSectionProxy) {
-			sectionProxy = (TableViewSectionProxy)section;
+			sectionProxy = (TableViewSectionProxy) section;
 			sectionProxy.setActivity(getActivity());
 		} else {
 			KrollDict sectionDict = null;
@@ -758,16 +676,16 @@ public class TableViewProxy extends TiViewProxy
 			}
 			if (sectionDict != null) {
 				sectionProxy = new TableViewSectionProxy();
-				if (sectionDict.containsKey(TiC.PROPERTY_HEADER_TITLE)){
+				if (sectionDict.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
 					sectionProxy.setProperty(TiC.PROPERTY_HEADER_TITLE, sectionDict.get(TiC.PROPERTY_HEADER_TITLE));
 				}
-				if (sectionDict.containsKey(TiC.PROPERTY_FOOTER_TITLE)){
+				if (sectionDict.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
 					sectionProxy.setProperty(TiC.PROPERTY_FOOTER_TITLE, sectionDict.get(TiC.PROPERTY_FOOTER_TITLE));
 				}
-				if (sectionDict.containsKey(TiC.PROPERTY_HEADER_VIEW)){
+				if (sectionDict.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
 					sectionProxy.setProperty(TiC.PROPERTY_HEADER_VIEW, sectionDict.get(TiC.PROPERTY_HEADER_VIEW));
 				}
-				if (sectionDict.containsKey(TiC.PROPERTY_FOOTER_VIEW)){
+				if (sectionDict.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
 					sectionProxy.setProperty(TiC.PROPERTY_FOOTER_VIEW, sectionDict.get(TiC.PROPERTY_FOOTER_VIEW));
 				}
 				sectionProxy.setActivity(getActivity());
@@ -775,7 +693,8 @@ public class TableViewProxy extends TiViewProxy
 		}
 
 		if (sectionProxy == null) {
-			Log.e(TAG,
+			Log.e(
+				TAG,
 				"Unable to create table view section proxy for object, likely an error in the type of the object passed in...");
 			return null;
 		}
@@ -818,12 +737,7 @@ public class TableViewProxy extends TiViewProxy
 
 	public void updateView()
 	{
-		if (TiApplication.isUIThread()) {
-			getTableView().updateView();
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_UPDATE_VIEW));
+		setModelDirtyIfNecessary();
 	}
 
 	@Kroll.method
@@ -834,7 +748,7 @@ public class TableViewProxy extends TiViewProxy
 		message.arg1 = index;
 		message.sendToTarget();
 	}
-	
+
 	@Kroll.method
 	public void selectRow(int row_id)
 	{
@@ -842,7 +756,6 @@ public class TableViewProxy extends TiViewProxy
 		message.arg1 = row_id;
 		message.sendToTarget();
 	}
-
 
 	@Kroll.method
 	public void scrollToTop(int index)
@@ -856,87 +769,34 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public boolean handleMessage(Message msg)
 	{
-		if (msg.what == MSG_UPDATE_VIEW) {
-			getTableView().updateView();
-			((AsyncResult) msg.obj).setResult(null);
-			return true;
-		} else if (msg.what == MSG_SCROLL_TO_INDEX) {
-			getTableView().scrollToIndex(msg.arg1);
-			return true;
-		} else if (msg.what == MSG_SET_DATA) {
-			AsyncResult result = (AsyncResult) msg.obj;
-			Object[] data = (Object[]) result.getArg();
-			handleSetData(data);
-			result.setResult(null);
-			return true;
-		} else if (msg.what == MSG_INSERT_ROW) {
-			AsyncResult result = (AsyncResult) msg.obj;
-			try {
-				if (msg.arg1 == INSERT_ROW_AFTER) {
-					handleInsertRowAfter(msg.arg2, result.getArg());
 
-				} else {
-					handleInsertRowBefore(msg.arg2, result.getArg());
+		TiUITableView tableNativeView = ((TiUITableView) peekView());
+		boolean tableNativeViewCreated = (tableNativeView != null);
+		AsyncResult result = null;
+		Object asyncResult = null;
+		switch (msg.what) {
+			case MSG_SCROLL_TO_INDEX:
+				if (tableNativeViewCreated) {
+					tableNativeView.scrollToIndex(msg.arg1);
 				}
-				result.setResult(null);
-
-			} catch (IllegalStateException e) {
-				result.setResult(e);
-			}
-			return true;
-		} else if (msg.what == MSG_APPEND_ROW) {
-			AsyncResult result = (AsyncResult) msg.obj;
-			handleAppendRow(result.getArg());
-			result.setResult(null);
-			return true;
-		} else if (msg.what == MSG_DELETE_ROW) {
-			AsyncResult result = (AsyncResult) msg.obj;
-			try {
-				handleDeleteRow(result.getArg());
-				result.setResult(null);
-			} catch (IllegalStateException e) {
-				result.setResult(e);
-			}
-			return true;
-		} else if (msg.what == MSG_INSERT_SECTION) {
-			AsyncResult result = (AsyncResult) msg.obj;
-			try {
-				if (msg.arg1 == INSERT_SECTION_AFTER) {
-					handleInsertSectionAfter(msg.arg2, result.getArg());
-
-				} else {
-					handleInsertSectionBefore(msg.arg2, result.getArg());
+				return true;
+			case MSG_SCROLL_TO_TOP:
+				if (tableNativeViewCreated) {
+					tableNativeView.scrollToTop(msg.arg1);
 				}
-				result.setResult(null);
-
-			} catch (IllegalStateException e) {
-				result.setResult(e);
-			}
-			return true;
-		} else if (msg.what == MSG_APPEND_SECTION) {
-			AsyncResult result = (AsyncResult) msg.obj;
-			handleAppendSection(result.getArg());
-			result.setResult(null);
-			return true;
-		} else if (msg.what == MSG_DELETE_SECTION) {
-			AsyncResult result = (AsyncResult) msg.obj;
-			try {
-				handleDeleteSection((Integer) result.getArg());
-				result.setResult(null);
-			} catch (IllegalStateException e) {
-				result.setResult(e);
-			}
-			return true;
-		} else if (msg.what == MSG_SCROLL_TO_TOP) {
-			getTableView().scrollToTop(msg.arg1);
-			return true;
-		} else if (msg.what == MSG_SELECT_ROW) {
-			getTableView().selectRow(msg.arg1);
-			return true;
+				break;
+			case MSG_SELECT_ROW:
+				if (tableNativeViewCreated) {
+					tableNativeView.selectRow(msg.arg1);
+				}
+				break;
+			default:
+				return super.handleMessage(msg);
 		}
-
-
-		return super.handleMessage(msg);
+		if (result != null) {
+			result.setResult(asyncResult);
+		}
+		return true;
 	}
 
 	// labels only send out click events when they are explicitly told to do so.

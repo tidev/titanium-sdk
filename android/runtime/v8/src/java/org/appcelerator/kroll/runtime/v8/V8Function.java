@@ -18,7 +18,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-
 public class V8Function extends V8Object implements KrollFunction, Handler.Callback
 {
 	private static final String TAG = "V8Function";
@@ -38,13 +37,12 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 
 	public Object call(KrollObject krollObject, Object[] args)
 	{
-		if (KrollRuntime.getInstance().isRuntimeThread())
-		{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			return callSync(krollObject, args);
 
 		} else {
-			return TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC), new FunctionArgs(
-				krollObject, args));
+			return TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC),
+														  new FunctionArgs(krollObject, args));
 		}
 	}
 
@@ -89,23 +87,24 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 	}
 
 	@Override
-	public void doRelease() {
+	public void doRelease()
+	{
 		long functionPointer = getPointer();
 		if (functionPointer == 0) {
 			return;
 		}
 
 		nativeRelease(functionPointer);
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
+	protected void finalize() throws Throwable
+	{
 		super.finalize();
 	}
 
 	// JNI method prototypes
 	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
+
 	private static native void nativeRelease(long functionPointer);
 }
-

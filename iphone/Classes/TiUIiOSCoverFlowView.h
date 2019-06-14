@@ -4,24 +4,22 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_UIIOSCOVERFLOWVIEW) || defined(USE_TI_UICOVERFLOWVIEW)
-	
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
-#import "TiUIView.h"
 #import "AFOpenFlow/AFOpenFlowView.h"
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUIView.h>
 
-@interface TiUIiOSCoverFlowView : TiUIView <AFOpenFlowViewDataSource,AFOpenFlowViewDelegate,ImageLoaderDelegate>
-{
-@private
-	AFOpenFlowView *view;
-	NSMutableDictionary* toLoad;
-	NSMutableDictionary* loading;
-	NSRecursiveLock* loadLock;
-	int previous;
+@interface TiUIiOSCoverFlowView : TiUIView <AFOpenFlowViewDataSource, AFOpenFlowViewDelegate, ImageLoaderDelegate> {
+  @private
+  AFOpenFlowView *view;
+  NSMutableDictionary *toLoad;
+  NSMutableDictionary *loading;
+  NSRecursiveLock *loadLock;
+  NSInteger previous;
 }
 
--(void)setImage:(id)image forIndex:(NSInteger)index;
+- (void)setImage:(id)image forIndex:(NSInteger)index;
 
 @end
 

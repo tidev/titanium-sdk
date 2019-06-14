@@ -29,6 +29,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
+import android.graphics.PorterDuff.Mode;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 public class TiImageView extends ViewGroup implements Handler.Callback, OnClickListener
 {
@@ -61,10 +63,11 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	private boolean viewHeightDefined;
 
 	private int orientation;
-	
+	private int tintColor;
 	private WeakReference<TiViewProxy> proxy;
 
-	public TiImageView(Context context) {
+	public TiImageView(Context context)
+	{
 		super(context);
 
 		final TiImageView me = this;
@@ -85,8 +88,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		addView(imageView);
 		setEnableScale(true);
 
-		gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener()
-		{
+		gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
 			@Override
 			public boolean onDown(MotionEvent e)
 			{
@@ -130,15 +132,13 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		addView(zoomControls);
 		zoomControls.setVisibility(View.GONE);
 		zoomControls.setZoomSpeed(75);
-		zoomControls.setOnZoomInClickListener(new OnClickListener()
-		{
+		zoomControls.setOnZoomInClickListener(new OnClickListener() {
 			public void onClick(View v)
 			{
 				handleScaleUp();
 			}
 		});
-		zoomControls.setOnZoomOutClickListener(new OnClickListener()
-		{
+		zoomControls.setOnZoomOutClickListener(new OnClickListener() {
 			public void onClick(View v)
 			{
 				handleScaleDown();
@@ -147,7 +147,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		super.setOnClickListener(this);
 	}
-	
+
 	/**
 	 * Constructs a new TiImageView object.
 	 * @param context the associated context.
@@ -171,7 +171,8 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		updateScaleType();
 	}
 
-	public Drawable getImageDrawable() {
+	public Drawable getImageDrawable()
+	{
 		return imageView.getDrawable();
 	}
 
@@ -179,7 +180,8 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	 * Sets a Bitmap as the content of imageView
 	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image.
 	 */
-	public void setImageBitmap(Bitmap bitmap) {
+	public void setImageBitmap(Bitmap bitmap)
+	{
 		imageView.setImageBitmap(bitmap);
 	}
 
@@ -264,7 +266,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		if (d != null) {
 			// The base matrix is the matrix that displays the entire image bitmap.
-			// It orients the image when orientation is set and scales in X and Y independently, 
+			// It orients the image when orientation is set and scales in X and Y independently,
 			// so that src matches dst exactly.
 			// This may change the aspect ratio of the src.
 			Rect r = new Rect();
@@ -362,7 +364,6 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		// so that it doesn't get the content height/width
 		if (!viewWidthDefined || !viewHeightDefined) {
 			Drawable d = imageView.getDrawable();
-
 			if (d != null) {
 				float aspectRatio = 1;
 				int w = MeasureSpec.getSize(widthMeasureSpec);
@@ -371,8 +372,9 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 				int ih = d.getIntrinsicHeight();
 				int iw = d.getIntrinsicWidth();
 				if (ih != 0 && iw != 0) {
-					aspectRatio = ih / iw;
+					aspectRatio = 1f * ih / iw;
 				}
+
 				if (viewWidthDefined) {
 					maxWidth = w;
 					maxHeight = Math.round(w * aspectRatio);
@@ -383,7 +385,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 				}
 			}
 		}
-		
+
 		// TODO padding and margins
 
 		measureChild(imageView, widthMeasureSpec, heightMeasureSpec);
@@ -419,7 +421,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			int zoomHeight = zoomControls.getMeasuredHeight();
 			zoomControls.layout(parentRight - zoomWidth, parentBottom - zoomHeight, parentRight, parentBottom);
 		}
-		
+
 		TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
 		TiUIHelper.firePostLayoutEvent(viewProxy);
 	}
@@ -466,7 +468,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		this.orientation = orientation;
 		updateScaleType();
 	}
-	
+
 	private boolean checkImageScrollBeyondBorders(float dx, float dy)
 	{
 		float[] matrixValues = new float[9];
@@ -483,5 +485,20 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			return false;
 		}
 		return true;
+	}
+
+	public void setTintColor(String color)
+	{
+		this.tintColor = TiColorHelper.parseColor(color);
+		if (this.tintColor == 0) {
+			imageView.clearColorFilter();
+		} else {
+			imageView.setColorFilter(this.tintColor, Mode.MULTIPLY);
+		}
+	}
+
+	public int getTintColor()
+	{
+		return tintColor;
 	}
 }

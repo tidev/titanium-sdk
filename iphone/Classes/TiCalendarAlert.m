@@ -1,69 +1,72 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_CALENDAR
 
 #import "TiCalendarAlert.h"
-#import "TiCalendarEvent.h"
-#import "TiUtils.h"
-#import "TiBlob.h"
+@import TitaniumKit.TiUtils;
+@import EventKit;
 
 @implementation TiCalendarAlert
 
--(id)_initWithPageContext:(id<TiEvaluator>)context
-                    alert:(EKAlarm*)alert_
-                   module:(CalendarModule*)module_
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+                     alert:(EKAlarm *)alert_
+                    module:(CalendarModule *)module_;
 {
-    if (self = [super _initWithPageContext:context]) {
-        module = [module_ retain];
-        alert = [alert_ retain];
-    }
-    return self;
+  return [self initWithAlert:alert_ module:module_];
 }
 
--(void)_destroy
+- (id)initWithAlert:(EKAlarm *)alert_
+             module:(CalendarModule *)module_
 {
-	RELEASE_TO_NIL(module);
-	RELEASE_TO_NIL(alert);
-    [super _destroy];
+  if (self = [super init]) {
+    module = [module_ retain];
+    alert = [alert_ retain];
+  }
+  return self;
 }
 
--(NSString*)apiName
+- (void)_destroy
 {
-    return @"Ti.Calendar.Alert";
+  RELEASE_TO_NIL(module);
+  RELEASE_TO_NIL(alert);
+  [super _destroy];
 }
 
--(EKAlarm*)alert
+- (NSString *)apiName
 {
-    return alert;
+  return @"Ti.Calendar.Alert";
 }
 
--(NSDate*)absoluteDate
+- (EKAlarm *)alert
 {
-    return [self alert].absoluteDate;
+  return alert;
 }
 
--(NSNumber*)relativeOffset
+- (NSDate *)absoluteDate
 {
-    return NUMDOUBLE([self alert].relativeOffset * 1000) ;
+  return [self alert].absoluteDate;
+}
+READWRITE_IMPL(NSDate *, absoluteDate, AbsoluteDate);
+
+- (double)relativeOffset
+{
+  return [self alert].relativeOffset * 1000;
+}
+READWRITE_IMPL(double, relativeOffset, RelativeOffset);
+
+- (void)setAbsoluteDate:(NSDate *)absoluteDate
+{
+  alert.absoluteDate = absoluteDate;
 }
 
-
--(void)setAbsoluteDate:(id)arg
+- (void)setRelativeOffset:(double)relativeOffset
 {
-    ENSURE_CLASS(arg, [NSDate class]);
-    alert.absoluteDate = [TiUtils dateForUTCDate:arg];
+  alert.relativeOffset = relativeOffset / 1000;
 }
-
-
--(void)setRelavtiveOffset:(id)arg
-{
-    alert.relativeOffset = [TiUtils doubleValue:arg] / 1000;
-}
-
 
 @end
 

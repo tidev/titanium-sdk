@@ -1,9 +1,0 @@
-{
- "functions": [
-  "stateDidChange", 
-  "itemsFromArg", 
-  "playingDidChange", 
-  "volumeDidChange"
- ], 
- "properties": []
-}

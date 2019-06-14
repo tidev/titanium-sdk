@@ -4,14 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
-@interface TiUIAlertDialogProxy : TiProxy<UIAlertViewDelegate> {
-@private
-	UIAlertView *alert;
-    BOOL persistentFlag;
+@interface TiUIAlertDialogProxy : TiViewProxy {
+  @private
+  UIAlertController *alertController;
+  BOOL persistentFlag;
+  int cancelIndex;
+  int destructiveIndex;
+  int preferredIndex;
+  int style;
 }
 
--(void)show:(id)args;
+- (void)show:(id)unused;
+- (void)hide:(id)args;
 
 @end

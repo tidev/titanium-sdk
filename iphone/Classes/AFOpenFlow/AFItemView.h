@@ -22,20 +22,20 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#if defined(USE_TI_UIIOSCOVERFLOWVIEW) || defined(USE_TI_UICOVERFLOWVIEW)
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
 #import <UIKit/UIKit.h>
 
 
 @interface AFItemView : UIView {
 	UIImageView		*imageView;
-	int				number;
+	NSInteger				number;
 	CGFloat			horizontalPosition;
 	CGFloat			verticalPosition;
 	CGFloat			originalImageHeight;
 }
 
-@property int number;
+@property NSInteger number;
 @property (nonatomic, readonly) CGFloat horizontalPosition;
 @property (nonatomic, readonly) CGFloat verticalPosition;
 @property (nonatomic, readonly) UIImageView *imageView;

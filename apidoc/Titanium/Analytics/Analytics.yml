@@ -3,14 +3,14 @@ name: Titanium.Analytics
 summary: |
     Used for transmitting developer-defined Analytics events to the Appcelerator Analytics product. 
 description: |
-    The analytics module can be used to supply additional context or application-specific 
+    The Analytics module can be used to supply additional context or application-specific 
     information which can then be accessed during analysis using Analytics.
 
     Use the [featureEvent](Titanium.Analytics.featureEvent) method to generate custom
     events that you can view through the Analytics product. You can specify a name for 
     the feature event which is visible through Analytics.
 
-    **NOTE** The analytics module lets you transmit some data that is stored, but 
+    **NOTE** The Analytics module lets you transmit some data that is stored, but 
     not made accessible through the Analytics UI. To access this data, you must
     sign up for the optional raw data export service. 
     
@@ -24,9 +24,15 @@ description: |
     of the Analytics product. There is no plan to support the other event types, and they 
     should not be used.
 
-    See also [Ti
-    Analytics](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/Ti_Analytics)
-    in the Titanium Mobile Guides.
+    **GDPR Compliance**
+
+    The Ti.Analytics namespace in Titanium is GDPR compliant since SDK 7.2.0. End users
+    should be able to opt out of Analytics using the <Titanium.Analytics.optedOut> property.
+    If a user opted out from Analytics and you still call Analytics events, they will be ignored.
+
+    Note: This does not affect your app until you make use of the `optedOut` property. Once
+    enabled for your users (e.g. by having a <Titanium.UI.Switch> in your settings), you
+    should handle it within your app logic.
 
 extends: Titanium.Module
 # technically these methods exist, but they serve no purpose and confuse the doc.
@@ -40,6 +46,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: type
@@ -58,7 +65,17 @@ methods:
         default: null
 
   - name: featureEvent
+    returns:
+      type: Number
+      summary: It returns 0 if it is successful. Otherwise, it is an error.
     summary: Sends a feature event for this application session.
+    description: |
+      From version "6.0.0", the JSON that is being sent will be validated. The JSON can have
+      a maximum of 5 nested levels, 1000 serialised byte length, 25 keys per level and key length
+      of up to 50 characters.
+
+      If this is successful, you will get a return number of 0. -1 is returned if it is a JSON
+      Validation error. -2 is returned if Analytics is disabled.
     parameters:
 
       - name: name
@@ -67,11 +84,19 @@ methods:
 
       - name: data
         summary: |
-            Extra data related to the event, **not displayed in Analytics UI**. 
-            The object must be serializable as JSON.
+            Extra data related to the event. Must be serializable as JSON.
         type: Object
         optional: true
         default: null
+
+  - name: filterEvents
+    summary: Sets a list of events that will not be sent to the Analytics server.
+    parameters:
+      - name: events
+        summary: List of events to be filtered.
+        type: Array<String>
+    since: 4.1.0
+    platforms: [android, iphone, ipad]
 
   - name: navEvent
     summary: |
@@ -98,7 +123,7 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
+
 
   - name: settingsEvent
     summary: |
@@ -106,6 +131,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -117,7 +143,7 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
+
 
   - name: timedEvent
     summary: |
@@ -125,6 +151,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -148,7 +175,7 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
+
 
   - name: userEvent
     summary: 
@@ -156,6 +183,7 @@ methods:
         **Not displayed in Analytics UI**.
     deprecated: 
         since: "2.0.0"
+        removed: "3.3.0"
     parameters:
 
       - name: name
@@ -167,19 +195,35 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
 
 properties:
   - name: lastEvent
-    summary: JSON representation of the last analytics event generated.
+    summary: JSON representation of the last Analytics event generated.
     description: |
          LastEvent is the JSON version of the last event prepared to be sent to Appcelerator
-         during the application's session. Because of storage differences, the sequence key
-         will only be in the iOS version. This value may be null or undefined if no such
+         during the application's session. This value may be null or undefined if no such
          event was queued.
     type: String
     since: "3.1.2"
     permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: optedOut
+    summary: Allows the user to opt out from Analytics during runtime to comply to GPDR.
+    description: |
+        Once opted out, no Analytics events will be sent anymore. If implemented to the end user,
+        ensure to check if the user is opted out before trying to send an Analytics event.
+        In case you do not guard the Analytics call, it will be ignored silently.
+
+        Here is an example of a guarded Analytics call:
+
+            if (!Ti.Analytics.optedOut) {
+              Ti.Analytics.featureEvent('gdpr_rocks');
+            }
+
+        Read more about GDPR on the [official website](https://www.eugdpr.org/).
+    type: Boolean
+    since: "7.2.0"
     platforms: [android, iphone, ipad]
 
 examples:
@@ -188,8 +232,8 @@ examples:
         This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
         
-            Titanium.Analytics.featureEvent('app.feature.blah');
+            Ti.Analytics.featureEvent('app.feature');
         
         In this case, the Analytics product would show statistics about how many times the
-        'app.feature.blah' event was generated. 
+        'app.feature' event was generated.
 

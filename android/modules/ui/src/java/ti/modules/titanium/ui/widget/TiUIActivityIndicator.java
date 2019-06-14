@@ -33,7 +33,6 @@ public class TiUIActivityIndicator extends TiUIView
 	protected boolean visible;
 	private TextView label;
 	private ProgressBar progress;
-	private LinearLayout view;
 
 	public static final int PLAIN = android.R.attr.progressBarStyleSmall;
 	public static final int BIG = android.R.attr.progressBarStyleLarge;
@@ -57,7 +56,7 @@ public class TiUIActivityIndicator extends TiUIView
 			return;
 		}
 
-		view = new LinearLayout(activity);
+		LinearLayout view = new LinearLayout(activity);
 		view.setOrientation(LinearLayout.HORIZONTAL);
 		view.setGravity(Gravity.CENTER);
 
@@ -82,6 +81,11 @@ public class TiUIActivityIndicator extends TiUIView
 	{
 		super.processProperties(d);
 
+		LinearLayout view = (LinearLayout) getNativeView();
+		if (view == null) {
+			return;
+		}
+
 		if (d.containsKey(TiC.PROPERTY_STYLE)) {
 			setStyle(TiConvert.toInt(d, TiC.PROPERTY_STYLE));
 		}
@@ -93,6 +97,10 @@ public class TiUIActivityIndicator extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			label.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_INDICATOR_COLOR)) {
+			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_INDICATOR_COLOR),
+															   android.graphics.PorterDuff.Mode.SRC_IN);
 		}
 
 		view.invalidate();
@@ -113,6 +121,9 @@ public class TiUIActivityIndicator extends TiUIView
 			label.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			label.setTextColor(TiConvert.toColor((String) newValue));
+		} else if (key.equals(TiC.PROPERTY_INDICATOR_COLOR)) {
+			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor((String) newValue),
+															   android.graphics.PorterDuff.Mode.SRC_IN);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -160,6 +171,7 @@ public class TiUIActivityIndicator extends TiUIView
 			Log.w(TAG, "Invalid value \"" + style + "\" for style.");
 			return;
 		}
+		LinearLayout view = (LinearLayout) getNativeView();
 
 		view.removeAllViews();
 		progress = new ProgressBar(TiApplication.getAppCurrentActivity(), null, style);

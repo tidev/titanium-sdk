@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
@@ -53,8 +52,24 @@ public class ListItemProxy extends TiViewProxy
 	{
 		if (event.equals(TiC.EVENT_CLICK) && data instanceof HashMap) {
 			KrollDict eventData = new KrollDict((HashMap) data);
-			Object source = eventData.get(TiC.EVENT_PROPERTY_SOURCE);
+			TiViewProxy source = (TiViewProxy) eventData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (source != null && !source.equals(this) && listProxy != null) {
+
+				// append bind properties
+				if (eventData.containsKey(TiC.PROPERTY_BIND_ID) && eventData.containsKey(TiC.PROPERTY_ITEM_INDEX)
+					&& eventData.containsKey(TiC.PROPERTY_SECTION)) {
+					int itemIndex = eventData.getInt(TiC.PROPERTY_ITEM_INDEX);
+					String bindId = eventData.getString(TiC.PROPERTY_BIND_ID);
+					ListSectionProxy section = (ListSectionProxy) eventData.get(TiC.PROPERTY_SECTION);
+					KrollDict itemProperties = section.getItemAt(itemIndex);
+					if (itemProperties != null && itemProperties.containsKey(bindId)) {
+						KrollDict properties = itemProperties.getKrollDict(bindId);
+						for (String key : properties.keySet()) {
+							source.setProperty(key, properties.get(key));
+						}
+						source.setProperty(TiC.PROPERTY_BIND_ID, bindId);
+					}
+				}
 				TiViewProxy listViewProxy = listProxy.get();
 				if (listViewProxy != null) {
 					listViewProxy.fireEvent(TiC.EVENT_ITEM_CLICK, eventData);

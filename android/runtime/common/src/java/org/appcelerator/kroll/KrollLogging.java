@@ -34,8 +34,7 @@ public class KrollLogging
 		getDefault().internalLog(severity, msg);
 	}
 
-	public interface LogListener
-	{
+	public interface LogListener {
 		public void onLog(int severity, String msg);
 	}
 
@@ -48,7 +47,7 @@ public class KrollLogging
 	{
 		this.listener = listener;
 	}
-	
+
 	public void debug(String... args)
 	{
 		internalLog(DEBUG, combineLogMessages(args));
@@ -137,25 +136,16 @@ public class KrollLogging
 
 	private void internalLog(int severity, String msg)
 	{
-		if (severity == TRACE)
-		{
-			Log.v(tag,msg);
-		}
-		else if (severity < INFO)
-		{
-			Log.d(tag,msg);
-		}
-		else if (severity < WARN)
-		{
-			Log.i(tag,msg);
-		}
-		else if (severity == WARN)
-		{
-			Log.w(tag,msg);
-		}
-		else
-		{
-			Log.e(tag,msg);
+		if (severity == TRACE) {
+			Log.v(tag, msg);
+		} else if (severity < INFO) {
+			Log.d(tag, msg);
+		} else if (severity < WARN) {
+			Log.i(tag, msg);
+		} else if (severity == WARN) {
+			Log.w(tag, msg);
+		} else {
+			Log.e(tag, msg);
 		}
 
 		if (listener != null) {

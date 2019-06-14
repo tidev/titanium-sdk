@@ -1,142 +1,171 @@
 ---
 name: Titanium.UI.Label
-summary: A text label, with optional background image. 
-description: Use the <Titanium.UI.createLabel> method to create a label. 
+summary: A text label, with an optional background image.
+description: Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
 since: "0.8"
-
-methods: 
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `Label` is not supported on all platforms.
-
-        If you need to add views on top of this object, consider using 
-        another view as a container for both this object and the views you want 
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 properties:
   - name: attributedString
     summary: Specify an attributed string for the label.
     description: |
-        If set, the label ignores the `text`, `color`, and `shadow` properties.
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The underlying attributed string drawn by the label. If set, avoid setting common attributes
+        in the label, such as `color` and `font`, as unexpected behaviors may result.
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+
+        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
+        element inside a `<Label>` element and set the text property as node text:
+
+            <Alloy>
+              <Window>
+                  <Label>
+                    <AttributedString>
+                        Alloy is great!
+                    </AttributedString>
+                  </Label>
+              </Window>
+            </Alloy>
+
+        Then set attributes in the TSS file:
+
+            "AttributedString" : {
+              attributes: [
+                {
+                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+                  value: 'red',
+                  range: [0, 5]
+                },
+                {
+                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                  range: [9, 5]
+                }
+              ]
+            }
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: autoLink
-    summary: Automatically convert certain text items in the label to clickable links. 
+    summary: Automatically convert certain text items in the label to clickable links.
     description: |
-        Specify which types of items to convert by setting `autoLink` to one of the 
-        <Titanium.UI> `AUTOLINK` constants: 
-        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
-        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
-        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
-        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
-        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
-        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
-
         Multiple autolink values can be combined with a bitwise OR. For example:
-            
-            label.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
-            
+
+            label.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
+
         Prior to Release 3.0, this field used platform-specific constants. These are now
-        deprecated in favor of the `AUTOLINK` constants listed above.
-        
-        The Android-specific legacy constants are defined in <Titanium.UI.Android>:
-        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
-        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
-        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
-        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+        deprecated in favor of the `AUTOLINK` constants.
 
-        On Tizen, only the following flags are supported:
-        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
-        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
-        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
-        and [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
-        To use this property on Tizen, you must include the following privilege 
-        in the `tiapp.xml` file of your Titanium application: 
-
-        * `http://tizen.org/privilege/application.launch`
-
+        The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
     type: Number
-    platforms: [android, tizen]
-    
+    constants: Titanium.UI.AUTOLINK_*
+    platforms: [android]
+
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: backgroundPaddingLeft
     summary: Number of pixels to extend the background image past the label on the left.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: backgroundPaddingRight
     summary: Number of pixels to extend the background image past the label on the right.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: backgroundPaddingTop
     summary: Number of pixels to extend the background image past the label on the top.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: color
     summary: Color of the label text, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    
+
   - name: ellipsize
     summary: |
-        Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
-    type: Boolean
-    default: false
-    platforms: [android, mobileweb, tizen]
-    
+        Causes words in the text that are longer than the view is wide to be ellipsized instead of broken in the middle.
+    constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
+    type: Number
+    default: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END
+    platforms: [android, iphone, ipad]
+
   - name: font
     summary: Font to use for the label text.
     type: Font
-    
+
   - name: highlightedColor
     summary: Color of the label when in the highlighted state, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
-        
-        Used when the label is part of a view that can be highlighted, such as a 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+
+        Used when the label is part of a view that can be highlighted, such as a
         <Titanium.UI.TableViewRow>.
     type: String
     platforms: [android, iphone, ipad]
-    
+
   - name: html
     summary: Simple HTML formatting.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android]
     type: String
-    
-  - name: minimumFontSize
-    summary: Minimum font size when the font is sized based on the contents. 
-    description: |
-        Enables font scaling to fit and forces the label content to be limited to a single line.
+
+  - name: includeFontPadding
+    summary: Includes extra top and bottom padding to make room for accents that go above normal ascent and descent.
+    platforms: [android]
+    type: Boolean
+    default: undefined but behaves as true
+    since: "3.3.0"
+
+  - name: lines
+    summary: Makes the label be exactly this many lines tall.
+    platforms: [android]
     type: Number
-    platforms: [iphone, ipad]
-    
+    since: "4.1.0"
+
+  - name: lineSpacing
+    summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
+    platforms: [android]
+    type: Dictionary
+    since: "5.4.0"
+
+  - name: maxLines
+    summary: Makes the label at most this many lines tall.
+    platforms: [android, iphone, ipad]
+    type: Number
+    since: {android: "4.1.0", iphone: "6.1.0", ipad: "6.1.0"}
+
+  - name: minimumFontSize
+    summary: Minimum font size when the font is sized based on the contents.
+    description: |
+        When set to a valid font size, this property enables single-line mode and the font
+        will be auto-downscaled so that its text will fit the label's width if necessary.
+        Will not downscale the font lower than the assigned minimum font size.
+
+        When set to less than or equal to zero, the font auto-downscaling feature will be disabled.
+    type: Number
+    since: {iphone: "0.8.0", ipad: "0.8.0", android: "6.1.0"}
+    platforms: [android, iphone, ipad]
+
   - name: shadowColor
     summary: Shadow color of the [text](Titanium.UI.Label.text), as a color name or hex triplet.
     description: |
         Use in conjunction with [shadowOffset](Titanium.UI.Label.shadowOffset) and [shadowRadius](Titanium.UI.Label.shadowRadius).
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad]
     since: {android: "3.2.0"}
 
   - name: shadowOffset
@@ -144,7 +173,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
     type: Dictionary
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad]
     since: {android: "3.2.0"}
 
   - name: shadowRadius
@@ -152,49 +181,46 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowOffset](Titanium.UI.Label.shadowOffset).
     type: Number
-    platforms: [android, mobileweb]
+    platforms: [android]
     since: "3.2.0"
 
   - name: text
     summary: Label text.
     description: |
-        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
-        line. 
-        
-        Use unicode characters, such as those included in (but not limited to) the 
-        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new
+        line.
+
+        Use Unicode characters, such as those included in (but not limited to) the
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols)
         section of wikipedia, to insert special characters and symbols.
-        
+
         See the example in [label](Titanium.UI.Label) for a demonstration.
     type: String
-    
+
   - name: textAlign
-    summary: |
-        Text alignment. One of <Titanium.UI> text alignment constants, 
-        [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
-        [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
-        or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    summary: Text alignment.
     type: [String, Number]
-    
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
+
   - name: textid
-    summary: Key identifying a string from the locale file to use for the label text. 
+    summary: Key identifying a string from the locale file to use for the label text.
     description: Only one of `text` or `textid` should be specified.
     type: String
-    exclude-platforms: [blackberry]
-    
+
+
   - name: wordWrap
     summary: Enable or disable word wrapping in the label.
     type: Boolean
     default: true
-    platforms: [android, mobileweb, tizen, blackberry]
-    
+    platforms: [android]
+    deprecated:
+        since: "8.0.0"
+        notes: If you want to disable wrapping, then set [maxLines](Titanium.UI.Label.maxLines) to 1 instead.
+
   - name: verticalAlign
     summary: |
-        Vertical text alignment, specified using one of the 
-        vertical alignment constants from <Titanium.UI>: 
-        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
-        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
-        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+        Vertical text alignment, specified using one of the  vertical alignment constants
+        from <Titanium.UI>.
     description: |
         On iPhone and iPad the default value of the property is undefined. The behavior of the label
         depends on the actual content height. If the actual content height is larger than the available
@@ -203,15 +229,21 @@ properties:
         On Android, the default value of the property is undefined, and the default
         behavior when the property is undefined is to center the text vertically.
     type: [Number,String]
-    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER on Mobile Web. Undefined on Android, iPhone and iPad.
-    since: { iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0", android: "3.0.0" }
-    
+    constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
+    default: undefined on Android, iPhone and iPad.
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0" }
+
 events:
   - name: link
-    summary: Fired when user performs a long press on a URL in the text area.
+    summary: Fired when user interacts with a URL in the Label.
     description: |
-        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.Label.attributedString). 
-        Only valid on iOS7 and above.
+        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.Label.attributedString).
+
+        On Android, this event also fires if the `html` property is used instead of the `attributedString` property. This event will
+        also override the default behavior of openning the link in its default application.
+
+        On iOS, this is only valid on version 7 and above. In previous versions of the the Titanium SDK this event required a `longpress`
+        gesture to be performed. Beginning with Titanium SDK 4.0.0, only a `singletap` gesture is required to invoke this event.
     properties:
       - name: url
         summary: The URL that is associated with this event.
@@ -222,17 +254,17 @@ events:
       - name: bubbles
         summary: This is false. This event does not bubble
         type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad,android]
     osver: {ios: {min: "7.0"}}
-    since: 3.2.0
-        
+    since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
+
 
 examples:
   - title: Basic Label
     example: |
-        Create a center-aligned label with a text shadow and specified-size font, and another 
-        containing forced line breaks and unicode symbols.
-        
+        Create a center-aligned label with a text shadow and specified-size font, and another
+        containing forced line breaks and Unicode symbols.
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white',
               exitOnClose: true,
@@ -240,7 +272,7 @@ examples:
               layout: 'vertical',
               title: 'Label Demo'
             });
-            
+
             var label1 = Ti.UI.createLabel({
               color: '#900',
               font: { fontSize:48 },
@@ -252,15 +284,15 @@ examples:
               top: 30,
               width: Ti.UI.SIZE, height: Ti.UI.SIZE
             });
-            
+
             var label2 = Ti.UI.createLabel({
               color:'blue',
-              text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+              text: 'A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
               textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
               top: 30,
               width: 300, height: 200
             });
-            
+
             win.add(label1);
             win.add(label2);
             win.open();
@@ -271,7 +303,7 @@ examples:
 
         The font and shadowOffset properties need to be defined in the TSS or controller file.
         These property values are dictionaries, rather than single values,
-        so they cannot be included in markup.
+        so they cannot be included in the markup.
 
             <Alloy>
                 <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
@@ -280,7 +312,7 @@ examples:
                     <Label id="label1" color="#900" shadowColor="#aaa" text="A simple label" textAlign="Ti.UI.TEXT_ALIGNMENT_CENTER"
                         top="30" width="Ti.UI.SIZE" height="Ti.UI.SIZE" />
                     <Label id="label2" color="blue" textAlign="Ti.UI.TEXT_ALIGNMENT_LEFT" top="30" width="300" height="200">
-                        A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
+                        A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
                     </Label>
                 </Window>
             </Alloy>

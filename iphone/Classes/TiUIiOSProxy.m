@@ -1,48 +1,57 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "TiUIiOSProxy.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIIOS
- 
+
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+#import "TiUIiOSPreviewActionGroupProxy.h"
+#import "TiUIiOSPreviewActionProxy.h"
+#import "TiUIiOSPreviewContextProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSMENUPOPUP
+#import "TiUIiOSMenuPopupProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
+#import "TiUIiOSLivePhotoViewProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiUIiOSTransitionAnimationProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSADVIEW
-	#import "TiUIiOSAdViewProxy.h"
-    #import <iAd/iAd.h>
-#endif
-
-#ifdef USE_TI_UIIOS3DMATRIX
-	#import "Ti3DMatrix.h"
+#import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #endif
 
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
-	#import "TiUIiOSCoverFlowViewProxy.h"
-#endif
-#ifdef USE_TI_UIIOSTOOLBAR
-	#import "TiUIiOSToolbarProxy.h"
-#endif
-#ifdef USE_TI_UIIOSTABBEDBAR
-	#import "TiUIiOSTabbedBarProxy.h"
+#import "TiUIiOSCoverFlowViewProxy.h"
 #endif
 
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
-    #import "TiUIiOSDocumentViewerProxy.h"
+#ifdef USE_TI_UIIOSTOOLBAR
+#import "TiUIToolbarProxy.h"
 #endif
+
+#ifdef USE_TI_UIIOSTABBEDBAR
+#import "TiUIiOSTabbedBarProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
+#import "TiUIiOSDocumentViewerProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-    #import "TiUIiOSNavWindowProxy.h"
+#import "TiUIiOSNavigationWindowProxy.h"
 #endif
+
+#ifdef USE_TI_UIIOSSPLITWINDOW
+#import "TiUIiOSSplitWindowProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSANIMATOR
 #import "TiAnimatorProxy.h"
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
@@ -68,215 +77,572 @@
 #endif
 #endif
 
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+#import "TiUIiOSApplicationShortcutsProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
+#import <TitaniumKit/TiBlob.h>
+#endif
+
+#if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
+#import <PhotosUI/PhotosUI.h>
+#endif
+
+#ifdef USE_TI_UIIOSBLURVIEW
+#import "TiUIiOSBlurViewProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSTEPPER
+#import "TiUIiOSStepperProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+#import "TiUIiOSFeedbackGeneratorProxy.h"
+#endif
+
+#ifdef USE_TI_UIWEBVIEW
+#import "TiUIiOSWebViewConfigurationProxy.h"
+#import "TiUIiOSWebViewDecisionHandlerProxy.h"
+#import "TiUIiOSWebViewProcessPoolProxy.h"
+#import <WebKit/WebKit.h>
+#endif
+
 @implementation TiUIiOSProxy
 
--(NSString*)apiName
+#define FORGET_AND_RELEASE(x) \
+  {                           \
+    [self forgetProxy:x];     \
+    RELEASE_TO_NIL(x);        \
+  }
+
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS";
+  return @"Ti.UI.iOS";
 }
 
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
-MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
-MAKE_SYSTEM_PROP(ATTRIBUTE_FOREGROUND_COLOR, AttributeNameForegroundColor);
-MAKE_SYSTEM_PROP(ATTRIBUTE_BACKGROUND_COLOR, AttributeNameBackgroundColor);
-MAKE_SYSTEM_PROP(ATTRIBUTE_LIGATURE, AttributeNameLigature);
-MAKE_SYSTEM_PROP(ATTRIBUTE_KERN, AttributeNameKern);
-MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_STYLE, AttributeNameStrikethroughStyle);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINES_STYLE, AttributeNameUnderlineStyle);
-MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_COLOR, AttributeNameStrokeColor);
-MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_WIDTH, AttributeNameStrokeWidth);
-MAKE_SYSTEM_PROP(ATTRIBUTE_SHADOW, AttributeNameShadow);
-MAKE_SYSTEM_PROP(ATTRIBUTE_VERTICAL_GLYPH_FORM, AttributeNameVerticalGlyphForm);
-MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION, AttributeNameWritingDirection);
-MAKE_SYSTEM_PROP(ATTRIBUTE_TEXT_EFFECT, AttributeNameTextEffect);
-MAKE_SYSTEM_PROP(ATTRIBUTE_ATTACHMENT, AttributeNameAttachment);
-MAKE_SYSTEM_PROP(ATTRIBUTE_LINK, AttributeNameLink);
-MAKE_SYSTEM_PROP(ATTRIBUTE_BASELINE_OFFSET, AttributeNameBaselineOffset);
-MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
-MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
-MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
-MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
-
--(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
+- (NSNumber *)forceTouchSupported
 {
-    return NUMINT(NSUnderlineStyleNone);
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_SINGLE
-{
-    return NUMINT(NSUnderlineStyleSingle);
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_THICK
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleThick): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleDouble): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_SOLID
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternSolid): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DOT
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDot): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDash): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDot): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDotDot): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_UNDERLINE_BY_WORD
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineByWord): NUMINT(NSUnderlineStyleNone));
-}
--(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_NATURAL
-{
-    return NUMINT(NSWritingDirectionNatural);
-}
--(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
-{
-    return NUMINT(NSWritingDirectionLeftToRight);
-}
--(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
-{
-    return NUMINT(NSWritingDirectionRightToLeft);
-}
--(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionEmbedding): NUMINT(NSWritingDirectionNatural));
-}
--(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
-{
-    return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionOverride): NUMINT(NSWritingDirectionNatural));
-}
--(NSString *)ATTRIBUTE_LETTERPRESS_STYLE
-{
-    return ([TiUtils isIOS7OrGreater] ? NSTextEffectLetterpressStyle : @"");
+  return NUMBOOL([TiUtils forceTouchSupported]);
 }
 
+- (void)setStatusBarBackgroundColor:(id)value
+{
+  ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
+  ENSURE_SINGLE_ARG(value, NSString);
+
+  UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+  if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+    statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+  }
+}
+
+- (NSNumber *)SCROLL_DECELERATION_RATE_NORMAL
+{
+  return NUMFLOAT(UIScrollViewDecelerationRateNormal);
+}
+
+- (NSNumber *)SCROLL_DECELERATION_RATE_FAST
+{
+  return NUMFLOAT(UIScrollViewDecelerationRateFast);
+}
+
+- (NSNumber *)CLIP_MODE_DEFAULT
+{
+  return NUMINT(0);
+}
+- (NSNumber *)CLIP_MODE_ENABLED
+{
+  return NUMINT(1);
+}
+- (NSNumber *)CLIP_MODE_DISABLED
+{
+  return NUMINT(-1);
+}
+
+#ifdef USE_TI_UILISTVIEW
+- (NSNumber *)ROW_ACTION_STYLE_DEFAULT
+{
+  return NUMINTEGER(UITableViewRowActionStyleDefault);
+}
+- (NSNumber *)ROW_ACTION_STYLE_DESTRUCTIVE
+{
+  return NUMINTEGER(UITableViewRowActionStyleDestructive);
+}
+- (NSNumber *)ROW_ACTION_STYLE_NORMAL
+{
+  return NUMINTEGER(UITableViewRowActionStyleNormal);
+}
+#endif
+
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+- (NSNumber *)PREVIEW_ACTION_STYLE_DEFAULT
+{
+  return NUMINTEGER(UIPreviewActionStyleDefault);
+}
+- (NSNumber *)PREVIEW_ACTION_STYLE_DESTRUCTIVE
+{
+  return NUMINTEGER(UIPreviewActionStyleDestructive);
+}
+- (NSNumber *)PREVIEW_ACTION_STYLE_SELECTED
+{
+  return NUMINTEGER(UIPreviewActionStyleSelected);
+}
+#endif
+
+- (void)dealloc
+{
+  [super dealloc];
+}
+
+- (void)didReceiveMemoryWarning:(NSNotification *)notification
+{
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+  FORGET_AND_RELEASE(_animationStyleProxy);
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+  FORGET_AND_RELEASE(_RowAnimationStyle);
+#endif
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+  FORGET_AND_RELEASE(_AlertDialogStyle);
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined(USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+  FORGET_AND_RELEASE(_TableViewCellSelectionStyle);
+  FORGET_AND_RELEASE(_ListViewCellSelectionStyle);
+
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+  FORGET_AND_RELEASE(_TableViewScrollPosition);
+  FORGET_AND_RELEASE(_ListViewScrollPosition);
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+  FORGET_AND_RELEASE(_TableViewStyle);
+  FORGET_AND_RELEASE(_ListViewStyle);
+#endif
+
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+  FORGET_AND_RELEASE(_ProgressBarStyle);
+#endif
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+  FORGET_AND_RELEASE(_ScrollIndicatorStyle);
+#endif
+#ifdef USE_TI_UIIOSSTATUSBAR
+  FORGET_AND_RELEASE(_StatusBar);
+#endif
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+  FORGET_AND_RELEASE(_SystemButtonStyle);
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+  FORGET_AND_RELEASE(_SystemButton);
+#endif
+#ifdef USE_TI_UIIOSSYSTEMICON
+  FORGET_AND_RELEASE(_SystemIcon);
+#endif
+  [super didReceiveMemoryWarning:notification];
+}
+
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+- (TIUIiOSAlertDialogStyleProxy *)AlertDialogStyle
+{
+  if (_AlertDialogStyle == nil) {
+    _AlertDialogStyle = [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _AlertDialogStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+- (TiUIiOSAnimationStyleProxy *)AnimationStyle
+{
+  if (_animationStyleProxy == nil) {
+    _animationStyleProxy = [[TiUIiOSAnimationStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _animationStyleProxy;
+}
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined(USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+- (TiUIiOSTableViewCellSelectionStyleProxy *)TableViewCellSelectionStyle
+{
+  if (_TableViewCellSelectionStyle == nil) {
+    _TableViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _TableViewCellSelectionStyle;
+}
+
+- (TiUIiOSTableViewCellSelectionStyleProxy *)ListViewCellSelectionStyle
+{
+  if (_ListViewCellSelectionStyle == nil) {
+    _ListViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ListViewCellSelectionStyle;
+}
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+- (TiUIiOSTableViewScrollPositionProxy *)TableViewScrollPosition
+{
+  if (_TableViewScrollPosition == nil) {
+    _TableViewScrollPosition = [[TiUIiOSTableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _TableViewScrollPosition;
+}
+
+- (TiUIiOSTableViewScrollPositionProxy *)ListViewScrollPosition
+{
+  if (_ListViewScrollPosition == nil) {
+    _ListViewScrollPosition = [[TiUIiOSTableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ListViewScrollPosition;
+}
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+- (TiUIiOSTableViewStyleProxy *)TableViewStyle
+{
+  if (_TableViewStyle == nil) {
+    _TableViewStyle = [[TiUIiOSTableViewStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _TableViewStyle;
+}
+
+- (TiUIiOSTableViewStyleProxy *)ListViewStyle
+{
+  if (_ListViewStyle == nil) {
+    _ListViewStyle = [[TiUIiOSTableViewStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ListViewStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+- (TiUIiOSProgressBarStyleProxy *)ProgressBarStyle
+{
+  if (_ProgressBarStyle == nil) {
+    _ProgressBarStyle = [[TiUIiOSProgressBarStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ProgressBarStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+- (TiUIiOSRowAnimationStyleProxy *)RowAnimationStyle
+{
+  if (_RowAnimationStyle == nil) {
+    _RowAnimationStyle = [[TiUIiOSRowAnimationStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _RowAnimationStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+- (TiUIiOSScrollIndicatorStyleProxy *)ScrollIndicatorStyle
+{
+  if (_ScrollIndicatorStyle == nil) {
+    _ScrollIndicatorStyle = [[TiUIiOSScrollIndicatorStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ScrollIndicatorStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSTATUSBAR
+- (TiUIiOSStatusBarProxy *)StatusBar
+{
+  if (_StatusBar == nil) {
+    _StatusBar = [[TiUIiOSStatusBarProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _StatusBar;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+- (TiUIiOSSystemButtonStyleProxy *)SystemButtonStyle
+{
+  if (_SystemButtonStyle == nil) {
+    _SystemButtonStyle = [[TiUIiOSSystemButtonStyleProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _SystemButtonStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+- (TiUIiOSSystemButtonProxy *)SystemButton
+{
+  if (_SystemButton == nil) {
+    _SystemButton = [[TiUIiOSSystemButtonProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _SystemButton;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMICON
+- (TiUIiOSSystemIconProxy *)SystemIcon
+{
+  if (_SystemIcon == nil) {
+    _SystemIcon = [[TiUIiOSSystemIconProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _SystemIcon;
+}
+#endif
+
+- (void)setAppBadge:(id)value
+{
+  ENSURE_UI_THREAD(setAppBadge, value);
+  if (value == [NSNull null]) {
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+  } else {
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:[TiUtils intValue:value]];
+  }
+}
+
+BEGIN_UI_THREAD_PROTECTED_VALUE(appBadge, NSNumber)
+result = [NSNumber numberWithInteger:[[UIApplication sharedApplication] applicationIconBadgeNumber]];
+END_UI_THREAD_PROTECTED_VALUE(appBadge)
+
+- (void)setAppSupportsShakeToEdit:(NSNumber *)shake
+{
+  ENSURE_UI_THREAD(setAppSupportsShakeToEdit, shake);
+  [[UIApplication sharedApplication] setApplicationSupportsShakeToEdit:[shake boolValue]];
+}
+
+BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit, NSNumber)
+result = [NSNumber numberWithBool:[[UIApplication sharedApplication] applicationSupportsShakeToEdit]];
+END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
+
+#ifdef USE_TI_UIIOSBLURVIEW
+- (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
+{
+  return NUMINTEGER(UIBlurEffectStyleExtraLight);
+}
+
+- (id)BLUR_EFFECT_STYLE_LIGHT
+{
+  return NUMINTEGER(UIBlurEffectStyleLight);
+}
+
+- (id)BLUR_EFFECT_STYLE_DARK
+{
+  return NUMINTEGER(UIBlurEffectStyleDark);
+}
+
+- (id)BLUR_EFFECT_STYLE_REGULAR
+{
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    return NUMINTEGER(UIBlurEffectStyleRegular);
+  }
+  return [NSNull null];
+}
+
+- (id)BLUR_EFFECT_STYLE_PROMINENT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    return NUMINTEGER(UIBlurEffectStyleProminent);
+  }
+  return [NSNull null];
+}
+#endif
+
+#ifdef USE_TI_UIIOSMENUPOPUP
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_UP, UIMenuControllerArrowUp);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DOWN, UIMenuControllerArrowDown);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_LEFT, UIMenuControllerArrowLeft);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_RIGHT, UIMenuControllerArrowRight);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefault);
+#endif
+
+#ifdef USE_TI_UISEARCHBAR
+MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_PROMINENT, UISearchBarStyleProminent);
+MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
+#endif
+
+#if defined(USE_TI_UISCROLLVIEW) || defined(USE_TI_UILISTVIEW)
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_NONE, UIScrollViewKeyboardDismissModeNone);
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_ON_DRAG, UIScrollViewKeyboardDismissModeOnDrag);
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissModeInteractive);
+#endif
+
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
+- (id)createCoverFlowView:(id)args
+{
+  return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
-
--(NSString*)AD_SIZE_PORTRAIT 
+- (id)createAdView:(id)args
 {
-    return [TiUIiOSAdViewProxy portraitSize];
-}
-
--(NSString*)AD_SIZE_LANDSCAPE 
-{
-    return [TiUIiOSAdViewProxy landscapeSize];
-}
-
--(id)createAdView:(id)args
-{
-	return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-
-#endif
-
-#ifdef USE_TI_UIIOS3DMATRIX
--(id)create3DMatrix:(id)args
-{
-	DEPRECATED_REPLACED(@"UI.iOS.create3DMatrix()", @"2.1.0", @"Ti.UI.create3DMatrix()");
-    if (args==nil || [args count] == 0)
-	{
-		return [[[Ti3DMatrix alloc] init] autorelease];
-	}
-	ENSURE_SINGLE_ARG(args,NSDictionary);
-	Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
-	return [matrix autorelease];
+  DebugLog(@"[ERROR] iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.");
 }
 #endif
-#ifdef USE_TI_UIIOSCOVERFLOWVIEW
--(id)createCoverFlowView:(id)args
-{
-	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
+
 #ifdef USE_TI_UIIOSTOOLBAR
--(id)createToolbar:(id)args
+- (id)createToolbar:(id)args
 {
-	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
--(id)createAttributedString:(id)args
-{
-    return [[[TiUIiOSAttributedStringProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  DEPRECATED_REPLACED(@"UI.iOS.Toolbar", @"6.2.0", @"UI.Toolbar (parity with Android)")
+  return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.iOS.Toolbar"] autorelease];
 }
 #endif
 
 #ifdef USE_TI_UIIOSTABBEDBAR
--(id)createTabbedBar:(id)args
+- (id)createTabbedBar:(id)args
 {
-    return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  DEPRECATED_REPLACED(@"UI.iOS.TabbedBar", @"8.0.0", @"UI.TabbedBar (parity with Android)")
+  return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
--(id)createDocumentViewer:(id)args
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
+- (id)createDocumentViewer:(id)args
 {
-	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
--(id)createNavigationWindow:(id)args
+- (id)createNavigationWindow:(id)args
 {
-    return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  return [[[TiUIiOSNavigationWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
+#ifdef USE_TI_UIIOSSPLITWINDOW
+- (id)createSplitWindow:(id)args
+{
+  return [[[TiUIiOSSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
--(id)createTransitionAnimation:(id)args;
+- (id)createTransitionAnimation:(id)args;
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Transition Animation Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
-#ifdef USE_TI_UIIOSANIMATOR
--(id)createAnimator:(id)args
+
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+- (id)createPreviewAction:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiAnimatorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Animator object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiUIiOSPreviewActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (id)createPreviewActionGroup:(id)args
+{
+  return [[[TiUIiOSPreviewActionGroupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (id)createPreviewContext:(id)args
+{
+  return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSMENUPOPUP
+- (id)createMenuPopup:(id)args
+{
+  return [[[TiUIiOSMenuPopupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSBLURVIEW
+- (id)createBlurView:(id)args
+{
+  return [[[TiUIiOSBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSSTEPPER
+- (id)createStepper:(id)args
+{
+  return [[[TiUIiOSStepperProxy alloc] _initWithPageContext:[self pageContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
+- (id)createLivePhotoView:(id)args
+{
+  return [[[TiUIiOSLivePhotoViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_FULL
+{
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
+    return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
+  }
+  return nil;
+}
+
+- (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_HINT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
+    return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
+  }
+
+  return nil;
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
+- (TiBlob *)createLivePhotoBadge:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"9.1"]) {
+    return nil;
+  }
+
+  ENSURE_ARG_COUNT(value, 1);
+  ENSURE_ARRAY(value);
+  id option = [value objectAtIndex:0];
+
+  UIImage *badge = [PHLivePhotoView livePhotoBadgeImageWithOptions:[TiUtils intValue:option def:PHLivePhotoBadgeOptionsOverContent]];
+
+  // Badges only work on devices.
+  if (badge == nil) {
+    return nil;
+  }
+
+  TiBlob *image = [[[TiBlob alloc] initWithImage:badge] autorelease];
+
+  return image;
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+- (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
+    return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
+  }
+  return NUMINT(0);
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+- (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+{
+  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
+    return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
+  }
+  return NUMINT(0);
+}
+#endif
+
+#ifdef USE_TI_UIIOSANIMATOR
+- (id)createAnimator:(id)args
+{
+  return [[[TiAnimatorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
--(id)createSnapBehavior:(id)args
+- (id)createSnapBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiSnapBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Snap Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiSnapBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 #ifdef USE_TI_UIIOSPUSHBEHAVIOR
--(id)createPushBehavior:(id)args
+- (id)createPushBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiPushBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Push Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiPushBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 //TiPushBehavior Constants
 MAKE_SYSTEM_PROP(PUSH_MODE_CONTINUOUS, 0);
@@ -284,50 +650,30 @@ MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
 #endif
 
 #ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
--(id)createGravityBehavior:(id)args
+- (id)createGravityBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiGravityBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Gravity Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiGravityBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
 #ifdef USE_TI_UIIOSANCHORATTACHMENTBEHAVIOR
--(id)createAnchorAttachmentBehavior:(id)args
+- (id)createAnchorAttachmentBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiAnchorAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Anchor Attachment Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiAnchorAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
 #ifdef USE_TI_UIIOSVIEWATTACHMENTBEHAVIOR
--(id)createViewAttachmentBehavior:(id)args
+- (id)createViewAttachmentBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiViewAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The View Attachment Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiViewAttachBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
 #ifdef USE_TI_UIIOSCOLLISIONBEHAVIOR
--(id)createCollisionBehavior:(id)args
+- (id)createCollisionBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiCollisionBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Collision Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiCollisionBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 //TiCollisionBehavior Constants
 MAKE_SYSTEM_PROP(COLLISION_MODE_ITEM, 0);
@@ -336,80 +682,166 @@ MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
 #endif
 
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
--(id)createDynamicItemBehavior:(id)args
+- (id)createDynamicItemBehavior:(id)args
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        return [[[TiDynamicItemBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    } else {
-        DebugLog(@"[WARN] The Dynamic Item Behavior Object is only available on iOS7 and above. Returning nil");
-        return nil;
-    }
+  return [[[TiDynamicItemBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+#endif
+
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_NORMAL, kCGBlendModeNormal, @"UI.iOS.BLEND_MODE_NORMAL", @"7.3.0", @"UI.BLEND_MODE_NORMAL");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_MULTIPLY, kCGBlendModeMultiply, @"UI.iOS.BLEND_MODE_MULTIPLY", @"7.3.0", @"UI.BLEND_MODE_MULTIPLY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_SCREEN, kCGBlendModeScreen, @"UI.iOS.BLEND_MODE_SCREEN", @"7.3.0", @"UI.BLEND_MODE_SCREEN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_OVERLAY, kCGBlendModeOverlay, @"UI.iOS.BLEND_MODE_OVERLAY", @"7.3.0", @"UI.BLEND_MODE_OVERLAY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_DARKEN, kCGBlendModeDarken, @"UI.iOS.BLEND_MODE_DARKEN", @"7.3.0", @"UI.BLEND_MODE_DARKEN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_LIGHTEN, kCGBlendModeLighten, @"UI.iOS.BLEND_MODE_LIGHTEN", @"7.3.0", @"UI.BLEND_MODE_LIGHTEN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_COLOR_DODGE, kCGBlendModeColorDodge, @"UI.iOS.BLEND_MODE_COLOR_DODGE", @"7.3.0", @"UI.BLEND_MODE_COLOR_DODGE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_COLOR_BURN, kCGBlendModeColorBurn, @"UI.iOS.BLEND_MODE_COLOR_BURN", @"7.3.0", @"UI.BLEND_MODE_COLOR_BURN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_SOFT_LIGHT, kCGBlendModeSoftLight, @"UI.iOS.BLEND_MODE_SOFT_LIGHT", @"7.3.0", @"UI.BLEND_MODE_SOFT_LIGHT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_HARD_LIGHT, kCGBlendModeHardLight, @"UI.iOS.BLEND_MODE_HARD_LIGHT", @"7.3.0", @"UI.BLEND_MODE_HARD_LIGHT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_DIFFERENCE, kCGBlendModeDifference, @"UI.iOS.BLEND_MODE_DIFFERENCE", @"7.3.0", @"UI.BLEND_MODE_DIFFERENCE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_EXCLUSION, kCGBlendModeExclusion, @"UI.iOS.BLEND_MODE_EXCLUSION", @"7.3.0", @"UI.BLEND_MODE_EXCLUSION");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_HUE, kCGBlendModeHue, @"UI.iOS.BLEND_MODE_HUE", @"7.3.0", @"UI.BLEND_MODE_HUE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_SATURATION, kCGBlendModeSaturation, @"UI.iOS.BLEND_MODE_SATURATION", @"7.3.0", @"UI.BLEND_MODE_SATURATION");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_COLOR, kCGBlendModeColor, @"UI.iOS.BLEND_MODE_COLOR", @"7.3.0", @"UI.BLEND_MODE_COLOR");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_LUMINOSITY, kCGBlendModeLuminosity, @"UI.iOS.BLEND_MODE_LUMINOSITY", @"7.3.0", @"UI.BLEND_MODE_LUMINOSITY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_CLEAR, kCGBlendModeClear, @"UI.iOS.BLEND_MODE_CLEAR", @"7.3.0", @"UI.BLEND_MODE_CLEAR");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_COPY, kCGBlendModeCopy, @"UI.iOS.BLEND_MODE_COPY", @"7.3.0", @"UI.BLEND_MODE_COPY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_SOURCE_IN, kCGBlendModeSourceIn, @"UI.iOS.BLEND_MODE_SOURCE_IN", @"7.3.0", @"UI.BLEND_MODE_SOURCE_IN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_SOURCE_OUT, kCGBlendModeSourceOut, @"UI.iOS.BLEND_MODE_SOURCE_OUT", @"7.3.0", @"UI.BLEND_MODE_SOURCE_OUT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_SOURCE_ATOP, kCGBlendModeSourceAtop, @"UI.iOS.BLEND_MODE_SOURCE_ATOP", @"7.3.0", @"UI.BLEND_MODE_SOURCE_ATOP");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_DESTINATION_OVER, kCGBlendModeDestinationOver, @"UI.iOS.BLEND_MODE_DESTINATION_OVER", @"7.3.0", @"UI.BLEND_MODE_DESTINATION_OVER");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_DESTINATION_IN, kCGBlendModeDestinationIn, @"UI.iOS.BLEND_MODE_DESTINATION_IN", @"7.3.0", @"UI.BLEND_MODE_DESTINATION_IN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_DESTINATION_OUT, kCGBlendModeDestinationOut, @"UI.iOS.BLEND_MODE_DESTINATION_OUT", @"7.3.0", @"UI.BLEND_MODE_DESTINATION_OUT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_DESTINATION_ATOP, kCGBlendModeDestinationAtop, @"UI.iOS.BLEND_MODE_DESTINATION_ATOP", @"7.3.0", @"UI.BLEND_MODE_DESTINATION_ATOP");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_XOR, kCGBlendModeXOR, @"UI.iOS.BLEND_MODE_XOR", @"7.3.0", @"UI.BLEND_MODE_XOR");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_PLUS_DARKER, kCGBlendModePlusDarker, @"UI.iOS.BLEND_MODE_PLUS_DARKER", @"7.3.0", @"UI.BLEND_MODE_PLUS_DARKER");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_PLUS_LIGHTER, kCGBlendModePlusLighter, @"UI.iOS.BLEND_MODE_PLUS_LIGHTER", @"7.3.0", @"UI.BLEND_MODE_PLUS_LIGHTER");
+
+MAKE_SYSTEM_STR(COLOR_GROUP_TABLEVIEW_BACKGROUND, IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND);
+MAKE_SYSTEM_STR(TABLEVIEW_INDEX_SEARCH, UITableViewIndexSearch);
+
+MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED, UIWebViewNavigationTypeLinkClicked);
+MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED, UIWebViewNavigationTypeFormSubmitted);
+MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD, UIWebViewNavigationTypeBackForward);
+MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_RELOAD, UIWebViewNavigationTypeReload);
+MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED, UIWebViewNavigationTypeFormResubmitted);
+MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER, UIWebViewNavigationTypeOther);
+
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+- (id)createApplicationShortcuts:(id)args
+{
+  return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
+#if defined(USE_TI_UIIOSAPPLICATIONSHORTCUTS) || defined(USE_TI_UIAPPLICATIONSHORTCUTS)
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE, UIApplicationShortcutIconTypeCompose);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY, UIApplicationShortcutIconTypePlay);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PAUSE, UIApplicationShortcutIconTypePause);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_ADD, UIApplicationShortcutIconTypeAdd);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_LOCATION, UIApplicationShortcutIconTypeLocation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SEARCH, UIApplicationShortcutIconTypeSearch);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHARE, UIApplicationShortcutIconTypeShare);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PROHIBIT, UIApplicationShortcutIconTypeProhibit);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CONTACT, UIApplicationShortcutIconTypeContact);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_HOME, UIApplicationShortcutIconTypeHome);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_MARK_LOCATION, UIApplicationShortcutIconTypeMarkLocation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_FAVORITE, UIApplicationShortcutIconTypeFavorite);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_LOVE, UIApplicationShortcutIconTypeLove);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CLOUD, UIApplicationShortcutIconTypeCloud);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_INVITATION, UIApplicationShortcutIconTypeInvitation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CONFIRMATION, UIApplicationShortcutIconTypeConfirmation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_MAIL, UIApplicationShortcutIconTypeMail);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_MESSAGE, UIApplicationShortcutIconTypeMessage);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_DATE, UIApplicationShortcutIconTypeDate);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_TIME, UIApplicationShortcutIconTypeTime);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CAPTURE_PHOTO, UIApplicationShortcutIconTypeCapturePhoto);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CAPTURE_VIDEO, UIApplicationShortcutIconTypeCaptureVideo);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_TASK, UIApplicationShortcutIconTypeTask);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_TASK_COMPLETED, UIApplicationShortcutIconTypeTaskCompleted);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_ALARM, UIApplicationShortcutIconTypeAlarm);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_BOOKMARK, UIApplicationShortcutIconTypeBookmark);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHUFFLE, UIApplicationShortcutIconTypeShuffle);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO, UIApplicationShortcutIconTypeAudio);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE, UIApplicationShortcutIconTypeUpdate);
 #endif
 
+//Modal Transition and Presentatiom
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL, UIModalTransitionStyleCoverVertical);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL, UIModalTransitionStyleFlipHorizontal);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_CROSS_DISSOLVE, UIModalTransitionStyleCrossDissolve);
 
-#ifdef USE_TI_UIIOS
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN_OUT, UIViewAnimationOptionCurveEaseInOut, @"UI.iOS.ANIMATION_CURVE_EASE_IN_OUT", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_IN_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN, UIViewAnimationOptionCurveEaseIn, @"UI.iOS.ANIMATION_CURVE_EASE_IN", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_IN");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_OUT,UIViewAnimationOptionCurveEaseOut,  @"UI.iOS.ANIMATION_CURVE_EASE_OUT", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_LINEAR,UIViewAnimationOptionCurveLinear, @"UI.iOS.ANIMATION_CURVE_LINEAR", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_LINEAR");
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FULLSCREEN, UIModalPresentationFullScreen);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_PARTIAL_CURL, UIModalTransitionStylePartialCurl);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET, UIModalPresentationPageSheet);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET, UIModalPresentationFormSheet);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT, UIModalPresentationCurrentContext);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_OVER_CURRENT_CONTEXT, UIModalPresentationOverCurrentContext);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN, UIModalPresentationOverFullScreen);
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.iOS.AUTODETECT_NONE", @"3.0.0", @"Ti.UI.AUTOLINK_NONE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ALL,UIDataDetectorTypeAll, @"UI.iOS.AUTODETECT_ALL", @"3.0.0", @"Ti.UI.AUTOLINK_ALL");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.iOS.AUTODETECT_PHONE", @"3.0.0", @"Ti.UI.AUTOLINK_PHONE_NUMBERS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.iOS.AUTODETECT_LINK", @"3.0.0", @"Ti.UI.AUTOLINK_URLS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.iOS.AUTODETECT_ADDRESS", @"3.0.0", @"Ti.UI.AUTOLINK_MAP_ADDRESSES");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"UI.iOS.AUTODETECT_CALENDAR", @"3.0.0", @"Ti.UI.AUTOLINK_CALENDAR");
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 
-MAKE_SYSTEM_PROP(BLEND_MODE_NORMAL,kCGBlendModeNormal);
-MAKE_SYSTEM_PROP(BLEND_MODE_MULTIPLY,kCGBlendModeMultiply);
-MAKE_SYSTEM_PROP(BLEND_MODE_SCREEN,kCGBlendModeScreen);
-MAKE_SYSTEM_PROP(BLEND_MODE_OVERLAY,kCGBlendModeOverlay);
-MAKE_SYSTEM_PROP(BLEND_MODE_DARKEN,kCGBlendModeDarken);
-MAKE_SYSTEM_PROP(BLEND_MODE_LIGHTEN,kCGBlendModeLighten);
-MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_DODGE,kCGBlendModeColorDodge);
-MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_BURN,kCGBlendModeColorBurn);
-MAKE_SYSTEM_PROP(BLEND_MODE_SOFT_LIGHT,kCGBlendModeSoftLight);
-MAKE_SYSTEM_PROP(BLEND_MODE_HARD_LIGHT,kCGBlendModeHardLight);
-MAKE_SYSTEM_PROP(BLEND_MODE_DIFFERENCE,kCGBlendModeDifference);
-MAKE_SYSTEM_PROP(BLEND_MODE_EXCLUSION,kCGBlendModeExclusion);
-MAKE_SYSTEM_PROP(BLEND_MODE_HUE,kCGBlendModeHue);
-MAKE_SYSTEM_PROP(BLEND_MODE_SATURATION,kCGBlendModeSaturation);
-MAKE_SYSTEM_PROP(BLEND_MODE_COLOR,kCGBlendModeColor);
-MAKE_SYSTEM_PROP(BLEND_MODE_LUMINOSITY,kCGBlendModeLuminosity);
-MAKE_SYSTEM_PROP(BLEND_MODE_CLEAR,kCGBlendModeClear);
-MAKE_SYSTEM_PROP(BLEND_MODE_COPY,kCGBlendModeCopy);
-MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_IN,kCGBlendModeSourceIn);
-MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_OUT,kCGBlendModeSourceOut);
-MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_ATOP,kCGBlendModeSourceAtop);
-MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OVER,kCGBlendModeDestinationOver);
-MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_IN,kCGBlendModeDestinationIn);
-MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OUT,kCGBlendModeDestinationOut);
-MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_ATOP,kCGBlendModeDestinationAtop);
-MAKE_SYSTEM_PROP(BLEND_MODE_XOR,kCGBlendModeXOR);
-MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER,kCGBlendModePlusDarker);
-MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
+- (id)createFeedbackGenerator:(id)args
+{
+  return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_SELECTION, 0);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_IMPACT, 1);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_NOTIFICATION, 2);
 
-MAKE_SYSTEM_STR(COLOR_SCROLLVIEW_BACKGROUND, IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND);
-MAKE_SYSTEM_STR(COLOR_VIEW_FLIPSIDE_BACKGROUND, IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND);
-MAKE_SYSTEM_STR(COLOR_GROUP_TABLEVIEW_BACKGROUND, IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS, UINotificationFeedbackTypeSuccess);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING, UINotificationFeedbackTypeWarning);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR, UINotificationFeedbackTypeError);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-    MAKE_SYSTEM_STR(COLOR_UNDER_PAGE_BACKGROUND, IOS_COLOR_UNDER_PAGE_BACKGROUND);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLight);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
 #endif
 
-
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED,UIWebViewNavigationTypeLinkClicked);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED,UIWebViewNavigationTypeFormSubmitted);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD,UIWebViewNavigationTypeBackForward);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_RELOAD,UIWebViewNavigationTypeReload);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED,UIWebViewNavigationTypeFormResubmitted);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
-
+#if IS_XCODE_9
+MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_AUTOMATIC, UINavigationItemLargeTitleDisplayModeAutomatic);
+MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_ALWAYS, UINavigationItemLargeTitleDisplayModeAlways);
+MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDisplayModeNever);
 #endif
+
+#ifdef USE_TI_UIWEBVIEW
+
+- (id)createWebViewConfiguration:(id)args
+{
+  return [[[TiUIiOSWebViewConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (id)createWebViewProcessPool:(id)args
+{
+  return [[[TiUIiOSWebViewProcessPoolProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_NONE, NSURLCredentialPersistenceNone);
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_FOR_SESSION, NSURLCredentialPersistenceForSession);
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_PERMANENT, NSURLCredentialPersistencePermanent);
+MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_SYNCHRONIZABLE, NSURLCredentialPersistenceSynchronizable);
+
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_NONE, WKAudiovisualMediaTypeNone);
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_AUDIO, WKAudiovisualMediaTypeAudio);
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_VIDEO, WKAudiovisualMediaTypeVideo);
+MAKE_SYSTEM_PROP_UINTEGER(AUDIOVISUAL_MEDIA_TYPE_ALL, WKAudiovisualMediaTypeAll);
+
+MAKE_SYSTEM_PROP(CACHE_POLICY_USE_PROTOCOL_CACHE_POLICY, NSURLRequestUseProtocolCachePolicy)
+MAKE_SYSTEM_PROP(CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA, NSURLRequestReloadIgnoringLocalCacheData)
+MAKE_SYSTEM_PROP(CACHE_POLICY_RETURN_CACHE_DATA_ELSE_LOAD, NSURLRequestReturnCacheDataElseLoad)
+MAKE_SYSTEM_PROP(CACHE_POLICY_RETURN_CACHE_DATA_DONT_LOAD, NSURLRequestReturnCacheDataDontLoad)
+
+MAKE_SYSTEM_PROP(SELECTION_GRANULARITY_DYNAMIC, WKSelectionGranularityDynamic);
+MAKE_SYSTEM_PROP(SELECTION_GRANULARITY_CHARACTER, WKSelectionGranularityCharacter);
+
+MAKE_SYSTEM_PROP(ACTION_POLICY_CANCEL, WKNavigationActionPolicyCancel);
+MAKE_SYSTEM_PROP(ACTION_POLICY_ALLOW, WKNavigationActionPolicyAllow);
+
+MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocumentStart);
+MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
+#endif
+
 @end
-
 #endif

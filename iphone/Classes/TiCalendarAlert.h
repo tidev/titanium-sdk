@@ -1,28 +1,42 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
 #ifdef USE_TI_CALENDAR
+@import JavaScriptCore;
+@import TitaniumKit.ObjcProxy;
 
-#import <EventKit/EventKit.h>
-
+@class EKAlarm; // forward declare
 @class CalendarModule;
 
-@interface TiCalendarAlert : TiProxy {
+@protocol TiCalendarAlertExports <JSExport>
 
-@private
-    CalendarModule* module;
-    EKAlarm* alert;
+// properties (and accessors)
+PROPERTY(NSDate *, absoluteDate, AbsoluteDate);
+PROPERTY(double, relativeOffset, RelativeOffset);
+
+@end
+
+@interface TiCalendarAlert : ObjcProxy <TiCalendarAlertExports> {
+
+  @private
+  CalendarModule *module;
+  EKAlarm *alert;
 }
 
--(id)_initWithPageContext:(id<TiEvaluator>)context
-                    alert:(EKAlarm*)alert_
-                   module:(CalendarModule*)module_;
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithAlert:module:` instead.
+  */
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+                     alert:(EKAlarm *)alert_
+                    module:(CalendarModule *)module_ __attribute__((deprecated));
 
--(EKAlarm*)alert;
+- (id)initWithAlert:(EKAlarm *)alert_
+             module:(CalendarModule *)module_;
+
+- (EKAlarm *)alert;
 @end
-    
+
 #endif

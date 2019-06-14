@@ -17,7 +17,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * API for accessing, storing, and modifying application properties that are 
+ * API for accessing, storing, and modifying application properties that are
  * exposed via Ti.App.Properties.
  */
 public class TiProperties
@@ -34,8 +34,9 @@ public class TiProperties
 	 * @param name the name used to create/retrieve preferences.
 	 * @param clear whether to clear all keys and values in the instantiated SharedPreferences collection.
 	 */
-	public TiProperties(Context context, String name, boolean clear) {
-		preferences = context.getSharedPreferences(name,Context.MODE_PRIVATE);
+	public TiProperties(Context context, String name, boolean clear)
+	{
+		preferences = context.getSharedPreferences(name, Context.MODE_PRIVATE);
 		if (clear) {
 			preferences.edit().clear().commit();
 		}
@@ -60,14 +61,6 @@ public class TiProperties
 		} else {
 			return def;
 		}
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public SharedPreferences getPreference()
-	{
-		return preferences;
 	}
 
 	public Object getPreference(String key)
@@ -96,7 +89,7 @@ public class TiProperties
 	public void setString(String key, String value)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG,"setString called with key:"+key+", value:"+value);
+			Log.d(TAG, "setString called with key:" + key + ", value:" + value);
 		}
 
 		if (systemProperties != null && systemProperties.has(key)) {
@@ -110,7 +103,7 @@ public class TiProperties
 		if (value == null) {
 			editor.remove(key);
 		} else {
-			editor.putString(key,value);
+			editor.putString(key, value);
 		}
 		editor.commit();
 	}
@@ -133,15 +126,15 @@ public class TiProperties
 				try {
 					value = systemProperties.getInt(key);
 				} catch (JSONException e) {
-					value = preferences.getInt(key,def);
+					value = preferences.getInt(key, def);
 				}
 			} else {
-				value = preferences.getInt(key,def);
+				value = preferences.getInt(key, def);
 			}
 			return value;
-		} catch(ClassCastException cce) {
+		} catch (ClassCastException cce) {
 			//Value stored as something other than int. Try and convert to int
-			String val = getString(key,"");
+			String val = getString(key, "");
 			try {
 				return Integer.parseInt(val);
 			} catch (NumberFormatException nfe) {
@@ -149,7 +142,7 @@ public class TiProperties
 			}
 		}
 	}
-	
+
 	/**
 	 * Maps the specified key with an int value. If key exists, its value will be overwritten.
 	 * @param key the key to set.
@@ -170,10 +163,10 @@ public class TiProperties
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putInt(key,value);
+		editor.putInt(key, value);
 		editor.commit();
 	}
-	
+
 	/**
 	 * Returns the mapping of a specified key as a Double. If key does not exist, returns the default value.
 	 * @param key the lookup key.
@@ -220,10 +213,10 @@ public class TiProperties
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putString(key,value + "");
+		editor.putString(key, value + "");
 		editor.commit();
 	}
-	
+
 	/**
 	 * Returns the mapping of a specified key, as a Boolean. If key does not exist, returns the default value.
 	 * @param key the lookup key.
@@ -242,15 +235,15 @@ public class TiProperties
 				try {
 					value = systemProperties.getBoolean(key);
 				} catch (JSONException e) {
-					value = preferences.getBoolean(key,def);
+					value = preferences.getBoolean(key, def);
 				}
 			} else {
-				value = preferences.getBoolean(key,def);
+				value = preferences.getBoolean(key, def);
 			}
 			return value;
-		} catch(ClassCastException cce) {
+		} catch (ClassCastException cce) {
 			//Value stored as something other than boolean. Try and convert to boolean
-			String val = getString(key,"");
+			String val = getString(key, "");
 			try {
 				return Boolean.valueOf(val).booleanValue();
 			} catch (Exception e) {
@@ -280,7 +273,7 @@ public class TiProperties
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putBoolean(key,value);
+		editor.putBoolean(key, value);
 		editor.commit();
 	}
 
@@ -297,14 +290,14 @@ public class TiProperties
 			Log.d(TAG, "getList called with key:" + key + ", def:" + def);
 		}
 
-		int length = preferences.getInt(key+".length", -1);
+		int length = preferences.getInt(key + ".length", -1);
 		if (length == -1) {
 			return def;
 		}
 
 		String list[] = new String[length];
 		for (int i = 0; i < length; i++) {
-			list[i] = preferences.getString(key+"."+i, "");
+			list[i] = preferences.getString(key + "." + i, "");
 		}
 		return list;
 	}
@@ -329,7 +322,6 @@ public class TiProperties
 		editor.putInt(key + ".length", value.length);
 
 		editor.commit();
-
 	}
 
 	/**
@@ -337,8 +329,9 @@ public class TiProperties
 	 * @return true if the list property exists in preferences
 	 * @module.api
 	 */
-	public boolean hasListProperty(String key) {
-		return hasProperty(key+".0");
+	public boolean hasListProperty(String key)
+	{
+		return hasProperty(key + ".0");
 	}
 
 	/**
@@ -349,7 +342,8 @@ public class TiProperties
 	 */
 	public boolean hasProperty(String key)
 	{
-		return systemProperties != null ? systemProperties.has(key) || preferences.contains(key) : preferences.contains(key);
+		return systemProperties != null ? systemProperties.has(key) || preferences.contains(key)
+										: preferences.contains(key);
 	}
 
 	/**
@@ -401,7 +395,17 @@ public class TiProperties
 		}
 	}
 
-	public static void setSystemProperties(JSONObject prop) {
+	/**
+	 * Removes all keys from preferences.
+	 * @module.api
+	 */
+	public void removeAllProperties()
+	{
+		preferences.edit().clear().commit();
+	}
+
+	public static void setSystemProperties(JSONObject prop)
+	{
 		systemProperties = prop;
 	}
 }

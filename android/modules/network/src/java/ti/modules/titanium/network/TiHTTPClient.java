@@ -1,22 +1,31 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
+import java.net.CookieManager;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -24,71 +33,24 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.MethodNotSupportedException;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
-import org.apache.http.ProtocolException;
-import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthSchemeFactory;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.conn.params.ConnManagerParams;
-import org.apache.http.conn.params.ConnPerRouteBean;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.AbstractHttpEntity;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultRedirectHandler;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
@@ -97,59 +59,64 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.json.JSONObject;
 
+import ti.modules.titanium.network.httpurlconnection.ContentBody;
+import ti.modules.titanium.network.httpurlconnection.Entity;
+import ti.modules.titanium.network.httpurlconnection.FileEntity;
+import ti.modules.titanium.network.httpurlconnection.HttpUrlConnectionUtils;
+import ti.modules.titanium.network.httpurlconnection.JsonBody;
+import ti.modules.titanium.network.httpurlconnection.NameValuePair;
+import ti.modules.titanium.network.httpurlconnection.NullHostNameVerifier;
+import ti.modules.titanium.network.httpurlconnection.StringBody;
+import ti.modules.titanium.network.httpurlconnection.StringEntity;
+import ti.modules.titanium.network.httpurlconnection.FileBody;
+import ti.modules.titanium.network.httpurlconnection.UrlEncodedFormEntity;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {
-	private static final String TAG = "TiHttpClient";
+	private static final String TAG = "TiHTTPClient";
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
 	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
-	private static final String TITANIUM_USER_AGENT = "Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion()
-	                                                  + " ("+ Build.MODEL + "; Android API Level: "
-	                                                  + Integer.toString(Build.VERSION.SDK_INT) + "; "
-	                                                  + TiPlatformHelper.getLocale() +";)";
-	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
+	private static final String TITANIUM_USER_AGENT =
+		"Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
+		+ "; Android API Level: " + Integer.toString(Build.VERSION.SDK_INT) + "; "
+		+ TiPlatformHelper.getInstance().getLocale() + ";)";
+	private static final String[] FALLBACK_CHARSETS = { "UTF_8", "ISO_8859_1" };
 
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
 	private static final String HTML_META_TAG_REGEX = "charset=([^\"\']*)";
 	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
 
 	private static AtomicInteger httpClientThreadCounter;
-	private static DefaultHttpClient nonValidatingClient;
-	private static DefaultHttpClient validatingClient;
-
-	private DefaultHttpClient client;
-	private KrollProxy proxy;
+	private HttpURLConnection client;
+	private HTTPClientProxy proxy;
 	private int readyState;
 	private String responseText;
 	private DocumentProxy responseXml;
 	private int status;
 	private String statusText;
 	private boolean connected;
-	private HttpRequest request;
-	private HttpResponse response;
 	private String method;
-	private HttpHost host;
-	private LocalResponseHandler handler;
-	private Credentials credentials;
 	private TiBlob responseData;
 	private OutputStream responseOut;
 	private String charset;
 	private String contentType;
+	private String contentEncoding;
 	private long maxBufferSize;
-	private ArrayList<NameValuePair> nvPairs;
-	private HashMap<String, ContentBody> parts;
 	private Object data;
 	private boolean needMultipart;
 	private Thread clientThread;
@@ -159,293 +126,269 @@ public class TiHTTPClient
 	private boolean autoRedirect = true;
 	private Uri uri;
 	private String url;
+	private URL mURL;
 	private String redirectedLocation;
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
 	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
 	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+	protected SecurityManagerProtocol securityManager;
+	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
-	private static CookieStore cookieStore = NetworkModule.getHTTPCookieStoreInstance();
+	private static CookieManager cookieManager = NetworkModule.getCookieManagerInstance();
 
+	protected HashMap<String, String> requestHeaders = new HashMap<String, String>();
+	private ArrayList<NameValuePair> nvPairs;
+	private HashMap<String, ContentBody> parts;
 
-	protected HashMap<String,String> headers = new HashMap<String,String>();
-	
-	private Hashtable<String, AuthSchemeFactory> customAuthenticators = new Hashtable<String, AuthSchemeFactory>(1);
+	protected Map<String, List<String>> responseHeaders;
 
 	public static final int READY_STATE_UNSENT = 0; // Unsent, open() has not yet been called
 	public static final int READY_STATE_OPENED = 1; // Opened, send() has not yet been called
-	public static final int READY_STATE_HEADERS_RECEIVED = 2; // Headers received, headers have returned and the status is available
+	public static final int READY_STATE_HEADERS_RECEIVED =
+		2; // Headers received, headers have returned and the status is available
 	public static final int READY_STATE_LOADING = 3; // Loading, responseText is being loaded with data
-	public static final int READY_STATE_DONE = 4; // Done, all operations have finished
+	public static final int READY_STATE_DONE = 4;    // Done, all operations have finished
 
-	class RedirectHandler extends DefaultRedirectHandler
+	public static final int REDIRECTS = 5;
+
+	private TiFile responseFile;
+	private boolean hasAuthentication = false;
+	private String username;
+	private String password;
+
+	private boolean requestPending = false;
+
+	private void handleResponse(HttpURLConnection connection) throws IOException
 	{
-		@Override
-		public URI getLocationURI(HttpResponse response, HttpContext context)
-				throws ProtocolException {
-			
-			if (response == null) {
-				throw new IllegalArgumentException("HTTP response may not be null");
-			}
-			// get the location header to find out where to redirect to
-			Header locationHeader = response.getFirstHeader("location");
-			if (locationHeader == null) {
-				// got a redirect response, but no location header
-				throw new ProtocolException("Received redirect response "
-					+ response.getStatusLine() + " but no location header");
-			}
-			
-			// bug #2156: https://appcelerator.lighthouseapp.com/projects/32238/tickets/2156-android-invalid-redirect-alert-on-xhr-file-download
-			// in some cases we have to manually replace spaces in the URI (probably because the HTTP server isn't correctly escaping them)
-			String location = locationHeader.getValue().replaceAll (" ", "%20");
-			response.setHeader("location", location);
-			redirectedLocation = location;
-			
-			return super.getLocationURI(response, context);
-		}
+		connected = true;
 
-		@Override
-		public boolean isRedirectRequested(HttpResponse response, HttpContext context)
-		{
-			if (autoRedirect) {
-				return super.isRedirectRequested(response, context);
+		long contentLength;
+
+		if (connection != null) {
+			TiHTTPClient c = this;
+
+			contentLength = connection.getContentLength();
+
+			// Note on getHeaderFields()
+			// HttpURLConnection include a mapping
+			// for the null key; in HTTP's case, this maps to the HTTP status line and is
+			// treated as being at position 0 when indexing into the header fields.
+			responseHeaders = connection.getHeaderFields();
+			setStatus(connection.getResponseCode());
+			// Send the READY_STATE_HEADERS_RECEIVED state once the headers and the status are read
+			setReadyState(READY_STATE_HEADERS_RECEIVED);
+
+			setStatusText(connection.getResponseMessage());
+			setReadyState(READY_STATE_LOADING);
+
+			if (proxy.hasProperty(TiC.PROPERTY_FILE)) {
+				Object f = c.proxy.getProperty(TiC.PROPERTY_FILE);
+				if (f instanceof String) {
+					String fileName = (String) f;
+					TiBaseFile baseFile = TiFileFactory.createTitaniumFile(fileName, false);
+					if (baseFile instanceof TiFile) {
+						responseFile = (TiFile) baseFile;
+					}
+				} else if (f instanceof TiFileProxy) {
+					TiBaseFile baseFile = ((TiFileProxy) f).getBaseFile();
+					if (baseFile instanceof TiFile) {
+						responseFile = (TiFile) baseFile;
+					}
+				}
+				if (responseFile == null && Log.isDebugModeEnabled()) {
+					Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
+				}
+			}
+
+			// Check for new url that is redirected
+			URL currentLocation = connection.getURL();
+			if (autoRedirect && !mURL.sameFile(currentLocation)) {
+				redirectedLocation = currentLocation.toString();
+			}
+
+			contentEncoding = connection.getContentEncoding();
+
+			contentType = connection.getContentType();
+
+			String charset = "";
+			if (contentType != null) {
+				String[] values = contentType.split(";"); //The values.length must be equal to 2...
+				for (String value : values) {
+					value = value.trim();
+					if (value.toLowerCase().startsWith("charset=")) {
+						charset = value.substring("charset=".length());
+					}
+				}
+			}
+
+			// If no charset is defined, default to UTF-8
+			if (charset.isEmpty()) {
+				charset = "UTF-8";
+			}
+			responseData = null;
+			responseText = null;
+
+			int status = connection.getResponseCode();
+			// Stream holding the server's response
+			InputStream in;
+			// Stream holding the buffered response if there is one
+			InputStream is = null;
+			if (status >= 400) {
+				in = connection.getErrorStream();
 			} else {
-				return false;
+				in = connection.getInputStream();
+			}
+
+			// Guard for null stream response from the server
+			if (in != null) {
+				if ("gzip".equalsIgnoreCase(contentEncoding)) {
+					in = new GZIPInputStream(in);
+				}
+				is = new BufferedInputStream(in);
+			}
+
+			if (is != null) {
+				Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
+				int count = 0;
+				long totalSize = 0;
+				byte[] buf = new byte[8192];
+				Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
+
+				while ((count = is.read(buf)) != -1) {
+					if (aborted) {
+						break;
+					}
+					totalSize += count;
+					try {
+						handleEntityData(buf, count, totalSize, contentLength);
+					} catch (IOException e) {
+						Log.e(TAG, "Error handling entity data", e);
+					}
+				}
+
+				if (totalSize > 0) {
+					finishedReceivingEntityData(totalSize);
+				}
 			}
 		}
 	}
-	
-	class LocalResponseHandler implements ResponseHandler<String>
+
+	private TiFile createFileResponseData(boolean dumpResponseOut) throws IOException
 	{
-		public WeakReference<TiHTTPClient> client;
-		public InputStream is;
-		public HttpEntity entity;
-
-		public LocalResponseHandler(TiHTTPClient client)
-		{
-			this.client = new WeakReference<TiHTTPClient>(client);
-		}
-
-		public String handleResponse(HttpResponse response) throws HttpResponseException, IOException
-		{
-			connected = true;
-			String clientResponse = null;
-			Header contentEncoding = null;
-
-			if (client != null) {
-				TiHTTPClient c = client.get();
-				if (c != null) {
-					c.response = response;
-					c.setReadyState(READY_STATE_HEADERS_RECEIVED);
-					c.setStatus(response.getStatusLine().getStatusCode());
-					c.setStatusText(response.getStatusLine().getReasonPhrase());
-					c.setReadyState(READY_STATE_LOADING);
+		TiFile tiFile = null;
+		File outFile = null;
+		if (responseFile != null) {
+			tiFile = responseFile;
+			outFile = tiFile.getFile();
+			try {
+				responseOut = new FileOutputStream(outFile, dumpResponseOut);
+				// If the response file is in the temp folder, don't delete it during cleanup.
+				TiApplication app = TiApplication.getInstance();
+				if (app != null) {
+					app.getTempFileHelper().excludeFileOnCleanup(outFile);
 				}
-
+			} catch (FileNotFoundException e) {
+				responseFile = null;
+				tiFile = null;
 				if (Log.isDebugModeEnabled()) {
-					try {
-						Log.d(TAG, "Entity Type: " + response.getEntity().getClass());
-						Log.d(TAG, "Entity Content Type: " + response.getEntity().getContentType().getValue());
-						Log.d(TAG, "Entity isChunked: " + response.getEntity().isChunked());
-						Log.d(TAG, "Entity isStreaming: " + response.getEntity().isStreaming());
-					} catch (Throwable t) {
-						// Ignore
-					}
-				}
-
-				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 300) {
-					setResponseText(response.getEntity());
-					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-				}
-
-				entity = response.getEntity();
-				contentEncoding = response.getFirstHeader("Content-Encoding");
-				if (entity != null) {
-					if (entity.getContentType() != null) {
-						contentType = entity.getContentType().getValue();
-					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
-						is = new GZIPInputStream(entity.getContent());
-					} else {
-						is = entity.getContent();
-					}
-					charset = EntityUtils.getContentCharSet(entity);
-				} else {
-					is = null;
-				}
-
-				responseData = null;
-
-				if (is != null) {
-					long contentLength = entity.getContentLength();
-					Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
-					int count = 0;
-					long totalSize = 0;
-					byte[] buf = new byte[4096];
-					Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
-
-					if (entity != null) {
-						charset = EntityUtils.getContentCharSet(entity);
-					}
-					while((count = is.read(buf)) != -1) {
-						totalSize += count;
-						try {
-							handleEntityData(buf, count, totalSize, contentLength);
-						} catch (IOException e) {
-							Log.e(TAG, "Error handling entity data", e);
-
-							// TODO
-							//Context.throwAsScriptRuntimeEx(e);
-						}
-					}
-					if (entity != null) {
-						try {
-							entity.consumeContent();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					if (totalSize > 0) {
-						finishedReceivingEntityData(totalSize);
-					}
+					Log.e(
+						TAG,
+						"Unable to create / write to the response file. Will write the response data to the internal data directory.");
 				}
 			}
-			return clientResponse;
 		}
 
-		private TiFile createFileResponseData(boolean dumpResponseOut) throws IOException
-		{
-			File outFile;
+		if (tiFile == null) {
 			TiApplication app = TiApplication.getInstance();
 			if (app != null) {
-				TiTempFileHelper helper = app.getTempFileHelper();
-				outFile = helper.createTempFile("tihttp", "tmp");
+				TiTempFileHelper tempFileHelper = app.getTempFileHelper();
+				outFile = tempFileHelper.createTempFile("tihttp", "tmp");
+				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			}
+		}
+
+		if (dumpResponseOut) {
+			ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
+			tiFile.write(TiBlob.blobFromData(byteStream.toByteArray()), false);
+		}
+		responseOut = new FileOutputStream(outFile, dumpResponseOut);
+		responseData = TiBlob.blobFromFile(tiFile, contentType);
+		return tiFile;
+	}
+
+	private void createFileFromBlob(TiBlob blob, File file) throws FileNotFoundException, IOException
+	{
+		BufferedInputStream bufferedInput = new BufferedInputStream(blob.getInputStream());
+		BufferedOutputStream bufferedOutput = new BufferedOutputStream(new FileOutputStream(file));
+
+		byte[] buffer = new byte[1024 * 1024 * 8]; // 8MB buffer
+		int available = -1;
+		while ((available = bufferedInput.read(buffer)) > 0) {
+			bufferedOutput.write(buffer, 0, available);
+		}
+
+		bufferedOutput.flush();
+		bufferedOutput.close();
+		bufferedInput.close();
+	}
+
+	private void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
+	{
+		if (responseOut == null) {
+			if (responseFile != null) {
+				createFileResponseData(false);
+			} else if (contentLength > maxBufferSize) {
+				createFileResponseData(false);
 			} else {
-				outFile = File.createTempFile("tihttp", "tmp");
-			}
-
-			TiFile tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
-			if (dumpResponseOut) {
-				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
-				tiFile.write(TiBlob.blobFromData(byteStream.toByteArray()), false);
-			}
-
-			responseOut = new FileOutputStream(outFile, dumpResponseOut);
-			responseData = TiBlob.blobFromFile(tiFile, contentType);
-			return tiFile;
-		}
-		
-		private void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
-		{
-			if (responseOut == null) {
-				if (contentLength > maxBufferSize) {
-					createFileResponseData(false);
-				} else {
-					long streamSize = contentLength > 0 ? contentLength : 512;
-					responseOut = new ByteArrayOutputStream((int)streamSize);
-				}
-			}
-			if (totalSize > maxBufferSize && responseOut instanceof ByteArrayOutputStream) {
-				// Content length may not have been reported, dump the current stream
-				// to a file and re-open as a FileOutputStream w/ append
-				createFileResponseData(true);
-			}
-			
-			responseOut.write(data, 0, size);
-
-			KrollDict callbackData = new KrollDict();
-			callbackData.put("totalCount", contentLength);
-			callbackData.put("totalSize", totalSize);
-			callbackData.put("size", size);
-
-			byte[] blobData = new byte[size];
-			System.arraycopy(data, 0, blobData, 0, size);
-
-			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
-			callbackData.put("blob", blob);
-			callbackData.put("progress", ((double)totalSize)/((double)contentLength));
-
-			dispatchCallback("ondatastream", callbackData);
-		}
-		
-		private void finishedReceivingEntityData(long contentLength) throws IOException
-		{
-			if (responseOut instanceof ByteArrayOutputStream) {
-				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
-				responseData = TiBlob.blobFromData(byteStream.toByteArray(), contentType);
-			}
-			responseOut.close();
-			responseOut = null;
-		}
-
-		private void setResponseText(HttpEntity entity) throws IOException, ParseException
-		{
-			if (entity != null) {
-				responseText = EntityUtils.toString(entity);
+				long streamSize = contentLength > 0 ? contentLength : 512;
+				responseOut = new ByteArrayOutputStream((int) streamSize);
 			}
 		}
+		if (totalSize > maxBufferSize && responseOut instanceof ByteArrayOutputStream) {
+			// Content length may not have been reported, dump the current stream
+			// to a file and re-open as a FileOutputStream w/ append
+			createFileResponseData(true);
+		}
+
+		responseOut.write(data, 0, size);
+
+		KrollDict callbackData = new KrollDict();
+		callbackData.put("totalCount", contentLength);
+		callbackData.put("totalSize", totalSize);
+		callbackData.put(TiC.PROPERTY_SIZE, size);
+
+		// return progress as -1 if it is outside the valid range
+		double progress = ((double) totalSize) / ((double) contentLength);
+		if (progress > 1 || progress < 0) {
+			progress = NetworkModule.PROGRESS_UNKNOWN;
+		}
+		callbackData.put("progress", progress);
+
+		dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
 	}
 
-	private interface ProgressListener
+	private void finishedReceivingEntityData(long contentLength) throws IOException
 	{
+		if (responseOut == null) {
+			return;
+		}
+
+		responseOut.flush();
+		if (responseOut instanceof ByteArrayOutputStream) {
+			ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
+			responseData = TiBlob.blobFromData(byteStream.toByteArray(), contentType);
+		} else if (responseOut instanceof FileOutputStream) {
+			FileDescriptor fileDescriptor = ((FileOutputStream) responseOut).getFD();
+			if (fileDescriptor != null) {
+				fileDescriptor.sync();
+			}
+		}
+		responseOut.close();
+		responseOut = null;
+	}
+
+	private interface ProgressListener {
 		public void progress(int progress);
-	}
-
-	private class ProgressEntity implements HttpEntity
-	{
-		private HttpEntity delegate;
-		private ProgressListener listener;
-		public ProgressEntity(HttpEntity delegate, ProgressListener listener)
-		{
-			this.delegate = delegate;
-			this.listener = listener;
-		}
-
-		public void consumeContent() throws IOException
-		{
-			delegate.consumeContent();
-		}
-
-		public InputStream getContent() throws IOException, IllegalStateException
-		{
-			return delegate.getContent();
-		}
-
-		public Header getContentEncoding()
-		{
-			return delegate.getContentEncoding();
-		}
-
-		public long getContentLength()
-		{
-			return delegate.getContentLength();
-		}
-
-		public Header getContentType()
-		{
-			return delegate.getContentType();
-		}
-
-		public boolean isChunked()
-		{
-			return delegate.isChunked();
-		}
-
-		public boolean isRepeatable()
-		{
-			return delegate.isRepeatable();
-		}
-
-		public boolean isStreaming()
-		{
-			return delegate.isStreaming();
-		}
-
-		public void writeTo(OutputStream stream) throws IOException
-		{
-			OutputStream progressOut = new ProgressOutputStream(stream, listener);
-			delegate.writeTo(progressOut);
-		}
 	}
 
 	private class ProgressOutputStream extends FilterOutputStream
@@ -472,7 +415,7 @@ public class TiHTTPClient
 		public void write(int b) throws IOException
 		{
 			//Donot write if request is aborted
-			if (!aborted) {	
+			if (!aborted) {
 				super.write(b);
 				transferred++;
 				fireProgress();
@@ -480,27 +423,24 @@ public class TiHTTPClient
 		}
 	}
 
-	public TiHTTPClient(KrollProxy proxy)
+	public TiHTTPClient(HTTPClientProxy proxy)
 	{
 		this.proxy = proxy;
-		this.client = getClient(false);
-
 		if (httpClientThreadCounter == null) {
 			httpClientThreadCounter = new AtomicInteger();
 		}
 		readyState = 0;
-		responseText = "";
-		credentials = null;
 		connected = false;
 		this.nvPairs = new ArrayList<NameValuePair>();
-		this.parts = new HashMap<String,ContentBody>();
-		this.maxBufferSize = TiApplication.getInstance()
-				.getAppProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+		this.parts = new HashMap<String, ContentBody>();
+		this.maxBufferSize =
+			TiApplication.getInstance().getAppProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
 	}
 
 	public int getReadyState()
 	{
-		synchronized(this) {
+		synchronized (this)
+		{
 			this.notify();
 		}
 		return readyState;
@@ -512,34 +452,42 @@ public class TiHTTPClient
 			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
 
 		} else {
-			if (TiApplication.getInstance().getDeployType().equals(
-					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
+			if (TiApplication.getInstance().getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
+	/*
 	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
 	{
 		customAuthenticators.put(scheme, theFactory);
 	}
+	*/
 
 	public void setReadyState(int readyState)
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
-
-		dispatchCallback("onreadystatechange", null);
+		KrollDict data = new KrollDict();
+		data.put("readyState", Integer.valueOf(readyState));
+		dispatchCallback(TiC.PROPERTY_ONREADYSTATECHANGE, data);
 
 		if (readyState == READY_STATE_DONE) {
-			KrollDict data = new KrollDict();
-			data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-			dispatchCallback("onload", data);
+			KrollDict data1 = new KrollDict();
+			if (getStatus() >= 400) {
+				data1.putCodeAndMessage(getStatus(), getStatus() + " : " + getStatusText());
+				dispatchCallback(TiC.PROPERTY_ONERROR, data1);
+			} else {
+				data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+				dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
+			}
 		}
 	}
 
-	private String decodeResponseData(String charsetName) {
+	private String decodeResponseData(String charsetName)
+	{
 		Charset charset;
 		try {
 			charset = Charset.forName(charsetName);
@@ -549,8 +497,18 @@ public class TiHTTPClient
 			return null;
 		}
 
+		byte[] byteBuffer = null;
+		if (responseData != null) {
+			byteBuffer = responseData.getBytes();
+		} else if (responseOut instanceof ByteArrayOutputStream) {
+			byteBuffer = ((ByteArrayOutputStream) responseOut).toByteArray();
+		}
+		if (byteBuffer == null) {
+			return null;
+		}
+
 		CharsetDecoder decoder = charset.newDecoder();
-		ByteBuffer in = ByteBuffer.wrap(responseData.getBytes());
+		ByteBuffer in = ByteBuffer.wrap(byteBuffer);
 
 		try {
 			CharBuffer decodedText = decoder.decode(in);
@@ -571,7 +529,8 @@ public class TiHTTPClient
 	 *
 	 * @return The name of the encoding if detected, otherwise null if no encoding could be determined.
 	 */
-	private String detectResponseDataEncoding() {
+	private String detectResponseDataEncoding()
+	{
 		String regex;
 		if (contentType == null) {
 			Log.w(TAG, "Could not detect charset, no content type specified.", Log.DEBUG_MODE);
@@ -588,65 +547,101 @@ public class TiHTTPClient
 			return null;
 		}
 
-		CharSequence responseSequence = responseData.toString();
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(responseSequence);
-		if (matcher.find()) {
-			return matcher.group(1);
+		CharSequence responseSequence = null;
+		if (responseData != null) {
+			responseSequence = responseData.toString();
+		} else if (responseOut instanceof ByteArrayOutputStream) {
+			responseSequence = responseOut.toString();
 		}
-
+		if (responseSequence != null) {
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(responseSequence);
+			if (matcher.find()) {
+				return matcher.group(1);
+			}
+		}
 		return null;
 	}
 
 	public String getResponseText()
 	{
-		if (responseText != null || responseData == null) {
-			return responseText;
+		// If we've already transcoded the response text below, then return it now.
+		if (this.responseText != null) {
+			return this.responseText;
 		}
 
 		// First try decoding the response data using the charset
 		// specified in the response content-type header.
-		if (charset != null) {
-			responseText = decodeResponseData(charset);
-			if (responseText != null) {
-				return responseText;
-			}
+		String text = null;
+		if (this.charset != null) {
+			text = decodeResponseData(this.charset);
 		}
 
 		// If the first attempt to decode fails try detecting the correct
 		// charset by scanning the response data.
-		String detectedCharset = detectResponseDataEncoding();
-		if (detectedCharset != null) {
-			Log.d(TAG, "detected charset: " + detectedCharset, Log.DEBUG_MODE);
-			responseText = decodeResponseData(detectedCharset);
-			if (responseText != null) {
-				charset = detectedCharset;
-				return responseText;
+		if (text == null) {
+			String detectedCharset = detectResponseDataEncoding();
+			if (detectedCharset != null) {
+				Log.d(TAG, "detected charset: " + detectedCharset, Log.DEBUG_MODE);
+				text = decodeResponseData(detectedCharset);
+				if (text != null) {
+					this.charset = detectedCharset;
+				}
 			}
 		}
 
 		// As a last resort try our fallback charsets to decode the data.
-		for (String charset : FALLBACK_CHARSETS) {
-			responseText = decodeResponseData(charset);
-			if (responseText != null) {
-				return responseText;
+		if (text == null) {
+			for (String charset : FALLBACK_CHARSETS) {
+				text = decodeResponseData(charset);
+				if (text != null) {
+					this.charset = charset;
+					break;
+				}
 			}
 		}
 
-		Log.e(TAG, "Could not decode response text.");
-		return responseText;
+		// Log an error if we've failed to transcode the response above.
+		if (text == null) {
+			Log.e(TAG, "Could not decode response text.");
+			text = "";
+		}
+
+		// Store the response text for quick access later, but only if we've finished receiving the response.
+		if (this.responseOut == null) {
+			this.responseText = text;
+		}
+
+		// Return the transcoded response text.
+		return text;
 	}
 
 	public TiBlob getResponseData()
 	{
-		return responseData;
+		TiBlob blob = this.responseData;
+		if (blob == null) {
+			if (this.responseOut instanceof ByteArrayOutputStream) {
+				blob = TiBlob.blobFromData(((ByteArrayOutputStream) this.responseOut).toByteArray());
+			} else if (this.responseText != null) {
+				blob = TiBlob.blobFromString(this.responseText);
+			}
+		}
+		return blob;
+	}
+
+	public KrollDict getResponseDict()
+	{
+		try {
+			return new KrollDict(new JSONObject(getResponseText()));
+		} catch (Exception e) {
+		}
+		return null;
 	}
 
 	public DocumentProxy getResponseXML()
 	{
 		// avoid eating up tons of memory if we have a large binary data blob
-		if (TiMimeTypeHelper.isBinaryMimeType(contentType))
-		{
+		if (TiMimeTypeHelper.isBinaryMimeType(contentType)) {
 			return null;
 		}
 
@@ -682,17 +677,17 @@ public class TiHTTPClient
 		return status;
 	}
 
-	public  void setStatus(int status)
+	public void setStatus(int status)
 	{
 		this.status = status;
 	}
 
-	public  String getStatusText()
+	public String getStatusText()
 	{
 		return statusText;
 	}
 
-	public  void setStatusText(String statusText)
+	public void setStatusText(String statusText)
 	{
 		this.statusText = statusText;
 	}
@@ -701,14 +696,13 @@ public class TiHTTPClient
 	{
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
-			if (client != null) {
-				client.getConnectionManager().shutdown();
-				client = null;
+
+			try {
+				if (client != null) {
+					client.disconnect();
+				}
+			} catch (Exception ex) {
 			}
-			if (validatingClient != null)
-				validatingClient = null;
-			if (nonValidatingClient != null)
-				nonValidatingClient = null;
 
 			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
@@ -719,75 +713,93 @@ public class TiHTTPClient
 	public String getAllResponseHeaders()
 	{
 		String result = "";
-		if (readyState >= READY_STATE_HEADERS_RECEIVED && response != null)
-		{
-			StringBuilder sb = new StringBuilder(1024);
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
+			StringBuilder sb = new StringBuilder(256);
+			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
 
-			Header[] headers = response.getAllHeaders();
-			int len = headers.length;
-			for(int i = 0; i < len; i++) {
-				Header h = headers[i];
-				sb.append(h.getName()).append(":").append(h.getValue()).append("\n");
+			for (Map.Entry<String, List<String>> entry : entrySet) {
+				String headerName = entry.getKey();
+				sb.append(headerName).append(":");
+				List<String> headerValues = entry.getValue();
+				for (String value : headerValues) {
+					sb.append(value).append("\n");
+				}
 			}
 			result = sb.toString();
-
-		} else {
-			// Spec says return "";
 		}
-
 		return result;
 	}
 
 	public void clearCookies(String url)
 	{
-		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
-		client.getCookieStore().clear();
+		List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieManager.getCookieStore().getCookies());
+		cookieManager.getCookieStore().removeAll();
 		String lower_url = url.toLowerCase();
 
-		for (Cookie cookie : cookies) {
-			if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
-				client.getCookieStore().addCookie(cookie);
+		for (HttpCookie cookie : cookies) {
+			String cookieDomain = cookie.getDomain();
+			if (!lower_url.contains(cookieDomain.toLowerCase())) {
+				URI uriDomain;
+				try {
+					uriDomain = new URI(cookieDomain);
+				} catch (URISyntaxException e) {
+					uriDomain = null;
+				}
+				cookieManager.getCookieStore().add(uriDomain, cookie);
 			}
-		} 
+		}
 	}
-	
+
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState <= READY_STATE_OPENED) {
-			headers.put(header, value);
+			if (value == null) {
+				// If value is null, remove header
+				requestHeaders.remove(header);
+			} else {
+				if (requestHeaders.containsKey(header)) {
+					// Appends a value to a header
+					// If it is a cookie, use ';'. If not, use ','.
+					String separator = ("Cookie".equalsIgnoreCase(header)) ? "; " : ", ";
+					StringBuffer val = new StringBuffer(requestHeaders.get(header));
+					val.append(separator + value);
+					requestHeaders.put(header, val.toString());
+				} else {
+					// Set header for the first time
+					requestHeaders.put(header, value);
+				}
+			}
 
 		} else {
 			throw new IllegalStateException("setRequestHeader can only be called before invoking send.");
 		}
 	}
 
-	public String getResponseHeader(String headerName)
+	public String getResponseHeader(String getHeaderName)
 	{
 		String result = "";
-
-		if (readyState > READY_STATE_OPENED) {
-			String delimiter = "";
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
 			boolean firstPass = true;
-
-			// headers will be an empty array if none can be found
-			Header[] headers = response.getHeaders(headerName);
-			for (Header header : headers)
-			{
-				if (!firstPass)
-				{
-					delimiter = ", ";
+			StringBuilder sb = new StringBuilder(256);
+			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
+			for (Map.Entry<String, List<String>> entry : entrySet) {
+				String headerName = entry.getKey();
+				if (headerName != null && headerName.equalsIgnoreCase(getHeaderName)) {
+					List<String> headerValues = entry.getValue();
+					for (String value : headerValues) {
+						if (!firstPass) {
+							sb.append(", ");
+						}
+						sb.append(value);
+						firstPass = false;
+					}
 				}
-				result += delimiter + header.getValue();
-				firstPass = false;
 			}
+			result = sb.toString();
+		}
 
-			if (headers.length == 0)
-			{
-				Log.w(TAG, "No value for response header: " + headerName, Log.DEBUG_MODE);
-			}
-
-		} else {
-			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
+		if (result.length() == 0) {
+			Log.w(TAG, "No value for response header: " + getHeaderName, Log.DEBUG_MODE);
 		}
 
 		return result;
@@ -795,15 +807,19 @@ public class TiHTTPClient
 
 	public void open(String method, String url)
 	{
+		if (requestPending) {
+			Log.w(TAG, "open cancelled, a request is already pending for response.");
+			return;
+		}
+
 		Log.d(TAG, "open request method=" + method + " url=" + url, Log.DEBUG_MODE);
 
-		if (url == null)
-		{
+		if (url == null) {
 			Log.e(TAG, "Unable to open a null URL");
 			throw new IllegalArgumentException("URL cannot be null");
 		}
 
-		// if the url is not prepended with either http or 
+		// if the url is not prepended with either http or
 		// https, then default to http and prepend the protocol
 		// to the url
 		String lowerCaseUrl = url.toLowerCase();
@@ -820,7 +836,7 @@ public class TiHTTPClient
 
 		// If the original url does not contain any
 		// escaped query string (i.e., does not look
-		// pre-encoded), go ahead and reset it to the 
+		// pre-encoded), go ahead and reset it to the
 		// clean uri. Else keep it as is so the user's
 		// escaping stays in effect.  The users are on their own
 		// at that point.
@@ -863,36 +879,24 @@ public class TiHTTPClient
 			port = uri.getPort();
 		}
 
-		Log.d(
-			TAG,
-			"Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'",
-			Log.DEBUG_MODE);
+		Log.d(TAG,
+			  "Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme()
+				  + "'",
+			  Log.DEBUG_MODE);
 
-		host = new HttpHost(hostString, port, uri.getScheme());
-		if (uri.getUserInfo() != null) {
-			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
+		username = proxy.getUsername();
+		password = proxy.getPassword();
+
+		if ((username != null) && (password != null)) {
+			hasAuthentication = true;
 		}
-		if (credentials == null) {
-			String userName = ((HTTPClientProxy)proxy).getUsername();
-			String password = ((HTTPClientProxy)proxy).getPassword();
-			String domain = ((HTTPClientProxy)proxy).getDomain();
-			if (domain != null) {
-				password = (password == null)?"":password;
-				credentials = new NTCredentials(userName, password, TiPlatformHelper.getMobileId(), domain);
-			}
-			else {
-				if (userName != null) {
-					password = (password == null)?"":password;
-					credentials = new UsernamePasswordCredentials(userName, password);
-				}
-			}
-		}
+
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
 		if (!hostString.contains("twitter.com")) {
-			setRequestHeader("X-Requested-With","XMLHttpRequest");
+			setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 		} else {
 			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
@@ -904,30 +908,25 @@ public class TiHTTPClient
 		this.data = data;
 	}
 
-	public void addPostData(String name, String value)
+	public void addPostData(String name, String value) throws UnsupportedEncodingException
 	{
 		if (value == null) {
 			value = "";
 		}
-		try {
-			if (needMultipart) {
-				// JGH NOTE: this seems to be a bug in RoR where it would puke if you 
-				// send a content-type of text/plain for key/value pairs in form-data
-				// so we send an empty string by default instead which will cause the
-				// StringBody to not include the content-type header. this should be
-				// harmless for all other cases
-				parts.put(name, new StringBody(value,"",null));
-
-			} else {
-				nvPairs.add(new BasicNameValuePair(name, value.toString()));
-			}
-
-		} catch (UnsupportedEncodingException e) {
-			nvPairs.add(new BasicNameValuePair(name, value.toString()));
+		if (needMultipart) {
+			// JGH NOTE: this seems to be a bug in RoR where it would puke if you
+			// send a content-type of text/plain for key/value pairs in form-data
+			// so we send an empty string by default instead which will cause the
+			// StringBody to not include the content-type header. this should be
+			// harmless for all other cases
+			parts.put(name, new StringBody(value, "", null));
+		} else {
+			nvPairs.add(new NameValuePair(name, value.toString()));
 		}
 	}
 
-	private void dispatchCallback(String name, KrollDict data) {
+	private void dispatchCallback(String name, KrollDict data)
+	{
 		if (data == null) {
 			data = new KrollDict();
 		}
@@ -946,9 +945,10 @@ public class TiHTTPClient
 			// contents to a temp file, then use that for the FileBody.
 			if (value instanceof TiBaseFile && !(value instanceof TiResourceFile)) {
 				TiBaseFile baseFile = (TiBaseFile) value;
-				FileBody body = new FileBody(baseFile.getNativeFile(), TiMimeTypeHelper.getMimeType(baseFile.nativePath()));
+				FileBody body =
+					new FileBody(baseFile.getNativeFile(), TiMimeTypeHelper.getMimeType(baseFile.nativePath()));
 				parts.put(name, body);
-				return (int)baseFile.getNativeFile().length();
+				return (int) baseFile.getNativeFile().length();
 
 			} else if (value instanceof TiBlob || value instanceof TiResourceFile) {
 				TiBlob blob;
@@ -958,17 +958,21 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				FileOutputStream fos = new FileOutputStream(tmpFile);
-				fos.write(blob.getBytes());
-				fos.close();
+				File tmpFile =
+					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
 
 				FileBody body = new FileBody(tmpFile, mimeType);
 				parts.put(name, body);
-				return blob.getLength();
-
+				return (int) tmpFile.length();
+			} else if (value instanceof HashMap) {
+				// If value is a HashMap, it is actually a JSON
+				JSONObject jsonObject = TiConvert.toJSON((HashMap<String, Object>) value);
+				JsonBody jsonBody = new JsonBody(jsonObject, null);
+				parts.put(name, jsonBody);
+				return (int) jsonBody.getContentLength();
 			} else {
 				if (value != null) {
 					Log.e(TAG, name + " is a " + value.getClass().getSimpleName());
@@ -979,11 +983,81 @@ public class TiHTTPClient
 			}
 
 		} catch (IOException e) {
-			Log.e(TAG, "Error adding post data ("+name+"): " + e.getMessage());
+			Log.e(TAG, "Error adding post data (" + name + "): " + e.getMessage());
 		}
 		return 0;
 	}
-	
+
+	private void setUpSSL(boolean validating, HttpsURLConnection securedConnection)
+	{
+		SSLSocketFactory sslSocketFactory = null;
+
+		if (this.securityManager != null) {
+			if (this.securityManager.willHandleURL(this.uri)) {
+				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers(this.proxy);
+				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers(this.proxy);
+
+				try {
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
+				} catch (Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			}
+		}
+		if (sslSocketFactory == null) {
+			if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+				TrustManager[] trustManagerArray = null;
+				KeyManager[] keyManagerArray = null;
+
+				if (trustManagers.size() > 0) {
+					trustManagerArray = new X509TrustManager[trustManagers.size()];
+					trustManagerArray = trustManagers.toArray(trustManagerArray);
+				}
+
+				if (keyManagers.size() > 0) {
+					keyManagerArray = new X509KeyManager[keyManagers.size()];
+					keyManagerArray = keyManagers.toArray(keyManagerArray);
+				}
+
+				try {
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
+				} catch (Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			} else if (!validating) {
+				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+				try {
+					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
+				} catch (Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			} else {
+				try {
+					sslSocketFactory = new TiSocketFactory(null, null, tlsVersion);
+				} catch (Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			}
+		}
+
+		if (sslSocketFactory != null) {
+			securedConnection.setSSLSocketFactory(sslSocketFactory);
+		} else if (!validating) {
+			securedConnection.setSSLSocketFactory(new NonValidatingSSLSocketFactory());
+		}
+
+		if (!validating) {
+			securedConnection.setHostnameVerifier(new NullHostNameVerifier());
+		}
+		// Fortunately, HttpsURLConnection supports SNI since Android 2.3.
+		// We don't have to handle SNI explicitly
+		// https://developer.android.com/training/articles/security-ssl.html
+	}
+
 	private Object titaniumFileAsPutData(Object value)
 	{
 		if (value instanceof TiBaseFile && !(value instanceof TiResourceFile)) {
@@ -998,11 +1072,10 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				FileOutputStream fos = new FileOutputStream(tmpFile);
-				fos.write(blob.getBytes());
-				fos.close();
-		
+				File tmpFile =
+					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				createFileFromBlob(blob, tmpFile);
+
 				tmpFiles.add(tmpFile);
 				return new FileEntity(tmpFile, mimeType);
 			} catch (IOException e) {
@@ -1012,106 +1085,31 @@ public class TiHTTPClient
 		return value;
 	}
 
-	protected DefaultHttpClient createClient()
+	public void send(Object userData) throws UnsupportedEncodingException
 	{
-		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 
-		HttpParams params = new BasicHttpParams();
-		ConnManagerParams.setMaxTotalConnections(params, 5);
-		ConnPerRouteBean connPerRoute = new ConnPerRouteBean(5);
-		ConnManagerParams.setMaxConnectionsPerRoute(params, connPerRoute);
-
-		HttpProtocolParams.setUseExpectContinue(params, false);
-		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-		
-		DefaultHttpClient httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
-		httpClient.setCookieStore(cookieStore);
-
-		return httpClient;
-	}
-
-	protected DefaultHttpClient getClient(boolean validating)
-	{
-		SSLSocketFactory sslSocketFactory = null;
-		if (trustManagers.size() > 0 || keyManagers.size() > 0) {
-			TrustManager[] trustManagerArray = null;
-			KeyManager[] keyManagerArray = null;
-			
-			if (trustManagers.size() > 0) {
-				trustManagerArray = new X509TrustManager[trustManagers.size()];
-				trustManagerArray = trustManagers.toArray(trustManagerArray);
-			}
-			
-			if (keyManagers.size() > 0) {
-				keyManagerArray = new X509KeyManager[keyManagers.size()];
-				keyManagerArray = keyManagers.toArray(keyManagerArray);
-			}
-			
-			try {
-				sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
-			} catch(Exception e) {
-				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-				sslSocketFactory = null;
-			}
+		if (requestPending) {
+			Log.w(TAG, "send cancelled, a request is already pending for response.");
+			return;
 		}
-		else if (!validating) {
-			TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-			try {
-				sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
-			} catch(Exception e) {
-				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-				sslSocketFactory = null;
-			}
-		}
-		
-		if (validating) {
-			if (validatingClient == null) {
-				validatingClient = createClient();
-			}
-			if (sslSocketFactory != null) {
-				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
-			}
-			else {
-				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-			}
-			return validatingClient;
-		}
-		else {
-			if (nonValidatingClient == null) {
-				nonValidatingClient = createClient();
-			}
-			if (sslSocketFactory != null) {
-				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
-			}
-			else {
-				//This should not happen but keeping it in place something breaks
-				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
-			}
-			return nonValidatingClient;
-		}
-	}
-
-	public void send(Object userData) throws MethodNotSupportedException
-	{
+		requestPending = true;
 		aborted = false;
 
 		// TODO consider using task manager
 		int totalLength = 0;
 		needMultipart = false;
-		
-		if (userData != null)
-		{
+
+		if (userData != null) {
 			if (userData instanceof HashMap) {
 				HashMap<String, Object> data = (HashMap) userData;
-				boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
-				boolean isGet = !isPostOrPut && method.equals("GET");
+				boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
+				boolean isGet = !isPostOrPutOrPatch && method.equals("GET");
 
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 
-					if(value != null) {
+					if (value != null) {
 						// if the value is a proxy, we need to get the actual file object
 						if (value instanceof TiFileProxy) {
 							value = ((TiFileProxy) value).getBaseFile();
@@ -1127,13 +1125,13 @@ public class TiHTTPClient
 				boolean queryStringAltered = false;
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
-					if (isPostOrPut && (value != null)) {
+					if (isPostOrPutOrPatch && (value != null)) {
 						// if the value is a proxy, we need to get the actual file object
 						if (value instanceof TiFileProxy) {
 							value = ((TiFileProxy) value).getBaseFile();
 						}
 
-						if (value instanceof TiBaseFile || value instanceof TiBlob) {
+						if (value instanceof TiBaseFile || value instanceof TiBlob || value instanceof HashMap) {
 							totalLength += addTitaniumFileAsPostData(key, value);
 
 						} else {
@@ -1143,8 +1141,7 @@ public class TiHTTPClient
 						}
 
 					} else if (isGet) {
-						uri = uri.buildUpon().appendQueryParameter(
-							key, TiConvert.toString(value)).build();
+						uri = uri.buildUpon().appendQueryParameter(key, TiConvert.toString(value)).build();
 						queryStringAltered = true;
 					}
 				}
@@ -1152,7 +1149,8 @@ public class TiHTTPClient
 				if (queryStringAltered) {
 					this.url = uri.toString();
 				}
-			} else if (userData instanceof TiFileProxy || userData instanceof TiBaseFile || userData instanceof TiBlob) {
+			} else if (userData instanceof TiFileProxy || userData instanceof TiBaseFile
+					   || userData instanceof TiBlob) {
 				Object value = userData;
 				if (value instanceof TiFileProxy) {
 					value = ((TiFileProxy) value).getBaseFile();
@@ -1170,26 +1168,27 @@ public class TiHTTPClient
 		Log.d(TAG, "Instantiating http request with method='" + method + "' and this url:", Log.DEBUG_MODE);
 		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
-		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
-		request.setHeader(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
-		for (String header : headers.keySet()) {
-			request.setHeader(header, headers.get(header));
-		}
-
-		clientThread = new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
+		clientThread =
+			new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
 
 		Log.d(TAG, "Leaving send()", Log.DEBUG_MODE);
 	}
-	
+
 	private class ClientRunnable implements Runnable
 	{
 		private final int totalLength;
+		private int contentLength;
+		private PrintWriter printWriter;
+		private OutputStream outputStream;
+		private String boundary;
+		private static final String LINE_FEED = "\r\n";
 
 		public ClientRunnable(int totalLength)
 		{
 			this.totalLength = totalLength;
+			this.contentLength = 0;
 		}
 
 		public void run()
@@ -1197,116 +1196,183 @@ public class TiHTTPClient
 			try {
 				Thread.sleep(10);
 				Log.d(TAG, "send()", Log.DEBUG_MODE);
-
-				handler = new LocalResponseHandler(TiHTTPClient.this);
-
 				//If there are any custom authentication factories registered with the client add them here
+				/*
 				Enumeration<String> authSchemes = customAuthenticators.keys();
 				while (authSchemes.hasMoreElements()) {
 					String scheme = authSchemes.nextElement();
 					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
 				}
-
-				// lazy get client each time in case the validatesSecureCertificate() changes
-				client = getClient(validatesSecureCertificate());
-				if (credentials != null) {
-					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
-					credentials = null;
-				}
-				client.setRedirectHandler(new RedirectHandler());
-				if(request instanceof BasicHttpEntityEnclosingRequest) {
-
-					UrlEncodedFormEntity form = null;
-					MultipartEntity mpe = null;
-
-					if (nvPairs.size() > 0) {
-						try {
-							form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
-
-						} catch (UnsupportedEncodingException e) {
-							Log.e(TAG, "Unsupported encoding: ", e);
-						}
-					}
-
-					if (parts.size() > 0 && needMultipart) {
-						mpe = new MultipartEntity();
-						for(String name : parts.keySet()) {
-							Log.d(TAG, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: "
-								+ parts.get(name).getContentLength(), Log.DEBUG_MODE);
-							mpe.addPart(name, parts.get(name));
-						}
-
-						if (form != null) {
-							try {
-								ByteArrayOutputStream bos = new ByteArrayOutputStream((int) form.getContentLength());
-								form.writeTo(bos);
-								mpe.addPart("form", new StringBody(bos.toString(), "application/x-www-form-urlencoded", Charset.forName("UTF-8")));
-
-							} catch (UnsupportedEncodingException e) {
-								Log.e(TAG, "Unsupported encoding: ", e);
-
-							} catch (IOException e) {
-								Log.e(TAG, "Error converting form to string: ", e);
-							}
-						}
-
-						HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
-
-						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
-							public void progress(int progress) {
-								KrollDict data = new KrollDict();
-								data.put("progress", ((double)progress)/totalLength);
-								dispatchCallback("onsendstream", data);
-							}
-						});
-						e.setEntity(progressEntity);
-
-						e.addHeader("Length", totalLength+"");
-
-					} else {
-						handleURLEncodedData(form);
-					}
-
-					//Remove Content-Length header if entity is set since setEntity implicitly sets Content-Length
-					HttpEntityEnclosingRequest enclosingEntity = (HttpEntityEnclosingRequest) request;
-					if (enclosingEntity.getEntity() != null) {
-						request.removeHeaders("Content-Length");
-					}
-				}
-
-				// set request specific parameters
-				if (timeout != -1) {
-					HttpConnectionParams.setConnectionTimeout(request.getParams(), timeout);
-					HttpConnectionParams.setSoTimeout(request.getParams(), timeout);
-				}
+				*/
 
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
+
 				try {
-					result = client.execute(host, request, handler);
+					mURL = new URL(url);
+					client = (HttpURLConnection) mURL.openConnection();
+					boolean isPostOrPutOrPatch =
+						method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
+					setUpClient(client, isPostOrPutOrPatch);
+
+					if (isPostOrPutOrPatch) {
+						UrlEncodedFormEntity form = null;
+
+						if (nvPairs.size() > 0) {
+							try {
+								form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
+
+							} catch (UnsupportedEncodingException e) {
+								Log.e(TAG, "Unsupported encoding: ", e);
+							}
+							//clear nvPairs after form entity is created
+							nvPairs.clear();
+						}
+
+						// calculate content length
+						if (parts.size() > 0 && needMultipart) {
+							for (String name : parts.keySet()) {
+								contentLength += constructFilePart(name, parts.get(name)).length();
+								contentLength += parts.get(name).getContentLength() + 2;
+							}
+							if (form != null) {
+								contentLength += (int) form.getContentLength();
+								try {
+									ByteArrayOutputStream bos =
+										new ByteArrayOutputStream((int) form.getContentLength());
+									form.writeTo(bos);
+									contentLength +=
+										constructFilePart("form", new StringBody(bos.toString(),
+																				 "application/x-www-form-urlencoded",
+																				 Charset.forName("UTF-8")))
+											.length();
+									contentLength += form.getContentLength() + 2;
+								} catch (UnsupportedEncodingException e) {
+									Log.e(TAG, "Unsupported encoding: ", e);
+								} catch (IOException e) {
+									Log.e(TAG, "Error converting form to string: ", e);
+								}
+							}
+							contentLength += 6 + boundary.length();
+						} else {
+							if (data instanceof String) {
+								contentLength += ((String) data).getBytes().length;
+							} else if (data instanceof FileEntity) {
+								contentLength += ((FileEntity) data).getContentLength();
+							} else if (form != null) {
+								contentLength += (int) form.getContentLength();
+							}
+						}
+
+						// disable internal buffer
+						client.setFixedLengthStreamingMode(contentLength);
+
+						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
+							public void progress(int progress)
+							{
+								KrollDict data = new KrollDict();
+								double currentProgress = ((double) progress / totalLength);
+								if (currentProgress > 1)
+									currentProgress = 1;
+								data.put("progress", currentProgress);
+								dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
+							}
+						});
+						printWriter = new PrintWriter(outputStream, true);
+
+						if (parts.size() > 0 && needMultipart) {
+
+							for (String name : parts.keySet()) {
+								Log.d(TAG,
+									  "adding part " + name + ", part type: " + parts.get(name).getMimeType()
+										  + ", len: " + parts.get(name).getContentLength(),
+									  Log.DEBUG_MODE);
+								addFilePart(name, parts.get(name));
+							}
+							//clear parts after they have been used
+							parts.clear();
+							if (form != null) {
+								try {
+									ByteArrayOutputStream bos =
+										new ByteArrayOutputStream((int) form.getContentLength());
+									form.writeTo(bos);
+									addFilePart("form",
+												new StringBody(bos.toString(), "application/x-www-form-urlencoded",
+															   Charset.forName("UTF-8")));
+
+								} catch (UnsupportedEncodingException e) {
+									Log.e(TAG, "Unsupported encoding: ", e);
+
+								} catch (IOException e) {
+									Log.e(TAG, "Error converting form to string: ", e);
+								}
+							}
+							completeSendingMultipart();
+						} else {
+							handleURLEncodedData(form);
+						}
+					}
+
+					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
+					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
+					// This section of the code handles that.
+					if (autoRedirect) {
+						// Hardcoded to follow a max of 5 redirects
+						for (int i = 0; i < REDIRECTS; i++) {
+							// Checks manually if a redirect is needed
+							int status = client.getResponseCode();
+
+							if (status != HttpURLConnection.HTTP_OK
+								&& (status == HttpURLConnection.HTTP_MOVED_TEMP
+									|| status == HttpURLConnection.HTTP_MOVED_PERM
+									|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
+								redirectedLocation = client.getHeaderField("Location");
+								if (redirectedLocation != null) {
+									client.disconnect();
+									client = (HttpURLConnection) new URL(redirectedLocation).openConnection();
+									// Configure the headers and SSL connection again if required
+									setUpClient(client, isPostOrPutOrPatch);
+								} else {
+									// There are no redirected URLs to follow.
+									break;
+								}
+							} else {
+								// No more redirects to follow.
+								break;
+							}
+						}
+					}
+					handleResponse(client);
+
 				} catch (IOException e) {
 					if (!aborted) {
-						// Fire the disposehandle event if the exception is not due to aborting the request.
-						// And it will dispose the handle of the httpclient in the JS.
-						proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 						throw e;
+					}
+				} finally {
+					if (client != null) {
+						client.disconnect();
 					}
 				}
 
-				if(result != null) {
+				if (result != null) {
 					Log.d(TAG, "Have result back from request len=" + result.length(), Log.DEBUG_MODE);
 				}
 				connected = false;
 				setResponseText(result);
-				setReadyState(READY_STATE_DONE);
+				requestPending = false;
 
-			} catch(Throwable t) {
+				if (!aborted) {
+					setReadyState(READY_STATE_DONE);
+				}
+
+			} catch (Throwable t) {
 				if (client != null) {
 					Log.d(TAG, "clearing the expired and idle connections", Log.DEBUG_MODE);
-					client.getConnectionManager().closeExpiredConnections();
-					client.getConnectionManager().closeIdleConnections(0, TimeUnit.NANOSECONDS);
-
+					try {
+						client.disconnect();
+					} catch (Exception ex) {
+					}
 				} else {
 					Log.d(TAG, "client is not valid, unable to clear expired and idle connections");
 				}
@@ -1319,17 +1385,140 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				requestPending = false;
 
 				KrollDict data = new KrollDict();
-				data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
-				dispatchCallback("onerror", data);
+				data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
+				dispatchCallback(TiC.PROPERTY_ONERROR, data);
+			} finally {
+				deleteTmpFiles();
+
+				//Clean up client and clientThread
+
+				client = null;
+				clientThread = null;
+				// Fire the disposehandle event if the request is finished successfully or the errors occur.
+				// And it will dispose the handle of the httpclient in the JS.
+				proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
+			}
+		}
+
+		protected void setUpClient(HttpURLConnection client, Boolean isPostOrPutOrPatch) throws ProtocolException
+		{
+			client.setInstanceFollowRedirects(autoRedirect);
+			if (client instanceof HttpsURLConnection) {
+				HttpsURLConnection securedConnection = (HttpsURLConnection) client;
+				setUpSSL(validatesSecureCertificate(), securedConnection);
 			}
 
-			deleteTmpFiles();
+			if (timeout != -1) {
+				client.setReadTimeout(timeout);
+				client.setConnectTimeout(timeout);
+			}
 
-			// Fire the disposehandle event if the request is finished successfully or the errors occur.
-			// And it will dispose the handle of the httpclient in the JS.
-			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
+			if (aborted) {
+				return;
+			}
+
+			client.setRequestMethod(method);
+			client.setDoInput(true);
+
+			if (isPostOrPutOrPatch) {
+				client.setDoOutput(true);
+			}
+			client.setUseCaches(false);
+			//Set Authorization value for Basic authentication
+			if (hasAuthentication) {
+				String domain = proxy.getDomain();
+				if (domain != null) {
+					username = domain + "\\" + username;
+				}
+				String encodedCredentials =
+					Base64.encodeToString((username + ":" + password).getBytes(), Base64.NO_WRAP);
+				client.setRequestProperty("Authorization", "Basic " + encodedCredentials);
+			}
+			// This is to set gzip default to disable
+			// https://code.google.com/p/android/issues/detail?id=174949
+			client.setRequestProperty("Accept-Encoding", "identity");
+			client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
+			if (parts.size() > 0 && needMultipart) {
+				boundary = HttpUrlConnectionUtils.generateBoundary();
+				client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+			} else if (isPostOrPutOrPatch) {
+				client.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			}
+
+			for (String header : requestHeaders.keySet()) {
+				client.setRequestProperty(header, requestHeaders.get(header));
+			}
+		}
+
+		private String constructFilePart(String name, ContentBody contentBody)
+		{
+			String part = "";
+			String fileName = contentBody.getFilename();
+
+			part += "--" + boundary + LINE_FEED;
+			part += "Content-Disposition: form-data; name=\"" + name + "\"";
+			if (fileName != null) {
+				part += "; filename=\"" + fileName + "\"";
+			}
+			part += LINE_FEED;
+			String mimeType = contentBody.getMimeType();
+			if (mimeType != null && !mimeType.isEmpty()) {
+				part += "Content-Type: " + contentBody.getMimeType();
+				if (contentBody.getCharset() != null) {
+					part += "; charset=" + contentBody.getCharset();
+				}
+				part += LINE_FEED;
+			}
+			part += "Content-Transfer-Encoding: " + contentBody.getTransferEncoding() + LINE_FEED + LINE_FEED;
+
+			return part;
+		}
+
+		private void addFilePart(String name, ContentBody contentBody) throws IOException
+		{
+			printWriter.append(constructFilePart(name, contentBody));
+			printWriter.flush();
+
+			contentBody.writeTo(outputStream);
+
+			printWriter.append(LINE_FEED);
+			printWriter.flush();
+		}
+
+		public void completeSendingMultipart() throws IOException
+		{
+			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.close();
+		}
+
+		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException
+		{
+			//If set rawDate is set with a String, need to do this
+			Entity entity = null;
+			if (data instanceof String) {
+				try {
+					entity = new StringEntity((String) data, "UTF-8");
+
+				} catch (Exception ex) {
+					//FIXME
+					Log.e(TAG, "Exception, implement recovery: ", ex);
+				}
+			} else if (data instanceof Entity) {
+				entity = (Entity) data;
+			} else {
+				entity = form;
+			}
+
+			//This code sets the content type from the headers
+			//Then casts the request so that it can put in the form which is the entity.
+
+			if (entity != null) {
+				entity.writeTo(outputStream);
+				printWriter.flush();
+			}
 		}
 	}
 
@@ -1343,36 +1532,6 @@ public class TiHTTPClient
 			tmpFile.delete();
 		}
 		tmpFiles.clear();
-	}
-
-	private void handleURLEncodedData(UrlEncodedFormEntity form)
-	{
-		AbstractHttpEntity entity = null;
-		if (data instanceof String) {
-			try {
-				entity = new StringEntity((String) data, "UTF-8");
-
-			} catch(Exception ex) {
-				//FIXME
-				Log.e(TAG, "Exception, implement recovery: ", ex);
-			}
-		} else if (data instanceof AbstractHttpEntity) {
-			entity = (AbstractHttpEntity) data;
-		} else {
-			entity = form;
-		}
-		
-		if (entity != null) {
-			Header header = request.getFirstHeader("Content-Type");
-			if(header == null) {
-				entity.setContentType("application/x-www-form-urlencoded");
-
-			} else {
-				entity.setContentType(header.getValue());
-			}
-			HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
-			e.setEntity(entity);
-		}
 	}
 
 	public String getLocation()
@@ -1392,7 +1551,7 @@ public class TiHTTPClient
 	{
 		return connected;
 	}
-	
+
 	public void setTimeout(int millis)
 	{
 		timeout = millis;
@@ -1417,14 +1576,32 @@ public class TiHTTPClient
 	{
 		return autoRedirect;
 	}
-	
+
 	protected void addKeyManager(X509KeyManager manager)
 	{
+		if (Log.isDebugModeEnabled()) {
+			Log.d(
+				TAG,
+				"addKeyManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
+				Log.DEBUG_MODE);
+		}
 		keyManagers.add(manager);
 	}
-	
+
 	protected void addTrustManager(X509TrustManager manager)
 	{
+		if (Log.isDebugModeEnabled()) {
+			Log.d(
+				TAG,
+				"addTrustManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
+				Log.DEBUG_MODE);
+		}
 		trustManagers.add(manager);
+	}
+
+	protected void setTlsVersion(int value)
+	{
+		this.proxy.setProperty(TiC.PROPERTY_TLS_VERSION, value);
+		tlsVersion = value;
 	}
 }

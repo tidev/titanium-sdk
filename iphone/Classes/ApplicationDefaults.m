@@ -7,16 +7,16 @@
 
 #import "ApplicationDefaults.h"
 
-
 @implementation ApplicationDefaults
 
-+(NSMutableDictionary*)copyDefaults
++ (NSMutableDictionary *)copyDefaults
 {
-    return nil;
+  return nil;
 }
 
-+(NSDictionary*)launchUrl {
-    return nil;
++ (NSDictionary *)launchUrl
+{
+  return nil;
 }
 
 @end

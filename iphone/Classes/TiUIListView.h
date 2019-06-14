@@ -6,22 +6,26 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiUIView.h"
 #import "TiUIListViewProxy.h"
+#import <TitaniumKit/TiUIView.h>
 
-@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver >
+@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView>
 
 #pragma mark - Private APIs
 
 @property (nonatomic, readonly) UITableView *tableView;
 @property (nonatomic, readonly) BOOL isSearchActive;
 
-- (void)updateSearchResults:(id)unused;
 - (void)setDictTemplates_:(id)args;
+- (void)setContentOffset_:(id)value withObject:(id)args;
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)deselectAll:(BOOL)animated;
+- (void)updateIndicesForVisibleRows;
+- (void)viewResignFocus;
+- (void)viewGetFocus;
 
-+ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
++ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary *)properties;
+- (NSIndexPath *)pathForSearchPath:(NSIndexPath *)indexPath;
 
 @end
 

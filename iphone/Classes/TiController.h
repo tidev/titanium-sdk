@@ -5,17 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiViewProxy.h"
-
+#import <TitaniumKit/TiViewProxy.h>
 
 //TODO: rename tab controller
 
 @protocol TiController
 
 @optional
--(id)initWithViewProxy:(TiViewProxy*)proxy;
+- (id)initWithViewProxy:(TiViewProxy *)proxy;
 
 @required
--(TiViewProxy*)proxy;
+- (TiViewProxy *)proxy;
 
 @end

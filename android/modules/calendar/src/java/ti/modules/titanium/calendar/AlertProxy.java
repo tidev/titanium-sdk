@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -25,7 +24,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
-@Kroll.proxy(parentModule=CalendarModule.class)
+@Kroll.proxy(parentModule = CalendarModule.class)
 public class AlertProxy extends KrollProxy
 {
 
@@ -43,11 +42,6 @@ public class AlertProxy extends KrollProxy
 		super();
 	}
 
-	public AlertProxy(TiContext context)
-	{
-		this();
-	}
-
 	public static String getAlertsUri()
 	{
 		return CalendarProxy.getBaseCalendarUri() + "/calendar_alerts";
@@ -61,10 +55,15 @@ public class AlertProxy extends KrollProxy
 	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy)
 	{
 		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return alerts;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
-		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()), new String[] { "_id", "event_id", "begin", "end",
-			"alarmTime", "state", "minutes" }, query, queryArgs, orderBy);
+		Cursor cursor =
+			contentResolver.query(Uri.parse(getAlertsUri()),
+								  new String[] { "_id", "event_id", "begin", "end", "alarmTime", "state", "minutes" },
+								  query, queryArgs, orderBy);
 
 		if (cursor != null) {
 			while (cursor.moveToNext()) {
@@ -85,23 +84,16 @@ public class AlertProxy extends KrollProxy
 		return alerts;
 	}
 
-	public static ArrayList<AlertProxy> queryAlerts(TiContext context, String query, String queryArgs[], String orderBy)
-	{
-		return AlertProxy.queryAlerts(query, queryArgs, orderBy);
-	}
-
 	public static ArrayList<AlertProxy> getAlertsForEvent(EventProxy event)
 	{
 		return queryAlerts("event_id = ?", new String[] { event.getId() }, "alarmTime ASC,begin ASC,title ASC");
 	}
 
-	public static ArrayList<AlertProxy> getAlertsForEvent(TiContext context, EventProxy event)
-	{
-		return AlertProxy.getAlertsForEvent(event);
-	}
-
 	public static AlertProxy createAlert(EventProxy event, int minutes)
 	{
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return null;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
 
@@ -133,71 +125,64 @@ public class AlertProxy extends KrollProxy
 		return alert;
 	}
 
-	public static AlertProxy createAlert(TiContext context, EventProxy event, int minutes)
-	{
-		return AlertProxy.createAlert(event, minutes);
-	}
-
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
 
-	protected void registerAlertIntent(TiContext context)
-	{
-		// Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
-		// Intent intent = new Intent(EVENT_REMINDER_ACTION);
-		Intent intent = new Intent(context.getActivity(), AlarmReceiver.class);
-		// intent.setAction("" + Math.random());
-		// intent.setData(uri);
-		// intent.putExtra("beginTime", begin.getTime());
-		// intent.putExtra("endTime", end.getTime());
-		PendingIntent sender = PendingIntent.getBroadcast(context.getActivity(), 0, intent,
-			PendingIntent.FLAG_CANCEL_CURRENT);
-		// PendingIntent sender = PendingIntent.getActivity(context.getActivity(), 0, intent,
-		// PendingIntent.FLAG_CANCEL_CURRENT);
-
-		AlarmManager manager = (AlarmManager) getTiContext().getActivity().getSystemService(Context.ALARM_SERVICE);
-
-		// manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime()+2000, sender);
-		manager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), sender);
-	}
-
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getEventId()
 	{
 		return eventId;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Date getEnd()
+	// clang-format on
 	{
 		return end;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Date getAlarmTime()
+	// clang-format on
 	{
 		return alarmTime;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getState()
+	// clang-format on
 	{
 		return state;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getMinutes()
+	// clang-format on
 	{
 		return minutes;
 	}

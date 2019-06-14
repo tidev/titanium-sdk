@@ -6,15 +6,15 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "TiStreamProxy.h"
+#import <TitaniumKit/TiStreamProxy.h>
 
 // Generic stream for data; designed to encapsulate blobs and buffers.
-@interface TiDataStream : TiStreamProxy<TiStreamInternal> {
-    NSData* data;
-    TiStreamMode mode;
-    int position;
+@interface TiDataStream : TiStreamProxy <TiStreamInternal> {
+  NSData *data;
+  TiStreamMode mode;
+  NSUInteger position;
 }
 @property (nonatomic) TiStreamMode mode;
-@property (nonatomic,readwrite,retain) NSData* data;
+@property (nonatomic, readwrite, retain) NSData *data;
 
 @end

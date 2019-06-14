@@ -62,10 +62,7 @@ properties:
 
   - name: state
     summary: The current state of the alert.
-    description: |
-        One of [STATE_DISMISSED](Titanium.Calendar.STATE_DISMISSED),
-        [STATE_FIRED](Titanium.Calendar.STATE_FIRED),
-        or [STATE_SCHEDULED](Titanium.Calendar.STATE_SCHEDULED).
     type: Number
+    constants: Titanium.Calendar.STATE_*
     permission: read-only
     platforms: [android]

@@ -39,17 +39,16 @@ public class TiWeakMap<K, V> extends HashMap<WeakReference<K>, V>
 			}
 		}
 		return null;
-		
 	}
 
 	@Override
 	public V remove(Object key)
 	{
 		if (key instanceof WeakReference) {
-			return super.remove(key);	
+			return super.remove(key);
 		}
 		WeakReference<K> toRemove = null;
-		for (WeakReference<K> ref: this.keySet()) {
+		for (WeakReference<K> ref : this.keySet()) {
 			if (ref.get() == key) {
 				toRemove = ref;
 				break;
@@ -61,5 +60,4 @@ public class TiWeakMap<K, V> extends HashMap<WeakReference<K>, V>
 			return null;
 		}
 	}
-
 }

@@ -1,14 +1,8 @@
 ---
 name: Titanium.Platform
 summary: |
-  The top-level Platform module.  The Platform module is used to access the device's platform-related 
+  The top-level Platform module.  The Platform module is used to access the device's platform-related
   functionality.
-  
-  To use this API on Tizen, you must include the following privilege in the `tiapp.xml` 
-  file of your Titanium application: 
-
-  * `http://tizen.org/privilege/systeminfo`
-  
 extends: Titanium.Module
 since: "0.1"
 
@@ -17,160 +11,241 @@ events:
     summary: Fired when the battery state changes. This is measured in 5% increments on iPhone/iPad.
     properties:
       - name: state
-        summary: |
-            The battery state. One of <Titanium.Platform.BATTERY_STATE_CHARGING>, 
-            <Titanium.Platform.BATTERY_STATE_FULL>, 
-            <Titanium.Platform.BATTERY_STATE_UNKNOWN>, 
-            or <Titanium.Platform.BATTERY_STATE_UNPLUGGED>.
+        summary: The battery state.
         type: Number
-        
+        constants: Titanium.Platform.BATTERY_*
+
       - name: level
         summary: Percentage battery power level.
         type: Number
-    platforms: [android, iphone, ipad, tizen]
-    
+    platforms: [android, iphone, ipad]
+
 methods:
   - name: canOpenURL
     summary: |
-        Returns whether the system is configured with a default application to handle the URL's protocol.
+        Returns whether the system is configured with a default application to handle the URL's protocol/scheme.
     description: |
-        On Mobile Web, this method always returns true, even if the browser can't open the specific URL, 
-        unless the URL is empty or undefined.
+        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
         summary: The url to check.
         type: String
-        
+
+  - name: cpus
+    summary: |
+        Returns an array of basic cpu information for all logical processors
+    description: |
+        This is intended to provide an implementation similar to Node's `os.cpus()`.
+    returns:
+        type: Array<CPU>
+    platforms: [android]
+    since: "8.0.0"
+
   - name: createUUID
     summary: Creates a globally-unique identifier.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad]
     returns:
         type: String
-        
+
   - name: openURL
     summary: |
-        Opens this URL using the system's default application for its protocol.
-    platforms: [android, iphone, ipad, mobileweb, tizen]    
+        Opens this URL using the system's default application for its protocol/scheme.
+    description: |
+        Here are some example URL strings this can be set to.
+
+          * `'https://www.appcelerator.com'`  (Opens in web browser.)
+          * `'mailto:user@domain.com'`  (Opens a new draft in e-mail app.)
+          * `'mailto:user@domain.com?cc=johndoe@domain.com,janedoe@domain.com&subject=My%20Subject&body=The%20body.'`
+          * `'tel:123-456-7890'`  (Opens phone app if applicable.)
+          * `'geo:37.774,-122.431?z=12'`  (Opens map on Android.)
+          * `'maps:?address=London,UK'`  (Opens map on iOS.)
+
+        You can use the <Titanium.Platform.canOpenURL> method to determine if the system has a registered
+        application for the given URL before invoking the <Titanium.Platform.openURL> method.
+
+        **iOS Note**: For iOS 10 and later, this method is performed asynchronously
+        and will call the function passed as an (optional) third parameter instead
+        of returning a boolean synchronously.
+
+        Example:
+
+            Ti.Platform.openURL('myapp://', {
+              'UIApplicationOpenURLOptionUniversalLinksOnly': true
+            }, function(e) {
+              Ti.API.info('URL open successfully? ' + e.success);
+            });
+
+    platforms: [android, iphone, ipad]
     returns:
         type: Boolean
     parameters:
       - name: url
         summary: The url to open.
         type: String
-        
+      - name: options
+        summary: |
+            The optional options to pass to the URL handling (iOS 10+). Pass a
+            dictionary with one or more of the following string-keys:
+                * `UIApplicationOpenURLOptionsSourceApplicationKey` (String value)
+                * `UIApplicationOpenURLOptionsAnnotationKey` (Array value)
+                * `UIApplicationOpenURLOptionsOpenInPlaceKey` (Boolean value)
+                * `UIApplicationOpenURLOptionUniversalLinksOnly` (Boolean value)
+            Read more about the available keys in the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationopenurloptionskey?language=objc).
+        type: Dictionary
+      - name: callback
+        summary: The optional callback that is called once the URL is opened (iOS 10+).
+        type: Callback
+
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
-    description: |
-        On Mobile Web and Tizen, this function always returns false.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb, tizen]
-    
+    platforms: [android, iphone, ipad]
+
 properties:
   - name: BATTERY_STATE_CHARGING
     summary: Constant to indicate that the system is plugged in and currently being charged.
     type: Number
     permission: read-only
-    
+
   - name: BATTERY_STATE_FULL
     summary: Constant to indicate that the battery is fully charged.
-    description: On Mobile Web, `BATTERY_STATE_FULL` is defined, but will never be a valid state.
     type: Number
     permission: read-only
-    
+
   - name: BATTERY_STATE_UNKNOWN
     summary: Constant to indicate that the battery state is not known or monitoring is disabled.
     type: Number
     permission: read-only
-    
+
   - name: BATTERY_STATE_UNPLUGGED
     summary: Constant to indicate that the system is unplugged.
     type: Number
     permission: read-only
-    
+
   - name: address
     summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, tizen]
-    
+    platforms: [android, iphone, ipad]
+
   - name: architecture
     summary: System's processor architecture.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, tizen]
-    
+    platforms: [android, iphone, ipad]
+
   - name: availableMemory
-    summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
+    summary: System's unused memory, measured in bytes.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: batteryLevel
     summary: |
-        Battery level in percent, accessible only when `batteryMonitoring` is enabled. Measured 
+        Battery level in percent, accessible only when `batteryMonitoring` is enabled. Measured
         in 5% increments on iPhone/iPad.
     type: Number
     permission: read-only
-    
+
   - name: batteryMonitoring
     summary: Determines whether battery monitoring is enabled.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad]
     default: false
     type: Boolean
-    
+
   - name: batteryState
     summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
-    description: |
-        Returns one of the following constants from <Titanium.Platform>:  
-        `BATTERY_STATE_CHARGING`,
-        `BATTERY_STATE_FULL`,
-        `BATTERY_STATE_UNKNOWN`
-        or `BATTERY_STATE_UNPLUGGED`.
-        
-        On Mobile Web, battery state will either be charging, unplugged, or unknown. Full charge state
-        is not supported.
     type: Number
+    constants: Titanium.Platform.BATTERY_STATE_*
     permission: read-only
-    
+
   - name: displayCaps
     summary: |
         Returns the DisplayCaps object.
     description: |
-        Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
+        Note that the `displayCaps` property begins with a lowercase letter, which differentiates it
         from the `DisplayCaps` object that it returns.
     type: Titanium.Platform.DisplayCaps
     permission: read-only
-    
+
   - name: id
     summary: Applications's globally-unique ID (UUID).
     description: |
         On Android, this may be the UDID (unique device ID). For iOS, this
         is a unique identifier for this install of the application.
-        
+
         Previously on iOS this may have been a UDID, but access to
         this has been restricted by Apple. For more information, see
-        [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
+        [UUID Article on NSHipster](http://nshipster.com/uuid-udid-unique-identifier/)
         documentation.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+
+        To use a UUID across different applications of the same vendor,
+        use <Titanium.Platform.identifierForVendor> instead.
+
+        To use a UUID for tracking / advertising purposes,
+        use <Titanium.Platform.identifierForAdvertising> instead.
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
-        
+
+  - name: identifierForVendor
+    summary: An alphanumeric string that uniquely identifies a device to the app's vendor.
+    description: |
+        The value of this property is the same for apps that come from the same
+        vendor running on the same device. A different value is returned for apps
+        on the same device that come from different vendors, and for apps on
+        different devices regardless of vendor. See the [Apple docs](https://developer.apple.com/reference/uikit/uidevice/1620059-identifierforvendor) for more infos.
+    platforms: [iphone, ipad]
+    type: String
+    permission: read-only
+    since: "7.0.0"
+
+  - name: identifierForAdvertising
+    summary: An alphanumeric string unique to each device, used only for serving advertisements.
+    description: |
+        Unlike the <Titanium.Platform.identifierForVendor> property, the same
+        value is returned to all vendors. This identifier may change, for example,
+        if the user erases the device, so you should not cache it.
+
+        In iOS 10.0 and later, the value of this property is all zeroes when the
+        user has limited ad tracking.
+
+        If the value is `null`, wait and get the value again later. This happens,
+        for example, after the device has been restarted but before the user has
+        unlocked the device.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.0.0"
+
+  - name: isAdvertisingTrackingEnabled
+    summary: A Boolean value that indicates whether the user has limited ad tracking.
+    description: |
+        Check the value of this property before performing any advertising tracking.
+        If the value is false, use the advertising identifier only for the following
+        purposes: frequency capping, attribution, conversion events, estimating the
+        number of unique users, advertising fraud detection, and debugging.
+    platforms: [iphone, ipad]
+    type: Boolean
+    permission: read-only
+    since: "7.0.0"
+
   - name: locale
     summary: System's default language.
     description: |
-        Locale, as a combination of ISO 2-letter language and country codes. For example, 
-        `en-US` or `en-GB`. See the 
-        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
-        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        Locale, as a combination of ISO 2-letter language and country codes. For example,
+        `en-US` or `en-GB`. See the
+        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
         sections of wikipedia for reference.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
-    
+
   - name: macaddress
     summary: System's network interface mac address, or app UUID.
     description: |
@@ -180,7 +255,7 @@ properties:
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-  
+
   - name: manufacturer
     summary: Manufacturer of the device.
     description: |
@@ -195,75 +270,84 @@ properties:
     summary: Model of the device.
     description: |
         An identifier of the hardware model of the device. For example, `HTC Sensation Z710e`.
-        
-        Virtual devices will also return a value. For example, `sdk` for the standard Android SDK 
-        and `google_sdk` for the enhanced Android Google APIs SDK running in an emulator, and 
+
+        Virtual devices will also return a value. For example, `sdk` for the standard Android SDK
+        and `google_sdk` for the enhanced Android Google APIs SDK running in an emulator, and
         `Simulator` for iOS running in a simulator.
-        
-        Mobile Web will return the browser Agent information, such as 
-        `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0` for 
-        Firefox 12 running on Ubuntu.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     examples:
       - title: Testing for a Virtual Device
         example: |
             Determine whether the application is running on a virtual device.
-                if (Ti.Platform.model === 'Simulator' || Ti.Platform.model.indexOf('sdk') !== -1 ){
+                if (Ti.Platform.model.indexOf('Simulator') !== -1 || Ti.Platform.model.indexOf('sdk') !== -1 ){
                   alert('Accelerometer does not work on a virtual device');
                 } else {
                   // Add Accelerometer event listener
                 }
-                
+
   - name: name
     summary: |
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
-        platform (iPhone, iPad, or iPod Touch), `TIZEN` for Tizen platform and `mobileweb` for the Mobile Web platform.
+        platform (iPhone, iPad, or iPod Touch), and `windows` for the Windows platform.
+
+        Since iOS 10 this property returns `iOS` for for the iOS platform (iPhone, iPad, or iPod Touch).
     type: String
     permission: read-only
-    
+
   - name: netmask
     summary: System's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: osname
     summary: |
         Short name of the system's Operating System. Returns `android` for the Android platfrom,
-        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `tizen` for Tizen platform and `mobileweb` for the Mobile Web
+        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `windowsphone` for Windows Phone, and `windowsstore` for Windows Store
         platform.
     type: String
     permission: read-only
-    
+
   - name: ostype
     summary: Operating System architecture. On Android, this is `32bit`.
-    platforms: [android, iphone, mobileweb, ipad, tizen]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
-    
+
   - name: processorCount
-    summary: Number of processing cores.
+    summary: Number of logical processing cores.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: runtime
     summary: Short name of the JavaScript runtime in use.
     description: |
-      On iOS this is "javascriptcore", on Android either "v8" or "rhino" and on Mobile Web it is 
-      determined by the browser used.
+      On iOS this is "javascriptcore", on Android either "v8" or "rhino".
     type: String
     permission: read-only
-    
+
+  - name: totalMemory
+    summary: System's total memory, measured in bytes.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: uptime
+    summary: System uptime since last boot in seconds.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
   - name: username
     summary: |
       System name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: version
     summary: System's OS version.
     type: String
@@ -273,11 +357,51 @@ examples:
   - title: Battery Event Example
     example: |
         Obtaining battery data when the battery state changes.
-        
+
             Titanium.Platform.addEventListener('battery', function(e){
               Ti.API.info('The battery state has changed to ' + e.state);
               Ti.API.info('The battery level is ' + e.level);
               Ti.API.info('The battery event source is ' + e.source);
               Ti.API.info('The battery event name ' + e.type);
             });
-    
+---
+name: CPU
+summary: Simple object holding the data for a logical cpu.
+properties:
+
+  - name: model
+    summary: General description of the CPU
+    type: String
+
+  - name: speed
+    summary: Speed of the CPU in MHz
+    type: Number
+
+  - name: times
+    summary: A collection of timings for this logical CPU.
+    type: CPUTimes
+
+---
+name: CPUTimes
+summary: Simple object holding the data for a logical cpu execution times.
+properties:
+
+  - name: user
+    summary: The number of milliseconds the CPU has spent in user mode.
+    type: Number
+
+  - name: nice
+    summary: The number of milliseconds the CPU has spent in nice mode.
+    type: Number
+
+  - name: sys
+    summary: The number of milliseconds the CPU has spent in sys mode.
+    type: Number
+
+  - name: idle
+    summary: The number of milliseconds the CPU has spent in idle mode.
+    type: Number
+
+  - name: irq
+    summary: The number of milliseconds the CPU has spent in irq mode.
+    type: Number

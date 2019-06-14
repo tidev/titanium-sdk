@@ -6,16 +6,16 @@
  */
 #ifdef USE_TI_UIPICKER
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIPickerProxy : TiViewProxy {
 
-@private
-	NSArray* selectOnLoad;
+  @private
+  NSArray *selectOnLoad;
 }
 
--(void)setSelectedRow:(id)args;
--(void)reloadColumn:(id)column;
+- (void)setSelectedRow:(id)args;
+- (void)reloadColumn:(id)column;
 
 @end
 

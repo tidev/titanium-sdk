@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#if defined(USE_TI_UIIOSCOVERFLOWVIEW) || defined(USE_TI_UICOVERFLOWVIEW)
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
 #import "AFUIImageReflection.h"
 
@@ -47,7 +47,7 @@ UIImage* AddImageReflection(UIImage *image, CGFloat reflectionFraction)
     
     // create the bitmap context
     CGContextRef gradientBitmapContext = CGBitmapContextCreate(nil, 1, reflectionHeight,
-                                                               8, 0, colorSpace, kCGImageAlphaNone);
+                                                               8, 0, colorSpace, kCGBitmapAlphaInfoMask & kCGImageAlphaNone);
     
     // define the start and end grayscale values (with the alpha, even though
     // our bitmap context doesn't support alpha the gradient requires it)

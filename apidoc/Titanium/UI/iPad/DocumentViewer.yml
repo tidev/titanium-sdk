@@ -3,6 +3,7 @@ name: Titanium.UI.iPad.DocumentViewer
 deprecated:
     since: 3.0.0
     notes: Use <Titanium.UI.iOS.DocumentViewer> instead.
+    removed: "6.0.0"
 summary: |
     A DocumentViewer provides in-app support for managing user interactions with files on the 
     local system.
@@ -15,10 +16,9 @@ description: |
     
     For a code sample, see <Titanium.UI.iOS.DocumentViewer>.
 
-extends: Titanium.UI.View
 platforms: [ipad]
+extends: Titanium.Proxy
 since: "1.8"
-
 methods:
   - name: show
     summary: Displays the document viewer over the current view.
@@ -37,4 +37,3 @@ methods:
       - name: url
         summary: The new url
         type: String
-

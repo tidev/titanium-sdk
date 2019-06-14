@@ -1,16 +1,16 @@
 ---
 name: Titanium.UI.PickerRow
 summary: |
-    A picker row, representing a selectable item in a <Titanium.UI.Picker>. 
+    A picker row, representing a selectable item in a <Titanium.UI.Picker>.
 description: |
-    Use the <Titanium.UI.createPickerRow> method to create a picker row control.
-    
+    Use the <Titanium.UI.createPickerRow> method to create a picker row control. In an Alloy application,
+    you can use a **`<PickerRow>`** element inside a `<PickerColumn>` element. You can also use `<Row>`
+    as a shorthand for `<PickerRow>` (see Examples).
+
     Views added to picker rows is only supported on iOS.
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad]
 extends: Titanium.UI.View
 since: "0.9"
-excludes:
-    properties: [enabled]
 
 methods:
   - name: add
@@ -25,17 +25,17 @@ properties:
   - name: color
     summary: Color of the item text, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    platforms: [mobileweb, tizen]
-  - name: fontSize
-    summary: Font size for displaying item text. Ignored when using a custom view.
-    type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since:
+        android: 5.4.0
+        iphone: 5.4.0
+        ipad: 5.4.0
   - name: font
     summary: Font to use for the item text.
     type: Font
-    platforms: [mobileweb, tizen]
+    platforms: [iphone, ipad]
   - name: title
     summary: Item text.
     type: String
@@ -43,9 +43,9 @@ properties:
 examples:
   - title: Custom View for Row (iOS only)
     example: |
-        Create a two-column picker, with the first column containing a child view, and automatically 
+        Create a two-column picker, with the first column containing a child view, and automatically
         select a row in each column.
-        
+
             Ti.UI.backgroundColor = 'white';
             var win = Ti.UI.createWindow({
               exitOnClose: true,
@@ -59,16 +59,15 @@ examples:
 
             for(var i=0, ilen=fruit.length; i<ilen; i++){
               var row = Ti.UI.createPickerRow();
-                
+
               var label = Ti.UI.createLabel({
                 color:'red',
                 font:{fontSize:20,fontWeight:'bold'},
                 text: fruit[i],
                 textAlign:'left',
-                height:'auto',
                 width:'126'
               });
-              
+
               row.add(label);
               column1.addRow(row);
             }
@@ -77,7 +76,8 @@ examples:
 
             for(var i=0, ilen=color.length; i<ilen; i++){
               var row = Ti.UI.createPickerRow({
-                title: color[i]
+                title: color[i],
+                font: {fontSize:30}
               });
               column2.addRow(row);
             }

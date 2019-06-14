@@ -6,10 +6,9 @@
  */
 #ifdef USE_TI_UILABEL
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUILabelProxy : TiViewProxy {
-
 }
 @end
 

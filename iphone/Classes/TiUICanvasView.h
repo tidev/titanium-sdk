@@ -6,17 +6,17 @@
  */
 #ifdef USE_TI_UICANVAS
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @class TiUICanvasViewContextProxy;
 
 @interface TiUICanvasView : TiUIView {
-@private
-	NSMutableArray *operations;
+  @private
+  NSMutableArray *operations;
 }
 
--(void)begin;
--(void)commit;
+- (void)begin;
+- (void)commit;
 
 @end
 

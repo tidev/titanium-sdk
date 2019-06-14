@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,11 +19,9 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-
 public class TiUISpinner extends TiUIPicker
 {
 	private static final String TAG = "TiUISpinner";
-
 
 	public TiUISpinner(TiViewProxy proxy)
 	{
@@ -44,16 +42,16 @@ public class TiUISpinner extends TiUIPicker
 			return;
 		}
 		for (TiUIView child : children) {
-			refreshColumn((TiUISpinnerColumn)child);
+			refreshColumn((TiUISpinnerColumn) child);
 		}
 	}
-	
+
 	private void refreshColumn(int columnIndex)
 	{
 		if (columnIndex < 0 || children == null || children.size() == 0 || columnIndex > (children.size() + 1)) {
 			return;
 		}
-		refreshColumn((TiUISpinnerColumn)children.get(columnIndex));
+		refreshColumn((TiUISpinnerColumn) children.get(columnIndex));
 	}
 	private void refreshColumn(TiUISpinnerColumn column)
 	{
@@ -72,9 +70,10 @@ public class TiUISpinner extends TiUIPicker
 		}
 		TiUIView child = children.get(columnIndex);
 		if (child instanceof TiUISpinnerColumn) {
-			return ((TiUISpinnerColumn)child).getSelectedRowIndex();
+			return ((TiUISpinnerColumn) child).getSelectedRowIndex();
 		} else {
-			Log.w(TAG, "Could not locate column " + columnIndex + ".  Ignoring effort to get selected row index in that column.");
+			Log.w(TAG, "Could not locate column " + columnIndex
+						   + ".  Ignoring effort to get selected row index in that column.");
 			return -1;
 		}
 	}
@@ -87,7 +86,7 @@ public class TiUISpinner extends TiUIPicker
 		}
 		TiUIView child = children.get(columnIndex);
 		if (child instanceof TiUISpinnerColumn) {
-			((TiUISpinnerColumn)child).selectRow(rowIndex);
+			((TiUISpinnerColumn) child).selectRow(rowIndex);
 		} else {
 			Log.w(TAG, "Could not locate column " + columnIndex + ".  Ignoring effort to select a row in that column.");
 		}
@@ -104,8 +103,7 @@ public class TiUISpinner extends TiUIPicker
 		refreshColumn(columnIndex);
 	}
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (TiC.PROPERTY_VISIBLE_ITEMS.equals(key) || TiC.PROPERTY_SELECTION_INDICATOR.equals(key)) {
 			propagateProperty(key, newValue);
@@ -135,17 +133,23 @@ public class TiUISpinner extends TiUIPicker
 			propagateProperty(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(d, TiC.PROPERTY_VISIBLE_ITEMS));
 		}
 		if (d.containsKey(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			propagateProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
+			propagateProperty(TiC.PROPERTY_SELECTION_INDICATOR,
+							  TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
 		}
 	}
+
+	@SuppressWarnings("deprecation")
 	@Override
 	public void add(TiUIView child)
 	{
 		if (proxy.hasProperty(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			child.getProxy().setProperty(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VISIBLE_ITEMS)), true);
+			child.getProxy().setPropertyAndFire(TiC.PROPERTY_VISIBLE_ITEMS,
+												TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VISIBLE_ITEMS)));
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			child.getProxy().setProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)), true);
+			child.getProxy().setPropertyAndFire(
+				TiC.PROPERTY_SELECTION_INDICATOR,
+				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)));
 		}
 		super.add(child);
 	}
@@ -154,7 +158,7 @@ public class TiUISpinner extends TiUIPicker
 		if (children != null && children.size() > 0) {
 			for (TiUIView child : children) {
 				if (child instanceof TiUISpinnerColumn) {
-					((TiUISpinnerColumn)child).forceRequestLayout();
+					((TiUISpinnerColumn) child).forceRequestLayout();
 				}
 			}
 		}

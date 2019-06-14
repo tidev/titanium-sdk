@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,16 +11,19 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = { 
-	TiC.PROPERTY_HEADER_TITLE,
-	TiC.PROPERTY_FOOTER_TITLE
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_HEADER_TITLE,
+		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_FOOTER_TITLE,
+		TiC.PROPERTY_FOOTER_VIEW
 })
+// clang-format on
 public class TableViewSectionProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewSectionProxy";
@@ -32,13 +35,9 @@ public class TableViewSectionProxy extends TiViewProxy
 		rows = new ArrayList<TableViewRowProxy>();
 	}
 
-	public TableViewSectionProxy(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return null;
 	}
 
@@ -53,14 +52,21 @@ public class TableViewSectionProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public TableViewRowProxy[] getRows()
+	// clang-format on
 	{
 		return rows.toArray(new TableViewRowProxy[rows.size()]);
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public double getRowCount() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getRowCount()
+	// clang-format on
+	{
 		return rows.size();
 	}
 
@@ -74,7 +80,8 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void remove(TableViewRowProxy rowProxy) {
+	public void remove(TableViewRowProxy rowProxy)
+	{
 		if (rowProxy != null) {
 			rows.remove(rowProxy);
 			if (rowProxy.getParent() == this) {
@@ -129,7 +136,7 @@ public class TableViewSectionProxy extends TiViewProxy
 		if (index > -1 && index < rows.size()) {
 			rows.set(index, row);
 			row.setParent(this);
-			if (oldRow.getParent() == this) {
+			if (oldRow.getParent() == this && !rows.contains(oldRow)) {
 				oldRow.setParent(null);
 			}
 		} else {
@@ -138,7 +145,8 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "[object TableViewSectionProxy]";
 	}
 
@@ -146,10 +154,24 @@ public class TableViewSectionProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
+
 		if (rows != null) {
 			for (TableViewRowProxy row : rows) {
 				row.releaseViews();
 			}
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+
+		releaseViews();
+
+		if (rows != null) {
+			rows.clear();
+			rows = null;
 		}
 	}
 

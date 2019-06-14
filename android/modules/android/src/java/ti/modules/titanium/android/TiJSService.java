@@ -57,7 +57,7 @@ public class TiJSService extends TiBaseService
 		}
 		if (Log.isDebugModeEnabled()) {
 			if (url != fullUrl) {
-				Log.d(TAG, "Eval JS Service:" + url + " (" + fullUrl+ ")");
+				Log.d(TAG, "Eval JS Service:" + url + " (" + fullUrl + ")");
 			} else {
 				Log.d(TAG, "Eval JS Service:" + url);
 			}
@@ -74,7 +74,6 @@ public class TiJSService extends TiBaseService
 		KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, proxy);
 		proxy.fireEvent(TiC.EVENT_PAUSE, new KrollDict());
 		proxy.fireEvent(TiC.EVENT_STOP, new KrollDict()); // this basic JS Service class only runs once.
-
 	}
 
 	@Override
@@ -82,11 +81,11 @@ public class TiJSService extends TiBaseService
 	{
 		finalizeUrl(intent);
 		int lastSlash = url.lastIndexOf('/');
-		String baseUrl = url.substring(0, lastSlash+1);
+		String baseUrl = url.substring(0, lastSlash + 1);
 		if (baseUrl.length() == 0) {
 			baseUrl = null;
 		}
-		serviceProxy= new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
+		serviceProxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
 		return serviceProxy;
 	}
 
@@ -96,5 +95,4 @@ public class TiJSService extends TiBaseService
 		proxy.fireEvent(TiC.EVENT_START, new KrollDict());
 		executeServiceCode(proxy);
 	}
-
 }

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,11 +11,8 @@
 #include "${packageName}.${proxyClassName}.h"
 
 #include "AndroidUtil.h"
-#include "EventEmitter.h"
 #include "JNIUtil.h"
 #include "JSException.h"
-#include "Proxy.h"
-#include "ProxyFactory.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
 
@@ -42,84 +39,89 @@ using namespace v8;
 
 <#assign className = Proxy.className(proxyClassName)>
 
-Persistent<FunctionTemplate> ${className}::proxyTemplate = Persistent<FunctionTemplate>();
+Persistent<FunctionTemplate> ${className}::proxyTemplate;
 jclass ${className}::javaClass = NULL;
 
-${className}::${className}(jobject javaObject) : titanium::Proxy(javaObject)
+${className}::${className}() : titanium::Proxy()
 {
 }
 
-void ${className}::bindProxy(Handle<Object> exports)
+void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 {
-	if (proxyTemplate.IsEmpty()) {
-		getProxyTemplate();
+	Isolate* isolate = context->GetIsolate();
+
+	Local<FunctionTemplate> pt = getProxyTemplate(isolate);
+
+	v8::TryCatch tryCatch(isolate);
+	Local<Function> constructor;
+	MaybeLocal<Function> maybeConstructor = pt->GetFunction(context);
+	if (!maybeConstructor.ToLocal(&constructor)) {
+		titanium::V8Util::fatalException(isolate, tryCatch);
+		return;
 	}
 
-	// use symbol over string for efficiency
-	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
-
-	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
+	Local<String> nameSymbol = NEW_SYMBOL(isolate, "${proxyAttrs.name}"); // use symbol over string for efficiency
 	<#if isModule>
-	Local<Object> moduleInstance = proxyConstructor->NewInstance();
-	exports->Set(nameSymbol, moduleInstance);
+	MaybeLocal<Object> maybeInstance = constructor->NewInstance(context);
+	Local<Object> moduleInstance;
+	if (!maybeInstance.ToLocal(&moduleInstance)) {
+		titanium::V8Util::fatalException(isolate, tryCatch);
+		return;
+	}
+	exports->Set(context, nameSymbol, moduleInstance);
 	<#else>
-	exports->Set(nameSymbol, proxyConstructor);
+	exports->Set(context, nameSymbol, constructor);
 	</#if>
 }
 
-void ${className}::dispose()
+void ${className}::dispose(Isolate* isolate)
 {
 	LOGD(TAG, "dispose()");
 	if (!proxyTemplate.IsEmpty()) {
-		proxyTemplate.Dispose();
-		proxyTemplate = Persistent<FunctionTemplate>();
+		proxyTemplate.Reset();
 	}
 
 	<#if superProxyClassName??>
-	<@Proxy.superNamespace/>${superProxyClassName}::dispose();
+	<@Proxy.superNamespace/>${superProxyClassName}::dispose(isolate);
 	</#if>
 }
 
-Handle<FunctionTemplate> ${className}::getProxyTemplate()
+Local<FunctionTemplate> ${className}::getProxyTemplate(v8::Isolate* isolate)
 {
+	Local<Context> context = isolate->GetCurrentContext();
 	if (!proxyTemplate.IsEmpty()) {
-		return proxyTemplate;
+		return proxyTemplate.Get(isolate);
 	}
 
-	LOGD(TAG, "GetProxyTemplate");
+	LOGD(TAG, "${className}::getProxyTemplate()");
 
 	<#-- Query the class for the Java proxy -->
 	javaClass = titanium::JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
-	HandleScope scope;
+	EscapableHandleScope scope(isolate);
 
 	// use symbol over string for efficiency
-	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
+	Local<String> nameSymbol = NEW_SYMBOL(isolate, "${proxyAttrs.name}");
 
-	Handle<FunctionTemplate> t = titanium::Proxy::inheritProxyTemplate(
+	Local<FunctionTemplate> t = titanium::Proxy::inheritProxyTemplate(
+		isolate,
 	<#if superProxyClassName??>
-		<@Proxy.superNamespace/>${superProxyClassName}::getProxyTemplate()
+		<@Proxy.superNamespace/>${superProxyClassName}::getProxyTemplate(isolate),
 	<#else>
-		titanium::Proxy::baseProxyTemplate
-	</#if>, javaClass, nameSymbol);
-
-	proxyTemplate = Persistent<FunctionTemplate>::New(t);
-	proxyTemplate->Set(titanium::Proxy::inheritSymbol,
-		FunctionTemplate::New(titanium::Proxy::inherit<${className}>)->GetFunction());
-
-	<#if (useTiContext!false)>
-	<#-- this proxy has a TiContext constructor, use the deprecated TiContext for compatibility -->
-	titanium::ProxyFactory::registerProxyPair(javaClass, *proxyTemplate, true);
-	<#else>
-	titanium::ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+		titanium::Proxy::baseProxyTemplate.Get(isolate),
 	</#if>
+		javaClass,
+		nameSymbol);
+
+	proxyTemplate.Reset(isolate, t);
+	t->Set(titanium::Proxy::inheritSymbol.Get(isolate), FunctionTemplate::New(isolate, titanium::Proxy::inherit<${className}>));
 
 	// Method bindings --------------------------------------------------------
-	<@Proxy.listMethods ; isFirst, name, method, signature>
-	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${method.apiName}", ${className}::${method.apiName});
+	<@Proxy.listMethods ; isFirst, name, method>
+	titanium::SetProtoMethod(isolate, t, "${method.apiName}", ${className}::${method.apiName});
 	</@Proxy.listMethods>
 
-	Local<ObjectTemplate> prototypeTemplate = proxyTemplate->PrototypeTemplate();
-	Local<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
+	Local<ObjectTemplate> prototypeTemplate = t->PrototypeTemplate();
+	Local<ObjectTemplate> instanceTemplate = t->InstanceTemplate();
 
 	// Delegate indexed property get and set to the Java proxy.
 	instanceTemplate->SetIndexedPropertyHandler(titanium::Proxy::getIndexedProperty,
@@ -136,43 +138,59 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	<@Proxy.listConstants ; isFirst, name, constant>
 
 	<#if (constant.value)??>
-		<#if constant.type = "java.lang.String">
-		DEFINE_STRING_CONSTANT(prototypeTemplate, "${name}", "${constant.value}");
-		<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
-		DEFINE_INT_CONSTANT(prototypeTemplate, "${name}", ${constant.value?c});
+		<#if isModule>
+			<#if constant.type = "java.lang.String">
+			DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
+			<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
+			DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#else>
+			DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			</#if>
 		<#else>
-		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", ${constant.value?c});
+			<#if constant.type = "java.lang.String">
+			DEFINE_STRING_CONSTANT(isolate, t, "${name}", "${constant.value}");
+			// TODO: deprecate in 7.0.0
+			DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
+			<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
+			DEFINE_INT_CONSTANT(isolate, t, "${name}", ${constant.value?c});
+			// TODO: deprecate in 7.0.0
+			DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#else>
+			DEFINE_NUMBER_CONSTANT(isolate, t, "${name}", ${constant.value?c});
+			// TODO: deprecate in 7.0.0
+			DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			</#if>
 		</#if>
 	<#else>
 		<#if constant.type = "java.lang.String">
-		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "Ljava/lang/String;");
+		jfieldID field${constant.name} = env->GetStaticFieldID(javaClass, "${constant.name}", "Ljava/lang/String;");
 		jobject fieldValue${constant.name} = env->GetStaticObjectField(javaClass, field${constant.name});
-		DEFINE_STRING_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "short">
-		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "S");
+		jfieldID field${constant.name} = env->GetStaticFieldID(javaClass, "${constant.name}", "S");
 		jshort fieldValue${constant.name} = env->GetStaticShortField(javaClass, field${constant.name});
-		DEFINE_INT_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "int">
-		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "I");
+		jfieldID field${constant.name} = env->GetStaticFieldID(javaClass, "${constant.name}", "I");
 		jint fieldValue${constant.name} = env->GetStaticIntField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "long">
-		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "J");
+		jfieldID field${constant.name} = env->GetStaticFieldID(javaClass, "${constant.name}", "J");
 		jlong fieldValue${constant.name} = env->GetStaticLongField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "float">
-		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "F");
+		jfieldID field${constant.name} = env->GetStaticFieldID(javaClass, "${constant.name}", "F");
 		jfloat fieldValue${constant.name} = env->GetStaticFloatField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "double">
-		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "D");
+		jfieldID field${constant.name} = env->GetStaticFieldID(javaClass, "${constant.name}", "D");
 		jdouble fieldValue${constant.name} = env->GetStaticDoubleField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", fieldValue${constant.name});
 		</#if>
 	</#if>
 	</@Proxy.listConstants>
@@ -181,47 +199,75 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 
 	// Dynamic properties -----------------------------------------------------
 	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
-	instanceTemplate->SetAccessor(String::NewSymbol("${name}"),
-		<#if property.get>
-			${className}::getter_${name}
-		<#else>
-			titanium::Proxy::getProperty
-		</#if>
-		<#if property.set>
-			, ${className}::setter_${name}
-		<#else>
-			, titanium::Proxy::onPropertyChanged
-		</#if>, Handle<Value>(), DEFAULT);
+	instanceTemplate->SetAccessor(
+		NEW_SYMBOL(isolate, "${name}"),
+	<#if property.get>
+		${className}::getter_${name},
+	<#else>
+		titanium::Proxy::getProperty,
+	</#if>
+	<#if property.set>
+		${className}::setter_${name},
+	<#else>
+		titanium::Proxy::onPropertyChanged,
+	</#if>
+		Local<Value>(),
+		DEFAULT,
+	<#if property.set || proxyAttrs.propertyAccessors?seq_contains(name)>
+		static_cast<v8::PropertyAttribute>(v8::DontDelete)
+	<#else>
+		static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete)
+	</#if>
+	);
 	</@Proxy.listDynamicProperties>
 
 	// Accessors --------------------------------------------------------------
 	<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+	Local<String> ${name} = NEW_SYMBOL(isolate, "${name}");
+	<#if !dynamicProperties?? || !dynamicProperties?keys?seq_contains(name)>
 	instanceTemplate->SetAccessor(
-		String::NewSymbol("${name}"),
+		${name},
 		titanium::Proxy::getProperty,
-		titanium::Proxy::onPropertyChanged,
-		Handle<Value>(), DEFAULT);
-	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${getter}", titanium::Proxy::getProperty, String::NewSymbol("${name}"));
-	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", titanium::Proxy::onPropertyChanged, String::NewSymbol("${name}"));
+		titanium::Proxy::onPropertyChanged);
+	</#if>
+	<#if !methods?? || !methods?keys?seq_contains(getter)>
+	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${getter}", titanium::Proxy::getProperty, ${name});
+	</#if>
+	<#if !methods?? || !methods?keys?seq_contains(setter)>
+	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${setter}", titanium::Proxy::onPropertyChanged, ${name});
+	</#if>
 	</@Proxy.listPropertyAccessors>
 
 	<#if interceptor??>
 	instanceTemplate->SetNamedPropertyHandler(${className}::interceptor);
+	// instanceTemplate->SetHandler(NamedPropertyHandlerConfiguration(${className}::interceptor, 0, 0, 0, 0, Local<Value>(), PropertyHandlerFlags::kOnlyInterceptStrings));
 	</#if>
-	return proxyTemplate;
+	return scope.Escape(t);
+}
+
+Local<FunctionTemplate> ${className}::getProxyTemplate(v8::Local<v8::Context> context)
+{
+	return getProxyTemplate(context->GetIsolate());
 }
 
 // Methods --------------------------------------------------------------------
-<@Proxy.listMethods ; isFirst, name, method, signature>
-Handle<Value> ${className}::${method.apiName}(const Arguments& args)
+<@Proxy.listMethods ; isFirst, name, method, signature, isDynamic>
+void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 {
 	LOGD(TAG, "${method.apiName}()");
-	HandleScope scope;
+	Isolate* isolate = args.GetIsolate();
+	Local<Context> context = isolate->GetCurrentContext();
+	HandleScope scope(isolate);
 
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=name signature=signature logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	<@Proxy.getHolder/>
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
+	if (!proxy) {
+		args.GetReturnValue().Set(Undefined(isolate));
+		return;
+	}
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args method />
@@ -229,14 +275,26 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 	jvalue* jArguments = 0;
 	</#if>
 
+	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic>
+		<#assign propertyName = name[3]?lower_case + name[4..]>
+	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.${propertyName}; or obj['${propertyName}'];");
+	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic>
+		<#assign propertyName = name[3]?lower_case + name[4..]>
+	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.${propertyName} = value; or obj['${propertyName}'] = value;");
+	</#if>
+
 	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
 	<@Proxy.callJNIMethod method.args, method.hasInvocation, method.returnType,
 		"methodID", "javaProxy", "jArguments", (method.returnType != "void") ; hasResult, resultVar>
 
 	<#if hasResult>
-	return ${resultVar};
+	args.GetReturnValue().Set(${resultVar});
 	<#else>
-	return v8::Undefined();
+	args.GetReturnValue().Set(v8::Undefined(isolate));
 	</#if>
 
 	</@Proxy.callJNIMethod>
@@ -247,37 +305,44 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 <@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
 
 <#if property.get>
-Handle<Value> ${className}::getter_${name}(Local<String> property, const AccessorInfo& info)
+void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackInfo<Value>& args)
 {
-	LOGD(TAG, "get ${name}");
-	HandleScope scope;
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
 
 	<@Proxy.initJNIEnv/>
+
+	Local<Context> context = isolate->GetCurrentContext();
 	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
-
+	<@Proxy.getHolder/>
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 	if (!proxy) {
-		return Undefined();
+		args.GetReturnValue().Set(Undefined(isolate));
+		return;
 	}
 
 	jvalue* jArguments = 0;
 
 	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
 	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
 		"methodID", "javaProxy", "jArguments", (property.getReturnType != "void") ; hasResult, resultVar>
 
-	return ${resultVar};
+	args.GetReturnValue().Set(${resultVar});
 
 	</@Proxy.callJNIMethod>
 }
 </#if>
 
 <#if property.set>
-void ${className}::setter_${name}(Local<String> property, Local<Value> value, const AccessorInfo& info)
+void ${className}::setter_${name}(Local<Name> property, Local<Value> value, const PropertyCallbackInfo<void>& args)
 {
-	LOGD(TAG, "set ${name}");
-	HandleScope scope;
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
 
 	JNIEnv *env = titanium::JNIScope::getEnv();
 	if (!env) {
@@ -285,9 +350,12 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 		return;
 	}
 
+	Local<Context> context = isolate->GetCurrentContext();
+
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
+	<@Proxy.getHolder/>
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 	if (!proxy) {
 		return;
 	}
@@ -298,6 +366,9 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true isOptional=false/>
 
 	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		return;
+	}
 	<@Proxy.callJNIMethod property.setMethodArgs, property.setHasInvocation, property.setReturnType, "methodID", "javaProxy", "jArguments", false ;
 		hasResult, resultVar>
 	</@Proxy.callJNIMethod>
@@ -307,7 +378,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 	Otherwise you can never read back the value that was last set.
 	-->
 	<#if property.get == false>
-	Proxy::setProperty(property, value, info);
+	Proxy::setProperty(property, value, args);
 	</#if>
 }
 </#if>
@@ -315,51 +386,60 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 </@Proxy.listDynamicProperties>
 
 <#if interceptor??>
-Handle<Value> ${className}::interceptor(Local<String> property, const AccessorInfo& info)
+void ${className}::interceptor(Local<String> property, const v8::PropertyCallbackInfo<Value>& args)
 {
-	HandleScope scope;
+	Isolate* isolate = args.GetIsolate();
+	Local<Context> context = isolate->GetCurrentContext();
+	HandleScope scope(isolate);
 
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
-
+	<@Proxy.getHolder/>
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 	if (!proxy) {
-		return Undefined();
+		args.GetReturnValue().Set(Undefined(isolate));
+		return;
 	}
 
 	jobject javaProxy = proxy->getJavaObject();
-	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(env, property);
+	// Java object may be null if we get here during call to DefineOwnProperty for _properties of Proxy::proxyConstructor (and we haven't init'd the Java object yet)
+	if (javaProxy == NULL) {
+		args.GetReturnValue().Set(Undefined(isolate));
+		return;
+	}
+
+	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(isolate, env, property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 	env->DeleteLocalRef(javaProperty);
 
 	if (env->ExceptionCheck()) {
-		Handle<Value> jsException = titanium::JSException::fromJavaException();
+		Local<Value> jsException = titanium::JSException::fromJavaException(isolate);
 		env->ExceptionClear();
-		return jsException;
+		args.GetReturnValue().Set(jsException);
+		return;
 	}
 
 	if (jResult == NULL) {
-		return Null();
+		args.GetReturnValue().Set(Null(isolate));
+		return;
 	}
 
-	Handle<Value> v8Result = titanium::TypeConverter::javaObjectToJsValue(env, jResult);
+	Local<Value> v8Result = titanium::TypeConverter::javaObjectToJsValue(isolate, env, jResult);
 	env->DeleteLocalRef(jResult);
 
 	if (v8Result->IsNumber()) {
-		int32_t intResult = v8Result->Int32Value();
+		Maybe<int32_t> intResult = v8Result->Int32Value(context);
 
-		if (intResult == titanium::JNIUtil::krollRuntimeDontIntercept) {
-			return Handle<Value>();
+		if (intResult.IsJust() && intResult.FromJust() == titanium::JNIUtil::krollRuntimeDontIntercept) {
+			args.GetReturnValue().Set(Local<Value>());
+			return;
 		}
 	}
 
-	return v8Result;
-
+	args.GetReturnValue().Set(v8Result);
 }
 </#if>
 

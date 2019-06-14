@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.GravityBehavior
 summary: Gravitational force to apply to an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A gravity behavior configures the gravity vector of one or more items. To define a gravity
     behavior:
 
@@ -59,7 +57,7 @@ methods:
     summary: Adds an item to this behavior.
     parameters:
       - name: item
-        summary: 
+        summary: View object to add to the behavior.
         type: Titanium.UI.View
 
   - name: removeItem
@@ -75,6 +73,8 @@ examples:
         The following example creates many random blocks.  The initial gravitational force pulls the
         blocks downward. Clicking on the `Change` button generates a new random gravity vector,
         which pulls the blocks in a random direction.
+
+        <img src="images/animator/gravity.gif" height="455" style="border:1px solid black"/>
 
             var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
 

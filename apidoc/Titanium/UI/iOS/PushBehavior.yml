@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.PushBehavior
 summary: Continuous or instantaneous force to apply to an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A push behavior configures the continuous or instaneous force to apply to one or more items. To
     define a push behavior:
 
@@ -65,12 +63,8 @@ properties:
 
   - name: pushMode
     summary: Specifies the push mode.
-    description: |
-        Specifiy one of the following constants:
-
-          * <Titanium.UI.iOS.PUSH_MODE_CONTINUOUS> for a continuous force
-          * <Titanium.UI.iOS.PUSH_MODE_INSTANTANEOUS> for an instantaneous force
     type: Number
+    constants: Titanium.UI.iOS.PUSH_MODE_*
     default: <Titanium.UI.iOS.PUSH_MODE_CONTINUOUS>
 
 methods:
@@ -78,7 +72,7 @@ methods:
     summary: Adds an item to this behavior.
     parameters:
       - name: item
-        summary: 
+        summary: View object to add to the behavior.
         type: Titanium.UI.View
 
   - name: removeItem
@@ -91,7 +85,9 @@ methods:
 examples:
   - title: Simple Example
     example: |
-        The following example generates a random push force on the block when it stops
+        The following example generates a random push force on the block when it stops.
+
+        <img src="images/animator/pushforce.gif" height="455" style="border:1px solid black"/>
 
             var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
 
@@ -102,7 +98,7 @@ examples:
                 width: 100,
                 height: 100,
                 backgroundColor: 'blue',
-                transform: Ti.UI.create2DMatrix({ rotate: 45 })
+                transform: Ti.UI.createMatrix2D({ rotate: 45 })
             });
 
             // Create a default collision behavior, using the window edges as boundaries

@@ -6,27 +6,31 @@
  */
 #ifdef USE_TI_UIBUTTON
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIButton : TiUIView {
-@private
-	UIButton *button;
-//In the rare case where the button is treated as a view group, we must have
-//an empty wrapper for -[parentViewForChild:]
-	UIView * viewGroupWrapper;
-	
-	UIImage * backgroundImageCache;
-	UIImage * backgroundImageUnstretchedCache;
+  @private
+  UIButton *button;
 
-	int style;
-	
-    BOOL touchStarted;
+#ifndef TI_USE_AUTOLAYOUT
+  //In the rare case where the button is treated as a view group, we must have
+  //an empty wrapper for -[parentViewForChild:]
+  UIView *viewGroupWrapper;
+#endif
+  UIImage *backgroundImageCache;
+  UIImage *backgroundImageUnstretchedCache;
+
+  int style;
+
+  BOOL touchStarted;
 }
 
--(UIButton*)button;
--(UIView*)viewGroupWrapper;
+- (UIButton *)button;
+#ifndef TI_USE_AUTOLAYOUT
+- (UIView *)viewGroupWrapper;
+#endif
 
--(void)setEnabled_:(id)value;
+- (void)setEnabled_:(id)value;
 
 @end
 

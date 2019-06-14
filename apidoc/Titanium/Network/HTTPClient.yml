@@ -38,9 +38,6 @@ description: |
       * For all other data types on Android, the content type is set to `application/x-www-form-urlencoded`.
       * For all other data types on iOS, the content type is **NOT** set.
 
-    On the BlackBerry, Mobile Web and Tizen platforms, the content type is always set to
-    `application/x-www-form-urlencoded` as the default.
-
     Use the [setRequestHeader](Titanium.Network.HTTPClient.setRequestHeader) method to override the
     default Content-Type header.
 
@@ -50,10 +47,67 @@ description: |
     the application and use callbacks to process responses when they are received.
 
     Synchronous requests block the execution of the application until it receives a response.
-    On the iOS and Mobile Web platforms,  you can make synchronous requests by setting the optional
+    On the iOS platform,  you can make synchronous requests by setting the optional
     `async` parameter to `false` when calling the [open](Titanium.Network.HTTPClient.open) method.
 
     The Android platform does not support synchronous requests.
+
+    #### TLS Support
+
+    Transport Layer Security (TLS) is a protocol that ensures privacy between communicating applications
+    and their users on the Internet. When a server and client communicate, TLS ensures that no third
+    party may eavesdrop or tamper with any message. TLS is the successor to the Secure Sockets Layer (SSL).
+
+    To communicate to servers with the TLS protocol, you need to use the same TLS version between
+    the client and server.
+
+    <table class="doc-table" summary="This table provides information about TLS versions.">
+      <caption><b>TLS versions by platform</b></caption>
+      <thead>
+        <tr>
+          <th>Protocol</th>
+          <th>Android</th>
+          <th>iOS</th>
+        </tr>
+      <thead>
+      <tbody>
+        <tr>
+          <th align="left">TLS 1.0</th>
+          <td>1.0+</td>
+          <td>1.0+</td>
+        </tr>
+        <tr>
+          <th align="left">TLS 1.1</th>
+          <td>4.1+</td>
+          <td>5.0+</td>
+        </tr>
+        <tr>
+          <th align="left">TLS 1.2</th>
+          <td>4.1+</td>
+          <td>5.0+</td>
+        </tr>
+      <tbody>
+    </table>
+
+    In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
+    TLS 1.1 and TLS 1.0. By default, TLS 1.2 is attempted first.
+
+    Use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
+    if you know the version the server is running.  If you do not know, do not set this property.
+    Titanium will not fallback with a lower TLS version if the `tlsVersion` property is set.
+    Setting the TLS version saves time from re-attempting connections with lower TLS versions and
+    provides added security by denying attempts to use lower TLS versions.
+
+    Starting with Release 3.6.0, you can set the TLS version for the Android and iOS platforms.
+    Prior to Release 3.6.0, you can only set the TLS version for iOS.
+    
+    #### Caching Data
+
+    You can also use the HTTP client API to cache image, response data or related. A convenient
+    way to do so is by setting the <Titanium.Network.HTTPClient.file> property to a path or target
+    file, which will be populated with the response data in a successful case (e.g. in the `onload`
+    callback). For more complex use cases, make sure to check [To.ImageCache](https://github.com/Topener/To.ImageCache/)
+    which also supports expire-handling and extended cache control.
 
     #### Android Platform Implementation Notes
 
@@ -63,29 +117,6 @@ description: |
     <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookiesForDomain>, <Titanium.Network.getSystemCookies>,
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
-
-    #### Mobile Web Platform Implementation Notes
-
-    Mobile Web is limited by the same-origin policy. According to W3C: "User agents
-    commonly apply same-origin restrictions to network requests. These restrictions
-    prevent a client-side Web application running from one origin from obtaining
-    data retrieved from another origin, and also limit unsafe HTTP requests that can
-    be automatically launched toward destinations that differ from the running
-    application's origin."  This means that browsers cannot request information from
-    a domain that the app itself does not reside on. If you are hosting the app at
-    foo.example.com, then requests to any domain other than *.example.com will fail.
-
-    There are two solutions to get around this problem:
-
-    * Configure the destination server to support Cross-Origin Resource Sharing.
-    * Use [Ti.Network.httpURLFormatter](Titanium.Network.httpURLFormatter) in conjunction
-      with a proxy on the server hosting the application.
-
-    If you use a proxy, be sure to properly configure how cookies are passed through. You
-    may not want cookies proxied to third parties that could identify a user.
-
-    More information about Cross-Origin Resource Sharing can be found on the
-    [W3C Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) specification page.
 extends: Titanium.Proxy
 since: "0.1"
 
@@ -95,16 +126,21 @@ methods:
 
   - name: addAuthFactory
     summary: Registers a new AuthSchemeFactory for a given scheme.
-    description: Use this method to add support for authorization schemes not natively supported by Android.
+    description: |
+        This has been deprecated.
+        Use this method to add support for authorization schemes not natively supported by Android.
     parameters:
       - name: scheme
         summary: The authentication scheme.
         type: String
       - name: factory
-        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](http://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
+        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](https://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
         type: Object
-    platforms: [android, blackberry]
+    platforms: [android]
     since: {android: "3.0.0"}
+    deprecated:
+        since: "5.0.0"
+        removed: "5.0.0"
 
   - name: addKeyManager
     summary: Adds a custom key manager.
@@ -115,10 +151,13 @@ methods:
         property is ignored.
     parameters:
       - name: X509KeyManager
-        summary: X.509 key manager. This key manager must implement the [X509KeyManager](http://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
+        summary: X.509 key manager. This key manager must implement the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
+    deprecated:
+        since: "3.3.0"
+        removed: "3.4.0"
 
   - name: addTrustManager
     summary: Adds a custom trust manager.
@@ -129,10 +168,13 @@ methods:
         property is ignored.
     parameters:
       - name: X509TrustManager
-        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](http://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
+        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
+    deprecated:
+        since: "3.3.0"
+        removed: "3.4.0"
 
   - name: clearCookies
     summary: Clears any cookies stored for the host.
@@ -155,7 +197,7 @@ methods:
     summary: Opens the request and prepares the connection.
     parameters:
       - name: method
-        summary: HTTP method for this request, such as 'GET' or 'POST'.
+        summary: HTTP method for this request, such as 'GET' or 'POST'. 'PATCH' is available on Android from SDK 4.1.0.
         type: String
 
       - name: url
@@ -163,7 +205,7 @@ methods:
         type: String
 
       - name: async
-        summary: Determines whether the request should be made asynchronously. Only used on iOS, Mobile Web and Tizen.
+        summary: Determines whether the request should be made asynchronously. Only used on iOS.
         type: Boolean
         optional: true
         default: true
@@ -176,6 +218,19 @@ methods:
         If you pass a serializable JavaScript object, it is automatically turned into form-encoded
         POST data. You can also send an arbitrary string or binary data (in the form of a
         <Titanium.Blob>).
+
+        To send array data, specify each array element individually as a property of the object.
+        For example, normally, you specify an array in an object as:
+
+            var payload = { myArray: [1, 2, 3] };
+
+        Instead, for the HTTP client to encode the data correctly, you need to send the data as:
+
+            var payload = {
+                "myArray[0]" : 1,
+                "myArray[1]" : 2,
+                "myArray[2]" : 3
+            };
 
         On iOS, you can specify a synchronous request when you call `open` by passing `false` for
         the `async` parameter. In the case of a synchronous request, `send` blocks until the request
@@ -203,8 +258,6 @@ methods:
 
   - name: setTimeout
     summary: Sets the request timeout.
-    description: |
-        On Mobile Web and Tizen, the timeout only works when making asynchronous requests.
     parameters:
       - name: timeout
         summary: Timeout in milliseconds.
@@ -256,7 +309,17 @@ properties:
     type: String
     permission: read-only
     platforms: [android]
-    
+
+  - name: responseHeaders
+    summary: Returns all the response headers returned with the request.
+    description: |
+        Contains a dictionary of response headers only after the http call has finished.
+
+        See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
+    type: Dictionary
+    permission: read-only
+    platforms: [iphone, ipad]
+
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
     description: Set to `false` to disable automatic URL-encoding.
@@ -277,7 +340,7 @@ properties:
     permission: read-only
 
   - name: connectionType
-    summary: Connection type, normally either `GET` or `POST`.
+    summary: Connection type, normally either `GET`, `POST` or `PATCH`.
     type: String
     permission: read-only
 
@@ -291,7 +354,7 @@ properties:
         Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     since: 3.0.0
 
   - name: enableKeepAlive
@@ -302,15 +365,13 @@ properties:
     platforms: [iphone, ipad]
 
   - name: file
-    summary: Target local file to receive data.
+    summary: Target local file or file path to receive data.
     description: |
-        On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
-
-        
-        On Mobile Web and Tizen, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        This property can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
-    type: String
-    platforms: [iphone, ipad, mobileweb, tizen]
+    type: [String, Titanium.Filesystem.File]
+    platforms: [android, iphone, ipad]
+    since: {android: 3.4.0}
 
   - name: location
     summary: Absolute URL of the request.
@@ -325,7 +386,8 @@ properties:
         Must be set before calling `open`.
 
         The `progress` property of the event will contain a value from 0.0-1.0 with the progress of
-        the request.
+        the request. On iOS and Android as of 3.5.0, if the progress can not be calculated,
+        the value will be [PROGRESS_UNKNOWN](Titanium.Network.PROGRESS_UNKNOWN).
     type: Callback<Object>
 
   - name: onerror
@@ -345,7 +407,7 @@ properties:
         To access response data and headers, access the `HTTPClient` object itself (accessible as
         `this` during the callback, or the `source` property of the callback event).
     type: Callback<SuccessResponse>
-    
+
   - name: onreadystatechange
     summary: |
         Function to be called for each [readyState](Titanium.Network.HTTPClient.readyState) change.
@@ -359,6 +421,12 @@ properties:
         [HEADERS_RECEIVED](Titanium.Network.HTTPClient.HEADERS_RECEIVED),
         [LOADING](Titanium.Network.HTTPClient.LOADING),
         or [DONE](Titanium.Network.HTTPClient.DONE).
+
+        Due to the asynchronous nature of the Titanium platform, the internal value of
+        [readyState](Titanium.Network.HTTPClient.readyState) might be different from the state change
+        for which the event was fired. To address this discrepancy, the function is now invoked with a
+        payload object of type <ReadyStatePayload>. This was introduced in version 3.4.2 of the SDK and is
+        supported on the iOS and android platforms.
 
   - name: onsendstream
     summary: Function to be called at regular intervals as the request data is being transmitted.
@@ -374,7 +442,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     since: 3.0.0
 
   - name: readyState
@@ -392,6 +460,9 @@ properties:
 
         The `onreadystatechange` callback is invoked each time the ready state changes.
     type: Number
+    constants: [ Titanium.Network.HTTPClient.UNSENT,Titanium.Network.HTTPClient.OPENED,
+                 Titanium.Network.HTTPClient.HEADERS_RECEIVED, Titanium.Network.HTTPClient.LOADING,
+                 Titanium.Network.HTTPClient.DONE ]
     permission: read-only
 
   - name: responseData
@@ -413,6 +484,18 @@ properties:
     type: Titanium.XML.Document
     permission: read-only
 
+  - name: securityManager
+    summary: The Security Manager for this client.
+    description:
+        This property **must** be specified during creation.
+        Set this property on the HTTPClient to participate in the authentication and resource management
+        of the connection.
+        See <SecurityManagerProtocol> for further information.
+    type: SecurityManagerProtocol
+    platforms: [ipad, iphone, android]
+    since: "3.3.0"
+    availability: creation
+
   - name: status
     summary: Response HTTP status code.
     type: Number
@@ -425,8 +508,8 @@ properties:
 
   - name: timeout
     summary: Timeout in milliseconds when the connection should be aborted.
-    description: |
-        On Mobile Web and Tizen, the timeout only works when making asynchronous requests.
+    default: |
+        On iOS, the default is 15000 (15 seconds).
     type: Number
 
   - name: username
@@ -434,7 +517,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     since: 3.0.0
 
   - name: validatesSecureCertificate
@@ -448,31 +531,20 @@ properties:
         release in distribution mode.
     platforms: [android, iphone, ipad]
 
-  - name: withCredentials
-    summary: |
-        Determines whether the request should include any cookies and HTTP authentication information.
-    description: |
-        Set to `true` to include cookies and HTTP authentication information with the request.
-
-        This property must be set before open() is called. Setting this to true will force the
-        request to be asynchronous.
-    type: Boolean
-    default: false
-    platforms: [mobileweb, tizen]
-    
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes.
     description: |
         If you experience handshake failures, set this value to a lower version using the TLS
         constants in <Titanium.Network>. 'undefined', 'null', or unsupported values use the default
-        behavior for that iOS version.
-    default: |
-        undefined. For iOS 4, this is effectively
-        [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0). For iOS 5 and greater, this is
-        [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
+        behavior for that iOS and Android versions.
+
+        Setting this property disables falling back to lower TLS versions.
     type: Number
-    since: "1.8.0"
-    platforms: [iphone, ipad]
+    constants: Titanium.Network.TLS_VERSION_*
+    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    default: |
+        undefined, behaves as `Ti.Network.TLS_VERSION_1_2`.
+    platforms: [android, iphone, ipad]
 
   - name: cache
     summary: Determines whether HTTP responses are cached.
@@ -516,3 +588,105 @@ examples:
              client.open("GET", url);
              // Send the request.
              client.send();
+
+---
+name: SecurityManagerProtocol
+summary: The protocol that the <Titanium.Network.HTTPClient.securityManager> must implement.
+description: |
+    The object representing <Titanium.Network.HTTPClient.securityManager> must implement this protocol.
+    Assigning the securityManager property to an object that does not implement this protocol will cause an exception to be raised.
+    All methods in this protocol are required.
+
+methods:
+  - name: willHandleURL
+    summary: Returns if the security manager will participate in authentication of this end point.
+    description: |
+        The parameter passed to this method is a [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc)
+        on iOS and a [Uri](https://developer.android.com/reference/android/net/Uri.html) on android.
+
+        Return **true** to participate, **false** to allow default authentication flow.
+    returns:
+        type: Boolean
+    parameters:
+      - name: url
+        summary: The Object representing representing the end point of this connection.
+        type: Object
+
+  - name: connectionDelegateForUrl
+    summary: The <APSConnectionDelegate> for this connection.
+    description: |
+        This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
+        See <APSConnectionDelegate> for further information.
+    returns:
+        type: APSConnectionDelegate
+    parameters:
+      - name: url
+        summary: The [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc) representing the end point of this connection.
+        type: Object
+    platforms: [iphone, ipad]
+
+  - name: getTrustManagers
+    summary: Returns an array of objects implementing the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
+    description: |
+        This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
+
+        Return null to set up a SSL Context with the default system trust managers.
+    returns:
+        type: Array<Object>
+    parameters:
+      - name: proxy
+        summary: The <Titanium.Network.HTTPClient> representing this connection.
+        type: Object
+    platforms: [android]
+
+  - name: getKeyManagers
+    summary: Returns an array of objects implementing the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) protocol for the SSL Context.
+    description: |
+        This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
+
+        Return null to set up a SSL Context with the default system key managers.
+    returns:
+        type: Array<Object>
+    parameters:
+      - name: proxy
+        summary: The <Titanium.Network.HTTPClient> representing this connection.
+        type: Object
+    platforms: [android]
+
+since: 3.3.0
+platforms: [iphone, ipad, android]
+
+---
+name: APSConnectionDelegate
+summary: An extension of the [NSURLConnectionDelegate](https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSURLConnectionDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intf/NSURLConnectionDelegate) protocol to allow users to participate in authentication and resource management for this HTTPClient.
+description: |
+    The APSConnectionDelegate protocol is an extension of the NSURLConnectionDelegate protocol.
+
+    Although all methods in this protocol are optional, the connection delegate must implement at least one of the methods to
+    participate in the authentication and resource management.
+
+    The deprecated methods as defined by the NSURLConnectionDelegate protocol are not supported.
+
+    In addition to the methods defined in the NSURLConnectionDelegate protocol this protocol defines one additional method.
+
+    `-(BOOL)willHandleChallenge:(NSURLAuthenticationChallenge *)challenge forConnection:(NSURLConnection *)connection`.
+
+    This method is called on the connection delegate only if it also implements the
+    `connection:willSendRequestForAuthenticationChallenge:` method of the NSURLConnectionDelegate protocol.
+    Return `true` if the connection delegate wants to handle this challenge.
+    Return `false` if the default delegate will handle this challenge.
+
+    If the connection delegate does not implement this method but implements `connection:willSendRequestForAuthenticationChallenge:`, the return
+    value is assumed to be `true` and all challenges will be forwarded to the connection delegate.
+
+since: 3.3.0
+platforms: [iphone, ipad]
+---
+name: ReadyStatePayload
+summary: An Object describing the current ready state. See [onreadystatechange](Titanium.Network.HTTPClient.onreadystatechange) for more information.
+platforms: [iphone, ipad, android]
+since: "3.4.2"
+properties:
+  - name: readyState
+    summary: The state for which `onreadystatechange` was invoked. Set to one of `Titanium.Network.HTTPClient` ready-state constants
+    type: Number

@@ -6,19 +6,18 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiViewProxy.h"
-#import "TiEvaluator.h"
+#import <TitaniumKit/TiEvaluator.h>
+#import <TitaniumKit/TiViewProxy.h>
 
-@interface TiUIWebViewProxy : TiViewProxy<TiEvaluator> {
-@private
-	NSString *pageToken;
-    NSString *evalResult;
-    BOOL inKJSThread;
+@interface TiUIWebViewProxy : TiViewProxy <TiEvaluator> {
+  @private
+  NSMutableArray<NSString *> *_genericProperties;
+  NSArray *_allowedURLSchemes;
+  NSString *_pageToken;
 }
--(void)setPageToken:(NSString*)pageToken;
-#pragma mark - Internal Use Only
--(void)webviewDidFinishLoad;
-@end
 
+- (void)refreshHTMLContent;
+- (void)setPageToken:(NSString *)pageToken;
+@end
 
 #endif

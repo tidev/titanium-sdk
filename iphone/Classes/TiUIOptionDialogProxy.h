@@ -6,26 +6,25 @@
  */
 #ifdef USE_TI_UIOPTIONDIALOG
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 @class TiViewProxy;
 
-@interface TiUIOptionDialogProxy : TiProxy<UIActionSheetDelegate> {
+@interface TiUIOptionDialogProxy : TiProxy <UIPopoverPresentationControllerDelegate> {
 
-    UIActionSheet *actionSheet;
-//We need to hold onto this information for whenever the status bar rotates.
-    TiViewProxy *dialogView;
-    CGRect dialogRect;
-    BOOL animated;
-    NSUInteger accumulatedOrientationChanges;
-    BOOL showDialog;
-    BOOL persistentFlag;
-    BOOL forceOpaqueBackground;
+  UIAlertController *alertController;
+  TiViewProxy *dialogView;
+  UIColor *tintColor;
+  CGRect dialogRect;
+  BOOL animated;
+  NSUInteger accumulatedOrientationChanges;
+  BOOL showDialog;
+  BOOL persistentFlag;
+  BOOL forceOpaqueBackground;
+  int cancelButtonIndex;
+  int destructiveButtonIndex;
 }
 
-@property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
-
--(void)deviceRotationBegan:(NSNotification *)notification;
--(void)updateOptionDialogNow;
+@property (nonatomic, retain, readwrite) TiViewProxy *dialogView;
 
 @end
 

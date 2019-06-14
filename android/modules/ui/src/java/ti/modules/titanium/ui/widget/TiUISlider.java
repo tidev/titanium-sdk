@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,11 +22,11 @@ import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.widget.SeekBar;
 
-public class TiUISlider extends TiUIView
-	implements SeekBar.OnSeekBarChangeListener
+public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListener
 {
 	private static final String TAG = "TiUISlider";
 
@@ -37,7 +37,8 @@ public class TiUISlider extends TiUIView
 	private int minRange;
 	private int maxRange;
 	private int scaleFactor;
-	
+	private ClipDrawable rightClipDrawable;
+
 	private SoftReference<Drawable> thumbDrawable;
 
 	public TiUISlider(final TiViewProxy proxy)
@@ -50,9 +51,8 @@ public class TiUISlider extends TiUIView
 		this.min = 0;
 		this.max = 1;
 		this.pos = 0;
-		
-		SeekBar seekBar = new SeekBar(proxy.getActivity())
-		{
+
+		SeekBar seekBar = new SeekBar(proxy.getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -70,7 +70,7 @@ public class TiUISlider extends TiUIView
 		super.processProperties(d);
 
 		SeekBar seekBar = (SeekBar) getNativeView();
-		
+
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE, 0);
 		}
@@ -78,7 +78,7 @@ public class TiUISlider extends TiUIView
 			min = TiConvert.toInt(d.get(TiC.PROPERTY_MIN), 0);
 		}
 		if (d.containsKey(TiC.PROPERTY_MAX)) {
-			max = TiConvert.toInt(d.get(TiC.PROPERTY_MAX), 0);;
+			max = TiConvert.toInt(d.get(TiC.PROPERTY_MAX), 0);
 		}
 		if (d.containsKey("minRange")) {
 			minRange = TiConvert.toInt(d.get("minRange"), 0);
@@ -90,45 +90,61 @@ public class TiUISlider extends TiUIView
 		} else {
 			maxRange = max;
 		}
-		
 		if (d.containsKey("thumbImage")) {
 			updateThumb(seekBar, d);
 		}
-		
-		if (d.containsKey("leftTrackImage") && d.containsKey("rightTrackImage")) {
+		if (d.containsKey(TiC.PROPERTY_SPLIT_TRACK)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
+			}
+		}
+		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
 		}
 		updateRange();
 		updateControl();
+		updateRightDrawable();
 	}
 
-	private void updateRange() {
+	private void updateRightDrawable()
+	{
+		if (rightClipDrawable != null) {
+			SeekBar seekBar = (SeekBar) getNativeView();
+			double percent = (double) seekBar.getProgress() / (double) seekBar.getMax();
+			int level = 10000 - (int) Math.floor(percent * 10000);
+			rightClipDrawable.setLevel(level);
+		}
+	}
+
+	private void updateRange()
+	{
 		minRange = Math.max(minRange, min);
 		minRange = Math.min(minRange, max);
-		proxy.setProperty("minRange", minRange, false);
-		
+		proxy.setProperty("minRange", minRange);
+
 		maxRange = Math.min(maxRange, max);
 		maxRange = Math.max(maxRange, minRange);
-		proxy.setProperty("maxRange", maxRange, false);
+		proxy.setProperty("maxRange", maxRange);
 	}
-	
-	private void updateControl() {
+
+	private void updateControl()
+	{
 		offset = -min;
 		scaleFactor = 100;
 		int length = (int) Math.floor(Math.sqrt(Math.pow(max - min, 2)));
-		if ( (length > 0) && (Integer.MAX_VALUE/length < scaleFactor) ) {
-			scaleFactor = Integer.MAX_VALUE/length;
+		if ((length > 0) && (Integer.MAX_VALUE / length < scaleFactor)) {
+			scaleFactor = Integer.MAX_VALUE / length;
 			scaleFactor = (scaleFactor == 0) ? 1 : scaleFactor;
 		}
 		length *= scaleFactor;
 		SeekBar seekBar = (SeekBar) getNativeView();
-		int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+		int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 		//On Android 4.0+ this will result in a callback to the listener. So set length after calculating position
 		seekBar.setMax(length);
 		seekBar.setProgress(curPos);
 	}
 
-	private void updateThumb(SeekBar seekBar, KrollDict d) 
+	private void updateThumb(SeekBar seekBar, KrollDict d)
 	{
 		TiFileHelper tfh = null;
 		String thumbImage = TiConvert.toString(d, "thumbImage");
@@ -138,7 +154,7 @@ public class TiUISlider extends TiUIView
 			}
 			String url = proxy.resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(url, false);
-		 	if (thumb != null) {
+			if (thumb != null) {
 				thumbDrawable = new SoftReference<Drawable>(thumb);
 				seekBar.setThumb(thumb);
 			} else {
@@ -148,48 +164,60 @@ public class TiUISlider extends TiUIView
 			seekBar.setThumb(null);
 		}
 	}
-	
-	private void updateTrackingImages(SeekBar seekBar, KrollDict d) 
-	{
-		TiFileHelper tfh = null;
-		String leftImage =  TiConvert.toString(d, "leftTrackImage");
-		String rightImage = TiConvert.toString(d, "rightTrackImage");
-		if (leftImage != null && rightImage != null) {
-			if (tfh == null) {
-				tfh = new TiFileHelper(seekBar.getContext());
-			}
-			String leftUrl = proxy.resolveUrl(null, leftImage);
-			String rightUrl = proxy.resolveUrl(null, rightImage);
 
-			Drawable rightDrawable = tfh.loadDrawable(rightUrl, false, true);
-			Drawable leftDrawable = tfh.loadDrawable(leftUrl, false, true);
-			if (rightDrawable != null && leftDrawable != null) {
-				Drawable[] lda = {
-					rightDrawable,
-					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
-				};
-				LayerDrawable ld = new LayerDrawable(lda);
-				ld.setId(0, android.R.id.background);
-				ld.setId(1, android.R.id.progress);
-				seekBar.setProgressDrawable(ld);
-			} else {
+	private void updateTrackingImages(SeekBar seekBar, KrollDict d)
+	{
+		String leftImage = TiConvert.toString(d, "leftTrackImage");
+		String rightImage = TiConvert.toString(d, "rightTrackImage");
+
+		Drawable leftDrawable = null;
+		Drawable rightDrawable = null;
+		TiFileHelper tfh = new TiFileHelper(seekBar.getContext());
+
+		if (leftImage != null) {
+			String leftUrl = proxy.resolveUrl(null, leftImage);
+			if (leftUrl != null) {
+				leftDrawable = tfh.loadDrawable(leftUrl, false, true);
 				if (leftDrawable == null) {
 					Log.e(TAG, "Unable to locate left image for progress bar: " + leftUrl);
 				}
+			}
+		}
+
+		if (rightImage != null) {
+			String rightUrl = proxy.resolveUrl(null, rightImage);
+			if (rightUrl != null) {
+				rightDrawable = tfh.loadDrawable(rightUrl, false, true);
 				if (rightDrawable == null) {
 					Log.e(TAG, "Unable to locate right image for progress bar: " + rightUrl);
 				}
-				// release
-				leftDrawable = null;
-				rightDrawable = null;
 			}
-		} else if (leftImage == null && rightImage == null) {
-			seekBar.setProgressDrawable(null);
+		}
+
+		if (leftDrawable != null || rightDrawable != null) {
+			LayerDrawable ld = null;
+			if (rightDrawable == null) {
+				Drawable[] lda = { new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL) };
+				ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.progress);
+			} else if (leftDrawable == null) {
+				rightClipDrawable = new ClipDrawable(rightDrawable, Gravity.RIGHT, ClipDrawable.HORIZONTAL);
+				Drawable[] lda = { rightClipDrawable };
+				ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.secondaryProgress);
+			} else {
+				Drawable[] lda = { rightDrawable,
+								   new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL) };
+				ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.background);
+				ld.setId(1, android.R.id.progress);
+			}
+			seekBar.setProgressDrawable(ld);
 		} else {
-			Log.w(TAG, "Custom tracking images must both be set before they will be drawn.");
+			Log.w(TAG, "Custom tracking images could not be loaded.");
 		}
 	}
-	
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
@@ -199,7 +227,7 @@ public class TiUISlider extends TiUIView
 		SeekBar seekBar = (SeekBar) getNativeView();
 		if (key.equals(TiC.PROPERTY_VALUE)) {
 			pos = TiConvert.toFloat(newValue);
-			int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			seekBar.setProgress(curPos);
 			onProgressChanged(seekBar, curPos, true);
 		} else if (key.equals("min")) {
@@ -210,7 +238,7 @@ public class TiUISlider extends TiUIView
 				pos = minRange;
 			}
 			updateControl();
-			int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			onProgressChanged(seekBar, curPos, true);
 		} else if (key.equals("minRange")) {
 			minRange = TiConvert.toInt(newValue);
@@ -219,7 +247,7 @@ public class TiUISlider extends TiUIView
 				pos = minRange;
 			}
 			updateControl();
-			int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			onProgressChanged(seekBar, curPos, true);
 		} else if (key.equals("max")) {
 			max = TiConvert.toInt(newValue);
@@ -229,7 +257,7 @@ public class TiUISlider extends TiUIView
 				pos = maxRange;
 			}
 			updateControl();
-			int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			onProgressChanged(seekBar, curPos, true);
 		} else if (key.equals("maxRange")) {
 			maxRange = TiConvert.toInt(newValue);
@@ -238,36 +266,45 @@ public class TiUISlider extends TiUIView
 				pos = maxRange;
 			}
 			updateControl();
-			int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			onProgressChanged(seekBar, curPos, true);
 		} else if (key.equals("thumbImage")) {
 			//updateThumb(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
 			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
+		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
+			}
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
-			Log.i(TAG, "Dynamically changing leftTrackImage or rightTrackImage is not yet supported. Native control doesn't draw");
+			Log.i(
+				TAG,
+				"Dynamically changing leftTrackImage or rightTrackImage is not yet supported. Native control doesn't draw");
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
-	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		pos = seekBar.getProgress()*1.0f/scaleFactor;
-		
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+	{
+		pos = seekBar.getProgress() * 1.0f / scaleFactor;
+
 		// Range check
 		int actualMinRange = minRange + offset;
 		int actualMaxRange = maxRange + offset;
-		
+
 		if (pos < actualMinRange) {
-			seekBar.setProgress(actualMinRange*scaleFactor);
+			seekBar.setProgress(actualMinRange * scaleFactor);
 			pos = minRange;
 		} else if (pos > actualMaxRange) {
-			seekBar.setProgress(actualMaxRange*scaleFactor);
+			seekBar.setProgress(actualMaxRange * scaleFactor);
 			pos = maxRange;
 		}
-		
+
+		updateRightDrawable();
+
 		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
 		KrollDict offset = new KrollDict();
 		offset.put(TiC.EVENT_PROPERTY_X, 0);
@@ -287,9 +324,10 @@ public class TiUISlider extends TiUIView
 		KrollDict data = new KrollDict();
 		float scaledValue = scaledValue();
 		Log.d(TAG,
-			"Progress " + seekBar.getProgress() + " ScaleFactor " + scaleFactor + " Calculated Position " + pos
-				+ " ScaledValue " + scaledValue + " Min " + min + " Max" + max + " MinRange" + minRange + " MaxRange"
-				+ maxRange, Log.DEBUG_MODE);
+			  "Progress " + seekBar.getProgress() + " ScaleFactor " + scaleFactor + " Calculated Position " + pos
+				  + " ScaledValue " + scaledValue + " Min " + min + " Max" + max + " MinRange" + minRange + " MaxRange"
+				  + maxRange,
+			  Log.DEBUG_MODE);
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
@@ -298,20 +336,22 @@ public class TiUISlider extends TiUIView
 		fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
-	public void onStartTrackingTouch(SeekBar seekBar) {
+	public void onStartTrackingTouch(SeekBar seekBar)
+	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_VALUE, scaledValue());
 		fireEvent(TiC.EVENT_START, data, false);
 	}
 
-	public void onStopTrackingTouch(SeekBar seekBar) {
+	public void onStopTrackingTouch(SeekBar seekBar)
+	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_VALUE, scaledValue());
 		fireEvent(TiC.EVENT_STOP, data, false);
 	}
 
-	private float scaledValue() {
+	private float scaledValue()
+	{
 		return pos + min;
 	}
-
 }

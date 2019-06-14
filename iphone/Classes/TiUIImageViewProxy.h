@@ -6,18 +6,19 @@
  */
 #ifdef USE_TI_UIIMAGEVIEW
 
-#import "TiViewProxy.h"
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiViewProxy.h>
 
-@interface TiUIImageViewProxy : TiViewProxy<ImageLoaderDelegate> {
-	ImageLoaderRequest *urlRequest;
-    NSURL* imageURL;
+@interface TiUIImageViewProxy : TiViewProxy <ImageLoaderDelegate> {
+  ImageLoaderRequest *urlRequest;
+  NSURL *imageURL;
 }
-@property (nonatomic,retain) NSURL* imageURL;
 
--(void)cancelPendingImageLoads;
--(void)startImageLoad:(NSURL *)url;
--(void)propagateLoadEvent:(NSString *)stateString;
+@property (nonatomic, retain) NSURL *imageURL;
+
+- (void)cancelPendingImageLoads;
+- (void)startImageLoad:(NSURL *)url;
+- (void)propagateLoadEvent:(NSString *)stateString;
 
 @end
 

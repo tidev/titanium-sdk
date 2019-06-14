@@ -1,9 +1,0 @@
-{
- "functions": [
-  "verifyHeight", 
-  "verifyAutoresizing"
- ], 
- "properties": [
-  "toolbar"
- ]
-}

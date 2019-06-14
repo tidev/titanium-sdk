@@ -1,142 +1,137 @@
 ---
 name: Titanium.UI
-summary: The main <Titanium.UI> module.  
+summary: The main <Titanium.UI> module.
 description:  |
-    The UI module is responsible for native user-interface components and interaction inside 
-    Titanium.  The goal of the UI module is to provide a native experience along with native 
-    performance by compiling Javascript code into their native counterparts as part of the 
+    The UI module is responsible for native user-interface components and interaction inside
+    Titanium.  The goal of the UI module is to provide a native experience along with native
+    performance by compiling Javascript code into their native counterparts as part of the
     build process.
-    
+
     #### Design
-    
+
     The UI module is broken down into 3 major area:
-    
-    * **Views** - [Views](Titanium.UI.View) are containers that host visual elements such as 
-    controls or other views.  Views can have their properties customized, such as their border color 
-    and radius, can fire events such as swipe events or touches, and can optionally contain a 
-    hierarchy or other views as children. In Titanium, most views are specialized to perform both a 
+
+    * **Views** - [Views](Titanium.UI.View) are containers that host visual elements such as
+    controls or other views.  Views can have their properties customized, such as their border color
+    and radius, can fire events such as swipe events or touches, and can optionally contain a
+    hierarchy or other views as children. In Titanium, most views are specialized to perform both a
     visual function and set of interaction behaviors such as [Table View](Titanium.UI.TableView) or
     [Coverflow View](Titanium.UI.iOS.CoverFlowView).  Views are always named with the suffix `View`.
-    
-    * **Controls** - controls, or sometimes referred as widgets, are visual elements such as 
-    [sliders](Titanium.UI.Slider),  [buttons](Titanium.UI.Button) and [switches](Titanium.UI.Switch). 
-    They provide a visual element which has a defined behavior and typical have special 
-    configuration and special events.  Controls themselves are views and also inherit a views 
+
+    * **Controls** - controls, or sometimes referred as widgets, are visual elements such as
+    [sliders](Titanium.UI.Slider),  [buttons](Titanium.UI.Button) and [switches](Titanium.UI.Switch).
+    They provide a visual element which has a defined behavior and typical have special
+    configuration and special events.  Controls themselves are views and also inherit a views
     properties, functions and events.
-    
-    * **Windows** - [Windows](Titanium.UI.Window) are typically top-level visual constructs that are 
-    the main part of your interface. An application will always have at least one window and windows 
-    can take different shapes and sizes, can have display and interaction properties such as 
-    fullscreen or modal and can be customized, such as changing their opacity or background color. 
-    Windows themselves are views and also inherit a views properties, functions and events. There 
-    are a few specialization of Windows such as a [Tab Group](Titanium.UI.TabGroup) which offer 
+
+    * **Windows** - [Windows](Titanium.UI.Window) are typically top-level visual constructs that are
+    the main part of your interface. An application will always have at least one window and windows
+    can take different shapes and sizes, can have display and interaction properties such as
+    fullscreen or modal and can be customized, such as changing their opacity or background color.
+    Windows themselves are views and also inherit a views properties, functions and events. There
+    are a few specialization of Windows such as a [Tab Group](Titanium.UI.TabGroup) which offer
     additional behavior beyond the basic Window.
-    
-    Titanium uses the [Factory Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for 
-    constructing objects and a general naming pattern for APIs.  For example, to construct a 
-    [Alert Dialog](Titanium.UI.AlertDialog), you call the method <Titanium.UI.createAlertDialog>.  
-    To create a [TextArea](Titanium.UI.TextArea), you call the method <Titanium.UI.createTextArea>.  
+
+    Titanium uses the [Factory Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for
+    constructing objects and a general naming pattern for APIs.  For example, to construct a
+    [Alert Dialog](Titanium.UI.AlertDialog), you call the method <Titanium.UI.createAlertDialog>.
+    To create a [TextArea](Titanium.UI.TextArea), you call the method <Titanium.UI.createTextArea>.
     Once an object is created, it will be available until it goes out of scope.
-    
+
     #### Optimizations
-    
-    UI objects are optimized by Titanium to not be realized into the drawing context and placed into 
-    the device UI surface until needed.  That means that you can create UI objects, set their 
-    properties and add them to their hierarchy without much worry about memory or performance.  
-    When the native drawing surface needs to render a specific view or control, Titanium will 
-    automatically create the view as needed.  Additionally, Titanium is optimized to also release 
-    memory once the view is no longer needed, on screen or in low memory situations.  However, it's 
-    a good idea to help Titanium along in certain cases where you are no longer using objects.  For 
-    example, you should call `close` on a [Window](Titanium.UI.Window) instance when you are no 
+
+    UI objects are optimized by Titanium to not be realized into the drawing context and placed into
+    the device UI surface until needed.  That means that you can create UI objects, set their
+    properties and add them to their hierarchy without much worry about memory or performance.
+    When the native drawing surface needs to render a specific view or control, Titanium will
+    automatically create the view as needed.  Additionally, Titanium is optimized to also release
+    memory once the view is no longer needed, on screen or in low memory situations.  However, it's
+    a good idea to help Titanium along in certain cases where you are no longer using objects.  For
+    example, you should call `close` on a [Window](Titanium.UI.Window) instance when you are no
     longer using it.  You can safely call `open` on the window again to re-open it.
-    
+
     #### Global Context and Threading
-    
-    Be careful with the objects that are created in `app.js` but only used once. Since the `app.js` 
-    context is global and generally is not garbage collected until the application exits, you 
+
+    Be careful with the objects that are created in `app.js` but only used once. Since the `app.js`
+    context is global and generally is not garbage collected until the application exits, you
     should think about the design of your application as it relates to this fact.
-    
-    [Window](Titanium.UI.Window) objects that are opened up with the `url` property to another 
+
+    [Window](Titanium.UI.Window) objects that are opened up with the `url` property to another
     JavaScript file provide a nice way to decompose your application into smaller units.
-    
-    Additionally, Window objects created with a `url` value run in a separate JavaScript context 
-    and thread. While all UI processing is done on the main UI thread, other processing inside 
+
+    Additionally, Window objects created with a `url` value run in a separate JavaScript context
+    and thread. While all UI processing is done on the main UI thread, other processing inside
     a Window or the `app.js` that does not have UI interaction will run in its own thread.
-    
-    The other benefit of using the `url` property is that when the window is closed, resources 
-    allocated in the window's context can be immediately cleaned up, saving resources such as 
+
+    The other benefit of using the `url` property is that when the window is closed, resources
+    allocated in the window's context can be immediately cleaned up, saving resources such as
     memory and CPU.
-    
-    For more information, see the sections "Sub-contexts" and "Passing Data Between Contexts" on the 
+
+    For more information, see the sections "Sub-contexts" and "Passing Data Between Contexts" on the
     [Window](Titanium.UI.Window) reference page.
-    
+
     #### Portability
-    
-    Titanium components are designed to be portable across as many platforms as it supports.  
-    However, there are cases where a device either does not support a specific feature or capability 
-    or where it support additional functionality.  For cases where the device OS supports 
-    capabilities that other platforms do not, we attempt to place those capabilities in a separate 
-    namespace, such as <Titanium.UI.iPhone>. However, in cases where the control is in a common 
-    namespace and support additional features, we continue to place that functionality directly on 
+
+    Titanium components are designed to be portable across as many platforms as it supports.
+    However, there are cases where a device either does not support a specific feature or capability
+    or where it support additional functionality.  For cases where the device OS supports
+    capabilities that other platforms do not, we attempt to place those capabilities in a separate
+    namespace, such as <Titanium.UI.iPhone>. However, in cases where the control is in a common
+    namespace and support additional features, we continue to place that functionality directly on
     the object.
-    
+
     #### Events
-    
-    Event listeners must be defined before their respective events are likely to be fired, otherwise 
-    they are not guaranteed to be called. The open and focus [Window](Titanium.UI.Window) event 
+
+    Event listeners must be defined before their respective events are likely to be fired, otherwise
+    they are not guaranteed to be called. The open and focus [Window](Titanium.UI.Window) event
     listeners, for instance, must be defined before the window is opened.
-    
-    Evaluating events as late as possible while bearing the above consideration in mind, however, 
-    can significantly improve application responsiveness. For example, an event listener for a 
+
+    Evaluating events as late as possible while bearing the above consideration in mind, however,
+    can significantly improve application responsiveness. For example, an event listener for a
     click event may be defined after the parent window has been opened.
-    
+
     #### Colors
-    
+
     Many UI components have properties that control their color.
-    
-    Colors may be specified as a hex triplet to determine the red, green and blue channels. Thus, 
-    `'#000000'` is specified for black, `'#ff0000'` for red, `'#00ff00'` for green, `'#0000ff'` for 
-    blue, and `'#ffffff'` for white, etc. A channel may be abbreviated when its two hex digits are 
-    identical, such as `'#000'`, `'#f00'`, `'#0f0#'`, `'#00f'` and `'#fff'` for the above colors, 
+
+    Colors may be specified as a hex triplet to determine the red, green and blue channels. Thus,
+    `'#000000'` is specified for black, `'#ff0000'` for red, `'#00ff00'` for green, `'#0000ff'` for
+    blue, and `'#ffffff'` for white, etc. A channel may be abbreviated when its two hex digits are
+    identical, such as `'#000'`, `'#f00'`, `'#0f0#'`, `'#00f'` and `'#fff'` for the above colors,
     respectively.
-    
-    An additional alpha channel is supported as a prefix to the hex triplet. So, to make 
-    the purple-like color `'#ff00ff'` semi-opaque, you could use an alpha value of `'55'`, giving, 
+
+    An additional alpha channel is supported as a prefix to the hex triplet. So, to make
+    the purple-like color `'#ff00ff'` semi-opaque, you could use an alpha value of `'55'`, giving,
     `'#55ff00ff'` or `'#5f0f'`.
-    
-    Note that while the pound symbol, `#`, is not mandatory on iOS when using the hex triplet format, 
+
+    Note that while the pound symbol, `#`, is not mandatory on iOS when using the hex triplet format,
     it is recommended to include it to provide compatibility with other platforms.
-    
-    iOS also accepts colors specified in the form, `rgb(R,G,B)` and `rgba(R,G,B,A)`, with the color 
-    channels inside the parethesis represented by integer numbers between `0` and `255` and the 
-    alpha channel by a float number between `0` and `1.0` (transparent to opaque, respectively). 
-    For example, an opaque purple could be obtained using `'rgb(255,0,255)'` and a semi-opaque purple 
-    using `'rgba(255,0,255,0.3)'`. Note that although this format will work if the `rgb` or `rgba` 
+
+    iOS also accepts colors specified in the form, `rgb(R,G,B)` and `rgba(R,G,B,A)`, with the color
+    channels inside the parethesis represented by integer numbers between `0` and `255` and the
+    alpha channel by a float number between `0` and `1.0` (transparent to opaque, respectively).
+    For example, an opaque purple could be obtained using `'rgb(255,0,255)'` and a semi-opaque purple
+    using `'rgba(255,0,255,0.3)'`. Note that although this format will work if the `rgb` or `rgba`
     prefix is omitted, this is not officially supported and thus not recommended.
-    
+
     Alternatively, the following set of color names are recognized.
-    
-    `'aqua'`, `'black'`, `'blue'`, `'brown'`, `'cyan'`, `'darkgray'`, `'fuchsia'`, `'gray'`, 
-    `'green'`, `'lightgray'`, `'lime'`, `'magenta'`, `'maroon'`, `'navy'`, `'olive'`, `'orange'`, 
+
+    `'aqua'`, `'black'`, `'blue'`, `'brown'`, `'cyan'`, `'darkgray'`, `'fuchsia'`, `'gray'`,
+    `'green'`, `'lightgray'`, `'lime'`, `'magenta'`, `'maroon'`, `'navy'`, `'olive'`, `'orange'`,
     `'pink'`, `'purple'`, `'red'`, `'silver'`, `'teal'`, `'white'`, `'yellow'`.
-    
+
     All color properties also accept a value of `'transparent'`.
 
     On Android, if you want to create a semi-transparent window, set the `opacity`
     property **before** opening the window.
-    
-    If a color property is undefined, the default color of the particular UI element is applied. 
-    If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
+
+    On iOS, you can set a global tinting using <Titanium.UI.tintColor>. All child views will inherit
+    the tint color by default and are able to override the color using `tintColor` on their own views.
+    The default `tintColor` on iOS is the blue (system-color).
+
+    If a color property is undefined, the default color of the particular UI element is applied.
+    If a color value is not valid on iOS, the default color is applied, whereas, on Android, the
     color yellow is applied.
-    
-    Besides the above mentioned colors, the following constants can be used to specify iOS
-    system textures. These constants can be used wherever a color value is required:
-    
-    * **[COLOR_SCROLLVIEW_BACKGROUND](Titanium.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND)** 
-    * **[COLOR_VIEW_FLIPSIDE_BACKGROUND](Titanium.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND)** 
-    * **[COLOR_GROUP_TABLEVIEW_BACKGROUND](Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND)** 
-    * **[COLOR_UNDER_PAGE_BACKGROUND](Titanium.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND)** (Only 
-    available on iOS SDK 5.0 and above.)
 
 extends: Titanium.Module
 since: "0.4"
@@ -149,9 +144,21 @@ methods:
     parameters:
       - name: parameters
         summary: Initial transformation of the matrix.
-        type: MatrixCreationDict
+        type: Matrix2DCreationDict
         optional: true
-    exclude-platforms: [blackberry]
+    deprecated:
+        since: "8.0.0"
+        notes: Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
+
+  - name: createMatrix2D
+    summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix2DCreationDict
+        optional: true
 
   - name: convertUnits
     summary: Converts one type of unit to another using the metrics of the main display.
@@ -162,15 +169,15 @@ methods:
     parameters:
       - name: convertFromValue
         summary: |
-            Measurement and optional unit to convert from, i.e. 160, "120dip".  Percentages are 
+            Measurement and optional unit to convert from, i.e. 160, "120dip".  Percentages are
             not accepted.
         type: String
-        
+
       - name: convertToUnits
-        summary: |
-            Desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
-        type: String
-    exclude-platforms: [blackberry]
+        summary: Desired unit for the conversion result.
+        type: Number
+        constants: Titanium.UI.UNIT_*
+
 
 properties:
   - name: ANIMATION_CURVE_EASE_IN
@@ -179,95 +186,974 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
-    
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
+
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
-    
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
+
   - name: ANIMATION_CURVE_EASE_OUT
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
-    
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
+
   - name: ANIMATION_CURVE_LINEAR
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
-    
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
+
+  - name: ATTRIBUTE_FONT
+    summary: |
+        Use with <Attribute.type> to specify a font.
+    description: |
+        Use a <Font> dictionary for <Attribute.value>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_FOREGROUND_COLOR
+    summary: |
+        Use with <Attribute.type> to specify a font color.
+    description: |
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_BACKGROUND_COLOR
+    summary: |
+        Use with <Attribute.type> to specify a background color.
+    description: |
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LIGATURE
+    summary: |
+        Use with <Attribute.type> to enable or disable ligatures.
+    description: |
+        Set <Attribute.value> to `1` to enable ligatures, else `0` to disable.
+        Ligatures are only supported on certain fonts.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LETTERPRESS_STYLE
+    summary: |
+        Use with <Attribute.value> to use a letterpress text effect.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_KERN
+    summary: |
+        Use with <Attribute.type> to specify kerning (space between characters).
+    description: |
+        Set <Attribute.value> to a float value specifying how many pixels to increase the character
+        spacing.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_STRIKETHROUGH_STYLE
+    summary: |
+        Use with <Attribute.type> to place a horizontal line through the text.
+    description: |
+        Set the `value` property to a `Titanium.UI.ATTRIBUTE_UNDERLINE_*` constant.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINES_STYLE
+    summary: |
+        Use with <Attribute.type> to place a horizontal line under the text.
+    description: |
+        Set the `value` property to a `Titanium.UI.ATTRIBUTE_UNDERLINE_*` constant.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_SUPERSCRIPT_STYLE
+    summary: |
+        Use with <Attribute.type> to place the text in an upper position.
+    description: |
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
+  - name: ATTRIBUTE_SUBSCRIPT_STYLE
+    summary: |
+        Use with <Attribute.type> to place the text in a lower position.
+    description: |
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
+  - name: ATTRIBUTE_STROKE_COLOR
+    summary: |
+        Use with <Attribute.type> to specify a color for the stroke text.
+    description: |
+        Use a color name or hex value for the `value` property in the attributes dictionary.
+
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_PARAGRAPH_STYLE
+    summary: |
+        Use with <Attribute.type> to manages the behaviour of string set.
+    description: |
+        Use <ParagraphAttribute> for the 'value' property in the attribute dictionary.
+        Range for this should be whole string.
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "7.5.0"
+    permission: read-only
+
+  - name: ATTRIBUTE_STROKE_WIDTH
+    summary: |
+        Use with <Attribute.type> to specify the width of the stroke text.
+    description: |
+        Set <Attribute.value> to a float value specifying the size of stroke width as a percentage of the
+        font size. A positive value displays an outline of the charater, while a negative value
+        fills the character.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_SHADOW
+    summary: |
+        Use with <Attribute.type> to display a shadow behind the text.
+    description: |
+        Set <Attribute.value> to a [Shadow](shadowDict) dictionary.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION
+    summary: |
+        Use with <Attribute.type> to control the direction of the text.
+    description: |
+        Set <Attribute.value> to a `Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_*` constant.
+
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_TEXT_EFFECT
+    summary: |
+        Use with <Attribute.type> to apply a text effect.
+    description: |
+        Set <Attribute.value> to `Titainium.UI.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
+        letterpress effect to the text.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINK
+    summary: |
+        Use with <Attribute.type> to create a link.
+    description: |
+        Set <Attribute.value> to a URL.
+
+        Use the Label's [link](Titanium.UI.Label.link) event to determine when the user triggers a
+        long press (not a click) event on the linked text.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_BASELINE_OFFSET
+    summary: |
+        Use with <Attribute.type> to apply a different baseline to the text.
+    description: |
+        Set <Attribute.value> to a number to specify how many pixels to raise or lower the text.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad, android]
+    since: {iphone: "3.6.0", ipad: "3.6.0", android: "7.0.0"}
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_COLOR
+    summary: |
+        Use with <Attribute.type> to change the color of the horizontal line.
+    description: |
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_STRIKETHROUGH_COLOR
+    summary: |
+        Use with <Attribute.type> to change the color of the horizontal line.
+    description: |
+        Use a color name or hex value for <Attribute.value>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_OBLIQUENESS
+    summary: |
+        Use with <Attribute.type> to skew the text.
+    description: |
+        Set <Attribute.value> to a float value to specify how much to skew the text.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_EXPANSION
+    summary: |
+        Use with <Attribute.type> to stretch the text horizontally.
+    description: |
+        Set <Attribute.value> to a float value to specify how much to stretch the text.
+
+        For iOS, the default value is 0.0 and has no minimum/maximum range specified.
+        For Windows, the default value is 0.0 and the valid range is between 0.5 and 1.0.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK
+    deprecated:
+        since: "7.5.0"
+        notes: Use <ParagraphAttribute.lineBreakMode> instead.  
+    summary: |
+        Use with <Attribute.type> to wrap and truncate the text.
+    description: |
+        Set <Attribute.value> to a `Titanium.UI.ATTRIBUTE_LINE_BREAK_*` constant.
+
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
+    summary: |
+        Use with <Attribute.value> to not draw a line.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+    summary: |
+        Use with <Attribute.value> to draw a single line.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "6.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
+    summary: |
+        Use with <Attribute.value> to draw a thick line.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
+    summary: |
+        Use with <Attribute.value> to draw a double line.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
+    summary: |
+        Use with <Attribute.value> to draw a solid line.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
+    summary: |
+        Use with <Attribute.value> to draw a dotted line.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
+    summary: |
+        Use with <Attribute.value> to draw a dashed line.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
+    summary: |
+        Use with <Attribute.value> to draw an alternating line of dashes and dots.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
+    summary: |
+        Use with <Attribute.value> to draw an alternating line of dashes and two dots.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_UNDERLINE_BY_WORD
+    summary: |
+        Use with <Attribute.value> to draw a line only underneath or through words.
+    description: |
+        Use this constant when <Attribute.type> is either
+        <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or
+        <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
+    summary: |
+        Use with <Attribute.value> to use the embedded text direction.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
+    summary: |
+        Use with <Attribute.value> to override the text direction.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
+    summary: |
+        Use with <Attribute.value> to use the
+        [Unicode Bidirection Algorithm rules P2 and P3](http://www.unicode.org/reports/tr9/#The_Paragraph_Level)
+        to determine which direction to use.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
+    summary: |
+        Use with <Attribute.value> to write text left to right.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+    summary: |
+        Use with <Attribute.value> to write text right to left.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CLIPPING
+    summary: |
+        Use with <Attribute.value> to set lines to not draw past the edge of the text container.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the beginning of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the middle of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the end of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: AUTODETECT_ADDRESS
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: AUTODETECT_ALL
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        removed: "6.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: AUTODETECT_CALENDAR
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: AUTODETECT_LINK
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: AUTODETECT_NONE
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
+        removed: "6.0.0"
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: AUTODETECT_PHONE
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
+  - name: AUTOFILL_TYPE_USERNAME
+    summary: Specifies the expectation of an account or login name.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_PASSWORD
+    summary: Specifies the expectation of a password.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NAME
+    summary: Specifies the expectation of a name.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NAME_PREFIX
+    summary: Specifies the expectation of a prefix or title, such as 'Dr.'
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_GIVEN_NAME
+    summary: Specifies the expectation of a given name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_MIDDLE_NAME
+    summary: Specifies the expectation of a middle name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_FAMILY_NAME
+    summary: Specifies the expectation of a family name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NAME_SUFFIX
+    summary: Specifies the expectation of a suffix, such as 'Jr.'
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NICKNAME
+    summary: Specifies the expectation of a nickname.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_JOB_TITLE
+    summary: Specifies the expectation of a job title.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ORGANIZATION_NAME
+    summary: Specifies the expectation of an organization name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_LOCATION
+    summary: Specifies the expectation of a location, such as a point of interest, an address, or another way to identify a location.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS
+    summary: Specifies the expectation of an address.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_LINE1
+    summary: Specifies the expectation of the first line of a street address.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_LINE2
+    summary: Specifies the expectation of the second line of a street address.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_CITY
+    summary: Specifies the expectation of a city name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_STATE
+    summary: Specifies the expectation of a state name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_CITY_STATE
+    summary: Specifies the expectation of a city name combined with a state name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_SUBLOCALITY
+    summary: Specifies the expectation of a sublocality.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_COUNTRY_NAME
+    summary: Specifies the expectation of a country name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_POSTAL_CODE
+    summary: Specifies the expectation of a postal code.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_PHONE
+    summary: Specifies the expectation of a telephone number.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_EMAIL
+    summary: Specifies the expectation of an email address.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_URL
+    summary: Specifies the expectation of a URL.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_NUMBER
+    summary: Specifies the expectation of a card number.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_SECURITY_CODE
+    summary: Specifies the expectation of a card security code.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_DATE
+    summary: Specifies the expectation of a card expiration date.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_DAY
+    summary: Specifies the expectation of a card expiration day.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_MONTH
+    summary: Specifies the expectation of a card expiration month.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_YEAR
+    summary: Specifies the expectation of a card expiration year.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NEW_PASSWORD
+    summary: Specifies the expectation of a new password.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ONE_TIME_CODE
+    summary: Specifies the expectation of a single-factor SMS login code.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
+    permission: read-only
+
   - name: AUTOLINK_MAP_ADDRESSES
     summary: Converts strings formatted as addresses into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
-            
+
          On Android:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
@@ -276,14 +1162,14 @@ properties:
     since: "3.0.0"
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: AUTOLINK_ALL
     summary: Converts all detectable types of data into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
-            
+
          On Android:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
@@ -291,16 +1177,16 @@ properties:
     since: "3.0.0"
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: AUTOLINK_CALENDAR
     summary: Converts strings formatted as calendar events into clickable links.
     description: Use with the <Titanium.UI.TextArea.autoLink> property. Two or more autolink constants can be combined using bitwise or.
     type: Number
     osver: {ios: {min: "4.0"}}
-    since: {ios: "3.0.0"}
+    since: "3.0.0"
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: AUTOLINK_URLS
     summary: Converts strings formatted as URLs into clickable links.
     description: |
@@ -308,22 +1194,22 @@ properties:
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property. This property will also convert strings formatted
             as email addresses into clickable links.
-            
+
          On Android:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
-            
+
     type: Number
     since: "3.0.0"
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: AUTOLINK_NONE
     summary: Disables converting strings into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
-            
+
          On Android:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
@@ -331,14 +1217,14 @@ properties:
     permission: read-only
     since: "3.0.0"
     platforms: [android, iphone, ipad]
-    
+
   - name: AUTOLINK_PHONE_NUMBERS
     summary: Converts strings formatted as phone numbers into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
-            
+
          On Android:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
@@ -346,7 +1232,7 @@ properties:
     permission: read-only
     since: "3.0.0"
     platforms: [android, iphone, ipad]
-    
+
   - name: AUTOLINK_EMAIL_ADDRESSES
     summary: Converts strings formatted as email addresses into clickable links.
     description: |
@@ -354,7 +1240,7 @@ properties:
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property. This property will also convert strings formatted
             as URLs into clickable links.
-            
+
          On Android:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
@@ -362,287 +1248,319 @@ properties:
     permission: read-only
     since: "3.0.0"
     platforms: [android, iphone, ipad]
-        
+
   - name: BLEND_MODE_CLEAR
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_CLEAR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_COLOR
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_COLOR_BURN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_BURN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_COLOR_DODGE
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_DODGE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_COPY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COPY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_DARKEN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DARKEN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_DESTINATION_ATOP
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_ATOP> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_DESTINATION_IN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_IN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_DESTINATION_OUT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OUT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_DESTINATION_OVER
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OVER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_DIFFERENCE
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DIFFERENCE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_EXCLUSION
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_EXCLUSION> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_HARD_LIGHT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_HARD_LIGHT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_HUE
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_HUE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_LIGHTEN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_LIGHTEN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_LUMINOSITY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_LUMINOSITY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_MULTIPLY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_MULTIPLY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_NORMAL
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_NORMAL> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_OVERLAY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_OVERLAY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_PLUS_DARKER
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_DARKER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_PLUS_LIGHTER
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_LIGHTER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_SATURATION
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SATURATION> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_SCREEN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SCREEN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_SOFT_LIGHT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOFT_LIGHT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
-    
+
   - name: BLEND_MODE_SOURCE_ATOP
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_ATOP> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_SOURCE_IN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_IN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_SOURCE_OUT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_OUT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
   - name: BLEND_MODE_XOR
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_XOR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
+
+  - name: HINT_TYPE_STATIC
+    deprecated:
+        since: "6.2.0"
+    summary: |
+        Use when creating a TextField to specify the hintType as static.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: HINT_TYPE_ANIMATED
+    summary: |
+        Use when creating a TextField to specify the hintType as animated.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
+    summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
     platforms: [iphone, ipad]
-    
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
+    summary: Add ellipses before the first character that doesnt fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
+    summary: Lines are simply not drawn past the edge of the text container.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_START
+    summary: Add ellipses at the beginning of the label if the text is too large to fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "4.1.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
+    summary: Add ellipses in the middle of the label if the text is too large to fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "4.1.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_END
+    summary: Add ellipses at the end of the label if the text is too large to fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "4.1.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_MARQUEE
+    summary: Turns on a marquee effect of the label if the text is too large to fit. (This requires <Titanium.UI.Label.focusable> to be true)
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "4.1.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_NONE
+    summary: Disables ellipsizing of the label. The text will be cut off if it is too long.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.0.0"
+
   - name: EXTEND_EDGE_TOP
     summary: Specifies that the top edge of the window can extend.
     description: |
@@ -651,7 +1569,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.1.3"
-    
+
   - name: EXTEND_EDGE_BOTTOM
     summary: Specifies that the bottom edge of the window can extend.
     description: |
@@ -660,7 +1578,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.1.3"
-    
+
   - name: EXTEND_EDGE_LEFT
     summary: Specifies that the left edge of the window can extend.
     description: |
@@ -669,7 +1587,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.1.3"
-    
+
   - name: EXTEND_EDGE_RIGHT
     summary: Specifies that the right edge of the window can extend.
     description: |
@@ -678,7 +1596,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.1.3"
-    
+
   - name: EXTEND_EDGE_NONE
     summary: Specifies that none of the edges of the window can extend.
     description: |
@@ -687,7 +1605,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.1.3"
-    
+
   - name: EXTEND_EDGE_ALL
     summary: Specifies that all the edges of the window can extend.
     description: |
@@ -696,251 +1614,425 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.1.3"
-    
+
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
   - name: FACE_UP
     summary: Constant value for face-up orientation.
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
   - name: FILL
     summary: FILL behavior for UI layout.
     description: The FILL behavior means the view will grow its size to fill its parent.
     type: String
     permission: read-only
     since: "2.0.0"
-    
-  - name: INHERIT
-    summary: INHERIT behavior for UI layout.
-    description: |
-        The INHERIT behavior allows the width/height of a view to be determined by the 
-        parent. If a parent has a size of <Titanium.UI.SIZE>, then the child will inherit 
-        a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of <Titanium.UI.FILL>.
-    type: String
+
+  - name: HIDDEN_BEHAVIOR_GONE
+    summary: Release free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
     permission: read-only
-    platforms: [mobileweb, tizen]
-    since: "2.0.0"
-    
+
+  - name: HIDDEN_BEHAVIOR_INVISIBLE
+    summary: Keeps free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
   - name: INPUT_BORDERSTYLE_BEZEL
     summary: Use a bezel-style border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]    
-    
+
   - name: INPUT_BORDERSTYLE_LINE
     summary: Use a simple line border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]    
-    
+
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]    
-    
+
+
   - name: INPUT_BORDERSTYLE_ROUNDED
     summary: Use a rounded-rectangle border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]    
-    
+
+
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
     description: |
-        Use with the <Titanium.UI.TextField.clearButtonMode>, 
-        <Titanium.UI.TextField.leftButtonMode>, 
+        Use with the <Titanium.UI.TextField.clearButtonMode>,
+        <Titanium.UI.TextField.leftButtonMode>,
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
     description: |
-        Use with the <Titanium.UI.TextField.clearButtonMode>, 
-        <Titanium.UI.TextField.leftButtonMode>, 
+        Use with the <Titanium.UI.TextField.clearButtonMode>,
+        <Titanium.UI.TextField.leftButtonMode>,
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
     description: |
-        Use with the <Titanium.UI.TextField.clearButtonMode>, 
-        <Titanium.UI.TextField.leftButtonMode>, 
+        Use with the <Titanium.UI.TextField.clearButtonMode>,
+        <Titanium.UI.TextField.leftButtonMode>,
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: INPUT_BUTTONMODE_ONFOCUS
     summary: Show buttons on the input field when it gains focus.
     description: |
-        Use with the <Titanium.UI.TextField.clearButtonMode>, 
-        <Titanium.UI.TextField.leftButtonMode>, 
+        Use with the <Titanium.UI.TextField.clearButtonMode>,
+        <Titanium.UI.TextField.leftButtonMode>,
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
+  - name: INPUT_TYPE_CLASS_NUMBER
+    summary: Use a keyboard with a number pad only, with the pad keyboard layout. Accepts only numbers.
+    description: |
+        Use with the <Titanium.UI.TextField.inputType> properties. This overrides any changes <Titanium.UI.TextField.keyboardType>
+        does to the inputType of the Android device.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: INPUT_TYPE_CLASS_TEXT
+    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.inputType> properties. This overrides any changes <Titanium.UI.TextField.keyboardType>
+        does to the inputType of the Android device.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
   - name: KEYBOARD_APPEARANCE_ALERT
     summary: Use a keyboard appearance suitable for entering text on an alert.
     type: Number
     permission: read-only
+    deprecated:
+        since: "5.4.0"
+        removed: "8.0.0"
     platforms: [iphone, ipad]
-    
+
   - name: KEYBOARD_APPEARANCE_DEFAULT
     summary: Use the platform-specific default keyboard appearance.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
+  - name: KEYBOARD_APPEARANCE_DARK
+    summary: Use the platform-specific dark keyboard appearance.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_APPEARANCE_LIGHT
+    summary: Use the platform-specific light keyboard appearance.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard, with the standard keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
 
   - name: KEYBOARD_DECIMAL_PAD
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
 
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_DEFAULT>.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
+
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
-        
-        Note: on MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be 
-        overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
+
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, blackberry]
-    
+    platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
+
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, blackberry]
-    
+    platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
+
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
 
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
-        
-        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
-        `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
+
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
 
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
-        
-        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
-        `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
+
   - name: KEYBOARD_URL
-    summary: Use an keyboard optimized for entering URLs, with the standard keyboard layout.
+    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
-        
-        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
-        `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        removed: "8.0.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
+
+  - name: KEYBOARD_TYPE_DECIMAL_PAD
+    type: Number
+    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_DEFAULT>.
+        type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_ASCII
+    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_DEFAULT
+    summary: Use the default keyboard, depending on the platform.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_EMAIL
+    summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_NAMEPHONE_PAD
+    summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
+    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_NUMBER_PAD
+    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION>.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_PHONE_PAD
+    summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION>.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_WEBSEARCH
+    summary: Use a keyboard optimized for web search terms and URL entry.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties. This type features the space and . characters prominently.
+
+        Note: This keyboard automatically sets the return key to "Go" (localized).
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_TWITTER
+    summary: Use a keyboard optimized for twitter text entry, with easy access to the @ and # characters.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_URL
+    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
   - name: LANDSCAPE_LEFT
     summary: Standard landscape orientation (home button on left).
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
   - name: LANDSCAPE_RIGHT
     summary: Reverse landscape orientation (home button on right).
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
@@ -983,7 +2075,7 @@ properties:
 
   - name: LIST_ITEM_TEMPLATE_DEFAULT
     summary: |
-        A built-in style for an item with an image view and black, left-aligned title label.
+        A built-in style for an item with an image view and left-aligned title label.
     description: |
         The text label value and image value bind to the `title` and `image` properties, respectively,
         of the data item. If a property is not set, that element is not displayed.
@@ -997,8 +2089,8 @@ properties:
 
   - name: LIST_ITEM_TEMPLATE_SETTINGS
     summary: |
-        A built-in style for a item with an image view; a black, left-aligned title label; and a
-        smaller blue, right-aligned subtitle label.
+        A built-in style for a item with an image view; a left-aligned title label; and a
+        right-aligned subtitle label.
     description: |
         The title label value, subtitle label value and image value bind to the `title`, `subtitle`
         and `image` properties, respectively, of the data item. If a property is not set, that
@@ -1010,8 +2102,8 @@ properties:
 
   - name: LIST_ITEM_TEMPLATE_CONTACTS
     summary: |
-        A built-in style for an item with a title label on the left side of the cell with
-        right-aligned, blue text, which is next to a subtitle label with left-aligned, black text.
+        A built-in style for an item with a right-aligned title label on the left side of the cell,
+        which is next to a left-aligned subtitle label.
     description: |
         The title label value and subtitle label value bind to the `title` and `subtitle`
         properties, respectively, of the data item. If a property is not set, that element is not
@@ -1024,7 +2116,7 @@ properties:
   - name: LIST_ITEM_TEMPLATE_SUBTITLE
     summary: |
         A built-in style for an item with an image view; a black, left-aligned title label across the
-        top of the cell and a subtitle label below it in smaller gray text.
+        top of the cell and a subtitle label below it.
     description: |
         The title label value, subtitle label value and image value bind to the `title`, `subtitle`
         and `image` properties, respectively, of the data item. If a property is not set, that
@@ -1033,242 +2125,292 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: '3.1.0'
-    
+
   - name: NOTIFICATION_DURATION_LONG
     summary: Specifies a long duration for an Android Toast notification (<Titanium.UI.Notification>).
     type: Number
     permission: read-only
     platforms: [android]
-    
+
   - name: NOTIFICATION_DURATION_SHORT
     summary: Specifies a short duration for an Android Toast notification (<Titanium.UI.Notification>).
     type: Number
     permission: read-only
     platforms: [android]
-    
+
+  - name: CLIPBOARD_OPTION_LOCAL_ONLY
+    summary: Specifies that the clipboard items should not be available to other devices through Handoff.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "10.0"}}
+    since: "5.5.0"
+
+  - name: CLIPBOARD_OPTION_EXPIRATION_DATE
+    summary: Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "10.0"}}
+    since: "5.5.0"
+
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
     summary: Use a picker with a countdown timer appearance, showing hours and minutes.
     description: |
-        For an actual countdown timer, the application is responsible for setting a timer 
+        For an actual countdown timer, the application is responsible for setting a timer
         to update the picker values.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    
+    platforms: [iphone, ipad]
+
   - name: PICKER_TYPE_DATE
     summary: Use a date picker.
     type: Number
     permission: read-only
-    
+
   - name: PICKER_TYPE_DATE_AND_TIME
     summary: Use a date and time picker.
     type: Number
     permission: read-only
-    
+
   - name: PICKER_TYPE_PLAIN
     summary: Use a plain picker (for values other than date or time).
     type: Number
     permission: read-only
-    
+
   - name: PICKER_TYPE_TIME
     summary: Use a time picker.
     type: Number
     permission: read-only
-    
+
   - name: PORTRAIT
     summary: Orientation constant for portrait mode orientation.
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
+  - name: RETURNKEY_CONTINUE
+    summary: Set the return key text to "Continue".
+    description: |
+        Use with the <Titanium.UI.TextField.returnKeyType> and
+        <Titanium.UI.TextArea.returnKeyType> properties.
+
+        Note: This constant is only available on iOS devices running iOS 9 or later. Older iOS
+        devices will display <Titanium.UI.RETURNKEY_DEFAULT>.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "5.2.0"
+
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
 
         On Android devices, the default return key displays a graphical arrow.
-        
-        On Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
-        on iOS devices, the default label is "return".
     type: Number
     permission: read-only
-    
+
   - name: RETURNKEY_DONE
     summary: Set the return key text to "Done".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: RETURNKEY_EMERGENCY_CALL
     summary: Set the return key text to "Emergency Call".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: RETURNKEY_GO
     summary: Set the return key text to "Go".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    
+
   - name: RETURNKEY_GOOGLE
     summary: Set the return key text to "Google".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: RETURNKEY_JOIN
     summary: Set the return key text to "Join".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: RETURNKEY_NEXT
     summary: Set the return key text to "Next".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: RETURNKEY_ROUTE
     summary: Set the return key text to "Route".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: RETURNKEY_SEARCH
     summary: Set the return key text to "Search".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: RETURNKEY_SEND
     summary: Set the return key text to "Send".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: RETURNKEY_YAHOO
     summary: Set the return key text to "Yahoo".
     description: |
-        Use with the <Titanium.UI.TextField.returnKeyType> and 
+        Use with the <Titanium.UI.TextField.returnKeyType> and
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: SIZE
     summary: SIZE behavior for UI layout.
     description: The SIZE behavior means the view will constrain its size fit its contents.
     type: String
     permission: read-only
     since: "2.0.0"
-    
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
+    summary: The row divider is hidden.
+    type: Number
+    platforms: [iphone, ipad, android]
+    since: "5.2.0"
+    permission: read-only
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
+    summary: The row divider is shown as a single line.
+    type: Number
+    platforms: [iphone, ipad, android]
+    since: "5.2.0"
+    permission: read-only
+
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
     description: |
-        Use with the <Titanium.UI.TextField.textAlign> and 
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and
         <Titanium.UI.TextArea.textAlign> properties.
-        
-        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
+
+        This constant is a string on Android, and a number on iOS.
     type: [Number, String]
     permission: read-only
-    
+
+  - name: TEXT_ALIGNMENT_JUSTIFY
+    summary: Justify align text.
+    description: |
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and
+        <Titanium.UI.TextArea.textAlign> properties.
+
+        This constant is a number and only available on iOS.
+    type: [Number, String]
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
     description: |
-        Use with the <Titanium.UI.TextField.textAlign> and 
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and
         <Titanium.UI.TextArea.textAlign> properties.
-        
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+
+        This constant is a string on Android, and a number on iOS.
     type: [Number, String]
     permission: read-only
-    
+
   - name: TEXT_ALIGNMENT_RIGHT
     summary: Right align text.
     description: |
-        Use with the <Titanium.UI.TextField.textAlign> and 
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and
         <Titanium.UI.TextArea.textAlign> properties.
-        
-        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
+
+        This constant is a string on Android, and a number on iOS.
     type: [Number, String]
     permission: read-only
-    
+
   - name: TEXT_AUTOCAPITALIZATION_ALL
     summary: Auto-capitalize all text in the input field.
     description: |
-        Use with the <Titanium.UI.TextField.autocapitalization> and 
+        Use with the <Titanium.UI.TextField.autocapitalization> and
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: TEXT_AUTOCAPITALIZATION_NONE
     summary: Do not auto-capitalize.
     description: |
-        Use with the <Titanium.UI.TextField.autocapitalization> and 
+        Use with the <Titanium.UI.TextField.autocapitalization> and
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
     summary: Use sentence-style auto-capitalization in the input field.
     description: |
-        Use with the <Titanium.UI.TextField.autocapitalization> and 
+        Use with the <Titanium.UI.TextField.autocapitalization> and
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: TEXT_AUTOCAPITALIZATION_WORDS
     summary: Auto-capitalize the first letter of each word in the input field.
     description: |
-        Use with the <Titanium.UI.TextField.autocapitalization> and 
+        Use with the <Titanium.UI.TextField.autocapitalization> and
         <Titanium.UI.TextArea.autocapitalization> properties.
-        
-        Mobile Web and Tizen does not support this because it would interfere with the native capitalization 
-        of the mobile browser.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: TEXT_STYLE_HEADLINE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -1276,9 +2418,9 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
   - name: TEXT_STYLE_SUBHEADLINE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for subheadings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -1286,9 +2428,9 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
   - name: TEXT_STYLE_BODY
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for body texts.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -1296,9 +2438,9 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
   - name: TEXT_STYLE_FOOTNOTE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used in footnotes.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -1306,9 +2448,9 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
   - name: TEXT_STYLE_CAPTION1
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for standard captions.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -1316,9 +2458,9 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
   - name: TEXT_STYLE_CAPTION2
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for alternate captions.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -1326,99 +2468,149 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
+  - name: TEXT_STYLE_CALLOUT
+    summary: The font used for callouts.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_TITLE1
+    summary: The font used for first level hierarchical headings.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_TITLE2
+    summary: The font used for second level hierarchical headings.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_TITLE3
+    summary: The font used for third level hierarchical headings.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_LARGE_TITLE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+    since: "8.1.0"
+
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
     description: |
-        Use with the <Titanium.UI.TextField.verticalAlign> and 
+        Use with the <Titanium.UI.TextField.verticalAlign> and
         <Titanium.UI.TextArea.verticalAlign> properties.
-        
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+
+        This constant is a string on Android, and a number on iOS.
     type: [Number, String]
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     summary: Vertically align text to the center of the view.
     description: |
-        Use with the <Titanium.UI.TextField.verticalAlign> and 
+        Use with the <Titanium.UI.TextField.verticalAlign> and
         <Titanium.UI.TextArea.verticalAlign> properties.
-        
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+
+        This constant is a string on Android, and a number on iOS.
     type: [Number, String]
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     summary: Align text to the top of the view.
     description: |
-        Use with the <Titanium.UI.TextField.verticalAlign> and 
+        Use with the <Titanium.UI.TextField.verticalAlign> and
         <Titanium.UI.TextArea.verticalAlign> properties.
-        
-        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
+
+        This constant is a string on Android, and a number on iOS.
     type: [Number, String]
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: UNIT_CM
     summary: Unit constant representing units in centimeters.
     type: String
     permission: read-only
     since: "2.0.0"
-    exclude-platforms: [blackberry]
-    
+
+
   - name: UNIT_DIP
     summary: Unit constant representing units in density-independent pixels.
     type: String
     permission: read-only
     since: "2.0.0"
-    exclude-platforms: [blackberry]
-    
+
+
   - name: UNIT_IN
     summary: Unit constant representing units in inches.
     type: String
     permission: read-only
     since: "2.0.0"
-    exclude-platforms: [blackberry]
-    
+
+
   - name: UNIT_MM
     summary: Unit constant representing units in millimeters.
     type: String
     permission: read-only
     since: "2.0.0"
-    exclude-platforms: [blackberry]
-    
+
+
   - name: UNIT_PX
     summary: Unit constant representing units in pixels.
     type: String
     permission: read-only
     since: "2.0.0"
-    exclude-platforms: [blackberry]
-    
+
+
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
   - name: UPSIDE_PORTRAIT
     summary: Orientation constant for inverted portait orientation.
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
@@ -1430,15 +2622,15 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+
+
   - name: URL_ERROR_BAD_URL
     summary: Bad url error code reported via <Titanium.UI.WebView.error>.
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_CONNECT
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to connect to host.
@@ -1446,7 +2638,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_SSL_FAILED
     summary: Error code reported via <Titanium.UI.WebView.error> for an SSL failure.
@@ -1454,7 +2646,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_FILE
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to access a file resource on a host, except "file not found", which has its own constant.
@@ -1462,7 +2654,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_FILE_NOT_FOUND
     summary: Error code reported via <Titanium.UI.WebView.error> when a requested file does not exist on the host.
@@ -1470,7 +2662,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_HOST_LOOKUP
     summary: Error code reported via <Titanium.UI.WebView.error> when a host name cannot be resolved, such as via a DNS lookup error.
@@ -1478,7 +2670,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_REDIRECT_LOOP
     summary: Error code reported via <Titanium.UI.WebView.error> when a redirect loop is detected.
@@ -1486,7 +2678,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_TIMEOUT
     summary: Error code reported via <Titanium.UI.WebView.error> when a timeout occurs.
@@ -1494,7 +2686,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_UNKNOWN
     summary: Error code reported via <Titanium.UI.WebView.error> when an unknown error occurs.
@@ -1502,7 +2694,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: URL_ERROR_UNSUPPORTED_SCHEME
     summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
@@ -1513,37 +2705,42 @@ properties:
 
   - name: backgroundColor
     summary: |
-        Sets the background color of the master view (when there are no windows or other top-level 
+        Sets the background color of the master view (when there are no windows or other top-level
         controls displayed).
     description: |
-        The default background color may also show through if you use semi-transparent 
+        The default background color may also show through if you use semi-transparent
         windows.
     type: String
-    exclude-platforms: [blackberry]
-    
+
+
   - name: backgroundImage
     summary: |
-        Local path or URL to an image file for setting a background for the master view (when there 
+        Local path or URL to an image file for setting a background for the master view (when there
         are no windows or other top-level controls displayed).
     description: |
-        The default background image may also show through if you use semi-transparent 
+        The default background image may also show through if you use semi-transparent
         windows.
     type: String
-    exclude-platforms: [blackberry]
-    
+
+
   - name: currentTab
     summary: The currently active tab, if a tab group is open.
     description: |
         If no tab group is open, this value is undefined.
     type: Titanium.UI.Tab
-    exclude-platforms: [blackberry]
-    
+
+
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.
+    description: |
+        This property is only available when using the <Titanium.UI.Window.url> property to load
+        JavaScript files in their own contexts.
     type: Titanium.UI.Window
     permission: read-only
-    exclude-platforms: [blackberry]
-    
+    deprecated:
+        since: 3.5.0
+        removed: 6.0.0
+
   - name: orientation
     summary: Updates the orientation of the current window to the specified orientation value.
     deprecated:
@@ -1553,17 +2750,25 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
 
+  - name: tintColor
+    summary: |
+        Sets the global tint color of the application. It is inherited by the child views and can be
+        overwritten by them using the `tintColor` property.
+    type: String
+    since: "6.0.0"
+    platforms: [iphone, ipad]
+
 examples:
   - title: Color Demo
     example: |
-        The following example demonstrates all the color formats, and color names, that are intended 
+        The following example demonstrates all the color formats, and color names, that are intended
         to be supported by Titanium. See the [description](Titanium.UI) section for details.
-        
+
             var colorArray = [
               '#ff00ff', '#f0f', 'rgb(255,0,255)',
               'transparent', '#55ff00ff', '#5f0f', 'rgba(255,0,255,0.3)',
-              'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green', 
-              'lightgray', 'lime', 'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink', 
+              'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green',
+              'lightgray', 'lime', 'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink',
               'purple', 'red', 'silver', 'teal', 'white', 'yellow',
             ];
             var win = Ti.UI.createWindow({
@@ -1590,4 +2795,3 @@ examples:
             });
             win.add(table);
             win.open();
-        

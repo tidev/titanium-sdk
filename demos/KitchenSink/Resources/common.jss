@@ -1,4 +1,0 @@
-/**
- * common stylesheet defines
- */
-

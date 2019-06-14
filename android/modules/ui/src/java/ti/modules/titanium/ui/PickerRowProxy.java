@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -17,7 +17,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.picker.TiUISpinnerRow;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule = UIModule.class)
 public class PickerRowProxy extends TiViewProxy
 {
 	private static final String TAG = "PickerRowProxy";
@@ -29,19 +29,38 @@ public class PickerRowProxy extends TiViewProxy
 		super();
 	}
 
-	public PickerRowProxy(TiContext tiContext)
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getColor()
+	// clang-format on
 	{
-		this();
+		return (String) getProperty(TiC.PROPERTY_COLOR);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setColor(String color)
+	// clang-format on
+	{
+		setPropertyAndFire(TiC.PROPERTY_COLOR, color);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTitle()
+	// clang-format on
 	{
 		return toString();
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setTitle(String value)
+	// clang-format on
 	{
 		title = value;
 		if (rowListener != null) {
@@ -54,17 +73,18 @@ public class PickerRowProxy extends TiViewProxy
 	{
 		return title;
 	}
-	
+
 	public void setRowListener(PickerRowListener listener)
 	{
 		rowListener = listener;
 	}
-	
+
 	@Override
-	public void add(TiViewProxy child)
+	public void add(Object args)
 	{
 		Log.w(TAG, "PickerRow does not support child controls");
 	}
+
 	@Override
 	public void remove(TiViewProxy child)
 	{
@@ -85,9 +105,8 @@ public class PickerRowProxy extends TiViewProxy
 			title = TiConvert.toString(options, "title");
 		}
 	}
-	
-	public interface PickerRowListener
-	{
+
+	public interface PickerRowListener {
 		void rowChanged(PickerRowProxy row);
 	}
 

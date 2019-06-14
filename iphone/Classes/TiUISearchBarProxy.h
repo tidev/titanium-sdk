@@ -12,21 +12,23 @@
 
 #ifdef USE_TI_UISEARCHBAR
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUISearchBarProxy : TiViewProxy {
-	BOOL showsCancelButton;
+  BOOL showsCancelButton;
 }
 
--(void)setDelegate:(id<UISearchBarDelegate>)delegate;
--(UISearchBar*)searchBar;
+- (void)setDelegate:(id<UISearchBarDelegate>)delegate;
+- (UISearchBar *)searchBar;
 
 //	showsCancelButton is related to the JS property ShowCancel,
 //	but is internal ONLY, and should NOT be used by javascript.
-@property(nonatomic,readwrite,assign) BOOL showsCancelButton;
+@property (nonatomic, readwrite, assign) BOOL showsCancelButton;
 
 #pragma mark - Titanium Internal Use
--(void)ensureSearchBarHeirarchy;
+- (void)ensureSearchBarHierarchy;
+- (void)setSearchBar:(UISearchBar *)searchBar;
+
 @end
 
 #endif

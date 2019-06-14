@@ -25,8 +25,8 @@
  *
  */
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -41,4 +41,3 @@ bool TI_Base64DecodeData(const void *inInputData, size_t inInputDataSize, void *
 #if defined(__cplusplus)
 }
 #endif
-

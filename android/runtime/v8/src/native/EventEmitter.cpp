@@ -1,20 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
  * Original code Copyright 2009 Ryan Dahl <ry@tinyclouds.org>
  */
-#include <jni.h>
-#include <v8.h>
-
-#include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "TypeConverter.h"
 #include "V8Util.h"
-#include "JNIUtil.h"
-#include "V8Runtime.h"
 
 #define TAG "EventEmitter"
 
@@ -27,76 +20,80 @@ Persistent<FunctionTemplate> EventEmitter::constructorTemplate;
 static Persistent<String> eventsSymbol;
 Persistent<String> EventEmitter::emitSymbol;
 
-Handle<Value> EventEmitter::eventEmitterConstructor(const Arguments& args)
+void EventEmitter::eventEmitterConstructor(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope;
-
+	HandleScope scope(args.GetIsolate());
 	EventEmitter *emitter = new EventEmitter();
 	emitter->Wrap(args.This());
-
-	return args.This();
 }
 
-void EventEmitter::initTemplate()
+void EventEmitter::initTemplate(Local<Context> context)
 {
-	HandleScope scope;
-	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New(eventEmitterConstructor));
-	constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
-	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
+	Isolate* isolate = context->GetIsolate();
+	HandleScope scope(isolate);
+	Local<FunctionTemplate> constructor = FunctionTemplate::New(isolate, eventEmitterConstructor);
+	constructor->InstanceTemplate()->SetInternalFieldCount(1);
+	constructor->SetClassName(NEW_SYMBOL(isolate, "EventEmitter"));
+	constructorTemplate.Reset(isolate, constructor);
 
-	eventsSymbol = SYMBOL_LITERAL("_events");
-	emitSymbol = SYMBOL_LITERAL("emit");
+	eventsSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_events"));
+	emitSymbol.Reset(isolate, NEW_SYMBOL(isolate, "emit"));
 }
 
 void EventEmitter::dispose()
 {
-	constructorTemplate.Dispose();
-	constructorTemplate = Persistent<FunctionTemplate>();
-
-	eventsSymbol.Dispose();
-	eventsSymbol = Persistent<String>();
-
-	emitSymbol.Dispose();
-	emitSymbol = Persistent<String>();
+	constructorTemplate.Reset();
+	eventsSymbol.Reset();
+	emitSymbol.Reset();
 }
 
-bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)
+bool EventEmitter::emit(Local<String> event, int argc, Local<Value> *argv)
 {
-	HandleScope scope;
-	Handle<Value> events_v = handle_->Get(eventsSymbol);
-	if (!events_v->IsObject()) return false;
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 
-	Handle<Object> events = events_v->ToObject();
+	Local<Context> context = isolate->GetCurrentContext();
 
-	Handle<Value> listeners_v = events->Get(event);
-	TryCatch try_catch;
+	Local<Object> self = handle();
 
-	if (listeners_v->IsFunction()) {
+	MaybeLocal<Value> maybeEvents = self->Get(context, eventsSymbol.Get(isolate));
+	if (maybeEvents.IsEmpty() || !maybeEvents.ToLocalChecked()->IsObject()) {
+		return false;
+	}
+
+	Local<Object> events = maybeEvents.ToLocalChecked().As<Object>();
+	MaybeLocal<Value> maybeListeners = events->Get(context, event);
+	if (maybeListeners.IsEmpty()) {
+		return false;
+	}
+
+	Local<Value> listeners = maybeListeners.ToLocalChecked();
+	TryCatch try_catch(isolate);
+	if (listeners->IsFunction()) {
 		// Optimized one-listener case
-		Handle<Function> listener = Handle<Function>::Cast(listeners_v);
-		listener->Call(handle_, argc, argv);
+		Local<Function> listener = listeners.As<Function>();
+		listener->Call(context, self, argc, argv);
 		if (try_catch.HasCaught()) {
-			V8Util::fatalException(try_catch);
+			V8Util::fatalException(isolate, try_catch);
 			return false;
 		}
-	} else if (listeners_v->IsArray()) {
-		Handle<Array> listeners = Handle<Array>::Cast(listeners_v->ToObject()->Clone());
-		for (uint32_t i = 0; i < listeners->Length(); ++i) {
-			Handle<Value> listener_v = listeners->Get(i);
-			if (!listener_v->IsFunction()) continue;
-			Handle<Function> listener = Handle<Function>::Cast(listener_v);
-			listener->Call(handle_, argc, argv);
+	} else if (listeners->IsArray()) {
+		Local<Array> listenersArray = listeners.As<Array>()->Clone().As<Array>();
+		for (uint32_t i = 0; i < listenersArray->Length(); ++i) {
+			MaybeLocal<Value> maybeListener = listenersArray->Get(context, i);
+			if (maybeListener.IsEmpty() || !maybeListener.ToLocalChecked()->IsFunction()) {
+				continue;
+			}
+			Local<Function> listenerFunction = maybeListener.ToLocalChecked().As<Function>();
+			listenerFunction->Call(context, self, argc, argv);
 			if (try_catch.HasCaught()) {
-				V8Util::fatalException(try_catch);
+				V8Util::fatalException(isolate, try_catch);
 				return false;
 			}
 		}
-	} else {
-		return false;
 	}
 
 	return true;
 }
 
 } // namespace titanium
-

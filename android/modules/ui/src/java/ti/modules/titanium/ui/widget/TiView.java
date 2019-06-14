@@ -13,16 +13,15 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.view.View;
-
 public class TiView extends TiUIView
 {
 
-	public TiView(TiViewProxy proxy) {
+	public TiView(TiViewProxy proxy)
+	{
 		super(proxy);
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 
-		if (proxy.hasProperty(TiC.PROPERTY_LAYOUT)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_LAYOUT)) {
 			String layoutProperty = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LAYOUT));
 			if (layoutProperty.equals(TiC.LAYOUT_HORIZONTAL)) {
 				arrangement = LayoutArrangement.HORIZONTAL;
@@ -32,13 +31,4 @@ public class TiView extends TiUIView
 		}
 		setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement, proxy));
 	}
-
-	@Override
-	protected void setOpacity(View view, float opacity)
-	{
-		super.setOpacity(view, opacity);
-		TiCompositeLayout layout = (TiCompositeLayout) nativeView;
-		layout.setAlphaCompat(opacity);
-	}
-
 }

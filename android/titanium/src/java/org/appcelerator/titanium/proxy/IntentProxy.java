@@ -9,6 +9,7 @@ package org.appcelerator.titanium.proxy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,27 +17,27 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.content.ClipData;
 import android.graphics.Bitmap;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 
-@Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_CLASS_NAME,
-	TiC.PROPERTY_PACKAGE_NAME,
-	TiC.PROPERTY_URL
-})
+@Kroll.proxy(propertyAccessors = { TiC.PROPERTY_URL })
 /**
  * This is a proxy representation of the Android Intent type.
  * Refer to <a href="http://developer.android.com/reference/android/content/Intent.html">Android Intent</a>
  * for more details.
  */
-public class IntentProxy extends KrollProxy 
+public class IntentProxy extends KrollProxy
 {
 	private static final String TAG = "TiIntent";
 
@@ -48,7 +49,7 @@ public class IntentProxy extends KrollProxy
 	protected int type = TYPE_ACTIVITY;
 
 	public IntentProxy()
-	{	
+	{
 	}
 
 	public IntentProxy(Intent intent)
@@ -56,16 +57,49 @@ public class IntentProxy extends KrollProxy
 		this.intent = intent;
 	}
 
-	protected static char[] escapeChars = new char[] {
-		'\\', '/', ' ', '.', '$', '&', '@'
-	};
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getPackageName()
+	// clang-format on
+	{
+		if (intent == null) {
+			return null;
+		}
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+			return componentName.getPackageName();
+		}
+		return null;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getClassName()
+	// clang-format on
+	{
+		if (intent == null) {
+			return null;
+		}
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+			return componentName.getClassName();
+		}
+		return null;
+	}
+
+	protected static char[] escapeChars = new char[] { '\\', '/', ' ', '.', '$', '&', '@' };
 
 	protected static String getURLClassName(String url, int type)
 	{
 		switch (type) {
-			case TYPE_ACTIVITY: return getURLClassName(url, "Activity");
-			case TYPE_SERVICE: return getURLClassName(url, "Service");
-			case TYPE_BROADCAST: return getURLClassName(url, "Broadcast");
+			case TYPE_ACTIVITY:
+				return getURLClassName(url, "Activity");
+			case TYPE_SERVICE:
+				return getURLClassName(url, "Service");
+			case TYPE_BROADCAST:
+				return getURLClassName(url, "Broadcast");
 		}
 		return null;
 	}
@@ -73,36 +107,37 @@ public class IntentProxy extends KrollProxy
 	protected static String getURLClassName(String url, String appendage)
 	{
 		List<String> parts = Arrays.asList(url.split("/"));
-		if (parts.size() == 0) return null;
-		
+		if (parts.size() == 0)
+			return null;
+
 		int start = 0;
 		if (parts.get(0).equals("app:") && parts.size() >= 3) {
 			start = 2;
 		}
-		
+
 		String className = TextUtils.join("_", parts.subList(start, parts.size()));
 		if (className.endsWith(".js")) {
-			className = className.substring(0, className.length()-3);
+			className = className.substring(0, className.length() - 3);
 		}
-		
+
 		if (className.length() > 1) {
 			className = className.substring(0, 1).toUpperCase() + className.substring(1);
 		} else {
 			className = className.toUpperCase();
 		}
-		
+
 		for (char escapeChar : escapeChars) {
 			className = className.replace(escapeChar, '_');
 		}
-		
-		return className+appendage;
+
+		return className + appendage;
 	}
 
 	public void handleCreationDict(KrollDict dict)
 	{
 		super.handleCreationDict(dict);
 		intent = new Intent();
-		
+
 		// See which set of options we have to work with.
 		String action = dict.getString(TiC.PROPERTY_ACTION);
 		String url = dict.getString(TiC.PROPERTY_URL);
@@ -139,7 +174,7 @@ public class IntentProxy extends KrollProxy
 		if (className != null) {
 			if (packageName != null) {
 				Log.d(TAG, "Both className and packageName set, using intent.setClassName(packageName, className",
-					Log.DEBUG_MODE);
+					  Log.DEBUG_MODE);
 				intent.setClassName(packageName, className);
 			} else {
 				try {
@@ -161,21 +196,31 @@ public class IntentProxy extends KrollProxy
 		// setType and setData are inexplicably intertwined
 		// calling setType by itself clears the type and vice-versa
 		// if you have both you _must_ call setDataAndType
-		if (type != null) {
-			Log.d(TAG, "Setting type: " + type, Log.DEBUG_MODE);
-			if (data != null) {
-				intent.setDataAndType(Uri.parse(data), type);
+		if (data != null) {
+			Uri dataUri = null;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && data.startsWith("file://")) {
+				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				dataUri = TiFileProvider.createUriFrom(data);
 			} else {
-				intent.setType(type);
+				dataUri = Uri.parse(data);
 			}
-		} else if (data != null) {
-			intent.setData(Uri.parse(data));
+			if (type != null) {
+				Log.d(TAG, "setting type: " + type, Log.DEBUG_MODE);
+				intent.setDataAndType(dataUri, type);
+			} else {
+				intent.setData(dataUri);
+			}
+		} else {
+			intent.setType(type);
 		}
 	}
 
 	@Kroll.method
 	public void putExtra(String key, Object value)
 	{
+		if (value == null) {
+			return;
+		}
 		if (value instanceof String) {
 			intent.putExtra(key, (String) value);
 		} else if (value instanceof Boolean) {
@@ -186,9 +231,21 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, (Integer) value);
 		} else if (value instanceof Long) {
 			intent.putExtra(key, (Long) value);
-		}
-		else {
-			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
+		} else if (value instanceof IntentProxy) {
+			intent.putExtra(key, (Intent) ((IntentProxy) value).getIntent());
+		} else if (value instanceof TiBlob) {
+			intent.putExtra(key, ((TiBlob) value).getImage());
+		} else if (value instanceof Object[]) {
+			try {
+				Object[] objVal = (Object[]) value;
+				String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
+				intent.putExtra(key, stringArray);
+			} catch (Exception ex) {
+				Log.e(TAG, "Error unimplemented put conversion ", ex.getMessage());
+			}
+		} else {
+			Log.w(TAG,
+				  "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
 		}
 	}
@@ -199,22 +256,71 @@ public class IntentProxy extends KrollProxy
 		intent.addFlags(flags);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setFlags(int flags)
+	// clang-format on
 	{
 		intent.setFlags(flags);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getFlags()
+	// clang-format on
 	{
 		return intent.getFlags();
 	}
 
 	@Kroll.method
-	public void putExtraUri(String key, String uri)
+	public void putExtraUri(String key, Object value)
 	{
-		intent.putExtra(key, Uri.parse(uri));
+		if (value == null) {
+			return;
+		}
+
+		if (value instanceof String) {
+			String extraString = (String) value;
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && extraString.startsWith("file://")) {
+				Uri contentUri = TiFileProvider.createUriFrom(extraString);
+				ClipData clipData = ClipData.newRawUri("FILE", contentUri);
+				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				intent.setClipData(clipData);
+				intent.putExtra(key, contentUri);
+			} else {
+				intent.putExtra(key, Uri.parse(extraString));
+			}
+		} else if (value instanceof Object[]) {
+			try {
+				Object[] objVal = (Object[]) value;
+				String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
+				ArrayList<Uri> imageUris = new ArrayList<Uri>();
+				ClipData clipData = null;
+				for (String s : stringArray) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && s.startsWith("file://")) {
+						Uri contentUri = TiFileProvider.createUriFrom(s);
+						imageUris.add(contentUri);
+						if (clipData == null) {
+							clipData = ClipData.newRawUri("FILES", contentUri);
+						} else {
+							clipData.addItem(new ClipData.Item(contentUri));
+						}
+					} else {
+						imageUris.add(Uri.parse(s));
+					}
+				}
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					intent.setClipData(clipData);
+				}
+				intent.putParcelableArrayListExtra(key, imageUris);
+			} catch (Exception ex) {
+				Log.e(TAG, "Error unimplemented put conversion ", ex.getMessage());
+			}
+		}
 	}
 
 	@Kroll.method
@@ -327,8 +433,11 @@ public class IntentProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getData()
+	// clang-format on
 	{
 		return intent.getDataString();
 	}
@@ -337,30 +446,42 @@ public class IntentProxy extends KrollProxy
 	 * @return the associated intent.
 	 */
 	public Intent getIntent()
-	{ 
+	{
 		return intent;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getType()
+	// clang-format on
 	{
 		return intent.getType();
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setType(String type)
+	// clang-format on
 	{
 		intent.setType(type);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getAction()
+	// clang-format on
 	{
 		return intent.getAction();
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setAction(String action)
+	// clang-format on
 	{
 		intent.setAction(action);
 	}

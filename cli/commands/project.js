@@ -1,30 +1,31 @@
 /*
  * project.js: Titanium Mobile CLI project command
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
+'use strict';
 
-var path = require('path'),
-	ti = require('titanium-sdk'),
+const path = require('path'),
+	ti = require('node-titanium-sdk'),
 	appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	mix = appc.util.mix;
 
-exports.cliVersion = '>=3.2';
-exports.desc = __('get and set tiapp.xml settings'),
+exports.cliVersion = '>=3.2.1';
+exports.desc = __('get and set tiapp.xml settings');
 exports.extendedDesc = [
 	__('Get and set tiapp.xml settings.'),
 	__('Run %s to see all available entries that can be changed.', 'titanium project --project-dir /path/to/project'.cyan),
 	[	__('When setting the %s entry, it will non-destructively copy each specified ', 'deployment-targets'.cyan),
-		__("platform's default resources into your project's Resources folder. For "),
+		__('platform\'s default resources into your project\'s Resources folder. For '),
 		__('example, if your app currently supports %s and you wish to add Android ', 'iphone'.cyan),
 		__('support, you must specify %s, otherwise only specifying %s will remove ', 'iphone,android'.cyan),
 		__('support for iPhone.', 'android'.cyan)
 	].join('')
 ].join('\n\n');
 
-exports.config = function (logger, config, cli) {
+exports.config = function (logger, config) {
 	return {
 		skipBanner: true,
 		options: mix({
@@ -32,7 +33,7 @@ exports.config = function (logger, config, cli) {
 				abbr: 'o',
 				default: 'report',
 				desc: __('output format'),
-				values: ['report', 'json', 'text']
+				values: [ 'report', 'json', 'text' ]
 			},
 			'project-dir': {
 				desc: __('the directory of the project to analyze'),
@@ -61,7 +62,7 @@ exports.validate = function (logger, config, cli) {
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
-		var key = cli.argv._[0];
+		const key = cli.argv._[0];
 		if (!/^([A-Za-z_]{1}[A-Za-z0-9-_]*(\.[A-Za-z-_]{1}[A-Za-z0-9-_]*)*)$/.test(key)) {
 			logger.error(__('Invalid key "%s"', key) + '\n');
 			process.exit(1);
@@ -69,11 +70,11 @@ exports.validate = function (logger, config, cli) {
 	}
 
 	return function (finished) {
-		ti.loadPlugins(null, config, cli, cli.argv['project-dir'], finished);
+		ti.loadPlugins(null, config, cli, cli.argv['project-dir'], finished, cli.argv.output !== 'report' || cli.argv._.length, false);
 	};
 };
 
-exports.run = function (logger, config, cli) {
+exports.run = function (logger, config, cli, finished) {
 	var projectDir = cli.argv['project-dir'],
 		tiappPath = path.join(projectDir, 'tiapp.xml'),
 		tiapp = new ti.tiappxml(tiappPath),
@@ -87,14 +88,14 @@ exports.run = function (logger, config, cli) {
 		maxlen,
 		sdkPath = cli.sdk.path,
 		templateDir,
-		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid'],
+		propsList = [ 'sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid' ],
 		deploymentTargets = tiapp['deployment-targets'];
 
-	output == 'report' && logger.banner();
+	args.length === 0 && output === 'report' && logger.banner();
 
 	switch (args.length) {
 		case 0:
-			if (output == 'json') {
+			if (output === 'json') {
 
 				// Store the deployment targets
 				result =  new ti.tiappxml();
@@ -104,7 +105,7 @@ exports.run = function (logger, config, cli) {
 				}
 
 				// Copy all of the other properties in and print the results
-				propsList.forEach(function(p) {
+				propsList.forEach(function (p) {
 					result[p] = tiapp[p];
 				});
 				logger.log(result.toString('pretty-json'));
@@ -127,7 +128,7 @@ exports.run = function (logger, config, cli) {
 					return Math.max(a, b.length);
 				}, 0);
 				propsList.forEach(function (key) {
-					logger.log('  %s = %s', appc.string.rpad(key, maxlen), (tiapp[key] + '' || __('not specified')).cyan);
+					logger.log('  %s = %s', appc.string.rpad(key, maxlen), String(tiapp[key] || __('not specified')).cyan);
 				});
 				logger.log();
 			}
@@ -161,18 +162,19 @@ exports.run = function (logger, config, cli) {
 					}
 					logger.log();
 				}
-			} else if (!!~propsList.indexOf(key)) {
+			} else if (~propsList.indexOf(key)) {
 				if (output === 'json') {
-					value = {};
-					value[key] = tiapp[key];
-					logger.log(JSON.stringify(value));
-				} else if (output === 'text') {
-					logger.log(tiapp[key]);
+					logger.log(JSON.stringify(tiapp[key] || ''));
 				} else {
-					logger.log(__('The value of %s is %s', (key.cyan + ''), (tiapp[key] + '').cyan) + '\n');
+					logger.log(tiapp[key]);
 				}
 			} else {
-				logger.error( __('%s is not a valid entry name', key) + '\n');
+				if (output === 'json') {
+					logger.log('null');
+				} else {
+					logger.error(__('%s is not a valid entry name', key) + '\n');
+				}
+				process.exit(1);
 			}
 			break;
 
@@ -185,7 +187,7 @@ exports.run = function (logger, config, cli) {
 					result = {};
 
 					// add ipad and blackberry to list of platforms
-					['ipad', 'blackberry'].concat(ti.availablePlatforms).forEach(function (p) {
+					[ 'ipad', 'blackberry' ].concat(ti.availablePlatforms).forEach(function (p) {
 						result[p] = false;
 					});
 
@@ -210,8 +212,8 @@ exports.run = function (logger, config, cli) {
 					// Update the tiapp.xml
 					tiapp['deployment-targets'] = result;
 
-					// Non-destructively copy over files from <sdk>/templates/app/<template>/
-					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template);
+					// Non-destructively copy over files from <sdk>/templates/app/<template>/template
+					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template, 'template');
 					if (!appc.fs.exists(templateDir)) {
 						logger.error(__('Unknown project template %s', cli.argv.template) + '\n');
 						process.exit(1);
@@ -225,7 +227,7 @@ exports.run = function (logger, config, cli) {
 					// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
 					for (p = 0; p < value.length; p++) {
 						if (value[p]) {
-							templateDir = path.join(sdkPath, ti.resolvePlatform(value[p]), 'templates', 'app', cli.argv.template);
+							templateDir = path.join(sdkPath, ti.resolvePlatform(value[p]), 'templates', 'app', cli.argv.template, 'template');
 							if (appc.fs.exists(templateDir)) {
 								n += appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
 									logger: logger.log,
@@ -264,10 +266,10 @@ exports.run = function (logger, config, cli) {
 				case 'copyright':
 				case 'icon':
 				case 'guid':
-					tiapp[key] = value = args[1];
+					tiapp[key] = value = args[1] || '';
 					break;
 				case 'analytics':
-					if (!~['true', 'false'].indexOf(args[1])) {
+					if (!~[ 'true', 'false' ].indexOf(args[1])) {
 						logger.error(__('Invalid value for analytics %s', args[1]) + '\n');
 						process.exit(1);
 					}
@@ -278,8 +280,10 @@ exports.run = function (logger, config, cli) {
 					break;
 			}
 			logger.log('tiapp.xml saving is currently not supported');
-			//logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
-			//tiapp.save(tiappPath);
+			// logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
+			// tiapp.save(tiappPath);
 			break;
 	}
+
+	finished();
 };

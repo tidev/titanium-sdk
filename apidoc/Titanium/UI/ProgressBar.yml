@@ -2,17 +2,34 @@
 name: Titanium.UI.ProgressBar
 summary: A progress bar.
 description: |
-    A progress bar is used for displaying an ongoing activity with a defined progression. 
-    For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>. 
+    <table id="platformComparison">
+      <tbody>
+        <tr>
+          <td><img src="images/progressbar/progressbar_android.png" height="50" /></td>
+          <td><img src="images/progressbar/progressbar_ios.png" height="25" /></td>
+          <td><img src="images/progressbar/progressbar_wp.png" height="25" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
+    </table>
 
-    Unlike most views, progress bars are hidden by default, so you must explicitly 
+    A progress bar is used for displaying an ongoing activity with a defined progression.
+    For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>.
+
+    Unlike most views, progress bars are hidden by default, so you must explicitly
     show the progress bar.
 
-    Use the <Titanium.UI.createProgressBar> method to create a progress bar.
+    Use the <Titanium.UI.createProgressBar> method or **`<ProgressBar>`** Alloy element to create a progress bar.
 
     #### Android Platform Notes
 
-    In SDK 3.0, use <Titanium.UI.Android.ProgressIndicator> to display a progress indicator 
+    In SDK 3.0, use <Titanium.UI.Android.ProgressIndicator> to display a progress indicator
     in a modal dialog or window title bar. Use `ProgressBar` to display the progress bar inside
     another view.
 
@@ -23,91 +40,111 @@ description: |
     Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
-
-methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `ProgressBar` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using 
-        another view as a container for both this object and the views you want 
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.ProgressBar.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
-
+platforms: [android, iphone, ipad]
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 properties:
-
   - name: color
-    summary: Color of the progress bar text, as a color name or hex triplet.
+    summary: Color of the progress bar message, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    exclude-platforms: [blackberry]
+
   - name: font
     summary: Font for the progress bar text.
     type: Font
-    exclude-platforms: [blackberry]
+
   - name: max
     summary: Maximum value of the progress bar.
     type: Number
+
   - name: message
     summary: Progress bar text.
     type: String
-    exclude-platforms: [blackberry]
+
+  - name: tintColor
+    summary: The color shown for the portion of the progress bar that is filled.
+
+  - name: trackTintColor
+    summary: The color shown for the portion of the progress bar that is not filled.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: {iphone: "5.2.0", ipad: "5.2.0", android: "8.0.0"}
+    osver: {android: {min: "5.0"}}
+
   - name: min
     summary: Minimum value of the progress bar.
     type: Number
+
   - name: style
-    summary: Style of the progress bar. 
-    description: For iOS, progress bar styles are constants defined in 
-        [ProgressBarStyle](Titanium.UI.iPhone.ProgressBarStyle).
+    summary: Style of the progress bar.
+    description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
     type: Number
     platforms: [iphone,ipad]
+
   - name: value
     summary: Current value of the progress bar.
     type: Number
+
 examples:
   - title: Simple Progress Bar
-    example: |    
-        In this example we create a progress bar with the min value of `0` and the max value 
-        of `10` and the current value of `0`. Changing the `value` property causes the 
+    example: |
+        In this example we create a progress bar with the min value of `0` and the max value
+        of `10` and the current value of `0`. Changing the `value` property causes the
         displayed progress bar to update.
-        
-            var pb=Titanium.UI.createProgressBar({
-                top:10,
-            	width:250,
-            	height:'auto',
-            	min:0,
-            	max:10,
-            	value:0,
-            	color:'#fff',
-            	message:'Downloading 0 of 10',
-            	font:{fontSize:14, fontWeight:'bold'},
-            	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+
+            var pb = Ti.UI.createProgressBar({
+                top: 25,
+                width: 250,
+                min: 0,
+                max: 10,
+                value: 0,
+                color: 'blue',
+                message: 'Downloading 0 of 10',
+                font: {fontSize: 14, fontWeight: 'bold'},
+                style: Ti.UI.iOS.ProgressBarStyle.PLAIN,
+            });
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            win.addEventListener('click', function(){
+                if (pb.value < pb.max) {
+                    pb.message = 'Downloading '+ ++pb.value + ' of 10';
+                }
             });
             win.add(pb);
-            pb.show();
+            win.open();
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-        progressbarexample.xml:
+        index.xml:
 
             <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <ProgressBar id="pb" top="10" width="250" height="auto" min="0" max="10" value="0" color="#fff" message="Downloading 0 of 10" />
+                <Window id="win" backgroundColor="white" onClick="incPB">
+                    <ProgressBar id="pb" />
                 </Window>
             </Alloy>
 
-        progressbarexample.js:
+        index.js:
 
-            $.pb.show();
+            function incPB() {
+                if ($.pb.value < $.pb.max) {
+                    $.pb.message = 'Downloading '+ ++$.pb.value + ' of 10';
+                }
+            }
+            $.win.open();
+
+        index.tss:
+
+            "#pb": {
+                top: 25,
+                width: 250,
+                min: 0,
+                max: 10,
+                value: 0,
+                color: 'blue',
+                message: 'Downloading 0 of 10',
+                font: {fontSize:14, fontWeight:'bold'},
+                style: Titanium.UI.iOS.ProgressBarStyle.PLAIN
+            }

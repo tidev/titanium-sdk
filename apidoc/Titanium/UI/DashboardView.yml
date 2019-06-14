@@ -4,7 +4,8 @@ summary: |
     A dashboard view is an iOS Springboard-like view of <Titanium.UI.DashboardItem> items that may 
     be deleted and reordered by the user using its built-in edit mode.
 description: |
-    The DashboardView is created using the <Titanium.UI.createDashboardView> method.
+    The DashboardView is created using the <Titanium.UI.createDashboardView> method or **`<DashboardView>`** 
+    Alloy element.
     
     Dashboard view's edit mode may be activated by a longpress of a <Titanium.UI.DashboardItem> item, 
     unless this behavior has been disabled by the [editable](Titanium.UI.DashboardView.editable) 
@@ -23,20 +24,17 @@ description: |
 extends: Titanium.UI.View
 since: "1.2"
 platforms: [iphone, ipad]
-excludes: {
-    events: [longclick, touchcancel, touchend, touchmove, touchstart],
+excludes:
+    events: [longclick, touchcancel, touchend, touchmove, touchstart]
     methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,
               getBackgroundFocusedImage, getBackgroundSelectedColor, getBackgroundSelectedImage,
               getFocusable, getKeepScreenOn, getSoftKeyboardOnFocus,
               setBackgroundDisabledColor, setBackgroundDisabledImage, setBackgroundFocusedColor,
               setBackgroundFocusedImage, setBackgroundSelectedColor, setBackgroundSelectedImage,
-              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus,
-    ],
+              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus, add, remove, removeAllChildren, replaceAt]
     properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
                  backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
-                 focusable, keepScreenOn, softKeyboardOnFocus
-    ]
-}
+                 focusable, keepScreenOn, softKeyboardOnFocus]
 
 events:
   - name: click
@@ -60,33 +58,7 @@ events:
       - name: item
         summary: Item that was deleted.
         type: Titanium.UI.DashboardItem
-    
-  - name: dragEnd
-    deprecated:
-        since: "3.0.0"
-        notes: |
-            Renamed to [dragend](Titanium.UI.DashboardView.dragend) (all lowercase).
-    summary: Fired when an item finishes being dragged in edit mode.
-    properties:
-      - name: item
-        summary: Item that was dragged.
-        type: Titanium.UI.DashboardItem
-    deprecated:
-        since: "3.0.0"
-        
-  - name: dragStart
-    deprecated:
-        since: "3.0.0"
-        notes: |
-            Renamed to [dragstart](Titanium.UI.DashboardView.dragstart) (all lowercase).
-    summary: Fired when an item starts being dragged in edit mode.
-    properties:
-      - name: item
-        summary: Item that was dragged.
-        type: Titanium.UI.DashboardItem
-    deprecated:
-        since: "3.0.0"
-        
+            
   - name: dragend
     summary: Fired when an item finishes being dragged in edit mode.
     properties:
@@ -181,9 +153,7 @@ examples:
         with a longpress of a dashboard item (default behavior). Toggle edit mode with a click to 
         the toolbar button.
         
-        Copy the files in the KitchenSink 
-        [dashboard](https://github.com/appcelerator/titanium_mobile/tree/master/demos/KitchenSink/Resources/images/dashboard) 
-        directory to the local project `/images/dashboard` directory.
+        Copy your image files to the local project `/images/dashboard` directory.
         
                 
             var win = Ti.UI.createWindow({
@@ -192,11 +162,11 @@ examples:
             
             var button = Ti.UI.createButton({
                 title: 'Edit',
-                style: Ti.UI.iPhone.SystemButtonStyle.DONE,
+                style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
             var toolbar = Ti.UI.iOS.createToolbar({
-                items:[button],
+                items: [button],
                 top: 0
             });
             win.add(toolbar);
@@ -225,7 +195,7 @@ examples:
               { name: 'tasks' }
             ];
             
-            for (var i=0, ilen=itemData.length; i<ilen; i++){
+            for (var i = 0; i < itemData.length; i++) {
               var item = Ti.UI.createDashboardItem({
                 badge: itemData[i].badge,
                 image: '/images/dashboard/' + itemData[i].name + '_off.png',
@@ -244,27 +214,27 @@ examples:
             
             var isEditable = false;
             
-            button.addEventListener('click', function(e){
-              if(isEditable){
+            button.addEventListener('click', function(e) {
+              if (isEditable) {
                 dashboard.stopEditing();
               } else {
                 dashboard.startEditing();
               }
             });
             
-            dashboard.addEventListener('edit',function(e){
+            dashboard.addEventListener('edit', function(e) {
               button.title = 'Done';
-              button.style = Ti.UI.iPhone.SystemButtonStyle.DONE;
+              button.style = Ti.UI.iOS.SystemButtonStyle.DONE;
               isEditable = true;
             });
             
-            dashboard.addEventListener('commit',function(e){
+            dashboard.addEventListener('commit', function(e) {
               button.title = 'Edit';
-              button.style = Ti.UI.iPhone.SystemButtonStyle.PLAIN;
+              button.style = Ti.UI.iOS.SystemButtonStyle.PLAIN;
               isEditable = false;
             });
             
-            dashboard.addEventListener('click', function(e){
+            dashboard.addEventListener('click', function(e) {
               e.item.badge = 0;
             });
             
@@ -287,10 +257,6 @@ examples:
                         Click an item to reset badge\nPress and hold an item to enable edit mode
                     </Label>
 
-                    <!--
-                        Adding DashboardItems to a DashboardView would be easier programmatically,
-                        but the purpose of this example is to show how to do it in markup.
-                    -->
                     <DashboardView id="dashboard" top="100" wobble="true"
                         onClick="resetBadge" onEdit="handleEdit" onCommit="handleCommit">
 
@@ -313,26 +279,26 @@ examples:
 
             var isEditable = false;
 
-            function changeMode(e){
-              if(isEditable){
+            function changeMode(e) {
+              if (isEditable) {
                 $.dashboard.stopEditing();
               } else {
                 $.dashboard.startEditing();
               }
-            });
+            }
 
-            function handleEdit(e){
+            function handleEdit(e) {
               $.button.title = 'Done';
-              $.button.style = Ti.UI.iPhone.SystemButtonStyle.DONE;
+              $.button.style = Ti.UI.iOS.SystemButtonStyle.DONE;
               isEditable = true;
-            });
+            }
 
-            function handleCommit(e){
+            function handleCommit(e) {
               $.button.title = 'Edit';
-              $.button.style = Ti.UI.iPhone.SystemButtonStyle.PLAIN;
+              $.button.style = Ti.UI.iOS.SystemButtonStyle.PLAIN;
               isEditable = false;
-            });
+            }
 
-            function resetBadge(e){
+            function resetBadge(e) {
               e.item.badge = 0;
-            });
+            }

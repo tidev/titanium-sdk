@@ -8,29 +8,34 @@ description: |
     You can control how the sound interacts with other system sounds
     by setting <Titanium.Media.audioSessionMode>.
 
-    Use the <Titanium.Media.createSound> method to create a `Sound` object.
+    Use the <Titanium.Media.createSound> method to create a `Sound` object. You can play audio 
+    in any format supported by the target platform(s), as described in the following documents:
+
+    * [Android](https://developer.android.com/guide/topics/media/media-formats#core)
+    * [iOS](https://developer.apple.com/audio/)
+
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad, tizen, blackberry]
+platforms: [android, iphone, ipad]
 methods:
 
   - name: isLooping
     summary: Returns the value of the [looping](Titanium.Media.Sound.looping) property.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: isPaused
     summary: Returns the value of the [paused](Titanium.Media.Sound.paused) property.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: isPlaying
     summary: Returns the value of the [playing](Titanium.Media.Sound.playing) property.
     returns:
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: pause
     summary: Pauses the audio.
@@ -48,7 +53,7 @@ methods:
 
   - name: reset
     summary: Resets the audio playback position to the beginning.
-    exclude-platforms: [blackberry]
+
 
   - name: setLooping
     summary: Sets the value of the [looping](Titanium.Media.Sound.looping) property.
@@ -56,19 +61,19 @@ methods:
       - name: looping
         summary: New value for the `looping` property.
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
   - name: setPaused
     summary: Sets the value of the [paused](Titanium.Media.Sound.paused) property.
     description: |
-        On iOS and Tizen, this method can be used to pause and unpause playback. For portability,
+        On iOS, this method can be used to pause and unpause playback. For portability,
         it is preferable to use the [pause](Titanium.Media.Sound.pause) and
         [play](Titanium.Media.Sound.play) methods instead.
     parameters:
       - name: paused
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
 
   - name: stop
     summary: Stops playing the audio and resets the playback position to the beginning of the clip.
@@ -84,8 +89,9 @@ events:
     properties:
       - name: state
         summary: |
-            Current state of playback, specified using one of the `STATE` constants defined on this object.
+            Current state of playback.
         type: Number
+        constants: Titanium.Media.Sound.STATE_*
       - name: description
         summary: Text description of the state of playback.
 
@@ -97,7 +103,7 @@ events:
             Indicates if the sound was played successfully.
             Returns `true` if request succeeded, `false` otherwise.
         type: Boolean
-        platforms: [iphone, ipad, android, tizen]
+        platforms: [iphone, ipad, android]
 
       - name: error
         summary: Error message, if any returned. Will be undefined if `success` is `true`.
@@ -139,7 +145,7 @@ events:
         type: String
         deprecated:
             since: "3.1.0"
-    exclude-platforms: [blackberry]
+
 
   - name: interrupted
     summary: Fired  when audio playback is interrupted by the device. 
@@ -218,6 +224,48 @@ properties:
     permission: read-only
     since: "3.2.0"
     platforms: [android]
+    
+  - name: AUDIO_TYPE_ALARM
+    summary: Used to identify the volume of audio streams for alarms.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_SIGNALLING
+    summary: Used to identify the volume of audio streams for DTMF tones or beeps.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_MEDIA
+    summary: Used to identify the volume of audio streams for media playback.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_NOTIFICATION
+    summary: Used to identify the volume of audio streams for notifications.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_RING
+    summary: Used to identify the volume of audio streams for the phone ring.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_VOICE
+    summary: Used to identify the volume of audio streams for voice calls.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
 
   - name: allowBackground
     summary: Determines whether the audio should continue playing even when its activity is paused.
@@ -228,30 +276,36 @@ properties:
     availability: creation
     accessors: false
 
+  - name: audioType
+    summary: Changes the audio-stream-type.
+    type: Number
+    constants: Titanium.Media.Sound.AUDIO_TYPE_*
+    default: <Titanium.Media.AudioPlayer.AUDIO_TYPE_MEDIA>
+    platforms: [android]
+    since: "6.2.0"
+
   - name: duration
     summary: Duration of the audio resource.
     description: |
         On iOS, playback time is reported in seconds.
 
-        On Android and Tizen, time is reported in milliseconds.
+        On Android, time is reported in milliseconds.
 
         Android note: Starting from Titanium 3.2.0, the remote audio plays asynchronously. The duration
         can only be fetched after the audio is initialized (refer to <Titanium.Media.Sound.STATE_INITIALIZED>).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
 
   - name: looping
     summary: Determines whether the audio should loop upon completion.
     type: Boolean
     default: false
     accessors: false
-    exclude-platforms: [blackberry]
 
   - name: paused
     summary: Indicates if the audio is paused.
     description: |
-        On iOS and Tizen, this property is read-write, and you can pause and resume playback by setting this 
+        On iOS, this property is read-write, and you can pause and resume playback by setting this
         property to `true` or `false`.
         
         On Android, this property is read-only. For portability, use [pause](Titanium.Media.Sound.pause)
@@ -272,7 +326,6 @@ properties:
         
         On iOS, prior to Release 3.0, playback time is reported in seconds.
     type: Number
-    exclude-platforms: [blackberry]
 
   - name: url
     summary: URL identifying the audio resource.
@@ -286,9 +339,9 @@ properties:
 
         On iOS, to adjust the volume of the device, set the `volume` property of
         <Titanium.Media.appMusicPlayer> and set the <Titanium.Media.audioSessionMode> property
-        to either <Titanium.Media.AUDIO_SESSION_MODE_AMBIENT>,
-        <Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT>,
-        or <Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK>.
+        to either <Titanium.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT>,
+        <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAYBACK>,
+        or <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAYBACK>.
     type: Number
 
 examples:

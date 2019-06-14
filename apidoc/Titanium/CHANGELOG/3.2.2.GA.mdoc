@@ -1,0 +1,69 @@
+# Titanium SDK 3.2.2 General Availability - 03/10/2014
+
+##### Contents
+
+  * [About This Release](#about)
+  * [Android SDK Tools v22.6 and Build-tools v19.0.3](#android)
+  * [iOS 7.1 Support](#ios)
+  * [Fixed Issues](#issues)
+  * [API Changes](#apichanges)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 3.2.2 is a service pack release of the Titanium SDK, addressing high-priority
+issues in previous releases. 
+
+Notable fixed issues include support to launch the iOS simulator with Xcode 5.1 and addressing a
+breaking change introduced by Android build-tools v19.0.3.
+
+There are no updates to the other Titanium components: Alloy, Studio or the CLI.  Use the current GA
+versions: Alloy 1.3.1, Studio 3.2.1 and CLI 3.2.1.
+
+<a name="android"></a>
+
+## Android SDK Tools v22.6 and Build-tools v19.0.3
+
+If you upgrade your Android build-tools to version 19.0.3, you need to build your Android
+applications using Titanium SDK 3.2.2 or greater.  You must also set your Titanium CLI to use
+Titanium SDK 3.2.2.GA with the `titanium sdk select` command. For example, once you have Release
+3.2.2 GA installed, run the following command:
+
+    titanium sdk select 3.2.2.GA
+    
+We recommend holding off installing Android SDK tools v22.6.  There is a known issue that the
+`android` command-line tool cannot  create an Android virtual device (emulator)
+([Android Issue #66740](https://code.google.com/p/android/issues/detail?id=66740)).
+Because of this issue, Studio cannot create an Android emulator.
+
+<a name="ios"></a>
+
+## iOS 7.1 Support
+
+This release includes support for iOS 7.1 and Xcode 5.1.  While performing a complete testing pass
+against Release 3.2.2, the following issue was discovered:
+
+  * [TIMOB-16603](https://jira.appcelerator.org/browse/TIMOB-16603): Xcode 5.1: If you package an
+    app to the App Store and validate the app, then you will get the "App Store must be built with
+    public" message
+
+<a name="issues"></a>
+
+## Fixed Issues and Enhancements
+
+[Full list of Issues that were addressed in Release 3.2.2](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15740)
+
+  * [TIMOB-15121](https://jira.appcelerator.org/browse/TIMOB-15121) Launching invalid iOS 7 Simulator prevents application logging
+  * [TIMOB-15741](https://jira.appcelerator.org/browse/TIMOB-15741) Cannot launch iOS simulator with Xcode 5.1b4
+  * [TIMOB-15889](https://jira.appcelerator.org/browse/TIMOB-15889) Memory leak on iOS when items in section are changed on ListView after ListView has been created
+  * [TIMOB-16381](https://jira.appcelerator.org/browse/TIMOB-16381) ListView crashes on setting accessoryType after filtering on itemclick event
+  * [TIMOB-16481](https://jira.appcelerator.org/browse/TIMOB-16481) "Xcode 5.1 is too new" message will appear with CLI GA (3.2.1) plus latest 3.2.2 SDK plus Xcode 5.1 beta 5
+  * [TIMOB-16490](https://jira.appcelerator.org/browse/TIMOB-16490) statusBar Problems when used together with barImage on Ti SDK 3.2.1.GA + iOS 7
+  * [TIMOB-16553](https://jira.appcelerator.org/browse/TIMOB-16553) Android build-tools v19.0.3 causes 'ti info' to throw an error
+  
+<a name="apichanges"></a>
+
+## API Changes
+
+No APIs were modified for this release.

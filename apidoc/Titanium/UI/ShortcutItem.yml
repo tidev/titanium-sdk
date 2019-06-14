@@ -1,0 +1,83 @@
+---
+name: Titanium.UI.ShortcutItem
+summary: An application shortcut.
+description: |
+    Allows the creation of application shortcuts, which can be detected using
+    the `shortcutitemclick` event from <Titanium.App>.
+
+    Use the <Titanium.UI.createShortcutItem> method to create a shortcut.
+
+extends: Titanium.Proxy
+since: "7.5.0"
+platforms: [android]
+
+methods:
+  - name: show
+    summary: Allow the shortcut to show.
+    platforms: [android]
+
+  - name: hide
+    summary: Hide the shortcut.
+    platforms: [android]
+
+  - name: pin
+    summary: Pin shortcut to launcher.
+    platforms: [android]
+    osver: {android: {min: "8.0"}}
+
+properties:
+  - name: id
+    summary: Determines shortcut id.
+    description: This should be a unique identifier for the shortcut.
+    type: String
+    platforms: [android]
+    availability: creation
+
+  - name: title
+    summary: Title of the shortcut.
+    type: String
+    platforms: [android]
+    availability: creation
+
+  - name: description
+    summary: Description of the shortcut.
+    type: String
+    platforms: [android]
+    availability: creation
+
+  - name: icon
+    summary: Shortcut icon.
+    description: This can be set as a resource id or file path.
+    type: [String, Number]
+    platforms: [android]
+    availability: creation
+
+examples:
+  - title: Simple ShortcutItem Example
+    example: |
+        Create a shortcut item and detect its click with the `shortcutitemclick` event.
+
+            var win = Ti.UI.createWindow({ backgroundColor: 'grey' }),
+                btn = Ti.UI.createButton({ title: 'TOGGLE SHORTCUT' }),
+                shortcut = Ti.UI.createShortcutItem({
+                    id: 'test_shortcut',
+                    title: 'TEST',
+                    description: 'DESCRIPTION'
+                });
+
+            Ti.App.addEventListener('shortcutitemclick', function () {
+                win.backgroundColor = 'blue';
+            });
+
+            btn.addEventListener('click', function () {
+                if (shortcut.visible) {
+                    win.backgroundColor = 'red';
+                    shortcut.hide();
+                } else {
+                    win.backgroundColor = 'green';
+                    shortcut.show();
+                }
+            });
+
+            win.add(btn);
+            win.open();

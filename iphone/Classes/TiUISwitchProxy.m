@@ -7,31 +7,44 @@
 #ifdef USE_TI_UISWITCH
 
 #import "TiUISwitchProxy.h"
+#import "TiUISwitch.h"
 
 @implementation TiUISwitchProxy
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth);
+  [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+  [super _initWithProperties:properties];
 }
 
--(NSString*)apiName
+- (UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-    return @"Ti.UI.Switch";
+  return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+}
+
+- (NSString *)apiName
+{
+  return @"Ti.UI.Switch";
+}
+
+- (NSNumber *)value
+{
+  return [(TiUISwitch *)[self view] value];
 }
 
 USE_VIEW_FOR_VERIFY_HEIGHT
 USE_VIEW_FOR_VERIFY_WIDTH
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+#ifndef TI_USE_AUTOLAYOUT
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
-
+#endif
 
 @end
 

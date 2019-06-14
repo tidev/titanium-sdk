@@ -1,46 +1,47 @@
 /**
  * Titanium SDK Library for Node.js
- * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2017 by Appcelerator, Inc. All Rights Reserved.
  * Please see the LICENSE file for information about licensing.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	DOMParser = require('xmldom').DOMParser,
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
-	wrench = require('wrench'),
 	xml = appc.xml,
 	__ = appc.i18n(__dirname).__,
 
-	androidAttrPrefixRegExp = /^android\:/,
-	defaultDOMParserArgs = { errorHandler: function(){} },
+	androidAttrPrefixRegExp = /^android:/,
+	defaultDOMParserArgs = { errorHandler: function () {} },
 
 	tags = {
 		// according to http://developer.android.com/guide/topics/manifest/meta-data-element.html,
 		// <meta-data> is not intended to be a direct descendent of <application> but it is required
 		// that we support it so that we can pass a Google Maps API key to their library
-		'application': /^(activity|activity-alias|meta-data|provider|receiver|service|uses\-library)$/
+		application: /^(activity|activity-alias|meta-data|provider|receiver|service|uses-library)$/
 	},
 
 	tagAttrs = {
-		'application': /^(allowTaskReparenting|allowBackup|backupAgent|debuggable|description|enabled|hasCode|hardwareAccelerated|icon|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|permission|persistent|process|restoreAnyVersion|requiredAccountType|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|vmSafeMode)$/,
-		'activity': /^(allowTaskReparenting|alwaysRetainTaskState|clearTaskOnLaunch|configChanges|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|multiprocess|name|noHistory|parentActivityName|permission|process|screenOrientation|stateNotNeeded|taskAffinity|theme|uiOptions|windowSoftInputMode)$/,
+		application: /^(allowTaskReparenting|allowBackup|allowClearUserData|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|roundIcon|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
+		activity: /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|colorMode|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|immersive|label|launchMode|lockTaskMode|maxRecents|maxAspectRatio|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/, // eslint-disable-line max-len
 		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
-		'data': /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
+		data: /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
 		'intent-filter': /^(icon|label|priority)$/,
 		'meta-data': /^(name|resource|value)$/,
 		'path-permission': /^(path|pathPrefix|pathPattern|permission|readPermissions|writePermissions)$/,
-		'provider': /^(authorities|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
-		'receiver': /^(enabled|exported|icon|label|name|permission|process)$/,
-		'service': /^(enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
+		provider: /^(authorities|directBootAware|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
+		receiver: /^(directBootAware|enabled|exported|icon|label|name|permission|process)$/,
+		service: /^(description|directBootAware|enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
 		'uses-library': /^(name|required)$/,
-		'uses-sdk': /^(name|required)$/
+		'uses-sdk': /^(maxSdkVersion|minSdkVersion|targetSdkVersion)$/
 	};
 
 module.exports = AndroidManifest;
 
 function toXml(dom, parent, name, value) {
-	var node;
+	let node;
 
 	switch (name) {
 		case '__attr__':
@@ -52,29 +53,29 @@ function toXml(dom, parent, name, value) {
 		case 'application':
 			node = dom.create(name, null, parent);
 			Object.keys(value).forEach(function (attr) {
-				var tag = attr;
+				const tag = attr;
 
 				if (tags.application.test(tag)) {
-					if (tag == 'provider') {
+					if (tag === 'provider') {
 						Object.keys(value[tag]).forEach(function (name) {
-							var providerNode = dom.create(tag, null, node),
-								children = 0;
+							const providerNode = dom.create(tag, null, node);
+							let children = 0;
 							Object.keys(value[tag][name]).forEach(function (attr) {
-								var val = value[tag][name][attr];
+								const val = value[tag][name][attr];
 
 								if (tagAttrs.provider.test(attr)) {
 									providerNode.setAttribute('android:' + attr, val);
-								} else if ((attr == 'grant-uri-permission' || attr == 'path-permission') && Array.isArray(val)) {
+								} else if ((attr === 'grant-uri-permission' || attr === 'path-permission') && Array.isArray(val)) {
 									val.forEach(function (perm) {
-										var childNode = dom.create(attr, null, providerNode);
+										const childNode = dom.create(attr, null, providerNode);
 										Object.keys(perm).forEach(function (attr) {
 											childNode.setAttribute('android:' + attr, perm[attr]);
 										});
 										children++;
 									});
-								} else if (attr == 'meta-data') {
+								} else if (attr === 'meta-data') {
 									Object.keys(val).forEach(function (name) {
-										var metaDataNode = dom.create('meta-data', null, providerNode);
+										const metaDataNode = dom.create('meta-data', null, providerNode);
 										Object.keys(val[name]).forEach(function (attr) {
 											if (tagAttrs['meta-data'].test(attr)) {
 												metaDataNode.setAttribute('android:' + attr, val[name][attr]);
@@ -86,19 +87,18 @@ function toXml(dom, parent, name, value) {
 							});
 							children && providerNode.appendChild(dom.createTextNode('\r\n' + new Array(3).join('\t')));
 						});
-					} else if (tag == 'meta-data') {
+					} else if (tag === 'meta-data') {
 						Object.keys(value['meta-data']).forEach(function (name) {
-							var metaDataNode = dom.create('meta-data', null, node);
+							const metaDataNode = dom.create('meta-data', null, node);
 							Object.keys(value['meta-data'][name]).forEach(function (attr) {
 								if (tagAttrs['meta-data'].test(attr)) {
 									metaDataNode.setAttribute('android:' + attr, value['meta-data'][name][attr]);
 								}
 							});
-							children++;
 						});
-					} else if (tag == 'uses-library') {
+					} else if (tag === 'uses-library') {
 						Object.keys(value['uses-library']).forEach(function (name) {
-							var usesLibraryNode = dom.create('uses-library', null, node);
+							const usesLibraryNode = dom.create('uses-library', null, node);
 							Object.keys(value['uses-library'][name]).forEach(function (attr) {
 								if (tagAttrs['uses-library'].test(attr)) {
 									usesLibraryNode.setAttribute('android:' + attr, value['uses-library'][name][attr]);
@@ -108,29 +108,29 @@ function toXml(dom, parent, name, value) {
 					} else {
 						// activity, activity-alias, receiver, service
 						Object.keys(value[tag]).forEach(function (name) {
-							var childNode = dom.create(tag, null, node),
-								children = 0;
+							const childNode = dom.create(tag, null, node);
+							let children = 0;
 							Object.keys(value[tag][name]).forEach(function (attr) {
-								var val = value[tag][name][attr];
+								let val = value[tag][name][attr];
 
 								if (tagAttrs[tag].test(attr)) {
 									if (/^(configChanges|windowSoftInputMode)$/.test(attr) && Array.isArray(val)) {
 										val = val.join('|');
 									}
 									childNode.setAttribute('android:' + attr, val);
-								} else if (attr == 'intent-filter' && Array.isArray(val)) {
+								} else if (attr === 'intent-filter' && Array.isArray(val)) {
 									val.forEach(function (intentFilter) {
-										var intentFilterNode = dom.create('intent-filter', null, childNode);
+										const intentFilterNode = dom.create('intent-filter', null, childNode);
 										Object.keys(intentFilter).forEach(function (attr) {
 											if (tagAttrs['intent-filter'].test(attr)) {
 												intentFilterNode.setAttribute('android:' + attr, intentFilter[attr]);
-											} else if ((attr == 'action' || attr == 'category') && Array.isArray(intentFilter[attr])) {
+											} else if ((attr === 'action' || attr === 'category') && Array.isArray(intentFilter[attr])) {
 												intentFilter[attr].forEach(function (name) {
 													dom.create(attr, { 'android:name': name }, intentFilterNode);
 												});
-											} else if (attr == 'data' && Array.isArray(intentFilter.data)) {
+											} else if (attr === 'data' && Array.isArray(intentFilter.data)) {
 												intentFilter[attr].forEach(function (obj) {
-													var dataNode = dom.create('data', null, intentFilterNode);
+													const dataNode = dom.create('data', null, intentFilterNode);
 													Object.keys(obj).forEach(function (key) {
 														if (tagAttrs.data.test(key)) {
 															dataNode.setAttribute('android:' + key, obj[key]);
@@ -142,9 +142,9 @@ function toXml(dom, parent, name, value) {
 										intentFilterNode.appendChild(dom.createTextNode('\r\n' + new Array(4).join('\t')));
 										children++;
 									});
-								} else if (attr == 'meta-data') {
+								} else if (attr === 'meta-data') {
 									Object.keys(val).forEach(function (key) {
-										var metaDataNode = dom.create('meta-data', null, childNode);
+										const metaDataNode = dom.create('meta-data', null, childNode);
 										Object.keys(val[key]).forEach(function (attr) {
 											if (tagAttrs['meta-data'].test(attr)) {
 												metaDataNode.setAttribute('android:' + attr, val[key][attr]);
@@ -167,7 +167,7 @@ function toXml(dom, parent, name, value) {
 		case 'compatible-screens':
 			node = dom.create(name, null, parent);
 			Array.isArray(value) && value.forEach(function (screen) {
-				var screenNode = dom.create('screen', null, node);
+				const screenNode = dom.create('screen', null, node);
 				Object.keys(screen).forEach(function (key) {
 					screenNode.setAttribute('android:' + key, screen[key]);
 				});
@@ -180,7 +180,7 @@ function toXml(dom, parent, name, value) {
 		case 'permission-tree':
 		case 'uses-feature':
 			Object.keys(value).forEach(function (key) {
-				var childNode = dom.create(name, null, parent);
+				const childNode = dom.create(name, null, parent);
 				Object.keys(value[key]).forEach(function (attr) {
 					childNode.setAttribute('android:' + attr, value[key][attr]);
 				});
@@ -204,7 +204,7 @@ function toXml(dom, parent, name, value) {
 
 		case 'uses-configuration':
 			value.forEach(function (uses) {
-				var usesNode = dom.create('uses-configuration', null, parent);
+				const usesNode = dom.create('uses-configuration', null, parent);
 				Object.keys(uses).forEach(function (attr) {
 					usesNode.setAttribute('android:' + attr, uses[attr]);
 				});
@@ -218,7 +218,7 @@ function toXml(dom, parent, name, value) {
 	}
 
 	if (node) {
-		var children = 0;
+		let children = 0;
 		xml.forEachElement(node, function () {
 			children++;
 		});
@@ -229,13 +229,17 @@ function toXml(dom, parent, name, value) {
 function initAttr(node, obj) {
 	xml.forEachAttr(node, function (attr) {
 		obj.__attr__ || (obj.__attr__ = {});
-		obj.__attr__[attr.name] = xml.parse(attr.value);
+		if (attr.name === 'android:versionName') {
+			obj.__attr__[attr.name] = attr.value;
+		} else {
+			obj.__attr__[attr.name] = xml.parse(attr.value);
+		}
 	});
 	return obj;
 }
 
 function attrsToObj(node) {
-	var a = {};
+	const a = {};
 	xml.forEachAttr(node, function (attr) {
 		a[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
 	});
@@ -243,7 +247,7 @@ function attrsToObj(node) {
 }
 
 function initObjectByName(node, obj) {
-	var tmp = obj[node.tagName] || (obj[node.tagName] = {}),
+	const tmp = obj[node.tagName] || (obj[node.tagName] = {}),
 		a = attrsToObj(node);
 	if (a.name) {
 		tmp[a.name] = a;
@@ -258,7 +262,7 @@ function toJS(obj, doc) {
 		switch (node.tagName) {
 			case 'application':
 				// application object
-				var app = obj[node.tagName] = attrsToObj(node);
+				const app = obj[node.tagName] = attrsToObj(node);
 
 				xml.forEachElement(node, function (node) {
 					switch (node.tagName) {
@@ -266,9 +270,9 @@ function toJS(obj, doc) {
 						case 'activity-alias':
 						case 'receiver':
 						case 'service':
-							var it = initObjectByName(node, app);
+							const it = initObjectByName(node, app);
 							if (it) {
-								if (node.tagName == 'activity') {
+								if (node.tagName === 'activity') {
 									it.configChanges && (it.configChanges = it.configChanges.split('|'));
 									it.windowSoftInputMode && (it.windowSoftInputMode = it.windowSoftInputMode.split('|'));
 								}
@@ -277,7 +281,7 @@ function toJS(obj, doc) {
 									switch (node.tagName) {
 										case 'intent-filter':
 											Array.isArray(it['intent-filter']) || (it['intent-filter'] = []);
-											var intentFilter = attrsToObj(node);
+											const intentFilter = attrsToObj(node);
 											it['intent-filter'].push(intentFilter);
 
 											xml.forEachElement(node, function (node) {
@@ -285,8 +289,8 @@ function toJS(obj, doc) {
 													case 'action':
 													case 'category':
 														Array.isArray(intentFilter[node.tagName]) || (intentFilter[node.tagName] = []);
-														var name = node.getAttribute('android:name');
-														if (name && intentFilter[node.tagName].indexOf(name) == -1) {
+														const name = node.getAttribute('android:name');
+														if (name && intentFilter[node.tagName].indexOf(name) === -1) {
 															intentFilter[node.tagName].push(name);
 														}
 														break;
@@ -300,7 +304,7 @@ function toJS(obj, doc) {
 											break;
 
 										case 'meta-data':
-											Object.prototype.toString.call(it['meta-data']) == '[object Object]' || (it['meta-data'] = {});
+											Object.prototype.toString.call(it['meta-data']) === '[object Object]' || (it['meta-data'] = {});
 											initObjectByName(node, it);
 											break;
 									}
@@ -309,12 +313,12 @@ function toJS(obj, doc) {
 							break;
 
 						case 'meta-data':
-							Object.prototype.toString.call(app['meta-data']) == '[object Object]' || (app['meta-data'] = {});
+							Object.prototype.toString.call(app['meta-data']) === '[object Object]' || (app['meta-data'] = {});
 							initObjectByName(node, app);
 							break;
 
 						case 'provider':
-							var provider = initObjectByName(node, app);
+							const provider = initObjectByName(node, app);
 							provider && xml.forEachElement(node, function (node) {
 								switch (node.tagName) {
 									case 'grant-uri-permission':
@@ -324,7 +328,7 @@ function toJS(obj, doc) {
 										break;
 
 									case 'meta-data':
-										Object.prototype.toString.call(provider['meta-data']) == '[object Object]' || (provider['meta-data'] = {});
+										Object.prototype.toString.call(provider['meta-data']) === '[object Object]' || (provider['meta-data'] = {});
 										initObjectByName(node, provider);
 										break;
 								}
@@ -332,8 +336,8 @@ function toJS(obj, doc) {
 							break;
 
 						case 'uses-library':
-							Object.prototype.toString.call(app['uses-library']) == '[object Object]' || (app['uses-library'] = {});
-							var a = attrsToObj(node);
+							Object.prototype.toString.call(app['uses-library']) === '[object Object]' || (app['uses-library'] = {});
+							const a = attrsToObj(node);
 							a.name && (app['uses-library'][a.name] = a);
 							break;
 					}
@@ -342,18 +346,33 @@ function toJS(obj, doc) {
 
 			case 'compatible-screens':
 				// array of screen objects
-				var tmp = obj[node.tagName] || (obj[node.tagName] = []);
+				const tmp = obj[node.tagName] || (obj[node.tagName] = []);
 				initAttr(node, tmp);
 				xml.forEachElement(node, function (node) {
-					node.tagName == 'screen' && tmp.push(attrsToObj(node));
+					node.tagName === 'screen' && tmp.push(attrsToObj(node));
 				});
+				break;
+
+			case 'uses-feature':
+				// array of features that if it has a name, must be unique
+				const tmp2 = obj[node.tagName] || (obj[node.tagName] = []),
+					a = attrsToObj(node);
+
+				// remove old one to prevent dupe
+				if (a.name) {
+					for (let i = 0; i < tmp2.length; i++) {
+						if (tmp2[i].name && tmp2[i].name == a.name) { // eslint-disable-line eqeqeq
+							tmp2.splice(i--, 1);
+						}
+					}
+				}
+				tmp2.push(a);
 				break;
 
 			case 'instrumentation':
 			case 'permission':
 			case 'permission-group':
 			case 'permission-tree':
-			case 'uses-feature':
 			case 'uses-library':
 				// object with objects keyed by name
 				initObjectByName(node, obj);
@@ -362,9 +381,9 @@ function toJS(obj, doc) {
 			case 'supports-screens':
 			case 'uses-sdk':
 				// single instance tags
-				var tmp = obj[node.tagName] = {};
+				const tmp3 = obj[node.tagName] = {};
 				xml.forEachAttr(node, function (attr) {
-					tmp[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
+					tmp3[attr.name.replace(androidAttrPrefixRegExp, '')] = xml.parse(attr.value);
 				});
 				break;
 
@@ -377,10 +396,10 @@ function toJS(obj, doc) {
 			case 'supports-gl-texture':
 			case 'uses-permission':
 				// array of names
-				var a = node.getAttribute('android:name');
-				if (a) {
+				const an = node.getAttribute('android:name');
+				if (an) {
 					Array.isArray(obj[node.tagName]) || (obj[node.tagName] = []);
-					obj[node.tagName].push(a.replace(androidAttrPrefixRegExp, ''));
+					obj[node.tagName].push(an.replace(androidAttrPrefixRegExp, ''));
 				}
 				break;
 		}
@@ -407,7 +426,9 @@ function AndroidManifest(filename) {
 
 	Object.defineProperty(this, 'merge', {
 		value: function (src) {
-			if (!src) return this;
+			if (!src) {
+				return this;
+			}
 
 			if (!(src instanceof AndroidManifest)) {
 				throw new Error(__('Failed to merge, source must be an AndroidManifest object'));
@@ -434,7 +455,36 @@ function AndroidManifest(filename) {
 								case 'uses-library':
 									this[tag][subtag] || (this[tag][subtag] = {});
 									Object.keys(src[tag][subtag]).forEach(function (key) {
-										this[tag][subtag][key] = src[tag][subtag][key];
+										// Copy source's XML tag attributes and child tags to target.
+										const nextSource = src[tag][subtag][key];
+										const nextTarget = this[tag][subtag][key];
+										if (!nextTarget) {
+											// Insert source's attribute or sub tag to target.
+											this[tag][subtag][key] = nextSource;
+										} else {
+											Object.keys(nextSource).forEach(function (subKey) {
+												if (subKey === 'configChanges') {
+													// For <activity/> "android:configChanges" attribute, only copy
+													// the attribute values from source that are missing in target.
+													const sourceArray = nextSource[subKey];
+													if (Array.isArray(sourceArray)) {
+														const targetArray = nextTarget[subKey];
+														if (Array.isArray(targetArray)) {
+															for (let nextValue of sourceArray) {
+																if (!targetArray.includes(nextValue)) {
+																	targetArray.push(nextValue);
+																}
+															}
+														} else {
+															nextSource[subKey] = sourceArray;
+														}
+													}
+												} else {
+													// Overwrite target's attribute or sub tag with source.
+													nextTarget[subKey] = nextSource[subKey];
+												}
+											});
+										}
 									}, this);
 									break;
 								default:
@@ -447,15 +497,29 @@ function AndroidManifest(filename) {
 
 					case 'compatible-screens':
 						Array.isArray(this[tag]) || (this[tag] = []);
-						var tmp = {};
+						const tmp = {};
 						this[tag].forEach(function (s) {
 							tmp[s.screenSize + '|' + s.screenDensity] = 1;
 						});
 						src[tag].forEach(function (s) {
-							var n = s.screenSize + '|' + s.screenDensity;
+							const n = s.screenSize + '|' + s.screenDensity;
 							if (!tmp[n]) {
 								tmp[n] = 1;
 								this[tag].push(s);
+							}
+						}, this);
+						break;
+
+					case 'uses-feature':
+						this[tag] || (this[tag] = []);
+						src[tag].forEach(function (tagItem) {
+							// Check for already added features.
+							let duplicateItem = this[tag].find(function (nextItem) {
+								// Compare them directly or by name.
+								return (nextItem === tagItem) || (nextItem.name === tagItem.name);
+							});
+							if (!duplicateItem) {
+								this[tag].push(tagItem);
 							}
 						}, this);
 						break;
@@ -464,7 +528,6 @@ function AndroidManifest(filename) {
 					case 'permission':
 					case 'permission-group':
 					case 'permission-tree':
-					case 'uses-feature':
 					case 'uses-library':
 						this[tag] || (this[tag] = {});
 						Object.keys(src[tag]).forEach(function (name) {
@@ -482,14 +545,14 @@ function AndroidManifest(filename) {
 
 					case 'uses-configuration':
 						Array.isArray(this[tag]) || (this[tag] = []);
-						var tmp = {};
+						const tmp2 = {};
 						this[tag].forEach(function (s) {
-							tmp[s.reqFiveWayNav + '|' + s.reqTouchScreen + '|' + s.reqKeyboardType] = 1;
+							tmp2[s.reqFiveWayNav + '|' + s.reqTouchScreen + '|' + s.reqKeyboardType] = 1;
 						});
 						src[tag].forEach(function (s) {
-							var n = s.reqFiveWayNav + '|' + s.reqTouchScreen + '|' + s.reqKeyboardType;
-							if (!tmp[n]) {
-								tmp[n] = 1;
+							const n = s.reqFiveWayNav + '|' + s.reqTouchScreen + '|' + s.reqKeyboardType;
+							if (!tmp2[n]) {
+								tmp2[n] = 1;
 								this[tag].push(s);
 							}
 						}, this);
@@ -499,7 +562,7 @@ function AndroidManifest(filename) {
 					case 'uses-permission':
 						Array.isArray(this[tag]) || (this[tag] = []);
 						src[tag].forEach(function (s) {
-							if (this[tag].indexOf(s) == -1) {
+							if (this[tag].indexOf(s) === -1) {
 								this[tag].push(s);
 							}
 						}, this);
@@ -513,19 +576,19 @@ function AndroidManifest(filename) {
 
 	Object.defineProperty(this, 'toString', {
 		value: function (fmt) {
-			if (fmt == 'xml') {
-				var dom = new DOMParser(defaultDOMParserArgs).parseFromString('<manifest>', 'text/xml');
+			if (fmt === 'xml') {
+				const dom = new DOMParser(defaultDOMParserArgs).parseFromString('<manifest>', 'text/xml');
 
 				dom.create = function (tag, attrs, parent, callback) {
-					var node = dom.createElement(tag),
-						i = 0,
+					const node = dom.createElement(tag);
+					let i = 0,
 						p = parent;
 
 					attrs && Object.keys(attrs).forEach(function (attr) {
-						if (attr == 'nodeValue') {
-							node.appendChild(dom.createTextNode(''+attrs[attr]));
+						if (attr === 'nodeValue') {
+							node.appendChild(dom.createTextNode('' + attrs[attr]));
 						} else {
-							attrs[attr] != void 0 && node.setAttribute(attr, ''+attrs[attr]);
+							attrs[attr] != undefined && node.setAttribute(attr, '' + attrs[attr]); // eslint-disable-line eqeqeq
 						}
 					});
 
@@ -534,13 +597,13 @@ function AndroidManifest(filename) {
 							i++;
 							p = p.parentNode;
 						}
-						parent.appendChild(dom.createTextNode('\r\n' + new Array(i+1).join('\t')));
+						parent.appendChild(dom.createTextNode('\r\n' + new Array(i + 1).join('\t')));
 					}
 
 					parent && parent.appendChild(node);
 					if (callback) {
 						callback(node);
-						node.appendChild(dom.createTextNode('\r\n' + new Array(i+1).join('\t')));
+						node.appendChild(dom.createTextNode('\r\n' + new Array(i + 1).join('\t')));
 					}
 					return node;
 				};
@@ -552,9 +615,9 @@ function AndroidManifest(filename) {
 				dom.documentElement.appendChild(dom.createTextNode('\r\n'));
 
 				return '<?xml version="1.0" encoding="UTF-8"?>\r\n' + dom.documentElement.toString();
-			} else if (fmt == 'pretty-json') {
+			} else if (fmt === 'pretty-json') {
 				return JSON.stringify(this, null, '\t');
-			} else if (fmt == 'json') {
+			} else if (fmt === 'json') {
 				return JSON.stringify(this);
 			}
 			return Object.prototype.toString.call(this);
@@ -564,7 +627,7 @@ function AndroidManifest(filename) {
 	Object.defineProperty(this, 'save', {
 		value: function (file) {
 			if (file) {
-				wrench.mkdirSyncRecursive(path.dirname(file));
+				fs.ensureDirSync(path.dirname(file));
 				fs.writeFileSync(file, this.toString('xml'));
 			}
 			return this;

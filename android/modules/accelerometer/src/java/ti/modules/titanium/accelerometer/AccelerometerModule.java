@@ -10,14 +10,12 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
 
 @Kroll.module
 public class AccelerometerModule extends KrollModule implements SensorEventListener
@@ -27,15 +25,9 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 	private boolean accelerometerRegistered = false;
 	private long lastSensorEventTimestamp = 0;
 
-
 	public AccelerometerModule()
 	{
 		super();
-	}
-
-	public AccelerometerModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -66,6 +58,7 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 	{
 	}
 
+	@SuppressWarnings("deprecation")
 	public void onSensorChanged(SensorEvent event)
 	{
 		if (event.timestamp - lastSensorEventTimestamp > 100) {

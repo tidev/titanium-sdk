@@ -4,7 +4,7 @@ summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
-platforms: [android, iphone, ipad, blackberry]
+platforms: [android, iphone, ipad]
 description: |
     A result set represents the results returned by a database query.
 
@@ -16,12 +16,6 @@ description: |
     Use the [field](Titanium.Database.ResultSet.field) or
     [fieldByName](Titanium.Database.ResultSet.fieldByName) methods to query the fields for
     the current row.
-
-    #### Platform Implementation Notes
-
-    Note that `fieldCount` is exposed as a *method* on iOS, but as a *property* on
-    Android. This is a known parity issue
-    ([TIMOB-2945](https://jira.appcelerator.org/browse/TIMOB-2945)).
 
     On the iOS platform, closing the database also closes the result set, that is,
     you can only access the result set if the database is currently open.
@@ -59,10 +53,9 @@ methods:
         type: Number
         
       - name: type
-        summary: |
-            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | 
-            <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
+        summary: Type to cast field value.
         type: Number
+        constants: Titanium.Database.FIELD_TYPE_*
         optional: true
     
   - name: fieldByName
@@ -91,17 +84,20 @@ methods:
         summary: A column name or alias used in the SQL query.
         type: String
       - name: type
-        summary: |
-            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | 
-            <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
+        summary: Type to cast for the field value.
         type: Number
+        constants: Titanium.Database.FIELD_TYPE_*
         optional: true
     
   - name: fieldCount
-    summary: Returns the number of columns in this result set.
+    summary: Returns the number of columns in this result set. This method has been **removed** in Release 3.3.0 of the Titanium SDK. Use the fieldCount property instead.
     returns:
         type: Number
-    platforms: [iphone, ipad, blackberry]
+    deprecated:
+        since: "3.3.0"
+        removed: "3.3.0"
+        notes: Use the fieldCount property instead.
+    platforms: [iphone, ipad]
     
   - name: fieldName
     summary: Returns the field name for the specified field index.
@@ -111,7 +107,7 @@ methods:
       - name: index
         summary: A zero-based column index for the field.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: getFieldName
     summary: Returns the field name for the specified field index.
@@ -140,7 +136,8 @@ properties:
     summary: The number of columns in this result set.
     type: Number
     permission: read-only
-    platforms: [android, blackberry]
+    platforms: [android,  iphone, ipad]
+    since: {iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: rowCount
     summary: The number of rows in this result set.
@@ -173,15 +170,9 @@ examples:
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
             
             var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
-            
             Ti.API.info('Row count: ' + rows.rowCount);
-            var fieldCount;
-            // fieldCount is a property on Android.
-            if (Ti.Platform.name === 'android') {
-                fieldCount = rows.fieldCount;
-            } else {
-                fieldCount = rows.fieldCount();
-            }
+
+            var fieldCount = rows.fieldCount;
             Ti.API.info('Field count: ' + fieldCount);
             
             while (rows.isValidRow()){

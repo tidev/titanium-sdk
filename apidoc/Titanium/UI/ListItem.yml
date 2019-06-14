@@ -5,15 +5,27 @@ description: |
     A list item is a combination of a <ListDataItem> and <ItemTemplate>.  The list data item
     represents the actual data, while the item template represents the style elements of the item.
 
-    You do not create `ListItem` objects the same way you do other Titanium proxies.
-    A `Ti.UI.createListItem` method does not exist to create list item objects.
+    You should not create `ListItem` objects with a JavaScript factory method, as you do other Titanium proxies.
+    Instead, you should pass a <ListDataItem> array to the `setItems` method of a `ListSection`. The list data items 
+    contain the data you want to display in the list.
 
-    Instead, you have to pass a <ListDataItem> array to the `setItems` method of a `ListSection`.
-    The list data items contain the data you want to display in the list.
+    Alloy applications can use **`<ListItem>`** elements to create `ListItem` objects. `<ListItem>` elements
+    must be nested inside a **`<ListSection>`** element, which itself is nested in a `<ListView>` element, 
+    as shown below:
+
+        <Alloy>
+            <ListView id="list">
+                <ListSection id="accounts">
+                    <ListItem image="images/checking_account.png" title="Checking"/>
+                    <ListItem image="images/saving_account.png" title="Savings"/>
+                </ListSection>
+            </ListView>
+        </Alloy>
 
     By default, only the `title`, `image` and `accessoryType` keys of the list data item's
-    `properties` dictionary are displayed if an item template is not defined.  See "Default List Item"
-    for an example of using the default template.
+    `properties` dictionary are displayed if an item template is not defined.  See "Default List Items" 
+    under "Examples" section for an example of using the default template.
+
 
     #### Item Templates
 
@@ -21,6 +33,10 @@ description: |
 
     Add key-value pairs of view properties and their values to the `properties` dictionary of the
     item template to set view properties of the list item.
+
+    **Note:** If possible, do not use `Ti.UI.SIZE` or non-static dimensions to set the
+    dimensions of view elements in list items.  Instead, try to use static dimensions. Scrolling in
+    the list view may be jerky if you use non-static dimensions.
 
     Add key-value pairs of event names and their callback functions (or array of callback functions
     for multiple callback bindings) to the `events` dictionary of the  item template to bind callbacks
@@ -33,6 +49,26 @@ description: |
       to use that view in your template.
     - Set the `bindId` to bind the template to a custom property in the list data item. The custom
       properties in the list data item contain key-value pairs of view properties and their values.
+
+    A list template supports the following view classes:
+
+      * <Titanium.UI.ActivityIndicator>
+      * <Titanium.UI.Button>
+      * <Titanium.UI.ButtonBar>
+      * <Titanium.UI.ImageView>
+      * <Titanium.UI.Label>
+      * <Titanium.UI.MaskedImage>
+      * <Titanium.UI.ProgressBar>
+      * <Titanium.UI.Picker>
+      * <Titanium.UI.ScrollableView>
+      * <Titanium.UI.Slider>
+      * <Titanium.UI.Switch>
+      * <Titanium.UI.TextArea>
+      * <Titanium.UI.TextField>
+      * <Titanium.UI.iOS.BlurView>
+      * <Titanium.UI.iOS.LivePhotoView>
+      * <Titanium.UI.iOS.Stepper>
+      * <Titanium.UI.iOS.TabbedBar>
 
     For example, suppose you have a list data item defined as `{foo:{text: 'foobar'}}` and an item
     template defined as `{childTemplates: [{type: 'Ti.UI.Label', bindId: 'foo'}]}`.  The `foo`
@@ -56,14 +92,15 @@ description: |
     Use list view's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
     items in the list view. Do not rely on the `source` property to determine which item fired the
     event.  Either use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item
-    that generated the event, and use the `bindId` to check which child control fired the event.
-    See "Default List Item" for an example of using the `itemclick` event.
+    that generated the event and use the `bindId` to check which child control fired the event.
+    See "Default List Item" under "Examples" section for an example of using the `itemclick` event.
 
     To monitor events that bubble to the `ListItem` or to monitor events of the view subcomponents,
     bind them to the item by using the `events` dictionary of the item template or the child view
-    templates, respectively. Add the bindings as key-value pairs, where the key is the event name
+    templates respectively. Add the bindings as key-value pairs, where the key is the event name
     and the value is the callback (or array of callbacks for multiple bindings). See "List Items
-    with an Item Template" for an example of binding a `click` event to an item using an item template.
+    with an Item Template" under "Examples" section for an example of binding a `click` event to an 
+    item using an item template.
 
 platforms: [android, ipad, iphone]
 since: '3.1.0'
@@ -81,13 +118,8 @@ properties:
 
   - name: accessoryType
     summary: Sets an accessory on the right side of an item.
-    description: |
-        Specify one of the following:
-        <Titanium.UI.LIST_ACCESSORY_TYPE_CHECKMARK>,
-        <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>,
-        <Titanium.UI.LIST_ACCESSORY_TYPE_DISCLOSURE>,
-        or <Titanium.UI.LIST_ACCESSORY_TYPE_NONE>.
     type: Number
+    constants: Titanium.UI.LIST_ACCESSORY_TYPE_*
     default: Titanium.UI.LIST_ACCESSORY_TYPE_NONE
     accessors: false
 
@@ -153,6 +185,16 @@ properties:
     platforms: [iphone, ipad]
     accessors: false
 
+  - name: canInsert
+    summary: Specifies if the item can be inserted by a user initiated action.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 5.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
   - name: canMove
     summary: Specifies if the item can be reordered within the list view by a user initiated action.
     description: |
@@ -162,6 +204,15 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
     accessors: false
+
+  - name: editActions
+    summary: Specifies custom action items to be shown when when a list item is edited.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Array<RowActionType>
+    since: 4.1.0
+    osver: {ios: {min: "8.0"}}
+    platforms: [iphone, ipad]
 
   - name: searchableText
     summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
@@ -182,7 +233,40 @@ properties:
         Only applies to the built-in templates.
     type: String
     accessors: false
+    
+  - name: subtitleColor
+    summary: Default text color of the subtitle, as a color name or hex triplet.
+    description: |
+        This property is only used on iOS and if the ListDataItem `template` property or ListView
+        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>, 
+        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
+    type: String
+    accessors: false
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+    
+  - name: selectedColor
+    summary: Color to use for the item title when the item is selected, as a color name or hex triplet.
+    description: |
+        This property is only used on iOS.
+        
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    since: "6.0.0"
+    platforms: [iphone,ipad]    
+    
+  - name: selectedSubtitleColor
+    summary: Color to use for the item subtitle when the item is selected, as a color name or hex triplet.
+    description: |
+        This property is only used on iOS and if the ListDataItem `template` property or ListView
+        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>, 
+        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
 
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    since: "6.1.0"
+    platforms: [iphone,ipad]    
+    
   - name: font
     summary: Font to use for the item title.
     description: |
@@ -195,6 +279,7 @@ properties:
     summary: Row height in platform-specific units.
     description: |
         On Android, the value can be either a float value or a dimension string, for example, '40dp'.
+        By default, the minimum height is 30 dp on the Android platform.
 
         On iOS, the value can only be an absolute value.
     type: [Number,String]
@@ -225,7 +310,7 @@ properties:
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
-        Specify one of the constants from <Titanium.UI.iPhone.ListViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.iOS.ListViewCellSelectionStyle>.
     type: Number
     platforms: [iphone,ipad]
     accessors: false
@@ -257,8 +342,8 @@ examples:
 
             var data = [];
             for (var i = 0; i < tasks.length; i++) {
-                data.push(
-                    { properties: {
+                data.push({ 
+                    properties: {
                         itemId: tasks[i].id,
                         title: tasks[i].name,
                         image: tasks[i].icon,
@@ -271,13 +356,12 @@ examples:
             var section = Ti.UI.createListSection();
             section.setItems(data);
             listView.sections = [section];
-            listView.addEventListener('itemclick', function(e){
+            listView.addEventListener('itemclick', function(e) {
                 var item = section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.properties.color = 'red';
-                }
-                else {
+                } else {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.properties.color = 'black';
                 }
@@ -285,6 +369,40 @@ examples:
             });
             win.add(listView);
             win.open();
+
+  - title: Default List Items (Alloy version)
+    example: |
+        Alloy version of previous example. For additional Alloy examples of using `ListView`, see <Titanium.UI.ListView>. 
+
+        index.xml
+
+            <!-- views/index.xml -->
+            <Alloy>
+                <Window class="container" title="Some things">
+                    <ListView id="listView">
+                        <ListSection id="section">
+                            <ListItem image="images/trash.jpg" title="Take Out the Trash"/>
+                            <ListItem image="images/dishes.png" title="Do the Dishes"/>
+                            <ListItem image="images/doge.png" title="Walk the Dog"/>
+                        </ListSection>
+                    </ListView>
+                </Window>
+            </Alloy>
+
+        index.js
+
+            <!-- controllers/index.js -->
+            $.listView.addEventListener('itemclick', function(e) {
+                var item = $.section.getItemAt(e.itemIndex);
+                if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
+                    item.properties.color = 'red';
+                } else {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
+                    item.properties.color = 'black';
+                }
+                $.section.updateItemAt(e.itemIndex, item);
+            });
 
   - title: List Items with an Item Template
     example: |
@@ -328,11 +446,10 @@ examples:
                 events: {click: toggleCheck }
             };
 
-            /*
-               The following JSON API calls copy the plainTemplate object minus functions.
-               This method of copying an object is simple but not quick.
-               If performance is a factor, create your own method to copy an object.
-            */
+            // The following JSON API calls copy the plainTemplate object minus functions.
+            // This method of copying an object is simple but not quick.
+            // If performance is a factor, create your own method to copy an object.
+
             var redTemplate = JSON.parse(JSON.stringify(plainTemplate));
             // Change the text color to red
             redTemplate.childTemplates[1].properties.color = 'red';
@@ -380,13 +497,12 @@ examples:
 
             // Modified version of the `itemclick` event listener
             // Changes the item template rather than the list item's color property
-            function toggleCheck (e) {
+            function toggleCheck(e) {
                 var item = section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.template = 'check';
-                }
-                else {
+                } else {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.template = 'uncheck';
                 }
@@ -432,7 +548,28 @@ platforms: [android, ipad, iphone]
 since: '3.1.0'
 properties:
   - name: type
-    summary: View's class name, for example, `Ti.UI.View`.
+    summary: View's class name, for example, `Ti.UI.Button`.
+    description: |
+        Only the following view classes are supported:
+
+          * <Titanium.UI.ActivityIndicator>
+          * <Titanium.UI.Button>
+          * <Titanium.UI.ButtonBar>
+          * <Titanium.UI.ImageView>
+          * <Titanium.UI.Label>
+          * <Titanium.UI.MaskedImage>
+          * <Titanium.UI.ProgressBar>
+          * <Titanium.UI.Picker>
+          * <Titanium.UI.ScrollableView>
+          * <Titanium.UI.Slider>
+          * <Titanium.UI.Switch>
+          * <Titanium.UI.TextArea>
+          * <Titanium.UI.TextField>
+          * <Titanium.UI.iOS.BlurView>
+          * <Titanium.UI.iOS.LivePhotoView>
+          * <Titanium.UI.iOS.Stepper>
+          * <Titanium.UI.iOS.TabbedBar>
+          
     type: String
     optional: false
 
@@ -494,3 +631,41 @@ properties:
         the values set in the list data item override the template's properties.
 
 
+---
+name: RowActionType
+summary: Represents the custom edit action for a ListItem.
+description: |
+    By default when a listItem has [canEdit](Titanium.UI.ListItem.canEdit) set to true, a left swipe on the the row presens the 'Delete' button.
+    This object lets developers define custom titles for editing actions supported on the row. 
+    This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and 
+    [editaction](Titanium.UI.ListView.editaction) event. 
+platforms: [ipad, iphone]
+since: '4.1.0' 
+osver: {ios: {min: "8.0"}}
+properties:
+  - name: title
+    type: String
+    summary: The title of the row action.
+    optional: false
+    
+  - name: identifier
+    summary: |
+        The [identifier](RowActionType. identifier) of the row action. Only included in the event 
+        if previously defined. Available in Titanium 6.0.0 and later.
+    type: String
+
+  - name: style
+    type: Number
+    summary: The style of the row action.
+    description: |
+        Use one of <Titanium.UI.iOS.ROW_ACTION_STYLE_DEFAULT>, <Titanium.UI.iOS.ROW_ACTION_STYLE_DESTRUCTIVE> or
+        <Titanium.UI.iOS.ROW_ACTION_STYLE_NORMAL> 
+    optional: false
+
+  - name: color
+    type: String
+    summary: The background color of the row action.
+    description: |
+        By default the background color of the row action is defined by the style applied. Use this property to 
+        override the default background color of the row action.
+    optional: true

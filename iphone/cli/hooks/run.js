@@ -1,228 +1,150 @@
 /*
  * run.js: Titanium iOS CLI run hook
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
-	__ = appc.i18n(__dirname).__,
-	afs = appc.fs,
-	fs = require('fs'),
-	path = require('path'),
-	parallel = require('async').parallel,
-	cp = require('child_process'),
-	exec = cp.exec,
-	spawn = cp.spawn;
+'use strict';
+
+const appc = require('node-appc'),
+	ioslib = require('ioslib'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n;
 
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
-
 	cli.addHook('build.post.compile', {
 		priority: 10000,
-		post: function (build, finished) {
-			if (cli.argv.target != 'simulator') return finished();
+		post: function (builder, finished) {
+			if (cli.argv.target !== 'simulator') {
+				return finished();
+			}
 
 			if (cli.argv['build-only']) {
 				logger.info(__('Performed build only, skipping running of the application'));
 				return finished();
 			}
 
-			logger.info(__('Running application in iOS Simulator'));
+			logger.info(__('Launching iOS Simulator'));
 
-			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion +
-					(appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit'] ? '-64' : '') + '/Applications'),
-				logFile = build.tiapp.guid + '.log';
+			let simStarted = false,
+				lastLogger = 'debug';
+			const startLogTxt = __('Start simulator log'),
+				endLogTxt = __('End simulator log'),
+				levels = logger.getLevels(),
+				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 
-			parallel([
-				function (next) {
-					logger.debug(__('Terminating all iOS simulators'));
-					exec('/usr/bin/killall ios-sim', setTimeout(next, 250));
-				},
-
-				function (next) {
-					exec('/usr/bin/killall "iPhone Simulator"', setTimeout(next, 250));
-				},
-
-				function (next) {
-					// sometimes the simulator doesn't remove old log files in which case we get
-					// our logging jacked - we need to remove them before running the simulator
-					afs.exists(simulatorDir) && fs.readdirSync(simulatorDir).forEach(function (guid) {
-						var file = path.join(simulatorDir, guid, 'Documents', logFile);
-						if (afs.exists(file)) {
-							logger.debug(__('Removing old log file: %s', file.cyan));
-							fs.unlinkSync(file);
-						}
-					});
-
-					setTimeout(next, 250);
+			function endLog() {
+				if (simStarted) {
+					logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+					simStarted = false;
 				}
-			], function () {
-				var cmd = [
-						'"' + path.join(build.titaniumIosSdkPath, 'ios-sim') + '"',
-						'launch',
-						'"' + build.xcodeAppDir + '"',
-						'--sdk',
-						appc.version.format(build.iosSimVersion, 2, 2),
-						'--family',
-						build.iosSimType
-					],
-					findLogTimer,
-					simProcess,
-					simErr = [],
-					stripLogLevelRE = new RegExp('\\[(?:' + logger.getLevels().join('|') + ')\\] '),
-					simStarted = false,
-					simEnv = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
-							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks');
+			}
+			ioslib.simulator
+				.launch(builder.simHandle, {
+					appPath:            builder.xcodeAppDir,
+					focus:              cli.argv['sim-focus'],
+					iosVersion:         builder.iosSdkVersion,
+					killIfRunning:      false, // it will only kill the simulator if the device udid is different
+					launchBundleId:     cli.argv['launch-bundle-id'],
+					launchWatchApp:     builder.hasWatchApp && cli.argv['launch-watch-app'],
+					launchWatchAppOnly: builder.hasWatchApp && cli.argv['launch-watch-app-only'],
+					logServerPort:      builder.tiLogServerPort,
+					watchHandleOrUDID:  builder.watchSimHandle,
+					watchAppName:       cli.argv['watch-app-name']
+				})
+				.on('log-file', function (line) {
+					// Titanium app log messages
+					let skipLine = false;
 
-				if (cli.argv.retina) {
-					cmd.push('--retina');
-					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
-						cmd.push('--tall');
-					}
-				}
-				if (appc.version.gte(build.iosSimVersion, '7.0.0') && cli.argv['sim-64bit']) {
-					cmd.push('--sim-64bit');
-				}
-				cmd = cmd.join(' ');
-
-				logger.info(__('Launching application in iOS Simulator'));
-				logger.trace(__('Simulator environment: %s', ('DYLD_FRAMEWORK_PATH=' + simEnv).cyan));
-				logger.debug(__('Simulator command: %s', cmd.cyan));
-
-				simProcess = spawn('/bin/sh', ['-c', cmd], {
-					cwd: build.titaniumIosSdkPath,
-					env: {
-						DYLD_FRAMEWORK_PATH: simEnv
-					}
-				});
-
-				simProcess.stderr.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && simErr.push(line.replace(stripLogLevelRE, ''));
-					}, this);
-				}.bind(this));
-
-				simProcess.on('exit', function (code, signal) {
-					clearTimeout(findLogTimer);
-
-					if (simStarted) {
-						var endLogTxt = __('End simulator log');
-						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
-					}
-
-					if (code || simErr.length) {
-						finished(new appc.exception(__('An error occurred running the iOS Simulator'), simErr));
-					} else {
-						logger.info(__('Application has exited from iOS Simulator'));
-						finished();
-					}
-				}.bind(this));
-
-				// focus the simulator
-				logger.info(__('Focusing the iOS Simulator'));
-				exec([
-					'osascript',
-					'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
-					'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
-				].join(' '), function (err, stdout, stderr) {
-					if (err) {
-						logger.error(__('Failed to focus the iPhone Simulator window'));
-						logger.error(stderr);
-					}
-				});
-
-				var levels = logger.getLevels(),
-					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
-
-				function findLogFile() {
-					var files = fs.readdirSync(simulatorDir),
-						file,
-						i = 0,
-						l = files.length;
-
-					for (; i < l; i++) {
-						file = path.join(simulatorDir, files[i], 'Documents', logFile);
-						if (afs.exists(file)) {
-							// if we found the log file, then the simulator must be running
-							simStarted = true;
-
-							// pipe the log file
-							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
-
-							var startLogTxt = __('Start simulator log');
-							logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
-
-							var position = 0,
-								buf = new Buffer(16),
-								buffer = '',
-								readChangesTimer,
-								lastLogger = 'debug';
-
-							(function readChanges () {
-								try {
-									var stats = fs.statSync(file),
-										fd, bytesRead, lines, m,line, i, len;
-
-									if (position < stats.size) {
-										fd = fs.openSync(file, 'r');
-										do {
-											bytesRead = fs.readSync(fd, buf, 0, 16, position);
-											position += bytesRead;
-											buffer += buf.toString('utf-8', 0, bytesRead);
-										} while (bytesRead === 16);
-										fs.closeSync(fd);
-
-										lines = buffer.split('\n');
-										buffer = lines.pop(); // keep the last line because it could be incomplete
-										for (i = 0, len = lines.length; i < len; i++) {
-											line = lines[i];
-											if (line) {
-												m = line.match(logLevelRE);
-												if (m) {
-													lastLogger = m[2].toLowerCase();
-													line = m[4].trim();
-												}
-												if (levels.indexOf(lastLogger) == -1) {
-													logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
-												} else {
-													logger[lastLogger](line);
-												}
-											}
-										}
-									}
-									readChangesTimer = setTimeout(readChanges, 30);
-								} catch (ex) {
-									if (ex.code == 'ENOENT') {
-										clearTimeout(readChangesTimer);
-										if (simStarted) {
-											var endLogTxt = __('End simulator log');
-											logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
-										}
-										logger.log();
-										process.exit(0);
-									}
-									throw ex;
+					if (!simStarted) {
+						if (line.indexOf('{') === 0) {
+							try {
+								const headers = JSON.parse(line);
+								if (headers.appId !== builder.tiapp.id) {
+									logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, builder.tiLogServerPort));
+									logger.error(__('Stop the running Titanium app, then rebuild this app'));
+									logger.error(__('-or-'));
+									logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+									process.exit(1);
 								}
-							}());
-
-							simProcess.on('exit', function() {
-								clearTimeout(readChangesTimer);
-							});
-
-							// we found the log file, no need to keep searching for it
-							return;
+							} catch (e) {
+								// squeltch
+							}
+							skipLine = true;
 						}
+
+						simStarted = true;
+						logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 					}
 
-					// didn't find any log files, try again in 250ms
-					findLogTimer = setTimeout(findLogFile, 250);
-				}
+					if (skipLine) {
+						return;
+					}
 
-				afs.exists(simulatorDir) && findLogFile();
+					const m = line.match(logLevelRE);
+					if (m) {
+						lastLogger = m[2].toLowerCase();
+						line = m[4].trim();
+					}
+					if (levels.indexOf(lastLogger) === -1) {
+						logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+					} else {
+						logger[lastLogger](line);
+					}
+				})
+				.on('log', function (msg, simHandle) {
+					// system log messages
+					logger.trace(('[' + simHandle.appName + '] ' + msg).grey);
+				})
+				.on('log-debug', function (msg) {
+					// ioslib debug messages
+					logger.trace(('[ioslib] ' + msg.replace('[DEBUG] ', '')).grey);
+				})
+				.on('log-error', function (msg, simHandle) {
+					// system log error messages
+					logger.error('[' + simHandle.appName + '] ' + msg);
+				})
+				.on('app-started', function () {
+					finished && finished();
+					finished = null;
+				})
+				.on('app-quit', function (code) {
+					if (code) {
+						if (code instanceof ioslib.simulator.SimulatorCrash) {
+							logger.error(__n('Detected crash:', 'Detected multiple crashes:', code.crashFiles.length));
+							code.crashFiles.forEach(function (f) {
+								logger.error('  ' + f);
+							});
+							logger.error(__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length) + '\n');
+						} else {
+							logger.error(__('An error occurred running the iOS Simulator (exit code %s)', code));
+						}
+					}
+					endLog();
+					process.exit(0);
+				})
+				.on('exit', function () {
+					// no need to stick around, exit
+					endLog();
+					process.exit(0);
+				})
+				.on('error', function (err) {
+					endLog();
+					logger.error(err.message || err.toString());
+					logger.log();
+					process.exit(0);
+				});
+
+			// listen for ctrl-c
+			process.on('SIGINT', function () {
+				logger.log();
+				endLog();
+				process.exit(0);
 			});
 		}
 	});
-
 };

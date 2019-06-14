@@ -9,23 +9,23 @@ extends: Titanium.UI.View
 since: "0.8"
 deprecated:
     since: "1.8.0"
-    notes: |
-        Use <Titanium.UI.iOS.CoverFlowView> instead.
+    notes: Use <Titanium.UI.iOS.CoverFlowView> instead.
 platforms: [iphone, ipad]
-excludes: {
-   events: [ "dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap" ]
-}
+excludes:
+    events: [dblclick, doubletap, longclick, longpress, pinch, singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 methods:
   - name: setImage
     summary: Changes the image for a specified index.
     description: |
         To specify a size for the image, you may pass the image as a simple dictionary, as
         defined in <CoverFlowImageType>.  If you specify a size, the size must be exact,
-        not 'auto' or a percentage size.
+        not a percentage size.
 
         If the image is passed as a `File` object or file path, the filename is checked.
-        If the filename includes the '@2x' string used to identify high-resolution images
-        for the Retina display, the image is treated accordingly.
+        filename includes the '@2x' or '@3x' string used to identify high-resolution images
+        for the Retina (HD) display, the image is treated accordingly.
     parameters:
       - name: index
         summary: Index to add the image at.

@@ -6,12 +6,11 @@
  */
 #ifdef USE_TI_UIMASKEDIMAGE
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIMaskedImageProxy : TiViewProxy {
 
-@private
-
+  @private
 }
 
 @end

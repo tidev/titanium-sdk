@@ -9,30 +9,38 @@ description: |
     to the Android **Back** button navigation -- the **Back** button closes the current
     activity and returns to whatever activity was open previously.
 
-    In Titanium, you can create either "lightweight" or a "heavyweight" windows, as
-    described on the <Titanium.UI.Window> reference page. A *heavyweight* window creates a 
-    new `Activity`. A *lightweight* window runs inside the same activity as the code that
-    created it. 
+    In Titanium, the Android Activity is not created until a window or tab group is opened.
+    After a Window or TabGroup object is created but before it is opened, its `activity` property
+    refers to an empty JavaScript object. You can use it to set properties on the activity, such as
+    the `onCreateOptionsMenu` property, but you cannot invoke any Activity methods.
 
-    The activity is not created until the window is opened. When a window is created,
-    its `activity` property refers to an empty JavaScript object.
-    You can use it, for example, to add an options menu by setting `onCreateOptionsMenu`.
-    After the window is opened, a real Activity object is created and the properties from
-    the JavaScript object are copied over.
-    The `activity` property now refers to this real Activity object,
+    After the window or tab group opens, a real Activity object is created and the properties from
+    the JavaScript object are copied over. The `activity` property now refers to this real Activity object,
     which you can use to call the various Activity methods. For example, to use the
-    `invalidateOptionsMenu` method, you need to get the activity proxy after the window is opened.
+    `invalidateOptionsMenu` method, you need to get the activity after the window or tab group opens.
 
-    See: [android.app.Activity](http://developer.android.com/reference/android/app/Activity.html)
+    See also [android.app.Activity](https://developer.android.com/reference/android/app/Activity.html)
     in the Android API Reference.
 
     #### Activity Lifecycle
 
-    In Android, activities are started, stopped, paused and resumed. Titanium generates
-    lifecycle events for activities, but doesn't generate application-level start, stop, 
-    pause and resume events. To be notified when
-    an application is paused and resumed, you must add event listeners to its individual
-    activities.
+    In Android, activities are created, started, resumed, paused, stopped, destroyed and restarted.
+    Titanium generates lifecycle events for activities but does not generate application-level events.
+    To be notified when an activity's lifecycle event is triggered, assign callbacks to the following activity
+    properties:
+
+      * [onCreate](Titanium.Android.Activity.onCreate)
+      * [onStart](Titanium.Android.Activity.onStart)
+      * [onResume](Titanium.Android.Activity.onResume)
+      * [onPause](Titanium.Android.Activity.onPause)
+      * [onStop](Titanium.Android.Activity.onStop)
+      * [onDestroy](Titanium.Android.Activity.onDestroy)
+      * [onRestart](Titanium.Android.Activity.onRestart)
+
+    See also the "Understand the Lifecycle Callbacks" section in
+    [Android Developers: Activity Lifecycle](https://developer.android.com/training/basics/activity-lifecycle/starting.html).
+
+    #### Don't keep activities option
 
     Android 4.0 and greater devices have an option called **Don't keep activities** under the **Developer
     Options** menu. When this option is enabled, the Android OS will destroy an activity as soon as it
@@ -51,6 +59,29 @@ description: |
     [exitOnClose](Titanium.UI.Window.exitOnClose) to true; otherwise, the app will be unable to back out, that is,
     hitting the BACK button in the root window will not allow the application to exit.
 
+    #### Deprecated Behavior
+
+    Prior to Release 8.0.0, you would set the below "tiapp.xml" property to `true` to handle the case
+    where the Android OS would automatically close all child activity windows after the app has been backgrounded
+    for about 30 minutes, bringing the app back to the root splash screen activity window. The below property
+    would restart your app's UI in this case. This is no longer needed in 8.0.0 since Titanium now sets the
+    "AndroidManifest.xml" setting
+    [android:alwaysRetainTaskState](https://developer.android.com/guide/topics/manifest/activity-element#always)
+    to the root activity instead
+
+            <property name="ti.android.root.reappears.restart" type="bool">true</property>
+
+    Prior to Release 3.4.0, to monitor lifecycle events, use the activity's events, `create`, `destroy`,
+    `pause`, `resume`, `start` and `stop`, to be notified when an activity is created, destroyed, paused,
+    resumed, started and stopped, respectively.
+
+    You can only set Activity properties from a TabGroup object after the tab group opens.
+
+    Prior to Release 3.2.0, you can create either a "lightweight" or "heavyweight" window, as
+    described on the <Titanium.UI.Window> reference page. A *heavyweight* window creates a 
+    new `Activity`. A *lightweight* window runs inside the same activity as the code that
+    created it.  If you try to reference the activity of lightweight window, it returns undefined.
+
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -61,7 +92,7 @@ methods:
     summary: Closes this activity.
     description: |
         See also:
-        [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
+        [finish](https://developer.android.com/reference/android/app/Activity.html#finish())
         in the Android API Reference.
 
   - name: getString
@@ -82,11 +113,11 @@ methods:
             "Hello Bob, this is Doug."
 
         See also:
-        *   [getString](http://developer.android.com/reference/android/content/Context.html#getString(int))
+        *   [getString](https://developer.android.com/reference/android/content/Context.html#getString(int))
             in the Android Developer Reference
-        *   [Formatter](http://developer.android.com/reference/java/util/Formatter.html)
+        *   [Formatter](https://developer.android.com/reference/java/util/Formatter.html)
             in the Android Developer Reference
-        *   [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
+        *   [String Resources](https://developer.android.com/guide/topics/resources/string-resource.html#String)
             in the Android Developer Guide
     returns:
         type: String
@@ -103,7 +134,7 @@ methods:
     summary: Declares that the option menu has changed and should be recreated.
     description: |
         This method needs to be used in Android 3.0 and above when changing menus at runtime.  See
-        [changingTheMenu](http://developer.android.com/guide/topics/ui/menus.html#ChangingTheMenu) in 
+        [changingTheMenu](https://developer.android.com/guide/topics/ui/menus.html#ChangingTheMenu) in 
         the Android API Reference for more details. 
     since: "3.0.0"
 
@@ -111,34 +142,29 @@ methods:
     summary: Sets the requested Activity orientation. 
     description: |
         See also:
-        [setRequestedOrientation](http://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
+        [setRequestedOrientation](https://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
         in the Android API Reference.
     parameters:
       - name: orientation
-        summary: |
-            Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>,
-            <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>,
-            <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>,
-            <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>,
-            <Titanium.Android.SCREEN_ORIENTATION_SENSOR>,
-            <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>,
-            <Titanium.Android.SCREEN_ORIENTATION_USER>.
+        summary: Orientation mode for the activity.
+        constants: Titanium.Android.SCREEN_ORIENTATION_*
         type: Number
 
   - name: setResult
     summary: Sets the result of this activity using an `Intent`. 
     description: |
-        This should be used in the case when the Activity responds to
-        [startActivityForResult](Titanium.Android.Activity.startActivityForResult). 
+        This method should only be used by [Ti.Android.rootActivity](Titanium.Android.rootActivity) when launched
+        by another app via [startActivityForResult](Titanium.Android.Activity.startActivityForResult). After calling
+        `setResult()`, you are expected to call the root activity's [finish](Titanium.Android.Activity.finish)
+        method afterwards to return the result to the calling app.
 
-        Also see Android's documentation for
-        [setResult](http://developer.android.com/reference/android/app/Activity.html#setResult(int)).
+        See Android's documentation for
+        [setResult](https://developer.android.com/reference/android/app/Activity.html#setResult(int)).
     parameters:
 
       - name: resultCode
-        summary: |
-            Result code for this activity. Can be <Titanium.Android.RESULT_OK>, 
-            <Titanium.Android.RESULT_CANCELED>, or <Titanium.Android.RESULT_FIRST_USER>.
+        summary: Result code for this activity.
+        constants: Titanium.Android.RESULT_*
         type: Number
 
       - name: intent
@@ -146,10 +172,21 @@ methods:
         type: Titanium.Android.Intent
         optional: true
 
+  - name: setSupportActionBar
+    summary: Sets a toolbar instance to be used as an ActionBar.
+    description: |
+        This method is used if you want to add a Toolbar as an ActionBar after the Activity has been created.
+        If you want to set it up before that [supportToolbar](Titanium.Android.Activity.supportToolbar) must be used.
+    parameters:
+      - name: toolbar
+        summary: Instance of a toolbar to be used as an ActionBar
+        type: Titanium.UI.Toolbar  
+    since: 6.2.0
+
   - name: startActivity
     summary: Starts a new activity, using the passed in `Intent` as the description. 
     description: |
-        See also: [startActivity](http://developer.android.com/reference/android/app/Activity.html#startActivity(android.content.Intent))
+        See also: [startActivity](https://developer.android.com/reference/android/app/Activity.html#startActivity(android.content.Intent))
             in the Android Developer Reference.
     parameters:
       - name: intent
@@ -160,7 +197,7 @@ methods:
     summary: The same as `startActivity`, but also accepts a callback function for handling the result of the started Activity. 
     description:  |
         See also: 
-        [startActivityForResult](http://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)) 
+        [startActivityForResult](https://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)) 
         in the Android Developer Reference.
     parameters:
 
@@ -177,7 +214,7 @@ methods:
   - name: openOptionsMenu
     summary: Programmatically opens the options menu.
     description: |
-        See also: [onMenuOpened](http://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
+        See also: [onMenuOpened](https://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
         in the Android API Reference.
     since: "3.0.0"
     
@@ -200,42 +237,38 @@ methods:
         summary: Name of the permission that the receiver should hold in order to receive the broadcast.
         type: String
         optional: true
+
 events:
 
   - name: create
     summary: Fired from the activity's `onCreate` method.
+    deprecated:
+        since: "3.4.0"
+        notes: Use <Titanium.Android.Activity.onCreate> instead.
     description: |
         See also:
-        [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
+        [onCreate](https://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
         in the Android Developer Reference.
 
   - name: destroy
     summary: Fired from the activity's `onDestroy` method.
-    description: |
-        See also: [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
-        in the Android Developer Reference.
-
-  - name: newIntent
     deprecated:
-        since: "3.0.0"
-        notes: |
-            Renamed to [newintent](Titanium.Android.Activity.newintent)
-            (all lowercase).
-    summary: Fired when the activity is already running and certain flags are set in its intent. 
+        since: "3.4.0"
+        notes: Use <Titanium.Android.Activity.onDestroy> instead.
     description: |
-        See also:
-        [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+        See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
-    properties:
-      - name: intent
-        summary: The `Intent` passed to the native `onNewIntent` method.
-        type: Titanium.Android.Intent
 
   - name: newintent
-    summary: Fired when the activity is already running and certain flags are set in its intent. 
+    summary: |
+        Fired when the activity is already running and an intent different than the one that launched it was received.
     description: |
+        This event will only be fired by [Ti.Android.rootActivity](Titanium.Android.rootActivity), which is
+        the splash screen activity. This event will never be fired by any of the child activities. The root
+        activity' [intent](Titanium.Android.Intent) property will be updated when to the new intent when fired.
+
         See also:
-        [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+        [onNewIntent](https://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
     properties:
       - name: intent
@@ -243,54 +276,102 @@ events:
         type: Titanium.Android.Intent
     since: '3.0.0'
 
+  - name: onIntent
+    summary: Fired when the activity is launched.
+    properties:
+      - name: intent
+        summary: The `Intent` used to launch the Activity.
+        type: Titanium.Android.Intent
+    since: '6.0.0'
+
   - name: pause
     summary: Fired when the activity is paused.
+    deprecated:
+        since: "3.4.0"
+        notes: Use <Titanium.Android.Activity.onPause> instead.
     description: |
         See also:
-        [onPause](http://developer.android.com/reference/android/app/Activity.html#onPause())
+        [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
         in the Android Developer Reference.
 
   - name: resume
     summary: Fired when the activity is resumed.
+    deprecated:
+        since: "3.4.0"
+        notes: Use <Titanium.Android.Activity.onResume> instead.
     description: |
-        See also: [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
+        See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
 
   - name: start
     summary: Fired when the activity is started.
+    deprecated:
+        since: "3.4.0"
+        notes: Use <Titanium.Android.Activity.onStart> instead.
     description: |
-        See also: [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
+        See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
 
   - name: stop
     summary: Fired when the activity is stopped.
+    deprecated:
+        since: "3.4.0"
+        notes: Use <Titanium.Android.Activity.onStop> instead.
     description: |
-        See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
+        See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
 
   - name: userleavehint
     summary: Fired when the activity is about to go into the background as a result of user choice.
     description: |
         See also:
-        [onPause](http://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint())
+        [onUserLeaveHint](https://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint())
         in the Android Developer Reference.
     since: "3.2.0"
 
+  - name: userinteraction
+    summary: Called whenever a key, touch, or trackball event is dispatched to the activity.
+    description: |
+        Implement this method if you wish to know that the user has interacted with the device in some 
+        way while your activity is running. This event and `userleavehint` are intended to help activities 
+        manage status bar notifications intelligently; specifically, for helping activities determine the 
+        proper time to cancel a notfication.
+
+        All calls to your activity's "userleavehint" event will be accompanied by calls to "userinteraction".
+        This ensures that your activity will be told of relevant user activity such as pulling down the 
+        notification pane and touching an item there.
+
+        Note that this callback will be invoked for the touch down action that begins a touch gesture, 
+        but may not be invoked for the touch-moved and touch-up actions that follow.
+
+        See also:
+        [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction())
+        in the Android Developer Reference.
+    since: "7.5.0"
 
 properties:
 
   - name: actionBar
     summary: The action bar for this activity.
     description: |
-        See also: [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in
+        See also: [Action Bar](https://developer.android.com/guide/topics/ui/actionbar.html) in
         the Android Developer Reference.
     type: Titanium.Android.ActionBar
     permission: read-only
 
   - name: intent
-    summary: The `Intent` that was used to start this Activity.
+    summary: The last `Intent` received by this activity.
+    description: |
+        Will initially be set to the intent that created/launched the activity. If this is the app's root activity,
+        then this intent will change when a "newintent" event has been fired.
     type: Titanium.Android.Intent
     permission: read-only
+
+  - name: onCreate
+    summary: |
+        Callback function called when the Android activity is created.
+    since: "3.4.0"
+    type: Callback<Object>
 
   - name: onCreateOptionsMenu
     summary: |
@@ -300,8 +381,20 @@ properties:
          See the menu examples in <Titanium.Android.Menu>.
 
          See also: 
-         [Creating an Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) 
+         [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
+    type: Callback<Object>
+
+  - name: onDestroy
+    summary: |
+        Callback function called when the Android activity is destroyed.
+    since: "3.4.0"
+    type: Callback<Object>
+
+  - name: onPause
+    summary: |
+        Callback function called when the Android activity is paused.
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: onPrepareOptionsMenu
@@ -312,22 +405,48 @@ properties:
          See the menu examples in <Titanium.Android.Menu>.
 
          See also: 
-         [Creating an Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) 
+         [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
+    type: Callback<Object>
+
+  - name: onRestart
+    summary: |
+        Callback function called when the Android activity is restarted.
+    since: "3.4.0"
+    type: Callback<Object>
+
+  - name: onResume
+    summary: |
+        Callback function called when the Android activity is resumed.
+    since: "3.4.0"
+    type: Callback<Object>
+
+  - name: onStart
+    summary: |
+        Callback function called when the Android activity is started.
+    since: "3.4.0"
+    type: Callback<Object>
+
+  - name: onStop
+    summary: |
+        Callback function called when the Android activity is stopped.
+    since: "3.4.0"
     type: Callback<Object>
 
   - name: requestedOrientation
     summary: Specifies a specific orientation for this activity.
-    description: |
-        Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>, 
-        <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>, 
-        <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>, 
-        <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>, 
-        <Titanium.Android.SCREEN_ORIENTATION_SENSOR>, 
-        <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>, <Titanium.Android.SCREEN_ORIENTATION_USER>
+    constants: Titanium.Android.SCREEN_ORIENTATION_*
     type: Number
     permission: write-only
 
+  - name: supportToolbar
+    summary: Toolbar instance that serves as ActionBar
+    description: |
+         This property is used to set a toolbar as an ActionBar prior to the actual activity creation.
+         After the activity is created that must be done through the [setSupportActionBar()](Titanium.Android.Activity.setSupportActionBar) method.
+    type: Titanium.UI.Toolbar
+    since: 6.2.0
+    
 examples:
   - title: Callback Example
     example: |
@@ -338,7 +457,7 @@ examples:
                 // The request code used to start this Activity
                 var requestCode = e.requestCode;
                 // The result code returned from the activity 
-                // (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
+                // (https://developer.android.com/reference/android/app/Activity.html#StartingActivities)
                 var resultCode = e.resultCode;
                 // A Titanium.Android.Intent filled with data returned from the Activity
                 var intent = e.intent;

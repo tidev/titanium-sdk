@@ -6,15 +6,15 @@
  */
 #ifdef USE_TI_UIMASKEDIMAGE
 
-#import "TiUIView.h"
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIMaskedImage : TiUIView {
-@private
-	NSURL * imageURL;
-	NSURL * maskURL;
-	UIColor * tint;
-	CGBlendMode mode;	
+  @private
+  NSURL *imageURL;
+  NSURL *maskURL;
+  UIColor *tint;
+  CGBlendMode mode;
 }
 
 @end

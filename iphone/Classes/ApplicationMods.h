@@ -5,7 +5,6 @@
 #import <Foundation/Foundation.h>
 
 @interface ApplicationMods : NSObject {
-
 }
-+ (NSArray*) compiledMods;
++ (NSArray *)compiledMods;
 @end

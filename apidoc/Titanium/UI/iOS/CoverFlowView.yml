@@ -4,16 +4,16 @@ summary: |
     The cover flow view is a container showing animated three-dimensional images in a style 
     consistent with the cover flow presentation style used for iPod, iTunes, and file browsing.
 description: |
-    The cover flow view is created by the <Titanium.UI.iOS.createCoverFlowView> method.
+    The cover flow view is created by the <Titanium.UI.iOS.createCoverFlowView> method or 
+    **`<CoverFlowView>`** element in an Alloy application.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
-excludes: {
-   events: ["dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", 
-            "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap"
-   ]
-}
-
+excludes:
+    events: [dblclick, doubletap, longclick, longpress, pinch, singletap, swipe, 
+            touchcancel, touchend, touchmove, touchstart, twofingertap]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 events:
   - name: change
     summary: Fired when the user changes the image using a gesture.
@@ -42,11 +42,11 @@ methods:
     summary: Changes the image for a specified index.
     description: |
         To specify a size for the image, you may pass the image as a simple dictionary, as defined 
-        in <CoverFlowImageType>.  If you specify a size, the size must be exact, not 'auto' or a 
+        in <CoverFlowImageType>.  If you specify a size, the size must be exact, not a
         percentage size. 
         
         If the image is passed as a `File` object or file path, the filename is checked. If the 
-        filename includes the '@2x' string used to identify high-resolution images for the Retina 
+        filename includes the '@2x' or '@3x' string used to identify high-resolution images for the Retina (HD) 
         display, the image is treated accordingly.
     parameters:
       - name: index
@@ -60,8 +60,10 @@ methods:
 properties:
   - name: images
     summary: Images to display in the view.
+    description: |
+        In an Alloy application, you can use a `<Images>` element.
     type: [Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File>, Array<CoverFlowImageType>]
-    
+
   - name: selected
     summary: Index to make selected.
     type: Number
@@ -107,7 +109,7 @@ examples:
 name: CoverFlowImageType
 summary: Simple object for defining a single image in a cover flow view.
 description: |
-    If supplied, the `width` and `height` values must be exact values, not `'auto'`.
+    If supplied, the `width` and `height` values must be exact values, not a percentage size.
     
     If the size specified is different to the size of the image, the image is cropped and/or scaled 
     to fit the specified size.

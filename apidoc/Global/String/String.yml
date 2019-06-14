@@ -11,7 +11,7 @@ methods:
     summary: Formats a string using `printf`-style substitution.
     description: | 
         The format string follows the 
-        [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
+        [IEEE printf specification](http://pubs.opengroup.org/onlinepubs/009695399/functions/printf.html).
         
         For each "conversion specification" (ie. `%s` for a string or `%d` for a number) used inside
         the string, `formatString` argument, the respective value is substituted from the
@@ -60,7 +60,7 @@ methods:
         type: Date
         
       - name: format
-        summary: Date format to use. One of 'short', 'medium', or 'long'.
+        summary: Date format to use. One of 'short', 'medium', 'long' or 'full'.
         type: String
         optional: true
         default: 'short'

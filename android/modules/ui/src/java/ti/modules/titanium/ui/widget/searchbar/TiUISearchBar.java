@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.graphics.drawable.Drawable;
-import android.text.InputType;
+import android.support.design.widget.TextInputLayout;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -24,28 +24,40 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+@SuppressWarnings("deprecation")
 public class TiUISearchBar extends TiUIText
 {
+	private static int CANCEL_BUTTON_ID = View.generateViewId();
 	protected ImageButton cancelBtn;
-	private TiEditText tv;
+	private EditText tv;
 	private TextView promptText;
-	
+
 	public interface OnSearchChangeListener {
 		public void filterBy(String text);
 	}
-	
+
 	protected OnSearchChangeListener searchChangeListener;
-	
+
 	public TiUISearchBar(final TiViewProxy proxy)
 	{
 		super(proxy, true);
 
-		tv = (TiEditText) getNativeView();
-		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
+		View nativeView = getNativeView();
+		if (nativeView instanceof EditText) {
+			this.tv = (EditText) nativeView;
+		} else if (nativeView instanceof TextInputLayout) {
+			this.tv = ((TextInputLayout) nativeView).getEditText();
+		}
+		if (this.tv == null) {
+			throw new Error("could not obtain EditText component");
+		}
+
+		this.tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		promptText = new TextView(proxy.getActivity());
 		promptText.setEllipsize(TruncateAt.END);
 		promptText.setSingleLine(true);
@@ -55,29 +67,22 @@ public class TiUISearchBar extends TiUIText
 		// Steal the Text's nativeView. We're going to replace it with our layout.
 		cancelBtn = new ImageButton(proxy.getActivity());
 		cancelBtn.isFocusable();
-		cancelBtn.setId(101);
+		cancelBtn.setId(CANCEL_BUTTON_ID);
 		cancelBtn.setImageResource(android.R.drawable.ic_input_delete);
 		// set some minimum dimensions for the cancel button, in a density-independent way.
 		final float scale = cancelBtn.getContext().getResources().getDisplayMetrics().density;
 		cancelBtn.setMinimumWidth((int) (48 * scale));
 		cancelBtn.setMinimumHeight((int) (20 * scale));
-		cancelBtn.setOnClickListener(new OnClickListener()
-		{
+		cancelBtn.setOnClickListener(new OnClickListener() {
+			@Override
 			public void onClick(View view)
 			{
-				/* TODO try {
-					proxy.set(getProxy().getTiContext().getScope(), "value", "");
-				} catch (NoSuchFieldException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
 				tv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
 				fireEvent("cancel", null);
 			}
 		});
 
-		RelativeLayout layout = new RelativeLayout(proxy.getActivity())
-		{
+		RelativeLayout layout = new RelativeLayout(proxy.getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -87,10 +92,10 @@ public class TiUISearchBar extends TiUIText
 		};
 
 		layout.setGravity(Gravity.NO_GRAVITY);
-		layout.setPadding(0,0,0,0);
-		
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-			LayoutParams.WRAP_CONTENT);
+		layout.setPadding(0, 0, 0, 0);
+
+		RelativeLayout.LayoutParams params =
+			new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.CENTER_IN_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 		promptText.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -99,21 +104,22 @@ public class TiUISearchBar extends TiUIText
 		params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
-		params.addRule(RelativeLayout.LEFT_OF, 101);
-//		params.setMargins(4, 4, 4, 4);
-		layout.addView(tv, params);
+		params.addRule(RelativeLayout.LEFT_OF, CANCEL_BUTTON_ID);
+		//		params.setMargins(4, 4, 4, 4);
+		layout.addView(getNativeView(), params);
 
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
-//		params.setMargins(0, 4, 4, 4);
+		//		params.setMargins(0, 4, 4, 4);
 		layout.addView(cancelBtn, params);
 
 		setNativeView(layout);
 	}
-	
+
 	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
+	public void onTextChanged(CharSequence s, int start, int before, int count)
+	{
 		if (this.searchChangeListener != null) {
 			this.searchChangeListener.filterBy(s.toString());
 		}
@@ -167,7 +173,8 @@ public class TiUISearchBar extends TiUIText
 		nativeView.setBackgroundDrawable(background);
 	}
 
-	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
+	public void setOnSearchChangeListener(OnSearchChangeListener listener)
+	{
 		this.searchChangeListener = listener;
 	}
 }

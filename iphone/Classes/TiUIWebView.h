@@ -6,48 +6,46 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiUIView.h"
+#import <WebKit/WebKit.h>
 
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiUIView.h>
 
-@interface TiUIWebView : TiUIView<UIWebViewDelegate> {
-@private
-	UIWebView *webview;
-	UIActivityIndicatorView *spinner;
-	NSURL *url;
-	NSMutableDictionary *listeners;
-	NSString *pageToken;
-	BOOL scalingOverride;
-	NSString *basicCredentials;
-	
-	//TODO: make more elegant
-	BOOL ignoreNextRequest;
-	id reloadData;
-    id reloadDataProperties;
-	SEL reloadMethod;
-    
-    BOOL willHandleTouches;
-    
-    NSString* lastValidLoad;
+@interface TiUIWebView : TiUIView <WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler> {
+  @private
+  WKWebView *_webView;
+  NSString *_pageToken;
+
+  TiDimension width;
+  TiDimension height;
+  CGFloat autoHeight;
+  CGFloat autoWidth;
+
+  BOOL _willHandleTouches;
+  NSArray<NSString *> *_blacklistedURLs;
+  NSURL *_currentURL;
+  UIActivityIndicatorView *_loadingIndicator;
+  BOOL _isViewDetached;
+  BOOL _tiCookieHandlerAdded;
 }
 
-@property(nonatomic,readonly) id url;
-@property(nonatomic,readwrite,retain) id reloadData;
-@property(nonatomic,readwrite,retain) id reloadDataProperties;
+// Used from the proxy
+- (void)setHtml_:(id)args;
+- (void)viewDidClose;
 
--(void)evalFile:(NSString*)path;
--(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code;
--(void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
+- (WKWebView *)webView;
 
--(void)stopLoading;
--(void)goBack;
--(void)goForward;
--(BOOL)isLoading;
--(BOOL)canGoBack;
--(BOOL)canGoForward;
--(void)reload;
-
--(void)setHtml_:(NSString*)content withObject:(id)property;
+- (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
 
 @end
+
+#if IS_XCODE_9
+@interface WebAppProtocolHandler : NSObject <WKURLSchemeHandler> {
+}
+
++ (NSString *)specialProtocolScheme;
+
+@end
+#endif
 
 #endif

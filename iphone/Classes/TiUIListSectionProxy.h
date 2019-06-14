@@ -6,25 +6,30 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
+@protocol TiUIListViewDelegateView <NSObject>
+@required
+- (void)updateSearchResults:(id)unused;
+@end
 
 @protocol TiUIListViewDelegate <NSObject>
 @required
 
-- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block;
-- (id)dispatchBlockWithResult:(id(^)(void))block;
-
+- (void)dispatchUpdateAction:(void (^)(UITableView *tableView))block;
+- (void)dispatchBlock:(void (^)(UITableView *tableView))block;
+- (id)dispatchBlockWithResult:(id (^)(void))block;
+- (id<TiUIListViewDelegateView>)delegateView;
 @end
 
-@interface TiUIListSectionProxy : TiProxy < TiUIListViewDelegate >
+@interface TiUIListSectionProxy : TiProxy <TiUIListViewDelegate>
 
 @property (nonatomic, readwrite, assign) id<TiUIListViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
 
 // Private API. Used by ListView directly. Not for public comsumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;
-- (void) deleteItemAtIndex:(NSUInteger)index;
-- (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index;
+- (void)deleteItemAtIndex:(NSUInteger)index;
+- (void)addItem:(NSDictionary *)item atIndex:(NSUInteger)index;
 
 // Public API
 @property (nonatomic, readonly) NSUInteger itemCount;

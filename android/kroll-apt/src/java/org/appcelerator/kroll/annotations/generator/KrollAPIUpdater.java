@@ -122,11 +122,9 @@ public class KrollAPIUpdater
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void loadBindings(String jsonPath)
-		throws ParseException, IOException
+	protected void loadBindings(String jsonPath) throws ParseException, IOException
 	{
-		Map<String, Object> properties = (Map<String, Object>)
-			JSONValue.parseWithException(new FileReader(jsonPath));
+		Map<String, Object> properties = (Map<String, Object>) JSONValue.parseWithException(new FileReader(jsonPath));
 
 		Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
 		Map<String, Object> modules = jsonUtils.getStringMap(properties, "modules");
@@ -201,6 +199,25 @@ public class KrollAPIUpdater
 
 			modulesJSON.put(name, moduleNames);
 		}
+		//Hack in the appcompat module for now. revisit later.
+		ArrayList<String> appCompatHack = new ArrayList<String>();
+		appCompatHack.add("appcompat");
+		modulesJSON.put("titanium-appcompat.jar", appCompatHack);
+
+		//Hack in the cardview module for now. revisit later.
+		ArrayList<String> cardViewHack = new ArrayList<String>();
+		cardViewHack.add("cardview");
+		modulesJSON.put("titanium-cardview.jar", cardViewHack);
+
+		//Hack in the design module for now. revisit later.
+		ArrayList<String> designHack = new ArrayList<String>();
+		designHack.add("design");
+		modulesJSON.put("titanium-design.jar", designHack);
+
+		//Hack in the compat module for now. revisit later.
+		ArrayList<String> compatHack = new ArrayList<String>();
+		compatHack.add("compat");
+		modulesJSON.put("titanium-compat.jar", compatHack);
 
 		File modules = new File(modulesDestDir, "modules.json");
 
@@ -214,8 +231,7 @@ public class KrollAPIUpdater
 		}
 	}
 
-	public static void main(String[] args)
-		throws Exception
+	public static void main(String[] args) throws Exception
 	{
 		if (args.length == 0) {
 			System.err.println("Usage: KrollAPIUpdater <modulesDestDir>");
@@ -232,5 +248,4 @@ public class KrollAPIUpdater
 		updater.updateApis();
 		updater.genModules(modulesDestDir);
 	}
-
 }

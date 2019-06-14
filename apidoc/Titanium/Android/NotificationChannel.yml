@@ -1,0 +1,99 @@
+---
+name: Titanium.Android.NotificationChannel
+summary: Module for notification channels.
+description: |
+    You can create a notification channel for each distinct type of notification you need to send.
+
+    To create a notification channel, use the <Titanium.Android.createNotificationChannel> method.
+
+    Further Reading:
+
+      * [Android Developers: Notification Channel](https://developer.android.com/reference/android/app/NotificationChannel.html)
+
+examples:
+  - title: Notification Channel Example
+    example: |
+        The following example shows how to create a notification with a channel.
+
+            var channel = Ti.Android.NotificationManager.createNotificationChannel({
+                    id: 'my_channel',
+                    name: 'TEST CHANNEL',
+                    importance: Ti.Android.IMPORTANCE_DEFAULT
+                }),
+                notification = Ti.Android.createNotification({
+                    icon: Ti.Android.R.drawable.ic_dialog_info,
+                    contentTitle: 'TITLE',
+                    contentText : 'This is a test',
+                    channelId: channel.getId()
+                });
+
+            Ti.Android.NotificationManager.notify(100, notification);
+
+extends: Titanium.Proxy
+since: "7.0.0"
+osver: {android: {min: "8.0"}}
+platforms: [android]
+
+properties:
+  - name: bypassDnd
+    summary: Whether or not notifications posted to this channel can interrupt the user.
+    type: Boolean
+
+  - name: description
+    summary: User visible description of this channel.
+    type: String
+
+  - name: enableLights
+    summary: Whether notifications posted to this channel should display notification lights
+    type: Boolean
+
+  - name: enableVibration
+    summary: Whether notification posted to this channel should vibrate.
+    type: Boolean
+
+  - name: groupId
+    summary: Group id this channel belongs to.
+    type: String
+
+  - name: importance
+    summary: The audio stream type to use when playing the sound.
+    description: Specify one of the `IMPORTANCE` constants from <Titanium.Android>.
+    type: Number
+    constants: [Titanium.Android.IMPORTANCE_*]
+
+  - name: id
+    summary: The channel id specified for the notification channel.
+    type: String
+
+  - name: lightColor
+    summary: The notification light color for notifications posted to this channel.
+    type: Number
+
+  - name: lockscreenVisibility
+    summary: Whether or not notifications posted to this channel are shown on the lockscreen in full or redacted form.
+    type: Number
+    constants: [Titanium.Android.VISIBILITY_*]
+
+  - name: showBadge
+    summary: Whether notifications posted to this channel can appear as application icon badges in a Launcher.
+    type: Boolean
+
+  - name: sound
+    summary: A URL to the sound to play.
+    description: |
+        The URL cannot refer to a file in the Resources directory, but it can refer to
+        a file in the raw resources directory
+        ([Filesystem.resRawDirectory](Titanium.Filesystem.resRawDirectory)).
+
+        To create a raw resource, place the audio file in the `platform/android/res/raw`
+        folder and reference it as:
+
+            notificationChannel.sound = Ti.Filesystem.resRawDirectory + 'my_sound.wav';
+
+    type: String
+    since: "7.5.0"
+
+  - name: vibratePattern
+    summary: The vibration pattern for notifications posted to this channel.
+    description: Specify the pattern in milliseconds as an array. (e.g [100, 100, 100, 400, 400, 100, 100, 100])
+    type: Array<Number>

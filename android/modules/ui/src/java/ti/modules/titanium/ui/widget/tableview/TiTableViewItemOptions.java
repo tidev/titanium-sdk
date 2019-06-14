@@ -15,19 +15,22 @@ public class TiTableViewItemOptions extends HashMap<String, String>
 	private static final long serialVersionUID = 1L;
 	private static final int INITIAL = 10;
 
-	public TiTableViewItemOptions() {
+	public TiTableViewItemOptions()
+	{
 		this(INITIAL);
 	}
 
-	public TiTableViewItemOptions(int initialCapacity) {
+	public TiTableViewItemOptions(int initialCapacity)
+	{
 		super(initialCapacity);
 	}
 
-	public String resolveOption(String key, KrollDict ... items) {
+	public String resolveOption(String key, KrollDict... items)
+	{
 
 		String value = get(key);
 
-		for(KrollDict item : items) {
+		for (KrollDict item : items) {
 			if (item != null && item.containsKey(key)) {
 				value = item.getString(key);
 				break;
@@ -36,12 +39,14 @@ public class TiTableViewItemOptions extends HashMap<String, String>
 		return value;
 	}
 
-	public int resolveIntOption(String key, KrollDict ... items) {
+	public int resolveIntOption(String key, KrollDict... items)
+	{
 		String value = resolveOption(key, items);
 		return value == null ? -1 : Integer.parseInt(value);
 	}
 
-	public int getIntOption(String key) {
+	public int getIntOption(String key)
+	{
 		String value = get(key);
 		return value == null ? -1 : Integer.parseInt(value);
 	}

@@ -62,7 +62,8 @@
 			<#local signature>
 				<@getMethodSignature method.args, method.returnType, false/>
 			</#local>
-			<#nested methodName_index==0, methodName, method, signature, methodName_has_next>
+			<#local isDynamic = isDynamicProperty(methodName)>
+			<#nested methodName_index==0, methodName, method, signature, isDynamic, methodName_has_next>
 		</#list>
 	</#if>
 </#macro>
@@ -169,13 +170,13 @@
 
 <#macro openModuleNamespace>
 	<#list moduleId?split(".") as ns>
-		namespace ${ns?lower_case} {
+namespace ${ns?lower_case} {
 	</#list>
 </#macro>
 
 <#macro closeModuleNamespace>
 	<#list moduleId?split(".")?reverse as ns>
-		} // ${ns?lower_case}
+} // ${ns?lower_case}
 	</#list>
 </#macro>
 
@@ -183,7 +184,7 @@
 <@openModuleNamespace/>
 	<#list proxyAttrs.fullAPIName?split(".") as ns>
 		<#if ns_has_next && ns?lower_case != moduleId?lower_case>
-			namespace ${ns?lower_case} {
+	namespace ${ns?lower_case} {
 		</#if>
 	</#list>
 </#macro>
@@ -191,7 +192,7 @@
 <#macro closeNamespace>
 	<#list proxyAttrs.fullAPIName?split(".")?reverse as ns>
 		<#if ns_index != 0 && ns?lower_case != moduleId?lower_case>
-			} // namespace ${ns?lower_case}
+	} // namespace ${ns?lower_case}
 		</#if>
 	</#list>
 <@closeModuleNamespace/>
@@ -242,6 +243,19 @@
 		"typeValidation":false,
 		"defaultValue": "null"
 	},
+	"org.appcelerator.kroll.KrollDict":{
+		"jsType":"Value",
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsObjectToJavaKrollDict",
+		"javaToJsConverter":"javaObjectToJsValue",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"typeValidation":false,
+		"defaultValue": "null"
+	},
 	"java.lang.String":{
 		"jsType":"Value",
 		"jsToJavaConverter":"jsValueToJavaString",
@@ -257,7 +271,7 @@
 	"java.lang.String[]":{
 		"jsType":"Array",
 		"jsHandleCast":"Array",
-		"jsToJavaConverter":"jsArrayToJavaArray",
+		"jsToJavaConverter":"jsArrayToJavaStringArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/String;",
 		"javaCallMethodType":"Object",
@@ -413,7 +427,7 @@
 	<#if type?ends_with("Proxy")>
 		<#return typeInfo["org.appcelerator.kroll.KrollProxy"]>
 	</#if>
-	
+
 	<#if type?ends_with("Exception")>
 		<#return typeInfo["org.appcelerator.kroll.KrollException"]>
 	</#if>
@@ -472,7 +486,8 @@ fails, a JS exception is returned.
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);
 		<#if !(logOnly!false)>
-		return titanium::JSException::Error(error);
+		titanium::JSException::Error(isolate, error);
+		return;
 		</#if>
 	}
 	</#if>
@@ -491,37 +506,66 @@ fails, a JS exception is returned.
 	} else {
 	</#if>
 <#t>
-	<#local current_arg = "arg_" + index>
-	<#if info.jsType == "Value">
-		<#local type = "Local<Value>">
-		<#local valueExpr = expr>
-	<#elseif info.jsType == "Number">
-		<#local type = "Local<Number>">
-		<#local valueExpr = expr + "->ToNumber()">
-		<#local stringExpr = expr + "->ToString()">
-	<#elseif info?keys?seq_contains("jsHandleCast")>
-		<#local type = "Local<" + info.jsType + ">">
-		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
-	<#else>
-		<#local type = "Local<" + info.jsType + ">">
-		<#local valueExpr = expr + "->To" + info.jsType + "()">
-	</#if>
-	
-<#t>
 	<#if info.jsType == "Number">
-		if (titanium::V8Util::isNaN(${expr}) || ${stringExpr}->Length() == 0) {
-			const char *error = "Invalid value, expected type ${info.jsType}.";
+		if ((titanium::V8Util::isNaN(isolate, ${expr}) && !${expr}->IsUndefined()) || ${expr}->ToString(context).FromMaybe(String::Empty(isolate))->Length() == 0) {
+			const char *error = "Invalid value, expected type Number.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
-			return titanium::JSException::Error(error);
+			titanium::JSException::Error(isolate, error);
+			return;
 			</#if>
 		}
 	</#if>
 <#t>
+	<#local current_arg = "arg_" + index>
+	<#if info.jsType == "Value">
+		<#local coerced = false>
+		<#local type = "Local<Value>">
+		<#local valueExpr = expr>
+	<#elseif info.jsType == "Number">
+		<#local coerced = true>
+		<#local type = "MaybeLocal<Number>">
+		<#local valueExpr = expr + "->ToNumber(context)">
+	<#elseif info?keys?seq_contains("jsHandleCast")> // Array
+		<#local coerced = false>
+		<#local type = "Local<" + info.jsType + ">">
+		<#local valueExpr = expr + ".As<" + info.jsType + ">()">
+	<#else>
+		<#local coerced = true>
+		<#local type = "MaybeLocal<" + info.jsType + ">">
+		<#local valueExpr = expr + "->To" + info.jsType + "(context)">
+	</#if>
 	if (!${expr}->IsNull()) {
+	<#if coerced>
+		${type} ${current_arg} = ${valueExpr};
+		if (${current_arg}.IsEmpty()) {
+			const char *error = "Invalid argument at index ${index}, expected type ${info.jsType} and failed to coerce.";
+			LOGE(TAG, error);
+			<#if !(logOnly!false)>
+			titanium::JSException::Error(isolate, error);
+			return;
+			<#else>
+			jArguments[${index}].${info.jvalue} = NULL;
+			</#if>
+		} else {
+			jArguments[${index}].${info.jvalue} =
+				titanium::TypeConverter::${info.jsToJavaConverter}(
+			<#if info.jsToJavaConverter?matches("^js(Number|Date|String|Boolean)To.+")>
+			<#else>
+					isolate,
+			</#if>
+					env, ${current_arg}.ToLocalChecked()<#if checkNew>, &isNew_${index}</#if>);
+		}
+	<#else>
 		${type} ${current_arg} = ${valueExpr};
 		jArguments[${index}].${info.jvalue} =
-			titanium::TypeConverter::${info.jsToJavaConverter}(env, ${current_arg}<#if checkNew>, &isNew_${index}</#if>);
+			titanium::TypeConverter::${info.jsToJavaConverter}(
+		<#if info.jsToJavaConverter?matches("^js(Number|Date|String|Boolean)To.+")>
+		<#else>
+				isolate,
+		</#if>
+				env, ${current_arg}<#if checkNew>, &isNew_${index}</#if>);
+	</#if>
 	} else {
 		jArguments[${index}].${info.jvalue} = NULL;
 	}
@@ -540,7 +584,7 @@ fails, a JS exception is returned.
 	jobjectArray varArgs = env->NewObjectArray(length, titanium::JNIUtil::objectClass, NULL);
 	for (uint32_t i = 0; i < length; ++i) {
 		bool isNew;
-		jobject arg = titanium::TypeConverter::jsValueToJavaObject(env, args[i+${start}], &isNew);
+		jobject arg = titanium::TypeConverter::jsValueToJavaObject(isolate, env, args[i+${start}], &isNew);
 		env->SetObjectArrayElement(varArgs, i, arg);
 		if (isNew) {
 			env->DeleteLocalRef(arg);
@@ -557,7 +601,8 @@ fails, a JS exception is returned.
 	if (args.Length() < ${requiredCount}) {
 		char errorStringBuffer[100];
 		sprintf(errorStringBuffer, "${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got %d", args.Length());
-		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
+		titanium::JSException::Error(isolate, errorStringBuffer);
+		return;
 	}
 	</#if>
 	</@Proxy.getRequiredArgumentCount>
@@ -573,9 +618,9 @@ fails, a JS exception is returned.
 	</#list>
 
 	<#if method.hasInvocation>
-	Handle<Object> scopeVars = args[0]->ToObject();
-	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(env, 
-		scopeVars->Get(Proxy::sourceUrlSymbol));
+	Local<Object> scopeVars = args[0]->ToObject(context).ToLocalChecked(); // FIXME handle when empty!
+	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(isolate, env,
+		scopeVars->Get(context, Proxy::sourceUrlSymbol.Get(isolate)).FromMaybe(String::Empty(isolate).As<Value>())); // FIXME Default to app.js?
 	jArguments[0].l = env->NewObject(titanium::JNIUtil::krollInvocationClass,
 		titanium::JNIUtil::krollInvocationInitMethod, sourceUrl);
 	env->DeleteLocalRef(sourceUrl);
@@ -646,28 +691,27 @@ beprovided to handle the result.
 	</#if>
 
 	<#-- Delete java proxy reference once done making the call. -->
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(${jobjectVar});
-	}
+	proxy->unreferenceJavaObject(${jobjectVar});
 
 	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
 
 	if (env->ExceptionCheck()) {
-		<#if hasResult>Handle<Value> jsException = </#if>titanium::JSException::fromJavaException();
+		<#if hasResult>Local<Value> jsException = </#if>titanium::JSException::fromJavaException(isolate);
 		env->ExceptionClear();
 		<#if hasResult>
-		return jsException;
+		return;
 		</#if>
 	}
 
 	<#if hasResult && info.javaValidation!false>
 	if (jResult == NULL) {
-		return Null();
+		args.GetReturnValue().Set(Null(isolate));
+		return;
 	}
 	</#if>
 
 	<#if hasResult>
-	Handle<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(env, jResult);
+	Local<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(isolate, env, jResult);
 
 	<#if info.javaDeleteLocalRef!false>
 	env->DeleteLocalRef(jResult);
@@ -680,7 +724,8 @@ beprovided to handle the result.
 <#macro initJNIEnv>
 	JNIEnv *env = titanium::JNIScope::getEnv();
 	if (!env) {
-		return titanium::JSException::GetJNIEnvironmentError();
+		titanium::JSException::GetJNIEnvironmentError(isolate);
+		return;
 	}
 </#macro>
 
@@ -693,8 +738,21 @@ beprovided to handle the result.
 			const char *error = "Couldn't find proxy method '${name}' with signature '${signature}'";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
-				return titanium::JSException::Error(error);
+				titanium::JSException::Error(isolate, error);
+				return;
 			</#if>
 		}
+	}
+</#macro>
+
+<#macro getHolder>
+	Local<Object> holder = args.Holder();
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+	}
+	if (holder.IsEmpty() || holder->IsNull()) {
+		LOGE(TAG, "Couldn't obtain argument holder");
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
 	}
 </#macro>

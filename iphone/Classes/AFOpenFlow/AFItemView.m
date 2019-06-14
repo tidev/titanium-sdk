@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#if defined(USE_TI_UIIOSCOVERFLOWVIEW) || defined(USE_TI_UICOVERFLOWVIEW)
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
 #import "AFItemView.h"
 #import <QuartzCore/QuartzCore.h>
@@ -55,11 +55,11 @@
 	self.frame = CGRectMake(0, 0, newImage.size.width, newImage.size.height);
 }
 
-- (int)number {
+- (NSInteger)number {
 	return number;
 }
 
-- (void)setNumber:(int)newNumber {
+- (void)setNumber:(NSInteger)newNumber {
 	horizontalPosition = COVER_SPACING * newNumber;
 	number = newNumber;
 }

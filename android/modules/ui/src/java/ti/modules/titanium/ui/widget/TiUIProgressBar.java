@@ -14,23 +14,25 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.content.res.ColorStateList;
+import android.os.Build;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class TiUIProgressBar extends TiUIView {
+public class TiUIProgressBar extends TiUIView
+{
 
 	private TextView label;
 	private ProgressBar progress;
 	private LinearLayout view;
-	
+
 	public TiUIProgressBar(final TiViewProxy proxy)
 	{
 		super(proxy);
-		
-		view = new LinearLayout(proxy.getActivity())
-		{
+
+		view = new LinearLayout(proxy.getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -47,19 +49,30 @@ public class TiUIProgressBar extends TiUIView {
 		progress = new ProgressBar(proxy.getActivity(), null, android.R.attr.progressBarStyleHorizontal);
 		progress.setIndeterminate(false);
 		progress.setMax(1000);
-		
+
 		view.addView(label);
 		view.addView(progress);
-		
+
 		setNativeView(view);
 	}
-	
+
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		super.processProperties(d);
-		
+
 		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
 			handleSetMessage(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
+		}
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			final int color = TiConvert.toColor(d, TiC.PROPERTY_COLOR);
+			handleSetMessageColor(color);
+		}
+		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
+			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
+			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
 		}
 		updateProgress();
 	}
@@ -76,49 +89,82 @@ public class TiUIProgressBar extends TiUIView {
 			if (message != null) {
 				handleSetMessage(message);
 			}
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
+			final int color = TiConvert.toColor(TiConvert.toString(newValue));
+			handleSetMessageColor(color);
+		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
+			int tintColor = TiConvert.toColor(TiConvert.toString(newValue));
+			handleSetTintColor(tintColor);
+		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
+			int trackTintColor = TiConvert.toColor(TiConvert.toString(newValue));
+			handleSetTrackTintColor(trackTintColor);
 		}
 	}
 
-	private double getMin() {
+	private double getMin()
+	{
 		Object value = proxy.getProperty("min");
 		if (value == null) {
 			return 0;
 		}
-		
+
 		return TiConvert.toDouble(value);
 	}
-	
-	private double getMax() {
+
+	private double getMax()
+	{
 		Object value = proxy.getProperty("max");
 		if (value == null) {
 			return 0;
 		}
-		
+
 		return TiConvert.toDouble(value);
 	}
-	
-	private double getValue() {
+
+	private double getValue()
+	{
 		Object value = proxy.getProperty(TiC.PROPERTY_VALUE);
 		if (value == null) {
 			return 0;
 		}
-		
+
 		return TiConvert.toDouble(value);
 	}
-	
+
 	private int convertRange(double min, double max, double value, int base)
 	{
-		return (int)Math.floor((value/(max - min))*base);
+		return (int) Math.floor((value / (max - min)) * base);
 	}
-	
+
 	public void updateProgress()
 	{
 		progress.setProgress(convertRange(getMin(), getMax(), getValue(), 1000));
 	}
-	
+
 	public void handleSetMessage(String message)
 	{
 		label.setText(message);
 		label.requestLayout();
+	}
+
+	protected void handleSetMessageColor(int color)
+	{
+		label.setTextColor(color);
+	}
+
+	protected void handleSetTintColor(int color)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+			progress.setProgressTintList(singleColorStateList);
+		}
+	}
+
+	protected void handleSetTrackTintColor(int color)
+	{
+		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			progress.setProgressBackgroundTintList(singleColorStateList);
+		}
 	}
 }

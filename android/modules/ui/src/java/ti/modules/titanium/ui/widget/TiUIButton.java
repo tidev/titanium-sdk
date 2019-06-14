@@ -6,11 +6,13 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.CharSequence;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -19,16 +21,21 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.AttributedStringProxy;
+
 import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
-import android.widget.Button;
+import android.support.v7.widget.AppCompatButton;
 
 public class TiUIButton extends TiUIView
 {
 	private static final String TAG = "TiUIButton";
-	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
-	
+	private static final float DEFAULT_SHADOW_RADIUS = 1f;
+
 	private int defaultColor;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -39,8 +46,7 @@ public class TiUIButton extends TiUIView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
-		Button btn = new Button(proxy.getActivity())
-		{
+		AppCompatButton btn = new AppCompatButton(proxy.getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -50,6 +56,8 @@ public class TiUIButton extends TiUIView
 		};
 		btn.setGravity(Gravity.CENTER);
 		defaultColor = btn.getCurrentTextColor();
+		btn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+		btn.setMaxLines(1);
 		setNativeView(btn);
 	}
 
@@ -60,7 +68,7 @@ public class TiUIButton extends TiUIView
 
 		boolean needShadow = false;
 
-		Button btn = (Button) getNativeView();
+		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
 			TiDrawableReference drawableRef = null;
@@ -71,16 +79,22 @@ public class TiUIButton extends TiUIView
 			}
 
 			if (drawableRef != null) {
-				Drawable image = drawableRef.getDrawable();
+				Drawable image = drawableRef.getDensityScaledDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
-		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			// Reset the padding here if the background color/image is set. By default the padding will be calculated
+		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			// Reset the padding here if the background color is set. By default the padding will be calculated
 			// for the button, but if we set a background color, it will not look centered unless we reset the padding.
 			btn.setPadding(8, 0, 8, 0);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
+		}
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (attributedString instanceof AttributedStringProxy) {
+				setAttributedStringText((AttributedStringProxy) attributedString);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
@@ -118,6 +132,14 @@ public class TiUIButton extends TiUIView
 			needShadow = true;
 			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
 		}
+		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
+			Object color = d.get(TiC.PROPERTY_TINT_COLOR);
+			if (color == null) {
+				btn.getBackground().clearColorFilter();
+			} else {
+				btn.getBackground().setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR), Mode.MULTIPLY);
+			}
+		}
 		if (needShadow) {
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
@@ -130,9 +152,11 @@ public class TiUIButton extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
-		Button btn = (Button) getNativeView();
+		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			setAttributedStringText((AttributedStringProxy) newValue);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
@@ -167,9 +191,30 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
+			if (newValue == null) {
+				btn.getBackground().clearColorFilter();
+			} else {
+				btn.getBackground().setColorFilter(TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
+	private void setAttributedStringText(AttributedStringProxy attrString)
+	{
+		AppCompatButton btn = (AppCompatButton) getNativeView();
+
+		if (btn == null) {
+			return;
+		}
+
+		CharSequence text = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
+		if (text == null) {
+			text = "";
+		}
+
+		btn.setText(text);
+	}
 }

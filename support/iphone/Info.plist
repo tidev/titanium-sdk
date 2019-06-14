@@ -8,8 +8,6 @@
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleIconFile</key>
-	<string>__APPICON__.png</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

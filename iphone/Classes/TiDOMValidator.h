@@ -10,9 +10,9 @@
 
 @interface TiDOMValidator : NSObject
 
-+(BOOL)checkElementName:(NSString*)pName;
-+(BOOL)checkAttributeName:(NSString*)pName;
-+(BOOL)checkNamespacePrefix:(NSString*)pName;
-+(BOOL)checkNamespaceURI:(NSString*)pName;
++ (BOOL)checkElementName:(NSString *)pName;
++ (BOOL)checkAttributeName:(NSString *)pName;
++ (BOOL)checkNamespacePrefix:(NSString *)pName;
++ (BOOL)checkNamespaceURI:(NSString *)pName;
 @end
 #endif

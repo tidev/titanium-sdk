@@ -6,167 +6,158 @@
  */
 #ifdef USE_TI_UIEMAILDIALOG
 
-#import "TiBase.h"
 #import "TiUIEmailDialogProxy.h"
-#import "TiUtils.h"
-#import "TiBlob.h"
-#import "TiColor.h"
-#import "TiApp.h"
-#import "TiFile.h"
-#import "Mimetypes.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIEmailDialogProxy
 
-- (void) dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(attachments);
-	[super dealloc];
+  RELEASE_TO_NIL(attachments);
+  [super dealloc];
 }
 
--(void)_destroy
+- (void)_destroy
 {
-	RELEASE_TO_NIL(attachments);
-	[super _destroy];
+  RELEASE_TO_NIL(attachments);
+  [super _destroy];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.EmailDialog";
+  return @"Ti.UI.EmailDialog";
 }
 
--(NSArray *)attachments
+- (NSArray *)attachments
 {
-	return attachments;
+  return attachments;
 }
 
--(void)addAttachment:(id)ourAttachment
+- (void)addAttachment:(id)ourAttachment
 {
-	ENSURE_SINGLE_ARG(ourAttachment,NSObject);
-	
-	if (attachments == nil)
-	{
-		attachments = [[NSMutableArray alloc] initWithObjects:ourAttachment,nil];
-	}
-	else
-	{
-		[attachments addObject:ourAttachment];
-	}
+  ENSURE_SINGLE_ARG(ourAttachment, NSObject);
+
+  if (attachments == nil) {
+    attachments = [[NSMutableArray alloc] initWithObjects:ourAttachment, nil];
+  } else {
+    [attachments addObject:ourAttachment];
+  }
 }
 
 - (id)isSupported:(id)args
 {
-	return NUMBOOL([MFMailComposeViewController canSendMail]);
+#if TARGET_IPHONE_SIMULATOR
+  DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
+  return NUMBOOL(NO);
+#endif
+  return NUMBOOL([MFMailComposeViewController canSendMail]);
 }
 
 - (void)open:(id)args
 {
-	[self rememberSelf];
-	NSDictionary* properties = nil;
-	ENSURE_ARG_OR_NIL_AT_INDEX(properties, args, 0, NSDictionary);
-	Class arrayClass = [NSArray class];
-	NSArray * toArray = [self valueForUndefinedKey:@"toRecipients"];
-	ENSURE_CLASS_OR_NIL(toArray,arrayClass);
-	NSArray * bccArray = [self valueForUndefinedKey:@"bccRecipients"];
-	ENSURE_CLASS_OR_NIL(bccArray,arrayClass);
-	NSArray * ccArray = [self valueForUndefinedKey:@"ccRecipients"];
-	ENSURE_CLASS_OR_NIL(ccArray,arrayClass);
+#if TARGET_IPHONE_SIMULATOR
+  DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
+  NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
+  [self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS Simulator does not support sending emails. Use a device instead."];
+#else
 
-	ENSURE_UI_THREAD(open,args);
-		
-	NSString * subject = [TiUtils stringValue:[self valueForUndefinedKey:@"subject"]];
-	NSString * message = [TiUtils stringValue:[self valueForUndefinedKey:@"messageBody"]];
+  [self rememberSelf];
+  NSDictionary *properties = nil;
+  ENSURE_ARG_OR_NIL_AT_INDEX(properties, args, 0, NSDictionary);
+  Class arrayClass = [NSArray class];
+  NSArray *toArray = [self valueForUndefinedKey:@"toRecipients"];
+  ENSURE_CLASS_OR_NIL(toArray, arrayClass);
+  NSArray *bccArray = [self valueForUndefinedKey:@"bccRecipients"];
+  ENSURE_CLASS_OR_NIL(bccArray, arrayClass);
+  NSArray *ccArray = [self valueForUndefinedKey:@"ccRecipients"];
+  ENSURE_CLASS_OR_NIL(ccArray, arrayClass);
 
-	if (![MFMailComposeViewController canSendMail])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
-		[self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"system can't send email"];
-		return;
-	}
+  ENSURE_UI_THREAD(open, args);
 
-	UIColor * barColor = [[TiUtils colorValue:[self valueForUndefinedKey:@"barColor"]] _color];
-	
-	MFMailComposeViewController * composer = [[MFMailComposeViewController alloc] init];
-	[composer setMailComposeDelegate:self];
-	if (barColor != nil)
-	{
-		if([TiUtils isIOS7OrGreater]) {
-			[[composer navigationBar] performSelector:@selector(setBarTintColor:) withObject:barColor];
-		} else {
-			[[composer navigationBar] setTintColor:barColor];
-		}
-	}
+  NSString *subject = [TiUtils stringValue:[self valueForUndefinedKey:@"subject"]];
+  NSString *message = [TiUtils stringValue:[self valueForUndefinedKey:@"messageBody"]];
 
-	[composer setSubject:subject];
-	[composer setToRecipients:toArray];
-	[composer setBccRecipients:bccArray];
-	[composer setCcRecipients:ccArray];
-	[composer setMessageBody:message isHTML:[TiUtils boolValue:[self valueForUndefinedKey:@"html"] def:NO]];
-	
-	if (attachments != nil)
-	{
-		for (id attachment in attachments)
-		{
-			if ([attachment isKindOfClass:[TiBlob class]])
-			{
-				NSString *path = [attachment path];
-				if (path==nil)
-				{
-					path = @"attachment";
-				}
-				else
-				{
-					path = [path lastPathComponent];
-				}
-                NSString *mimetype = [attachment mimeType];
-                if (mimetype == nil) {
-                    mimetype = [Mimetypes mimeTypeForExtension:path];
-                }
-				[composer addAttachmentData:[attachment data]
-										mimeType:mimetype
-										fileName:path];
-			}
-			else if ([attachment isKindOfClass:[TiFile class]])
-			{
-				TiFile *file = (TiFile*)attachment;
-				NSString *path = [file path];
-				NSData *data = [NSData dataWithContentsOfFile:path];
-				NSString *mimetype = [Mimetypes mimeTypeForExtension:path];
-				[composer addAttachmentData:data mimeType:mimetype fileName:[path lastPathComponent]];
-			}
-		}
-	}
-	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-	[self retain];
-	[[TiApp app] showModalController:composer animated:animated];
+  if (![MFMailComposeViewController canSendMail]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
+    [self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"system can't send email"];
+    return;
+  }
+
+  UIColor *barColor = [[TiUtils colorValue:[self valueForUndefinedKey:@"barColor"]] _color];
+
+  MFMailComposeViewController *composer = [[MFMailComposeViewController alloc] init];
+  [composer setMailComposeDelegate:self];
+  if (barColor != nil) {
+    [[composer navigationBar] setBarTintColor:barColor];
+  }
+
+  [composer setSubject:subject];
+  [composer setToRecipients:toArray];
+  [composer setBccRecipients:bccArray];
+  [composer setCcRecipients:ccArray];
+  [composer setMessageBody:message isHTML:[TiUtils boolValue:[self valueForUndefinedKey:@"html"] def:NO]];
+
+  if (attachments != nil) {
+    for (id attachment in attachments) {
+      if ([attachment isKindOfClass:[TiBlob class]]) {
+        NSString *path = [(TiBlob *)attachment path];
+        if (path == nil) {
+          path = @"attachment";
+        } else {
+          path = [path lastPathComponent];
+        }
+        NSString *mimetype = [attachment mimeType];
+        if (mimetype == nil) {
+          mimetype = [Mimetypes mimeTypeForExtension:path];
+        }
+        [composer addAttachmentData:[attachment data]
+                           mimeType:mimetype
+                           fileName:path];
+      } else if ([attachment isKindOfClass:[TiFile class]]) {
+        TiFile *file = (TiFile *)attachment;
+        NSString *path = [file path];
+        NSData *data = [NSData dataWithContentsOfFile:path];
+        NSString *mimetype = [Mimetypes mimeTypeForExtension:path];
+        [composer addAttachmentData:data mimeType:mimetype fileName:[path lastPathComponent]];
+      }
+    }
+  }
+
+  BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+  [self retain];
+  [[TiApp app] showModalController:composer animated:animated];
+#endif
 }
 
-MAKE_SYSTEM_PROP(SENT,MFMailComposeResultSent);
-MAKE_SYSTEM_PROP(SAVED,MFMailComposeResultSaved);
-MAKE_SYSTEM_PROP(CANCELLED,MFMailComposeResultCancelled);
-MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
+MAKE_SYSTEM_PROP(SENT, MFMailComposeResultSent);
+MAKE_SYSTEM_PROP(SAVED, MFMailComposeResultSaved);
+MAKE_SYSTEM_PROP(CANCELLED, MFMailComposeResultCancelled);
+MAKE_SYSTEM_PROP(FAILED, MFMailComposeResultFailed);
 
-#pragma mark Delegate 
+#pragma mark Delegate
 
 - (void)mailComposeController:(MFMailComposeViewController *)composer didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
-	if(error!=nil)
-	{
-		NSLog(@"[ERROR] Unexpected composing error: %@",error);
-	}
-	
-	BOOL animated = YES;
+  if (error != nil) {
+    NSLog(@"[ERROR] Unexpected composing error: %@", error);
+  }
 
-	[[TiApp app] hideModalController:composer animated:animated];
-	[composer autorelease];
-	composer = nil;
-	if ([self _hasListeners:@"complete"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
-		[self fireEvent:@"complete" withObject:event errorCode:[error code] message:[TiUtils messageFromError:error]];
-	}
-	[self forgetSelf];
-	[self autorelease];
+  BOOL animated = YES;
+
+  [[TiApp app] hideModalController:composer animated:animated];
+  [composer autorelease];
+  if ([self _hasListeners:@"complete"]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
+    [self fireEvent:@"complete" withObject:event errorCode:[error code] message:[TiUtils messageFromError:error]];
+  }
+  [self forgetSelf];
+  [self autorelease];
 }
 
 @end

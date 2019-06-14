@@ -1,7 +1,0 @@
-{
- "functions": [
-  "transform", 
-  "reportUnhandledException"
- ], 
- "properties": []
-}

@@ -1,1 +1,0 @@
-var myMiddleName = 'Waldo';

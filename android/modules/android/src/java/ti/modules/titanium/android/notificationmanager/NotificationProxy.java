@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,39 +14,51 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 import ti.modules.titanium.android.AndroidModule;
 import ti.modules.titanium.android.PendingIntentProxy;
 import ti.modules.titanium.android.RemoteViewsProxy;
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.net.Uri;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
-	TiC.PROPERTY_CONTENT_TEXT,
-	TiC.PROPERTY_CONTENT_TITLE
-})
-public class NotificationProxy extends KrollProxy 
+import android.app.Notification;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
+import android.os.Build;
+
+import java.util.HashMap;
+
+@SuppressWarnings("deprecation")
+@Kroll.proxy(creatableInModule = AndroidModule.class,
+			 propertyAccessors = { TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
+public class NotificationProxy extends KrollProxy
 {
 	private static final String TAG = "TiNotification";
 
-	protected Notification notification;
+	protected Builder notificationBuilder;
+	private int flags, ledARGB, ledOnMS, ledOffMS;
+	private Uri sound;
+	private int audioStreamType;
+	private HashMap wakeParams;
 
-	public NotificationProxy() 
+	public NotificationProxy()
 	{
 		super();
-		notification = new Notification(
-			android.R.drawable.stat_sys_warning, null, System.currentTimeMillis());
-		notification.flags = Notification.FLAG_AUTO_CANCEL;
-	}
+		notificationBuilder = new NotificationCompat.Builder(TiApplication.getInstance().getApplicationContext())
+								  .setSmallIcon(android.R.drawable.stat_sys_warning)
+								  .setWhen(System.currentTimeMillis())
+								  .setChannelId(NotificationManagerModule.useDefaultChannel()
+													? NotificationManagerModule.DEFAULT_CHANNEL_ID
+													: "miscellaneous"); // NotificationChannel.DEFAULT_CHANNEL_ID
 
-	public NotificationProxy(TiContext tiContext) 
-	{
-		this();
+		//set up default values
+		flags = Notification.FLAG_AUTO_CANCEL;
+		audioStreamType = Notification.STREAM_DEFAULT;
+		wakeParams = new HashMap();
 	}
 
 	@Override
@@ -59,6 +71,12 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_ICON)) {
 			setIcon(d.get(TiC.PROPERTY_ICON));
 		}
+		if (d.containsKey(TiC.PROPERTY_LARGE_ICON)) {
+			setLargeIcon(d.get(TiC.PROPERTY_LARGE_ICON));
+		}
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			setColor(TiConvert.toString(d, TiC.PROPERTY_COLOR));
+		}
 		if (d.containsKey(TiC.PROPERTY_TICKER_TEXT)) {
 			setTickerText(TiConvert.toString(d, TiC.PROPERTY_TICKER_TEXT));
 		}
@@ -67,6 +85,9 @@ public class NotificationProxy extends KrollProxy
 		}
 		if (d.containsKey(TiC.PROPERTY_AUDIO_STREAM_TYPE)) {
 			setAudioStreamType(TiConvert.toInt(d, TiC.PROPERTY_AUDIO_STREAM_TYPE));
+		}
+		if (d.containsKey(TiC.PROPERTY_CHANNEL_ID)) {
+			setChannelId(d.getString(TiC.PROPERTY_CHANNEL_ID));
 		}
 		if (d.containsKey(TiC.PROPERTY_CONTENT_VIEW)) {
 			setContentView((RemoteViewsProxy) d.get(TiC.PROPERTY_CONTENT_VIEW));
@@ -83,9 +104,6 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_FLAGS)) {
 			setFlags(TiConvert.toInt(d, TiC.PROPERTY_FLAGS));
 		}
-		if (d.containsKey(TiC.PROPERTY_ICON_LEVEL)) {
-			setIconLevel(TiConvert.toInt(d, TiC.PROPERTY_ICON_LEVEL));
-		}
 		if (d.containsKey(TiC.PROPERTY_LED_ARGB)) {
 			setLedARGB(TiConvert.toInt(d, TiC.PROPERTY_LED_ARGB));
 		}
@@ -101,167 +119,420 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_SOUND)) {
 			setSound(TiConvert.toString(d, TiC.PROPERTY_SOUND));
 		}
+		if (d.containsKey(TiC.PROPERTY_STYLE)) {
+			setStyle((StyleProxy) d.get(TiC.PROPERTY_STYLE));
+		}
 		if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 			setVibratePattern((Object[]) d.get(TiC.PROPERTY_VIBRATE_PATTERN));
+		}
+		if (d.containsKey(TiC.PROPERTY_VISIBILITY)) {
+			setVisibility(TiConvert.toInt(d, TiC.PROPERTY_VISIBILITY));
+		}
+		if (d.containsKey(TiC.PROPERTY_CATEGORY)) {
+			setCategory(TiConvert.toString(d, TiC.PROPERTY_CATEGORY));
+		}
+		if (d.containsKey(TiC.PROPERTY_PRIORITY)) {
+			setPriority(TiConvert.toInt(d, TiC.PROPERTY_PRIORITY));
+		}
+		if (d.containsKey(TiC.PROPERTY_GROUP_KEY)) {
+			setGroupKey(TiConvert.toString(d, TiC.PROPERTY_GROUP_KEY));
+		}
+		if (d.containsKey(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR)) {
+			setGroupAlertBehavior(TiConvert.toInt(d, TiC.PROPERTY_GROUP_ALERT_BEHAVIOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_GROUP_SUMMARY)) {
+			setGroupSummary(TiConvert.toBoolean(d, TiC.PROPERTY_GROUP_SUMMARY));
+		}
+		if (d.containsKey(TiC.PROPERTY_WAKE_LOCK)) {
+			setWakeLock((HashMap) d.get(TiC.PROPERTY_WAKE_LOCK));
 		}
 		checkLatestEventInfoProperties(d);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setCategory(String category)
+	// clang-format on
+	{
+		notificationBuilder.setCategory(category);
+		setProperty(TiC.PROPERTY_CATEGORY, category);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setIcon(Object icon)
+	// clang-format on
 	{
 		if (icon instanceof Number) {
-			notification.icon = ((Number)icon).intValue();
+			notificationBuilder.setSmallIcon(((Number) icon).intValue());
 		} else {
 			String iconUrl = TiConvert.toString(icon);
-			//TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
-			String iconFullUrl = resolveUrl(null, iconUrl);
-			notification.icon = TiUIHelper.getResourceId(iconFullUrl);
-			if (notification.icon == 0) {
-				Log.w(TAG, "No image found for " + iconUrl);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
 			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(iconFullUrl));
 		}
+		setProperty(TiC.PROPERTY_ICON, icon);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setTickerText(String tickerText)
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setLargeIcon(Object icon)
+	// clang-format on
 	{
-		notification.tickerText = tickerText;
+		if (icon instanceof Number) {
+			Bitmap largeIcon =
+				BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), ((Number) icon).intValue());
+			notificationBuilder.setLargeIcon(largeIcon);
+		} else {
+			String iconUrl = TiConvert.toString(icon);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			Bitmap largeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(),
+															TiUIHelper.getResourceId(iconFullUrl));
+			notificationBuilder.setLargeIcon(largeIcon);
+		}
+		setProperty(TiC.PROPERTY_LARGE_ICON, icon);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setColor(String color)
+	// clang-format on
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			notificationBuilder.setColor(TiColorHelper.parseColor(color));
+		}
+		setProperty(TiC.PROPERTY_COLOR, color);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setVisibility(int visibility)
+	// clang-format on
+	{
+		notificationBuilder.setVisibility(visibility);
+		setProperty(TiC.PROPERTY_VISIBILITY, visibility);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setPriority(int priority)
+	// clang-format on
+	{
+		notificationBuilder.setPriority(priority);
+		setProperty(TiC.PROPERTY_PRIORITY, priority);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setWakeLock(HashMap d)
+	// clang-format on
+	{
+		if (d == null) {
+			return;
+		}
+		wakeParams = d;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setTickerText(String tickerText)
+	// clang-format on
+	{
+		notificationBuilder.setTicker(tickerText);
+		//set the javascript object
+		setProperty(TiC.PROPERTY_TICKER_TEXT, tickerText);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setWhen(Object when)
+	// clang-format on
 	{
 		if (when instanceof Date) {
-			notification.when = ((Date)when).getTime();
+			notificationBuilder.setWhen(((Date) when).getTime());
 		} else {
-			notification.when = ((Double) TiConvert.toDouble(when)).longValue();
+			notificationBuilder.setWhen(((Double) TiConvert.toDouble(when)).longValue());
 		}
+		setProperty(TiC.PROPERTY_WHEN, when);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setAudioStreamType(int type)
+	// clang-format on
 	{
-		notification.audioStreamType = type;
+		audioStreamType = type;
+		if (sound != null) {
+			notificationBuilder.setSound(this.sound, audioStreamType);
+		}
+		setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, type);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setContentView(RemoteViewsProxy contentView)
+	// clang-format on
 	{
-		notification.contentView = contentView.getRemoteViews();
+		notificationBuilder.setContent(contentView.getRemoteViews());
+		setProperty(TiC.PROPERTY_CONTENT_VIEW, contentView);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setContentIntent(PendingIntentProxy contentIntent)
+	// clang-format on
 	{
-		notification.contentIntent = contentIntent.getPendingIntent();
+		notificationBuilder.setContentIntent(contentIntent.getPendingIntent());
+		setProperty(TiC.PROPERTY_CONTENT_INTENT, contentIntent);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setDefaults(int defaults)
+	// clang-format on
 	{
-		notification.defaults = defaults;
+		notificationBuilder.setDefaults(defaults);
+		setProperty(TiC.PROPERTY_DEFAULTS, defaults);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setDeleteIntent(PendingIntentProxy deleteIntent)
+	// clang-format on
 	{
-		notification.deleteIntent = deleteIntent.getPendingIntent();
+		notificationBuilder.setDeleteIntent(deleteIntent.getPendingIntent());
+		setProperty(TiC.PROPERTY_DELETE_INTENT, deleteIntent);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setFlags(int flags)
+	// clang-format on
 	{
-		notification.flags = flags;
+		this.flags = flags;
+		setProperty(TiC.PROPERTY_FLAGS, flags);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setIconLevel(int iconLevel)
-	{
-		notification.iconLevel = iconLevel;
-	}
-
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLedARGB(int ledARGB)
+	// clang-format on
 	{
-		notification.ledARGB = ledARGB;
+		this.ledARGB = ledARGB;
+		notificationBuilder.setLights(this.ledARGB, ledOnMS, ledOffMS);
+		setProperty(TiC.PROPERTY_LED_ARGB, ledARGB);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLedOffMS(int ledOffMS)
+	// clang-format on
 	{
-		notification.ledOffMS = ledOffMS;
+		this.ledOffMS = ledOffMS;
+		notificationBuilder.setLights(ledARGB, ledOnMS, this.ledOffMS);
+		setProperty(TiC.PROPERTY_LED_OFF_MS, ledOffMS);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLedOnMS(int ledOnMS)
+	// clang-format on
 	{
-		notification.ledOnMS = ledOnMS;
+		this.ledOnMS = ledOnMS;
+		notificationBuilder.setLights(ledARGB, this.ledOnMS, ledOffMS);
+		setProperty(TiC.PROPERTY_LED_ON_MS, ledOnMS);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setNumber(int number)
+	// clang-format on
 	{
-		notification.number = number;
+		notificationBuilder.setNumber(number);
+		setProperty(TiC.PROPERTY_NUMBER, number);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setSound(String url)
+	// clang-format on
 	{
-		notification.sound = Uri.parse(resolveUrl(null, url));
-		
+		if (Build.VERSION.SDK_INT >= 26) {
+			Log.w(TAG, "Notification 'sound' property is not supported on Android 8.0 and higher. "
+						   + "You must assign sound to its NotificationChannel instead.");
+		}
+
+		if (url == null) {
+			Log.e(TAG, "Url is null");
+			return;
+		}
+
+		sound = Uri.parse(resolveUrl(null, url));
+		notificationBuilder.setSound(sound, audioStreamType);
+		setProperty(TiC.PROPERTY_SOUND, url);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setStyle(StyleProxy style)
+	// clang-format on
+	{
+		notificationBuilder.setStyle(style.getStyle());
+		setProperty(TiC.PROPERTY_STYLE, style);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setVibratePattern(Object[] pattern)
+	// clang-format on
 	{
 		if (pattern != null) {
-			notification.vibrate = new long[pattern.length];
+			long[] vibrate = new long[pattern.length];
 			for (int i = 0; i < pattern.length; i++) {
-				notification.vibrate[i] = ((Double)TiConvert.toDouble(pattern[i])).longValue();
+				vibrate[i] = ((Double) TiConvert.toDouble(pattern[i])).longValue();
 			}
+			notificationBuilder.setVibrate(vibrate);
 		}
+		setProperty(TiC.PROPERTY_VIBRATE_PATTERN, pattern);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setGroupKey(String groupKey)
+	// clang-format on
+	{
+		notificationBuilder.setGroup(groupKey);
+		setProperty(TiC.PROPERTY_GROUP_KEY, groupKey);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setGroupAlertBehavior(int groupAlertBehavior)
+	// clang-format on
+	{
+		notificationBuilder.setGroupAlertBehavior(groupAlertBehavior);
+		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR, groupAlertBehavior);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setGroupSummary(boolean isGroupSummary)
+	// clang-format on
+	{
+		notificationBuilder.setGroupSummary(isGroupSummary);
+		setProperty(TiC.PROPERTY_GROUP_SUMMARY, isGroupSummary);
 	}
 
 	protected void checkLatestEventInfoProperties(KrollDict d)
 	{
-		if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT))
-		{
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE) || d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
 			String contentTitle = "";
 			String contentText = "";
-			PendingIntent contentIntent = null;
 			if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
 				contentTitle = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TITLE);
+				notificationBuilder.setContentTitle(contentTitle);
 			}
 			if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
 				contentText = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TEXT);
+				notificationBuilder.setContentText(contentText);
 			}
-			if (d.containsKey(TiC.PROPERTY_CONTENT_INTENT)) {
-				PendingIntentProxy intentProxy = (PendingIntentProxy) d.get(TiC.PROPERTY_CONTENT_INTENT);
-				contentIntent = intentProxy.getPendingIntent();
-			}
-			Context c = getActivity();
-			if (c == null) {
-				c = TiApplication.getInstance().getApplicationContext();
-			}
-			notification.setLatestEventInfo(c, contentTitle, contentText, contentIntent);
 		}
 	}
 
 	@Kroll.method
 	public void setLatestEventInfo(String contentTitle, String contentText, PendingIntentProxy contentIntent)
 	{
-		Context c = getActivity();
-		if (c == null) {
-			c = TiApplication.getInstance().getApplicationContext();
-		}
-		notification.setLatestEventInfo(c, contentTitle, contentText, contentIntent.getPendingIntent());
+		notificationBuilder.setContentIntent(contentIntent.getPendingIntent())
+			.setContentText(contentText)
+			.setContentTitle(contentTitle);
 	}
 
-	public Notification getNotification()
-	{ 
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setChannelId(String channelId)
+	// clang-format on
+	{
+		notificationBuilder.setChannelId(channelId);
+		setProperty(TiC.PROPERTY_CHANNEL_ID, channelId);
+	}
+
+	@Kroll.method
+	public void setProgress(int max, int progress, boolean indeterminate)
+	{
+		notificationBuilder.setProgress(max, progress, indeterminate);
+	}
+
+	@Kroll.method
+	public void addAction(Object icon, String title, PendingIntentProxy pendingIntent)
+	{
+		int iconId = -1;
+		if (icon instanceof Number) {
+			iconId = ((Number) icon).intValue();
+		} else {
+			String iconUrl = TiConvert.toString(icon);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			iconId = TiUIHelper.getResourceId(iconFullUrl);
+		}
+		if (pendingIntent == null) {
+			Log.e(TAG, "a pending intent for the action button must be provided");
+			return;
+		}
+		notificationBuilder.addAction(iconId, title, pendingIntent.getPendingIntent());
+	}
+
+	public Notification buildNotification()
+	{
+		Notification notification = notificationBuilder.build();
+
+		if (hasProperty(TiC.PROPERTY_GROUP_KEY)) {
+			// remove FLAG_AUTO_CANCEL as this will prevent group notifications
+			this.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		}
+		notification.flags |= this.flags;
+
 		return notification;
+	}
+
+	public HashMap getWakeParams()
+	{
+		return wakeParams;
 	}
 
 	@Override

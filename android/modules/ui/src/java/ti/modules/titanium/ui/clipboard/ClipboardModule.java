@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,25 +10,20 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.ui.UIModule;
 import android.content.Context;
 import android.text.ClipboardManager;
 
-@Kroll.module(parentModule=UIModule.class)
+@SuppressWarnings("deprecation")
+@Kroll.module(parentModule = UIModule.class)
 public class ClipboardModule extends KrollModule
 {
 	private String TAG = "Clipboard";
-	
+
 	public ClipboardModule()
 	{
 		super();
-	}
-
-	public ClipboardModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	/**
@@ -50,7 +45,7 @@ public class ClipboardModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void clearData(@Kroll.argument(optional=true) String type)
+	public void clearData(@Kroll.argument(optional = true) String type)
 	{
 		clearText();
 	}
@@ -64,19 +59,19 @@ public class ClipboardModule extends KrollModule
 	@Kroll.method
 	public Object getData(String type)
 	{
-		if (isTextType(type))
-		{
+		if (isTextType(type)) {
 			return getText();
-		}
-		else
-		{
+		} else {
 			// Android clipboard is text-only... :(
 			return null;
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getText()
+	// clang-format on
 	{
 		return board().getText().toString();
 	}
@@ -84,12 +79,9 @@ public class ClipboardModule extends KrollModule
 	@Kroll.method
 	public boolean hasData(String type)
 	{
-		if (type == null || isTextType(type))
-		{
+		if (type == null || isTextType(type)) {
 			return hasText();
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
@@ -110,8 +102,11 @@ public class ClipboardModule extends KrollModule
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setText(String text)
+	// clang-format on
 	{
 		board().setText(text);
 	}

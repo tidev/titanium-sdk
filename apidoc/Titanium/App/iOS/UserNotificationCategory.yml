@@ -1,0 +1,86 @@
+---
+name: Titanium.App.iOS.UserNotificationCategory
+summary: A set of notification actions to associate with a notification.
+description: |
+    To create a notification category, use the <Titanium.App.iOS.createUserNotificationCategory> method.
+
+    A notification category represents a collection of <Titanium.App.iOS.UserNotificationAction>
+    to associate with a specific notification.  The notification category allows the application to
+    customize the notification options based on which notification style is used.  For alert dialogs,
+    only four notification actions can be displayed, while all other notifications can only display two
+    actions.
+
+    To use a local interactive notification, you need to register the notification category using
+    the <Titanium.App.iOS.registerUserNotificationSettings> method and send a notification using the
+    <Titanium.App.iOS.scheduleLocalNotification> and pass the category identifier to the `category`
+    property.
+extends: Titanium.Proxy
+since: "3.4.0"
+platforms: [iphone, ipad]
+excludes:
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
+    properties: [bubbleParent]
+
+properties:
+
+  - name: actionsForDefaultContext
+    summary: Array of notification actions to associate with the group.
+    description: |
+        Note that only the first four actions can be displayed for an alert dialog and on the Apple Watch.
+        The first two actions can be displayed for all other notifications.
+    type: Array<Titanium.App.iOS.UserNotificationAction>
+    accessors: false
+    availability: creation
+
+  - name: actionsForMinimalContext
+    summary: Array of notification actions to display for non-dialog-style notification.
+    description: |
+        If not specified, the first two actions from `actionsForDefaultContent` are displayed.
+        Note: This property has been removed in iOS 10. iOS 10+ will handle the actions internally.
+    type: Array<Titanium.App.iOS.UserNotificationAction>
+    accessors: false
+    osver: {ios: {max: 9.3}}
+    availability: creation
+
+  - name: categorySummaryFormat
+    summary: A format string for the summary description used when the system groups the category's notifications.
+    type: String
+    accessors: false
+    osver: { ios: { min: 12.0 } }
+    availability: creation
+    since: "7.4.0"
+
+  - name: identifier
+    summary: Identifier for this category.
+    description: |
+        When scheduling a notification, pass this value to the `category` property.
+    type: String
+    accessors: false
+    availability: creation
+
+  - name: intentIdentifiers
+    summary: The intents related to notifications of this category.
+    description: |
+        When a notification is delivered, the presence of an intent identifier
+        lets the system know that the notification is potentially related to the
+        handling of a request made through Siri.
+    type: Array<String>
+    accessors: false
+    osver: {ios: {min: 10.0}}
+    availability: creation
+
+  - name: hiddenPreviewsBodyPlaceholder
+    summary: The placeholder text to display when notification previews are disabled for the app.
+    type: String
+    accessors: false
+    osver: {ios: {min: 11.0}}
+    availability: creation
+
+  - name: options
+    summary: Options for how to handle notifications of this type.
+    description: If not specified, defaults to <Titanium.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_NONE>.
+    type: Array<Number>
+    accessors: false
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_*]
+    osver: {ios: {min: 10.0}}
+    availability: creation

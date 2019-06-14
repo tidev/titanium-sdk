@@ -8,8 +8,7 @@ package org.appcelerator.titanium.util;
 
 import java.net.URI;
 
-public interface TiDownloadListener
-{
+public interface TiDownloadListener {
 	public void downloadTaskFinished(URI uri);
 
 	public void downloadTaskFailed(URI uri);

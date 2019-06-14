@@ -6,10 +6,9 @@
  */
 #ifdef USE_TI_UISLIDER
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUISliderProxy : TiViewProxy {
-
 }
 
 @end

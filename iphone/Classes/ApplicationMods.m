@@ -4,12 +4,11 @@
  */
 #import "ApplicationMods.h"
 
-
 @implementation ApplicationMods
 
-+ (NSArray*) compiledMods
++ (NSArray *)compiledMods
 {
-	return nil;
+  return nil;
 }
 
 @end

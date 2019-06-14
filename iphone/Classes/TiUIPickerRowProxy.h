@@ -6,15 +6,14 @@
  */
 #ifdef USE_TI_UIPICKER
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
-@interface TiUIPickerRowProxy : TiViewProxy 
-{
-@private
-    UIImage* snapshot;
+@interface TiUIPickerRowProxy : TiViewProxy {
+  @private
+  UIImage *snapshot;
 }
 
--(UIView*)viewWithFrame:(CGRect)theFrame reusingView:(UIView*)theView;
+- (UIView *)viewWithFrame:(CGRect)theFrame reusingView:(UIView *)theView;
 
 @end
 

@@ -2,14 +2,11 @@
 name: Titanium.Proxy
 summary: The base for all Titanium objects.
 description: |
-    On platforms that use native code (Android, iOS, and BlackBerry), the `Proxy` type represents a
+    On platforms that use native code (Android and iOS), the `Proxy` type represents a
     JavaScript wrapper or _proxy_ around a native object. Setting or getting a property
     on a proxy object results in a method invokation on the native object. Likewise,
     calling a method on the proxy object results in a method invokation on the native
     object.
-
-    In Mobile Web, there is no true `Proxy` type -- all Titanium objects are ordinary JavaScript
-    objects.
 
     Some Titanium objects are _createable_: new instances of these objects can be created using
     factory methods. For example, a [Window](Titanium.UI.Window) object can be created using the
@@ -19,6 +16,7 @@ description: |
     adding methods to a Titanium object. (Adding a simple property such as an ID value is
     generally OK.)
 since: "0.1"
+
 methods:
   - name: addEventListener
     summary: Adds the specified callback as an event listener for the named event.
@@ -29,18 +27,19 @@ methods:
       - name: callback
         summary: Callback function to invoke when the event is fired.
         type: Callback<Object>
+
   - name: removeEventListener
     summary: Removes the specified callback as an event listener for the named event.
     description: |
-        Multiple listeners can be registered for the same event, so the 
-        `callback` parameter is used to determine which listener to remove. 
-        
+        Multiple listeners can be registered for the same event, so the
+        `callback` parameter is used to determine which listener to remove.
+
         When adding a listener, you must save a reference to the callback function
         in order to remove the listener later:
 
             var listener = function() { Ti.API.info("Event listener called."); }
             window.addEventListener('click', listener);
-            
+
         To remove the listener, pass in a reference to the callback function:
 
             window.removeEventListener('click', listener);
@@ -51,6 +50,7 @@ methods:
       - name: callback
         summary: Callback function to remove. Must be the same function passed to `addEventListener`.
         type: Callback<Object>
+
   - name: fireEvent
     summary: Fires a synthesized event to any registered listeners.
     parameters:
@@ -61,6 +61,7 @@ methods:
         summary: A dictionary of keys and values to add to the <Titanium.Event> object
             sent to the listeners.
         type: Dictionary
+
   - name: applyProperties
     summary: Applies the properties to the proxy.
     description: |
@@ -70,11 +71,9 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: "3.0.0"
-    exclude-platforms: [blackberry]
+    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0"}
 
 properties:
-
   - name: bubbleParent
     summary: Indicates if the proxy will bubble an event to its parent.
     description: |
@@ -95,5 +94,15 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad]
     since: "3.2.0"
+
+  - name: lifecycleContainer
+    summary: The Window or TabGroup whose Activity lifecycle should be triggered on the proxy.
+    description: |
+      If this property is set to a Window or TabGroup, then the corresponding Activity lifecycle event callbacks
+      will also be called on the proxy. Proxies that require the activity lifecycle will need this property set
+      to the appropriate containing Window or TabGroup.
+    type: [Titanium.UI.Window, Titanium.UI.TabGroup]
+    platforms: [android]
+    since: "3.6.0"
