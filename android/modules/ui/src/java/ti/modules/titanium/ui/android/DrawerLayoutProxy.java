@@ -30,6 +30,12 @@ public class DrawerLayoutProxy extends TiViewProxy
 	public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
 	@Kroll.constant
 	public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
+	@Kroll.constant
+	public static final int GRAVITY_BOTH = 1;
+	@Kroll.constant
+	public static final int GRAVITY_LEFT = Gravity.LEFT;
+	@Kroll.constant
+	public static final int GRAVITY_RIGHT = Gravity.RIGHT;
 
 	private static final String TAG = "DrawerLayoutProxy";
 
@@ -218,6 +224,27 @@ public class DrawerLayoutProxy extends TiViewProxy
 	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_DRAWER_LOCK_MODE, arg);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getDrawerGravity()
+	// clang-format on
+	{
+		if (hasProperty(TiC.PROPERTY_DRAWER_GRAVITY)) {
+			return (Integer) getProperty(TiC.PROPERTY_DRAWER_GRAVITY);
+		}
+		return GRAVITY_BOTH;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setDrawerGravity(Object arg)
+	// clang-format on
+	{
+		setPropertyAndFire(TiC.PROPERTY_DRAWER_GRAVITY, arg);
 	}
 
 	@Kroll.method

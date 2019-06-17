@@ -1551,6 +1551,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DRAWER_GRAVITY = "drawerGravity";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DRAWER_INDICATOR_ENABLED = "drawerIndicatorEnabled";
 
 	/**
