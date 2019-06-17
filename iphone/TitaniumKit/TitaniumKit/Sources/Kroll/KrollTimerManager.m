@@ -77,16 +77,6 @@
   context[@"clearInterval"] = clearInterval;
   context[@"clearTimeout"] = clearInterval;
 
-  // This is more useful than just in timers, should be registered in some better place like KrollBridge?
-  [context setExceptionHandler:^(JSContext *context, JSValue *exception) {
-    id exc;
-    if ([exception isObject]) {
-      exc = [exception toObject]; // Hope it becomes an NSDictionary?
-    } else {
-      exc = [exception toString];
-    }
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exc]];
-  }];
   return self;
 }
 

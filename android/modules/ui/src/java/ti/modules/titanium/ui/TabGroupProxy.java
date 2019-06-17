@@ -32,7 +32,6 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Message;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -121,25 +120,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	public TabProxy[] getTabs()
-	{
-		TabProxy[] tps = null;
-
-		if (tabs != null) {
-			tps = tabs.toArray(new TabProxy[tabs.size()]);
-		}
-
-		return tps;
-	}
-
 	public int getTabIndex(TabProxy tabProxy)
 	{
 		return tabs.indexOf(tabProxy);
-	}
-
-	public ArrayList<TabProxy> getTabList()
-	{
-		return tabs;
 	}
 
 	@Kroll.method

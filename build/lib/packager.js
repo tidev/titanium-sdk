@@ -93,7 +93,8 @@ function determineBabelOptions() {
 		},
 		useBuiltIns: 'entry',
 		// DO NOT include web polyfills!
-		exclude: [ 'web.dom.iterable', 'web.immediate', 'web.timers' ]
+		exclude: [ 'web.dom.iterable', 'web.immediate', 'web.timers' ],
+		corejs: 2
 	};
 	// pull out windows target (if it exists)
 	if (fs.pathExistsSync(path.join(ROOT_DIR, 'windows/package.json'))) {

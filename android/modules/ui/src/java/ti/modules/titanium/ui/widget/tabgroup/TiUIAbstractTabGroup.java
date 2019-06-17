@@ -14,7 +14,6 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -28,13 +27,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -64,7 +66,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 *
 	 * @param tabProxy proxy to be parsed for tab item.
 	 */
-	public abstract void addTabItemInController(TabProxy tabProxy);
+	public abstract void addTabItemInController(TiViewProxy tabProxy);
 
 	/**
 	 * Removes an item from the TabGroup controller for a specific position.
@@ -88,9 +90,40 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public abstract void setBackgroundColor(int colorInt);
 
 	/**
-	 * Changes the tabs background drawables to the proper color states.
+	 * Updates the tab's background drawables to the proper color states.
+	 *
+	 * @param index of the Tab to update.
 	 */
-	public abstract void setDrawables();
+	public abstract void updateTabBackgroundDrawable(int index);
+
+	/**
+	 * Update the tab's title to the proper text.
+	 *
+	 * @param index of the Tab to update.
+	 */
+	public abstract void updateTabTitle(int index);
+
+	/**
+	 * Updates the tab's title to the proper color states.
+	 *
+	 * @param index of the Tab to update.
+	 */
+	public abstract void updateTabTitleColor(int index);
+
+	/**
+	 * Updates the tabs' icon to the proper image.
+	 *
+	 * @param index of the Tab to update.
+	 */
+	public abstract void updateTabIcon(int index);
+
+	/**
+	 * Returns the value of the Tab's title.
+	 *
+	 * @param index the index of the Tab.
+	 * @return
+	 */
+	public abstract String getTabTitle(int index);
 
 	// region protected fields
 	protected static final String TAG = "TiUITabLayoutTabGroup";
@@ -111,23 +144,28 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	private int textColorInt;
 	private AtomicLong fragmentIdGenerator = new AtomicLong();
 	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
-	private ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
+	protected ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
 	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy);
 
-		// Getting the value for colorPrimary from the currently used theme.
-		TypedValue colorPrimaryTypedValue = new TypedValue();
-		TypedArray colorPrimary =
-			activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
-		this.colorPrimaryInt = colorPrimary.getColor(0, 0);
-		// Getting the value for textColorPrimary for the currently used theme.
-		TypedValue typedValue = new TypedValue();
-		TypedArray textColor =
-			activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
-		this.textColorInt = textColor.getColor(0, 0);
+		// Fetch primary background and text colors from ActionBar style assigned to activity theme.
+		// Note: We use ActionBar style for backward compatibility with Titanium versions older than 8.0.0.
+		this.colorPrimaryInt = 0xFF212121; // Default to dark gray.
+		this.textColorInt = 0xFFFFFFFF;    // Default to white.
+		try {
+			int styleAttributeId = TiRHelper.getResource("attr.actionBarStyle");
+			int[] idArray = new int[] { TiRHelper.getResource("attr.colorPrimary"),
+										TiRHelper.getResource("attr.textColorPrimary") };
+			TypedArray typedArray = activity.obtainStyledAttributes(null, idArray, styleAttributeId, 0);
+			this.colorPrimaryInt = typedArray.getColor(0, this.colorPrimaryInt);
+			this.textColorInt = typedArray.getColor(1, this.textColorInt);
+			typedArray.recycle();
+		} catch (Exception ex) {
+			Log.e(TAG, "Failed to fetch color from theme.", ex);
+		}
 
 		this.tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(activity.getSupportFragmentManager());
 
@@ -167,7 +205,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public void disableTabNavigation(boolean value)
 	{
 		this.tabsDisabled = value;
-		this.numTabsWhenDisabled = ((TabGroupProxy) getProxy()).getTabList().size();
+		this.numTabsWhenDisabled = tabs.size();
 	}
 
 	/**
@@ -177,7 +215,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	public void selectTab(TabProxy tabProxy)
 	{
-		int index = ((TabGroupProxy) getProxy()).getTabList().indexOf(tabProxy);
+		int index = ((TabGroupProxy) getProxy()).getTabIndex(tabProxy);
 		// Guard for trying to set a tab, that is not part of the group, as active.
 		if (index != -1 && !tabsDisabled) {
 			selectTabItemInController(index);
@@ -197,7 +235,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		TiUITab abstractTab = new TiUITab(tabProxy);
 		tabs.add(abstractTab);
 		tabFragmentIDs.add(fragmentIdGenerator.getAndIncrement());
-		tabProxy.setView(abstractTab);
 
 		this.tabGroupPagerAdapter.notifyDataSetChanged();
 
@@ -215,7 +252,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * @param stateToUse appropriate state for the Controller type.
 	 * @return ColorStateList for the provided state.
 	 */
-	protected ColorStateList textColorStateList(TabProxy tabProxy, int stateToUse)
+	protected ColorStateList textColorStateList(TiViewProxy tabProxy, int stateToUse)
 	{
 		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
 		int[] textColors = { tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
@@ -240,7 +277,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * @param stateToUse appropriate state for the Controller type.
 	 * @return RippleDrawable for the provided state.
 	 */
-	protected Drawable createBackgroundDrawableForState(TabProxy tabProxy, int stateToUse)
+	protected Drawable createBackgroundDrawableForState(TiViewProxy tabProxy, int stateToUse)
 	{
 		Drawable resultDrawable;
 		StateListDrawable stateListDrawable = new StateListDrawable();
@@ -367,22 +404,17 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			setDrawables();
+			for (TiUITab tabView : tabs) {
+				updateTabBackgroundDrawable(tabs.indexOf(tabView));
+			}
 			setBackgroundColor(TiColorHelper.parseColor(newValue.toString()));
 		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
-			setDrawables();
+			for (TiUITab tabView : tabs) {
+				updateTabBackgroundDrawable(tabs.indexOf(tabView));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
-	}
-
-	/**
-	 * Returns the currently selected TabProxy
-	 * @return the TabProxy instance.
-	 */
-	public TabProxy getSelectedTab()
-	{
-		return ((TabGroupProxy) getProxy()).getTabList().get(this.tabGroupViewPager.getCurrentItem());
 	}
 
 	public void updateTitle(String title)
@@ -396,7 +428,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	}
 
 	/**
-	 * Implemenation of the FragmentPagerAdapter
+	 * Implementation of the FragmentPagerAdapter
 	 */
 	private class TabGroupFragmentPagerAdapter extends FragmentPagerAdapter
 	{
