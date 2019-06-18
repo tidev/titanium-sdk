@@ -285,7 +285,7 @@ public class TiUIDialog extends TiUIView
 						}
 						ViewCompat.setImportantForAccessibility(listView, importance);
 					} else {
-						listView.setContentDescription(composeContentDescription());
+						listView.setContentDescription(getProxy().composeContentDescription());
 					}
 				}
 			}
@@ -335,7 +335,7 @@ public class TiUIDialog extends TiUIView
 			// can also be used.
 			ListView listView = dialog.getListView();
 			if (listView != null) {
-				listView.setContentDescription(composeContentDescription());
+				listView.setContentDescription(getProxy().composeContentDescription());
 				int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 				if (proxy != null) {
 					Object propertyValue = proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
