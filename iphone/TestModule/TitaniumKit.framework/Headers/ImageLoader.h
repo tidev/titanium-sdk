@@ -1,14 +1,17 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #import "APSHTTPClient.h"
+#import "TiDimension.h"
 #import <Foundation/Foundation.h>
-#import <TitaniumKit/TiDimension.h>
 #import <UIKit/UIKit.h>
 
+/**
+ The scaling options passed to the `imageForSize:scalingStyle:` method.
+ */
 typedef enum {
   TiImageScalingDefault,
   TiImageScalingThumbnail,
@@ -49,7 +52,7 @@ typedef enum {
 @end
 
 /**
- Image loader request class.
+ Image loader request class. Handles remote images passed to the TiUIImageView class.
  */
 @interface ImageLoaderRequest : NSObject {
   @private
@@ -62,6 +65,10 @@ typedef enum {
   BOOL cancelled;
 }
 
+/**
+ The request to use for loading remote images.
+ @return The request instance.
+ */
 @property (nonatomic, readwrite, retain) APSHTTPRequest *request;
 
 /**
@@ -72,7 +79,7 @@ typedef enum {
 
 /**
  Returns loaded image size.
- @return The loaded image size 
+ @return The loaded image size.
  */
 @property (nonatomic, readwrite, assign) CGSize imageSize;
 

@@ -1,13 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiProxy.h"
 #import "TiRect.h"
+#import "TiUIView.h"
 #import "TiViewTemplate.h"
-#import <TitaniumKit/TiProxy.h>
-#import <TitaniumKit/TiUIView.h>
 #import <pthread.h>
 
 /**
@@ -83,8 +83,7 @@ enum {
   TiRefreshViewEnqueued,
 };
 
-@class TiBlob;
-
+@class TiAction, TiBlob;
 //For TableRows, we need to have minimumParentHeightForWidth:
 
 /**
@@ -101,7 +100,7 @@ enum {
   LayoutConstraint layoutProperties;
 #endif
   int vzIndex;
-  BOOL hidden; //This is the boolean version of ![TiUtils boolValue:visible def:yes]
+  BOOL hidden; // This is the boolean version of ![TiUtils boolValue:visible def:YES]
   BOOL safeAreaProxyAdded;
 
 #pragma mark Parent/Children relationships

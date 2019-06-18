@@ -1,15 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "KrollCallback.h"
+#import "TiBase.h"
 #import "TiBuffer.h"
+#import "TiProxy.h"
 #import <Foundation/Foundation.h>
-#import <TitaniumKit/TiBase.h>
-#import <TitaniumKit/TiProxy.h>
 
 // This is meant to be a largely "virtual" class which defines the following behaviors:
 // 1. Interprets read()/write() calls to the appropriate interal function

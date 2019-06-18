@@ -8,7 +8,7 @@ architectures: armv7 arm64 i386 x86_64
 description: A Swift based test module
 author: Hans Knoechel
 license: MIT
-copyright: Copyright (c) 2018 by Axway Appcelerator
+copyright: Copyright (c) 2018-present by Axway Appcelerator
 
 # these should not be edited
 name: TestModule

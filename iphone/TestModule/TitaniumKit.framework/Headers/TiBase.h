@@ -1,10 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "TiSharedConfig.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
@@ -62,9 +63,11 @@ extern "C" {
 
 #define TI_INLINE static __inline__
 
-// We used to overload this for the legacy debugger that had issues writing an
-// own NSLog when being attached. This is not an issue with the official Safari
-// debugger anymore, so it could be removed in the future.
+#define TI_BACKGROUNDFETCH_MAX_INTERVAL 29
+
+// We need to overload NSLog as a macro so that we capture system messages as well.
+// It has to be a wrapper because other appc-libraries use TiBase's NSLog, and can't
+// spoof TiApp without symbol conflicts and other issues
 
 #define NSLog(...)             \
   {                            \
@@ -72,10 +75,10 @@ extern "C" {
   }
 
 // create a mutable array that doesn't retain internal references to objects
-NSMutableArray *TiCreateNonRetainingArray();
+NSMutableArray *TiCreateNonRetainingArray(void);
 
 // create a mutable dictionary that doesn't retain internal references to objects
-NSMutableDictionary *TiCreateNonRetainingDictionary();
+NSMutableDictionary *TiCreateNonRetainingDictionary(void);
 
 CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 void TiLogMessage(NSString *str, ...);
@@ -328,6 +331,12 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
     return [NSNumber numberWithInt:map]; \
   }
 
+#define MAKE_SYSTEM_PROP_UINTEGER(name, map)         \
+  -(NSNumber *)name                                  \
+  {                                                  \
+    return [NSNumber numberWithUnsignedInteger:map]; \
+  }
+
 #define MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(name, map, api, in, newapi) \
   -(NSNumber *)name                                                      \
   {                                                                      \
@@ -514,20 +523,17 @@ enum {
   }
 #endif
 
-#if defined(DEBUG) || defined(DEVELOPER)
-#define DebugLog(...)   \
-  {                     \
-    NSLog(__VA_ARGS__); \
-  }
-#else
-#define DebugLog(...) \
-  {                   \
+#ifndef DebugLog
+#define DebugLog(...)                                  \
+  {                                                    \
+    if ([TiSharedConfig defaultConfig].debugEnabled) { \
+      NSLog(__VA_ARGS__);                              \
+    }                                                  \
   }
 #endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
 
-NSData *dataWithHexString(NSString *hexString);
 NSString *hexString(NSData *thedata);
 
 typedef enum {
@@ -582,12 +588,14 @@ extern NSString *const kTiRemoteControlNotification;
 extern NSString *const kTiBackgroundFetchNotification;
 extern NSString *const kTiSilentPushNotification;
 extern NSString *const kTiBackgroundTransfer;
+extern NSString *const kTiCurrentLocale;
+extern NSString *const kTiUserInteraction;
 extern NSString *const kTiFrameAdjustNotification;
 extern NSString *const kTiLocalNotification;
 extern NSString *const kTiLocalNotificationAction;
 extern NSString *const kTiRemoteNotificationAction;
+extern NSString *const kTiRemoteExtentionWillExpire;
 extern NSString *const kTiUserNotificationSettingsNotification;
-extern NSString *const kTiBackgroundTransfer;
 extern NSString *const kTiURLDownloadFinished;
 extern NSString *const kTiURLSessionCompleted;
 extern NSString *const kTiURLSessionEventsCompleted;
@@ -622,7 +630,6 @@ extern NSString *const kTiExceptionLocation;
 #define REACHABILITY_20_API 1
 #endif
 
-#include "TiPublicAPI.h"
 #include "TiThreading.h"
 
 /**
@@ -632,6 +639,8 @@ extern NSString *const kTiExceptionLocation;
  *	standard event loop.
  */
 void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish);
+
+#include "TiPublicAPI.h"
 
 #ifdef __cplusplus
 }

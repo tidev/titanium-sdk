@@ -6,7 +6,7 @@
  */
 
 #import "TiAnimation.h"
-#import <TitaniumKit/TiProxy.h>
+#import "TiProxy.h"
 
 @interface TiUIiOSTransitionAnimationProxy : TiProxy <UIViewControllerAnimatedTransitioning, TiAnimationDelegate> {
   id<UIViewControllerContextTransitioning> _transitionContext;
