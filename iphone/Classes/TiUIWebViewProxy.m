@@ -320,6 +320,12 @@
 
 #pragma mark Methods
 
+- (void)loadFile:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  [[self webView] loadFile:args];
+}
+
 - (void)addUserScript:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSDictionary);

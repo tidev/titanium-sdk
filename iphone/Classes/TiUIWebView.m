@@ -191,6 +191,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
 }
 
+- (void)loadFile:(id)args
+{
+  NSString *fileUrlString = [args objectForKey:@"url"];
+  NSString *readAccessUrlString = [args objectForKey:@"readAccessUrl"];
+  ENSURE_STRING(fileUrlString);
+  ENSURE_STRING(readAccessUrlString);
+
+  NSURL *fileUrl = [TiUtils toURL:fileUrlString proxy:self.proxy];
+  [[self webView] loadFileURL:fileUrl
+      allowingReadAccessToURL:[NSURL URLWithString:readAccessUrlString]];
+}
+
 - (void)setBackgroundColor_:(id)value
 {
   ENSURE_TYPE(value, NSString);

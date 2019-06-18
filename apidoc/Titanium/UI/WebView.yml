@@ -170,6 +170,23 @@ methods:
     since: {android: "8.1.0", iphone: "2.0.0", ipad: "2.0.0"}
     platforms: [android, iphone, ipad]
 
+  - name: loadFile
+    summary: Loads local file in web view.
+    parameters:
+      - name: url
+        summary: Path of file to be loaded.
+        type: String
+
+      - name: readAccessUrl
+        summary: Path of file or directory to allow read access.
+        description: |
+            If readAccessURL references a single file, only that file may be loaded. 
+            If readAccessURL references a directory, files inside that file may be loaded.
+        type: String
+        
+    platforms: [iphone, ipad]
+    since: "8.2.0"
+
   - name: canGoBack
     summary: Returns `true` if the web view can go back in its history list.
     returns:
