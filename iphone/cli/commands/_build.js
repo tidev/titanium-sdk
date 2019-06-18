@@ -2519,18 +2519,11 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 			_t.logger.debug(__('Log server port %s is in use, testing if it\'s the app we\'re building', _t.tiLogServerPort));
 
 			let client = null;
-
-			function die(error) {
+			let timer = setTimeout(function () {
 				client && client.destroy();
-				if (error && error.code === 'ENOTFOUND') {
-					_t.logger.error(__('Unable to connect to log server on localhost'));
-					_t.logger.error(__('Please ensure your /etc/hosts file contains a valid entry for `localhost`'));
-				} else {
-					_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
-					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-				}
+				_t.logger.error(__('Timed out trying to connect and verify the log server port') + '\n');
 				process.exit(1);
-			}
+			}, Math.max(parseInt(_t.config.get('ios.logServerTestTimeout', 1000)), 1000));
 
 			// connect to the port and see if it's a Titanium app...
 			//  - if the port is bound by a Titanium app with the same appid, then assume
@@ -2542,29 +2535,56 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 			//  - if localhost cannot be resolved then we will fail out and inform
 			//    the user of that
 			client = net.connect({
-				host: 'localhost',
-				port: _t.tiLogServerPort,
-				timeout: parseInt(_t.config.get('ios.logServerTestTimeout', 1000)) || null
-			})
-				.on('data', function (data) {
-					client.destroy();
-					try {
-						const headers = JSON.parse(data.toString().split('\n').shift());
-						if (headers.appId !== _t.tiapp.id) {
-							_t.logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, _t.tiLogServerPort));
-							_t.logger.error(__('Stop the running Titanium app, then rebuild this app'));
-							_t.logger.error(__('-or-'));
-							_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-							process.exit(1);
-						}
-					} catch (e) {
-						die(e);
-					}
-					_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
-					next();
-				})
-				.on('error', die)
-				.on('timeout', die);
+				host: '127.0.0.1',
+				port: _t.tiLogServerPort
+			}, function () {
+				_t.logger.debug(__('Connected to log server port, waiting for data'));
+			});
+
+			client.on('data', function (data) {
+				clearTimeout(timer);
+				client.destroy();
+
+				_t.logger.debug(__('Received data from log server, parsing...'));
+
+				let headers;
+
+				try {
+					headers = JSON.parse(data.toString().split('\n').shift());
+				} catch (e) {
+					_t.logger.error(__('Received data from log server, but could not parse it'));
+					_t.logger.error(e.toString());
+					_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
+					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+					process.exit(1);
+				}
+
+				if (!headers || typeof headers !== 'object') {
+					_t.logger.error(__('Log server responsed with a bad JSON result'));
+					_t.logger.error(__('Try quitting the iOS Simulator and re-run the build'));
+					_t.logger.error(__('-or-'));
+					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+					process.exit(1);
+				}
+
+				if (headers.appId !== _t.tiapp.id) {
+					_t.logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, _t.tiLogServerPort));
+					_t.logger.error(__('Stop the running Titanium app, then rebuild this app'));
+					_t.logger.error(__('-or-'));
+					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+					process.exit(1);
+				}
+
+				_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
+				next();
+			});
+
+			client.on('error', function (err) {
+				clearTimeout(timer);
+				_t.logger.error(__('Failed to connect to log server'));
+				_t.logger.error(err.toString() + '\n');
+				process.exit(1);
+			});
 		});
 	});
 
