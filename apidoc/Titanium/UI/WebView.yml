@@ -178,12 +178,11 @@ methods:
         type: String
 
       - name: readAccessUrl
-        summary: Path of file or directory to allow read access.
-        description: |
-            If readAccessURL references a single file, only that file may be loaded. 
-            If readAccessURL references a directory, files inside that file may be loaded.
+        summary: |
+            Path of file or directory to allow read access. If readAccessURL references a single file, 
+            only that file may be loaded. If readAccessURL references a directory, files inside that file may be loaded.
         type: String
-        
+
     platforms: [iphone, ipad]
     since: "8.2.0"
 
