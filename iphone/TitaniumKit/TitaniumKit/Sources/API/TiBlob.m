@@ -111,6 +111,21 @@ GETTER_IMPL(NSUInteger, height, Height);
 }
 GETTER_IMPL(NSUInteger, size, Size);
 
+- (id)_initWithPageContext:(id<TiEvaluator>)pageContext andImage:(UIImage *)image
+{
+  return [self initWithImage:image];
+}
+
+- (id)_initWithPageContext:(id<TiEvaluator>)pageContext andData:(NSData *)data mimetype:(NSString *)mimetype
+{
+  return [self initWithData:data mimetype:mimetype];
+}
+
+- (id)_initWithPageContext:(id<TiEvaluator>)pageContext andFile:(NSString *)path
+{
+  return [self initWithFile:path];
+}
+
 - (id)initWithImage:(UIImage *)image_
 {
   if (self = [super init]) {
@@ -230,7 +245,7 @@ GETTER_IMPL(NSString *, text, Text);
     KrollObject *o = [[[KrollObject alloc] initWithTarget:file context:context] autorelease];
     return [JSValue valueWithJSValueRef:JSObjectMake(contextRef, KrollObjectClassRef, o) inContext:objcJsContext];
   }
-  NSLog(@"[ERROR] Blob.file property requested but the Filesystem API was never requested.") return nil;
+  return nil;
 }
 GETTER_IMPL(JSValue *, file, File);
 
