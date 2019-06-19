@@ -816,7 +816,7 @@ methods:
   - name: clearMotionEffects
     summary: Removes all previously added motion effects.
     description: Use this method together with <Titanium.UI.horizontalMotionEffect> and <Titanium.UI.verticalMotionEffect>.
-    since: "8.1.0"
+    since: "8.2.0"
     platforms: [iphone, ipad]
 
   - name: finishLayout
