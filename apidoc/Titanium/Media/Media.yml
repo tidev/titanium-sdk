@@ -8,6 +8,11 @@ description: |
     For examples of using the Media APIs, refer to the
     [Working with Media APIs guide](https://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
+    **Note**: Some third party Android camera apps may choose to ignore video recording quality 
+    settings. If you wish to specifically set the video quality, don't assume 
+    EXTRA_VIDEO_QUALITY intent will be respected by the camera app and use Titanium's built-in 
+    camera window which can be used to assign the "overlay" property when calling the 
+    showCamera() method.
 extends: Titanium.Module
 since: "0.1"
 
@@ -166,6 +171,7 @@ methods:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
         type: CameraOptionsType
+
   - name: hasMusicLibraryPermissions
     summary: Returns `true` if the app has music library access.
     description: |
@@ -246,6 +252,7 @@ methods:
         android: 3.2.0
         iphone: 1.8.1
         ipad: 1.8.1
+
   - name: hasCameraPermissions
     summary: Returns `true` if the app has camera access.
     returns:
@@ -304,8 +311,8 @@ methods:
 
   - name: requestCameraAccess
     deprecated:
-       since: "5.1.0"
-       notes: Please use <Titanium.Media.requestCameraPermissions> instead.
+      since: "5.1.0"
+      notes: Please use [Titanium.Media.requestCameraPermissions](Titanium.Media.requestCameraPermissions) instead.
     summary: Requests for camera access.
     description: |
        This method allows the app to request for camera access, before or without the user granting
@@ -367,7 +374,7 @@ methods:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
+        notes: Use [Titanium.Media.requestAudioRecorderPermissions](Titanium.Media.requestAudioRecorderPermissions) instead.
     since: 3.1.3
     parameters:
       - name: callback
@@ -391,7 +398,7 @@ methods:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.1.0"
-        notes: Use <Titanium.Media.hasAudioRecorderPermissions> instead.
+        notes: Use [Titanium.Media.hasAudioRecorderPermissions](Titanium.Media.hasAudioRecorderPermissions) instead.
     since: "6.0.0"
 
   - name: hasAudioRecorderPermissions
@@ -429,7 +436,7 @@ methods:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.1.0"
-        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
+        notes: Use [Titanium.Media.requestAudioRecorderPermissions](Titanium.Media.requestAudioRecorderPermissions) instead.
     since: 5.1.0
     parameters:
       - name: callback
@@ -466,13 +473,13 @@ events:
   - name: linechange
     deprecated:
         since: "3.4.2"
-        notes: Titanium no longer fires this event. Use the <Titanium.Media.routechange> event instead.
+        notes: Titanium no longer fires this event. Use the [Titanium.Media.routechange](Titanium.Media.routechange) event instead.
     summary: Fired when an audio line type change is detected.
     platforms: [iphone, ipad]
   - name: recordinginput
     deprecated:
         since: "3.4.2"
-        notes: Titanium no longer fires this event. Use the <Titanium.Media.canRecord> property to check if an input hardware is available.
+        notes: Titanium no longer fires this event. Use the [Titanium.Media.canRecord](Titanium.Media.canRecord) property to check if an input hardware is available.
     summary: Fired when the availablity of recording input changes.
     properties:
       - name: available
@@ -585,7 +592,7 @@ properties:
   - name: AUDIO_HEADPHONES
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant for headphones.
     type: Number
@@ -594,7 +601,7 @@ properties:
   - name: AUDIO_HEADPHONES_AND_MIC
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant for headphones and microphone.
     type: Number
@@ -603,7 +610,7 @@ properties:
   - name: AUDIO_HEADSET_INOUT
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant for headset in/out.
     type: Number
@@ -612,7 +619,7 @@ properties:
   - name: AUDIO_LINEOUT
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant for line-out.
     type: Number
@@ -621,7 +628,7 @@ properties:
   - name: AUDIO_MICROPHONE
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant for microphone.
     type: Number
@@ -630,7 +637,7 @@ properties:
   - name: AUDIO_MUTED
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant indicated mute switch is on.
     type: Number
@@ -639,7 +646,7 @@ properties:
   - name: AUDIO_RECEIVER_AND_MIC
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant indicating receiver and microphone.
     type: Number
@@ -703,7 +710,7 @@ properties:
   - name: AUDIO_SESSION_MODE_AMBIENT
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
         removed: "6.0.0"
     summary: For long-duration sounds such as rain, car engine noise, and so on.
     description: |
@@ -717,7 +724,7 @@ properties:
   - name: AUDIO_SESSION_MODE_PLAYBACK
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
         removed: "6.0.0"
     summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application.
     description: |
@@ -730,7 +737,7 @@ properties:
   - name: AUDIO_SESSION_MODE_PLAY_AND_RECORD
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
         removed: "6.0.0"
     summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application.
     description: |
@@ -748,7 +755,7 @@ properties:
   - name: AUDIO_SESSION_MODE_RECORD
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY_*` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY_*` constants defined in [Titanium.Media](Titanium.Media).
         removed: "6.0.0"
     summary: Session mode for recording audio; it silences playback audio.
     type: Number
@@ -757,7 +764,7 @@ properties:
   - name: AUDIO_SESSION_MODE_SOLO_AMBIENT
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
     summary: Session mode for long-duration sounds such as rain, car engine noise, and so on.
     description: |
         When you use this category, audio from built-in applications, such as the iPod,
@@ -868,7 +875,7 @@ properties:
   - name: AUDIO_SPEAKER
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
     summary: Line-type constant for speaker output.
     type: Number
     permission: read-only
@@ -876,7 +883,7 @@ properties:
   - name: AUDIO_UNAVAILABLE
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant indicating that audio is unavailable.
     type: Number
@@ -885,13 +892,12 @@ properties:
   - name: AUDIO_UNKNOWN
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
         removed: "3.6.0"
     summary: Line-type constant indicating that line-type is unknown or not determined.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-
   - name: AUDIO_STATE_BUFFERING
     summary: Audio data is being buffered from the network.
     type: Number
@@ -964,6 +970,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, android]
     since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+
   - name: CAMERA_FRONT
     summary: Constant specifying the front camera.
     type: Number
@@ -1009,7 +1016,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "7.0.0"
-        notes: Use <Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN> instead.
+        notes: Use [Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN](Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN) instead.
   - name: CAMERA_AUTHORIZATION_UNKNOWN
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
     type: Number
@@ -1248,7 +1255,7 @@ properties:
     description: |
         Used in conjunction with the
         [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
-        of <Titanium.Media.VideoPlayer>.
+        of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer).
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_EMBEDDED
@@ -1260,7 +1267,7 @@ properties:
     description: |
         Used in conjunction with the
         [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
-        of <Titanium.Media.VideoPlayer>.
+        of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer).
 
         On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may
         only be shown or hidden.
@@ -1276,7 +1283,7 @@ properties:
     description: |
         Used in conjunction with the
         [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
-        of <Titanium.Media.VideoPlayer>.
+        of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer).
 
         On iOS, use VIDEO_CONTROL_FULLSCREEN when creating a video player that occupies the entire
         screen, that is, the parent window should be a fullscreen window
@@ -1316,11 +1323,10 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-
   - name: VIDEO_CONTROL_VOLUME_ONLY
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.Media.VIDEO_CONTROL_EMBEDDED> instead.
+        notes: Use [Titanium.Media.VIDEO_CONTROL_EMBEDDED](Titanium.Media.VIDEO_CONTROL_EMBEDDED) instead.
         removed: "6.0.0"
     summary: Constant for video controls volume only.
     type: Number
@@ -1379,7 +1385,7 @@ properties:
         since: "7.0.0"
         notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: "7.0.0"
-    summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
+    summary: A audio type of media in the movie returned by [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer) `mediaTypes` property.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1388,7 +1394,7 @@ properties:
         since: "7.0.0"
         notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: "7.0.0"
-    summary: An unknown type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
+    summary: An unknown type of media in the movie returned by [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer) `mediaTypes` property.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1397,7 +1403,7 @@ properties:
         since: "7.0.0"
         notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: "7.0.0"
-    summary: A video type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
+    summary: A video type of media in the movie returned by [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer) `mediaTypes` property.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1521,7 +1527,7 @@ properties:
         notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: "7.0.0"
     summary: Video source type is a file.
-    description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.
+    description: Related to the `sourceType` property of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1531,7 +1537,7 @@ properties:
         notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: "7.0.0"
     summary: Video source type is a remote stream.
-    description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
+    description: Related to the `sourceType` property of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer)
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1541,7 +1547,7 @@ properties:
         notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: "7.0.0"
     summary: Video source type is unknown.
-    description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
+    description: Related to the `sourceType` property of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer)
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1587,7 +1593,7 @@ properties:
     deprecated:
         since: "3.4.2"
         removed: "3.6.0"
-        notes: Use <Titanium.Media.currentRoute> instead.
+        notes: Use [Titanium.Media.currentRoute](Titanium.Media.currentRoute) instead.
     summary: Returns the line type constant for the current line type.
     type: Number
     platforms: [iphone, ipad]
@@ -1608,14 +1614,15 @@ properties:
     constants: Titanium.Media.AUDIO_SESSION_CATEGORY*
     platforms: [iphone, ipad]
     since: "3.4.2"
+
   - name: audioSessionMode
     deprecated:
         since: "3.4.2"
-        notes: Use <Titanium.Media.audioSessionCategory> instead.
+        notes: Use [Titanium.Media.audioSessionCategory](Titanium.Media.audioSessionCategory) instead.
         removed: "6.0.0"
     summary: A constant for the audio session mode to be used.
     description: |
-        Set to one of the `AUDIO_SESSION_MODE` constants defined in <Titanium.Media>.
+        Set to one of the `AUDIO_SESSION_MODE` constants defined in [Titanium.Media](Titanium.Media).
 
         Must be set while the audio session is inactive (no sounds are playing, no listeners
         for audio properties on the Media module, but the iPod may be active).
@@ -1685,7 +1692,7 @@ properties:
         Returns the authorization status for the camera.
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.Media.cameraAuthorization> instead.
+        notes: Use [Titanium.Media.cameraAuthorization](Titanium.Media.cameraAuthorization) instead.
     type: Number
     constants: Titanium.Media.CAMERA_AUTHORIZATION_*
     platforms: [iphone, ipad]
@@ -1701,6 +1708,7 @@ properties:
     permission: read-only
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
+
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
     description: |
@@ -1723,6 +1731,7 @@ properties:
     permission: read-only
 
 # Pseudo-type for showMusicLibrary argument
+
 ---
 name: MusicLibraryOptionsType
 summary: Simple object for specifying options to [openMusicLibrary](Titanium.Media.openMusicLibrary).
@@ -1869,6 +1878,7 @@ properties:
     type: [MediaQueryInfoType, Number]
 
 # Pseudo-type for query arguments
+
 ---
 name: MediaQueryInfoType
 summary: A full query descriptor for a filtering predicate.
