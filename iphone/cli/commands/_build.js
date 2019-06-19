@@ -2505,98 +2505,135 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 		return next();
 	}
 
-	const _t = this;
+	let tries = 0;
+	let errors = 0;
+	let done = false;
+	let chillTimer = null;
+	let waitTimer = null;
+	const responseTimeout = Math.max(~~this.config.get('ios.logServerTestTimeout'), 1000);
+	const waitTimeout = Math.max(~~this.config.get('ios.logServerWaitTimeout'), 30000);
+	const fatal = () => {
+		this.logger.error(__('Another process is currently bound to port %d', this.tiLogServerPort));
+		this.logger.error(__('Either kill the running Titanium app or set a unique <log-server-port> between'));
+		this.logger.error(__('1024 and 65535 in the <ios> section of the tiapp.xml, then rebuild this app') + '\n');
+		process.exit(1);
+	};
 
-	this.logger.debug(__('Checking if log server port %d is available', this.tiLogServerPort));
+	// The Plan
+	//
+	// We are going to try to create a Node.js server to see if the port is available.
+	//
+	// If the port is NOT available, then we're gonna connect to it and see if we can talk to it.
+	//
+	// The first time we try to connect and it fails, we will retry the entire process a second
+	// time. If it fails a second time, we fail the build.
+	//
+	// Once we connect, we wait for data. The server has 1 second to respond. If it times out, then
+	// either the server is not a Titanium app or it is, but perhaps the app is backgrounded. The
+	// first time it times out, we print a message telling the user they have 30 seconds to kill
+	// their app or the simulator.
+	//
+	// If they don't kill their app or the simulator in 30 seconds, the build fails.
+	//
+	// If we connect and receive data, then we try to JSON parse the data. If we can't parse it or
+	// the result is not the app being built, then we fail the build.
 
-	// for simulator builds, the port is shared with the local machine, so we
-	// just need to detect if the port is available with the help of Node
-	const server = net.createServer();
+	async.whilst(
+		() => ++tries && !done,
+		cb => {
+			this.logger.debug(__('Checking if log server port %d is available (attempt %d)', this.tiLogServerPort, tries));
 
-	server.on('error', function () {
-		// we weren't able to bidn to the port :(
-		server.close(function () {
-			_t.logger.debug(__('Log server port %s is in use, testing if it\'s the app we\'re building', _t.tiLogServerPort));
+			// for simulator builds, the port is shared with the local machine, so we
+			// just need to detect if the port is available with the help of Node
+			const server = net.createServer();
 
-			let client = null;
-			let timer = setTimeout(function () {
-				client && client.destroy();
-				_t.logger.error(__('Timed out trying to connect and verify the log server port') + '\n');
-				process.exit(1);
-			}, Math.max(parseInt(_t.config.get('ios.logServerTestTimeout', 1000)), 1000));
+			server.on('error', () => {
+				// we weren't able to bind to the port :(
+				server.close(() => {
+					this.logger.debug(__('Log server port %s is in use, testing if it\'s the app we\'re building', this.tiLogServerPort));
 
-			// connect to the port and see if it's a Titanium app...
-			//  - if the port is bound by a Titanium app with the same appid, then assume
-			//    that when we install new build, the old process will be terminated
-			//  - if the port is bound by another process, such as MySQL on port 3306,
-			//    then we will fail out
-			//  - if the port is bound by another process that expects data before the
-			//    response is returned, then we will just timeout and fail out
-			//  - if localhost cannot be resolved then we will fail out and inform
-			//    the user of that
-			client = net.connect({
+					let client = null;
+					let responseTimer = setTimeout(() => {
+						client && client.destroy();
+
+						if (tries === 1) {
+							this.logger.warn(__('Timed out trying to connect and verify the log server port') + '\n');
+							this.logger.info(__('Titanium detected the log server port %d is already in use', this.tiLogServerPort));
+							this.logger.info(__('Please kill any running instances of your app or the iOS Simulator'));
+							this.logger.info(__('Waiting %d seconds...', (waitTimeout / 1000)) + '\n');
+
+							waitTimer = setTimeout(() => {
+								this.logger.error(__('Timed out waiting for log server port to become available'));
+								fatal();
+							}, waitTimeout);
+						}
+
+						chillTimer = setTimeout(cb, 500);
+					}, responseTimeout);
+
+					client = net.connect({
+						host: '127.0.0.1',
+						port: this.tiLogServerPort
+					}, () => {
+						this.logger.debug(__('Connected to log server port, waiting for data'));
+					});
+
+					client.on('data', data => {
+						responseTimer && clearTimeout(responseTimer);
+						chillTimer && clearTimeout(chillTimer);
+						client.destroy();
+
+						this.logger.debug(__('Received data from log server, parsing...'));
+
+						let headers;
+						try {
+							headers = JSON.parse(data.toString().split('\n').shift());
+						} catch (e) {
+							this.logger.warn(__('Received data from log server, but could not parse it'));
+							this.logger.warn(e.toString());
+							fatal();
+						}
+
+						if (!headers || typeof headers !== 'object') {
+							this.logger.warn(__('Log server responsed with a bad JSON result'));
+							fatal();
+						}
+
+						if (headers.appId !== this.tiapp.id) {
+							fatal();
+						}
+
+						waitTimer && clearTimeout(waitTimer);
+						done = true;
+						this.logger.debug(__('The log server port is being used by the app being built, continuing'));
+						cb();
+					});
+
+					client.on('error', err => {
+						responseTimer && clearTimeout(responseTimer);
+						chillTimer && clearTimeout(chillTimer);
+						this.logger.debug(__('Failed to connect to log server'));
+						this.logger.debug(err.toString());
+						if (errors++ === 0) {
+							cb();
+						} else {
+							fatal();
+						}
+					});
+				});
+			});
+
+			server.listen({
 				host: '127.0.0.1',
-				port: _t.tiLogServerPort
-			}, function () {
-				_t.logger.debug(__('Connected to log server port, waiting for data'));
+				port: this.tiLogServerPort
+			}, () => {
+				this.logger.debug(__('Log server port %s is available', this.tiLogServerPort));
+				done = true;
+				server.close(cb);
 			});
-
-			client.on('data', function (data) {
-				clearTimeout(timer);
-				client.destroy();
-
-				_t.logger.debug(__('Received data from log server, parsing...'));
-
-				let headers;
-
-				try {
-					headers = JSON.parse(data.toString().split('\n').shift());
-				} catch (e) {
-					_t.logger.error(__('Received data from log server, but could not parse it'));
-					_t.logger.error(e.toString());
-					_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
-					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-					process.exit(1);
-				}
-
-				if (!headers || typeof headers !== 'object') {
-					_t.logger.error(__('Log server responsed with a bad JSON result'));
-					_t.logger.error(__('Try quitting the iOS Simulator and re-run the build'));
-					_t.logger.error(__('-or-'));
-					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-					process.exit(1);
-				}
-
-				if (headers.appId !== _t.tiapp.id) {
-					_t.logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, _t.tiLogServerPort));
-					_t.logger.error(__('Stop the running Titanium app, then rebuild this app'));
-					_t.logger.error(__('-or-'));
-					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-					process.exit(1);
-				}
-
-				_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
-				next();
-			});
-
-			client.on('error', function (err) {
-				clearTimeout(timer);
-				_t.logger.error(__('Failed to connect to log server'));
-				_t.logger.error(err.toString() + '\n');
-				process.exit(1);
-			});
-		});
-	});
-
-	server.listen({
-		host: 'localhost',
-		port: _t.tiLogServerPort
-	}, function () {
-		server.close(function () {
-			_t.logger.debug(__('Log server port %s is available', _t.tiLogServerPort));
-			next();
-		});
-	});
+		},
+		next
+	);
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
