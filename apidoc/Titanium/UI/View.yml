@@ -1720,7 +1720,6 @@ properties:
     summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
     description: |
         This is an opt-in feature available from Android Lollipop.
-        Touch feedback is applied only if the backgroundColor is a solid color.
     type: Boolean
     default: false
     platforms: [android]
