@@ -27,11 +27,11 @@
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;
   BOOL _tiCookieHandlerAdded;
+  NSString *assetsDirectory;
 }
 
 // Used from the proxy
 - (void)setHtml_:(id)args;
-- (void)loadFile:(id)args;
 - (void)viewDidClose;
 
 - (WKWebView *)webView;

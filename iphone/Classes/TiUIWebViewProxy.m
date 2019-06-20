@@ -16,6 +16,18 @@
 
 @implementation TiUIWebViewProxy
 
+static NSArray *webViewKeySequence;
+
+#pragma mark Internal
+
+- (NSArray *)keySequence
+{
+  if (webViewKeySequence == nil) {
+    webViewKeySequence = [[NSArray arrayWithObjects:@"assetsDirectory", @"url", nil] retain];
+  }
+  return webViewKeySequence;
+}
+
 - (id)_initWithPageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
@@ -319,12 +331,6 @@
 }
 
 #pragma mark Methods
-
-- (void)loadFile:(id)args
-{
-  ENSURE_SINGLE_ARG(args, NSDictionary);
-  [[self webView] loadFile:args];
-}
 
 - (void)addUserScript:(id)args
 {
