@@ -2053,6 +2053,16 @@
   }
 }
 
+- (void)setAllowsMultipleSelectionDuringEditing_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing" notification:NO];
+
+  [[self tableView] beginUpdates];
+  [[self tableView] setAllowsMultipleSelectionDuringEditing:[TiUtils boolValue:value]];
+  [[self tableView] endUpdates];
+}
+
 #pragma mark Datasource
 
 #define RETURN_IF_SEARCH_TABLE_VIEW(result) \
@@ -2283,6 +2293,61 @@
   [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
 }
 
+- (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  RETURN_IF_SEARCH_TABLE_VIEW(NO);
+
+  return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO];
+}
+
+- (void)tableView:(UITableView *)tableView didBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  editing = YES;
+}
+
+- (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
+{
+  if ([self.proxy _hasListeners:@"rowsselected"]) {
+    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
+    NSMutableDictionary *startingRowObject = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
+      NSIndexPath *index = tableView.indexPathsForSelectedRows[i];
+      BOOL viaSearch = [searchController isActive];
+
+      if (searchResultIndexes) {
+        index = [self indexPathFromSearchIndex:tableView.indexPathsForSelectedRows[i].row];
+      }
+      NSInteger sectionIdx = [index section];
+      NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
+      TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
+
+      NSInteger rowIndex = [index row];
+      int dataIndex = 0;
+      int c = 0;
+      TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+
+      for (TiUITableViewSectionProxy *section in sections) {
+        if (c == sectionIdx) {
+          dataIndex += rowIndex;
+          break;
+        }
+        dataIndex += [section rowCount];
+        c++;
+      }
+
+      NSMutableDictionary *eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                                  section, @"section",
+                                                              NUMINT(dataIndex), @"index",
+                                                              row, @"row",
+                                                              NUMBOOL(viaSearch), @"searchMode",
+                                                              row, @"rowData",
+                                                              nil];
+      [selectedItems addObject:eventObject];
+    }
+    [self.proxy fireEvent:@"rowsselected" withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
+  }
+}
 #pragma mark Collation
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
@@ -2440,7 +2505,7 @@
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   BOOL search = NO;
-  if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
+  if ((!allowsSelectionSet || ![ourTableView allowsSelection]) && !editing) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
   if ([searchController isActive]) {
