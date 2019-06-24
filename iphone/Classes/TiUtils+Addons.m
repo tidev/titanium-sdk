@@ -20,7 +20,7 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid";
     [defaults setObject:uid forKey:kAppUUIDString];
     [defaults synchronize];
   }
-  
+
   return uid;
 }
 
