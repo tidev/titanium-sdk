@@ -178,11 +178,9 @@
         @"carPlaySetting" : @([settings carPlaySetting]),
         @"alertStyle" : @([settings alertStyle])
       } mutableCopy];
-#if IS_XCODE_9
       if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
         propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
       }
-#endif
 #if IS_XCODE_10
       if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
         propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
