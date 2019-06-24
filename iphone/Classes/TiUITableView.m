@@ -2293,6 +2293,7 @@
   [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
 }
 
+#if IS_XCODE_11
 - (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
 {
   RETURN_IF_SEARCH_TABLE_VIEW(NO);
@@ -2313,11 +2314,6 @@
 
     for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
       NSIndexPath *index = tableView.indexPathsForSelectedRows[i];
-      BOOL viaSearch = [searchController isActive];
-
-      if (searchResultIndexes) {
-        index = [self indexPathFromSearchIndex:tableView.indexPathsForSelectedRows[i].row];
-      }
       NSInteger sectionIdx = [index section];
       NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
       TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
@@ -2347,6 +2343,7 @@
     [self.proxy fireEvent:@"rowsselected" withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
   }
 }
+#endif
 #pragma mark Collation
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView

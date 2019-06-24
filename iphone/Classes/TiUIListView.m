@@ -1152,6 +1152,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return NO;
 }
 
+#if IS_XCODE_11
 - (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
 {
   return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
@@ -1186,6 +1187,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self.proxy fireEvent:@"rowsselected" withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
   }
 }
+#endif
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {

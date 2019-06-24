@@ -185,18 +185,18 @@ events:
 
   - name: rowsselected
     summary: |
-      Fired when user stops two-pan gesture interaction for selecting multiple rows. 
-      It is used with Titanium.UI.TableView.allowsMultipleSelectionInteraction.
+        Fired when user stops two-pan gesture interaction for selecting multiple rows. 
+        It is used in conjunction with Titanium.UI.TableView.allowsMultipleSelectionInteraction.
+    platforms: [iphone, ipad]
+    since: 8.2.0
     properties:
       - name: selectedRows
         summary: List of rows selected by user.
-        type: Array<Titanium.UI.TableView.SelectedRow>
+        type: Array<SelectedRowObject>
+
       - name: startingRow
         summary: First row selected when user started interaction.
-        type: Titanium.UI.TableView.SelectedRow
-    platforms: [iphone, ipad]
-    since: 8.2.0
-
+        type: SelectedRowObject
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
@@ -1828,7 +1828,7 @@ properties:
     type: Number
 
 ---
-name: SelectedRow
+name: SelectedRowObject
 summary: The arguments for the <Titanium.UI.TableView.rowsselected> event.
 since: 8.2.0
 platforms: [iphone, ipad]    
@@ -1855,6 +1855,6 @@ properties:
 
     type: Dictionary<Titanium.UI.TableViewRow>
 
-- name: section
-  summary: Table view section object, if the clicked row is contained in a section.
-  type: Titanium.UI.TableViewSection
+  - name: section
+    summary: Table view section object, if the clicked row is contained in a section.
+    type: Titanium.UI.TableViewSection

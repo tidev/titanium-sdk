@@ -277,10 +277,11 @@ events:
     properties:
       - name: selectedRows
         summary: List of rows selected by user.
-        type: Array<Titanium.UI.ListView.SelectedRow>
+        type: Array<SelectedRow>
+
       - name: startingRow
         summary: First row selected when user started interaction.
-        type: Titanium.UI.ListView.SelectedRow
+        type: SelectedRow
     platforms: [iphone, ipad]
     since: 8.2.0
 
