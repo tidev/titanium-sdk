@@ -2297,7 +2297,7 @@
 {
   RETURN_IF_SEARCH_TABLE_VIEW(NO);
 
-  return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO];
+  return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
 }
 
 - (void)tableView:(UITableView *)tableView didBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
@@ -2340,7 +2340,6 @@
                                                                   section, @"section",
                                                               NUMINT(dataIndex), @"index",
                                                               row, @"row",
-                                                              NUMBOOL(viaSearch), @"searchMode",
                                                               row, @"rowData",
                                                               nil];
       [selectedItems addObject:eventObject];

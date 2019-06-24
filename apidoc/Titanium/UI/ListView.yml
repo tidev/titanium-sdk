@@ -270,6 +270,20 @@ events:
         type: Boolean
         platforms: [iphone, ipad]
 
+  - name: rowsselected
+    summary: |
+      Fired when user stops two-pan gesture interaction for selecting multiple rows. 
+      It is used with Titanium.UI.ListView.allowsMultipleSelectionInteraction.
+    properties:
+      - name: selectedRows
+        summary: List of rows selected by user.
+        type: Array<Titanium.UI.ListView.SelectedRow>
+      - name: startingRow
+        summary: First row selected when user started interaction.
+        type: Titanium.UI.ListView.SelectedRow
+    platforms: [iphone, ipad]
+    since: 8.2.0
+
   - name: delete
     summary: Fired when a list row is deleted by the user.
     description: |
@@ -735,6 +749,19 @@ properties:
     type: Boolean
     default: false
     since: "7.0.0"
+    platforms: [iphone, ipad]
+
+  - name: allowsMultipleSelectionInteraction
+    summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
+    description: |
+        Setting this property true, allow the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
+        you must also set <Titanium.UI.ListView.allowsMultipleSelectionDuringEditing> to true.
+        Once user interaction stops, event <Titanium.UI.ListView.rowsselected> get fired.
+    type: Boolean
+    default: false
+    since: 8.2.0
     platforms: [iphone, ipad]
 
   - name: lazyLoadingEnabled
@@ -1864,3 +1891,21 @@ properties:
   - name: itemId
     summary: The item ID bound to the list item that generated the event.
     type: String
+
+---
+name: SelectedRow
+summary: The arguments for the <Titanium.UI.ListView.rowsselected> event.
+since: 8.2.0
+platforms: [iphone, ipad]
+properties:
+  - name: section
+    summary: List section if the item is contained in a list section.
+    type: Titanium.UI.ListSection
+
+  - name: sectionIndex
+    summary: Section index.
+    type: Number
+
+  - name: itemIndex
+    summary: Item index.
+    type: Number
