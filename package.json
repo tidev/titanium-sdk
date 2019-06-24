@@ -97,7 +97,7 @@
     "@commitlint/cli": "^8.0.0",
     "@commitlint/config-conventional": "^8.0.0",
     "@seadub/danger-plugin-dependencies": "0.1.0",
-    "@seadub/danger-plugin-eslint": "^1.0.0",
+    "@seadub/danger-plugin-eslint": "^1.0.1",
     "@seadub/danger-plugin-junit": "0.1.1",
     "clang-format": "1.2.3",
     "commander": "^2.20.0",
