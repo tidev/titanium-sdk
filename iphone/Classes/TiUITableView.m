@@ -454,7 +454,9 @@
 
     defaultSeparatorInsets = [tableview separatorInset];
 
-    tableview.layoutMargins = UIEdgeInsetsZero;
+    if (style != UITableViewStyleInsetGrouped) {
+      tableview.layoutMargins = UIEdgeInsetsZero;
+    }
     tableview.cellLayoutMarginsFollowReadableWidth = NO;
   }
 
