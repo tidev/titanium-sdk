@@ -239,12 +239,11 @@ methods:
         optional: true
 
 events:
-
   - name: create
     summary: Fired from the activity's `onCreate` method.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onCreate> instead.
+        notes: Use [Titanium.Android.Activity.onCreate](Titanium.Android.Activity.onCreate) instead.
     description: |
         See also:
         [onCreate](https://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
@@ -254,7 +253,7 @@ events:
     summary: Fired from the activity's `onDestroy` method.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onDestroy> instead.
+        notes: Use [Titanium.Android.Activity.onDestroy](Titanium.Android.Activity.onDestroy) instead.
     description: |
         See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
@@ -288,7 +287,7 @@ events:
     summary: Fired when the activity is paused.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onPause> instead.
+        notes: Use [Titanium.Android.Activity.onPause](Titanium.Android.Activity.onPause) instead.
     description: |
         See also:
         [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
@@ -298,7 +297,7 @@ events:
     summary: Fired when the activity is resumed.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onResume> instead.
+        notes: Use [Titanium.Android.Activity.onResume](Titanium.Android.Activity.onResume) instead.
     description: |
         See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
@@ -307,7 +306,7 @@ events:
     summary: Fired when the activity is started.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onStart> instead.
+        notes: Use [Titanium.Android.Activity.onStart](Titanium.Android.Activity.onStart) instead.
     description: |
         See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
@@ -316,7 +315,7 @@ events:
     summary: Fired when the activity is stopped.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onStop> instead.
+        notes: Use [Titanium.Android.Activity.onStop](Titanium.Android.Activity.onStop) instead.
     description: |
         See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.

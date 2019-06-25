@@ -81,7 +81,7 @@
     "markdown": "0.5.0",
     "moment": "^2.22.2",
     "node-appc": "^0.3.2",
-    "node-titanium-sdk": "^3.1.2",
+    "node-titanium-sdk": "^3.2.0",
     "node-uuid": "1.4.8",
     "p-limit": "^2.2.0",
     "pngjs": "^3.4.0",
