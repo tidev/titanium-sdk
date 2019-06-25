@@ -297,7 +297,7 @@ methods:
     parameters:
       - name: propertyList
         summary: List of properties for listen.
-        type: Array
+        type: Array<String>
 
   - name: stopListeningToProperties
     summary: Remove native properties from observing.
@@ -306,7 +306,7 @@ methods:
     parameters:
       - name: propertyList
         summary: List of properties to remove.
-        type: Array
+        type: Array<String>
 
   - name: takeSnapshot
     summary: Takes a snapshot of the view's visible viewport.

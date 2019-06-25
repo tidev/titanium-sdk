@@ -81,6 +81,11 @@
   return self;
 }
 
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+{
+  return [self init];
+}
+
 - (NSURL *)_baseURL
 {
   return baseURL;
