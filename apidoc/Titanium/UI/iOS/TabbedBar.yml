@@ -17,7 +17,7 @@ excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
 deprecated:
     since: "8.0.0"
-    notes: Use <Titanium.UI.TabbedBar> instead.
+    notes: Use [Titanium.UI.TabbedBar](Titanium.UI.TabbedBar) instead.
 
 events: 
   - name: click
