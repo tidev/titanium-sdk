@@ -1165,26 +1165,26 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
 {
-  if ([self.proxy _hasListeners:@"rowsselected"]) {
+  if ([self.proxy _hasListeners:@"itemsselected"]) {
     NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
-    NSMutableDictionary *startingRowObject = [NSMutableDictionary dictionaryWithCapacity:1];
+    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
 
     for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
       NSIndexPath *indexPath = tableView.indexPathsForSelectedRows[i];
       NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
       TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
 
-      NSMutableDictionary *rowObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                                        theSection, @"section",
-                                                                    NUMINTEGER(realIndexPath.section), @"sectionIndex",
-                                                                    NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                                    nil];
+      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                          theSection, @"section",
+                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                      nil];
       if (i == 0) {
-        [startingRowObject setDictionary:rowObject];
+        [startingItem setDictionary:eventObject];
       }
-      [selectedItems addObject:rowObject];
+      [selectedItems addObject:eventObject];
     }
-    [self.proxy fireEvent:@"rowsselected" withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
+    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
   }
 }
 #endif

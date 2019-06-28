@@ -270,18 +270,18 @@ events:
         type: Boolean
         platforms: [iphone, ipad]
 
-  - name: rowsselected
+  - name: itemsselected
     summary: |
-      Fired when user stops two-pan gesture interaction for selecting multiple rows. 
+      Fired when user stops two-pan gesture interaction for selecting multiple items. 
       It is used with Titanium.UI.ListView.allowsMultipleSelectionInteraction.
     properties:
-      - name: selectedRows
-        summary: List of rows selected by user.
-        type: Array<SelectedRow>
+      - name: selectedItems
+        summary: List of items selected by user.
+        type: Array<SelectedItem>
 
-      - name: startingRow
-        summary: First row selected when user started interaction.
-        type: SelectedRow
+      - name: startingItem
+        summary: First item selected when user started interaction.
+        type: SelectedItem
     platforms: [iphone, ipad]
     since: 8.2.0
 
@@ -1894,8 +1894,8 @@ properties:
     type: String
 
 ---
-name: SelectedRow
-summary: The arguments for the <Titanium.UI.ListView.rowsselected> event.
+name: SelectedItem
+summary: The arguments for the <Titanium.UI.ListView.itemsselected> event.
 since: 8.2.0
 platforms: [iphone, ipad]
 properties:
