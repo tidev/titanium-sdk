@@ -10,7 +10,7 @@
 'use strict';
 const should = require('./utilities/assertions');
 
-describe.only('Titanium.Database', function () {
+describe('Titanium.Database', function () {
 	describe('#executeAsync()', () => {
 		it.android('is a function', () => {
 			const db = Ti.Database.open('execute_async.db');
