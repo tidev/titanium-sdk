@@ -10,7 +10,9 @@ createable: false
 deprecated:
     since: "5.2.0"
     removed: "7.0.0"
-    notes: Use <Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE> and <Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE> instead.
+    notes: |
+      Use [Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE)
+      and [Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) instead.
 
 properties:
   - name: NONE

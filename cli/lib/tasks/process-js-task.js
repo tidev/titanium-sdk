@@ -133,7 +133,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * Creates the hooks that are required during JS processing.
 	 */
 	createHooks() {
-		let compileJsFileHook = this.builder.cli.createHook('build.ios.compileJsFile', this.builder, (r, from, to, done) => {
+		let compileJsFileHook = this.builder.cli.createHook(`build.${this.platform}.compileJsFile`, this.builder, (r, from, to, done) => {
 			// Read the possibly modified file contents
 			const source = r.contents;
 
@@ -158,7 +158,7 @@ class ProcessJsTask extends IncrementalFileTask {
 			});
 		});
 
-		this.copyResourceHook = promisify(this.builder.cli.createHook('build.ios.copyResource', this.builder, (from, to, done) => {
+		this.copyResourceHook = promisify(this.builder.cli.createHook(`build.${this.platform}.copyResource`, this.builder, (from, to, done) => {
 			const originalContents = fs.readFileSync(from).toString();
 
 			const r = {
