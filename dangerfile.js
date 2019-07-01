@@ -202,21 +202,34 @@ async function checkPRisApproved() {
 	if (good.length > 0 && blockers.length === 0) {
 		labelsToAdd.add(Label.IN_QE_TESTING);
 	}
+	// TODO: Can we also check JIRA ticket and move it to In QE Testing?
 }
+
+// TODO: Can we check comments from a QE team member with "FR Passed"?
 
 // Auto assign milestone based on version in package.json
 async function updateMilestone() {
-	if (github.pr.milestone) {
+	const expected_milestone = packageJSON.version;
+	// If there's a milestone assigned to the PR and it doesn't match up with expected version, emit warning
+	if (github.pr.milestone && github.pr.milestone.title !== expected_milestone) {
+		// Typically this is because:
+		// - The milestone got out of date once we did some branch/version bumping
+		// - The milestone was set wrong
+		// - The milestone is for a future version on a maintenance branch (i.e. 8.1.1 on 8_1_X branch where we haven't released 8.1.0 yet)
+		warn(`This PR has milestone set to ${github.pr.milestone}, but the version defined in package.json is ${packageJSON.version}
+Please either:
+- Update the milestone on the PR
+- Update the version in package.json
+- Hold the PR to be merged later after a release and version bump on this branch`);
 		return;
 	}
-	const expected_milestone = packageJSON.version;
 	const milestones = await github.api.issues.listMilestonesForRepo({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
 	const milestone_match = milestones.data.find(m => m.title === expected_milestone);
 	if (!milestone_match) {
 		debug('Unable to find a Github milestone matching the version in package.json');
 		return;
 	}
-	await github.api.issues.update({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
+	await github.api.issues.update({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, issue_number: github.pr.number, milestone: milestone_match.number });
 }
 
 /**
