@@ -70,7 +70,7 @@ methods:
   - name: requestEventsAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Calendar.requestCalendarPermissions> instead.
+        notes: Use [Titanium.Calendar.requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
@@ -181,7 +181,7 @@ properties:
   - name: STATUS_NONE
     summary: Event has no status.
     description: |
-        A [event status]<Titanium.Calendar.Event.status> value.
+        A [event status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
@@ -194,7 +194,7 @@ properties:
   - name: STATUS_CANCELLED
     summary: Event canceled status.
     description: |
-        A [event status]<Titanium.Calendar.Event.status> value.
+        A [event status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -207,12 +207,12 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "7.0.0"
-        notes: Use <Titanium.Calendar.STATUS_CANCELED> instead.
+        notes: Use [Titanium.Calendar.STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED) instead.
 
   - name: STATUS_CANCELED
     summary: Event canceled status.
     description: |
-        A [event status]<Titanium.Calendar.Event.status> value.
+        A [event status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -226,7 +226,7 @@ properties:
   - name: STATUS_CONFIRMED
     summary:  Event confirmed status.
     description: |
-        A [event status]<Titanium.Calendar.Event.status> value.
+        A [event status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -240,7 +240,7 @@ properties:
   - name: STATUS_TENTATIVE
     summary: Event tentative status.
     description: |
-        A [event status]<Titanium.Calendar.Event.status> value.
+        A [event status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -726,7 +726,7 @@ properties:
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.Calendar.calendarAuthorization> instead.
+        notes: Use [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only

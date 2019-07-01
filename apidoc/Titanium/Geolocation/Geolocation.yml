@@ -486,7 +486,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "7.0.0"
-        notes: Use <Titanium.Geolocation.AUTHORIZATION_ALWAYS> as advised by Apple.
+        notes: Use [Titanium.Geolocation.AUTHORIZATION_ALWAYS](Titanium.Geolocation.AUTHORIZATION_ALWAYS) as advised by Apple.
 
   - name: AUTHORIZATION_DENIED
     summary: |
