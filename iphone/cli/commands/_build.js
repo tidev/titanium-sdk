@@ -2877,11 +2877,12 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 
 	if (this.forceCleanBuild && buildDirExists) {
 		this.logger.debug(__('Recreating %s', cyan(this.buildDir)));
+		fs.emptyDirSync(this.buildDir);
 	} else if (!buildDirExists) {
 		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
+		fs.ensureDirSync(this.buildDir);
 		this.forceCleanBuild = true;
 	}
-	fs.emptyDirSync(this.buildDir);
 
 	fs.ensureDirSync(this.xcodeAppDir);
 };
