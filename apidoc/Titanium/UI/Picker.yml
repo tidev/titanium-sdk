@@ -402,7 +402,7 @@ properties:
     default: false
     platforms: [android]
     deprecated:
-      since: 5.2.1
+      since: "5.2.1"
       notes: This property is deprecated. Please use the default native "dropdown" style.
 
   - name: nativeSpinner
@@ -428,7 +428,7 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    since: 5.4.0
+    since: "5.4.0"
 
   - name: value
     summary: Date and time value for Date and Time pickers.

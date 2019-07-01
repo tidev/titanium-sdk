@@ -559,7 +559,7 @@ events:
   - name: android:back
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidback> instead.
+        notes: Use [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) instead.
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
@@ -570,7 +570,7 @@ events:
   - name: android:camera
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidcamera> instead.
+        notes: Use [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) instead.
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -581,7 +581,7 @@ events:
   - name: android:focus
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidfocus> instead.
+        notes: Use [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -592,7 +592,7 @@ events:
   - name: android:search
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidsearch> instead.
+        notes: Use [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) instead.
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -603,7 +603,7 @@ events:
   - name: android:voldown
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidvoldown> instead.
+        notes: Use [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) instead.
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -614,7 +614,7 @@ events:
   - name: android:volup
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidvolup> instead.
+        notes: Use [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) instead.
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -1335,10 +1335,10 @@ properties:
         This property indicates if the window should use a [split action bar](https://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
     platforms: [android]
     type: Boolean
-    since: 3.6.0
+    since: "3.6.0"
     availability: creation
     deprecated:
-        since: 6.2.0
+        since: "6.2.0"
         notes: Deprecated in AppCompat theme. The same behaviour can be achived by using Toolbar.
 
   - name: statusBarStyle
@@ -1517,13 +1517,13 @@ properties:
   - name: url
     summary: Loads a JavaScript file from a local URL.
     deprecated:
-        since: 3.5.0
-        removed: 6.0.0
+        since: "3.5.0"
+        removed: "6.0.0"
     description: |
         **Note:** The recommended way of creating windows with their own context is to either use the
         [Alloy Framework](https://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
         [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
-        than using this property.  One benefit of using a CommonJS module is that it consumes less
+        than using this property. One benefit of using a CommonJS module is that it consumes less
         resources.
 
         Use this property to have Windows load a JavaScript file in its own subcontext and thread,
