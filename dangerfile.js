@@ -49,6 +49,51 @@ async function checkNPMTestOutput() {
 	}
 }
 
+// Check that the commit messages adhere to our conventions!
+async function checkCommitMessages() {
+	const load = require('@commitlint/load');
+	const { rules, parserPreset } = await load();
+	const lint = require('@commitlint/lint');
+	const allWarnings = await Promise.all(danger.git.commits.map(async commit => {
+		const report = await lint(commit.message, rules, parserPreset ? { parserOpts: parserPreset.parserOpts } : {});
+		// Bunch warnings/errors together for same commit!
+		const errorCount = report.errors.length;
+		const warningCount = report.warnings.length;
+		if ((errorCount + warningCount) === 0) {
+			return [];
+		}
+
+		let msg = `Commit ${danger.utils.href(commit.url, commit.sha)} has a message "${commit.message}" giving `;
+		if (errorCount > 0) {
+			msg += `${errorCount} errors`;
+			if (warningCount > 0) {
+				msg += ' and ';
+			}
+		}
+		if (warningCount > 0) {
+			msg += `${warningCount} warnings`;
+		}
+		msg += ':\n- ';
+		if (errorCount > 0) {
+			msg += report.errors.map(e => e.message).join('\n- ');
+		}
+		if (warningCount > 0) {
+			msg += report.warnings.map(w => w.message).join('\n- ');
+		}
+
+		return [ msg ];
+	}));
+	const flattened = [].concat(...allWarnings);
+	flattened.forEach(w => warn(w)); // propagate warnings/errors about commit conventions
+	if (flattened.length > 0) {
+		// at least one bad commit message, better to squash this one
+		message(':rotating_light: This PR has one or more commits with warnings/errors for commit messages not matching our configuration. You may want to squash merge this PR and edit the message to match our conventions, or ask the original developer to modify their history.');
+	} else {
+		// all commits are good, should be good to rebase this one
+		message(':fist: The commits in this PR match our conventions! Feel free to Rebase and Merge this PR when ready.');
+	}
+}
+
 // Check that we have a JIRA Link in the body
 async function checkJIRA() {
 	const body = github.pr.body;
@@ -102,6 +147,7 @@ async function checkChangedFileLocations() {
 	if (topTiModule.edited) {
 		warn('It looks like you have modified the TopTiModule.m file. Are you sure you meant to do that?');
 	}
+
 }
 
 // Does the PR have merge conflicts?
@@ -259,6 +305,7 @@ async function main() {
 	// Specifically, anything that collects what labels to add or remove has to be done first before...
 	await Promise.all([
 		checkNPMTestOutput(),
+		checkCommitMessages(),
 		checkStats(github.pr),
 		checkJIRA(),
 		linkToSDK(),
