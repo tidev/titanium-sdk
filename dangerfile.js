@@ -64,39 +64,33 @@ async function checkJIRA() {
 // Check that if we modify the Android or iOS SDK, we also update the tests
 // Also, assign labels based on changes to different dir paths
 async function checkChangedFileLocations() {
-	let modifiedTopTiModule = false;
-	const modified = danger.git.modified_files.concat(danger.git.created_files);
-	const modifiedAndroidFiles = modified.filter(p => p.startsWith('android/') && p.endsWith('.java'));
-	const modifiedIOSFiles = modified.filter(p => {
-		if (p.endsWith('TopTiModule.m')) {
-			modifiedTopTiModule = true;
-		}
-		return p.startsWith('iphone/') && (p.endsWith('.h') || p.endsWith('.m'));
-	});
+	const android = danger.git.fileMatch('android/**/*.java');
+	const ios = danger.git.fileMatch('iphone/**/*.h', 'iphone/**/*.m');
+	const topTiModule = danger.git.fileMatch('iphone/TitaniumKit/**/TopTiModule.m');
 
 	// Auto-assign android/ios labels
-	if (modifiedAndroidFiles.length > 0) {
+	if (android.edited) {
 		labelsToAdd.add(Label.ANDROID);
 	}
-	if (modifiedIOSFiles.length > 0) {
+	if (ios.edited) {
 		labelsToAdd.add(Label.IOS);
 	}
 	// Check if apidoc was modified and apply 'docs' label?
-	const modifiedApiDocs = modified.filter(p => p.startsWith('apidoc/'));
-	if (modifiedApiDocs.length > 0) {
+	const docs = danger.git.fileMatch('apidoc/**');
+	if (docs.edited) {
 		labelsToAdd.add(Label.DOCS);
 	}
 	// Mark hasAppChanges if 'common' dir is changed too!
-	const modifiedCommonJSAPI = modified.filter(p => p.startsWith('common/'));
+	const common = danger.git.fileMatch('common/**');
+	// TODO: Should we add ios/android/windows labels if common dir is changed?
+	const hasAppChanges = android.edited || ios.edited || common.edited;
 
 	// Check if any tests were changed/added
-	const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length + modifiedCommonJSAPI.length) > 0;
-	const testChanges = modified.filter(p => p.startsWith('tests/') && p.endsWith('.js'));
-	const hasTestChanges = testChanges.length > 0;
+	const tests = danger.git.fileMatch('tests/**/*.js');
 	const hasNoTestsLabel = existingLabelNames.has(Label.NO_TESTS);
 	// If we changed android/iOS source, but didn't change tests and didn't use the 'no tests' label
 	// fail the PR
-	if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
+	if (hasAppChanges && !tests.edited && !hasNoTestsLabel) {
 		labelsToAdd.add(Label.NEEDS_TESTS);
 		const testDocLink = github.utils.fileLinks([ 'README.md#unit-tests' ]);
 		fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${testDocLink} for docs on unit testing.`); // eslint-disable-line max-len
@@ -105,10 +99,9 @@ async function checkChangedFileLocations() {
 		labelsToRemove.add(Label.NEEDS_TESTS);
 	}
 
-	if (modifiedTopTiModule) {
+	if (topTiModule.edited) {
 		warn('It looks like you have modified the TopTiModule.m file. Are you sure you meant to do that?');
 	}
-
 }
 
 // Does the PR have merge conflicts?
