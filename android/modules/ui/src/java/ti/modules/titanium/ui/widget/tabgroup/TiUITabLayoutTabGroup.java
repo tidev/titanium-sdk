@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -219,7 +220,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void updateTabTitle(int index)
 	{
-		this.mTabLayout.getTabAt(index).setText(tabs.get(index).getProxy().getProperty(TiC.PROPERTY_TITLE).toString());
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		String title = TiConvert.toString(tabProxy.getProperty(TiC.PROPERTY_TITLE));
+		this.mTabLayout.getTabAt(index).setText(title);
 	}
 
 	@Override
@@ -298,16 +309,15 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void onTabUnselected(TabLayout.Tab tab)
 	{
-		int position = tab.getPosition();
-		// skip invalid position tabs
-		if (position < 0) {
-			return;
+		if (tab != null) {
+			int index = tab.getPosition();
+			if ((index >= 0) && (index < this.tabs.size())) {
+				TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+				if (tabProxy != null) {
+					tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+				}
+			}
 		}
-
-		if (position >= tabs.size()) { // skip if past end of list
-			return;
-		}
-		tabs.get(position).getProxy().fireEvent(TiC.EVENT_UNSELECTED, null, false);
 	}
 
 	@Override
