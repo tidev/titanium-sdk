@@ -27,6 +27,10 @@ READONLY_PROPERTY(EKParticipantType, type, Type);
   EKParticipant *participant;
 }
 
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithParticipant:` instead.
+  */
+- (id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant *)participant_ __attribute__((deprecated));
 - (id)initWithParticipant:(EKParticipant *)participant_;
 
 @end

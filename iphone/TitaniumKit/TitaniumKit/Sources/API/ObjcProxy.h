@@ -114,6 +114,11 @@ JSExportAs(fireEvent,
 - (void)_destroy;
 - (void)_configure;
 
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `init` instead.
+ */
+- (id)_initWithPageContext:(id<TiEvaluator>)context __attribute__((deprecated));
+
 // hooks for when an event listener gets added/removed
 - (void)_listenerAdded:(NSString *)type count:(int)count;
 - (void)_listenerRemoved:(NSString *)type count:(int)count;

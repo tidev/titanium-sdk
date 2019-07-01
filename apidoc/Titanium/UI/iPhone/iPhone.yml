@@ -8,8 +8,8 @@ since: "0.5"
 platforms: [iphone, ipad]
 deprecated:
     since: "5.4.0"
-    notes: Use the unified <Titanium.UI.iOS> namespace instead.
     removed: "7.0.0"
+    notes: Use the unified [Titanium.UI.iOS](Titanium.UI.iOS) namespace instead.
         
 properties:
   - name: MODAL_PRESENTATION_CURRENT_CONTEXT
@@ -28,7 +28,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
     
   - name: MODAL_PRESENTATION_FORMSHEET
     summary: |
@@ -52,7 +52,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
     
   - name: MODAL_PRESENTATION_FULLSCREEN
     summary: Window covers the screen.
@@ -70,7 +70,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
     
   - name: MODAL_PRESENTATION_PAGESHEET
     summary: |
@@ -94,7 +94,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
     
   - name: MODAL_TRANSITION_STYLE_COVER_VERTICAL
     summary: |
@@ -114,7 +114,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
    
   - name: MODAL_TRANSITION_STYLE_CROSS_DISSOLVE
     summary: |
@@ -134,7 +134,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
     
   - name: MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL
     summary: |
@@ -156,7 +156,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
     
   - name: MODAL_TRANSITION_STYLE_PARTIAL_CURL
     summary: |
@@ -181,7 +181,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+        notes: Use [Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL) instead.
     
   - name: appBadge
     summary: Value of the badge for the application's springboard icon.
@@ -189,7 +189,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.appBadge> instead.
+        notes: Use [Titanium.UI.iOS.appBadge](Titanium.UI.iOS.appBadge) instead.
 
   - name: appSupportsShakeToEdit
     summary: Determines whether the shake to edit system-wide capability is enabled.
@@ -197,4 +197,4 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.appSupportsShakeToEdit> instead.
+        notes: Use [Titanium.UI.iOS.appSupportsShakeToEdit](Titanium.UI.iOS.appSupportsShakeToEdit) instead.

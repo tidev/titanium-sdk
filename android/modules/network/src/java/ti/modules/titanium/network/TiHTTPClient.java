@@ -189,6 +189,11 @@ public class TiHTTPClient
 					if (baseFile instanceof TiFile) {
 						responseFile = (TiFile) baseFile;
 					}
+				} else if (f instanceof TiFileProxy) {
+					TiBaseFile baseFile = ((TiFileProxy) f).getBaseFile();
+					if (baseFile instanceof TiFile) {
+						responseFile = (TiFile) baseFile;
+					}
 				}
 				if (responseFile == null && Log.isDebugModeEnabled()) {
 					Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
@@ -1380,6 +1385,8 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				requestPending = false;
+
 				KrollDict data = new KrollDict();
 				data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);
