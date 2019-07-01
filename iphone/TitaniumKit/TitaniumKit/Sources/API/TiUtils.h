@@ -793,8 +793,6 @@ typedef enum {
  */
 + (NSString *)convertToHex:(unsigned char *)input length:(size_t)length;
 
-+ (NSString *)appIdentifier;
-
 + (NSString *)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders;
 
 + (UIImage *)loadBackgroundImage:(id)image forProxy:(TiProxy *)proxy;

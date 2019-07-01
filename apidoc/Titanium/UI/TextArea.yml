@@ -69,7 +69,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.TextArea.keyboardAppearance> instead.
+        notes: Use [Titanium.UI.TextArea.keyboardAppearance](Titanium.UI.TextArea.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
