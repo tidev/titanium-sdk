@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.database;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -251,13 +252,27 @@ public class TiDatabaseProxy extends KrollProxy
 				@Override
 				public void run()
 				{
-					final TiResultSetProxy result = execute(query, parameters);
-					callback.callAsync(getKrollObject(), new Object[] { result });
+					Object[] args = null;
+					try {
+						final TiResultSetProxy result = execute(query, parameters);
+						args = new Object[] { null, result };
+					} catch (Throwable t) {
+						args = new Object[] { buildErrorObject(t) };
+					}
+					callback.callAsync(getKrollObject(), args);
 				}
 			});
 		} catch (InterruptedException e) {
 			// Ignore...
 		}
+	}
+
+	private Object buildErrorObject(Throwable t)
+	{
+		// TODO: Produce a better error object!
+		KrollDict callbackArgs = new KrollDict();
+		callbackArgs.putCodeAndMessage(0, t.getMessage());
+		return callbackArgs;
 	}
 
 	/**
@@ -299,8 +314,14 @@ public class TiDatabaseProxy extends KrollProxy
 				@Override
 				public void run()
 				{
-					final Object[] results = executeAll(queries);
-					callback.callAsync(getKrollObject(), new Object[] { results });
+					Object[] args = null;
+					try {
+						final Object[] results = executeAll(queries);
+						args = new Object[] { null, results };
+					} catch (Throwable t) {
+						args = new Object[] { buildErrorObject(t) };
+					}
+					callback.callAsync(getKrollObject(), args);
 				}
 			});
 		} catch (InterruptedException e) {
