@@ -164,9 +164,21 @@
 
 - (void)removeStatement:(PLSqliteResultSet *)statement
 {
-  [statement close];
-  if (statements != nil) {
-    [statements removeObject:statement];
+  @synchronized(self) {
+    [statement close];
+    if (statements != nil) {
+      [statements removeObject:statement];
+    }
+  }
+}
+
+- (void)addStatement:(PLSqliteResultSet *)statement
+{
+  @synchronized(self) {
+    if (statements == nil) {
+      statements = [[NSMutableArray alloc] initWithCapacity:5];
+    }
+    [statements addObject:statement];
   }
 }
 
@@ -187,45 +199,148 @@
   return result;
 }
 
-- (TiDatabaseResultSetProxy *)execute:(NSString *)sql
+- (PLSqlitePreparedStatement *)prepareStatement:(NSString *)sql withParams:(NSArray *)params
 {
-  sql = [sql stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+  NSString *sqlCleaned = [sql stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
   NSError *error = nil;
-  PLSqlitePreparedStatement *statement = (PLSqlitePreparedStatement *)[database prepareStatement:sql error:&error];
-  if (error != nil) {
-    [self throwException:@"invalid SQL statement" subreason:[error description] location:CODELOCATION];
+  PLSqlitePreparedStatement *statement;
+  // Just use a lock here?
+  @synchronized(self) {
+    statement = (PLSqlitePreparedStatement *)[database prepareStatement:sqlCleaned error:&error];
   }
-  // Check for varargs for perepared statement params
-  NSArray *currentArgs = [JSContext currentArguments];
-  if ([currentArgs count] > 1) {
-    JSValue *possibleParams = [currentArgs objectAtIndex:1];
-    NSArray *params;
-    if ([possibleParams isArray]) {
-      params = [possibleParams toArray];
-    } else {
-      params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, [currentArgs count] - 1)]];
-    }
+  if (error != nil) {
+    @throw error;
+  }
+  if (params && [params count] > 0) {
     [statement bindParameters:params];
   }
 
-  PLSqliteResultSet *result = (PLSqliteResultSet *)[statement executeQuery];
+  return statement;
+}
 
+- (TiDatabaseResultSetProxy *)executeSQL:(NSString *)sql withParams:(NSArray *)params
+{
+  PLSqlitePreparedStatement *statement;
+  @try {
+    statement = [self prepareStatement:sql withParams:params];
+  } @catch (NSError *error) {
+    [self throwException:@"invalid SQL statement" subreason:[error description] location:CODELOCATION];
+    return nil;
+  }
+  PLSqliteResultSet *result;
+  @synchronized(self) {
+    result = (PLSqliteResultSet *)[statement executeQuery];
+  }
+  // Do we need to lock for the next/close calls?
   if ([[result fieldNames] count] == 0) {
     [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
     [result close];
     return nil;
   }
 
-  if (statements == nil) {
-    statements = [[NSMutableArray alloc] initWithCapacity:5];
+  [self addStatement:result];
+
+  return [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self] autorelease];
+}
+
+- (TiDatabaseResultSetProxy *)execute:(NSString *)sql
+{
+  NSArray *params = @[];
+  // Check for varargs for perepared statement params
+  NSArray *currentArgs = [JSContext currentArguments];
+  if ([currentArgs count] > 1) {
+    JSValue *possibleParams = [currentArgs objectAtIndex:1];
+    if ([possibleParams isArray]) {
+      params = [possibleParams toArray];
+    } else {
+      params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, [currentArgs count] - 1)]];
+    }
   }
 
-  [statements addObject:result];
+  return [self executeSQL:sql withParams:params];
+}
 
-  TiDatabaseResultSetProxy *proxy = [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self] autorelease];
+- (void)executeAsync:(NSString *)sql
+{
+  NSArray *currentArgs = [JSContext currentArguments];
+  if ([currentArgs count] < 2) {
+    [self throwException:@"callback function must be supplied" subreason:@"" location:CODELOCATION];
+    return;
+  }
+  JSValue *callback = [currentArgs objectAtIndex:[currentArgs count] - 1];
 
-  return proxy;
+  NSArray *params = @[];
+  if ([currentArgs count] > 2) {
+    JSValue *possibleParams = [currentArgs objectAtIndex:1];
+    if ([possibleParams isArray]) {
+      params = [possibleParams toArray];
+    } else {
+      params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, [currentArgs count] - 2)]];
+    }
+  }
+
+  // FIXME: Use a queue per-database! Also, use queue in the sync variants!
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    TiDatabaseResultSetProxy *proxy;
+    @try {
+      proxy = [self executeSQL:sql withParams:params];
+    } @catch (NSError *exception) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        JSValue *error = [JSValue valueWithNewErrorFromMessage:@"invalid SQL statement" inContext:[callback context]];
+        [callback callWithArguments:@[ error ]];
+      });
+      return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      JSContext *context = [callback context];
+      [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], proxy == nil ? [JSValue valueWithNullInContext:context] : proxy ]];
+    });
+  });
+}
+
+- (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries withContext:(JSContext *)context
+{
+  // TODO: Cheat and if count is 0, return empty array right away
+  // DO we need to copy the array or something to retain the args?
+  NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
+  for (NSString *sql in queries) {
+    // TODO: What if one fails? Should we catch it?
+    TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil];
+    if (result == nil) {
+      [results addObject:[JSValue valueWithNullInContext:context]];
+    } else {
+      [results addObject:result];
+    }
+  }
+  return results;
+}
+
+- (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries
+{
+  return [self executeAll:queries withContext:[JSContext currentContext]];
+}
+
+- (void)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
+{
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    JSContext *context = [callback context];
+    NSArray<TiDatabaseResultSetProxy *> *results;
+    @try {
+      results = [self executeAll:queries withContext:context];
+    } @catch (NSError *exception) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        JSValue *error = [JSValue valueWithNewErrorFromMessage:@"invalid SQL statement" inContext:context];
+        [callback callWithArguments:@[ error ]];
+      });
+      return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], results ]];
+    });
+  });
 }
 
 - (void)close
