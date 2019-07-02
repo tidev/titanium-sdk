@@ -40,7 +40,7 @@
 /**
  * Map of timer identifiers and the underlying native NSTimer.
  */
-@property (nonatomic, strong) NSMapTable<NSNumber *, NSTimer *> * _Nullable timers;
+@property (nonatomic, strong, nullable) NSMapTable<NSNumber *, NSTimer *> *timers;
 
 /**
  * Initializes the timer manager in the given JS context. Exposes the global set/clear
