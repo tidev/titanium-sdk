@@ -33,23 +33,18 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "iphone/**/*.{m,h}": [
+    "iphone/**/*.{m,h}": [
         "npx clang-format -style=file -i",
         "git add"
-      ],
-      "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
-        "npm run ios-sanity-check --"
-      ],
-      "*.java": [
-        "npx clang-format -style=file -i",
-        "git add"
-      ],
-      "*.js": "eslint"
-    },
-    "ignore": [
-      "**/locales/**/*.js"
-    ]
+    ],
+    "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
+      "npm run ios-sanity-check --"
+    ],
+    "*.java": [
+      "npx clang-format -style=file -i",
+      "git add"
+    ],
+    "!(**/locales/**/*).js": "eslint"
   },
   "commitlint": {
     "extends": [
