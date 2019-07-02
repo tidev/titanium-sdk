@@ -130,7 +130,7 @@
 - (JSValue *)field:(NSInteger)index withType:(JSValue *)optionalType
 {
   if (results != nil) {
-    id result = [results objectForColumnIndex:index];
+    id result = [results objectForColumnIndex:(int)index];
     if ([result isKindOfClass:[NSData class]]) {
       result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
     }
