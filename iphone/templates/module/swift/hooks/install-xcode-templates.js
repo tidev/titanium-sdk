@@ -11,8 +11,6 @@
  */
 'use strict';
 
-'use strict';
-
 var path = require('path');
 
 exports.cliVersion = '>=3.2';
