@@ -116,7 +116,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.jsFiles = this.data.jsFiles;
 		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
 		return Promise.all(Object.keys(this.jsFiles).map(relPath => {
-			return limit(() => this.processJsFile(this.jsFiles[relPath].src))
+			return limit(() => this.processJsFile(this.jsFiles[relPath].src));
 		}));
 	}
 
