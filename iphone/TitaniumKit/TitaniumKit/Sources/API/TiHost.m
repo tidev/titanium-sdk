@@ -143,7 +143,7 @@
         Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", name]);
         if (moduleClass != nil) {
           m = [[moduleClass alloc] _initWithPageContext:context];
-          if (![m isJSModule]) {
+          if ([m isKindOfClass:[TiModule class]] && ![m isJSModule]) {
             [m setHost:self];
             [modules setObject:m forKey:name];
             [m release];
