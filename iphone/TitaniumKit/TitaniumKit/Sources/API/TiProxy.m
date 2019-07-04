@@ -638,9 +638,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     if (rememberedProxy == self) {
       [pageKrollObject protectJsobject];
+      [pageKrollObject removeGarbageCollectionSafeguard];
       return;
     }
-    [pageKrollObject noteKeylessKrollObject:[rememberedProxy krollObjectForBridge:(KrollBridge *)pageContext]];
+    KrollObject *krollObject = [rememberedProxy krollObjectForBridge:(KrollBridge *)pageContext];
+    [pageKrollObject noteKeylessKrollObject:krollObject];
+    [krollObject removeGarbageCollectionSafeguard];
     return;
   }
   if (bridgeCount < 1) {
@@ -652,13 +655,16 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     if (rememberedProxy == self) {
       KrollObject *thisObject = [thisBridge krollObjectForProxy:self];
       [thisObject protectJsobject];
+      [thisObject removeGarbageCollectionSafeguard];
       continue;
     }
 
     if (![thisBridge usesProxy:rememberedProxy]) {
       continue;
     }
-    [[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:[thisBridge krollObjectForProxy:rememberedProxy]];
+    KrollObject *krollObject = [thisBridge krollObjectForProxy:rememberedProxy];
+    [[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:krollObject];
+    [krollObject removeGarbageCollectionSafeguard];
   }
 }
 
