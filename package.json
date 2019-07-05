@@ -33,23 +33,18 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "iphone/**/*.{m,h}": [
-        "npx clang-format -style=file -i",
-        "git add"
-      ],
-      "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
-        "npm run ios-sanity-check --"
-      ],
-      "*.java": [
-        "npx clang-format -style=file -i",
-        "git add"
-      ],
-      "*.js": "eslint"
-    },
-    "ignore": [
-      "**/locales/**/*.js"
-    ]
+    "iphone/**/*.{m,h}": [
+      "npx clang-format -style=file -i",
+      "git add"
+    ],
+    "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
+      "npm run ios-sanity-check --"
+    ],
+    "*.java": [
+      "npx clang-format -style=file -i",
+      "git add"
+    ],
+    "!(**/locales/**/*).js": "eslint"
   },
   "commitlint": {
     "extends": [
@@ -80,7 +75,7 @@
     "lodash.defaultsdeep": "^4.6.0",
     "markdown": "0.5.0",
     "moment": "^2.22.2",
-    "node-appc": "^0.3.2",
+    "node-appc": "^0.3.3",
     "node-titanium-sdk": "^3.2.0",
     "node-uuid": "1.4.8",
     "p-limit": "^2.2.0",
@@ -105,7 +100,7 @@
     "core-js": "^2.6.5",
     "cz-conventional-changelog": "^2.1.0",
     "danger": "^9.0.2",
-    "eslint": "^5.16.0",
+    "eslint": "^6.0.1",
     "eslint-config-axway": "^4.2.2",
     "eslint-plugin-mocha": "^5.3.0",
     "glob": "^7.1.4",
@@ -116,9 +111,9 @@
     "grunt-contrib-clean": "^2.0.0",
     "husky": "^3.0.0",
     "js-yaml": "^3.13.1",
-    "lint-staged": "^9.0.0",
+    "lint-staged": "^9.0.1",
     "markdown-it": "^8.4.2",
-    "rollup": "^1.16.3",
+    "rollup": "^1.16.4",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
