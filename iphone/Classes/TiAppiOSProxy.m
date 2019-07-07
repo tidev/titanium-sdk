@@ -197,7 +197,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {
-  return @([TiApp controller].traitCollection.userInterfaceStyle);
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
 }
 #endif
 
