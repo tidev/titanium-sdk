@@ -603,6 +603,7 @@ extern NSString *const kTiWatchKitExtensionRequest;
 extern NSString *const kTiContinueActivity;
 extern NSString *const kTiApplicationShortcut;
 extern NSString *const kTiApplicationLaunchedFromURL;
+extern NSString *const kTiTraitCollectionChanged;
 
 #ifndef TI_USE_AUTOLAYOUT
 extern NSString *const kTiBehaviorSize;

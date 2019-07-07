@@ -115,6 +115,7 @@ NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
+NSString *const kTiTraitCollectionChanged = @"TiTraitCollectionChanged";
 
 #ifndef TI_USE_AUTOLAYOUT
 NSString *const kTiBehaviorSize = @"SIZE";
