@@ -50,7 +50,7 @@
   [super loadView];
 
   // configure view controller
-  UIColor *errorColor = UIColor.systemRedColor;
+  UIColor *errorColor = UIColor.redColor;
   self.navigationItem.title = NSLocalizedString(@"Application Error", nil);
   self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : errorColor };
   [self.view setBackgroundColor:UIColor.lightGrayColor];
