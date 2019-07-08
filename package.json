@@ -34,8 +34,8 @@
   },
   "lint-staged": {
     "iphone/**/*.{m,h}": [
-        "npx clang-format -style=file -i",
-        "git add"
+      "npx clang-format -style=file -i",
+      "git add"
     ],
     "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
       "npm run ios-sanity-check --"
@@ -75,7 +75,7 @@
     "lodash.defaultsdeep": "^4.6.0",
     "markdown": "0.5.0",
     "moment": "^2.22.2",
-    "node-appc": "^0.3.2",
+    "node-appc": "^0.3.3",
     "node-titanium-sdk": "^3.2.0",
     "node-uuid": "1.4.8",
     "p-limit": "^2.2.0",
