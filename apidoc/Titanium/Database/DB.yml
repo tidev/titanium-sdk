@@ -78,8 +78,8 @@ methods:
 
       - name: callback
         summary: Callback when query execution has completed.
-        type: Callback<Titanium.Database.ResultSet>
-    since: { android: "8.1.0" }
+        type: Callback<Object, Titanium.Database.ResultSet>
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: executeAll
     summary: |
@@ -91,7 +91,7 @@ methods:
       - name: queries
         summary: Array of SQL queries to execute.
         type: Array<String>
-    since: { android: "8.1.0" }
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: executeAllAsync
     summary: |
@@ -104,8 +104,8 @@ methods:
 
       - name: callback
         summary: Callback when query execution has completed.
-        type: Callback<Array<Titanium.Database.ResultSet>>
-    since: { android: "8.1.0" }
+        type: Callback<Object, Array<Titanium.Database.ResultSet>>
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: remove
     summary: |
