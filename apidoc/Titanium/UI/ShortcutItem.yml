@@ -9,17 +9,19 @@ description: |
 
 extends: Titanium.Proxy
 since: "7.5.0"
+platforms: [android]
+
 methods:
   - name: show
     summary: Allow the shortcut to show.
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: hide
     summary: Hide the shortcut.
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: pin
-    description: Pin shortcut to launcher.
+    summary: Pin shortcut to launcher.
     platforms: [android]
     osver: {android: {min: "8.0"}}
 
@@ -28,26 +30,26 @@ properties:
     summary: Determines shortcut id.
     description: This should be a unique identifier for the shortcut.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android]
     availability: creation
 
   - name: title
-    description: Title of the shortcut.
+    summary: Title of the shortcut.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android]
     availability: creation
 
   - name: description
-    description: Description of the shortcut.
+    summary: Description of the shortcut.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android]
     availability: creation
 
   - name: icon
     summary: Shortcut icon.
     description: This can be set as a resource id or file path.
     type: [String, Number]
-    platforms: [android, iphone, ipad]
+    platforms: [android]
     availability: creation
 
 examples:

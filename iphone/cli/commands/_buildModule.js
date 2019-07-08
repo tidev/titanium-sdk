@@ -28,7 +28,6 @@ const appc = require('node-appc'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	temp = require('temp'),
 	util = require('util'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__,
 	series = appc.async.series;
 
@@ -210,7 +209,15 @@ iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) 
 		bindingReg = /\$\(([^$]+)\)/g;
 
 	if (fs.existsSync(this.tiXcconfigFile)) {
-		fs.readFileSync(this.tiXcconfigFile).toString().split('\n').forEach(function (line) {
+		const contents = fs.readFileSync(this.tiXcconfigFile).toString();
+		// with move to 8.0.0, we needed to add FRAMEWORK_SEARCH_PATHS to titanium.xcconfig
+		if (!contents.includes('FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"')) {
+			this.logger.warn(`Build may fail due to missing FRAMEWORK_SEARCH_PATHS value in ${this.tiXcconfigFile.cyan}
+Please append the following line to that file:
+
+FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"`);
+		}
+		contents.split('\n').forEach(function (line) {
 			const match = line.match(re);
 			if (match) {
 				const keyList = [];
@@ -323,7 +330,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				return cb();
 			}
 
-			fs.existsSync(this.assetsDir) || wrench.mkdirSyncRecursive(this.assetsDir);
+			fs.ensureDirSync(this.assetsDir);
 
 			titaniumPrepHook(
 				path.join(this.platformPath, 'titanium_prep'),
@@ -372,7 +379,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				moduleAssetsFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier + 'ModuleAssets.m');
 
 			this.logger.debug(__('Writing module assets file: %s', moduleAssetsFile.cyan));
-			fs.existsSync(moduleAssetsDir) || wrench.mkdirSyncRecursive(moduleAssetsDir);
+			fs.ensureDirSync(moduleAssetsDir);
 			fs.writeFileSync(moduleAssetsFile, data);
 			cb();
 		},
@@ -523,7 +530,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		fs.copySync(deviceFramework, universalFrameworkFile); // Copy device framework to universal dir
 		// If exists, copy .swiftmodule directory to <module-project>/build/universal/<module-name>.framework/Modules/<module-name>.swiftmodule/
 		if (fs.existsSync(swiftModulesDir)) {
-			wrench.copyDirSyncRecursive(swiftModulesDir, path.join(universalFrameworkFile, 'Modules', path.basename(swiftModulesDir)));
+			fs.copySync(swiftModulesDir, path.join(universalFrameworkFile, 'Modules', path.basename(swiftModulesDir)));
 		}
 
 		// Append executive name, e.g. <module-name>.framework/<module-name>
@@ -787,7 +794,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 	series(this, [
 		function (cb) {
 			// 1. create temp dir
-			wrench.mkdirSyncRecursive(tmpDir);
+			fs.ensureDirSync(tmpDir);
 
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));

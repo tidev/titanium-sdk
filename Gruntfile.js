@@ -31,6 +31,7 @@ module.exports = function (grunt) {
 				'apidoc/**/*.js',
 				'build/**/*.js',
 				'cli/!(locales)/**/*.js',
+				'common/**/*.js',
 				'android/cli/!(locales)/**/*.js',
 				'android/modules/**/src/js/**/*.js',
 				'android/runtime/common/src/js/**/*.js',
@@ -125,7 +126,6 @@ module.exports = function (grunt) {
 	grunt.registerMultiTask('checkFormat', 'Validates the source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
-	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-appc-js');
 	grunt.loadNpmTasks('grunt-clang-format');
 	grunt.loadNpmTasks('grunt-contrib-clean');

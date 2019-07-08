@@ -77,16 +77,6 @@
   context[@"clearInterval"] = clearInterval;
   context[@"clearTimeout"] = clearInterval;
 
-  // This is more useful than just in timers, should be registered in some better place like KrollBridge?
-  [context setExceptionHandler:^(JSContext *context, JSValue *exception) {
-    id exc;
-    if ([exception isObject]) {
-      exc = [exception toObject]; // Hope it becomes an NSDictionary?
-    } else {
-      exc = [exception toString];
-    }
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exc]];
-  }];
   return self;
 }
 
@@ -126,7 +116,7 @@
     callbackArgs = [args subarrayWithRange:NSMakeRange(2, argCount - 2)];
   }
   NSNumber *timerIdentifier = @(self.nextTimerIdentifier++);
-  KrollTimerTarget *timerTarget = [[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs];
+  KrollTimerTarget *timerTarget = [[[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs] autorelease];
   NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:timerTarget selector:@selector(timerFired:) userInfo:timerTarget repeats:shouldRepeat];
   [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
 

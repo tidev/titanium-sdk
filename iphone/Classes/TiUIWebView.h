@@ -39,4 +39,13 @@
 
 @end
 
+#if IS_XCODE_9
+@interface WebAppProtocolHandler : NSObject <WKURLSchemeHandler> {
+}
+
++ (NSString *)specialProtocolScheme;
+
+@end
+#endif
+
 #endif

@@ -112,7 +112,7 @@ methods:
     summary: Checks if there is a stored user session.
     deprecated:
         since: "2.1.2"
-        notes: See [accessToken](Modules.Cloud.accessToken) and [sessionId](Modules.Cloud.sessionId) for details on persisting session data.
+        notes: See [Modules.Cloud.accessToken](Modules.Cloud.accessToken) and [Modules.Cloud.sessionId](Modules.Cloud.sessionId) for details on persisting session data.
     description: |
         True is returned after successfully calling <Modules.Cloud.Users.create> or 
         <Modules.Cloud.Users.login>, and false after successfully calling 
@@ -124,7 +124,7 @@ methods:
     summary: Returns the stored user session identifier.
     deprecated:
         since: "2.1.2"
-        notes: See [accessToken](Modules.Cloud.accessToken) and [sessionId](Modules.Cloud.sessionId) for details on persisting session data.
+        notes: See [Modules.Cloud.accessToken](Modules.Cloud.accessToken) and [Modules.Cloud.sessionId](Modules.Cloud.sessionId) for details on persisting session data.
     description: |
         A value is returned after successfully calling <Modules.Cloud.Users.create> or 
         <Modules.Cloud.Users.login>, and null after successfully calling 
