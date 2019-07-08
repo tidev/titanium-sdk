@@ -148,7 +148,7 @@ methods:
         optional: true
     deprecated:
         since: "8.0.0"
-        notes: Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
+        notes: Use [Titanium.UI.Matrix2D](Titanium.UI.Matrix2D) for improved ES6+ compatibility instead.
 
   - name: createMatrix2D
     summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
@@ -510,7 +510,7 @@ properties:
   - name: ATTRIBUTE_LINE_BREAK
     deprecated:
         since: "7.5.0"
-        notes: Use <ParagraphAttribute.lineBreakMode> instead.  
+        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.  
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
@@ -832,8 +832,8 @@ properties:
   - name: AUTODETECT_ADDRESS
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -843,8 +843,8 @@ properties:
   - name: AUTODETECT_ALL
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -853,8 +853,8 @@ properties:
   - name: AUTODETECT_CALENDAR
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR) instead.
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -864,8 +864,8 @@ properties:
   - name: AUTODETECT_LINK
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -874,8 +874,8 @@ properties:
   - name: AUTODETECT_NONE
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE) instead.
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
@@ -884,8 +884,8 @@ properties:
   - name: AUTODETECT_PHONE
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -1788,7 +1788,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_ASCII](Titanium.UI.KEYBOARD_TYPE_ASCII) instead.
 
   - name: KEYBOARD_DECIMAL_PAD
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
@@ -1803,7 +1803,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD](Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD) instead.
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -1815,7 +1815,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_DEFAULT](Titanium.UI.KEYBOARD_TYPE_DEFAULT) instead.
 
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
@@ -1827,7 +1827,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_EMAIL](Titanium.UI.KEYBOARD_TYPE_EMAIL) instead.
 
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
@@ -1840,7 +1840,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD) instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
@@ -1853,7 +1853,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION) instead.
 
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
@@ -1867,7 +1867,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD](Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD) instead.
 
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
@@ -1881,7 +1881,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_PHONE_PAD](Titanium.UI.KEYBOARD_TYPE_PHONE_PAD) instead.
 
   - name: KEYBOARD_URL
     summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
@@ -1893,7 +1893,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_URL](Titanium.UI.KEYBOARD_TYPE_URL) instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number
@@ -2738,15 +2738,15 @@ properties:
     type: Titanium.UI.Window
     permission: read-only
     deprecated:
-        since: 3.5.0
-        removed: 6.0.0
+        since: "3.5.0"
+        removed: "6.0.0"
 
   - name: orientation
     summary: Updates the orientation of the current window to the specified orientation value.
     deprecated:
         since: "1.7.2"
         removed: "3.0.0"
-        notes: Use <Titanium.UI.Window.orientationModes> instead.
+        notes: Use [Titanium.UI.Window.orientationModes](Titanium.UI.Window.orientationModes) instead.
     type: Number
     platforms: [android, iphone, ipad]
 

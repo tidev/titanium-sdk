@@ -44,7 +44,7 @@ excludes:
 since: "0.8"
 deprecated:
     since: "6.2.0"
-    notes: Use the cross-platform <Titanium.UI.Toolbar> instead.
+    notes: Use the cross-platform [Titanium.UI.Toolbar](Titanium.UI.Toolbar) instead.
 platforms: [iphone, ipad]
 
 properties:
