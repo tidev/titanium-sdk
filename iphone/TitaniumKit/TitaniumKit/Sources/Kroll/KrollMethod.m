@@ -16,7 +16,6 @@ JSClassRef KrollMethodClassRef = NULL;
 
 JSValueRef KrollCallAsFunction(JSContextRef jsContext, JSObjectRef func, JSObjectRef thisObj, size_t argCount, const JSValueRef arguments[], JSValueRef *exception)
 {
-  waitForMemoryPanicCleared();
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   KrollMethod *o = (KrollMethod *)JSObjectGetPrivate(func);
   @try {
@@ -68,7 +67,6 @@ JSValueRef KrollCallAsFunction(JSContextRef jsContext, JSObjectRef func, JSObjec
 
 JSValueRef KrollCallAsNamedFunction(JSContextRef jsContext, JSObjectRef func, JSObjectRef thisObj, size_t argCount, const JSValueRef arguments[], JSValueRef *exception)
 {
-  waitForMemoryPanicCleared();
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
   KrollMethod *o = (KrollMethod *)JSObjectGetPrivate(thisObj);

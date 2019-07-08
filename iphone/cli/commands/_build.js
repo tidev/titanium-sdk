@@ -30,6 +30,7 @@ const appc = require('node-appc'),
 	net = require('net'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
+	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
@@ -439,6 +440,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'force-copy': {
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
 						},
+						'hide-error-controller': {
+							hidden: true
+						},
 						'launch-watch-app': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app and the main app', 'simulator'.cyan)
 						},
@@ -475,9 +479,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'developer-name':             this.configOptionDeveloperName(170),
 						'distribution-name':          this.configOptionDistributionName(180),
 						'device-family':              this.configOptionDeviceFamily(120), // this MUST be processed before --device-id
-						'hide-error-controller': {
-							hidden: true
-						},
 						'ios-version':                this.configOptioniOSVersion(130),
 						keychain:                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
@@ -1792,7 +1793,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (cli.argv['skip-js-minify']) {
 			this.minifyJS = false;
 		}
-		if (cli.argv.hasOwnProperty('hide-error-controller')) {
+		if (cli.argv['hide-error-controller']) {
 			this.showErrorController = false;
 		}
 
@@ -1804,8 +1805,16 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
+		// If they're passing flag to do source-mapping, that overrides everything, so turn it on
+		if (cli.argv['source-maps']) {
+			this.sourceMaps = true;
+			// if they haven't, respect the tiapp.xml value if set one way or the other
+		} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+			this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
+		} else { // otherwise turn on by default for non-production builds
+			this.sourceMaps = this.deployType !== 'production';
+		}
 
 		// check for blacklisted files in the Resources directory
 		[	path.join(this.projectDir, 'Resources'),
@@ -2868,11 +2877,12 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 
 	if (this.forceCleanBuild && buildDirExists) {
 		this.logger.debug(__('Recreating %s', cyan(this.buildDir)));
+		fs.emptyDirSync(this.buildDir);
 	} else if (!buildDirExists) {
 		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
+		fs.ensureDirSync(this.buildDir);
 		this.forceCleanBuild = true;
 	}
-	fs.emptyDirSync(this.buildDir);
 
 	fs.ensureDirSync(this.xcodeAppDir);
 };
@@ -5848,99 +5858,35 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
 					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
-
-					async.each(Object.keys(jsFiles), function (file, next) {
-						setImmediate(function () {
-							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
-							// Add it as a require() compatible string to bootstrap array if it's a match.
-							const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
-							if (bootstrapPath.endsWith('.bootstrap')) {
-								jsBootstrapFiles.push(bootstrapPath);
+					const task = new ProcessJsTask({
+						inputFiles: Object.keys(jsFiles).map(relPath => jsFiles[relPath].src),
+						incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
+						logger: this.logger,
+						builder: this,
+						jsFiles,
+						jsBootstrapFiles,
+						sdkCommonFolder,
+						defaultAnalyzeOptions: {
+							minify: this.minifyJS,
+							transpile: this.transpile,
+							sourceMap: this.sourceMaps,
+							resourcesDir: this.xcodeAppDir,
+							logger: this.logger,
+							targets: {
+								ios: this.minSupportedIosSdk
 							}
+						}
+					});
+					task.run()
+						.then(() => {
+							this.tiSymbols = task.data.tiSymbols;
 
-							const info = jsFiles[file];
-							if (this.encryptJS) {
-								if (file.indexOf('/') === 0) {
-									file = path.basename(file);
-								}
-								this.jsFilesEncrypted.push(file); // original name
-								file = file.replace(/\./g, '_');
-								info.dest = path.join(this.buildAssetsDir, file);
-								this.jsFilesToEncrypt.push(file); // encrypted name
-							}
-
-							try {
-								this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-									const originalContents = fs.readFileSync(from).toString();
-									// Populate an initial object to pass in. This won't have modified
-									// contents or symbols populated, which it used to at this point,
-									// but I don't think any plugin relied on that behavior, while
-									// hyperloop would clobber the contents if we didn't do the mods
-									// inside the compile hook.
-									const r = {
-										original: originalContents,
-										contents: originalContents,
-										symbols: []
-									};
-									this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-										// Read the possibly modified file contents
-										const source = r.contents;
-										// Analyze Ti API usage, possibly also minify/transpile
-										// DO NOT TRANSPILE CODE inside SDK's common folder. It's already transpiled!
-										const transpile = from.startsWith(sdkCommonFolder) ? false : this.transpile;
-										const minify = from.startsWith(sdkCommonFolder) ? false : this.minifyJS;
-										const analyzeOptions = {
-											filename: from,
-											minify,
-											transpile,
-											sourceMap: this.sourceMaps || this.deployType === 'development',
-											resourcesDir: this.xcodeAppDir,
-											logger: this.logger,
-											targets: {
-												ios: this.minSupportedIosSdk
-											}
-										};
-
-										try {
-											const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-											const newContents = modified.contents;
-
-											// we want to sort by the "to" filename so that we correctly handle file overwriting
-											this.tiSymbols[to] = modified.symbols;
-
-											const dir = path.dirname(to);
-											fs.ensureDirSync(dir);
-
-											const exists = fs.existsSync(to);
-											// dest doesn't exist, or new contents differs from existing dest file
-											if (!exists || newContents !== fs.readFileSync(to).toString()) {
-												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-												// no need to delete if it exists, writeFile will overwrite anyways
-												fs.writeFileSync(to, newContents);
-												this.jsFilesChanged = true;
-											} else {
-												this.logger.trace(__('No change, skipping %s', to.cyan));
-											}
-											cb2();
-										} catch (err) {
-											err.message.split('\n').forEach(this.logger.error);
-											if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
-												this.logger.log(err.codeFrame);
-											}
-											this.logger.log();
-											process.exit(1);
-										} finally {
-											this.unmarkBuildDirFile(to);
-										}
-									})(r, from, to, cb);
-								})(info.src, info.dest, next);
-							} catch (ex) {
-								ex.message.split('\n').forEach(this.logger.error);
-								this.logger.log();
-								process.exit(1);
-							}
-						}.bind(this));
-					}.bind(this), next);
+							return next();
+						})
+						.catch(e => {
+							this.logger.error(e);
+							process.exit(1);
+						});
 				},
 
 				function writeBootstrapJson() {

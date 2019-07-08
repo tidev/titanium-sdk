@@ -10,7 +10,7 @@ platforms: [iphone, ipad]
 deprecated:
     since: "5.4.0"
     removed: "7.0.0"
-    notes: Use <Titanium.UI.iOS.ListViewScrollPosition> instead.
+    notes: Use [Titanium.UI.iOS.ListViewScrollPosition](Titanium.UI.iOS.ListViewScrollPosition) instead.
 excludes:
     properties: [bubbleParent]
     methods: [addEventListener, applyProperties, fireEvent, removeEventListener]

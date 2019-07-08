@@ -89,7 +89,6 @@ JSValueRef ConvertIdTiValue(KrollContext *context, id obj)
 //
 void KrollFinalizer(JSObjectRef ref)
 {
-  waitForMemoryPanicCleared();
   id o = (id)JSObjectGetPrivate(ref);
 
   if ((o == nil) || [o isKindOfClass:[KrollContext class]]) {
@@ -120,7 +119,6 @@ void KrollFinalizer(JSObjectRef ref)
 
 bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef *exception)
 {
-  waitForMemoryPanicCleared();
   id o = (id)JSObjectGetPrivate(object);
   if ([o isKindOfClass:[KrollObject class]]) {
     NSString *name = (NSString *)JSStringCopyCFString(kCFAllocatorDefault, propertyName);
@@ -137,7 +135,6 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 //
 void KrollInitializer(JSContextRef ctx, JSObjectRef object)
 {
-  waitForMemoryPanicCleared();
   id o = (id)JSObjectGetPrivate(object);
   if ([o isKindOfClass:[KrollContext class]]) {
     return;
@@ -155,8 +152,6 @@ void KrollInitializer(JSContextRef ctx, JSObjectRef object)
 
 bool KrollHasProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef propertyName)
 {
-  waitForMemoryPanicCleared();
-
   // Debugger may actually try to get properties off global Kroll property (which is a special case KrollContext singleton)
   id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
@@ -185,7 +180,6 @@ bool KrollHasProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
 //TODO: We should fetch from the props object and shortcut some of this. Especially now that callbacks are CURRENTLY write-only.
 JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef prop, JSValueRef *exception)
 {
-  waitForMemoryPanicCleared();
   // Debugger may actually try to get properties off global Kroll property (which is a special case KrollContext singleton)
   id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
@@ -264,7 +258,6 @@ JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSString
 //
 bool KrollSetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef prop, JSValueRef value, JSValueRef *exception)
 {
-  waitForMemoryPanicCleared();
   id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return false;
