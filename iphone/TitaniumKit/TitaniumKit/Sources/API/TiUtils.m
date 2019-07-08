@@ -31,7 +31,6 @@
 static NSDictionary *encodingMap = nil;
 static NSDictionary *typeMap = nil;
 static NSDictionary *sizeMap = nil;
-static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 @implementation TiUtils
 
@@ -1420,6 +1419,52 @@ If the new path starts with / and the base url is app://..., we have to massage 
   ApplyConstraintToViewWithBounds([proxy layoutProperties], view, bounds);
 }
 
++ (NSString *)composeAccessibilityIdentifier:(id)object
+{
+  NSString *accessibilityLabel = [object accessibilityLabel];
+  NSString *accessibilityValue = [object accessibilityValue];
+  NSString *accessibilityHint = [object accessibilityHint];
+
+  NSString *pattern = @"^.*[!\"#$%&'()*+,\\-./:;<=>?@\\[\\]^_`{|}~]\\s*$";
+  NSString *dot = @".";
+  NSString *space = @" ";
+  NSError *error = nil;
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+  NSMutableArray *array = [NSMutableArray array];
+  NSUInteger numberOfMatches;
+
+  if (accessibilityLabel != nil && accessibilityLabel.length) {
+    [array addObject:accessibilityLabel];
+    numberOfMatches = [regex numberOfMatchesInString:accessibilityLabel options:0 range:NSMakeRange(0, [accessibilityLabel length])];
+    if (numberOfMatches == 0) {
+      [array addObject:dot];
+    }
+  }
+
+  if (accessibilityValue != nil && accessibilityValue.length) {
+    if ([array count] > 0) {
+      [array addObject:space];
+    }
+    [array addObject:accessibilityValue];
+    numberOfMatches = [regex numberOfMatchesInString:accessibilityValue options:0 range:NSMakeRange(0, [accessibilityValue length])];
+    if (numberOfMatches == 0) {
+      [array addObject:dot];
+    }
+  }
+
+  if (accessibilityHint != nil && accessibilityHint.length) {
+    if ([array count] > 0) {
+      [array addObject:space];
+    }
+    [array addObject:accessibilityHint];
+    numberOfMatches = [regex numberOfMatchesInString:accessibilityHint options:0 range:NSMakeRange(0, [accessibilityHint length])];
+    if (numberOfMatches == 0) {
+      [array addObject:dot];
+    }
+  }
+  return [array componentsJoinedByString:@""];
+}
+
 + (CGRect)viewPositionRect:(UIView *)view
 {
 #if USEFRAME
@@ -1490,7 +1535,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
       if ([appurlstr characterAtIndex:0] == '/') {
         appurlstr = [appurlstr substringFromIndex:1];
       }
+#if DEBUG_RESOURCE_PATHS
       DebugLog(@"[DEBUG] Loading: %@, Resource: %@", urlstring, appurlstr);
+#endif
       return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
     }
   }
@@ -1854,19 +1901,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
   unsigned char result[CC_MD5_DIGEST_LENGTH];
   CC_MD5([data bytes], (CC_LONG)[data length], result);
   return [self convertToHex:(unsigned char *)&result length:CC_MD5_DIGEST_LENGTH];
-}
-
-+ (NSString *)appIdentifier
-{
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  NSString *uid = [defaults stringForKey:kAppUUIDString];
-  if (uid == nil) {
-    uid = [TiUtils createUUID];
-    [defaults setObject:uid forKey:kAppUUIDString];
-    [defaults synchronize];
-  }
-
-  return uid;
 }
 
 // In pre-iOS 5, it looks like response headers were case-mangled.
