@@ -428,16 +428,16 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     if (theColor == nil) {
       switch (cell.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        theColor = [Webcolor webColorNamed:@"#bbb"];
+        theColor = UIColor.systemGrayColor;
         break;
       case UITableViewCellSelectionStyleNone:
-        theColor = [UIColor clearColor];
+        theColor = UIColor.clearColor;
         break;
       case UITableViewCellSelectionStyleBlue:
-        theColor = [Webcolor webColorNamed:@"#0272ed"];
+        theColor = UIColor.systemBlueColor;
         break;
       default:
-        theColor = [Webcolor webColorNamed:@"#e0e0e0"];
+        theColor = UIColor.systemGrayColor;
         break;
       }
     }

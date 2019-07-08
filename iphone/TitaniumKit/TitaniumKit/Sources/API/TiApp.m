@@ -284,7 +284,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
       splashScreenView = [[launchScreenViewController view] retain];
     } else {
       splashScreenView = [[UIImageView alloc] init];
-      [splashScreenView setBackgroundColor:[UIColor yellowColor]];
       [splashScreenView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
       [splashScreenView setContentMode:UIViewContentModeScaleToFill];
 

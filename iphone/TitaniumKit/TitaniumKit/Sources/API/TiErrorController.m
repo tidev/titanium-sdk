@@ -50,10 +50,10 @@
   [super loadView];
 
   // configure view controller
-  UIColor *errorColor = [UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0];
+  UIColor *errorColor = UIColor.systemRedColor;
   self.navigationItem.title = NSLocalizedString(@"Application Error", nil);
   self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : errorColor };
-  [self.view setBackgroundColor:[UIColor colorWithRed:0.96 green:0.96 blue:0.96 alpha:1.0]];
+  [self.view setBackgroundColor:UIColor.lightGrayColor];
 
   // release previous allocations
   RELEASE_TO_NIL(scrollView);
@@ -95,7 +95,7 @@
   [messageView setScrollEnabled:NO];
   [messageView setMultipleTouchEnabled:YES];
   [messageView setBackgroundColor:[UIColor clearColor]];
-  [messageView setTextColor:[UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0]];
+  [messageView setTextColor:errorColor];
   [messageView setText:error];
   [messageView setFont:[UIFont fontWithName:@"Courier" size:15]];
   [scrollView addSubview:messageView];
@@ -125,7 +125,7 @@
 
   // set title and adjust font attributes
   NSMutableAttributedString *continueAttributes = [[NSMutableAttributedString alloc] initWithString:NSLocalizedString(@"CONTINUE", nil)];
-  [continueAttributes addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, [continueAttributes length])];
+  [continueAttributes addAttribute:NSForegroundColorAttributeName value:UIColor.lightTextColor range:NSMakeRange(0, [continueAttributes length])];
   [continueAttributes addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:18] range:NSMakeRange(0, [continueAttributes length])];
   [continueButton setAttributedTitle:continueAttributes forState:UIControlStateNormal];
   RELEASE_TO_NIL(continueAttributes);
