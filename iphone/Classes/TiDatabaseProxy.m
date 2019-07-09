@@ -199,18 +199,26 @@
   return result;
 }
 
-- (PLSqlitePreparedStatement *)prepareStatement:(NSString *)sql withParams:(NSArray *)params
+- (PLSqlitePreparedStatement *)prepareStatement:(NSString *)sql withParams:(NSArray *)params withError:(NSError *__nullable *__nullable)error
 {
+  // FIXME: Can we use NSError reference and avoid try/catch/throw? Obj-C doesn't like using exceptions
+  if (database == nil) {
+    *error = [NSError errorWithDomain:NSCocoaErrorDomain
+                                 code:123
+                             userInfo:@{
+                               NSLocalizedDescriptionKey : @"database has been closed"
+                             }];
+    return nil;
+  }
   NSString *sqlCleaned = [sql stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
-  NSError *error = nil;
   PLSqlitePreparedStatement *statement;
   // Just use a lock here?
   @synchronized(self) {
-    statement = (PLSqlitePreparedStatement *)[database prepareStatement:sqlCleaned error:&error];
+    statement = (PLSqlitePreparedStatement *)[database prepareStatement:sqlCleaned error:error];
   }
-  if (error != nil) {
-    @throw error;
+  if (*error != nil) {
+    return nil;
   }
   if (params && [params count] > 0) {
     [statement bindParameters:params];
@@ -219,29 +227,26 @@
   return statement;
 }
 
-- (TiDatabaseResultSetProxy *)executeSQL:(NSString *)sql withParams:(NSArray *)params
+- (TiDatabaseResultSetProxy *)executeSQL:(NSString *)sql withParams:(NSArray *)params withError:(NSError *__nullable *__nullable)error
 {
-  PLSqlitePreparedStatement *statement;
-  @try {
-    statement = [self prepareStatement:sql withParams:params];
-  } @catch (NSError *error) {
-    [self throwException:@"invalid SQL statement" subreason:[error description] location:CODELOCATION];
-    return nil;
-  }
-  PLSqliteResultSet *result;
   @synchronized(self) {
-    result = (PLSqliteResultSet *)[statement executeQuery];
-  }
-  // Do we need to lock for the next/close calls?
-  if ([[result fieldNames] count] == 0) {
-    [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
-    [result close];
-    return nil;
-  }
+    PLSqlitePreparedStatement *statement = [self prepareStatement:sql withParams:params withError:error];
+    if (*error != nil) {
+      return nil;
+    }
+    PLSqliteResultSet *result = (PLSqliteResultSet *)[statement executeQuery];
 
-  [self addStatement:result];
+    // Do we need to lock for the next/close calls?
+    if ([[result fieldNames] count] == 0) {
+      [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
+      [result close];
+      return nil;
+    }
 
-  return [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self] autorelease];
+    [self addStatement:result];
+
+    return [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self] autorelease];
+  }
 }
 
 - (TiDatabaseResultSetProxy *)execute:(NSString *)sql
@@ -258,7 +263,13 @@
     }
   }
 
-  return [self executeSQL:sql withParams:params];
+  NSError *error = nil;
+  TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:params withError:&error];
+  if (error != nil) {
+    [self throwException:@"failed to execute SQL statement" subreason:[error description] location:CODELOCATION];
+    return nil;
+  }
+  return result;
 }
 
 - (void)executeAsync:(NSString *)sql
@@ -282,13 +293,12 @@
 
   // FIXME: Use a queue per-database! Also, use queue in the sync variants!
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    TiDatabaseResultSetProxy *proxy;
-    @try {
-      proxy = [self executeSQL:sql withParams:params];
-    } @catch (NSError *exception) {
+    NSError *error = nil;
+    TiDatabaseResultSetProxy *proxy = [self executeSQL:sql withParams:params withError:&error];
+    if (error != nil) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        JSValue *error = [JSValue valueWithNewErrorFromMessage:@"invalid SQL statement" inContext:[callback context]];
-        [callback callWithArguments:@[ error ]];
+        JSValue *jsError = [JSValue valueWithNewErrorFromMessage:[NSString stringWithFormat:@"failed to execute SQL statement: %@", [error description]] inContext:[callback context]];
+        [callback callWithArguments:@[ jsError ]];
       });
       return;
     }
@@ -300,14 +310,16 @@
   });
 }
 
-- (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries withContext:(JSContext *)context
+- (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries withContext:(JSContext *)context withError:(NSError *__nullable *__nullable)error
 {
-  // TODO: Cheat and if count is 0, return empty array right away
-  // DO we need to copy the array or something to retain the args?
+  // Do we need to copy the array or something to retain the args?
   NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
   for (NSString *sql in queries) {
-    // TODO: What if one fails? Should we catch it?
-    TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil];
+    TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:error];
+    if (*error != nil) {
+      // Should we continue trying the others? Right now let's fail right away
+      return nil;
+    }
     if (result == nil) {
       [results addObject:[JSValue valueWithNullInContext:context]];
     } else {
@@ -319,20 +331,25 @@
 
 - (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries
 {
-  return [self executeAll:queries withContext:[JSContext currentContext]];
+  NSError *error = nil;
+  NSArray<TiDatabaseResultSetProxy *> *result = [self executeAll:queries withContext:[JSContext currentContext] withError:&error];
+  if (error != nil) {
+    [self throwException:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION];
+    return nil;
+  }
+  return result;
 }
 
 - (void)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
 {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     JSContext *context = [callback context];
-    NSArray<TiDatabaseResultSetProxy *> *results;
-    @try {
-      results = [self executeAll:queries withContext:context];
-    } @catch (NSError *exception) {
+    NSError *error = nil;
+    NSArray<TiDatabaseResultSetProxy *> *results = [self executeAll:queries withContext:context withError:&error];
+    if (error != nil) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        JSValue *error = [JSValue valueWithNewErrorFromMessage:@"invalid SQL statement" inContext:context];
-        [callback callWithArguments:@[ error ]];
+        JSValue *jsError = [JSValue valueWithNewErrorFromMessage:[NSString stringWithFormat:@"failed to execute SQL statements: %@", [error description]] inContext:[callback context]];
+        [callback callWithArguments:@[ jsError ]];
       });
       return;
     }
@@ -345,22 +362,24 @@
 
 - (void)close
 {
-  if (statements != nil) {
-    for (PLSqliteResultSet *result in statements) {
-      [result close];
-    }
-    RELEASE_TO_NIL(statements);
-  }
-  if (database != nil) {
-    if ([database goodConnection]) {
-      @try {
-        [database close];
+  @synchronized(self) {
+    if (statements != nil) {
+      for (PLSqliteResultSet *result in statements) {
+        [result close];
       }
-      @catch (NSException *e) {
-        NSLog(@"[WARN] attempting to close database, returned error: %@", e);
-      }
+      RELEASE_TO_NIL(statements);
     }
-    RELEASE_TO_NIL(database);
+    if (database != nil) {
+      if ([database goodConnection]) {
+        @try {
+          [database close];
+        }
+        @catch (NSException *e) {
+          NSLog(@"[WARN] attempting to close database, returned error: %@", e);
+        }
+      }
+      RELEASE_TO_NIL(database);
+    }
   }
 }
 
