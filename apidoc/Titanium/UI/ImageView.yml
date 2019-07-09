@@ -255,7 +255,7 @@ properties:
     deprecated:
         since: "1.5.0"
         removed: "3.0.0"
-        notes: Use <Titanium.UI.ImageView.image> instead.
+        notes: Use [Titanium.UI.ImageView.image](Titanium.UI.ImageView.image) instead.
     type: String
 
 examples:
