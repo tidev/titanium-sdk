@@ -8,25 +8,58 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 
-// skipping many test on Windows due to lack of event firing, see https://jira.appcelerator.org/browse/TIMOB-26690
-describe('Titanium.UI.TabGroup', () => {
+describe('Titanium.UI.TabGroup', function () {
+	let tabGroup = null;
 
-	it('title after drawing the TabGroup', () => {
-		var winA = Ti.UI.createWindow(),
-			winB = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({ title: 'titleA', window: winA }),
-			tabB = Ti.UI.createTab({ title: 'titleB', window: winB }),
-			tabGroup = Ti.UI.createTabGroup({ tabs: [ tabA, tabB ] });
-		tabGroup.addEventListener('open', () => {
-			tabGroup.title = 'newTitle';
-			tabGroup.setActiveTab(tabB);
-		});
-		tabB.addEventListener('selected', () => {
-			should(tabGroup.title).be.a.String;
-			should(tabGroup.title).eql('newTitle');
-		});
+	this.slow(2000);
+	this.timeout(5000);
+
+	afterEach(() => {
+		if (tabGroup) {
+			tabGroup.close();
+			tabGroup = null;
+		}
 	});
 
+	it('icon-only tabs - default style', (finish) => {
+		this.timeout(5000);
+		tabGroup = Ti.UI.createTabGroup({
+			tabs: [
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 1' })
+				}),
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 2' })
+				}),
+			]
+		});
+		tabGroup.addEventListener('open', () => {
+			finish();
+		});
+		tabGroup.open();
+	});
+
+	it.android('icon-only tabs - android bottom style', (finish) => {
+		this.timeout(5000);
+		tabGroup = Ti.UI.createTabGroup({
+			style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+			tabs: [
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 1' })
+				}),
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 2' })
+				}),
+			]
+		});
+		tabGroup.addEventListener('open', () => {
+			finish();
+		});
+		tabGroup.open();
+	});
 });

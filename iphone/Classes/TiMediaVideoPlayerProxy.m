@@ -432,7 +432,7 @@ NSArray *moviePlayerKeys = nil;
 
                                              if (error == nil) {
                                                UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
-                                               TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+                                               TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
                                                [event setObject:blob forKey:@"image"];
                                                [image release];
                                                [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];

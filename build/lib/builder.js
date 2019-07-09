@@ -130,7 +130,7 @@ class Builder {
 	}
 
 	async install () {
-		return utils.installSDK(this.program.versionTag);
+		return utils.installSDK(this.program.versionTag, this.program.symlink);
 	}
 }
 

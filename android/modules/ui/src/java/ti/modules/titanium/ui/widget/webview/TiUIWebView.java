@@ -575,7 +575,9 @@ public class TiUIWebView extends TiUIView
 
 	public void setZoomLevel(float value)
 	{
-		getProxy().setProperty(TiC.PROPERTY_ZOOM_LEVEL, value / initScale);
+		if (proxy != null) {
+			proxy.setProperty(TiC.PROPERTY_ZOOM_LEVEL, value / initScale);
+		}
 		zoomLevel = value;
 	}
 
@@ -635,10 +637,11 @@ public class TiUIWebView extends TiUIView
 						out.append("\n");
 						line = breader.readLine();
 					}
-					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl),
-									"text/html"); // keep app:// etc. intact in case
-												  // html in file contains links
-												  // to JS that use app:// etc.
+					String baseUrl = tiFile.nativePath();
+					if (baseUrl == null) {
+						baseUrl = originalUrlHasScheme ? url : finalUrl;
+					}
+					setHtmlInternal(out.toString(), baseUrl, "text/html");
 					return;
 				} catch (IOException ioe) {
 					Log.e(TAG,
@@ -705,7 +708,7 @@ public class TiUIWebView extends TiUIView
 	{
 		reloadMethod = reloadTypes.HTML;
 		reloadData = null;
-		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
+		setHtmlInternal(html, null, "text/html");
 	}
 
 	public void setHtml(String html, HashMap<String, Object> d)
@@ -715,17 +718,69 @@ public class TiUIWebView extends TiUIView
 			return;
 		}
 
-		reloadMethod = reloadTypes.HTML;
-		reloadData = d;
-		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+		this.reloadMethod = TiUIWebView.reloadTypes.HTML;
+		this.reloadData = d;
+
+		// Fetch optional "mimeType" property from given dictionary.
 		String mimeType = "text/html";
-		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
-			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
-		}
 		if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
 			mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
 		}
 
+		// Fetch optional "baseURL" property from given dictionary.
+		String baseUrl = null;
+		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
+			// Read the property.
+			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
+
+			// Determine if read string is a valid URL or valid absolute file system path.
+			boolean hasAbsoluteFilePath = false;
+			boolean hasUrlScheme = false;
+			if (baseUrl != null) {
+				if (baseUrl.startsWith(File.separator)) {
+					hasAbsoluteFilePath = true;
+				} else {
+					try {
+						Uri uri = Uri.parse(baseUrl);
+						hasUrlScheme = (uri.getScheme() != null);
+					} catch (Exception ex) {
+					}
+				}
+			}
+			if (!hasAbsoluteFilePath && !hasUrlScheme) {
+				Log.w(TAG, "WebView.setHtml() was given invalid 'baseURL': " + baseUrl);
+			}
+
+			// Check if URL references a local file and needs to be converted to a "file:" URL.
+			// Can happen if given a file system path or a custom Titanium scheme such as "app:", "appdata:", etc.
+			if (hasAbsoluteFilePath || (hasUrlScheme && TiFileFactory.isLocalScheme(baseUrl))) {
+				// Convert custom URL scheme's relative path to absolute, if needed.
+				String resolvedUrl = baseUrl;
+				if (hasUrlScheme && (this.proxy != null)) {
+					String newUrl = this.proxy.resolveUrl(null, baseUrl);
+					if (newUrl != null) {
+						resolvedUrl = newUrl;
+					}
+				}
+
+				// Attempt to fetch the native "file:" path of the URL.
+				TiBaseFile tiFile = TiFileFactory.createTitaniumFile(resolvedUrl, false);
+				if (tiFile != null) {
+					String nativePath = tiFile.nativePath();
+					if (nativePath != null) {
+						// We've successfully obtained the native path. Use it instead of given URL.
+						baseUrl = nativePath;
+
+						// If URL is referencing a directory, then it must end with a path separator to work.
+						if (!baseUrl.endsWith(File.separator) && tiFile.isDirectory()) {
+							baseUrl += File.separator;
+						}
+					}
+				}
+			}
+		}
+
+		// Load the given HTML into the WebView.
 		setHtmlInternal(html, baseUrl, mimeType);
 	}
 
@@ -741,19 +796,39 @@ public class TiUIWebView extends TiUIView
 	 */
 	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
+		// Make sure given html argument is valid.
+		if (html == null) {
+			html = "";
+		}
+
+		// Fetch the WebView to apply the given HTML to.
+		WebView webView = getWebView();
+		if (webView == null) {
+			return;
+		}
+
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
 		// Ti scalesPageToFit property has _not_ been set.
-
-		WebView webView = getWebView();
-		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			webView.getSettings().setLoadWithOverviewMode(false);
-		}
 		boolean enableJavascriptInjection = true;
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-			enableJavascriptInjection =
-				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+		if (this.proxy != null) {
+			if (!this.proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+				webView.getSettings().setLoadWithOverviewMode(false);
+			}
+			if (this.proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+				enableJavascriptInjection =
+					TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+			}
 		}
+
+		// If base URL was not provided, then default it to APK's "/assets/Resources/" directory.
+		if ((baseUrl == null) || baseUrl.trim().isEmpty()) {
+			baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+			if (!baseUrl.endsWith(File.separator)) {
+				baseUrl += File.separator;
+			}
+		}
+
 		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
 		isLocalHTML = true;
 		enableJavascriptInjection = (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection);

@@ -175,11 +175,11 @@ events:
   - name: selected
     summary: |
         Fired when a tab is selected.
-    since: 5.1.0
+    since: "5.1.0"
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.focus> instead.
+        notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -200,11 +200,11 @@ events:
   - name: unselected
     summary: |
         Fired when a tab is unselected.
-    since: 5.1.0
+    since: "5.1.0"
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.blur> instead.
+        notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) instead.
     properties:
       - name: index
         summary: |
@@ -399,7 +399,7 @@ properties:
     platforms: [android]
 
   - name: shiftMode
-    summary: Determines whether the BOTTOM_NAVIGATION_VIEW_STYLE uses shiftMode.
+    summary: Determines whether the [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) uses shiftMode.
     description: |
         In Android BottomNavigationView uses shiftMode by default. This mode changes
         unselected tabs' properties - makes the title invisible and reduces the icon's
@@ -408,7 +408,7 @@ properties:
         This property allows the user to choose whether they would use this design
         behavior.
 
-        NOTE: This property only affects TabGroups with the BOTTOM_NAVIGATION_VIEW_STYLE.
+        NOTE: This property only affects TabGroups with the [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
     type: Boolean
     default: true
     since: "8.0.0"
