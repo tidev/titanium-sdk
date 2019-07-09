@@ -641,5 +641,80 @@ describe('Titanium.Database', function () {
 				finish(e);
 			}
 		});
+
+		it('handles being closed mid-query', function (finish) {
+			this.timeout(30000);
+			this.slow(12000);
+
+			const db = Ti.Database.open('execute_all_async.db');
+			const queries = [
+				// Execute a query to create a test table
+				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
+				// Delete any existing data if the table already existed
+				'DELETE FROM testTable'
+			];
+			// insert a lot of bogus data
+			for (let i = 0; i < 10000; i++) {
+				queries.push(`INSERT INTO testTable (text, number) VALUES ('John Smith ${i}', ${i})`);
+			}
+
+			db.executeAllAsync(queries, (err, results) => {
+				// this should eventually throw an error when it gets closed mid-queries
+				try {
+					should(err).exist;
+					// TODO: Should we check any particular properties, like message/stack?
+					should(results).not.exist;
+					finish();
+				} catch (e) {
+					finish(e);
+				} finally {
+					db.close();
+				}
+			});
+			// close the db while we're executing queries
+			setTimeout(() => {
+				try {
+					db.close();
+				} catch (err) {
+					finish(err);
+				}
+			}, 50);
+		});
+
+		function executeQueriesAsync(finish) {
+			const db = Ti.Database.open('executeQueriesAsync.db');
+
+			const queries = [
+				// Execute a query to create a test table
+				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
+				// Delete any existing data if the table already existed
+				'DELETE FROM testTable'
+			];
+			// insert a lot of bogus data
+			for (let i = 0; i < 10000; i++) {
+				queries.push(`INSERT INTO testTable (text, number) VALUES ('John Smith ${i}', ${i})`);
+			}
+
+			db.executeAllAsync(queries, (err, results) => {
+				// this should eventually throw an error when it gets closed mid-queries
+				try {
+					should(err).not.exist;
+					should(results).exist;
+					finish();
+				} catch (e) {
+					finish(e);
+				}
+			});
+		}
+
+		// Try to get the db object to get GC'd while we're running queries!
+		// Note that I can't really think of any better way to try and test this scenario
+		it('does not allow DB to be GC\'d', function (finish) {
+			this.timeout(30000);
+			this.slow(12000);
+			// note that we call a fucntion that has a db instance scope to it and not referenced elsewhere,
+			// not explicitly closed, not referenced in the async callback
+			executeQueriesAsync(finish);
+		});
 	});
 });
