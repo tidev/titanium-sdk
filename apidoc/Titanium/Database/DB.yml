@@ -51,8 +51,7 @@ methods:
             var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
             db.close();
 
-            while (rows.isValidRow())
-            {
+            while (rows.isValidRow()) {
               Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
               rows.next();
             }
@@ -60,6 +59,53 @@ methods:
 
         Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
         column, which is a SQLite-specific column that stores the unique identifier for each row.
+
+  - name: executeAsync
+    summary: |
+      Asynchronously executes an SQL statement against the database and fires a callback with a `ResultSet`.
+    platforms: [android]
+    parameters:
+      - name: query
+        summary: SQL query to execute. May include placeholders for parameter substitution.
+        type: String
+
+      - name: vararg
+        summary: |
+          Either a variable ordered list of zero or more values, or an array of values,
+          to be substituted with the respective `?` placeholder of the query.
+        type: [String, Array<String>, Object, Array<Object>]
+        optional: true
+
+      - name: callback
+        summary: Callback when query execution has completed.
+        type: Callback<Titanium.Database.ResultSet>
+    since: { android: "8.1.0" }
+
+  - name: executeAll
+    summary: |
+      Synchronously executes an array of SQL statements against the database and fires a callback with an array of `ResultSet`.
+    returns:
+        type: Array<Titanium.Database.ResultSet>
+    platforms: [android]
+    parameters:
+      - name: queries
+        summary: Array of SQL queries to execute.
+        type: Array<String>
+    since: { android: "8.1.0" }
+
+  - name: executeAllAsync
+    summary: |
+      Asynchronously executes an array of SQL statements against the database and fires a callback with an array of `ResultSet`.
+    platforms: [android]
+    parameters:
+      - name: queries
+        summary: Array of SQL queries to execute.
+        type: Array<String>
+
+      - name: callback
+        summary: Callback when query execution has completed.
+        type: Callback<Array<Titanium.Database.ResultSet>>
+    since: { android: "8.1.0" }
 
   - name: remove
     summary: |

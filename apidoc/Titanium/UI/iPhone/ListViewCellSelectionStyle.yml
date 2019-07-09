@@ -14,7 +14,7 @@ createable: false
 deprecated:
     since: "5.4.0"
     removed: "7.0.0"
-    notes: Use <Titanium.UI.iOS.ListViewCellSelectionStyle> instead.
+    notes: Use [Titanium.UI.iOS.ListViewCellSelectionStyle](Titanium.UI.iOS.ListViewCellSelectionStyle) instead.
 
 properties:
   - name: BLUE

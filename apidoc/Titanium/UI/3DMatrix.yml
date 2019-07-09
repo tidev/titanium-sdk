@@ -13,7 +13,7 @@ since: "0.9"
 platforms: [iphone, ipad]
 deprecated:
     since: "8.0.0"
-    notes: Use <Titanium.UI.Matrix3D> for improved ES6+ compatibility instead.
+    notes: Use [Titanium.UI.Matrix3D](Titanium.UI.Matrix3D) for improved ES6+ compatibility instead.
 
 methods:
   - name: invert
