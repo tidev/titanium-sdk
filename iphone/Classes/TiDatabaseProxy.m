@@ -314,17 +314,18 @@
 {
   // Do we need to copy the array or something to retain the args?
   NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
+  NSUInteger index = 0;
   for (NSString *sql in queries) {
     TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:error];
     if (*error != nil) {
-      // Should we continue trying the others? Right now let's fail right away
-      return nil;
+      return results; // return immediately when we fail, we can report the partial results
     }
     if (result == nil) {
       [results addObject:[JSValue valueWithNullInContext:context]];
     } else {
       [results addObject:result];
     }
+    index++;
   }
   return results;
 }
@@ -332,12 +333,26 @@
 - (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries
 {
   NSError *error = nil;
-  NSArray<TiDatabaseResultSetProxy *> *result = [self executeAll:queries withContext:[JSContext currentContext] withError:&error];
-  if (error != nil) {
-    [self throwException:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION];
-    return nil;
+  JSContext *context = [JSContext currentContext];
+  NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
+  NSUInteger index = 0;
+  for (NSString *sql in queries) {
+    TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:&error];
+    if (error != nil) {
+      JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
+      jsError[@"results"] = result;
+      jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
+      [context setException:jsError];
+      return nil;
+    }
+    if (result == nil) {
+      [results addObject:[JSValue valueWithNullInContext:context]];
+    } else {
+      [results addObject:result];
+    }
+    index++;
   }
-  return result;
+  return results;
 }
 
 - (void)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
@@ -345,13 +360,25 @@
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     JSContext *context = [callback context];
     NSError *error = nil;
-    NSArray<TiDatabaseResultSetProxy *> *results = [self executeAll:queries withContext:context withError:&error];
-    if (error != nil) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        JSValue *jsError = [JSValue valueWithNewErrorFromMessage:[NSString stringWithFormat:@"failed to execute SQL statements: %@", [error description]] inContext:[callback context]];
-        [callback callWithArguments:@[ jsError ]];
-      });
-      return;
+    NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
+    NSUInteger index = 0;
+    for (NSString *sql in queries) {
+      TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:&error];
+      if (error != nil) {
+        JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
+        jsError[@"results"] = result;
+        jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [callback callWithArguments:@[ jsError, results ]];
+        });
+        return;
+      }
+      if (result == nil) {
+        [results addObject:[JSValue valueWithNullInContext:context]];
+      } else {
+        [results addObject:result];
+      }
+      index++;
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
