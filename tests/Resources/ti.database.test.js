@@ -552,13 +552,17 @@ describe('Titanium.Database', function () {
 			];
 
 			try {
-				should.throws(() => {
-					db.executeAll(queries);
-				}, Error);
+				db.executeAll(queries);
 			} catch (e) {
+				should(e).exist;
+				// we fire a custom Error with index pointing at the offending query
+				should(e.index).eql(0);
+				should(e.results).exist;
+				return;
+			} finally {
 				db.close();
-				throw e;
 			}
+			should.fail(true, false, 'Expected to throw an exception for invalid sql');
 		});
 	});
 
@@ -623,15 +627,40 @@ describe('Titanium.Database', function () {
 			const db = Ti.Database.open('execute_all.db');
 
 			const queries = [
+				// Execute a query to create a test table
+				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
+				// Delete any existing data if the table already existed
+				'DELETE FROM testTable',
+				// Insert test data into the table
+				'INSERT INTO testTable (text, number) VALUES (\'John Smith\', 123456789)',
+				// Execute a query to return the rows of the database
+				'SELECT rowid, text, number FROM testTable',
+				// invalid, should fail here!
 				'THIS IS INVALID SQL',
 			];
 
 			try {
-				db.executeAllAsync(queries, (err, _results) => {
+				db.executeAllAsync(queries, (err, results) => {
+					let rows;
 					try {
 						should(err).exist;
+						should(err.index).eql(4);
+						should(results).be.an.Array;
+
+						// validate our partial results
+						rows = results[3];
+						should(rows).be.a.Object;
+						should(rows.rowCount).be.eql(1);
+						should(rows.fieldCount).be.eql(3);
+						should(rows.validRow).be.true;
+
 						finish();
+					} catch (e) {
+						finish(e);
 					} finally {
+						if (rows) {
+							rows.close();
+						}
 						db.close();
 					}
 				});
@@ -643,9 +672,6 @@ describe('Titanium.Database', function () {
 		});
 
 		it('handles being closed mid-query', function (finish) {
-			this.timeout(30000);
-			this.slow(12000);
-
 			const db = Ti.Database.open('execute_all_async.db');
 			const queries = [
 				// Execute a query to create a test table
@@ -662,8 +688,9 @@ describe('Titanium.Database', function () {
 				// this should eventually throw an error when it gets closed mid-queries
 				try {
 					should(err).exist;
-					// TODO: Should we check any particular properties, like message/stack?
-					should(results).not.exist;
+					// We should be giving custom properties so user can see what index we failed on, get partial results
+					should(err.index).be.a.Number;
+					should(results).be.an.Array;
 					finish();
 				} catch (e) {
 					finish(e);
@@ -694,9 +721,8 @@ describe('Titanium.Database', function () {
 			for (let i = 0; i < 10000; i++) {
 				queries.push(`INSERT INTO testTable (text, number) VALUES ('John Smith ${i}', ${i})`);
 			}
-
+			// this should just continue on until it's done...
 			db.executeAllAsync(queries, (err, results) => {
-				// this should eventually throw an error when it gets closed mid-queries
 				try {
 					should(err).not.exist;
 					should(results).exist;
