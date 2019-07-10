@@ -703,8 +703,8 @@ NSArray *moviePlayerKeys = nil;
 - (id)naturalSize
 {
   CGSize size = CGSizeZero;
-  if (movie && [movie player] && [[movie player] currentItem]) {
-    size = [[[movie player] currentItem] presentationSize];
+  if (movie.player.currentItem) {
+    size = movie.player.currentItem.presentationSize;
   }
   return @{
     @"width" : NUMFLOAT(size.width),
