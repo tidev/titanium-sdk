@@ -148,6 +148,9 @@ JSExportAs(fireEvent,
 + (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location;
 - (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location;
 
++ (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context;
+- (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context;
+
 // FIXME: Should id be TiProxy* here?
 - (id)JSValueToNative:(JSValue *)jsValue;
 - (JSValue *)NativeToJSValue:(id)proxy;
