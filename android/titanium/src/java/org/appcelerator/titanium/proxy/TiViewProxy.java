@@ -1036,16 +1036,16 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 
 		// Fetch the view.
-		TiUIView tiView = getOrCreateView();
+		TiUIView view = getOrCreateView();
 		if (view == null) {
 			return null;
 		}
 
 		// Try to get the background drawable if one is available.
 		// If only backgroundColor is defined then no ColorStateList is created, we resort to only the color defined.
-		TiBackgroundDrawable tiBackgroundDrawable = tiView.getBackground();
+		TiBackgroundDrawable tiBackgroundDrawable = view.getBackground();
 		if (tiBackgroundDrawable == null) {
-			View nativeView = tiView.getNativeView();
+			View nativeView = view.getNativeView();
 			if (nativeView != null) {
 				Drawable drawable = nativeView.getBackground();
 				if (drawable instanceof ColorDrawable) {
