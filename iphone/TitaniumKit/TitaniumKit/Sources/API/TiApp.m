@@ -990,7 +990,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [kjsBridge shutdown:condition];
 
   if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
-    [[TiLogServer defaultLogServer] start];
+    [[TiLogServer defaultLogServer] stop];
   }
 
   //This will shut down the modules.
