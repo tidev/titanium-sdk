@@ -98,7 +98,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		try {
 			String fullUrl = resolveUrl(this.url);
 			if (KrollAssetHelper.assetExists(fullUrl)) {
-				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
+				KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(fullUrl), fullUrl,
+														  activityProxy);
 
 				// launch script does not exist, must be using snapshot
 				// execute startup method baked in snapshot
