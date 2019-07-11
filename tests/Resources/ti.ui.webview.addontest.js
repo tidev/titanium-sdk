@@ -5,11 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
-/* global Ti */
 /* eslint no-unused-expressions: "off" */
+
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.WebView', function () {
 	var win;
