@@ -12,7 +12,7 @@ var should = require('./utilities/assertions');
 describe('Titanium.UI.Window', function () {
 	var win;
 
-	it('.barColor with disabled ActionBar', function (finish) {
+	it.android('.barColor with disabled ActionBar', function (finish) {
 		win = Ti.UI.createWindow({
 			barColor: 'blue',
 			title: 'My Title',
