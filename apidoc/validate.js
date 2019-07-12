@@ -264,28 +264,48 @@ function validateConstants(constants) {
  * @returns {string[]} array of error strings
  */
 function validateDataType(type) {
-	var errors = [];
 	if (Array.isArray(type)) {
-		type.forEach(function (elem) {
-			errors = errors.concat(validateDataType(elem));
+		const errors = [];
+		type.forEach(elem => {
+			errors.push(...validateDataType(elem));
 		});
-	} else if ((~type.indexOf('<') && ~type.indexOf('>'))
-		&& (type.indexOf('Array') === 0 || type.indexOf('Callback') === 0 ||  type.indexOf('Dictionary') === 0)) {
+		return errors;
+	}
+
+	const lessThanIndex = type.indexOf('<');
+	const greaterThanIndex = type.lastIndexOf('>');
+	if (lessThanIndex !== -1 && greaterThanIndex !== -1) {
 		if (type === 'Callback<void>') {
-			return errors;
+			return [];
 		}
 		// Compound data type
-		errors = errors.concat(validateDataType(type.slice(type.indexOf('<') + 1, type.lastIndexOf('>'))));
-	} else if (!validateClass(type) || ~common.DATA_TYPES.indexOf(type)) {
-		return errors;
-	} else if (standaloneFlag) {
+		const baseType = type.slice(0, lessThanIndex);
+		const subType = type.slice(lessThanIndex + 1, greaterThanIndex);
+		if (baseType === 'Callback' || baseType === 'Function') {
+			const errors = [];
+			subType.split(',').forEach(sub => {
+				errors.push(...validateDataType(sub.trim()));
+			});
+			return errors;
+		}
+		if (baseType !== 'Array' && baseType !== 'Dictionary') {
+			return [ `Base type for complex types must be one of Array, Callback, Dictionary, Function, but received ${baseType}` ];
+		}
+		return validateDataType(subType);
+	}
+
+	// This is awkward and backwards, but if the class is valid OR it's a common type, there's no error, so return empty array
+	if (!validateClass(type) || ~common.DATA_TYPES.indexOf(type)) {
+		return [];
+	}
+
+	if (standaloneFlag) {
 		// For standalone mode, log warning but not an error
 		// Data type can exist in a parent class not in the data set
 		console.warn('WARNING! Could not validate data type: %s'.yellow, type);
-	} else {
-		errors.push(type);
+		return [];
 	}
-	return errors;
+	return [ type ];
 }
 
 /**
