@@ -60,7 +60,7 @@ class Dependency {
 			return [ this.directory ]; // just need our own directory!
 		}
 
-		const children = await Promise.all(childrenNames.map(name => this.resolve(name)));
+		const children = (await Promise.all(childrenNames.map(name => this.resolve(name)))).filter(child => child !== null);
 		const allDirs = await Promise.all(children.map(c => c.getDirectoriesToCopy(includeOptional)));
 		// flatten allDirs doen to single Array
 		const flattened = allDirs.reduce((acc, val) => acc.concat(val), []); // TODO: replace with flat() call once Node 11+
@@ -103,12 +103,11 @@ class Dependency {
 				return new Dependency(this, subModule, targetDir);
 			}
 		} catch (err) {
-			// this is the root and we still didn't find it, fail!
-			if (this.parent === null) {
-				throw err;
-			}
+			// do nothing...
 		}
-
-		return this.parent.resolve(subModule); // Try the parent (recursively)
+		if (this.parent !== null) {
+			return this.parent.resolve(subModule); // Try the parent (recursively)
+		}
+		return null;
 	}
 }
