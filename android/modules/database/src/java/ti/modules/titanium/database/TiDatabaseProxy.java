@@ -133,14 +133,20 @@ public class TiDatabaseProxy extends KrollProxy
 	{
 		synchronized (this)
 		{
-			if (db == null) {
-				return;
-			}
-			if (db.isOpen()) {
-				// Close database.
+			// Close database.
+			if (db != null && db.isOpen()) {
 				db.close();
 			}
+			db = null;
 			isClosed = true;
+
+			// Abort query queue execution.
+			if (thread != null) {
+				thread.interrupt();
+				thread = null;
+			}
+			executingQueue.set(false);
+			queue.clear();
 		}
 	}
 
@@ -450,14 +456,6 @@ public class TiDatabaseProxy extends KrollProxy
 	public void release()
 	{
 		this.close();
-		this.db = null;
-
-		// Interrupt and dereference thread.
-		if (this.thread != null) {
-			this.thread.interrupt();
-			this.thread = null;
-		}
-
 		super.release();
 	}
 
