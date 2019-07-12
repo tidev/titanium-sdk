@@ -388,6 +388,19 @@
 }
 #endif
 
+#ifdef IS_XCODE_11
+- (TiBlob *)systemImage:(id)arg
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return nil;
+  }
+  ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
+  UIImage *image = [UIImage systemImageNamed:arg];
+  TiBlob *blob = [[TiBlob alloc] initWithImage:image];
+  return blob;
+}
+#endif
+
 - (void)setAppBadge:(id)value
 {
   ENSURE_UI_THREAD(setAppBadge, value);

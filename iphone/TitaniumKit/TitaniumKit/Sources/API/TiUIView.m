@@ -10,6 +10,7 @@
 #import "Ti3DMatrix.h"
 #import "TiApp.h"
 #import "TiBase.h"
+#import "TiBlob.h"
 #import "TiColor.h"
 #import "TiRect.h"
 #import "TiUtils.h"
@@ -312,7 +313,7 @@ DEFINE_EXCEPTIONS
   if (image == nil)
     return nil;
   NSURL *url = [TiUtils toURL:image proxy:proxy];
-  if (url == nil) {
+  if (url == nil && ![image isKindOfClass:[TiBlob class]]) {
     NSLog(@"[WARN] could not find image: %@", image);
     return nil;
   }
