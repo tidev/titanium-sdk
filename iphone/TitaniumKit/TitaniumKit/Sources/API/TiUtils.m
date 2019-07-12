@@ -31,7 +31,6 @@
 static NSDictionary *encodingMap = nil;
 static NSDictionary *typeMap = nil;
 static NSDictionary *sizeMap = nil;
-static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 @implementation TiUtils
 
@@ -1902,19 +1901,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
   unsigned char result[CC_MD5_DIGEST_LENGTH];
   CC_MD5([data bytes], (CC_LONG)[data length], result);
   return [self convertToHex:(unsigned char *)&result length:CC_MD5_DIGEST_LENGTH];
-}
-
-+ (NSString *)appIdentifier
-{
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  NSString *uid = [defaults stringForKey:kAppUUIDString];
-  if (uid == nil) {
-    uid = [TiUtils createUUID];
-    [defaults setObject:uid forKey:kAppUUIDString];
-    [defaults synchronize];
-  }
-
-  return uid;
 }
 
 // In pre-iOS 5, it looks like response headers were case-mangled.

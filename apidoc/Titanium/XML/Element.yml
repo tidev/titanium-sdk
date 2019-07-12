@@ -221,7 +221,7 @@ properties:
   - name: text
     deprecated:
         since: "2.0.0"
-        notes: Use <Titanium.XML.Element.textContent> instead.
+        notes: Use [Titanium.XML.Element.textContent](Titanium.XML.Element.textContent) instead.
     summary: Content (value) of all text nodes within this node.
     type: String
     permission: read-only
