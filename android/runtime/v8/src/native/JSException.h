@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,7 @@
 #include <jni.h>
 #include <v8.h>
 
-#define MAX_STACK 10
+#include "JNIUtil.h"
 
 #define THROW(isolate, msg) \
 	isolate->ThrowException(v8::String::NewFromUtf8(isolate, msg))
