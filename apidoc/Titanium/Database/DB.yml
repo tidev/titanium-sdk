@@ -62,7 +62,7 @@ methods:
 
   - name: executeAsync
     summary: |
-      Asynchronously executes an SQL statement against the database and fires a callback with a `ResultSet`.
+      Asynchronously executes an SQL statement against the database and fires a callback with a possible `Error` argument, and a second argument holding a possible `ResultSet`.
     platforms: [android]
     parameters:
       - name: query
@@ -78,12 +78,13 @@ methods:
 
       - name: callback
         summary: Callback when query execution has completed.
-        type: Callback<Titanium.Database.ResultSet>
-    since: { android: "8.1.0" }
+        type: Callback<Object, Titanium.Database.ResultSet>
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: executeAll
     summary: |
-      Synchronously executes an array of SQL statements against the database and fires a callback with an array of `ResultSet`.
+      Synchronously executes an array of SQL statements against the database and returns an array of `ResultSet`.
+      On failure, this will throw an [Error](BatchQueryError) that reports the failed index and partial results
     returns:
         type: Array<Titanium.Database.ResultSet>
     platforms: [android]
@@ -91,11 +92,12 @@ methods:
       - name: queries
         summary: Array of SQL queries to execute.
         type: Array<String>
-    since: { android: "8.1.0" }
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: executeAllAsync
     summary: |
-      Asynchronously executes an array of SQL statements against the database and fires a callback with an array of `ResultSet`.
+      Asynchronously executes an array of SQL statements against the database and fires a callback with a possible Error, and an array of `ResultSet`.
+      On failure, this will call the callback with an [Error](PossibleBatchQueryError) that reports the failed index, and a second arguemnt with the partial results
     platforms: [android]
     parameters:
       - name: queries
@@ -104,8 +106,8 @@ methods:
 
       - name: callback
         summary: Callback when query execution has completed.
-        type: Callback<Array<Titanium.Database.ResultSet>>
-    since: { android: "8.1.0" }
+        type: Callback<PossibleBatchQueryError, Array<Titanium.Database.ResultSet>>
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: remove
     summary: |
@@ -139,3 +141,34 @@ properties:
     summary: The number of rows affected by the last query.
     type: Number
     permission: read-only
+
+---
+name: BatchQueryError
+summary: |
+    Simple `Error` instance thrown from the
+    [executeAll](Titanium.Database.DB.executeAll) method in case of failure
+since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
+properties:
+
+  - name: index
+    summary: Index of the failed query
+    type: Number
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
+
+  - name: results
+    summary: partial `ResultSet`s of any successful queries before the failure 
+    type: Array<Titanium.Database.ResultSet>
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
+
+---
+name: PossibleBatchQueryError
+summary: |
+    Simple `Error` argument provided to the callback from the
+    [executeAllAsync](Titanium.Database.DB.executeAllAsync) method in case of failure
+since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
+properties:
+
+  - name: index
+    summary: Index of the failed query
+    type: Number
+    since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
