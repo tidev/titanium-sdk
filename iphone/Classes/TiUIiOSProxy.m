@@ -391,7 +391,7 @@
 #ifdef IS_XCODE_11
 - (TiBlob *)systemImage:(id)arg
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return nil;
   }
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
