@@ -133,6 +133,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public static long START_TIME_MS = 0;
+
 	public TiApplication()
 	{
 		Log.checkpoint(TAG, "checkpoint, app created.");
