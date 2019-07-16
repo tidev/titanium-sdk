@@ -148,7 +148,7 @@ methods:
         optional: true
     deprecated:
         since: "8.0.0"
-        notes: Use [Titanium.UI.Matrix2D](Titanium.UI.Matrix2D) for improved ES6+ compatibility instead.
+        notes: Use [Titanium.UI.createMatrix2D](Titanium.UI.createMatrix2D) instead.
 
   - name: createMatrix2D
     summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
