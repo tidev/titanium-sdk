@@ -672,6 +672,8 @@ describe('Titanium.Database', function () {
 		});
 
 		it('handles being closed mid-query', function (finish) {
+			this.timeout(10000);
+			this.slow(2000);
 			const db = Ti.Database.open('execute_all_async.db');
 			const queries = [
 				// Execute a query to create a test table
@@ -736,8 +738,8 @@ describe('Titanium.Database', function () {
 		// Try to get the db object to get GC'd while we're running queries!
 		// Note that I can't really think of any better way to try and test this scenario
 		it('does not allow DB to be GC\'d', function (finish) {
-			this.timeout(30000);
-			this.slow(12000);
+			this.timeout(60000);
+			this.slow(20000);
 			// note that we call a fucntion that has a db instance scope to it and not referenced elsewhere,
 			// not explicitly closed, not referenced in the async callback
 			executeQueriesAsync(finish);
