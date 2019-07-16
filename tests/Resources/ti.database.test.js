@@ -672,7 +672,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('handles being closed mid-query', function (finish) {
-			this.timeout(10000);
+			this.timeout(30000);
 			this.slow(2000);
 			const db = Ti.Database.open('execute_all_async.db');
 			const queries = [
