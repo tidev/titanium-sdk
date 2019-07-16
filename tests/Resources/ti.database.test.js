@@ -720,7 +720,7 @@ describe('Titanium.Database', function () {
 				'DELETE FROM testTable'
 			];
 			// insert a lot of bogus data
-			for (let i = 0; i < 10000; i++) {
+			for (let i = 0; i < 5000; i++) {
 				queries.push(`INSERT INTO testTable (text, number) VALUES ('John Smith ${i}', ${i})`);
 			}
 			// this should just continue on until it's done...
