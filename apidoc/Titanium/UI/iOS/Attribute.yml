@@ -2,7 +2,7 @@
 name: Titanium.UI.iOS.Attribute
 deprecated:
     since: "3.6.0"
-    notes: Use [Titanium.UI.Attribute](Titanium.UI.Attribute) instead.
+    notes: Use [Attribute](Attribute) instead.
     removed: "6.0.0"
 summary: An abstract datatype for specifying an attributed string attribute.
 description: |

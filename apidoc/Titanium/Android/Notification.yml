@@ -447,13 +447,13 @@ properties:
         The application needs to also set the `android.permission.WAKE_LOCK` permission
         in the Android manifest section of the `tiapp.xml` file.
         
-        <ti:app>
-            <android>
-                <manifest>
-                    <uses-permission android:name="android.permission.WAKE_LOCK" />
-                </manifest>
-            </android>
-        </ti:app>
+            <ti:app>
+                <android>
+                    <manifest>
+                        <uses-permission android:name="android.permission.WAKE_LOCK" />
+                    </manifest>
+                </android>
+            </ti:app>
     type: wakeLockOptions
     default: 0
     since: "6.2.0"
