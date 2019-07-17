@@ -209,8 +209,8 @@ examples:
             centerView.add(btn);
 
             win.addEventListener('open', function(){
-                var activity = win.getActivity(),
-                    actionBar = activity.getActionBar();
+                var activity = win.activity,
+                    actionBar = activity.actionBar;
 
                 if (actionBar) {
                     actionBar.displayHomeAsUp = true;
