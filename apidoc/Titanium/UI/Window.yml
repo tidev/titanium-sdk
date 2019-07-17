@@ -1843,6 +1843,16 @@ properties:
     type: Boolean
     default: false
 
+  - name: forceModal
+    summary: Indicates whether the window enforces modal behaviour.
+    description: |
+        Set to `true` to prevent interactive dismissal of window while it is onscreen.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
   - name: modalStyle
     summary: Presentation style of this modal window.
     platforms: [iphone, ipad]

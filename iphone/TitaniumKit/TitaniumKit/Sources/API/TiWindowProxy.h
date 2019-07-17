@@ -21,6 +21,7 @@
   BOOL focussed;
   BOOL isModal;
   BOOL hidesStatusBar;
+  BOOL isForceModalDisable;
   UIStatusBarStyle barStyle;
   TiViewProxy<TiTab> *tab;
   TiAnimation *openAnimation;
