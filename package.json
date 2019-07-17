@@ -102,7 +102,7 @@
     "danger": "^9.0.2",
     "eslint": "^6.0.1",
     "eslint-config-axway": "^4.2.2",
-    "eslint-plugin-mocha": "^5.3.0",
+    "eslint-plugin-mocha": "^6.0.0",
     "glob": "^7.1.4",
     "grunt": "^1.0.4",
     "grunt-appc-js": "^2.1.0",
