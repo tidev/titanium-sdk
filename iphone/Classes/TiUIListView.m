@@ -239,7 +239,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self configureHeaders];
     _defaultSeparatorInsets = [_tableView separatorInset];
 
-    if (style != UITableViewStyleInsetGrouped) {
+    if (style == UITableViewStyleGrouped || style == UITableViewStylePlain) {
       _tableView.layoutMargins = UIEdgeInsetsZero;
     }
     _tableView.cellLayoutMarginsFollowReadableWidth = NO;
