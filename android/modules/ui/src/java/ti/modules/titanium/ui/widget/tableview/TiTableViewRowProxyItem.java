@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2019-current by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,6 @@ import ti.modules.titanium.ui.widget.TiUILabel;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -48,7 +47,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private static final String RIGHT_MARGIN = "6dp";
 	private static final int MIN_HEIGHT = 48;
 
-	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
+	private Drawable hasChildDrawable, hasCheckDrawable;
 	private ImageView leftImage;
 	private ImageView rightImage;
 	private TiCompositeLayout content;
@@ -378,7 +377,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
 				if (hasCheckDrawable == null) {
-					hasCheckDrawable = createHasCheckDrawable();
+					hasCheckDrawable = getHasCheckDrawable();
 				}
 				rightImage.setImageDrawable(hasCheckDrawable);
 				rightImage.setVisibility(VISIBLE);
@@ -388,7 +387,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (props.containsKey(TiC.PROPERTY_HAS_CHILD)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHILD)) {
 				if (hasChildDrawable == null) {
-					hasChildDrawable = createHasChildDrawable();
+					hasChildDrawable = getHasChildDrawable();
 				}
 				rightImage.setImageDrawable(hasChildDrawable);
 				rightImage.setVisibility(VISIBLE);
