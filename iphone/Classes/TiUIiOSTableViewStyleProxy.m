@@ -16,7 +16,7 @@
   return @"Ti.UI.iOS.TableViewStyle";
 }
 
-#if IS_XCODE_11
+#if IS_SDK_IOS_13
 - (NSNumber *)INSET_GROUPED
 {
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
