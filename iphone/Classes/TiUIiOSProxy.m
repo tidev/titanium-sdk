@@ -388,7 +388,7 @@
 }
 #endif
 
-#ifdef IS_XCODE_11
+#ifdef IS_SDK_IOS_13
 - (TiBlob *)systemImage:(id)arg
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
