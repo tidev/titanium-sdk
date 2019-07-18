@@ -1,6 +1,6 @@
 /**
  * Ti.SwiftSupport
- * Copyright (c) 2018-present by Axway Appcelerator
+ * Copyright (c) 2018-present by Axway Appcelerator.
  * All Rights Reserved.
  */
 
@@ -12,13 +12,18 @@ exports.init = init;
 
 /**
  * Main entry point for our plugin which looks for the platform specific
- * plugin to invoke
+ * plugin to invoke.
+ *
+ * @param {Object} logger The logger instance.
+ * @param {Object} config The hook config.
+ * @param {Object}cli The Titanium CLI instance.
+ * @param {Object} appc The Appcelerator CLI instance.
  */
 function init(logger, config, cli, appc) {
 	cli.on('build.ios.xcodeproject', {
-		pre: function(data) {
+		pre: function (data) {
 			var xobjs = data.args[0].hash.project.objects;
-															
+
 			Object.keys(xobjs.PBXNativeTarget).forEach(function (targetUuid) {
 				var target = xobjs.PBXNativeTarget[targetUuid];
 				if (target && typeof target === 'object') {

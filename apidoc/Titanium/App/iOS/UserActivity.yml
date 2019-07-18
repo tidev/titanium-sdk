@@ -127,7 +127,7 @@ properties:
     osver: {ios: {min: "8.0"}}
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.App.iOS.UserActivity.isSupported> instead.
+        notes: Use [Titanium.App.iOS.UserActivity.isSupported](Titanium.App.iOS.UserActivity.isSupported) instead.
 
   - name: title
     summary: An optional, user-visible title for this activity such as a document name or web page title.

@@ -537,9 +537,9 @@ events:
 
   - name: rowAction
     deprecated:
-        since: 5.0.0
-        removed: 5.0.0
-        notes: Use <Titanium.UI.ListView.editaction> instead.
+        since: "5.0.0"
+        removed: "5.0.0"
+        notes: Use [Titanium.UI.ListView.editaction](Titanium.UI.ListView.editaction) instead.
     summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
@@ -995,7 +995,7 @@ properties:
     summary: The insets for list view separators (applies to all cells).
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
+        notes: Use [Titanium.UI.ListView.listSeparatorInsets](Titanium.UI.ListView.listSeparatorInsets) instead.
     description: |
         Cell separators do not extend all the way to the edge of the list view.
         This property sets the default inset for all cells in the table.
@@ -1025,7 +1025,7 @@ properties:
   - name: tableSeparatorInsets
     deprecated:
         since: "5.4.0"
-        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
+        notes: Use [Titanium.UI.ListView.listSeparatorInsets](Titanium.UI.ListView.listSeparatorInsets) instead.
     summary: The insets for the table view header and footer.
     description: |
         Cell separators do not extend all the way to the edge of the list view. Set this to a

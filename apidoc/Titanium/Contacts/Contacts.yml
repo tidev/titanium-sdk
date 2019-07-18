@@ -95,7 +95,7 @@ methods:
         type: Number
     deprecated:
         since: "5.0.0"
-        notes: Use <Titanium.Contacts.getGroupByIdentifier> instead.
+        notes: Use [Titanium.Contacts.getGroupByIdentifier](Titanium.Contacts.getGroupByIdentifier) instead.
 
   - name: getGroupByIdentifier
     summary: Gets the group with the specified identifier. 
@@ -130,7 +130,7 @@ methods:
         type: Number
     deprecated:
         since: "5.0.0"
-        notes: Use <Titanium.Contacts.getPersonByIdentifier> instead.
+        notes: Use [Titanium.Contacts.getPersonByIdentifier](Titanium.Contacts.getPersonByIdentifier) instead.
         
   - name: getPersonByIdentifier
     summary: Gets the person with the specified identifier.
@@ -233,7 +233,7 @@ methods:
   - name: requestAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Contacts.requestContactsPermissions> instead.
+        notes: Use [Titanium.Contacts.requestContactsPermissions](Titanium.Contacts.requestContactsPermissions) instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |
