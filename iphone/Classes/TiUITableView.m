@@ -2293,7 +2293,7 @@
   [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
 }
 
-#if IS_XCODE_11
+#if IS_SDK_IOS_13
 - (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
 {
   RETURN_IF_SEARCH_TABLE_VIEW(NO);

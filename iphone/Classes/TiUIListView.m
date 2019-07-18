@@ -1152,7 +1152,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return NO;
 }
 
-#if IS_XCODE_11
+#if IS_SDK_IOS_13
 - (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
 {
   return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
