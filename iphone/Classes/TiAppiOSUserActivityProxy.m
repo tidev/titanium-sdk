@@ -124,7 +124,7 @@
     [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
   }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
   if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
     if ([props objectForKey:@"eligibleForPrediction"]) {
       [_userActivity setEligibleForPrediction:[TiUtils boolValue:@"eligibleForPrediction" properties:props]];
@@ -404,7 +404,7 @@
   [_userActivity resignCurrent];
 }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 - (NSNumber *)eligibleForPrediction
 {
   if ([TiUtils isIOSVersionLower:@"12.0"]) {
