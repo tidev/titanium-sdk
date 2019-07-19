@@ -6,6 +6,7 @@ import tty from './tty';
 import util from './util';
 import assert from './assert';
 import events from './events';
+import Buffer from './buffer';
 
 // hook our implementations to get loaded by require
 import { register } from '../binding';
@@ -15,3 +16,4 @@ register('tty', tty);
 register('util', util);
 register('assert', assert);
 register('events', events);
+register('buffer', Buffer);
