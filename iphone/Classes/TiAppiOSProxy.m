@@ -193,7 +193,6 @@
 
 #pragma mark Public
 
-
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {
@@ -1296,17 +1295,16 @@
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleUnspecified);
   }
-  
+
   return NUMINT(0);
 }
-
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleLight);
   }
-  
+
   return NUMINT(0);
 }
 
@@ -1315,7 +1313,7 @@
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleDark);
   }
-  
+
   return NUMINT(0);
 }
 #endif
