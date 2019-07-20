@@ -96,7 +96,7 @@
     "@seadub/danger-plugin-junit": "0.1.1",
     "clang-format": "1.2.3",
     "commander": "^2.20.0",
-    "commitizen": "^3.1.1",
+    "commitizen": "^4.0.3",
     "core-js": "^2.6.5",
     "cz-conventional-changelog": "^2.1.0",
     "danger": "^9.0.2",
