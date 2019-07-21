@@ -98,7 +98,7 @@
     "commander": "^2.20.0",
     "commitizen": "^4.0.3",
     "core-js": "^2.6.5",
-    "cz-conventional-changelog": "^2.1.0",
+    "cz-conventional-changelog": "^3.0.2",
     "danger": "^9.0.2",
     "eslint": "^6.0.1",
     "eslint-config-axway": "^4.2.2",
