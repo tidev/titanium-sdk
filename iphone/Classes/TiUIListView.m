@@ -2198,7 +2198,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)viewGetFocus
 {
-#if IS_XCODE_9
   if (isSearchBarInNavigation) {
     id proxy = [(TiViewProxy *)self.proxy parent];
     while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
@@ -2214,7 +2213,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       controller.navigationItem.searchController = searchController;
     }
   }
-#endif
 
   if (isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
