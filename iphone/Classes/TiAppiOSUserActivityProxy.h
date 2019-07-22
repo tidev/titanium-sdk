@@ -70,7 +70,7 @@
 
 - (void)resignCurrent:(id)unused;
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 - (NSString *)persistentIdentifier;
 
 - (void)setPersistentIdentifier:(NSString *)value;

@@ -10,7 +10,7 @@ createable: false
 deprecated:
     since: "5.2.0"
     removed: "7.0.0"
-    notes: Use <Titanium.UI.iOS.TableViewStyle> instead.
+    notes: Use [Titanium.UI.iOS.TableViewStyle](Titanium.UI.iOS.TableViewStyle) instead.
 
 properties:
   - name: GROUPED
