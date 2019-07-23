@@ -71,7 +71,7 @@ public class TiUIProgressBar extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
 			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
 		}
-		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
+		if (d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR)) {
 			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
 		}
 		updateProgress();
