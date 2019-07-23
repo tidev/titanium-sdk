@@ -42,7 +42,7 @@ methods:
 
   - name: systemImage
     summary: |
-        Get image from SF Symbol provided by Apple.
+        Get image from SF Symbols provided by Apple.
     description: |
         More details on SF Symbols can be found from https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview.
         One can download SF Symbols app from https://developer.apple.com/design/downloads/SF-Symbols.dmg and 
