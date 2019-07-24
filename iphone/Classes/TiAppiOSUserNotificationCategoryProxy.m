@@ -33,7 +33,7 @@
     NSArray *intentIdentifiers = [properties valueForKey:@"intentIdentifiers"] ?: @[];
     NSString *hiddenPreviewsBodyPlaceholder = [properties valueForKey:@"hiddenPreviewsBodyPlaceholder"];
     UNNotificationCategoryOptions options = [self categoryOptionsFromArray:[properties valueForKey:@"options"] ?: @[]];
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
     NSString *categorySummaryFormat = [properties valueForKey:@"categorySummaryFormat"];
 #endif
 
@@ -63,7 +63,7 @@
     if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       // For iOS 11+, offer new constructors
       if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
         // For iOS 12+, use the "hiddenPreviewsBodyPlaceholder" and "categorySummaryFormat" constructor
         if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
           _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
@@ -80,7 +80,7 @@
                                                                 intentIdentifiers:intentIdentifiers
                                                     hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
                                                                           options:options] retain];
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
         }
 #endif
       } else {
