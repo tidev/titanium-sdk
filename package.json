@@ -72,7 +72,7 @@
     "ioslib": "^1.7.10",
     "klaw-sync": "^6.0.0",
     "liveview": "^1.5.0",
-    "lodash.defaultsdeep": "^4.6.0",
+    "lodash.defaultsdeep": "^4.6.1",
     "markdown": "0.5.0",
     "moment": "^2.22.2",
     "node-appc": "^0.3.3",
@@ -89,7 +89,7 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.0.0",
+    "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.0.0",
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^1.0.1",
