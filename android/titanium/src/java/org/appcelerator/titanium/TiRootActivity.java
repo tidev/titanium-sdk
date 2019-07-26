@@ -207,6 +207,16 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				} catch (Exception ex) {
 					Log.e(TAG, "Failed to close existing Titanium root activity.", ex);
 				}
+			} else if (!canResumeActivityUsing(newIntent) || !canResumeActivityUsing(rootActivity.getLaunchIntent())) {
+				// It's impossible to resume existing root activity. So, we have to destroy it and restart.
+				// Note: This typically happens with ACTION_SEND and ACTION_*_DOCUMENT intents.
+				rootActivity.finishAffinity();
+				TiApplication.terminateActivityStack();
+				if ((newIntent != null) && !newIntent.filterEquals(mainIntent)) {
+					mainIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, newIntent);
+				}
+				mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(mainIntent);
 			} else {
 				// Simulate "singleTask" handling by updating existing root activity's intent with received one.
 				if (newIntent == null) {
@@ -215,9 +225,13 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				rootActivity.onNewIntent(newIntent);
 
 				// Resume the pre-existing Titanium root activity.
-				// Note: On Android, you resume a backgrounded activity by using its initial launch intent.
+				// Note: You can resume a backgrounded activity by using its initial launch intent,
+				//       but we need to remove flags such as CLEAR_TOP to preserve its child activities.
 				Intent resumeIntent = rootActivity.getLaunchIntent();
-				if (resumeIntent == null) {
+				if (resumeIntent != null) {
+					resumeIntent = new Intent(resumeIntent);
+					resumeIntent.setFlags(mainIntent.getFlags());
+				} else {
 					resumeIntent = mainIntent;
 				}
 				startActivity(resumeIntent);
@@ -542,5 +556,27 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	public static boolean isScriptRunning()
 	{
 		return TiRootActivity.isScriptRunning;
+	}
+
+	/**
+	 * Determine if an existing activity can be resumed with the given intent via startActivity() method.
+	 * <p>
+	 * For example, intent flags such as "FLAG_ACTIVITY_MULTIPLE_TASK" always creates a new activity instance
+	 * even if an existing activity for that activity already exists.
+	 * @param intent The intent to be checked. Can be null.
+	 * @return
+	 * Returns true if an activity can be resumed based on given intent's flags.
+	 * <p>
+	 * Returns false if impossible to resume or if given a null argument.
+	 */
+	private static boolean canResumeActivityUsing(Intent intent)
+	{
+		if (intent != null) {
+			final int BAD_FLAGS = (Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+			if ((intent.getFlags() & BAD_FLAGS) == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
