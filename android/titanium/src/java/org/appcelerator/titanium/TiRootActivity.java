@@ -561,8 +561,8 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	/**
 	 * Determine if an existing activity can be resumed with the given intent via startActivity() method.
 	 * <p>
-	 * For example, intent flags such as "FLAG_ACTIVITY_MULTIPLE_TASK" always creates a new activity instance
-	 * even if an existing activity for that activity already exists.
+	 * For example, an intent flag such as "FLAG_ACTIVITY_MULTIPLE_TASK" always creates a new activity instance
+	 * even if an existing activity with a matching intent already exists. This makes resumes impossible.
 	 * @param intent The intent to be checked. Can be null.
 	 * @return
 	 * Returns true if an activity can be resumed based on given intent's flags.
