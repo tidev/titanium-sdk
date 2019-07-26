@@ -8,10 +8,10 @@
 @import CoreLocation;
 
 /** Constant indicating development deployment */
-extern NSString * const APSDeployTypeDevelopment;
+extern NSString *const APSDeployTypeDevelopment;
 
 /** Constant indicating production deployment */
-extern NSString * const APSDeployTypeProduction;
+extern NSString *const APSDeployTypeProduction;
 
 /**
  * The APSAnalytics class configures the application to use the APS analytic services
@@ -25,54 +25,54 @@ extern NSString * const APSDeployTypeProduction;
 /**
  * Return the singleton instance to the real-time analytics service.
  */
-+ (instancetype) sharedInstance;
++ (instancetype)sharedInstance;
 
 /**
  * Retrieves the current session identifier.
  *
  * @return {NSString*} session identifier.
  */
--(NSString *)getCurrentSessionId;
+- (NSString *)getCurrentSessionId;
 
 /**
  * Retrieves the last event sent.
  *
  * @return {NSDictionary *} the last event stored, otherwise null if none have been stored.
  */
--(NSDictionary *)getLastEvent;
+- (NSDictionary *)getLastEvent;
 
 /**
  * Retrieves the derived machine identifier.
  *
  * @return {NSString *} machine identifier.
  */
--(NSString*)getMachineId;
+- (NSString *)getMachineId;
 
 /**
  * Obtains machine identifier.
  */
--(void)setMachineId;
+- (void)setMachineId;
 
 /**
  * Checks whether the user has opted out from sending analytics data.
  *
  * @return {BOOL} with the decision
  */
--(BOOL)isOptedOut;
+- (BOOL)isOptedOut;
 
 /**
  * Writes the optedOut property in the SharedPreferences instance.
  *
  * @param {BOOL} value with the decision to opt out.
  */
--(void)setOptedOut:(BOOL)optedOut;
+- (void)setOptedOut:(BOOL)optedOut;
 
 /**
  * Sends an application enroll event to indicate first launch.
  *
  * @deprecated use sendAppInstallEvent() instead.
  */
--(void)sendAppEnrollEvent;
+- (void)sendAppEnrollEvent;
 
 /**
  * Sends an application enroll event to indicate first launch.
@@ -80,7 +80,7 @@ extern NSString * const APSDeployTypeProduction;
  * If this is called multiple times, all executions after the first will
  * be ignored and do nothing.
  */
--(void)sendAppInstallEvent;
+- (void)sendAppInstallEvent;
 
 /**
  * Sends an application foreground event to indicate a new session.
@@ -92,12 +92,12 @@ extern NSString * const APSDeployTypeProduction;
  *
  * In both of these cases, the same session identifier will be kept.
  */
--(void)sendSessionStartEvent;
+- (void)sendSessionStartEvent;
 
 /**
  * Sends an application background event to indicate an ended session.
  */
--(void)sendSessionEndEvent;
+- (void)sendSessionEndEvent;
 
 /**
  * Sends an application navigation event which describes moving between views.
@@ -106,24 +106,23 @@ extern NSString * const APSDeployTypeProduction;
  * @param toView the name of the view the user navigated to.
  * @param data arbitrary data to be sent alongside the nav event.
  */
--(void)sendAppNavEvent:(NSString * _Nonnull)fromView
-                toView:(NSString * _Nonnull)toView
-                 event:(NSString * _Nullable)event
-                  data:(NSDictionary * _Nullable)data;
+- (void)sendAppNavEvent:(NSString *_Nonnull)fromView
+                 toView:(NSString *_Nonnull)toView
+                  event:(NSString *_Nullable)event
+                   data:(NSDictionary *_Nullable)data;
 
-
--(void)sendAppNavEventFromView:(NSString * _Nonnull)fromView
-                        toView:(NSString * _Nonnull)toView
-                         withName:(NSString * _Nullable)event
-                          payload:(NSDictionary * _Nullable)data;
+- (void)sendAppNavEventFromView:(NSString *_Nonnull)fromView
+                         toView:(NSString *_Nonnull)toView
+                       withName:(NSString *_Nullable)event
+                        payload:(NSDictionary *_Nullable)data;
 
 /**
  * Sends an application feature event to allow sending custom data.
  *
  * @deprecated use sendCustomEvent(String, JSONObject) instead.
  */
--(void)sendAppFeatureEvent:(NSString * _Nonnull)event
-                      payload:(NSDictionary * _Nullable)data;
+- (void)sendAppFeatureEvent:(NSString *_Nonnull)event
+                    payload:(NSDictionary *_Nullable)data;
 
 /**
  * Sends an application feature event to allow sending custom data.
@@ -131,22 +130,27 @@ extern NSString * const APSDeployTypeProduction;
  * @param name the name of the event being sent.
  * @param data the data to send alongside the event.
  */
--(void)sendCustomEvent:(NSString * _Nonnull)name
-                  data:(NSDictionary * _Nullable)data;
+- (void)sendCustomEvent:(NSString *_Nonnull)name
+                   data:(NSDictionary *_Nullable)data;
 
 /**
  * Sends a crash report as a custom event.
  *
  * @deprecated use sendCrashReport(JSONObject) instead.
  */
--(void)sendAppCrashEvent:(NSDictionary * _Nonnull)data;
+- (void)sendAppCrashEvent:(NSDictionary *_Nonnull)data;
 
 /**
  * Sends a crash report as a custom event.
  *
  * @param crash the crash data to be included with the payload.
  */
--(void)sendCrashReport:(NSDictionary * _Nonnull)crash;
+- (void)sendCrashReport:(NSDictionary *_Nonnull)crash;
+
+/**
+ * Flush event queue.
+ */
+- (void)flush;
 
 /**
  * Set sdk version to send in analytics.
@@ -155,133 +159,133 @@ extern NSString * const APSDeployTypeProduction;
  *
  * @deprecated use setSdkVersion() instead.
  */
--(void)setSDKVersion:(NSString *)version;
+- (void)setSDKVersion:(NSString *)version;
 
 /**
  * @deprecated NOT USED, only defined for backwards compatibility.
  */
--(void)setBuildType:(NSString *) type;
+- (void)setBuildType:(NSString *)type;
 
 /**
  * Enables Analytics with a given app-key and deploy-type.
  * @param appKey The APSAnalytics app-key.
  * @param deployTime The deploy-type of the application.
  */
--(void)enableWithAppKey:(NSString *)appKey andDeployType:(NSString *)deployType;
+- (void)enableWithAppKey:(NSString *)appKey andDeployType:(NSString *)deployType;
 
 /**
  * Get analytics endpoint url
  */
--(NSString *)getAnalyticsUrl;
+- (NSString *)getAnalyticsUrl;
 
 /**
  * Get device architecture
  */
--(NSString *)getArchitecture;
+- (NSString *)getArchitecture;
 
 /**
  * Get application id
  */
--(NSString *)getAppId;
+- (NSString *)getAppId;
 
 /**
  * Get application name
  */
--(NSString *)getAppName;
+- (NSString *)getAppName;
 
 /**
  * Get application version
  */
--(NSString *)getAppVersion;
+- (NSString *)getAppVersion;
 
 /**
  * Get application deployment type (production, development)
  */
--(NSString *)getDeployType;
+- (NSString *)getDeployType;
 
 /**
  * Get analytics flush interval
  */
--(NSInteger)getFlushInterval;
+- (NSInteger)getFlushInterval;
 
 /**
  * Get analytics flush requeue interval
  */
--(NSInteger)getFlushRequeue;
+- (NSInteger)getFlushRequeue;
 
 /**
  * Get device model
  */
--(NSString *)getModel;
+- (NSString *)getModel;
 
 /**
  * Get network type
  */
--(NSString *)getNetworkType;
+- (NSString *)getNetworkType;
 
 /**
  * Get OS type (32bit, 64bit)
  */
--(NSString *)getOsType;
+- (NSString *)getOsType;
 
 /**
  * Get OS version
  */
--(NSString *)getOsVersion;
+- (NSString *)getOsVersion;
 
 /**
  * Get current platform
  */
--(NSString *)getPlatform;
+- (NSString *)getPlatform;
 
 /**
  * Get device processor count
  */
--(NSInteger)getProcessorCount;
+- (NSInteger)getProcessorCount;
 
 /**
  * Get SDK version
  */
--(NSString *)getSdkVersion;
+- (NSString *)getSdkVersion;
 
 /**
  * Set analytics endpoint url
  */
--(void)setAnalyticsUrl:(NSString *)url;
+- (void)setAnalyticsUrl:(NSString *)url;
 
 /**
  * Set application id
  */
--(void)setAppId:(NSString *)appId;
+- (void)setAppId:(NSString *)appId;
 
 /**
  * Set application name
  */
--(void)setAppName:(NSString *)appName;
+- (void)setAppName:(NSString *)appName;
 
 /**
  * Set application version
  */
--(void)setAppVersion:(NSString *)appVersion;
+- (void)setAppVersion:(NSString *)appVersion;
 
 /**
  * Set application deployment type
  */
--(void)setDeployType:(NSString *)deployType;
+- (void)setDeployType:(NSString *)deployType;
 
 /**
  * Set SDK version
  */
--(void)setSdkVersion:(NSString *)sdkVersion;
+- (void)setSdkVersion:(NSString *)sdkVersion;
 
 /**
  * Set analytics flush interval
  */
--(void)setFlushInterval:(NSInteger)timeout;
+- (void)setFlushInterval:(NSInteger)timeout;
 
 /**
  * Set analytics flush requeue interval
  */
--(void)setFlushRequeue:(NSInteger)timeout;
+- (void)setFlushRequeue:(NSInteger)timeout;
 
 @end
