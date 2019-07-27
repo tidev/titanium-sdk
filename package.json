@@ -110,14 +110,13 @@
     "grunt-contrib-clean": "^2.0.0",
     "grunt-eslint": "^22.0.0",
     "husky": "^3.0.4",
-    "js-yaml": "^3.13.1",
     "lint-staged": "^9.2.5",
-    "markdown-it": "^9.1.0",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "ssri": "^6.0.1"
+    "ssri": "^6.0.1",
+    "titanium-docgen": "^0.1.0"
   },
   "repository": {
     "type": "git",
