@@ -17,7 +17,7 @@ class Documentation {
 	}
 
 	async generateReport(format, filename) {
-		const args = [ path.join(DOC_DIR, 'docgen.js'), '-f', format, '-o', this.outputDir + path.sep ];
+		const args = [ path.join(ROOT_DIR, 'node_modules', '.bin', 'docgen'), '-f', format, '-o', this.outputDir + path.sep, DOC_DIR ];
 		if (this.hasWindows && format !== 'typescript') {
 			args.push([
 				'-a', path.join(ROOT_DIR, 'windows/doc/Titanium'),
