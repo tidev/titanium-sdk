@@ -53,7 +53,12 @@
   UIColor *errorColor = UIColor.redColor;
   self.navigationItem.title = NSLocalizedString(@"Application Error", nil);
   self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : errorColor };
-  [self.view setBackgroundColor:UIColor.lightGrayColor];
+  
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  [self.view setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
+#else
+  [self.view setBackgroundColor:UIColor.whiteColor];
+#endif
 
   // release previous allocations
   RELEASE_TO_NIL(scrollView);
@@ -125,7 +130,7 @@
 
   // set title and adjust font attributes
   NSMutableAttributedString *continueAttributes = [[NSMutableAttributedString alloc] initWithString:NSLocalizedString(@"CONTINUE", nil)];
-  [continueAttributes addAttribute:NSForegroundColorAttributeName value:UIColor.lightTextColor range:NSMakeRange(0, [continueAttributes length])];
+  [continueAttributes addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, [continueAttributes length])];
   [continueAttributes addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:18] range:NSMakeRange(0, [continueAttributes length])];
   [continueButton setAttributedTitle:continueAttributes forState:UIControlStateNormal];
   RELEASE_TO_NIL(continueAttributes);
