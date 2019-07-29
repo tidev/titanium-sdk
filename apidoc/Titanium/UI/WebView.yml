@@ -126,6 +126,20 @@ description: |
     <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookiesForDomain>, <Titanium.Network.getSystemCookies>,
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
+    
+    **WKWebView**
+    
+    With Titanium SDK 8.0.0, we now use WKWebView to implement Ti.UI.WebView (as Apple has deprecated UIWebView).
+    WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView 
+    a little modification is required in the HTML files:
+    
+        <style>
+          @font-face
+            {
+              font-family: 'Lato-Regular';
+              src: url('fonts/Lato-Regular.ttf');
+            }
+        </style>
 
     #### For More Information
 
