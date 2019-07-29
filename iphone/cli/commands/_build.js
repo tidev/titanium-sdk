@@ -5719,7 +5719,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					this.logger.info(__('Creating assets image set'));
 					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
 						imageSets = {},
-						imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
+						imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 					Object.keys(imageAssets).forEach(function (file) {
 						const imageName = imageAssets[file].name,
@@ -5744,13 +5744,21 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								};
 							}
 
-							imageSets[imageSetRelPath].images.push({
-								idiom: !match[3] ? 'universal' : match[3].replace('~', ''),
+							const imageSet = {
+								idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
 								filename: imageName + '.' + imageExt,
-								scale: !match[2] ? '1x' : match[2].replace('@', '')
-							});
-						}
+								scale: !match[3] ? '1x' : match[3].replace('@', '')
+							};
 
+							if (match[2]) {
+								imageSet.appearances = [ {
+									appearance: 'luminosity',
+									value: 'dark'
+								} ];
+							}
+
+							imageSets[imageSetRelPath].images.push(imageSet);
+						}
 						resourcesToCopy[file] = imageAssets[file];
 						resourcesToCopy[file].isImage = true;
 					}, this);
