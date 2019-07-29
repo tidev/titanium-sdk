@@ -175,11 +175,11 @@ events:
   - name: selected
     summary: |
         Fired when a tab is selected.
-    since: 5.1.0
+    since: "5.1.0"
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.focus> instead.
+        notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -200,11 +200,11 @@ events:
   - name: unselected
     summary: |
         Fired when a tab is unselected.
-    since: 5.1.0
+    since: "5.1.0"
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.blur> instead.
+        notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) instead.
     properties:
       - name: index
         summary: |

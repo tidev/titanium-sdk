@@ -8,7 +8,7 @@ since: "0.9"
 deprecated:
     since: "5.4.0"
     removed: "7.0.0"
-    notes: Use <Titanium.UI.iOS.RowAnimationStyle> instead.
+    notes: Use [Titanium.UI.iOS.RowAnimationStyle](Titanium.UI.iOS.RowAnimationStyle) instead.
 
 properties:
   - name: BOTTOM

@@ -124,14 +124,14 @@ methods:
 
         On Android, the `pause` call does nothing if the stream is already paused.
 
-        On both platforms, calling [start](Titanium.Media.AudioPlayer.start) on a paused
+        On both platforms, calling [Titanium.Media.AudioPlayer.start](Titanium.Media.AudioPlayer.start) on a paused
         stream resumes play.
 
   - name: play
     summary: Starts or resumes audio playback.
     deprecated:
         since: "7.5.0"
-        notes: Use the cross-platform API [start](Titanium.Media.AudioPlayer.start) instead.
+        notes: Use the cross-platform API [Titanium.Media.AudioPlayer.start](Titanium.Media.AudioPlayer.start) instead.
     description: |
         This method is identical to .
     platforms: [android]
@@ -140,15 +140,15 @@ methods:
     summary: Sets the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
     description: |
         On iOS, this method can be used to pause and unpause playback. For portability,
-        it is preferable to use the [pause](Titanium.Media.AudioPlayer.pause) and
-        [start](Titanium.Media.AudioPlayer.start) methods instead.
+        it is preferable to use the [Titanium.Media.AudioPlayer.pause](Titanium.Media.AudioPlayer.pause) and
+        [Titanium.Media.AudioPlayer.start](Titanium.Media.AudioPlayer.start) methods instead.
     parameters:
       - name: paused
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
     deprecated:
         since: "7.5.0"
-        notes: Use the cross-platform API [pause](Titanium.Media.AudioPlayer.pause) instead.
+        notes: Use the cross-platform API [Titanium.Media.AudioPlayer.pause](Titanium.Media.AudioPlayer.pause) instead.
     platforms: [iphone, ipad]
 
   - name: seekToTime
@@ -289,7 +289,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_BUFFERING> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_BUFFERING](Titanium.Media.AUDIO_STATE_BUFFERING) instead.
 
   - name: STATE_INITIALIZED
     summary: Audio playback is being initialized.
@@ -297,7 +297,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_INITIALIZED> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_INITIALIZED](Titanium.Media.AUDIO_STATE_INITIALIZED) instead.
 
   - name: STATE_PAUSED
     summary: Playback is paused.
@@ -305,7 +305,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_PAUSED> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_PAUSED](Titanium.Media.AUDIO_STATE_PAUSED) instead.
 
   - name: STATE_PLAYING
     summary: Audio playback is active.
@@ -313,7 +313,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_PLAYING> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_PLAYING](Titanium.Media.AUDIO_STATE_PLAYING) instead.
 
   - name: STATE_STARTING
     summary: Audio playback is starting.
@@ -321,7 +321,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_STARTING> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_STARTING](Titanium.Media.AUDIO_STATE_STARTING) instead.
 
   - name: STATE_STOPPED
     summary: Audio playback is stopped.
@@ -329,7 +329,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_STOPPED> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_STOPPED](Titanium.Media.AUDIO_STATE_STOPPED) instead.
 
   - name: STATE_STOPPING
     summary: Audio playback is stopping.
@@ -337,7 +337,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_STOPPING> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_STOPPING](Titanium.Media.AUDIO_STATE_STOPPING) instead.
 
   - name: STATE_WAITING_FOR_DATA
     summary: Player is waiting for audio data from the network.
@@ -345,7 +345,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_WAITING_FOR_DATA> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_WAITING_FOR_DATA](Titanium.Media.AUDIO_STATE_WAITING_FOR_DATA) instead.
 
   - name: STATE_WAITING_FOR_QUEUE
     summary: Player is waiting for audio data to fill the queue.
@@ -353,7 +353,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.Media.AUDIO_STATE_WAITING_FOR_QUEUE> instead.
+        notes: Use [Titanium.Media.AUDIO_STATE_WAITING_FOR_QUEUE](Titanium.Media.AUDIO_STATE_WAITING_FOR_QUEUE) instead.
 
   - name: AUDIO_TYPE_ALARM
     summary: Used to identify the volume of audio streams for alarms.
