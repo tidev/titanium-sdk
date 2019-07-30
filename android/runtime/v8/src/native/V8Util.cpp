@@ -11,7 +11,6 @@
 
 #include "V8Util.h"
 #include "JNIUtil.h"
-#include "JSException.h"
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
 

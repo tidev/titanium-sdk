@@ -1810,7 +1810,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (cli.argv['source-maps']) {
 			this.sourceMaps = true;
 			// if they haven't, respect the tiapp.xml value if set one way or the other
-		} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+		} else if (Object.prototype.hasOwnProperty.call(cli.tiapp, 'source-maps')) { // they've explicitly set a value in tiapp.xml
 			this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
 		} else { // otherwise turn on by default for non-production builds
 			this.sourceMaps = this.deployType !== 'production';
@@ -1925,17 +1925,22 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 				function sortXcodeIds(a, b) {
 					// prioritize selected xcode
+					if (xcodeInfo[a].selected) {
+						return -1;
+					}
 					if (xcodeInfo[b].selected) {
 						return 1;
 					}
+					// newest to oldest
 					return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
+				const sortedXcodeIds = Object.keys(xcodeInfo).sort(sortXcodeIds);
 				if (this.iosSdkVersion) {
 					// find the Xcode for this version
-					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).some(function (ver) {
-						if (this.iosInfo.xcode[ver].sdks.indexOf(this.iosSdkVersion) !== -1) {
-							this.xcodeEnv = this.iosInfo.xcode[ver];
+					sortedXcodeIds.some(function (ver) {
+						if (xcodeInfo[ver].sdks.includes(this.iosSdkVersion)) {
+							this.xcodeEnv = xcodeInfo[ver];
 							return true;
 						}
 						return false;
@@ -1948,9 +1953,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					}
 
 				} else { // device, simulator, dist-appstore, dist-adhoc
-					Object.keys(xcodeInfo)
-						.filter(function (id) { return xcodeInfo[id].supported; })
-						.sort(sortXcodeIds)
+					sortedXcodeIds
+						.filter(id => xcodeInfo[id].supported)
 						.some(function (id) {
 							return xcodeInfo[id].sdks.sort().reverse().some(function (ver) {
 								if (appc.version.gte(ver, this.minIosVersion)) {
@@ -6432,7 +6436,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				}
 			}
 		});
-	}(this.xcodeAppDir, /^(PlugIns|Watch|TitaniumKit\.framework)$/i));
+	}(this.xcodeAppDir, /^(PlugIns|Watch|.+\.framework)$/i));
 
 	parallel(this, [
 		function (next) {

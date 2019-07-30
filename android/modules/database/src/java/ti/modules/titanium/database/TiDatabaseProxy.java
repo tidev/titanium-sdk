@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.database;
 
+import org.appcelerator.kroll.JSError;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -22,8 +24,11 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 
+import java.lang.Exception;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,6 +41,7 @@ public class TiDatabaseProxy extends KrollProxy
 	private Thread thread;
 	private BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 	private AtomicBoolean executingQueue = new AtomicBoolean(false);
+	private boolean isClosed = false;
 
 	protected SQLiteDatabase db;
 	protected String name;
@@ -125,13 +131,97 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public void close()
 	{
-		if (db.isOpen()) {
-
-			// Wait for query queue to empty.
-			waitForQueue();
-
+		synchronized (this)
+		{
 			// Close database.
-			db.close();
+			if (db != null && db.isOpen()) {
+				db.close();
+			}
+			db = null;
+			isClosed = true;
+
+			// Abort query queue execution.
+			if (thread != null) {
+				thread.interrupt();
+				thread = null;
+			}
+			executingQueue.set(false);
+			queue.clear();
+		}
+	}
+
+	private boolean expectResult(String query)
+	{
+		String lowerCaseQuery = query.toLowerCase().trim();
+		return lowerCaseQuery.startsWith("select")
+			|| (lowerCaseQuery.startsWith("pragma") && !lowerCaseQuery.contains("="));
+	}
+
+	/**
+	 * Synchronously execute a single SQL query.
+	 * @param query SQL query to execute on database.
+	 * @param parameterObjects Parameters for `query`
+	 */
+	private TiResultSetProxy executeSQL(String query, Object[] parameterObjects)
+	{
+		// Validate and parse `parameterObjects`.
+		if (parameterObjects != null) {
+			// Validate query parameters, must be either String or Blob.
+			for (int i = 0; i < parameterObjects.length; i++) {
+				if (parameterObjects[i] instanceof TiBlob) {
+					parameterObjects[i] = ((TiBlob) parameterObjects[i]).getBytes();
+				} else {
+					parameterObjects[i] = TiConvert.toString(parameterObjects[i]);
+				}
+			}
+		} else {
+			parameterObjects = new Object[0];
+		}
+
+		// If this is a synchronous call on the main thread, wait for all queued queries
+		// to maintain correct execution order and prevent write-locks.
+		waitForQueue();
+
+		// Execute query using rawQuery() in order to receive results.
+		synchronized (this)
+		{ // lock on db proxy instance
+			if (isClosed) {
+				throw new IllegalStateException("database is closed");
+			}
+
+			if (!expectResult(query)) {
+				db.execSQL(query, parameterObjects);
+				return null;
+			}
+
+			// Query parameters must be strings.
+			String parameters[] = new String[parameterObjects.length];
+			if (parameterObjects.length > 0) {
+				for (int i = 0; i < parameterObjects.length; i++) {
+					parameters[i] = TiConvert.toString(parameterObjects[i]);
+				}
+			}
+
+			Cursor cursor = db.rawQuery(query, parameters);
+			if (cursor != null) {
+				// Validate and set query result.
+				if (cursor.getColumnCount() > 0) {
+					TiResultSetProxy result = new TiResultSetProxy(cursor);
+					if (result.isValidRow()) {
+						result.next();
+					}
+					return result;
+				}
+
+				// Cleanup result.
+				try {
+					cursor.close();
+				} catch (Exception e) {
+					// Ignore...
+				}
+			}
+
+			return null;
 		}
 	}
 
@@ -148,74 +238,14 @@ public class TiDatabaseProxy extends KrollProxy
 			throw new InvalidParameterException("'query' parameter is required");
 		}
 
-		// Validate and parse `parameterObjects`.
+		// Support either varargs or a single array as params
 		if (parameterObjects != null) {
-
 			// Only an array is defined, use that for parameters
 			if (parameterObjects.length == 1 && parameterObjects[0] instanceof Object[]) {
 				parameterObjects = (Object[]) parameterObjects[0];
 			}
-
-			// Validate query parameters, must be either String or Blob.
-			for (int i = 0; i < parameterObjects.length; i++) {
-				if (parameterObjects[i] instanceof TiBlob) {
-					parameterObjects[i] = ((TiBlob) parameterObjects[i]).getBytes();
-				} else {
-					parameterObjects[i] = TiConvert.toString(parameterObjects[i]);
-				}
-			}
 		}
-
-		// If this is a synchronous call on the main thread, wait for all queued queries
-		// to maintain correct execution order and prevent write-locks.
-		waitForQueue();
-
-		// Log.d(TAG, "execute: " + query);
-
-		TiResultSetProxy result = null;
-		Cursor cursor = null;
-
-		// Execute query using rawQuery() in order to receive results.
-		String lowerCaseQuery = query.toLowerCase().trim();
-		if (lowerCaseQuery.startsWith("select")
-			|| (lowerCaseQuery.startsWith("pragma") && !lowerCaseQuery.contains("="))) {
-
-			// Query parameters must be strings.
-			String parameters[] = new String[parameterObjects.length];
-			if (parameterObjects.length > 0) {
-				for (int i = 0; i < parameterObjects.length; i++) {
-					parameters[i] = TiConvert.toString(parameterObjects[i]);
-				}
-			}
-
-			cursor = db.rawQuery(query, parameters);
-			if (cursor != null) {
-
-				// Validate and set query result.
-				if (cursor.getColumnCount() > 0) {
-					result = new TiResultSetProxy(cursor);
-					if (result.isValidRow()) {
-						result.next();
-					}
-				} else {
-
-					// Cleanup result.
-					if (cursor != null) {
-						try {
-							cursor.close();
-						} catch (Exception e) {
-							// Ignore...
-						}
-					}
-				}
-			}
-
-			// Query does not return result, use execSQL().
-		} else {
-			db.execSQL(query, parameterObjects);
-		}
-
-		return result;
+		return executeSQL(query, parameterObjects);
 	}
 
 	/**
@@ -241,9 +271,7 @@ public class TiDatabaseProxy extends KrollProxy
 
 		// Reconstruct parameters array without `callback` element.
 		final Object parameters[] = new Object[parameterObjects.length - 1];
-		for (int i = 0; i < parameters.length; i++) {
-			parameters[i] = parameterObjects[i];
-		}
+		System.arraycopy(parameterObjects, 0, parameters, 0, parameterObjects.length - 1);
 
 		executingQueue.set(true);
 		try {
@@ -251,8 +279,14 @@ public class TiDatabaseProxy extends KrollProxy
 				@Override
 				public void run()
 				{
-					final TiResultSetProxy result = execute(query, parameters);
-					callback.callAsync(getKrollObject(), new Object[] { result });
+					Object[] args = null;
+					try {
+						final TiResultSetProxy result = executeSQL(query, parameters);
+						args = new Object[] { null, result };
+					} catch (Throwable t) {
+						args = new Object[] { t };
+					}
+					callback.callAsync(getKrollObject(), args);
 				}
 			});
 		} catch (InterruptedException e) {
@@ -265,17 +299,21 @@ public class TiDatabaseProxy extends KrollProxy
 	 * @param queries SQL queries to execute on database.
 	 */
 	@Kroll.method
-	public Object[] executeAll(final String[] queries)
+	public Object[] executeAll(final String[] queries) throws BatchQueryException
 	{
 		// Validate `queries` parameter.
 		if (queries == null || queries.length == 0) {
 			throw new InvalidParameterException("'query' parameter is required");
 		}
 
-		ArrayList<TiResultSetProxy> results = new ArrayList<>(queries.length);
-		for (String query : queries) {
-			final TiResultSetProxy result = execute(query);
-			results.add(result);
+		List<TiResultSetProxy> results = new ArrayList<>(queries.length);
+		for (int index = 0; index < queries.length; index++) {
+			try {
+				final TiResultSetProxy result = executeSQL(queries[index], null);
+				results.add(result);
+			} catch (Throwable t) {
+				throw new BatchQueryException(t, index, results);
+			}
 		}
 		return results.toArray();
 	}
@@ -299,8 +337,18 @@ public class TiDatabaseProxy extends KrollProxy
 				@Override
 				public void run()
 				{
-					final Object[] results = executeAll(queries);
-					callback.callAsync(getKrollObject(), new Object[] { results });
+					Throwable error = null;
+					List<TiResultSetProxy> results = new ArrayList<>(queries.length);
+					for (int index = 0; index < queries.length; index++) {
+						try {
+							final TiResultSetProxy result = executeSQL(queries[index], null);
+							results.add(result);
+						} catch (Throwable t) {
+							error = new BatchQueryException(t, index, null);
+							break;
+						}
+					}
+					callback.callAsync(getKrollObject(), new Object[] { error, results.toArray() });
 				}
 			});
 		} catch (InterruptedException e) {
@@ -331,7 +379,13 @@ public class TiDatabaseProxy extends KrollProxy
 	public int getLastInsertRowId()
 	// clang-format on
 	{
-		return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
+		synchronized (this)
+		{ // lock on db proxy instance
+			if (isClosed) {
+				throw new IllegalStateException("database is closed");
+			}
+			return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
+		}
 	}
 
 	/**
@@ -344,7 +398,13 @@ public class TiDatabaseProxy extends KrollProxy
 	public int getRowsAffected()
 	// clang-format on
 	{
-		return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
+		synchronized (this)
+		{ // lock on db proxy instance
+			if (isClosed) {
+				throw new IllegalStateException("database is closed");
+			}
+			return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
+		}
 	}
 
 	/**
@@ -396,14 +456,29 @@ public class TiDatabaseProxy extends KrollProxy
 	public void release()
 	{
 		this.close();
-		this.db = null;
+		super.release();
+	}
 
-		// Interrupt and dereference thread.
-		if (this.thread != null) {
-			this.thread.interrupt();
-			this.thread = null;
+	private static class BatchQueryException extends Exception implements JSError
+	{
+		private final int index;
+		private final List<TiResultSetProxy> partialResults;
+
+		BatchQueryException(Throwable t, int index, List<TiResultSetProxy> partialResults)
+		{
+			super(t);
+			this.index = index;
+			this.partialResults = partialResults;
 		}
 
-		super.release();
+		public HashMap getJSProperties()
+		{
+			HashMap map = new HashMap();
+			map.put("index", index);
+			if (partialResults != null) {
+				map.put("results", partialResults.toArray());
+			}
+			return map;
+		}
 	}
 }
