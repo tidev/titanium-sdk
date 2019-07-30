@@ -490,6 +490,23 @@
   return [(TiUITableViewProxy *)[self proxy] indexPathFromInt:index];
 }
 
+- (NSInteger)rowIndexForIndexPath:(NSIndexPath *)index andSections:(NSArray *)sections
+{
+  NSInteger dataIndex = 0;
+  NSInteger c = 0;
+  NSInteger rowIndex = [index row];
+  NSInteger sectionIdx = [index section];
+  for (TiUITableViewSectionProxy *section in sections) {
+    if (c == sectionIdx) {
+      dataIndex += rowIndex;
+      break;
+    }
+    dataIndex += [section rowCount];
+    c++;
+  }
+  return dataIndex;
+}
+
 - (void)reloadDataFromCount:(NSUInteger)oldCount toCount:(NSUInteger)newCount animation:(UITableViewRowAnimation)animation
 {
   UITableView *table = [self tableView];
@@ -960,24 +977,12 @@
   NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
   TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 
-  NSInteger rowIndex = [index row];
-  int dataIndex = 0;
-  int c = 0;
-  TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
-
-  // unfortunately, we have to scan to determine our row index
-  for (TiUITableViewSectionProxy *section in sections) {
-    if (c == sectionIdx) {
-      dataIndex += rowIndex;
-      break;
-    }
-    dataIndex += [section rowCount];
-    c++;
-  }
+  NSInteger dataIndex = [self rowIndexForIndexPath:index andSections:sections];
+  TiUITableViewRowProxy *row = [section rowAtIndex:[index row]];
 
   NSMutableDictionary *eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                               section, @"section",
-                                                          NUMINT(dataIndex), @"index",
+                                                          NUMINTEGER(dataIndex), @"index",
                                                           row, @"row",
                                                           NUMBOOL(accessoryTapped), @"detail",
                                                           NUMBOOL(viaSearch), @"searchMode",
@@ -1124,24 +1129,13 @@
       NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
       TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 
-      NSInteger rowIndex = [indexPath row];
-      int dataIndex = 0;
-      int c = 0;
-      TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+      NSInteger dataIndex = [self rowIndexForIndexPath:indexPath andSections:sections];
+      TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 
-      // unfortunately, we have to scan to determine our row index
-      for (TiUITableViewSectionProxy *section in sections) {
-        if (c == sectionIdx) {
-          dataIndex += rowIndex;
-          break;
-        }
-        dataIndex += [section rowCount];
-        c++;
-      }
       [event setObject:section forKey:@"section"];
       [event setObject:row forKey:@"row"];
       [event setObject:row forKey:@"rowData"];
-      [event setObject:NUMINT(dataIndex) forKey:@"index"];
+      [event setObject:NUMINTEGER(dataIndex) forKey:@"index"];
     }
     [[self proxy] fireEvent:@"swipe" withObject:event];
     RELEASE_TO_NIL(event);
@@ -1175,24 +1169,13 @@
     NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
     TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 
-    NSInteger rowIndex = [indexPath row];
-    int dataIndex = 0;
-    int c = 0;
-    TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+    NSInteger dataIndex = [self rowIndexForIndexPath:indexPath andSections:sections];
+    TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 
-    // unfortunately, we have to scan to determine our row index
-    for (TiUITableViewSectionProxy *section in sections) {
-      if (c == sectionIdx) {
-        dataIndex += rowIndex;
-        break;
-      }
-      dataIndex += [section rowCount];
-      c++;
-    }
     [event setObject:section forKey:@"section"];
     [event setObject:row forKey:@"row"];
     [event setObject:row forKey:@"rowData"];
-    [event setObject:NUMINT(dataIndex) forKey:@"index"];
+    [event setObject:NUMINTEGER(dataIndex) forKey:@"index"];
   }
 
   if ([recognizer numberOfTouchesRequired] == 2) {
@@ -2058,9 +2041,9 @@
   ENSURE_TYPE(value, NSNumber);
   [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing" notification:NO];
 
-  [[self tableView] beginUpdates];
+  //[[self tableView] beginUpdates];
   [[self tableView] setAllowsMultipleSelectionDuringEditing:[TiUtils boolValue:value]];
-  [[self tableView] endUpdates];
+  //[[self tableView] endUpdates];
 }
 
 #pragma mark Datasource
@@ -2318,23 +2301,13 @@
       NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
       TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 
-      NSInteger rowIndex = [index row];
-      int dataIndex = 0;
-      int c = 0;
-      TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+      NSInteger dataIndex = [self rowIndexForIndexPath:index andSections:sections];
 
-      for (TiUITableViewSectionProxy *section in sections) {
-        if (c == sectionIdx) {
-          dataIndex += rowIndex;
-          break;
-        }
-        dataIndex += [section rowCount];
-        c++;
-      }
+      TiUITableViewRowProxy *row = [section rowAtIndex:[index row]];
 
       NSMutableDictionary *eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                                   section, @"section",
-                                                              NUMINT(dataIndex), @"index",
+                                                              NUMINTEGER(dataIndex), @"index",
                                                               row, @"row",
                                                               row, @"rowData",
                                                               nil];
@@ -2344,6 +2317,7 @@
   }
 }
 #endif
+
 #pragma mark Collation
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
