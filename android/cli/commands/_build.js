@@ -3897,7 +3897,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// Must be done last so app developer can override manifest settings such as <activity/>, <receiver/>, etc.
 	finalAndroidManifest.merge(tiappAndroidManifest);
 
-	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
+	if (this.realTargetSDK >= 24 && !Object.prototype.hasOwnProperty.call(finalAndroidManifest.application, 'resizeableActivity')) {
 		finalAndroidManifest.application.resizeableActivity = true;
 	}
 

@@ -6,11 +6,15 @@
  */
 
 #import "TiExceptionHandler.h"
+#import "APSAnalytics.h"
 #import "TiApp.h"
 #import "TiBase.h"
+
 #include <execinfo.h>
+#include <signal.h>
 
 static void TiUncaughtExceptionHandler(NSException *exception);
+static void TiSignalHandler(int signal);
 
 static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
@@ -26,6 +30,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     defaultExceptionHandler = [[self alloc] init];
     prevUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
     NSSetUncaughtExceptionHandler(&TiUncaughtExceptionHandler);
+
+    signal(SIGABRT, TiSignalHandler);
+    signal(SIGILL, TiSignalHandler);
+    signal(SIGSEGV, TiSignalHandler);
+    signal(SIGFPE, TiSignalHandler);
+    signal(SIGBUS, TiSignalHandler);
+    signal(SIGPIPE, TiSignalHandler);
   });
   return defaultExceptionHandler;
 }
@@ -217,4 +228,12 @@ static void TiUncaughtExceptionHandler(NSException *exception)
   if (![NSThread isMainThread]) {
     [NSThread exit];
   }
+}
+
+static void TiSignalHandler(int code)
+{
+  NSException *exception = [NSException exceptionWithName:@"SIGNAL_ERROR" reason:[NSString stringWithFormat:@"signal error code: %d", code] userInfo:nil];
+  [[TiExceptionHandler defaultExceptionHandler] reportException:exception];
+  [[APSAnalytics sharedInstance] flush];
+  signal(code, SIG_DFL);
 }
