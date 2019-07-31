@@ -51,10 +51,10 @@ async function generateIndexJSON(dirToTraverse) {
 
 function determineBabelOptions() {
 	// eslint-disable-next-line security/detect-non-literal-require
-	const minSupportedIosSdk = require(path.join(ROOT_DIR, 'iphone/package.json')).minIosVersion;
+	const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
 	const options = {
 		targets: {
-			ios: minSupportedIosSdk
+			ios: minIosVersion
 		},
 		useBuiltIns: 'entry',
 		// DO NOT include web polyfills!

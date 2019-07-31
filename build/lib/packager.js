@@ -83,12 +83,12 @@ function determineBabelOptions() {
 	const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
 	// Now pull out min IOS target
 	// eslint-disable-next-line security/detect-non-literal-require
-	const minSupportedIosSdk = require(path.join(ROOT_DIR, 'iphone/package.json')).minIosVersion;
+	const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
 	// TODO: filter to only targets relevant for platforms we're building?
 	const options = {
 		targets: {
 			chrome: chromeVersion,
-			ios: minSupportedIosSdk
+			ios: minIosVersion
 		},
 		useBuiltIns: 'entry',
 		// DO NOT include web polyfills!
