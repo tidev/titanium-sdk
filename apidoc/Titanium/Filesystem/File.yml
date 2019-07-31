@@ -127,7 +127,7 @@ methods:
     parameters:
       - name: recursive
         summary: |
-          Only available on iOS. Toggles whether to recursively create the directory structure (like mkdir -p).
+          Toggles whether to recursively create the directory structure (like mkdir -p).
           Pass `false` to avoid recursively creating the directory.
           Defaults to true on SDK 7.3.0+, defaults to false on older SDK versions.
         type: Boolean
