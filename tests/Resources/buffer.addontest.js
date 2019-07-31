@@ -108,68 +108,12 @@ describe('Buffer', () => {
 			should(Buffer.compare).be.a.Function;
 		});
 
-		it('returns 0 for same Buffer', () => {
-			const buf1 = Buffer.from('ABC');
-			should(buf1.compare(buf1)).eql(0);
-		});
-
-		it('returns -1 for target that should come after source', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf2 = Buffer.from('BCD');
-			should(buf1.compare(buf2)).eql(-1);
-		});
-
-		it('returns -1 for target that should come after source due to extra length', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf3 = Buffer.from('ABCD');
-			should(buf1.compare(buf3)).eql(-1);
-		});
-
-		it('returns 1 for target that should come before source', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf2 = Buffer.from('BCD');
-			should(buf2.compare(buf1)).eql(1);
-		});
-
-		it('returns 1 for target that should come before source due to extra length', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf3 = Buffer.from('ABCD');
-			should(buf3.compare(buf1)).eql(1);
-		});
-
-		it('throws if targetStart < 0', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf3 = Buffer.from('ABCD');
+		it('throws TypeError if first argument is not a Buffer', () => {
 			should.throws(() => {
-				buf3.compare(buf1, -1);
-			}, RangeError);
+				Buffer.compare(1, 2);
+			}, TypeError);
 		});
-
-		it('throws if sourceStart < 0', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf3 = Buffer.from('ABCD');
-			should.throws(() => {
-				buf3.compare(buf1, 0, buf1.length, -1);
-			}, RangeError);
-		});
-
-		it('throws if targetEnd > target.byteLength', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf3 = Buffer.from('ABCD');
-			should.throws(() => {
-				buf3.compare(buf1, 0, buf1.length + 3);
-			}, RangeError);
-		});
-
-		it('throws if sourceEnd > source.byteLength', () => {
-			const buf1 = Buffer.from('ABC');
-			const buf3 = Buffer.from('ABCD');
-			should.throws(() => {
-				buf3.compare(buf1, 0, buf1.length, 0, buf3.length + 3);
-			}, RangeError);
-		});
-
-		// TODO: Sort using Buffer.compare and check we sorted in expected order!
+		// Calls buf1.compare(buf2) under the hood
 	});
 
 	describe('.concat()', () => {
@@ -261,7 +205,7 @@ describe('Buffer', () => {
 		should(buf[2]).eql(3);
 		buf[3] = 4;
 		should(buf[3]).eql(4);
-		should(buf).eql(Buffer.from([ 1, 2, 3, 4 ])); // FIXME: this comparison is failing, likely due to how we proxy the buffer/not implementing equals/compare?
+		should(buf).eql(Buffer.from([ 1, 2, 3, 4 ]));
 	});
 
 	it('.poolSize', () => {
@@ -388,6 +332,83 @@ describe('Buffer', () => {
 		});
 	});
 
+	describe('#compare()', () => {
+		it('is a function', () => {
+			const buf = Buffer.from('ABC');
+			should(buf.compare).be.a.Function;
+		});
+
+		it('returns 0 for same Buffer', () => {
+			const buf1 = Buffer.from('ABC');
+			should(buf1.compare(buf1)).eql(0);
+		});
+
+		it('returns -1 for target that should come after source', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf2 = Buffer.from('BCD');
+			should(buf1.compare(buf2)).eql(-1);
+		});
+
+		it('returns -1 for target that should come after source due to extra length', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf3 = Buffer.from('ABCD');
+			should(buf1.compare(buf3)).eql(-1);
+		});
+
+		it('returns 1 for target that should come before source', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf2 = Buffer.from('BCD');
+			should(buf2.compare(buf1)).eql(1);
+		});
+
+		it('returns 1 for target that should come before source due to extra length', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf3 = Buffer.from('ABCD');
+			should(buf3.compare(buf1)).eql(1);
+		});
+
+		it('throws if targetStart < 0', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf3 = Buffer.from('ABCD');
+			should.throws(() => {
+				buf3.compare(buf1, -1);
+			}, RangeError);
+		});
+
+		it('throws if sourceStart < 0', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf3 = Buffer.from('ABCD');
+			should.throws(() => {
+				buf3.compare(buf1, 0, buf1.length, -1);
+			}, RangeError);
+		});
+
+		it('throws if targetEnd > target.byteLength', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf3 = Buffer.from('ABCD');
+			should.throws(() => {
+				buf3.compare(buf1, 0, buf1.length + 3);
+			}, RangeError);
+		});
+
+		it('throws if sourceEnd > source.byteLength', () => {
+			const buf1 = Buffer.from('ABC');
+			const buf3 = Buffer.from('ABCD');
+			should.throws(() => {
+				buf3.compare(buf1, 0, buf1.length, 0, buf3.length + 3);
+			}, RangeError);
+		});
+
+		it('throws TypeError if argument is not a Buffer', () => {
+			should.throws(() => {
+				const buf1 = Buffer.from('ABC');
+				buf1.compare(1);
+			}, TypeError);
+		});
+
+		// TODO: Sort using Buffer.compare and check we sorted in expected order!
+	});
+
 	describe('#copy()', () => {
 		it('is a function', () => {
 			const buf = Buffer.from('test');
@@ -490,14 +511,14 @@ describe('Buffer', () => {
 
 		it('handles 2-byte utf-8 character fill', () => {
 			const b = Buffer.allocUnsafe(3).fill('\u0222');
-			should(b[0]).eql(0xc8); // FIXME: get expected undefined to equal 200
+			should(b[0]).eql(0xc8);
 			should(b[1]).eql(0xa2);
 			should(b[2]).eql(0xc8);
 		});
 
 		it('truncates invalid fill data', () => {
 			const b = Buffer.allocUnsafe(5).fill('aazz', 'hex');
-			should(b[0]).eql(0xaa); // FIXME: get expected undefined to equal 170!
+			should(b[0]).eql(0xaa);
 			should(b[1]).eql(0xaa);
 			should(b[2]).eql(0xaa);
 			should(b[3]).eql(0xaa);
@@ -822,11 +843,10 @@ describe('Buffer', () => {
 			should(buf.readUInt16BE(1).toString(16)).eql('3456');
 		});
 
-		// it('returns signed value coerced to unsigned', () => {
-		// 	const buf = Buffer.from([ 0x12, 0x34, 0x56 ]);
-		// 	should(buf.readUInt16BE(0).toString(16)).eql(1234);
-		// 	should(buf.readUInt16BE(1).toString(16)).eql(3456);
-		// });
+		it('returns signed value coerced to unsigned', () => {
+			const buf = Buffer.from([ 0xFB, 0x2E ]);
+			should(buf.readUInt16BE(0)).eql(64302);
+		});
 
 		it('throws when trying to read out of range', () => {
 			const buf = Buffer.from([ 0x12, 0x34, 0x56 ]);
@@ -848,11 +868,10 @@ describe('Buffer', () => {
 			should(buf.readUInt16LE(1).toString(16)).eql('5634');
 		});
 
-		// it('returns signed value coerced to unsigned', () => {
-		// 	const buf = Buffer.from([ 0x12, 0x34, 0x56 ]);
-		// 	should(buf.readUInt16LE(0).toString(16)).eql(3412);
-		// 	should(buf.readUInt16LE(1).toString(16)).eql(5634);
-		// });
+		it('returns signed value coerced to unsigned', () => {
+			const buf = Buffer.from([ 0x2E, 0xFB ]);
+			should(buf.readUInt16LE(0)).eql(64302);
+		});
 
 		it('throws when trying to read out of range', () => {
 			const buf = Buffer.from([ 0x12, 0x34, 0x56 ]);
@@ -871,6 +890,11 @@ describe('Buffer', () => {
 		it('returns unsigned value', () => {
 			const buf = Buffer.from([ 0x12, 0x34, 0x56, 0x78 ]);
 			should(buf.readUInt32BE(0).toString(16)).eql('12345678');
+		});
+
+		it('returns signed value coerced to unsigned', () => {
+			const buf = Buffer.from([ 0xFF, 0x43, 0x9E, 0xB2 ]); // -12345678 signed value
+			should(buf.readUInt32BE(0)).eql(4282621618);
 		});
 
 		it('throws when trying to read out of range', () => {
@@ -892,6 +916,11 @@ describe('Buffer', () => {
 			should(buf.readUInt32LE(0).toString(16)).eql('78563412');
 		});
 
+		it('returns signed value coerced to unsigned', () => {
+			const buf = Buffer.from([ 0xB2, 0x9E, 0x43, 0xFF ]); // -12345678 signed value
+			should(buf.readUInt32LE(0)).eql(4282621618);
+		});
+
 		it('throws when trying to read out of range', () => {
 			const buf = Buffer.from([ 0x12, 0x34, 0x56, 0x78 ]);
 			should.throws(() => {
@@ -907,7 +936,7 @@ describe('Buffer', () => {
 		});
 
 		it('returns unsigned value', () => {
-			const buf = Buffer.from([ 0x12, 0x34, 0x56, 0x78, 0x90, 0xab ]); // crashes!
+			const buf = Buffer.from([ 0x12, 0x34, 0x56, 0x78, 0x90, 0xab ]);
 			should(buf.readUIntBE(0, 6).toString(16)).eql('1234567890ab');
 		});
 
@@ -977,7 +1006,7 @@ describe('Buffer', () => {
 
 		it('returns empty Buffer if end is < start', () => {
 			const buf = Buffer.from('buffer');
-			const slice = buf.slice(5, 1); // FIXME: failed
+			const slice = buf.slice(5, 1);
 			should(slice.byteOffset).eql(5); // retains byteOffset
 			should(slice.length).eql(0);
 			should(slice).eql(Buffer.from(''));
@@ -1604,15 +1633,29 @@ describe('Buffer', () => {
 			}, RangeError);
 		});
 
-		// it('throws when trying to write values out of range', () => {
-		// 	const buf = Buffer.from([ 1, 2 ]);
-		// 	should.throws(() => {
-		// 		buf.writeUIntBE(-2, 0);
-		// 	}, RangeError);
-		// 	should.throws(() => {
-		// 		buf.writeUIntBE(4294967296, 0);
-		// 	}, RangeError);
-		// });
+		it('throws when trying to write values out of range', () => {
+			const buf = Buffer.alloc(6);
+			// check past end of each allowed value range
+			// TODO: Also check any negative number for each byte length
+			should.throws(() => {
+				buf.writeUIntBE(256, 0, 1);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntBE(65536, 0, 2);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntBE(16777216, 0, 3);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntBE(4294967296, 0, 4);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntBE(1099511627776, 0, 5);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntBE(72057594037927941, 0, 6);
+			}, RangeError);
+		});
 	});
 
 	describe('#writeUIntLE()', () => {
@@ -1634,14 +1677,28 @@ describe('Buffer', () => {
 			}, RangeError);
 		});
 
-		// it('throws when trying to write values out of range', () => {
-		// 	const buf = Buffer.from([ 1, 2 ]);
-		// 	should.throws(() => {
-		// 		buf.writeUIntLE(-2, 0);
-		// 	}, RangeError);
-		// 	should.throws(() => {
-		// 		buf.writeUIntLE(4294967296, 0);
-		// 	}, RangeError);
-		// });
+		it('throws when trying to write values out of range', () => {
+			const buf = Buffer.alloc(6);
+			// check past end of each allowed value range
+			// TODO: Also check any negative number for each byte length
+			should.throws(() => {
+				buf.writeUIntLE(256, 0, 1);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntLE(65536, 0, 2);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntLE(16777216, 0, 3);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntLE(4294967296, 0, 4);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntLE(1099511627776, 0, 5);
+			}, RangeError);
+			should.throws(() => {
+				buf.writeUIntLE(72057594037927941, 0, 6);
+			}, RangeError);
+		});
 	});
 });

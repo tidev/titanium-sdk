@@ -67,7 +67,7 @@ class Buffer {
 
 	/**
 	 * 0 is returned if target is the same as buf
-	 *  1 is returned if target should come before buf when sorted.
+	 * 1 is returned if target should come before buf when sorted.
 	 * -1 is returned if target should come after buf when sorted.
 	 * @param {Buffer} target Buffer to compare against
 	 * @param {integer} [targetStart=0] index to start in target
@@ -77,6 +77,9 @@ class Buffer {
 	 * @returns {integer}
 	 */
 	compare(target, targetStart, targetEnd, sourceStart, sourceEnd) {
+		if (!Buffer.isBuffer(target)) {
+			throw new TypeError(`The "target" argument must be one of type Buffer or Uint8Array. Received type ${typeof buf1}`);
+		}
 		if (targetStart === undefined) {
 			targetStart = 0;
 		}
@@ -234,9 +237,7 @@ class Buffer {
 			for (let i = 0; i < length; i++) {
 				// TODO: Do we need to account for byteOffset here (on `this`, not on the buffer we just created)?
 				const fillChar = bufToFillWith._tiBuffer[i % fillBufLength];
-				console.log(`going to use ${fillChar} to fill at index ${i + offset}`);
 				this._tiBuffer[i + offset] = fillChar;
-				console.log(`here's what it got set to: ${this._tiBuffer[i + offset]}`);
 			}
 			return this;
 		}
@@ -1196,7 +1197,7 @@ class Buffer {
 		return offset + byteLength;
 	}
 
-	// TODO: Implement remaining methods:
+	// TODO: Implement remaining instance methods:
 	// buf.lastIndexOf(value[, byteOffset][, encoding])
 	// buf.readBigInt64BE([offset])
 	// buf.readBigInt64LE([offset])
@@ -1206,157 +1207,171 @@ class Buffer {
 	// buf.writeBigInt64LE(value[, offset])
 	// buf.writeBigUInt64BE(value[, offset])
 	// buf.writeBigUInt64LE(value[, offset])
-}
 
-Buffer.allocUnsafe = (length) => {
-	return newBuffer(Ti.createBuffer({ length }));
-};
+	static allocUnsafe(length) {
+		return newBuffer(Ti.createBuffer({ length }));
+	}
 
-Buffer.allocUnsafeSlow = (length) => {
-	return Buffer.allocUnsafe(length);
-};
+	static allocUnsafeSlow(length) {
+		return Buffer.allocUnsafe(length);
+	}
 
-Buffer.alloc = (length, fill = 0, encoding = 'utf8') => {
-	const buf = Buffer.allocUnsafe(length);
-	buf.fill(fill, encoding);
-	return buf;
-};
+	static alloc(length, fill = 0, encoding = 'utf8') {
+		const buf = Buffer.allocUnsafe(length);
+		buf.fill(fill, encoding);
+		return buf;
+	}
 
-/**
- * @param {string|Buffer|TypedArray|DataView|ArrayBuffer|SharedArrayBuffer} string original string
- * @param {string} [encoding='utf8'] encoding whose byte length we need to grab
- * @returns {integer}
- */
-Buffer.byteLength = (string, encoding = 'utf8') => {
-	if (typeof string !== 'string') {
-		if (Buffer.isBuffer(string)) {
-			return string.length; // return Buffer's length
+	/**
+	 * @param {string|Buffer|TypedArray|DataView|ArrayBuffer|SharedArrayBuffer} string original string
+	 * @param {string} [encoding='utf8'] encoding whose byte length we need to grab
+	 * @returns {integer}
+	 */
+	static byteLength(string, encoding = 'utf8') {
+		if (typeof string !== 'string') {
+			if (Buffer.isBuffer(string)) {
+				return string.length; // return Buffer's length
+			}
+			return string.byteLength; // TypedArray, ArrayBuffer, SharedArrayBuffer, DataView
 		}
-		return string.byteLength; // TypedArray, ArrayBuffer, SharedArrayBuffer, DataView
+		let length = string.length;
+		switch (encoding.toLowerCase()) {
+			case 'utf8':
+			case 'utf-8':
+				return utf8ByteLength(string);
+			case 'latin1':
+			case 'binary':
+			case 'ascii':
+				return length;
+			case 'ucs-2':
+			case 'ucs2':
+			case 'utf16le':
+			case 'utf16-le':
+				return 2 * length;
+			case 'hex':
+				return length / 2;
+			case 'base64':
+				// Subtract up to two padding chars from end of string!
+				if (length > 1 && string.charAt(length - 1) === '=') {
+					length--;
+				}
+				if (length > 1 && string.charAt(length - 1) === '=') {
+					length--;
+				}
+				return Math.floor((length * 3) / 4); // drop fractional value
+		}
+		return utf8ByteLength(string);
 	}
-	let length = string.length;
-	switch (encoding.toLowerCase()) {
-		case 'utf8':
-		case 'utf-8':
-			return utf8ByteLength(string);
-		case 'latin1':
-		case 'binary':
-		case 'ascii':
-			return length;
-		case 'ucs-2':
-		case 'ucs2':
-		case 'utf16le':
-		case 'utf16-le':
-			return 2 * length;
-		case 'hex':
-			return length / 2;
-		case 'base64':
-			// Subtract up to two padding chars from end of string!
-			if (length > 1 && string.charAt(length - 1) === '=') {
-				length--;
-			}
-			if (length > 1 && string.charAt(length - 1) === '=') {
-				length--;
-			}
-			return Math.floor((length * 3) / 4); // drop fractional value
-	}
-	return utf8ByteLength(string);
-};
 
-Buffer.compare = (buf1, buf2) => {
-	// TODO: Throw a TypeError if they're not buffers? Wrap UInt8Array args in buffers?
-	return buf1.compare(buf2);
-};
+	static compare(buf1, buf2) {
+		if (!Buffer.isBuffer(buf1)) {
+			throw new TypeError(`The "buf1" argument must be one of type Buffer or Uint8Array. Received type ${typeof buf1}`);
+		}
+		// TODO: Wrap UInt8Array args in buffers?
+		return buf1.compare(buf2);
+	}
 
-/**
- * @param {Buffer[]|UInt8Array[]} list list of Buffers to concatenate
- * @param {integer} [totalLength] Total length of the Buffer instances in list when concatenated.
- * @returns {Buffer}
- */
-Buffer.concat = (list, totalLength) => {
-	if (!Array.isArray(list)) {
-		throw new TypeError('list argument must be an Array');
-	}
-	if (list.length === 0) {
-		return Buffer.alloc(0); // one empty Buffer!
-	}
-	// allocate one Buffer of `totalLength`? Cap at totalLength?
-	if (totalLength === undefined) {
-		totalLength = 0;
-		// generate the total length from each buffer's length?
+	/**
+	 * @param {Buffer[]|UInt8Array[]} list list of Buffers to concatenate
+	 * @param {integer} [totalLength] Total length of the Buffer instances in list when concatenated.
+	 * @returns {Buffer}
+	 */
+	static concat(list, totalLength) {
+		if (!Array.isArray(list)) {
+			throw new TypeError('list argument must be an Array');
+		}
+		if (list.length === 0) {
+			return Buffer.alloc(0); // one empty Buffer!
+		}
+		// allocate one Buffer of `totalLength`? Cap at totalLength?
+		if (totalLength === undefined) {
+			totalLength = 0;
+			// generate the total length from each buffer's length?
+			for (let i = 0; i < list.length; i++) {
+				totalLength += list[i].length;
+			}
+		}
+		const result = Buffer.allocUnsafe(totalLength);
+		let position = 0;
 		for (let i = 0; i < list.length; i++) {
-			totalLength += list[i].length;
-		}
-	}
-	const result = Buffer.allocUnsafe(totalLength);
-	let position = 0;
-	for (let i = 0; i < list.length; i++) {
-		const buf = list[i];
-		buf.copy(result, position);
-		position += buf.length;
-		if (position >= totalLength) {
-			break;
-		}
-	}
-	return result;
-};
-
-/**
- * @param {integer[]|Buffer|string} value value we're wrapping
- * @param {string} [encoding='utf8'] The encoding of string.
- * @returns {Buffer}
- */
-Buffer.from = (value, encoding = 'utf8') => {
-	const valueType = typeof value;
-	if (valueType === 'string') {
-		encoding = encoding.toLowerCase();
-		if (encoding === 'base64') {
-			const blob = Ti.Utils.base64decode(value);
-			const blobStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
-			const buffer = Ti.Stream.readAll(blobStream);
-			blobStream.close();
-			return newBuffer(buffer);
-		} else if (encoding === 'hex') {
-			return Buffer.from(stringToHexBytes(value));
-		}
-		const type = getTiCodecCharset(encoding);
-		return newBuffer(Ti.createBuffer({ value: value, type }));
-	} else if (valueType === 'object') {
-		if (Array.isArray(value)) {
-			const tiBuffer = Ti.createBuffer({ length: value.length });
-			for (let i = 0; i < value.length; i++) {
-				tiBuffer[i] = value[i] & 0xFF; // mask to one byte
+			const buf = list[i];
+			buf.copy(result, position);
+			position += buf.length;
+			if (position >= totalLength) {
+				break;
 			}
-			return newBuffer(tiBuffer);
 		}
-		if (Buffer.isBuffer(value)) {
-			const length = value.length;
-			const buffer = Buffer.allocUnsafe(length);
+		return result;
+	}
 
-			if (length === 0) {
+	/**
+	 * @param {integer[]|Buffer|string} value value we're wrapping
+	 * @param {string} [encoding='utf8'] The encoding of string.
+	 * @returns {Buffer}
+	 */
+	static from(value, encoding = 'utf8') {
+		const valueType = typeof value;
+		if (valueType === 'string') {
+			if (!Buffer.isEncoding(encoding)) {
+				throw new TypeError(`Unknown encoding: ${encoding}`);
+			}
+			encoding = encoding.toLowerCase();
+			if (encoding === 'base64') {
+				const blob = Ti.Utils.base64decode(value);
+				const blobStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
+				const buffer = Ti.Stream.readAll(blobStream);
+				blobStream.close();
+				return newBuffer(buffer);
+			}
+			if (encoding === 'hex') {
+				return Buffer.from(stringToHexBytes(value));
+			}
+			return newBuffer(Ti.createBuffer({ value: value, type: getTiCodecCharset(encoding) }));
+		} else if (valueType === 'object') {
+			if (Array.isArray(value)) {
+				const tiBuffer = Ti.createBuffer({ length: value.length });
+				for (let i = 0; i < value.length; i++) {
+					tiBuffer[i] = value[i] & 0xFF; // mask to one byte
+				}
+				return newBuffer(tiBuffer);
+			}
+			if (Buffer.isBuffer(value)) {
+				const length = value.length;
+				const buffer = Buffer.allocUnsafe(length);
+
+				if (length === 0) {
+					return buffer;
+				}
+
+				value.copy(buffer, 0, 0, length);
 				return buffer;
 			}
-
-			value.copy(buffer, 0, 0, length);
-			return buffer;
+			if (value.apiName && value.apiName === 'Ti.Buffer') {
+				return newBuffer(value);
+			}
 		}
-		if (value.apiName && value.apiName === 'Ti.Buffer') {
-			return newBuffer(value);
+		throw new TypeError('The \'value\' argument must be one of type: \'string\', \'Array\', \'Buffer\', \'Ti.Buffer\'');
+	}
+
+	/**
+	 * @param {string} encoding possible encoding name
+	 * @returns {boolean}
+	 */
+	static isEncoding(encoding) {
+		if (typeof encoding !== 'string') {
+			return false;
 		}
+		return VALID_ENCODINGS.includes(encoding.toLowerCase());
 	}
-	throw new TypeError('The \'value\' argument must be of type: \'string\', \'Array\', \'Buffer\'');
-};
 
-Buffer.isEncoding = (encoding) => {
-	if (typeof encoding !== 'string') {
-		return false;
+	/**
+	 * @param {*} obj possible Buffer instance
+	 * @returns {boolean}
+	 */
+	static isBuffer(obj) {
+		return obj !== null && obj !== undefined && obj._isBuffer === true;
 	}
-	return VALID_ENCODINGS.includes(encoding.toLowerCase());
-};
-
-Buffer.isBuffer = (obj) => {
-	return obj !== null && obj !== undefined && obj._isBuffer === true;
-};
+}
 
 Buffer.poolSize = 8192;
 
