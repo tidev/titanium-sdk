@@ -7,10 +7,11 @@ const fs = require('fs-extra');
 const path = require('path');
 const ejs = require('ejs');
 
-const ANDROID_DIR = path.resolve('..', 'android');
+const ROOT_DIR = path.join(__dirname, '..', '..', '..');
+const ANDROID_DIR = path.join(ROOT_DIR, 'android');
 const ANDROID_PROPS = require(path.join(ANDROID_DIR, 'package.json')); // eslint-disable-line security/detect-non-literal-require
 const V8_PROPS = ANDROID_PROPS.v8;
-const V8_LIB_DIR = path.join('..', 'dist', 'android', 'libv8', V8_PROPS.version, V8_PROPS.mode, 'libs');
+const V8_LIB_DIR = path.join(ROOT_DIR, 'dist', 'android', 'libv8', V8_PROPS.version, V8_PROPS.mode, 'libs');
 
 // Obtain target architectures
 const TARGETS = [];

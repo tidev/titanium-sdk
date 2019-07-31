@@ -4,12 +4,20 @@ summary: |
     A control used to select one or more fixed values.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/picker/picker_android.png" height="150" /></td>
-        <td><img src="images/picker/picker_ios.png" height="75" style="border: 1px solid black;"/></td>
-        <td><img src="images/picker/picker_wp.gif" height="150" style="border: 1px solid black;"/></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/picker/picker_android.png" height="150" /></td>
+          <td><img src="images/picker/picker_ios.png" height="75" /></td>
+          <td><img src="images/picker/picker_wp.gif" height="150" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
@@ -394,7 +402,7 @@ properties:
     default: false
     platforms: [android]
     deprecated:
-      since: 5.2.1
+      since: "5.2.1"
       notes: This property is deprecated. Please use the default native "dropdown" style.
 
   - name: nativeSpinner
@@ -408,19 +416,21 @@ properties:
         `Titanium.UI.createPicker({ nativeSpinner:true });`, or before the picker is added to its parent.
 
         Example as follows:
+
             var picker = Ti.UI.createPicker({
-                type:Ti.UI.PICKER_TYPE_TIME,
+                type: Ti.UI.PICKER_TYPE_TIME,
                 nativeSpinner: true,
                 format24: false,
                 minuteInterval: 4,
-                minDate:new Date(2009,0,1),
-                maxDate:new Date(2014,11,31),
-                value:new Date(2014,3,12)
+                minDate: new Date(2018, 5, 24),
+                maxDate: new Date(2020, 5, 24),
+                value: new Date(2019, 5, 24)
             });
+
     type: Boolean
     default: false
     platforms: [android]
-    since: 5.4.0
+    since: "5.4.0"
 
   - name: value
     summary: Date and time value for Date and Time pickers.

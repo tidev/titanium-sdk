@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -32,7 +31,6 @@ import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
-import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -51,7 +49,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -92,8 +89,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
-
-	private static AtomicInteger idGenerator;
 
 	// When distinguishing twofingertap and pinch events, minimum motion (in pixels)
 	// to qualify as a scale event.
@@ -175,10 +170,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 */
 	public TiUIView(TiViewProxy proxy)
 	{
-		if (idGenerator == null) {
-			idGenerator = new AtomicInteger(0);
-		}
-
 		this.proxy = proxy;
 		this.layoutParams = new TiCompositeLayout.LayoutParams();
 	}
@@ -336,9 +327,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 */
 	protected void setNativeView(View view)
 	{
-		if (view.getId() == View.NO_ID) {
-			view.setId(idGenerator.incrementAndGet());
-		}
 		this.nativeView = view;
 		boolean clickable = true;
 
@@ -892,13 +880,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						// it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
-						int removedChildIndex = parentView.findChildIndex(this);
-						parentView.remove(this);
-						initializeBorder(d, bgColor);
-						if (removedChildIndex == -1) {
-							parentView.add(this);
-						} else {
-							parentView.add(this, removedChildIndex);
+						if (parentView != null) {
+							int removedChildIndex = parentView.findChildIndex(this);
+							parentView.remove(this);
+							initializeBorder(d, bgColor);
+							if (removedChildIndex == -1) {
+								parentView.add(this);
+							} else {
+								parentView.add(this, removedChildIndex);
+							}
 						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
@@ -2159,64 +2149,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (proxy == null || nativeView == null) {
 			return;
 		}
-		String contentDescription = composeContentDescription();
+		String contentDescription = getProxy().composeContentDescription();
 		if (contentDescription != null) {
 			nativeView.setContentDescription(contentDescription);
 		}
-	}
-
-	/**
-	 * Our view proxy supports three properties to match iOS regarding
-	 * the text that is read aloud (or otherwise communicated) by the
-	 * assistive technology: accessibilityLabel, accessibilityHint
-	 * and accessibilityValue.
-	 *
-	 * We combine these to create the single Android property contentDescription.
-	 * (e.g., View.setContentDescription(...));
-	 */
-	protected String composeContentDescription()
-	{
-		if (proxy == null) {
-			return null;
-		}
-
-		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
-		StringBuilder buffer = new StringBuilder();
-
-		KrollDict properties = proxy.getProperties();
-		String label, hint, value;
-		label = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
-		hint = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
-		value = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
-
-		if (!TextUtils.isEmpty(label)) {
-			buffer.append(label);
-			if (!label.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		if (!TextUtils.isEmpty(value)) {
-			if (buffer.length() > 0) {
-				buffer.append(" ");
-			}
-			buffer.append(value);
-			if (!value.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		if (!TextUtils.isEmpty(hint)) {
-			if (buffer.length() > 0) {
-				buffer.append(" ");
-			}
-			buffer.append(hint);
-			if (!hint.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		return buffer.toString();
 	}
 
 	private void applyAccessibilityProperties()

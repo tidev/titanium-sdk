@@ -556,15 +556,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
 		}
 
+		boolean exitOnClose = false;
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
-							TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false));
+			exitOnClose = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
 		} else {
 			// If launching child activity from Titanium root activity, then have it exit out of the app.
 			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
-			boolean isRoot = activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity());
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, isRoot);
+			exitOnClose = activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity());
+			setProperty(TiC.PROPERTY_EXIT_ON_CLOSE, exitOnClose);
 		}
+		intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, exitOnClose);
 
 		// Set the theme property
 		if (hasProperty(TiC.PROPERTY_THEME)) {
@@ -655,7 +656,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		} else {
 			options = ActivityOptionsCompat.makeBasic();
 		}
-		return options.toBundle();
+		return (options != null) ? options.toBundle() : null;
 	}
 
 	/**
@@ -663,7 +664,36 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	protected boolean hasActivityTransitions()
 	{
-		final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
-		return LOLLIPOP_OR_GREATER && animated;
+		// This feature is only supported on Android 5.0 and higher.
+		if (!LOLLIPOP_OR_GREATER) {
+			return false;
+		}
+
+		// Don't do transition if "animated" property was set false.
+		boolean isAnimated = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ANIMATED), true);
+		if (!isAnimated) {
+			return false;
+		}
+
+		// Do activity transition if at least 1 shared element has been configured.
+		// Note: It doesn't matter if transition animation properties were assigned.
+		//       System will do default transition animation if not assign to window proxy.
+		if ((this.sharedElementPairs != null) && (this.sharedElementPairs.size() > 0)) {
+			return true;
+		}
+
+		// Do activity transition if at least 1 transition property was assigned to proxy.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION) || hasPropertyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) {
+			return true;
+		}
+
+		// Don't do activity transition.
+		return false;
 	}
 }

@@ -6,10 +6,9 @@
 'use strict';
 
 const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
-const fs = require('fs');
+const fs = require('fs-extra');
 const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
 const path = require('path');
-const wrench = require('wrench');
 
 const frameworkPattern = /([^/]+)\.framework$/;
 
@@ -407,9 +406,7 @@ class InspectFrameworksTask extends IncrementalFileTask {
 				architectures: Array.from(frameworkInfo.architectures)
 			};
 		}
-		if (!fs.existsSync(this._outputDirectory)) {
-			wrench.mkdirSyncRecursive(this._outputDirectory);
-		}
+		fs.ensureDirSync(this._outputDirectory);
 		fs.writeFileSync(this._metadataPathAndFilename, JSON.stringify(metadataObject));
 	}
 
@@ -579,7 +576,7 @@ class FrameworkIntegrator {
 			isa: 'PBXBuildFile',
 			fileRef: fileRefUuid,
 			fileRef_comment: frameworkPackageName,
-			settings: { ATTRIBUTES: [ 'CodeSignOnCopy' ]  }
+			settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
 		};
 		this._xobjs.PBXBuildFile[embeddedBuildFileUuid + '_comment'] = frameworkPackageName + ' in Embed Frameworks';
 

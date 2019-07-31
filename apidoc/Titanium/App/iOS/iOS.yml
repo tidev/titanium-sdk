@@ -90,7 +90,7 @@ methods:
     summary: Cancels all scheduled local notifications.
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
+        notes: Use [Titanium.App.iOS.UserNotificationCenter.removePendingNotifications](Titanium.App.iOS.UserNotificationCenter.removePendingNotifications) instead.
 
   - name: cancelLocalNotification
     summary: Cancels a local notification.
@@ -103,7 +103,7 @@ methods:
         type: [Number,String]
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
+        notes: Use [Titanium.App.iOS.UserNotificationCenter.removePendingNotifications](Titanium.App.iOS.UserNotificationCenter.removePendingNotifications) instead.
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
@@ -177,7 +177,7 @@ methods:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
+            Use [Titanium.WatchSession](Titanium.WatchSession) instead, which is supported on iOS 9 and later.
     summary: Marks the end of an `openParentApplication:reply` execution by a WatchKit extension.
     description: |
         This method must be called after your Titaium application has finished processing the `watchkitextensionrequest` event. Optional
@@ -754,7 +754,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> instead.
+        notes: Use [Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings](Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings) instead.
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
@@ -1259,7 +1259,7 @@ events:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
+            Use [Titanium.WatchSession](Titanium.WatchSession) instead, which is supported on iOS 9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
         Add this event if your Titanium application if you are using a WatchKit extension. When your WatchKit extension uses the openParentApplication:reply

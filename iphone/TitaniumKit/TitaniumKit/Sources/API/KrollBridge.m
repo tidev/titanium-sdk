@@ -130,11 +130,11 @@ CFMutableSetRef krollBridgeRegistry = nil;
   signed long proxiesCount = CFDictionaryGetCount(registeredProxies);
   OSSpinLockUnlock(&proxyLock);
 
-  //During a memory panic, we may not get the chance to copy proxies.
+  // During a memory panic, we may not get the chance to copy proxies.
   while (keepWarning) {
     keepWarning = NO;
 
-    for (id proxy in (NSDictionary *)registeredProxies) {
+    for (id proxy in [(NSDictionary *)registeredProxies allKeys]) {
       [proxy didReceiveMemoryWarning:notification];
 
       OSSpinLockLock(&proxyLock);
@@ -628,11 +628,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
-#ifdef USE_JSCORE_FRAMEWORK
-  if (![proxy isKindOfClass:[TiModule class]]) {
-    [ourKrollObject applyGarbageCollectionSafeguard];
-  }
-#endif
+  [ourKrollObject applyGarbageCollectionSafeguard];
 
   [self registerProxy:proxy
           krollObject:ourKrollObject];

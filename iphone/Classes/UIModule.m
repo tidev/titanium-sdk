@@ -326,6 +326,14 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   return UIFontTextStyleCallout;
 }
+- (NSString *)TEXT_STYLE_LARGE_TITLE
+{
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return UIFontTextStyleLargeTitle;
+  }
+
+  return @"";
+}
 - (NSNumber *)isLandscape:(id)args
 {
   return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
@@ -627,11 +635,10 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_EMAIL, UITextContentTypeEmailAddress);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_URL, UITextContentTypeURL);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
 
-#if IS_XCODE_9
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
-#endif
-#if IS_XCODE_10
+
+#if IS_SDK_IOS_12
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_NEW_PASSWORD, UITextContentTypeNewPassword);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 #endif

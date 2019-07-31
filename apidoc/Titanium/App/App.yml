@@ -72,11 +72,38 @@ description: |
     event followed by the `resumed` event, returning the app to the normal state.
 
     <table class="doc-table" summary="This table gives the order of events fired when the app is in normal state.">
-    <caption><b>Lifecycle events fired during different interruptions</b></caption>
-    <tr><th colspan="2">Type of Interruption<th colspan="2">Going into Background<th colspan="2">Coming into  Foreground</tr>
-    <tr><th colspan="2" align="left">Alert-Based/Fast App Switching<td align="center">pause</td><td align="center"></td><td align="center"> </td><td align="center">resumed</td></tr>
-    <tr><th colspan="2" align="left">Sleep/Wake Button<td align="center">pause</td><td align="center">paused</td><td align="center">resume</td><td align="center">resumed</td></tr>
-    <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
+      <caption><b>Lifecycle events fired during different interruptions</b></caption>
+      <thead>
+        <tr>
+          <th colspan="2">Type of Interruption</th>
+          <th colspan="2">Going into Background</th>
+          <th colspan="2">Coming into  Foreground</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th colspan="2" align="left">Alert-Based/Fast App Switching</th>
+          <td align="center">pause</td>
+          <td align="center"></td>
+          <td align="center"> </td>
+          <td align="center">resumed</td>
+        </tr>
+        <tr>
+          <th colspan="2" align="left">Sleep/Wake Button</th>
+          <td align="center">pause</td>
+          <td align="center">paused</td>
+          <td align="center">resume</td>
+          <td align="center">resumed</td>
+        </tr>
+        <tr>
+          <th colspan="2" align="left">Home Button (backgrounding)</th>
+          <td align="center">pause</td>
+          <td align="center">paused</td>
+          <td align="center">resume</td>
+          <td align="center">resumed</td>
+        </tr>
+      </tbody>
+    </table>
 
     ***Blur and Focus Events***
 
@@ -349,7 +376,7 @@ events:
         type: String
     platforms: [iphone, ipad, android]
     since: '7.5.0'
-    
+
   - name: userinteraction
     summary: Called whenever an interaction with the window occurred. To be used together with the <Titanium.App.trackUserInteraction> property.
     description: |

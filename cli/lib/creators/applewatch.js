@@ -19,13 +19,12 @@ const appc = require('node-appc'),
 	Creator = require('../creator'),
 	DOMParser = require('xmldom').DOMParser,
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	moment = require('moment'),
 	path = require('path'),
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -222,8 +221,11 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			watchkitAppId = this.tiapp.id + '.watchkitapp',
 			watchkitExtId = watchkitAppId + '.watchkitextension';
 
-		this.cli.argv.force && fs.existsSync(dest) && wrench.rmdirSyncRecursive(dest);
-		fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
+		if (this.cli.argv.force) {
+			fs.emptyDirSync(dest);
+		} else {
+			fs.ensureDirSync(dest);
+		}
 
 		this.copyDir(path.join(templateDir, 'template'), dest, function () {
 			// add the extension to the tiapp.xml

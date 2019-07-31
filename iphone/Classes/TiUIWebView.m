@@ -76,13 +76,11 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     [config setUserContentController:controller];
 
-#if IS_XCODE_9
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
         [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
       }
     }
-#endif
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
@@ -387,7 +385,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [(TiUIWebViewProxy *)self.proxy setPageToken:_pageToken];
   }
 
-  NSString *source = @"var callbacks = {}; var Ti = {}; Ti.pageToken = %@; \
+  NSString *titanium = [NSString stringWithFormat:@"%@%s", @"Ti", "tanium"];
+  NSString *source = @"var callbacks = {}; var Ti = {}; var %@ = Ti; Ti.pageToken = %@; \
     Ti._listener_id = 1; Ti._listeners={}; %@\
     Ti.App = { \
                 fireEvent: function(name, payload) { \
@@ -443,10 +442,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     warn: function(message){ \
     window.webkit.messageHandlers._Ti_.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
     }, \
+    log: function(level, message){ \
+    window.webkit.messageHandlers._Ti_.postMessage({name: level, method: 'log', callback: Ti._JSON({level: level, message:message},1)},'*'); \
+    }, \
     }; \
     ";
 
-  NSString *sourceString = [NSString stringWithFormat:source, _pageToken, baseInjectScript];
+  NSString *sourceString = [NSString stringWithFormat:source, titanium, _pageToken, baseInjectScript];
   return [[[WKUserScript alloc] initWithSource:sourceString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
 }
 
@@ -776,8 +778,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
         NSString *message = [event objectForKey:@"message"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([module respondsToSelector:@selector(log:)]) {
-          [module performSelector:@selector(log:) withObject:@[ level, message ]];
+        if ([module respondsToSelector:@selector(log:withMessage:)]) {
+          [module performSelector:@selector(log:withMessage:) withObject:level withObject:message];
         }
 #pragma clang diagnostic pop
       }
@@ -1354,8 +1356,6 @@ static NSString *UIKitLocalizedString(NSString *string)
 
 @end
 
-#if IS_XCODE_9
-
 @implementation WebAppProtocolHandler
 
 + (NSString *)specialProtocolScheme
@@ -1406,6 +1406,5 @@ static NSString *UIKitLocalizedString(NSString *string)
 }
 
 @end
-#endif
 
 #endif
