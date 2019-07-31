@@ -843,5 +843,16 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocum
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
 
+- (TiColor *)fetchSemanticColor:(id)color
+{
+  ENSURE_SINGLE_ARG(color, NSString);
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
+  } else {
+    return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+  }
+}
+
 @end
 #endif

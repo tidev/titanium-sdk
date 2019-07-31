@@ -201,6 +201,16 @@ methods:
         type: Number
         constants: Titanium.UI.UNIT_*
 
+  - name: fetchSemanticColor
+    summary: |
+        Fetches the correct color to be used with a UI element dependent on the users current dark mode setting on iOS 11+ or the [Titanium.UI.semanticColorType](Titanium.UI.semanticColorType) setting in other instances.
+    parameters:
+      - name: colorName
+        summary: Name of the semantic color defined in the applications colorset.
+        type: String
+    returns:
+      - type: String
+    since: "8.2.0"
 
 properties:
   - name: ANIMATION_CURVE_EASE_IN
@@ -2332,6 +2342,23 @@ properties:
     type: Number
     permission: read-only
 
+  - name: SEMANTIC_COLOR_TYPE_DARK
+    summary: Return the dark value from the applications colorset
+    type: String
+    permission: read-only
+    since: "8.2.0"
+
+  - name: SEMANTIC_COLOR_TYPE_LIGHT
+    summary: Return the dark value from the applications colorset.
+    type: String
+    permission: read-only
+    since: "8.2.0"
+
+  - name: semanticColorType
+    summary: When running on Android, iOS 10 or lower, or Windows the value to return form the applications colorset.
+    type: String
+    constants: Titanium.UI.SEMANTIC_COLOR_TYPE_*
+    since: "8.2.0"
 
   - name: SIZE
     summary: SIZE behavior for UI layout.

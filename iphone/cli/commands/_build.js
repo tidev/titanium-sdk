@@ -5775,6 +5775,109 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					}, this);
 				},
 
+				function generateSemanticColors() {
+					const colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
+					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
+
+					function hexToRgb(hex) {
+						// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+						var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+						hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+
+						var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+						return result ? {
+							r: parseInt(result[1], 16),
+							g: parseInt(result[2], 16),
+							b: parseInt(result[3], 16)
+						} : null;
+					}
+
+					if (!fs.existsSync(colorsFile)) {
+						return;
+					}
+					const colors = fs.readJSONSync(colorsFile);
+
+					for (const [ color, colorValue ] of Object.entries(colors)) {
+						const colorDir = path.join(assetCatalog, `${color}.colorset`);
+
+						if (!colorValue.light) {
+							console.warn(`Skipping ${color} as it does not include a light value`);
+							continue;
+						}
+
+						if (!colorValue.dark) {
+							console.warn(`Skipping ${color} as it does not include a dark value`);
+							continue;
+						}
+
+						const defaultRGB = hexToRgb(colorValue.default || colorValue.light);
+						const lightRGB = hexToRgb(colorValue.light);
+						const darkRGB = hexToRgb(colorValue.dark);
+
+						const colorSource = {
+							info: {
+								version: 1,
+								author: 'xcode'
+							},
+							colors: []
+						};
+
+						// Default
+						colorSource.colors.push({
+							idiom: 'universal',
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${defaultRGB.r}`,
+									green: `${defaultRGB.g}`,
+									blue: `${defaultRGB.b}`,
+									alpha: '1.000'
+								}
+							}
+						});
+
+						// Light
+						colorSource.colors.push({
+							idiom: 'universal',
+							appearances: [ {
+								appearance: 'luminosity',
+								value: 'light'
+							} ],
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${lightRGB.r}`,
+									green: `${lightRGB.g}`,
+									blue: `${lightRGB.b}`,
+									alpha: '1.000'
+								}
+							}
+						});
+
+						// Dark
+						colorSource.colors.push({
+							idiom: 'universal',
+							appearances: [ {
+								appearance: 'luminosity',
+								value: 'dark'
+							} ],
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${darkRGB.r}`,
+									green: `${darkRGB.g}`,
+									blue: `${darkRGB.b}`,
+									alpha: '1.000'
+								}
+							}
+						});
+
+						fs.ensureDirSync(colorDir);
+						fs.writeJsonSync(path.join(colorDir, 'Contents.json'), colorSource);
+						this.unmarkBuildDirFile(path.join(colorDir, 'Contents.json'));
+					}
+				},
+
 				function copyResources() {
 					this.logger.debug(__('Copying resources'));
 					Object.keys(resourcesToCopy).forEach(function (file) {
