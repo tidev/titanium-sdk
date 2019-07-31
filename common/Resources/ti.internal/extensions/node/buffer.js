@@ -67,7 +67,7 @@ class Buffer {
 
 	/**
 	 * 0 is returned if target is the same as buf
-	 *  is returned if target should come before buf when sorted.
+	 *  1 is returned if target should come before buf when sorted.
 	 * -1 is returned if target should come after buf when sorted.
 	 * @param {Buffer} target Buffer to compare against
 	 * @param {integer} [targetStart=0] index to start in target
