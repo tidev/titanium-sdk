@@ -10,8 +10,6 @@ const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
-const appc = require('node-appc');
-const version = appc.version;
 const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
@@ -85,7 +83,7 @@ function determineBabelOptions() {
 	const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
 	// Now pull out min IOS target
 	// eslint-disable-next-line security/detect-non-literal-require
-	const minSupportedIosSdk = version.parseMin(require(path.join(ROOT_DIR, 'iphone/package.json')).vendorDependencies['ios sdk']);
+	const minSupportedIosSdk = require(path.join(ROOT_DIR, 'iphone/package.json')).minIosVersion;
 	// TODO: filter to only targets relevant for platforms we're building?
 	const options = {
 		targets: {
