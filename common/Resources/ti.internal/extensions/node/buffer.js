@@ -1039,7 +1039,7 @@ class Buffer {
 		for (let i = byteLength - 1; i >= 0; i--) {
 			let byteValue = (value / multiplier) & 0xFF;
 			setAdjustedIndex(this, offset + i, byteValue);
-			multiplier *= 0X100;
+			multiplier *= 0x100;
 		}
 
 		return offset + byteLength;
