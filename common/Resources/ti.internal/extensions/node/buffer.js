@@ -126,7 +126,7 @@ class Buffer {
 
 	/**
 	 * Copies from this to target
-	 * @param {Buffer} target destinationw e're copying into
+	 * @param {Buffer} target destination we're copying into
 	 * @param {integer} [targetStart=0] start index to copy into in destination Buffer
 	 * @param {integer} [sourceStart=0] start index to copy from within `this`
 	 * @param {integer} [sourceEnd=this.length] end index to copy from within `this`
