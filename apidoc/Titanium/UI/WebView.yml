@@ -467,7 +467,7 @@ events:
   - name: onStopBlacklistedUrl
     summary: Fired when a blacklisted URL is stopped.
     platforms: [android]
-    since: 5.4.0
+    since: "5.4.0"
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
@@ -623,16 +623,18 @@ properties:
         open these. When this property is set to `true` the webview will attempt to handle these
         urls and they will not be sent to the shared application. An example is links to telephone
         numbers.
+        It should be noted that the default `undefined` behaves as false.
     type: Boolean
     platforms: [iphone, ipad]
     since: "3.3.0"
-    default: undefined. Behaves as if false
+    default: undefined
     deprecated:
         since: "8.0.0"
         notes: |
-            This property in no more supported in Titanium SDK 8.0.0+. Use property <Titanium.UI.WebView.allowedURLSchemes> 
-            in conjuction with <Titanium.UI.WebView.handleurl>. See the example section 
-            "Usage of allowedURLSchemes and handleurl in iOS".
+            This property in no more supported in Titanium SDK 8.0.0+. Use property 
+            [Titanium.UI.WebView.allowedURLSchemes](Titanium.UI.WebView.allowedURLSchemes) 
+            in conjuction with [Titanium.UI.WebView.handleurl](Titanium.UI.WebView.handleurl). 
+            See the example section "Usage of allowedURLSchemes and handleurl in iOS".
 
   - name: configuration
     summary: The configuration for the new web view.
@@ -677,8 +679,9 @@ properties:
         to display the keyboard (or other relevant input view) for that element. When set to false,
         a focus event on an element causes the input view to be displayed and associated with
         that element automatically.
+        It should be noted that the default of `undefined` behaves as true.
     type: Boolean
-    default: undefined but behaves as true
+    default: undefined
     since: "6.1.0"
     platforms: [iphone,ipad]
 
@@ -687,11 +690,12 @@ properties:
     description: |
         If set to `true`, the web page loads despite having an invalid SSL certificate.
         If set to `false`, a web page with an invalid SSL certificate does not load.
+        It should be noted that the default of `undefined` behaves as false.
 
         iOS Note: As soon as you set this property to `true`, iOS will cache the response
         for the lifetime of the current web view.
     type: Boolean
-    default: undefined but behaves as false
+    default: undefined
     since: {android: "3.0.0", iphone: "6.0.2", ipad: "6.0.2"}
     platforms: [android, iphone, ipad]
 
@@ -765,7 +769,7 @@ properties:
     summary: Determines how a cache is used in this web view.
     type: Number
     constants: Titanium.UI.Android.WEBVIEW_LOAD_*
-    default: <Titanium.UI.Android.WEBVIEW_LOAD_DEFAULT>
+    default: Titanium.UI.Android.WEBVIEW_LOAD_DEFAULT
     platforms: [android]
     since: "3.2.0"
 
@@ -795,7 +799,7 @@ properties:
     platforms: [android]
     since: "1.8.0"
     osver: {android: {min: "2.2"}}
-    default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
+    default: Titanium.UI.Android.WEBVIEW_PLUGINS_OFF
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -837,11 +841,12 @@ properties:
         `false` prevents the user from zooming the web view.
 
         On Android, only controls the initial zoom level.
+
+        Note: The default for iOS is `false`. On Android, `false` when content is specified
+        as a local URL, `true` for any other kind of content (remove URL, `Blob`, of `File`).
     platforms: [android, iphone, ipad]
     type: Boolean
-    default: |
-        `false` on iOS. On Android, `false` when content is specified as a local URL,
-        `true` for any other kind of content (remote URL, `Blob`, or `File`).
+    default: false
 
   - name: url
     summary: URL to the web document.
@@ -914,9 +919,10 @@ properties:
     since: "6.1.0"
 
   - name: zoomLevel
-    summary: Manage the zoom-level of the current page.
+    summary: |
+      Manage the zoom-level of the current page. The default `undefined` behaves as if no zoom is applied.
     type: Number
-    default: undefined. Behaves as no zoom applied.
+    default: undefined
     platforms: [android, iphone, ipad]
     since: "7.3.0"
 

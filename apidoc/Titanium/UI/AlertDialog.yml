@@ -283,7 +283,7 @@ properties:
     summary: Placeholder of the login text field inside the dialog.
     deprecated:
         since: "5.4.0"
-        notes: Use <Titanium.UI.AlertDialog.loginHintText> instead.
+        notes: Use [Titanium.UI.AlertDialog.loginHintText](Titanium.UI.AlertDialog.loginHintText) instead.
     description: |
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
@@ -365,7 +365,7 @@ properties:
     summary: Placeholder of the password text field inside the dialog.
     deprecated:
         since: "5.4.0"
-        notes: Use <Titanium.UI.AlertDialog.passwordHintText> instead.
+        notes: Use [Titanium.UI.AlertDialog.passwordHintText](Titanium.UI.AlertDialog.passwordHintText) instead.
     description: |
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
@@ -424,7 +424,7 @@ properties:
     summary: Placeholder of the text field inside the dialog.
     deprecated:
         since: "5.4.0"
-        notes: Use <Titanium.UI.AlertDialog.hintText> instead.
+        notes: Use [Titanium.UI.AlertDialog.hintText](Titanium.UI.AlertDialog.hintText) instead.
     description: |
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or

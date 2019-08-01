@@ -50,7 +50,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -868,13 +867,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						// it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
-						int removedChildIndex = parentView.findChildIndex(this);
-						parentView.remove(this);
-						initializeBorder(d, bgColor);
-						if (removedChildIndex == -1) {
-							parentView.add(this);
-						} else {
-							parentView.add(this, removedChildIndex);
+						if (parentView != null) {
+							int removedChildIndex = parentView.findChildIndex(this);
+							parentView.remove(this);
+							initializeBorder(d, bgColor);
+							if (removedChildIndex == -1) {
+								parentView.add(this);
+							} else {
+								parentView.add(this, removedChildIndex);
+							}
 						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
@@ -2155,66 +2156,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (proxy == null || nativeView == null) {
 			return;
 		}
-		String contentDescription = composeContentDescription();
+		String contentDescription = getProxy().composeContentDescription();
 		if (contentDescription != null) {
 			nativeView.setContentDescription(contentDescription);
 		}
-	}
-
-	/**
-	 * Our view proxy supports three properties to match iOS regarding
-	 * the text that is read aloud (or otherwise communicated) by the
-	 * assistive technology: accessibilityLabel, accessibilityHint
-	 * and accessibilityValue.
-	 *
-	 * We combine these to create the single Android property contentDescription.
-	 * (e.g., View.setContentDescription(...));
-	 */
-	protected String composeContentDescription()
-	{
-		if (proxy == null) {
-			return null;
-		}
-
-		KrollDict properties = proxy.getProperties();
-		if (properties == null) {
-			return null;
-		}
-
-		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
-		StringBuilder buffer = new StringBuilder();
-		String label = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
-		String hint = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
-		String value = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
-
-		if (!TextUtils.isEmpty(label)) {
-			buffer.append(label);
-			if (!label.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		if (!TextUtils.isEmpty(value)) {
-			if (buffer.length() > 0) {
-				buffer.append(" ");
-			}
-			buffer.append(value);
-			if (!value.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		if (!TextUtils.isEmpty(hint)) {
-			if (buffer.length() > 0) {
-				buffer.append(" ");
-			}
-			buffer.append(hint);
-			if (!hint.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		return buffer.toString();
 	}
 
 	private void applyAccessibilityProperties()

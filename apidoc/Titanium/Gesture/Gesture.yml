@@ -12,7 +12,7 @@ methods:
     description: Value returns `true` if in landscape, and `false` otherwise.
     deprecated:
         since: 6.1.0
-        notes: Use <Titanium.Gesture.landscape> for parity instead.
+        notes: Use [Titanium.Gesture.landscape](Titanium.Gesture.landscape) for parity instead.
     returns:
         type: Boolean
 
@@ -21,7 +21,7 @@ methods:
     description: Value returns `true` if in portrait, and `false` otherwise.
     deprecated:
         since: 6.1.0
-        notes: Use <Titanium.Gesture.portrait> for parity instead.
+        notes: Use [Titanium.Gesture.portrait](Titanium.Gesture.portrait) for parity instead.
     returns:
         type: Boolean
 

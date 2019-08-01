@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
@@ -97,16 +98,14 @@ public class ShortcutItemProxy extends KrollProxy
 		shortcut = shortcutBuilder.build();
 
 		// obtain and update any pre-existing shortcuts
-		for (ShortcutInfo shortcut : this.shortcuts) {
+		for (ShortcutInfo shortcut : new ArrayList<>(this.shortcuts)) {
 			if (shortcut.getId().equals(this.shortcut.getId())) {
 				this.shortcuts.remove(shortcut);
-				break;
 			}
 		}
+		this.shortcutManager.setDynamicShortcuts(shortcuts);
 		for (ShortcutInfo shortcut : this.shortcutManager.getDynamicShortcuts()) {
 			if (shortcut.getId().equals(this.shortcut.getId())) {
-				this.shortcutManager.removeDynamicShortcuts(Arrays.asList(shortcut.getId()));
-				this.shortcuts.remove(shortcut);
 				if (shortcut.isEnabled()) {
 					this.show();
 				}
@@ -118,6 +117,7 @@ public class ShortcutItemProxy extends KrollProxy
 		super.handleCreationDict(dict);
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public void show()
 	{
@@ -129,6 +129,7 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public void hide()
 	{
@@ -160,6 +161,7 @@ public class ShortcutItemProxy extends KrollProxy
 	}
 
 	// clang-format off
+	@SuppressLint("NewApi")
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
@@ -183,6 +185,7 @@ public class ShortcutItemProxy extends KrollProxy
 		return false;
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public void release()
 	{
