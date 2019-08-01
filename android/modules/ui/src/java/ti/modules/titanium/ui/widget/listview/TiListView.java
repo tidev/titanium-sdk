@@ -681,8 +681,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 		}
 
 		// Add the search view to the top of the vertical layout.
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-																		 rawHeight.getAsPixels(layout));
+		LinearLayout.LayoutParams params =
+			new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, rawHeight.getAsPixels(layout));
 		layout.addView(search.getNativeView(), params);
 
 		// Add the ListView to the bottom of the vertical layout.
