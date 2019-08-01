@@ -842,14 +842,14 @@ properties:
     type: Number
     availability: creation
     platforms: [android]
-    since: "8.1.0"
+    since: "8.3.0"
 
   - name: TAB_MODE_SCROLLABLE
     summary: Set the TabGroup tab mode to scrollable.
     type: Number
     availability: creation
     platforms: [android]
-    since: "8.1.0"
+    since: "8.3.0"
 
 examples:
   - title: Android Preferences Example
