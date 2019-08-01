@@ -160,6 +160,29 @@ methods:
         type: Matrix2DCreationDict
         optional: true
 
+  - name: create3DMatrix
+    summary: Creates and returns an instance of <Titanium.UI.3DMatrix>.
+    returns:
+        type: Titanium.UI.3DMatrix
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix3DCreationDict
+        optional: true
+    deprecated:
+        since: "8.0.0"
+        notes: Use [Titanium.UI.createMatrix3D](Titanium.UI.createMatrix3D) instead.
+
+  - name: createMatrix3D
+    summary: Creates and returns an instance of <Titanium.UI.Matrix3D>.
+    returns:
+        type: Titanium.UI.Matrix3D
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix3DCreationDict
+        optional: true
+
   - name: convertUnits
     summary: Converts one type of unit to another using the metrics of the main display.
     description: As this method does not support percentages, `0` is returned if they are specified.
