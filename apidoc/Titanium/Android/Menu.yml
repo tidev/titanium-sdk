@@ -301,5 +301,5 @@ examples:
 
             // Ensure menu is displayed
             function doOpen(e) {
-                $.win.invalidateOptionsMenu();
+                $.win.activity.invalidateOptionsMenu();
             }
