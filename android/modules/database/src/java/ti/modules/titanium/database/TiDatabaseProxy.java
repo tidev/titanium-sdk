@@ -167,7 +167,7 @@ public class TiDatabaseProxy extends KrollProxy
 	 * @param query SQL query to execute on database.
 	 * @param parameterObjects Parameters for `query`
 	 */
-	private TiResultSetProxy executeSQL(String query, Object[] parameterObjects)
+	private TiResultSetProxy executeSQL(String query, Object[] parameterObjects) throws InterruptedException
 	{
 		// Validate and parse `parameterObjects`.
 		if (parameterObjects != null) {
@@ -239,7 +239,7 @@ public class TiDatabaseProxy extends KrollProxy
 	 * @param parameterObjects Parameters for `query`
 	 */
 	@Kroll.method
-	public TiResultSetProxy execute(String query, Object... parameterObjects)
+	public TiResultSetProxy execute(String query, Object... parameterObjects) throws InterruptedException
 	{
 		// Validate `query` parameter.
 		if (query == null) {
