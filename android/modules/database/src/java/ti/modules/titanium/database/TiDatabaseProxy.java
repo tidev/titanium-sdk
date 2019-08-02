@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Kroll.proxy(parentModule = DatabaseModule.class)
 public class TiDatabaseProxy extends KrollProxy
@@ -39,6 +41,7 @@ public class TiDatabaseProxy extends KrollProxy
 	private static final String TAG = "TiDB";
 
 	private Thread thread;
+	private Lock dbLock = new ReentrantLock(true); // use a "fair" lock
 	private BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 	private AtomicBoolean executingQueue = new AtomicBoolean(false);
 	private boolean isClosed = false;
@@ -131,23 +134,25 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public void close()
 	{
-		synchronized (this)
-		{
+		dbLock.lock();
+		try {
 			// Close database.
 			if (db != null && db.isOpen()) {
 				db.close();
 			}
 			db = null;
 			isClosed = true;
-
-			// Abort query queue execution.
-			if (thread != null) {
-				thread.interrupt();
-				thread = null;
-			}
-			executingQueue.set(false);
-			queue.clear();
+		} finally {
+			dbLock.unlock();
 		}
+
+		// Abort query queue execution.
+		if (thread != null) {
+			thread.interrupt();
+			thread = null;
+		}
+		executingQueue.set(false);
+		queue.clear();
 	}
 
 	private boolean expectResult(String query)
@@ -182,9 +187,9 @@ public class TiDatabaseProxy extends KrollProxy
 		// to maintain correct execution order and prevent write-locks.
 		waitForQueue();
 
-		// Execute query using rawQuery() in order to receive results.
-		synchronized (this)
-		{ // lock on db proxy instance
+		// lock on db proxy instance
+		dbLock.lockInterruptibly();
+		try {
 			if (isClosed) {
 				throw new IllegalStateException("database is closed");
 			}
@@ -202,6 +207,7 @@ public class TiDatabaseProxy extends KrollProxy
 				}
 			}
 
+			// Execute query using rawQuery() in order to receive results.
 			Cursor cursor = db.rawQuery(query, parameters);
 			if (cursor != null) {
 				// Validate and set query result.
@@ -222,6 +228,8 @@ public class TiDatabaseProxy extends KrollProxy
 			}
 
 			return null;
+		} finally {
+			dbLock.unlock();
 		}
 	}
 
@@ -379,12 +387,15 @@ public class TiDatabaseProxy extends KrollProxy
 	public int getLastInsertRowId()
 	// clang-format on
 	{
-		synchronized (this)
-		{ // lock on db proxy instance
+		// lock on db proxy instance
+		dbLock.lock();
+		try {
 			if (isClosed) {
 				throw new IllegalStateException("database is closed");
 			}
 			return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
+		} finally {
+			dbLock.unlock();
 		}
 	}
 
@@ -398,12 +409,15 @@ public class TiDatabaseProxy extends KrollProxy
 	public int getRowsAffected()
 	// clang-format on
 	{
-		synchronized (this)
-		{ // lock on db proxy instance
+		// lock on db proxy instance
+		dbLock.lock();
+		try {
 			if (isClosed) {
 				throw new IllegalStateException("database is closed");
 			}
 			return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
+		} finally {
+			dbLock.unlock();
 		}
 	}
 
