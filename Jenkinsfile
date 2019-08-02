@@ -17,7 +17,7 @@ def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline br
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
-def testOnDevices = isMainlineBranch // run tests on devices
+def testOnDevices = true // run tests on devices
 
 // Variables we can change
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
