@@ -454,10 +454,10 @@ properties:
     description: |
         Sets the style of the TabGroup tabs.
 
-        [TAB_MODE_FIXED](Titanium.UI.Android.TAB_MODE_FIXED) is the default style and will show all tabs at once.
-
         [TAB_MODE_SCROLLABLE](Titanium.UI.Android.TAB_MODE_SCROLLABLE) is the best style for showing long tab titles and
-        enables horizontal scrolling.
+        enables horizontal scrolling (default).
+
+        [TAB_MODE_FIXED](Titanium.UI.Android.TAB_MODE_FIXED) will show all tabs at once.
     availability: creation
     constants: Titanium.UI.Android.TAB_MODE_*
     since: "8.3.0"
