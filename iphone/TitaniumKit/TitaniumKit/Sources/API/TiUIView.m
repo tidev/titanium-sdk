@@ -380,7 +380,34 @@ DEFINE_EXCEPTIONS
   if (backgroundRepeat) {
     [self renderRepeatedBackground:backgroundImage];
   }
+
+  if ([self hasCustomBorderRadii]) {
+    __block UIRectCorner corners;
+    NSArray<NSNumber *> *edges = [proxy valueForKey:@"borderRadiusEdges"];
+    TiDimension borderRadius = TiDimensionFromObject([proxy valueForKey:@"borderRadius"]);
+
+    if (TiDimensionIsUndefined(borderRadius)) {
+      [self throwException:@"Cannot create custom border radius" subreason:@"The border radius is invalid" location:CODELOCATION];
+    }
+
+    [edges enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+      (corners |= obj.intValue);
+    }];
+
+    UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:self.bounds byRoundingCorners:corners cornerRadii:CGSizeMake(borderRadius.value, borderRadius.value)];
+
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    maskLayer.frame = self.bounds;
+    maskLayer.path = maskPath.CGPath;
+    self.layer.mask = maskLayer;
+  }
+
   [self updateViewShadowPath];
+}
+
+- (BOOL)hasCustomBorderRadii
+{
+  return [proxy valueForKey:@"borderRadiusEdges"] != nil;
 }
 
 - (void)setFrame:(CGRect)frame
@@ -640,6 +667,11 @@ DEFINE_EXCEPTIONS
 
 - (void)setBorderRadius_:(id)radius
 {
+  // Custom border radii are handled once the view is drawn
+  if ([self hasCustomBorderRadii]) {
+    return;
+  }
+
   TiDimension theDim = TiDimensionFromObject(radius);
   if (TiDimensionIsDip(theDim)) {
     self.layer.cornerRadius = MAX(theDim.value, 0);
