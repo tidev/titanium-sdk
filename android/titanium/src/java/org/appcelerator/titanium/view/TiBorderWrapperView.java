@@ -69,7 +69,34 @@ public class TiBorderWrapperView extends FrameLayout
 		if (radius > 0f) {
 			float innerRadius = radius - padding;
 			if (innerRadius > 0f) {
-				outerPath.addRoundRect(innerRect, innerRadius, innerRadius, Direction.CW);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && radii > 0) {
+					// custom edge radius
+					float[] corners = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+					if ((radii & 1) == 1) {
+						// Top left radius
+						corners[0] = innerRadius;
+						corners[1] = innerRadius;
+					}
+					if ((radii & 2) == 2) {
+						// Top right radius
+						corners[2] = innerRadius;
+						corners[3] = innerRadius;
+					}
+					if ((radii & 8) == 8) {
+						// Bottom right radius
+						corners[4] = innerRadius;
+						corners[5] = innerRadius;
+					}
+					if ((radii & 4) == 4) {
+						// Bottom left radius
+						corners[6] = innerRadius;
+						corners[7] = innerRadius;
+					}
+					outerPath.addRoundRect(innerRect, corners, Direction.CW);
+				} else {
+					outerPath.addRoundRect(innerRect, innerRadius, innerRadius, Direction.CW);
+				}
 			} else {
 				outerPath.addRect(innerRect, Direction.CW);
 			}
