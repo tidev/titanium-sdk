@@ -71,29 +71,7 @@ public class TiBorderWrapperView extends FrameLayout
 			if (innerRadius > 0f) {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && radii > 0) {
 					// custom edge radius
-					float[] corners = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-					if ((radii & 1) == 1) {
-						// Top left radius
-						corners[0] = innerRadius;
-						corners[1] = innerRadius;
-					}
-					if ((radii & 2) == 2) {
-						// Top right radius
-						corners[2] = innerRadius;
-						corners[3] = innerRadius;
-					}
-					if ((radii & 8) == 8) {
-						// Bottom right radius
-						corners[4] = innerRadius;
-						corners[5] = innerRadius;
-					}
-					if ((radii & 4) == 4) {
-						// Bottom left radius
-						corners[6] = innerRadius;
-						corners[7] = innerRadius;
-					}
-					outerPath.addRoundRect(innerRect, corners, Direction.CW);
+					outerPath.addRoundRect(innerRect, checkCorners(innerRadius), Direction.CW);
 				} else {
 					outerPath.addRoundRect(innerRect, innerRadius, innerRadius, Direction.CW);
 				}
@@ -105,29 +83,7 @@ public class TiBorderWrapperView extends FrameLayout
 			// draw border
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && radii > 0) {
 				// custom edge radius
-				float[] corners = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-				if ((radii & 1) == 1) {
-					// Top left radius
-					corners[0] = radius;
-					corners[1] = radius;
-				}
-				if ((radii & 2) == 2) {
-					// Top right radius
-					corners[2] = radius;
-					corners[3] = radius;
-				}
-				if ((radii & 8) == 8) {
-					// Bottom right radius
-					corners[4] = radius;
-					corners[5] = radius;
-				}
-				if ((radii & 4) == 4) {
-					// Bottom left radius
-					corners[6] = radius;
-					corners[7] = radius;
-				}
-				outerPath.addRoundRect(outerRect, corners, Direction.CW);
+				outerPath.addRoundRect(outerRect, checkCorners(radius), Direction.CW);
 			} else {
 				outerPath.addRoundRect(outerRect, radius, radius, Direction.CCW);
 			}
@@ -160,6 +116,33 @@ public class TiBorderWrapperView extends FrameLayout
 			};
 			setOutlineProvider(viewOutlineProvider);
 		}
+	}
+
+	private float[] checkCorners(float radius)
+	{
+		float[] corners = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		if ((radii & 1) == 1) {
+			// Top left radius
+			corners[0] = radius;
+			corners[1] = radius;
+		}
+		if ((radii & 2) == 2) {
+			// Top right radius
+			corners[2] = radius;
+			corners[3] = radius;
+		}
+		if ((radii & 8) == 8) {
+			// Bottom right radius
+			corners[4] = radius;
+			corners[5] = radius;
+		}
+		if ((radii & 4) == 4) {
+			// Bottom left radius
+			corners[6] = radius;
+			corners[7] = radius;
+		}
+		return corners;
 	}
 
 	public void setColor(int color)

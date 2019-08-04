@@ -1470,28 +1470,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS_EDGES)) {
-					int radii = 0;
-					Object value = d.get(TiC.PROPERTY_BORDER_RADIUS_EDGES);
-					if (value instanceof Object[]) {
-						for (Object nextType : (Object[]) value) {
-							Integer intType = (nextType instanceof Integer) ? (Integer) nextType : 0;
-							switch (intType) {
-								case BORDER_EDGE_TOP_LEFT:
-									radii |= BORDER_EDGE_TOP_LEFT;
-									break;
-								case BORDER_EDGE_TOP_RIGHT:
-									radii |= BORDER_EDGE_TOP_RIGHT;
-									break;
-								case BORDER_EDGE_BOTTOM_RIGHT:
-									radii |= BORDER_EDGE_BOTTOM_RIGHT;
-									break;
-								case BORDER_EDGE_BOTTOM_LEFT:
-									radii |= BORDER_EDGE_BOTTOM_LEFT;
-									break;
-							}
-						}
-					}
-					borderView.setBorderEdges(radii);
+					borderView.setBorderEdges(borderEdges(d.get(TiC.PROPERTY_BORDER_RADIUS_EDGES)));
 				}
 
 				if (bgColor != null) {
@@ -1551,28 +1530,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 			borderView.setRadius(radius);
 		} else if (TiC.PROPERTY_BORDER_RADIUS_EDGES.equals(property)) {
-			int radii = 0;
-
-			if (value instanceof Object[]) {
-				for (Object nextType : (Object[]) value) {
-					Integer intType = (nextType instanceof Integer) ? (Integer) nextType : 0;
-					switch (intType) {
-						case BORDER_EDGE_TOP_LEFT:
-							radii |= BORDER_EDGE_TOP_LEFT;
-							break;
-						case BORDER_EDGE_TOP_RIGHT:
-							radii |= BORDER_EDGE_TOP_RIGHT;
-							break;
-						case BORDER_EDGE_BOTTOM_RIGHT:
-							radii |= BORDER_EDGE_BOTTOM_RIGHT;
-							break;
-						case BORDER_EDGE_BOTTOM_LEFT:
-							radii |= BORDER_EDGE_BOTTOM_LEFT;
-							break;
-					}
-				}
-			}
-			borderView.setBorderEdges(radii);
+			borderView.setBorderEdges(borderEdges(value));
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
 			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
@@ -1582,6 +1540,32 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			borderView.setBorderWidth(width);
 		}
 		borderView.postInvalidate();
+	}
+
+	private int borderEdges(Object value)
+	{
+		int radii = 0;
+
+		if (value instanceof Object[]) {
+			for (Object nextType : (Object[]) value) {
+				Integer intType = (nextType instanceof Integer) ? (Integer) nextType : 0;
+				switch (intType) {
+					case BORDER_EDGE_TOP_LEFT:
+						radii |= BORDER_EDGE_TOP_LEFT;
+						break;
+					case BORDER_EDGE_TOP_RIGHT:
+						radii |= BORDER_EDGE_TOP_RIGHT;
+						break;
+					case BORDER_EDGE_BOTTOM_RIGHT:
+						radii |= BORDER_EDGE_BOTTOM_RIGHT;
+						break;
+					case BORDER_EDGE_BOTTOM_LEFT:
+						radii |= BORDER_EDGE_BOTTOM_LEFT;
+						break;
+				}
+			}
+		}
+		return radii;
 	}
 
 	private static SparseArray<String> motionEvents = new SparseArray<String>();
