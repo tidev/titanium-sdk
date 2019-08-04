@@ -6,11 +6,10 @@
  */
 package org.appcelerator.titanium.view;
 
-import com.nineoldandroids.view.ViewHelper;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
@@ -19,9 +18,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.view.ViewOutlineProvider;
-import android.graphics.Outline;
+import android.widget.FrameLayout;
+import com.nineoldandroids.view.ViewHelper;
 
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
@@ -34,6 +33,7 @@ public class TiBorderWrapperView extends FrameLayout
 	private int color = Color.TRANSPARENT;
 	private int backgroundColor = Color.TRANSPARENT;
 	private float radius = 0;
+	private int radii = 0;
 	private float borderWidth = 0;
 	private int alpha = -1;
 	private Paint paint;
@@ -76,7 +76,34 @@ public class TiBorderWrapperView extends FrameLayout
 			Path innerPath = new Path(outerPath);
 
 			// draw border
-			outerPath.addRoundRect(outerRect, radius, radius, Direction.CCW);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && radii > 0) {
+				// custom edge radius
+				float[] corners = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+				if ((radii & 1) == 1) {
+					// Top left radius
+					corners[0] = radius;
+					corners[1] = radius;
+				}
+				if ((radii & 2) == 2) {
+					// Top right radius
+					corners[2] = radius;
+					corners[3] = radius;
+				}
+				if ((radii & 8) == 8) {
+					// Bottom right radius
+					corners[4] = radius;
+					corners[5] = radius;
+				}
+				if ((radii & 4) == 4) {
+					// Bottom left radius
+					corners[6] = radius;
+					corners[7] = radius;
+				}
+				outerPath.addRoundRect(outerRect, corners, Direction.CW);
+			} else {
+				outerPath.addRoundRect(outerRect, radius, radius, Direction.CCW);
+			}
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
@@ -121,6 +148,11 @@ public class TiBorderWrapperView extends FrameLayout
 	public void setRadius(float radius)
 	{
 		this.radius = radius;
+	}
+
+	public void setBorderEdges(int radii)
+	{
+		this.radii = radii;
 	}
 
 	public void setBorderWidth(float borderWidth)

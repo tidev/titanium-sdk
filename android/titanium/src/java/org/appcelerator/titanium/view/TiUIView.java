@@ -6,32 +6,6 @@
  */
 package org.appcelerator.titanium.view;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollPropertyChange;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiAnimationBuilder;
-import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -71,8 +45,31 @@ import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-
 import com.nineoldandroids.view.ViewHelper;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPropertyChange;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiAnimationBuilder;
+import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy.
@@ -110,6 +107,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	public static final int TRANSITION_CHANGE_CLIP_BOUNDS = 9;
 	public static final int TRANSITION_CHANGE_TRANSFORM = 10;
 	public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = 11;
+
+	public static final int BORDER_EDGE_TOP_LEFT = 1;
+	public static final int BORDER_EDGE_TOP_RIGHT = 2;
+	public static final int BORDER_EDGE_BOTTOM_LEFT = 4;
+	public static final int BORDER_EDGE_BOTTOM_RIGHT = 8;
 
 	protected View nativeView; // Native View object
 
@@ -1467,6 +1469,31 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					borderView.setRadius(radius);
 				}
 
+				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS_EDGES)) {
+					int radii = 0;
+					Object value = d.get(TiC.PROPERTY_BORDER_RADIUS_EDGES);
+					if (value instanceof Object[]) {
+						for (Object nextType : (Object[]) value) {
+							Integer intType = (nextType instanceof Integer) ? (Integer) nextType : 0;
+							switch (intType) {
+								case BORDER_EDGE_TOP_LEFT:
+									radii |= BORDER_EDGE_TOP_LEFT;
+									break;
+								case BORDER_EDGE_TOP_RIGHT:
+									radii |= BORDER_EDGE_TOP_RIGHT;
+									break;
+								case BORDER_EDGE_BOTTOM_RIGHT:
+									radii |= BORDER_EDGE_BOTTOM_RIGHT;
+									break;
+								case BORDER_EDGE_BOTTOM_LEFT:
+									radii |= BORDER_EDGE_BOTTOM_LEFT;
+									break;
+							}
+						}
+					}
+					borderView.setBorderEdges(radii);
+				}
+
 				if (bgColor != null) {
 					borderView.setBgColor(bgColor);
 					borderView.setColor(bgColor);
@@ -1523,6 +1550,29 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
+		} else if (TiC.PROPERTY_BORDER_RADIUS_EDGES.equals(property)) {
+			int radii = 0;
+
+			if (value instanceof Object[]) {
+				for (Object nextType : (Object[]) value) {
+					Integer intType = (nextType instanceof Integer) ? (Integer) nextType : 0;
+					switch (intType) {
+						case BORDER_EDGE_TOP_LEFT:
+							radii |= BORDER_EDGE_TOP_LEFT;
+							break;
+						case BORDER_EDGE_TOP_RIGHT:
+							radii |= BORDER_EDGE_TOP_RIGHT;
+							break;
+						case BORDER_EDGE_BOTTOM_RIGHT:
+							radii |= BORDER_EDGE_BOTTOM_RIGHT;
+							break;
+						case BORDER_EDGE_BOTTOM_LEFT:
+							radii |= BORDER_EDGE_BOTTOM_LEFT;
+							break;
+					}
+				}
+			}
+			borderView.setBorderEdges(radii);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
 			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);

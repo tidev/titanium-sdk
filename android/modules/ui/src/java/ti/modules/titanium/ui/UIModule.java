@@ -6,6 +6,15 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.text.InputType;
+import android.text.util.Linkify;
+import android.view.View;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -20,16 +29,6 @@ import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
-
-import android.app.Activity;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.text.InputType;
-import android.text.util.Linkify;
-import android.view.View;
-import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 // clang-format off
 @Kroll.module
@@ -379,6 +378,15 @@ public class UIModule extends KrollModule
 	public static final int HIDDEN_BEHAVIOR_GONE = View.GONE;
 	@Kroll.constant
 	public static final int HIDDEN_BEHAVIOR_INVISIBLE = View.INVISIBLE;
+
+	@Kroll.constant
+	public static final int BORDER_EDGE_TOP_LEFT = 1;
+	@Kroll.constant
+	public static final int BORDER_EDGE_TOP_RIGHT = 2;
+	@Kroll.constant
+	public static final int BORDER_EDGE_BOTTOM_LEFT = 4;
+	@Kroll.constant
+	public static final int BORDER_EDGE_BOTTOM_RIGHT = 8;
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 

@@ -1130,6 +1130,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BORDER_RADIUS_EDGES = "borderRadiusEdges";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
 
 	/**
