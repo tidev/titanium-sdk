@@ -535,8 +535,9 @@ class Buffer {
 	 */
 	readUInt32BE(offset = 0) {
 		checkOffset(this, offset, 4);
-		return (this[offset] * 0x1000000) | (this[offset + 1] << 16) | (this[offset + 2] << 8) | this[offset + 3];
-		// rather than shifting by << 24, multiply the first byte so we don't overflow
+		return (this[offset] * 0x1000000) + ((this[offset + 1] << 16) | (this[offset + 2] << 8) | this[offset + 3]);
+		// rather than shifting by << 24, multiply the first byte and add it in so we don't retain the "sign bit"
+		// (because bit-wise operators assume a 32-bit number)
 	}
 
 	/**
@@ -545,8 +546,8 @@ class Buffer {
 	 */
 	readUInt32LE(offset = 0) {
 		checkOffset(this, offset, 4);
-		return this[offset] | (this[offset + 1] << 8) | (this[offset + 2] << 16) | (this[offset + 3] * 0x1000000);
-		// rather than shifting by << 24, multiply the last byte so we don't overflow
+		return (this[offset] | (this[offset + 1] << 8) | (this[offset + 2] << 16)) + (this[offset + 3] * 0x1000000);
+		// rather than shifting by << 24, multiply the last byte and add it in so we don't retain the "sign bit"
 	}
 
 	/**
