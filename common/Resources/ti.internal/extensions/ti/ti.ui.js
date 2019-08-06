@@ -26,7 +26,7 @@ uiModule.fetchSemanticColor = function fetchSemanticColor (colorName) {
 		osVersion = parseInt(Ti.Platform.version.split('.')[0]);
 	}
 
-	if (Ti.App.iOS && osVersion >= 11) {
+	if (Ti.App.iOS && osVersion >= 13) {
 		return Ti.UI.iOS.fetchSemanticColor(colorName);
 	} else {
 		if (!colorset) {
