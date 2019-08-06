@@ -1376,9 +1376,18 @@ class Buffer {
 
 Buffer.poolSize = 8192;
 
-export default Buffer;
-
-global.Buffer = Buffer;
+export default {
+	Buffer,
+	// TODO: Implement transcode()!
+	transcode: (_source, _fromEncoding, _toEncoding) => {},
+	INSPECT_MAX_BYTES: 50,
+	kMaxLength: 2147483647,
+	kStringMaxLength: 1073741799,
+	constants: {
+		MAX_LENGTH: 2147483647,
+		MAX_STRING_LENGTH: 1073741799
+	}
+};
 
 /**
  * Searches a Buffer for the index of a single byte.

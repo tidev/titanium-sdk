@@ -8,13 +8,46 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
-let Buffer;
+let BufferModule;
 const encodings = [ 'utf8', 'utf-8', 'ucs2', 'ucs-2', 'ascii', 'latin1', 'binary', 'utf16le', 'utf-16le' ];
 
-describe('Buffer', () => {
+describe('buffer', () => {
 	it('can be loaded as a core module', () => {
-		Buffer = require('buffer');
-		should(Buffer).exist;
+		BufferModule = require('buffer');
+		should(BufferModule).exist;
+	});
+
+	it('.INSPECT_MAX_BYTES', () => {
+		should(BufferModule.INSPECT_MAX_BYTES).eql(50);
+	});
+
+	it('.kMaxLength', () => {
+		should(BufferModule.kMaxLength).eql(2147483647);
+	});
+
+	it('.kStringMaxLength', () => {
+		should(BufferModule.kStringMaxLength).eql(1073741799);
+	});
+
+	it('.constants', () => {
+		should(BufferModule.constants.MAX_LENGTH).eql(2147483647);
+		should(BufferModule.constants.MAX_STRING_LENGTH).eql(1073741799);
+	});
+
+	describe('#transcode()', () => {
+		it('is a function', () => {
+			should(BufferModule.transcode).be.a.Function;
+		});
+
+		it.allBroken('transcodes a Buffer from one encoding to another', () => {
+			// TODO: Implement #transcode()
+		});
+	});
+});
+
+describe('Buffer', () => {
+	it('is available off the \'buffer\' module as Buffer', () => {
+		should(BufferModule.Buffer).exist;
 	});
 
 	it('is available off global', () => {
