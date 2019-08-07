@@ -518,8 +518,8 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 
 	// Frameworks are handled differently. Based on https://gist.github.com/cromandini/1a9c4aeab27ca84f5d79
 	if (this.isFramework) {
-		const simFramework = args[0];
-		const deviceFramework = args[1];
+		const simFramework = args[1];
+		const deviceFramework = args[0];
 		const basename = path.basename(simFramework); // Same for sim and dist
 		const universalFrameworkDir = path.join(this.projectDir, 'build', 'universal');
 		const universalFrameworkFile = path.join(universalFrameworkDir, basename);
@@ -750,6 +750,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 
 		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
 		dest.finalize();
+	// eslint-disable-next-line no-useless-catch
 	} catch (ex) {
 		throw ex;
 	} finally {
