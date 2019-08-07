@@ -1358,13 +1358,6 @@ class Buffer {
 			}
 			return newBuffer(Ti.createBuffer({ value: value, type: getTiCodecCharset(encoding) }));
 		} else if (valueType === 'object') {
-			if (Array.isArray(value)) {
-				const tiBuffer = Ti.createBuffer({ length: value.length });
-				for (let i = 0; i < value.length; i++) {
-					tiBuffer[i] = value[i] & 0xFF; // mask to one byte
-				}
-				return newBuffer(tiBuffer);
-			}
 			if (Buffer.isBuffer(value)) {
 				const length = value.length;
 				const buffer = Buffer.allocUnsafe(length);
@@ -1376,15 +1369,15 @@ class Buffer {
 				value.copy(buffer, 0, 0, length);
 				return buffer;
 			}
-			if (value instanceof Uint8Array) {
+			if (Array.isArray(value) || value instanceof Uint8Array) {
 				const length = value.length;
 				if (length === 0) {
-					return Buffer.alloc(0);
+					return Buffer.allocUnsafe(0);
 				}
 
 				const tiBuffer = Ti.createBuffer({ length });
 				for (let i = 0; i < length; i++) {
-					tiBuffer[i] = value[i];
+					tiBuffer[i] = value[i] & 0xFF; // mask to one byte
 				}
 
 				return newBuffer(tiBuffer);
