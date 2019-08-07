@@ -55,6 +55,14 @@ describe('Buffer', () => {
 	});
 
 	describe('constructor', () => {
+		before(() => {
+			process.noDeprecation = true;
+		});
+
+		after(() => {
+			process.noDeprecation = false;
+		});
+
 		it('should allocate a new Buffer using an array of octets', () => {
 			const arr = [ 0x54, 0x69, 0x74, 0x61, 0x6e, 0x69, 0x75, 0x6d ];
 			const buf = new Buffer(arr);
