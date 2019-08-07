@@ -14,6 +14,8 @@
  * a Uint8Array in any of our APIs that take a Ti.Buffer and eventually deprecating/removing Ti.Buffer.
  */
 
+import { isInsideNodeModules } from './internal/util';
+
 // https://nodejs.org/api/buffer.html#buffer_buffers_and_character_encodings
 const TI_CODEC_MAP = new Map();
 TI_CODEC_MAP.set('utf-8', Ti.Codec.CHARSET_UTF8);
@@ -50,7 +52,34 @@ const floatArray = new Float32Array(1);
 const uint8FloatArray = new Uint8Array(floatArray.buffer);
 
 class Buffer {
-	constructor(tiBuffer, start, length) {
+	/**
+	 * Constructs a new buffer.
+	 *
+	 * Primarily used internally in this module together with `newBuffer` to
+	 * create a new Buffer instance wrapping a Ti.Buffer.
+	 *
+	 * Also supports the deprecated Buffer() constructors which are safe
+	 * to use outside of this module.
+	 *
+	 * @param {integer[]|Buffer|integer|string|Ti.Buffer} arg
+	 * @param {string|integer} encodingOrOffset
+	 * @param {integer} length
+	 */
+	constructor(arg, encodingOrOffset, length) {
+		if (typeof arg !== 'object' || arg.apiName !== 'Ti.Buffer') {
+			showFlaggedDeprecation();
+
+			if (typeof arg === 'number') {
+				if (typeof encodingOrOffset === 'string') {
+					throw new TypeError(`The "string" argument must be of type "string". Received type ${typeof arg}`);
+				}
+				return Buffer.alloc(arg);
+			}
+			return Buffer.from(arg, encodingOrOffset, length);
+		}
+
+		const tiBuffer = arg;
+		let start = encodingOrOffset;
 		this._tiBuffer = tiBuffer;
 		if (start === undefined) {
 			start = 0;
@@ -1347,6 +1376,19 @@ class Buffer {
 				value.copy(buffer, 0, 0, length);
 				return buffer;
 			}
+			if (value instanceof Uint8Array) {
+				const length = value.length;
+				if (length === 0) {
+					return Buffer.alloc(0);
+				}
+
+				const tiBuffer = Ti.createBuffer({ length });
+				for (let i = 0; i < length; i++) {
+					tiBuffer[i] = value[i];
+				}
+
+				return newBuffer(tiBuffer);
+			}
 			if (value.apiName && value.apiName === 'Ti.Buffer') {
 				return newBuffer(value);
 			}
@@ -1581,4 +1623,26 @@ function checkValue(value, min, max) {
 	if (value < min || value > max) {
 		throw new RangeError(`The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`);
 	}
+}
+
+let bufferWarningAlreadyEmitted = false;
+let nodeModulesCheckCounter = 0;
+const bufferWarning = 'Buffer() is deprecated due to security and usability '
+											+ 'issues. Please use the Buffer.alloc(), '
+											+ 'Buffer.allocUnsafe(), or Buffer.from() methods instead.';
+
+function showFlaggedDeprecation() {
+	if (bufferWarningAlreadyEmitted
+			|| ++nodeModulesCheckCounter > 10000
+			|| isInsideNodeModules()) {
+		// We don't emit a warning, because we either:
+		// - Already did so, or
+		// - Already checked too many times whether a call is coming
+		//   from node_modules and want to stop slowing down things, or
+		// - The code is inside `node_modules`.
+		return;
+	}
+
+	process.emitWarning(bufferWarning, 'DeprecationWarning', 'DEP0005');
+	bufferWarningAlreadyEmitted = true;
 }
