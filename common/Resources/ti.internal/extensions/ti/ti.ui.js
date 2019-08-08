@@ -19,7 +19,18 @@ if (Ti.Android) {
 
 uiModule.SEMANTIC_COLOR_TYPE_LIGHT = 'light';
 uiModule.SEMANTIC_COLOR_TYPE_DARK = 'dark';
-uiModule.semanticColorType = Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT;
+
+// We need to track this manually with a getter/setter
+// due to the same reasons we use uiModule instead of Ti.UI
+let currentColorType = uiModule.SEMANTIC_COLOR_TYPE_LIGHT;
+Object.defineProperty(uiModule, 'semanticColorType', {
+	get: () => {
+		return currentColorType;
+	},
+	set: (colorType) => {
+		currentColorType = colorType;
+	}
+});
 
 uiModule.fetchSemanticColor = function fetchSemanticColor (colorName) {
 	if (!osVersion) {
