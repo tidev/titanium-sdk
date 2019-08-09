@@ -95,7 +95,7 @@
     "@seadub/danger-plugin-eslint": "^1.0.1",
     "@seadub/danger-plugin-junit": "0.1.1",
     "clang-format": "1.2.3",
-    "commander": "^2.20.0",
+    "commander": "^3.0.0",
     "commitizen": "^4.0.3",
     "core-js": "^2.6.5",
     "cz-conventional-changelog": "^3.0.2",
