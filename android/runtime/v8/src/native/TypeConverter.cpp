@@ -180,8 +180,8 @@ Local<Value> TypeConverter::javaBytesToJsString(Isolate* isolate, JNIEnv *env, j
 
 	jboolean isCopy;
 	jsize nativeBytesLength = env->GetArrayLength(javaBytes);
-	uint8_t* nativeBytes = reinterpret_cast<uint8_t*>(env->GetByteArrayElements(javaBytes, &isCopy));
-	Local<String> jsString = v8::String::NewFromOneByte(V8Runtime::v8_isolate, nativeBytes, v8::NewStringType::kNormal, nativeBytesLength).ToLocalChecked();
+	char* nativeBytes = reinterpret_cast<char*>(env->GetByteArrayElements(javaBytes, &isCopy));
+	Local<String> jsString = v8::String::NewFromUtf8(V8Runtime::v8_isolate, nativeBytes, v8::NewStringType::kNormal, nativeBytesLength).ToLocalChecked();
 	env->ReleaseByteArrayElements(javaBytes, reinterpret_cast<jbyte*>(nativeBytes), JNI_ABORT);
 
 	return jsString;
