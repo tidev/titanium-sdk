@@ -12,6 +12,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import java.util.List;
+import java.util.ArrayList;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -220,22 +233,46 @@ public class TCPProxy extends KrollProxy implements TiStream
 			Object timeoutProperty = getProperty("timeout");
 
 			try {
+				int port = TiConvert.toInt(getProperty("port"));
+				boolean startTls = TiConvert.toBoolean(getProperty("startTls"), false);
+
+				if (startTls) {
+					SocketFactory sslSocketFactory = SSLSocketFactory.getDefault();
+					SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
+					sslSocket.setUseClientMode(true);
+					SSLParameters sslParameters = new SSLParameters();
+					List sniHostNames = new ArrayList(1);
+					sniHostNames.add(new SNIHostName(host));
+					sslParameters.setServerNames(sniHostNames);
+					sslSocket.setSSLParameters(sslParameters);
+					clientSocket = sslSocket;
+				} else {
+					clientSocket = new Socket();
+				}
+
+				InetSocketAddress endpint = new InetSocketAddress(host, port);
 				if (timeoutProperty != null) {
 					int timeout = TiConvert.toInt(timeoutProperty, 0);
-
-					clientSocket = new Socket();
-					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
-
+					clientSocket.connect(endpint, timeout);
 				} else {
-					clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+					clientSocket.connect(endpint);
 				}
-				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 
+				if (startTls) {
+					SSLSocket sslSocket = (SSLSocket) clientSocket;
+					HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+					SSLSession sslSession = sslSocket.getSession();
+					if (!hostnameVerifier.verify(host, sslSession)) {
+						throw new SSLHandshakeException("Expected " + host + ", found "
+														+ sslSession.getPeerPrincipal());
+					}
+				}
+
+				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error",
 							buildErrorCallbackArgs("Unable to connect, unknown host <" + host + ">", 0));
-
 			} catch (IOException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));
