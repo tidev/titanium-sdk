@@ -71,17 +71,6 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	public static final int RETURNKEY_DEFAULT = 9;
 	public static final int RETURNKEY_SEND = 10;
 
-	private static final int KEYBOARD_ASCII = 0;
-	private static final int KEYBOARD_NUMBERS_PUNCTUATION = 1;
-	private static final int KEYBOARD_URL = 2;
-	private static final int KEYBOARD_NUMBER_PAD = 3;
-	private static final int KEYBOARD_PHONE_PAD = 4;
-	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
-	@SuppressWarnings("unused")
-	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
-	private static final int KEYBOARD_DEFAULT = 7;
-	private static final int KEYBOARD_DECIMAL_PAD = 8;
-
 	// UIModule also has these as values - there's a chance they won't stay in sync if somebody changes one without changing these
 	private static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
 	private static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
@@ -623,7 +612,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 	public void handleKeyboard(KrollDict d)
 	{
-		int type = KEYBOARD_ASCII;
+		int type = UIModule.KEYBOARD_TYPE_ASCII;
 		boolean passwordMask = false;
 		boolean editable = true;
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
@@ -660,8 +649,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 				// turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in
 				// landscape mode.
-				if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD
-					|| type == KEYBOARD_NUMBER_PAD) {
+				if (type == UIModule.KEYBOARD_TYPE_NUMBERS_PUNCTUATION || type == UIModule.KEYBOARD_TYPE_DECIMAL_PAD
+					|| type == UIModule.KEYBOARD_TYPE_NUMBER_PAD) {
 					tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 				}
 			} else {
@@ -706,24 +695,25 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 
 			if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
-				type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), KEYBOARD_DEFAULT);
+				type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), UIModule.KEYBOARD_TYPE_DEFAULT);
 			}
 
 			int typeModifiers = autocorrect | autoCapValue;
 			int textTypeAndClass = typeModifiers;
 
-			if (type != KEYBOARD_DECIMAL_PAD) {
+			if (type != UIModule.KEYBOARD_TYPE_DECIMAL_PAD && type != UIModule.KEYBOARD_TYPE_NUMBER_PAD
+				&& type != UIModule.KEYBOARD_TYPE_PHONE_PAD) {
 				textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 			}
 
 			tv.setCursorVisible(true);
 			switch (type) {
-				case KEYBOARD_DEFAULT:
-				case KEYBOARD_ASCII:
+				case UIModule.KEYBOARD_TYPE_DEFAULT:
+				case UIModule.KEYBOARD_TYPE_ASCII:
 					// Don't need a key listener, inputType handles that.
 					break;
-				case KEYBOARD_NUMBERS_PUNCTUATION:
-					textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
+				case UIModule.KEYBOARD_TYPE_NUMBERS_PUNCTUATION:
+					textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
 					tv.setKeyListener(new NumberKeyListener() {
 						@Override
 						public int getInputType()
@@ -741,22 +731,22 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 						}
 					});
 					break;
-				case KEYBOARD_URL:
+				case UIModule.KEYBOARD_TYPE_URL:
 					Log.d(TAG, "Setting keyboard type URL-3", Log.DEBUG_MODE);
 					tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 					break;
-				case KEYBOARD_DECIMAL_PAD:
+				case UIModule.KEYBOARD_TYPE_DECIMAL_PAD:
 					textTypeAndClass = (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
-				case KEYBOARD_NUMBER_PAD:
+				case UIModule.KEYBOARD_TYPE_NUMBER_PAD:
 					tv.setKeyListener(DigitsKeyListener.getInstance(true, true));
 					textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
 					break;
-				case KEYBOARD_PHONE_PAD:
+				case UIModule.KEYBOARD_TYPE_PHONE_PAD:
 					tv.setKeyListener(DialerKeyListener.getInstance());
 					textTypeAndClass |= InputType.TYPE_CLASS_PHONE;
 					break;
-				case KEYBOARD_EMAIL_ADDRESS:
+				case UIModule.KEYBOARD_TYPE_EMAIL:
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 					break;
 			}
@@ -797,8 +787,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 				// turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in
 				// landscape mode.
-				if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD
-					|| type == KEYBOARD_NUMBER_PAD) {
+				if (type == UIModule.KEYBOARD_TYPE_NUMBERS_PUNCTUATION || type == UIModule.KEYBOARD_TYPE_DECIMAL_PAD
+					|| type == UIModule.KEYBOARD_TYPE_NUMBER_PAD) {
 					tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 				}
 
