@@ -14,6 +14,7 @@
 {
   if (self = [super init]) {
     _proxy = window;
+    self.presentationController.delegate = self;
     [self updateOrientations];
     [TiUtils configureController:self withObject:_proxy];
   }
@@ -22,6 +23,7 @@
 
 - (void)dealloc
 {
+  self.presentationController.delegate = nil;
   RELEASE_TO_NIL(_previewActions);
   [super dealloc];
 }
@@ -159,6 +161,14 @@
   }
   [super viewDidAppear:animated];
 }
+
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
+{
+  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    [(id<TiWindowProtocol>)_proxy presentationControllerDidDismiss:presentationController];
+  }
+}
+
 - (void)viewDidDisappear:(BOOL)animated
 {
   if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

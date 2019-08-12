@@ -736,6 +736,13 @@
   }
 }
 
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
+{
+  if (isModal) {
+    [self windowDidClose];
+  }
+}
+
 - (void)setHidesBarsOnSwipe:(id)value
 {
   ENSURE_TYPE(value, NSNumber);
