@@ -3122,10 +3122,36 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	} else if (this.target === 'device') {
-		// sign the application using a signing identity that contains the phrase "iPhone Developer"
-		// as long as there's a valid development signing identity (identity certificate and private key)
-		// build and deployment should succeed.
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer"';
+		let matchingSigningIdentity;
+
+		for (const keychain of Object.keys(this.iosInfo.certs.keychains)) {
+			for (const deployType of Object.keys(this.iosInfo.certs.keychains[keychain])) {
+				if (deployType === 'production') {
+					continue;
+				}
+
+				for (const signingIdentity of this.iosInfo.certs.keychains[keychain][deployType]) {
+					if (signingIdentity.invalid || signingIdentity.expired) {
+						continue;
+					}
+
+					const signingIdentityName = signingIdentity.fullname;
+					const signingIdentityTeamId = signingIdentity.teamId;
+
+					if (!matchingSigningIdentity && signingIdentityTeamId === this.teamId) {
+						matchingSigningIdentity = signingIdentityName;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!matchingSigningIdentity) {
+			this.logger.error(__(`Cannot find matching signing identity for provisioning profile "${this.provisioningProfile.name}"`));
+			process.exit(1);
+		}
+
+		buildSettings.CODE_SIGN_IDENTITY = `"${matchingSigningIdentity}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
