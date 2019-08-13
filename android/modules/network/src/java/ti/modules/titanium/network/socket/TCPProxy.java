@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.network.socket;
 
+import android.os.Build;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -14,6 +16,11 @@ import java.net.UnknownHostException;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
@@ -35,6 +42,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
+import ti.modules.titanium.network.NetworkModule;
+import ti.modules.titanium.network.TiSocketFactory;
 
 @Kroll.proxy(creatableInModule = SocketModule.class)
 public class TCPProxy extends KrollProxy implements TiStream
@@ -234,17 +243,19 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 			try {
 				int port = TiConvert.toInt(getProperty("port"));
-				boolean startTls = TiConvert.toBoolean(getProperty("startTls"), false);
+				boolean useTls = TiConvert.toBoolean(getProperty("useTls"), false);
 
-				if (startTls) {
-					SocketFactory sslSocketFactory = SSLSocketFactory.getDefault();
+				if (useTls) {
+					SocketFactory sslSocketFactory = new TiSocketFactory(null, null, NetworkModule.TLS_DEFAULT);
 					SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
 					sslSocket.setUseClientMode(true);
-					SSLParameters sslParameters = new SSLParameters();
-					List sniHostNames = new ArrayList(1);
-					sniHostNames.add(new SNIHostName(host));
-					sslParameters.setServerNames(sniHostNames);
-					sslSocket.setSSLParameters(sslParameters);
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+						SSLParameters sslParameters = new SSLParameters();
+						List sniHostNames = new ArrayList(1);
+						sniHostNames.add(new SNIHostName(host));
+						sslParameters.setServerNames(sniHostNames);
+						sslSocket.setSSLParameters(sslParameters);
+					}
 					clientSocket = sslSocket;
 				} else {
 					clientSocket = new Socket();
@@ -258,7 +269,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 					clientSocket.connect(endpint);
 				}
 
-				if (startTls) {
+				if (useTls) {
 					SSLSocket sslSocket = (SSLSocket) clientSocket;
 					HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
 					SSLSession sslSession = sslSocket.getSession();
@@ -276,6 +287,10 @@ public class TCPProxy extends KrollProxy implements TiStream
 			} catch (IOException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));
+			} catch (NoSuchAlgorithmException | KeyManagerException | KeyStoreException
+					 | UnreceoverableKeyException e) {
+				e.printStackTrace();
+				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, SSL/TLS error", 0));
 			}
 		}
 	}

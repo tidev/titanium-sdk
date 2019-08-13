@@ -161,8 +161,8 @@ static NSString *ARG_KEY = @"arg";
                               error:&err];
   }
 
-  BOOL startTls = [TiUtils boolValue:[self valueForUndefinedKey:@"startTls"] def:NO];
-  if (startTls) {
+  BOOL useTls = [TiUtils boolValue:[self valueForUndefinedKey:@"useTls"] def:NO];
+  if (useTls) {
     [socket startTLS:nil];
   }
 
