@@ -2609,6 +2609,9 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 	} else {
 		this.logger.info(__('Set to copy files instead of symlinking'));
 	}
+
+	this.logger.info(__('Transpile javascript: %s', (this.transpile ? 'true' : 'false').cyan));
+	this.logger.info(__('Generate source maps: %s', (this.sourceMaps ? 'true' : 'false').cyan));
 };
 
 iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
