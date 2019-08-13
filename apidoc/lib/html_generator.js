@@ -419,7 +419,15 @@ function exportType(api) {
 				// Parse out the multiple types of args!
 				const subTypes = t.substring(t.indexOf('<') + 1, t.lastIndexOf('>'));
 				// split by ', ' then convert to link for each and join by ', '
-				const linkified = subTypes.split(',').map(t => convertAPIToLink(t.trim())).join(', ');
+				const linkified = subTypes.split(',').map(t =>  {
+					t = t.trim();
+					if (t.startsWith('Array<')) {
+						const apiName = /Array<(.+)>/.exec(t);
+						return convertAPIToLink(apiName[1]);
+					} else {
+						return convertAPIToLink(t);
+					}
+				}).join(', ');
 				t = `Callback&lt;${linkified}&gt;`;
 			} else if (t.indexOf('Dictionary<') === 0) {
 				t = 'Dictionary&lt;' + convertAPIToLink(t.substring(t.indexOf('<') + 1, t.lastIndexOf('>'))) + '&gt;';
