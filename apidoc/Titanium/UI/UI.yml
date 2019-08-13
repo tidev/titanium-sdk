@@ -148,7 +148,7 @@ methods:
         optional: true
     deprecated:
         since: "8.0.0"
-        notes: Use [Titanium.UI.Matrix2D](Titanium.UI.Matrix2D) for improved ES6+ compatibility instead.
+        notes: Use [Titanium.UI.createMatrix2D](Titanium.UI.createMatrix2D) instead.
 
   - name: createMatrix2D
     summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
@@ -158,6 +158,29 @@ methods:
       - name: parameters
         summary: Initial transformation of the matrix.
         type: Matrix2DCreationDict
+        optional: true
+
+  - name: create3DMatrix
+    summary: Creates and returns an instance of <Titanium.UI.3DMatrix>.
+    returns:
+        type: Titanium.UI.3DMatrix
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix3DCreationDict
+        optional: true
+    deprecated:
+        since: "8.0.0"
+        notes: Use [Titanium.UI.createMatrix3D](Titanium.UI.createMatrix3D) instead.
+
+  - name: createMatrix3D
+    summary: Creates and returns an instance of <Titanium.UI.Matrix3D>.
+    returns:
+        type: Titanium.UI.Matrix3D
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix3DCreationDict
         optional: true
 
   - name: convertUnits

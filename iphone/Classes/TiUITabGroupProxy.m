@@ -267,7 +267,6 @@ static NSArray *tabGroupKeySequence;
   return [super preferredStatusBarStyle];
 }
 
-#if IS_XCODE_9
 - (BOOL)homeIndicatorAutoHide
 {
   UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
@@ -277,7 +276,6 @@ static NSArray *tabGroupKeySequence;
   }
   return [super homeIndicatorAutoHide];
 }
-#endif
 
 - (BOOL)hidesStatusBar
 {

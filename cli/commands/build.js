@@ -15,6 +15,7 @@ const appc = require('node-appc'),
 	sprintf = require('sprintf'),
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
+	semver = require('semver'),
 	__ = appc.i18n(__dirname).__;
 
 fields.setup({
@@ -244,6 +245,11 @@ exports.config = function config(logger, config, cli) {
 };
 
 exports.validate = function validate(logger, config, cli) {
+
+	if (!semver.satisfies(process.versions.node, '>= 10.13')) {
+		logger.warn('DEPRECATION NOTICE: Titanium SDK 9 will no longer support Node.js 8 or lower. We intend to support Node.js 10/12 LTS, which will be 10.13 or higher.\n');
+	}
+
 	// Determine if the project is an app or a module, run appropriate build command
 	if (cli.argv.type === 'module') {
 
