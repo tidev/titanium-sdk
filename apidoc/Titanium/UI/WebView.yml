@@ -127,6 +127,60 @@ description: |
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
 
+
+    **WKWebView**
+    
+    With Titanium SDK 8.0.0, we now use WKWebView to implement Ti.UI.WebView (as Apple has deprecated UIWebView).
+    WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView 
+    a little modification is required in the HTML files:
+    
+        <style>
+          @font-face
+            {
+              font-family: 'Lato-Regular';
+              src: url('fonts/Lato-Regular.ttf');
+            }
+        </style>
+
+    ### Ti.UI.SIZE and WebViews
+
+    With Titanium 8.0.0+, <Titanium.UI.SIZE> does not work for WebViews. We recommend to give a **fixed height** 
+    to <Titanium.UI.WebView> (as noted in [TIDOC-3355](https://jira.appcelerator.org/browse/TIDOC-3355)).
+    
+    As a workaround you can try to get the `document.body.scrollHeight` inside <Titanium.UI.WebView.load> event 
+    of webview and set the height to webview. See following example.
+
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white';
+        });
+ 
+        var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
+ 
+        verticalView.add(Ti.UI.createLabel({text: 'Label 1', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+ 
+        var htmla = "<div style='font-family: Helvetica Neue; font-size:16px'><ul><li>Item 1</li><li>Item 2</li></ul></div>";
+        var html = "<!DOCTYPE html>";
+      
+        html += "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'><style type='text/css'>html {-webkit-text-size-adjust: none;}</style><script type='text/javascript'>document.ontouchmove = function(event){event.preventDefault();}</script></head><body style='overflow: hidden'>";
+        html += htmla;
+        html += "</body></html>";
+      
+        var webview = Ti.UI.createWebView({left: '14dp', right: '14dp', top: '7dp', height: Ti.UI.SIZE, html: html, backgroundColor: "yellow"});
+      
+        verticalView.add(webview);
+ 
+        verticalView.add(Ti.UI.createLabel({text: 'Label 2', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+ 
+        win.add(verticalView);
+ 
+        win.open();
+ 
+        webview.addEventListener('load', function(e) {
+          var result = webview.evalJSSync('document.body.scrollHeight');
+          Ti.API.info('webview height: ' + result);
+          webview.height = result;
+        });    
+    
     #### For More Information
 
     See [Integrating Web
@@ -467,7 +521,7 @@ events:
   - name: onStopBlacklistedUrl
     summary: Fired when a blacklisted URL is stopped.
     platforms: [android]
-    since: "5.4.0"
+    since: 5.4.0
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
@@ -623,18 +677,16 @@ properties:
         open these. When this property is set to `true` the webview will attempt to handle these
         urls and they will not be sent to the shared application. An example is links to telephone
         numbers.
-        It should be noted that the default `undefined` behaves as false.
     type: Boolean
     platforms: [iphone, ipad]
     since: "3.3.0"
-    default: undefined
+    default: undefined. Behaves as if false
     deprecated:
         since: "8.0.0"
         notes: |
-            This property in no more supported in Titanium SDK 8.0.0+. Use property 
-            [Titanium.UI.WebView.allowedURLSchemes](Titanium.UI.WebView.allowedURLSchemes) 
-            in conjuction with [Titanium.UI.WebView.handleurl](Titanium.UI.WebView.handleurl). 
-            See the example section "Usage of allowedURLSchemes and handleurl in iOS".
+            This property in no more supported in Titanium SDK 8.0.0+. Use property <Titanium.UI.WebView.allowedURLSchemes> 
+            in conjuction with <Titanium.UI.WebView.handleurl>. See the example section 
+            "Usage of allowedURLSchemes and handleurl in iOS".
 
   - name: configuration
     summary: The configuration for the new web view.
@@ -694,9 +746,8 @@ properties:
         to display the keyboard (or other relevant input view) for that element. When set to false,
         a focus event on an element causes the input view to be displayed and associated with
         that element automatically.
-        It should be noted that the default of `undefined` behaves as true.
     type: Boolean
-    default: undefined
+    default: undefined but behaves as true
     since: "6.1.0"
     platforms: [iphone,ipad]
 
@@ -705,12 +756,11 @@ properties:
     description: |
         If set to `true`, the web page loads despite having an invalid SSL certificate.
         If set to `false`, a web page with an invalid SSL certificate does not load.
-        It should be noted that the default of `undefined` behaves as false.
 
         iOS Note: As soon as you set this property to `true`, iOS will cache the response
         for the lifetime of the current web view.
     type: Boolean
-    default: undefined
+    default: undefined but behaves as false
     since: {android: "3.0.0", iphone: "6.0.2", ipad: "6.0.2"}
     platforms: [android, iphone, ipad]
 
@@ -784,7 +834,7 @@ properties:
     summary: Determines how a cache is used in this web view.
     type: Number
     constants: Titanium.UI.Android.WEBVIEW_LOAD_*
-    default: Titanium.UI.Android.WEBVIEW_LOAD_DEFAULT
+    default: <Titanium.UI.Android.WEBVIEW_LOAD_DEFAULT>
     platforms: [android]
     since: "3.2.0"
 
@@ -814,7 +864,7 @@ properties:
     platforms: [android]
     since: "1.8.0"
     osver: {android: {min: "2.2"}}
-    default: Titanium.UI.Android.WEBVIEW_PLUGINS_OFF
+    default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -856,12 +906,11 @@ properties:
         `false` prevents the user from zooming the web view.
 
         On Android, only controls the initial zoom level.
-
-        Note: The default for iOS is `false`. On Android, `false` when content is specified
-        as a local URL, `true` for any other kind of content (remove URL, `Blob`, of `File`).
     platforms: [android, iphone, ipad]
     type: Boolean
-    default: false
+    default: |
+        `false` on iOS. On Android, `false` when content is specified as a local URL,
+        `true` for any other kind of content (remote URL, `Blob`, or `File`).
 
   - name: url
     summary: URL to the web document.
@@ -934,10 +983,9 @@ properties:
     since: "6.1.0"
 
   - name: zoomLevel
-    summary: |
-      Manage the zoom-level of the current page. The default `undefined` behaves as if no zoom is applied.
+    summary: Manage the zoom-level of the current page.
     type: Number
-    default: undefined
+    default: undefined. Behaves as no zoom applied.
     platforms: [android, iphone, ipad]
     since: "7.3.0"
 
@@ -1118,4 +1166,3 @@ properties:
   - name: url
     summary: The url of the link that should be navigated to.
     type: String
-

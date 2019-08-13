@@ -19,7 +19,7 @@ events:
   - name: change
     summary: Fired when the database backing the EventKit module is modified.
     description: |
-        This eventis fired when changes are made to the Calendar database, including adding,
+        This event is fired when changes are made to the Calendar database, including adding,
         removing, and changing events or reminders. Individual changes are not described.
         When you receive this notification, you should refetch all Event objects you have
         accessed, as they are considered stale. If you are actively editing an event and
@@ -53,13 +53,12 @@ methods:
         On Android, the request view will show if the permission is not accepted by the user, and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings. This method requests `Manifest.permission.READ_CALENDAR`
-        and `Manifest.permission.WRITE_CALENDAR` on Android. If yourequire other permissions, you can also use
+        and `Manifest.permission.WRITE_CALENDAR` on Android. If you require other permissions, you can also use
         <Titanium.Android.requestPermissions>.
 
         In iOS 6, Apple introduced the Info.plist key `NSCalendarsUsageDescription` that is used to display an
         own description while authorizing calendar permissions. In iOS 10, this key is mandatory and the application
         will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
-
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant calendar access.
@@ -71,7 +70,7 @@ methods:
     deprecated:
         since: "5.1.0"
         notes: Use [Titanium.Calendar.requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
-    summary: If authorization is unknown, will bring up a dialog requesting permission.
+    summary: If authorization is unknown, the system will bring up a dialog requesting permission.
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
         during requestEventsAuthorization or much later. See the "Request access to the events"
@@ -181,7 +180,7 @@ properties:
   - name: STATUS_NONE
     summary: Event has no status.
     description: |
-        A [event status](Titanium.Calendar.Event.status) value.
+        An [event's status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
@@ -194,7 +193,7 @@ properties:
   - name: STATUS_CANCELLED
     summary: Event canceled status.
     description: |
-        A [event status](Titanium.Calendar.Event.status) value.
+        An [event's status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -212,7 +211,7 @@ properties:
   - name: STATUS_CANCELED
     summary: Event canceled status.
     description: |
-        A [event status](Titanium.Calendar.Event.status) value.
+        An [event's status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -224,9 +223,9 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: STATUS_CONFIRMED
-    summary:  Event confirmed status.
+    summary: Event confirmed status.
     description: |
-        A [event status](Titanium.Calendar.Event.status) value.
+        An [event's status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -240,7 +239,7 @@ properties:
   - name: STATUS_TENTATIVE
     summary: Event tentative status.
     description: |
-        A [event status](Titanium.Calendar.Event.status) value.
+        An [event's status](Titanium.Calendar.Event.status) value.
 
         One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
@@ -254,7 +253,7 @@ properties:
   - name: AVAILABILITY_NOTSUPPORTED
     summary: Availability settings are not supported by the event's calendar.
     description: |
-        A [event availability](Titanium.Calendar.Event.availability) value.
+        An [event's availability](Titanium.Calendar.Event.availability) value.
 
         One of the group of event method constants,
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
@@ -269,7 +268,7 @@ properties:
   - name: AVAILABILITY_BUSY
     summary: Event has a busy availability setting.
     description: |
-        A [event availability](Titanium.Calendar.Event.availability) value.
+        An [event's availability](Titanium.Calendar.Event.availability) value.
 
         One of the group of event method constants,
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
@@ -284,7 +283,7 @@ properties:
   - name: AVAILABILITY_FREE
     summary: Event has a free availability setting.
     description: |
-        A [event availability](Titanium.Calendar.Event.availability) value.
+        An [event's availability](Titanium.Calendar.Event.availability) value.
 
         One of the group of event method constants,
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
@@ -299,7 +298,7 @@ properties:
   - name: AVAILABILITY_TENTATIVE
     summary: Event has a tentative availability setting.
     description: |
-        A [event availability](Titanium.Calendar.Event.availability) value.
+        An [event's availability](Titanium.Calendar.Event.availability) value.
 
         One of the group of event method constants,
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
@@ -314,7 +313,7 @@ properties:
   - name: AVAILABILITY_UNAVAILABLE
     summary: Event has a tentative availability setting.
     description: |
-        A [event availability](Titanium.Calendar.Event.availability) value.
+        An [event's availability](Titanium.Calendar.Event.availability) value.
 
         One of the group of event method constants,
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
@@ -328,7 +327,7 @@ properties:
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
-        A [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
         indicating that the application is authorized to use events in the Calendar.
     description: |
         This value is always returned if the device is running an iOS release prior to 6.0.
@@ -338,7 +337,7 @@ properties:
 
   - name: AUTHORIZATION_DENIED
     summary: |
-        A [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
         indicating that the application is not authorized to use events in the Calendar.
     type: Number
     permission: read-only
@@ -346,7 +345,7 @@ properties:
 
   - name: AUTHORIZATION_RESTRICTED
     summary: |
-        A [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
         indicating that the application is not authorized to use events in the Calendar.
         the user cannot change this application's status.
     type: Number
@@ -355,7 +354,7 @@ properties:
 
   - name: AUTHORIZATION_UNKNOWN
     summary: |
-        A [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
@@ -381,57 +380,61 @@ properties:
     summary: Indicates a daily recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-
-        One of the group of event "frequency" constants
+        
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: RECURRENCEFREQUENCY_WEEKLY
     summary: Indicates a weekly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-
-        One of the group of event "frequency" constants
+        
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: RECURRENCEFREQUENCY_MONTHLY
     summary: Indicates a monthly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-
-        One of the group of event "frequency" constants
+        
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: RECURRENCEFREQUENCY_YEARLY
     summary: Indicates a yearly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-
-        One of the group of event "frequency" constants
+        
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: VISIBILITY_CONFIDENTIAL
     summary: Event confidential visibility.
@@ -792,18 +795,29 @@ examples:
                     Ti.API.info(calendars[i].name);
                 }
             }
+            // Provide permissions if necessary
+            if (!Ti.Calendar.hasCalendarPermissions()) {
+                Ti.Calendar.requestCalendarPermissions(function (e) {
+                    if (e.success) {
+                        printCalendars();
+                    }
+                });
+            } else {
+                printCalendars();
+            }
 
-            Ti.API.info('ALL CALENDARS:');
-            showCalendars(Ti.Calendar.allCalendars);
-            if (Ti.Platform.osname === 'android') {
-                Ti.API.info('SELECTABLE CALENDARS:');
-                showCalendars(Ti.Calendar.selectableCalendars);
+            function printCalendars() {
+                Ti.API.info('ALL CALENDARS:');
+                showCalendars(Ti.Calendar.allCalendars);
+                if (Ti.Platform.osname === 'android') {
+                    Ti.API.info('SELECTABLE CALENDARS:');
+                    showCalendars(Ti.Calendar.selectableCalendars);
+                }
             }
 
   - title: Create an Event and Reminder on Android
     example: |
         Creates an event and adds an e-mail reminder for 10 minutes before the event.
-
             var CALENDAR_TO_USE = 3;
             var calendar = Ti.Calendar.getCalendarById(CALENDAR_TO_USE);
 
@@ -830,8 +844,8 @@ examples:
   - title: Events in a year
     example: |
         Create a picker to allow an existing calendar to be selected and, when a button is clicked,
-        generate details of all events in that calendar for the current year .
-
+        generate details of all events in that calendar for the current year.
+        
             var calendars = [];
             var selectedCalendarName;
             var selectedid;
@@ -847,7 +861,7 @@ examples:
                 });
 
                 var label = Ti.UI.createLabel({
-                  backgroundColor: 'white',
+                  backgroundColor: 'gray',
                   text: 'Click on the button to display the events for the selected calendar',
                   textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
                   top: 20
@@ -989,7 +1003,7 @@ examples:
 
 
             var win = Ti.UI.createWindow({
-              backgroundColor: 'white',
+              backgroundColor: 'gray',
               exitOnClose: true,
               fullscreen: false,
               layout: 'vertical',
@@ -1011,13 +1025,13 @@ examples:
 
             win.open();
 
-  - title: Create a Recurring Event with Alerts
+  - title: Create a Recurring Event with Alerts on iOS (add the code to the sample above)
     example: |
         Create a recurring event with alerts.
 
             function printEventDetails(eventID) {
                 Ti.API.info('eventID:' + eventID);
-                var defCalendar = Ti.Calendar.defaultCalendar;
+                var defCalendar = Ti.Calendar.getCalendarById(selectedid);
                 var eventFromCalendar = defCalendar.getEventById(eventID);
                 if (eventFromCalendar) {
                     Ti.API.info('Printing event values ::');
@@ -1082,26 +1096,35 @@ examples:
                     }
                }
             }
-            function performCalendarWriteFunctions() {
-                var defCalendar = Ti.Calendar.defaultCalendar;
+            function performCalendarWriteFunctions(){
+                var defCalendar = Ti.Calendar.getCalendarById(selectedid);
                 var date1 = new Date(new Date().getTime() + 3000),
                     date2 = new Date(new Date().getTime() + 900000);
                 Ti.API.info('Date1: ' + date1 + ', Date2: ' + date2);
                 var event1 = defCalendar.createEvent({
-                    title: 'Sample Event',
-                    notes: 'This is a test event which has some values assigned to it.',
-                    location: 'Appcelerator Inc',
-                    begin: date1,
-                    end: date2,
-                    availability: Ti.Calendar.AVAILABILITY_FREE,
-                    allDay: false,
-                });
-                var alert1 = event1.createAlert({
-                    absoluteDate: new Date(new Date().getTime() - (1000 * 60 * 20))
-                });
-                var alert2 = event1.createAlert({
-                    relativeOffset: -(60 * 15)
-                });
+                                    title: 'Sample Event',
+                                    notes: 'This is a test event which has some values assigned to it.',
+                                    location: 'Appcelerator Inc',
+                                    begin: date1,
+                                    end: date2,
+                                    availability: Ti.Calendar.AVAILABILITY_FREE,
+                                    allDay: false,
+                            });
+                var alert1;
+                var alert2;
+                if (osname === 'android') {
+                    alert1 = event1.createAlert({
+                        minutes: 60
+                    })
+                } else {
+                    alert1 = event1.createAlert({
+                        absoluteDate: new Date(new Date().getTime() - (1000*60*20))
+                    });
+                    alert2 = event1.createAlert({
+                        relativeOffset:-(60*15)
+                    })
+                }
+
                 var allAlerts = new Array(alert1,alert2);
                 event1.alerts = allAlerts;
                 var newRule = event1.createRecurrenceRule({
@@ -1117,31 +1140,16 @@ examples:
                 Ti.API.info('Done with saving event,\n Now trying to retrieve it.');
                 printEventDetails(event1.id);
             }
-            var win = Ti.UI.createWindow({
-                backgroundColor: 'white',
-                title: 'Calendar Demo'
-            });
 
-            var label = Ti.UI.createLabel({
-                text: 'Check console log',
-                height: Ti.UI.size,
-                width: Ti.UI.size
+            var button2 = Ti.UI.createButton({
+                title: 'Create a recurring event',
+                top: 20
             });
-            win.add(label);
-
-            if (Ti.Calendar.hasCalendarPermissions()) {
+            win.add(button2);
+            button2.addEventListener('click', function () {
                 performCalendarWriteFunctions();
-            } else {
-                Ti.Calendar.requestCalendarPermissions(function(e) {
-                    if (e.success) {
-                        performCalendarWriteFunctions();
-                    } else {
-                        alert('Access to calendar is not allowed');
-                    }
-                });
-            }
+            });
 
-            win.open();
 ---
 name: EventsAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
