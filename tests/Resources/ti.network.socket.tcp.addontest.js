@@ -23,7 +23,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 		socket = Ti.Network.Socket.createTCP({
 			host: 'httpbin.org',
 			port: 443,
-			startTls: true,
+			useTls: true,
 			connected: () => {
 				Ti.Stream.pump(socket, (e) => {
 					if (e.bytesProcessed === -1 || e.bytesProcessed === '-1') {

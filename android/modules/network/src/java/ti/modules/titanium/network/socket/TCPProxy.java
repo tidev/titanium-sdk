@@ -22,7 +22,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 
-import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SNIHostName;
@@ -261,12 +260,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 					clientSocket = new Socket();
 				}
 
-				InetSocketAddress endpint = new InetSocketAddress(host, port);
+				InetSocketAddress endpoint = new InetSocketAddress(host, port);
 				if (timeoutProperty != null) {
 					int timeout = TiConvert.toInt(timeoutProperty, 0);
-					clientSocket.connect(endpint, timeout);
+					clientSocket.connect(endpoint, timeout);
 				} else {
-					clientSocket.connect(endpint);
+					clientSocket.connect(endpoint);
 				}
 
 				if (useTls) {
@@ -287,8 +286,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 			} catch (IOException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));
-			} catch (NoSuchAlgorithmException | KeyManagerException | KeyStoreException
-					 | UnreceoverableKeyException e) {
+			} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException
+					 | UnrecoverableKeyException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, SSL/TLS error", 0));
 			}

@@ -216,15 +216,16 @@ properties:
                  Titanium.Network.Socket.LISTENING, Titanium.Network.Socket.CLOSED,
                  Titanium.Network.Socket.ERROR ]
 
-  - name: startTls
+  - name: useTls
     type: Boolean
-    summary: Automatically start SSL/TLS handshake after the socket is connected.
+    summary: Enable this to automatically secure the connection using SSL/TLS.
     description: |
         If this property is set to `true`, the socket will perform a SSL/TLS handshake to secure the connection.
 
         Note that this uses the system's default trust settings and certificate validation. Advanced use case like
         client certificates or additional peer certificate validation are not yet supported.
     default: false
+    since: "8.2.0"
 methods:
   - name: connect
     summary: Attempts to connect the socket to its host/port.
