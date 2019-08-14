@@ -163,6 +163,35 @@ examples:
                 Ti.API.info("Calling connect on client socket.");
                clientSocket.connect();
             }, 500);
+  - title: Secure socket connection using SSL/TLS
+    example: |
+        SSL/TLS is supported via the `useTls` option. The following example shows how to send a simple HTTPS
+        request using the TCP socket and `useTls: true`.
+
+        ```js
+        var socket = Ti.Network.Socket.createTCP({
+            host: 'httpbin.org',
+            port: 443,
+            useTls: true,
+            connected: function (e) {
+                Ti.API.info('Socket connected via SSL/TLS!');
+
+                let httpHeader = 'GET /html HTTP/1.1\r\n';
+                httpHeader += 'Host: httpbin.org\r\n';
+                httpHeader += '\r\n';
+                const data = Ti.createBuffer({
+                    value: httpHeader
+                });
+                socket.write(data, () => {});
+
+                // refer to the Ti.Stream.pump example above for how to handle the response.
+            },
+            error: function (e) {
+                Ti.API.error('Error (' + e.errorCode + '): ' + e.error);
+            }
+        });
+        socket.connect();
+        ```
 
 properties:
   - name: host
@@ -226,6 +255,18 @@ properties:
         client certificates or additional peer certificate validation are not yet supported.
     default: false
     since: "8.2.0"
+    availability: creation
+
+  - name: checkServerIdentity
+    type: Callback<String, CertificateObject>
+    summary: A callback function to be used (instead of the builtin behavior) when checking the server's hostname against the certificate.
+    description: |
+        Receives the `servername` and a `cert` object as its parameters.
+
+        This should return an <Error> if verification fails. The method should return `undefined` if the servername and
+        cert are verified.
+    since: "8.2.0"
+    availability: creation
 methods:
   - name: connect
     summary: Attempts to connect the socket to its host/port.
@@ -367,3 +408,17 @@ properties:
   - name: error
     type: Callback<ErrorCallbackArgs>
     summary: Callback to be fired when the socket enters the [ERROR](Titanium.Network.Socket.ERROR) state.
+
+---
+name: CertificateObject
+summary: A certificate object has properties corresponding to the fields of the certificate.
+since: "8.2.0"
+properties:
+  - name: subject
+    type: Object
+    summary: |
+        The certificate subject, described in terms of Country (C:), StateOrProvince (ST), Locality (L), Organization (O),
+        OrganizationalUnit (OU), and CommonName (CN).
+    description: |
+        Currently only the `CN` sub-property is available. The CommonName is typically a DNS name with TLS certificates.
+        Example: `{CN: 'example.com'}`
