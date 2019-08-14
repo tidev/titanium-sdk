@@ -365,6 +365,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		});
 
+		loadBuildProperties();
+
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
 
 		File fullPath = new File(TiC.URL_ANDROID_ASSET_RESOURCES, "app.js");
