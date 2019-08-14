@@ -53,7 +53,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 		socket.connect();
 	});
 
-	it('should connect when manual hostname verification succeeds', () => {
+	it('should connect when manual hostname verification succeeds', done => {
 		socket = Ti.Network.Socket.createTCP({
 			host: 'httpbin.org',
 			port: 443,
@@ -94,7 +94,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 		socket.connect();
 	});
 
-	it('should error when manual hostname verification fails', () => {
+	it('should error when manual hostname verification fails', done => {
 		socket = Ti.Network.Socket.createTCP({
 			host: 'httpbin.org',
 			port: 443,
