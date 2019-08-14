@@ -321,7 +321,8 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous example as an Alloy view.
+        Previous example as an Alloy view. You can set [cancel](Titanium.UI.OptionDialog.cancel)
+        and [destructive](Titanium.UI.OptionDialog.destructive) on a `<Option/>` tag.
 
         optiondialog.xml:
 
@@ -337,9 +338,9 @@ examples:
 
                         <!-- The Options tag sets the options property. -->
                         <Options>
-                            <Option>Confirm</Option>
+                            <Option destructive="true">Confirm</Option>
                             <Option platform="ios">Help</Option>
-                            <Option>Cancel</Option>
+                            <Option cancel="true">Cancel</Option>
                         </Options>
 
                         <!-- The ButtonNames tag sets the Android-only buttonNames property. -->

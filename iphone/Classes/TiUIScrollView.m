@@ -147,7 +147,6 @@
 
 - (void)adjustScrollViewInsets
 {
-#if IS_XCODE_9
   id viewProxy = self.proxy;
   while (viewProxy && ![viewProxy isKindOfClass:[TiWindowProxy class]]) {
     viewProxy = [viewProxy parent];
@@ -160,7 +159,6 @@
       [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
     }
   }
-#endif
 }
 
 - (id)accessibilityElement

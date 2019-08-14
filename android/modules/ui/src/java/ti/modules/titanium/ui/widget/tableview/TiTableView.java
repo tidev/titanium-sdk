@@ -157,7 +157,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		public Object getItem(int position)
 		{
-			if (position >= index.size()) {
+			if ((position < 0) || (position >= index.size())) {
 				return null;
 			}
 
@@ -199,49 +199,29 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		 */
 		public View getView(int position, View convertView, ViewGroup parent)
 		{
-			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
 
-			if (convertView != null) {
-				v = (TiBaseTableViewItem) convertView;
-				// Default creates view for each Item
-				boolean sameView = false;
-				if (item.proxy instanceof TableViewRowProxy) {
-					TableViewRowProxy row = (TableViewRowProxy) item.proxy;
-					if (row.getTableViewRowProxyItem() != null) {
-						sameView = row.getTableViewRowProxyItem().equals(convertView);
-					}
-				}
-
-				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
-				if (Build.VERSION.SDK_INT > 23) {
-					ArrayList<Item> models = viewModel.getViewModel();
-					if (models != null && v instanceof TiTableViewRowProxyItem && models.contains(v.getRowData())) {
-						v = null;
-						sameView = true;
-					}
-				}
-
-				if (!sameView) {
-					if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
-						if (v.getRowData() != item) {
-							v = null;
-						}
-					} else if (v.getClassName().equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
-						//Always recreate the header view
-						v = null;
-					} else {
-						// otherwise compare class names
-						if (!v.getClassName().equals(item.className)) {
-							Log.w(TAG,
-								  "Handed a view to convert with className " + v.getClassName() + " expected "
-									  + item.className,
-								  Log.DEBUG_MODE);
-							v = null;
-						}
-					}
-				}
+			// Fetch the indexed row item.
+			Item item = (Item) getItem(position);
+			if (item == null) {
+				Log.w(TAG, "getView() received invalid 'position' index: " + position);
+				v = new TiTableViewRowProxyItem(proxy.getActivity());
+				v.setClassName(TableViewProxy.CLASSNAME_NORMAL);
+				return v;
 			}
+
+			// If we've already set up a view container for the item, then use it. (Ignore "convertView" argument.)
+			// Notes:
+			// - There is no point in recycling the "convertView" row container since we always store the row's
+			//   child views in memory. If you want to recycle child views, then use "TiListView" instead.
+			// - If row contains an EditText/TextField/TextArea, then we don't want to change its parent to a
+			//   different "convertView" row container, because it'll reset the connection with the keyboard.
+			if (item.proxy instanceof TableViewRowProxy) {
+				TableViewRowProxy row = (TableViewRowProxy) item.proxy;
+				v = row.getTableViewRowProxyItem();
+			}
+
+			// If we haven't created a view container for the given row item, then do so now.
 			if (v == null) {
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
@@ -265,7 +245,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				v.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,
 															   AbsListView.LayoutParams.MATCH_PARENT));
 			}
+
+			// Copy the proxy's current settings to the row's views.
 			v.setRowData(item);
+
+			// Return the row view configured above.
 			return v;
 		}
 
