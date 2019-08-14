@@ -75,7 +75,7 @@ public class TiUIProgressIndicator
 
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			if (visible) {
-				int progressValue = (TiConvert.toInt(newValue) - this.min) * this.incrementFactor;
+				int progressValue = (TiConvert.toInt(newValue, 0) - this.min) * this.incrementFactor;
 				if (this.progressDialog != null) {
 					this.progressDialog.setProgress(progressValue);
 				} else {
