@@ -163,7 +163,13 @@ static NSString *ARG_KEY = @"arg";
 
   BOOL useTls = [TiUtils boolValue:[self valueForUndefinedKey:@"useTls"] def:NO];
   if (useTls) {
-    [socket startTLS:nil];
+    NSMutableDictionary *tlsSettings = [NSMutableDictionary new];
+    if ([self valueForUndefinedKey:@"checkServerIdentity"] == nil) {
+      tlsSettings[(NSString *)kCFStreamSSLPeerName] = host;
+    } else {
+      tlsSettings[(NSString *)kCFStreamSSLPeerName] = [NSNull null];
+    }
+    [socket startTLS:tlsSettings];
   }
 
   if (err || !success) {
@@ -649,6 +655,48 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:self, @"socket", nil];
     [self _fireEventToListener:@"connected" withObject:event listener:connected thisObject:self];
   }
+}
+
+- (void)onSocketDidSecure:(AsyncSocket *)sock {
+  KrollWrapper *checkServerIdentityWrapper = [self valueForUndefinedKey:@"checkServerIdentity"];
+  if (checkServerIdentityWrapper == nil) {
+    return;
+  }
+
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:self.pageContext.krollContext.context];
+  JSValue *checkServerIdentity = [JSValue valueWithJSValueRef:checkServerIdentityWrapper.jsobject inContext:context];
+  SecTrustRef trust = (SecTrustRef)CFReadStreamCopyProperty([sock getCFReadStream], kCFStreamPropertySSLPeerTrust);
+  SecCertificateRef certRef = SecTrustGetCertificateAtIndex(trust, 0);
+  NSString *commonName;
+  if (SecCertificateCopyCommonName) {
+    CFStringRef commonNameRef;
+    SecCertificateCopyCommonName(certRef, &commonNameRef);
+    commonName = (NSString *)commonNameRef;
+  } else {
+    commonName = (NSString *)SecCertificateCopySubjectSummary(certRef);
+  }
+  NSDictionary *certObject = @{@"subject": @{@"CN": commonName}};
+  [commonName release];
+  JSValue *result = [checkServerIdentity callWithArguments:@[host, certObject]];
+  NSError *verifyError;
+  if (result.isNull) {
+    // null means hostname was successfully verified against cert
+    return;
+  }
+  else if (result.isObject) {
+    id resultObject = [result toObject];
+    verifyError = [NSError errorWithDomain:@"tls.checkServerIdentity" code:1001 userInfo:@{@"message": resultObject[@"message"] != nil ? resultObject[@"message"] : @"Could not validate server identity."}];
+  } else {
+    verifyError = [NSError errorWithDomain:@"tls.checkServerIdentity" code:1002 userInfo:@{@"message": @"Unexpected return value from \"checkServerIdentity\" option. Return an Error object on failure, or null on success."}];
+  }
+
+  internalState = SOCKET_ERROR;
+  [sock disconnectAfterReadingAndWriting];
+  NSString *message = [TiUtils messageFromError:verifyError];
+  NSMutableDictionary *event = [TiUtils dictionaryWithCode:verifyError.code message:message];
+  [event setObject:self forKey:@"socket"];
+  [event setObject:NUMINTEGER(verifyError.code) forKey:@"errorCode"];
+  [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
 }
 
 // Prevent that goofy race conditon where a socket isn't attached to a run loop before beginning the accepted socket run loop.

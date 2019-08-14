@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -29,7 +30,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
+import javax.security.auth.x500.X500Principal;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -245,10 +246,10 @@ public class TCPProxy extends KrollProxy implements TiStream
 				boolean useTls = TiConvert.toBoolean(getProperty("useTls"), false);
 
 				if (useTls) {
-					SocketFactory sslSocketFactory = new TiSocketFactory(null, null, NetworkModule.TLS_DEFAULT);
+					TiSocketFactory sslSocketFactory = new TiSocketFactory(null, null, NetworkModule.TLS_DEFAULT);
 					SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
 					sslSocket.setUseClientMode(true);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+					if (Build.VERSION.SDK_INT >= 24) {
 						SSLParameters sslParameters = new SSLParameters();
 						List sniHostNames = new ArrayList(1);
 						sniHostNames.add(new SNIHostName(host));
@@ -270,11 +271,33 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 				if (useTls) {
 					SSLSocket sslSocket = (SSLSocket) clientSocket;
-					HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
 					SSLSession sslSession = sslSocket.getSession();
-					if (!hostnameVerifier.verify(host, sslSession)) {
-						throw new SSLHandshakeException("Expected " + host + ", found "
-														+ sslSession.getPeerPrincipal());
+					KrollFunction checkServerIdentity = (KrollFunction) getProperty("checkServerIdentity");
+					if (checkServerIdentity != null) {
+						Log.d(TAG, "checkServerIdentity");
+						X500Principal peerPrincipal = (X500Principal)sslSession.getPeerPrincipal();
+						String canonicalName = peerPrincipal.getName(X500Principal.CANONICAL);
+						int separatorIndex = canonicalName.indexOf(",");
+						String commonName = canonicalName.substring(canonicalName.indexOf("cn=") + 3, separatorIndex != -1 ? separatorIndex : canonicalName.length());
+						HashMap<String, Object> certObject = new HashMap();
+						HashMap<String, String> subjectMap = new HashMap();
+						subjectMap.put("CN", commonName);
+						certObject.put("subject", subjectMap);
+						Object result = checkServerIdentity.call(getKrollObject(), new Object[] { host, certObject });
+						if (result != null) {
+							String message = "";
+							if (result instanceof HashMap) {
+								message = "Hostname/IP does not match certificates altnames: " + ((HashMap) result).get("message");
+							} else {
+								message = "Unexpected return value from \"checkServerIdentity\" option. Return an Error object on failure, or null on success.";
+							}
+							throw new SSLHandshakeException(message);
+						}
+					} else {
+						HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+						if (!hostnameVerifier.verify(host, sslSession)) {
+							throw new SSLHandshakeException("Expected " + host + ", found " + sslSession.getPeerPrincipal());
+						}
 					}
 				}
 
@@ -283,13 +306,13 @@ public class TCPProxy extends KrollProxy implements TiStream
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error",
 							buildErrorCallbackArgs("Unable to connect, unknown host <" + host + ">", 0));
+			} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException
+					| UnrecoverableKeyException | SSLHandshakeException e) {
+				e.printStackTrace();
+				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, SSL/TLS error: " + e.getMessage(), 0));
 			} catch (IOException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));
-			} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException
-					 | UnrecoverableKeyException e) {
-				e.printStackTrace();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, SSL/TLS error", 0));
 			}
 		}
 	}
