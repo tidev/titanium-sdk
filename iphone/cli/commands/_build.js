@@ -1810,7 +1810,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (cli.argv['source-maps']) {
 			this.sourceMaps = true;
 			// if they haven't, respect the tiapp.xml value if set one way or the other
-		} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+		} else if (Object.prototype.hasOwnProperty.call(cli.tiapp, 'source-maps')) { // they've explicitly set a value in tiapp.xml
 			this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
 		} else { // otherwise turn on by default for non-production builds
 			this.sourceMaps = this.deployType !== 'production';
@@ -1925,17 +1925,22 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 				function sortXcodeIds(a, b) {
 					// prioritize selected xcode
+					if (xcodeInfo[a].selected) {
+						return -1;
+					}
 					if (xcodeInfo[b].selected) {
 						return 1;
 					}
+					// newest to oldest
 					return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
+				const sortedXcodeIds = Object.keys(xcodeInfo).sort(sortXcodeIds);
 				if (this.iosSdkVersion) {
 					// find the Xcode for this version
-					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).some(function (ver) {
-						if (this.iosInfo.xcode[ver].sdks.indexOf(this.iosSdkVersion) !== -1) {
-							this.xcodeEnv = this.iosInfo.xcode[ver];
+					sortedXcodeIds.some(function (ver) {
+						if (xcodeInfo[ver].sdks.includes(this.iosSdkVersion)) {
+							this.xcodeEnv = xcodeInfo[ver];
 							return true;
 						}
 						return false;
@@ -1948,9 +1953,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					}
 
 				} else { // device, simulator, dist-appstore, dist-adhoc
-					Object.keys(xcodeInfo)
-						.filter(function (id) { return xcodeInfo[id].supported; })
-						.sort(sortXcodeIds)
+					sortedXcodeIds
+						.filter(id => xcodeInfo[id].supported)
 						.some(function (id) {
 							return xcodeInfo[id].sdks.sort().reverse().some(function (ver) {
 								if (appc.version.gte(ver, this.minIosVersion)) {
@@ -2409,7 +2413,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
 	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
 
-	if ((this.tiapp.properties && this.tiapp.properties.hasOwnProperty('ios.whitelist.appcelerator.com') && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
+	if ((this.tiapp.properties && this.tiapp.properties['ios.whitelist.appcelerator.com'] && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
 		this.whitelistAppceleratorDotCom = false;
 	}
@@ -2419,10 +2423,10 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.defaultLaunchScreenStoryboard = false;
 	}
 
-	if (!this.tiapp.ios.hasOwnProperty('use-new-build-system') && appc.version.lt(this.xcodeEnv.version, '10.0.0')) {
+	if (!Object.prototype.hasOwnProperty.call(this.tiapp.ios, 'use-new-build-system') && appc.version.lt(this.xcodeEnv.version, '10.0.0')) {
 		// if running on Xcode < 10, do not use the new build system by default
 		this.useNewBuildSystem = false;
-	} else if (this.tiapp.ios.hasOwnProperty('use-new-build-system')) {
+	} else if (Object.prototype.hasOwnProperty.call(this.tiapp.ios, 'use-new-build-system')) {
 		// if explicitly set via tiapp.xml, go with that one
 		this.useNewBuildSystem = this.tiapp.ios['use-new-build-system'];
 	} else {
@@ -2505,78 +2509,40 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 		return next();
 	}
 
-	const _t = this;
+	// The Plan
+	//
+	// We are going to try to create a Node.js server to see if the port is available.
+	//
+	// If the port is NOT available, then we're gonna randomly try to pick a port until we find an
+	// open one.
 
-	this.logger.debug(__('Checking if log server port %d is available', this.tiLogServerPort));
+	let done = false;
+	async.whilst(
+		() => !done,
+		cb => {
+			// for simulator builds, the port is shared with the local machine, so we
+			// just need to detect if the port is available with the help of Node
+			const server = net.createServer();
 
-	// for simulator builds, the port is shared with the local machine, so we
-	// just need to detect if the port is available with the help of Node
-	const server = net.createServer();
+			server.on('error', () => {
+				server.close(() => {
+					this.logger.debug(__('Log server port %s is in use, trying another port', cyan(String(this.tiLogServerPort))));
+					this.tiLogServerPort = parseInt(Math.random() * 50000) + 10000;
+					cb();
+				});
+			});
 
-	server.on('error', function () {
-		// we weren't able to bidn to the port :(
-		server.close(function () {
-			_t.logger.debug(__('Log server port %s is in use, testing if it\'s the app we\'re building', _t.tiLogServerPort));
-
-			let client = null;
-
-			function die(error) {
-				client && client.destroy();
-				if (error && error.code === 'ENOTFOUND') {
-					_t.logger.error(__('Unable to connect to log server on localhost'));
-					_t.logger.error(__('Please ensure your /etc/hosts file contains a valid entry for `localhost`'));
-				} else {
-					_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
-					_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-				}
-				process.exit(1);
-			}
-
-			// connect to the port and see if it's a Titanium app...
-			//  - if the port is bound by a Titanium app with the same appid, then assume
-			//    that when we install new build, the old process will be terminated
-			//  - if the port is bound by another process, such as MySQL on port 3306,
-			//    then we will fail out
-			//  - if the port is bound by another process that expects data before the
-			//    response is returned, then we will just timeout and fail out
-			//  - if localhost cannot be resolved then we will fail out and inform
-			//    the user of that
-			client = net.connect({
-				host: 'localhost',
-				port: _t.tiLogServerPort,
-				timeout: parseInt(_t.config.get('ios.logServerTestTimeout', 1000)) || null
-			})
-				.on('data', function (data) {
-					client.destroy();
-					try {
-						const headers = JSON.parse(data.toString().split('\n').shift());
-						if (headers.appId !== _t.tiapp.id) {
-							_t.logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, _t.tiLogServerPort));
-							_t.logger.error(__('Stop the running Titanium app, then rebuild this app'));
-							_t.logger.error(__('-or-'));
-							_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-							process.exit(1);
-						}
-					} catch (e) {
-						die(e);
-					}
-					_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
-					next();
-				})
-				.on('error', die)
-				.on('timeout', die);
-		});
-	});
-
-	server.listen({
-		host: 'localhost',
-		port: _t.tiLogServerPort
-	}, function () {
-		server.close(function () {
-			_t.logger.debug(__('Log server port %s is available', _t.tiLogServerPort));
-			next();
-		});
-	});
+			server.listen({
+				host: '127.0.0.1',
+				port: this.tiLogServerPort
+			}, () => {
+				this.logger.debug(__('Using log server port %s', cyan(String(this.tiLogServerPort))));
+				done = true;
+				server.close(cb);
+			});
+		},
+		next
+	);
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -2643,6 +2609,9 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 	} else {
 		this.logger.info(__('Set to copy files instead of symlinking'));
 	}
+
+	this.logger.info(__('Transpile javascript: %s', (this.transpile ? 'true' : 'false').cyan));
+	this.logger.info(__('Generate source maps: %s', (this.sourceMaps ? 'true' : 'false').cyan));
 };
 
 iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
@@ -2877,11 +2846,12 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 
 	if (this.forceCleanBuild && buildDirExists) {
 		this.logger.debug(__('Recreating %s', cyan(this.buildDir)));
+		fs.emptyDirSync(this.buildDir);
 	} else if (!buildDirExists) {
 		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
+		fs.ensureDirSync(this.buildDir);
 		this.forceCleanBuild = true;
 	}
-	fs.emptyDirSync(this.buildDir);
 
 	fs.ensureDirSync(this.xcodeAppDir);
 };
@@ -3848,7 +3818,7 @@ iOSBuilder.prototype.mergePlist = function mergePlist(src, dest) {
 		Object.keys(src).forEach(function (prop) {
 			if (!/^\+/.test(prop)) {
 				if (Object.prototype.toString.call(src[prop]) === '[object Object]') {
-					dest.hasOwnProperty(prop) || (dest[prop] = {});
+					Object.prototype.hasOwnProperty.call(dest, prop) || (dest[prop] = {});
 					merge(src[prop], dest[prop]);
 				} else {
 					dest[prop] = src[prop];
@@ -3931,16 +3901,16 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 	const pp = this.provisioningProfile;
 	if (pp) {
 		// attempt to customize it by reading provisioning profile
-		if (!plist.hasOwnProperty('application-identifier')) {
+		if (!Object.prototype.hasOwnProperty.call(plist, 'application-identifier')) {
 			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
 		}
 		if (pp.apsEnvironment) {
 			plist['aps-environment'] = this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'production' : 'development';
 		}
-		if (this.target === 'dist-appstore' && !plist.hasOwnProperty('beta-reports-active')) {
+		if (this.target === 'dist-appstore' && !Object.prototype.hasOwnProperty.call(plist, 'beta-reports-active')) {
 			plist['beta-reports-active'] = true;
 		}
-		if (!plist.hasOwnProperty('get-task-allow')) {
+		if (!Object.prototype.hasOwnProperty.call(plist, 'get-task-allow')) {
 			plist['get-task-allow'] = pp.getTaskAllow;
 		}
 		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
@@ -3975,7 +3945,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 
 	// load the default Info.plist
 	plist.parse(fs.readFileSync(defaultInfoPlistFile).toString().replace(/(__.+__)/g, function (match, key) {
-		return consts.hasOwnProperty(key) ? consts[key] : '<!-- ' + key + ' -->'; // if they key is not a match, just comment out the key
+		return Object.prototype.hasOwnProperty.call(consts, key) ? consts[key] : '<!-- ' + key + ' -->'; // if they key is not a match, just comment out the key
 	}));
 
 	// override the default versions with the tiapp.xml version
@@ -4145,9 +4115,9 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	}
 
 	// tiapp.xml settings override the default and custom Info.plist
-	plist.UIRequiresPersistentWiFi = this.tiapp.hasOwnProperty('persistent-wifi')  ? !!this.tiapp['persistent-wifi']  : false;
-	plist.UIPrerenderedIcon        = this.tiapp.hasOwnProperty('prerendered-icon') ? !!this.tiapp['prerendered-icon'] : false;
-	plist.UIStatusBarHidden        = this.tiapp.hasOwnProperty('statusbar-hidden') ? !!this.tiapp['statusbar-hidden'] : false;
+	plist.UIRequiresPersistentWiFi = Object.prototype.hasOwnProperty.call(this.tiapp, 'persistent-wifi')  ? !!this.tiapp['persistent-wifi']  : false;
+	plist.UIPrerenderedIcon        = Object.prototype.hasOwnProperty.call(this.tiapp, 'prerendered-icon') ? !!this.tiapp['prerendered-icon'] : false;
+	plist.UIStatusBarHidden        = Object.prototype.hasOwnProperty.call(this.tiapp, 'statusbar-hidden') ? !!this.tiapp['statusbar-hidden'] : false;
 
 	plist.UIStatusBarStyle = 'UIStatusBarStyleDefault';
 	if (/opaque_black|opaque|black/.test(this.tiapp['statusbar-style'])) {
@@ -4307,7 +4277,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 			__DEPLOYTYPE__:       this.deployType,
 			__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
 			__APP_ID__:           this.tiapp.id,
-			__APP_ANALYTICS__:    String(this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
+			__APP_ANALYTICS__:    String(Object.prototype.hasOwnProperty.call(this.tiapp, 'analytics') ? !!this.tiapp.analytics : true),
 			__APP_PUBLISHER__:    this.tiapp.publisher,
 			__APP_URL__:          this.tiapp.url,
 			__APP_NAME__:         this.tiapp.name,
@@ -4319,7 +4289,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 			__APP_DEPLOY_TYPE__:  this.buildType
 		},
 		contents = fs.readFileSync(path.join(this.platformPath, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
-			const s = consts.hasOwnProperty(key) ? consts[key] : key;
+			const s = Object.prototype.hasOwnProperty.call(consts, key) ? consts[key] : key;
 			return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
 		}),
 		dest = path.join(this.buildDir, 'main.m');
@@ -5880,7 +5850,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						.then(() => {
 							this.tiSymbols = task.data.tiSymbols;
 
-							return next();
+							return next(); // eslint-disable-line promise/no-callback-in-promise
 						})
 						.catch(e => {
 							this.logger.error(e);
@@ -6407,7 +6377,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 			async.eachSeries([ 'x86_64', 'i386' ], function (architecture, next) {
 				const args = [ '-remove', architecture, titaniumKitPath, '-o', titaniumKitPath ];
 				this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
-				appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out) {
+				appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (_code, _out) {
 					next();
 				});
 			}.bind(this), function () {
@@ -6469,7 +6439,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				}
 			}
 		});
-	}(this.xcodeAppDir, /^(PlugIns|Watch|TitaniumKit\.framework)$/i));
+	}(this.xcodeAppDir, /^(PlugIns|Watch|.+\.framework)$/i));
 
 	parallel(this, [
 		function (next) {

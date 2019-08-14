@@ -127,6 +127,60 @@ description: |
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
 
+
+    **WKWebView**
+    
+    With Titanium SDK 8.0.0, we now use WKWebView to implement Ti.UI.WebView (as Apple has deprecated UIWebView).
+    WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView 
+    a little modification is required in the HTML files:
+    
+        <style>
+          @font-face
+            {
+              font-family: 'Lato-Regular';
+              src: url('fonts/Lato-Regular.ttf');
+            }
+        </style>
+
+    ### Ti.UI.SIZE and WebViews
+
+    With Titanium 8.0.0+, <Titanium.UI.SIZE> does not work for WebViews. We recommend to give a **fixed height** 
+    to <Titanium.UI.WebView> (as noted in [TIDOC-3355](https://jira.appcelerator.org/browse/TIDOC-3355)).
+    
+    As a workaround you can try to get the `document.body.scrollHeight` inside <Titanium.UI.WebView.load> event 
+    of webview and set the height to webview. See following example.
+
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white';
+        });
+ 
+        var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
+ 
+        verticalView.add(Ti.UI.createLabel({text: 'Label 1', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+ 
+        var htmla = "<div style='font-family: Helvetica Neue; font-size:16px'><ul><li>Item 1</li><li>Item 2</li></ul></div>";
+        var html = "<!DOCTYPE html>";
+      
+        html += "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'><style type='text/css'>html {-webkit-text-size-adjust: none;}</style><script type='text/javascript'>document.ontouchmove = function(event){event.preventDefault();}</script></head><body style='overflow: hidden'>";
+        html += htmla;
+        html += "</body></html>";
+      
+        var webview = Ti.UI.createWebView({left: '14dp', right: '14dp', top: '7dp', height: Ti.UI.SIZE, html: html, backgroundColor: "yellow"});
+      
+        verticalView.add(webview);
+ 
+        verticalView.add(Ti.UI.createLabel({text: 'Label 2', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+ 
+        win.add(verticalView);
+ 
+        win.open();
+ 
+        webview.addEventListener('load', function(e) {
+          var result = webview.evalJSSync('document.body.scrollHeight');
+          Ti.API.info('webview height: ' + result);
+          webview.height = result;
+        });    
+    
     #### For More Information
 
     See [Integrating Web
@@ -1097,4 +1151,3 @@ properties:
   - name: url
     summary: The url of the link that should be navigated to.
     type: String
-

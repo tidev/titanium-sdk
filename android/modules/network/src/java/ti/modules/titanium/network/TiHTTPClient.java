@@ -735,6 +735,10 @@ public class TiHTTPClient
 
 	public void clearCookies(String url)
 	{
+		if (url == null) {
+			return;
+		}
+
 		List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieManager.getCookieStore().getCookies());
 		cookieManager.getCookieStore().removeAll();
 		String lower_url = url.toLowerCase();

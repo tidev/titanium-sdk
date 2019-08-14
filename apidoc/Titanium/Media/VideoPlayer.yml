@@ -207,7 +207,7 @@ methods:
   - name: thumbnailImageAtTime
     deprecated:
         since: '3.4.2'
-        notes: Use <Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes> instead.
+        notes: Use [Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes](Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes) instead.
         removed: '3.6.0'
     summary: Returns a thumbnail image for the video at the specified time.
     platforms: [iphone, ipad]
@@ -487,7 +487,7 @@ properties:
   - name: backgroundView
     deprecated:
         since: "7.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.overlayView> instead.
+        notes: Use [Titanium.Media.VideoPlayer.overlayView](Titanium.Media.VideoPlayer.overlayView) instead.
     summary: Sets the background view for customization which is always displayed behind movie content.
     description: |
         To create a background behind the movie content on iOS, you can specify a
@@ -525,7 +525,7 @@ properties:
     deprecated:
         since: "1.4.0"
         removed: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.url> instead.
+        notes: Use [Titanium.Media.VideoPlayer.url](Titanium.Media.VideoPlayer.url) instead.
     type: String
 
   - name: currentPlaybackTime
@@ -583,7 +583,7 @@ properties:
   - name: loadState
     deprecated:
         since: "7.0.0"
-        notes: On iOS, use <Titanium.Media.VideoPlayer.moviePlayerStatus> instead.
+        notes: On iOS, use [Titanium.Media.VideoPlayer.moviePlayerStatus](Titanium.Media.VideoPlayer.moviePlayerStatus) instead.
     summary: Returns the network load state of the movie player.
     type: Number
     permission: read-only
@@ -597,12 +597,12 @@ properties:
   - name: mediaControlStyle
     deprecated:
         since: "7.0.0"
-        notes: On iOS, use <Titanium.Media.VideoPlayer.showsControls> instead.
+        notes: On iOS, use [Titanium.Media.VideoPlayer.showsControls](Titanium.Media.VideoPlayer.showsControls) instead.
         removed: "7.0.0"
     summary: The style of the playback controls.
     description: |
-        Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and
-        <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+        Mobile web only supports [VIDEO_CONTROL_NONE](Titanium.Media.VIDEO_CONTROL_NONE) and
+        [VIDEO_CONTROL_DEFAULT](Titanium.Media.VIDEO_CONTROL_DEFAULT).
     type: Number
     constants: Titanium.Media.VIDEO_CONTROL_*
     default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).

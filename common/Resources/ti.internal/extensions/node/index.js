@@ -6,12 +6,17 @@ import tty from './tty';
 import util from './util';
 import assert from './assert';
 import events from './events';
+import BufferModule from './buffer';
 
 // hook our implementations to get loaded by require
-import { bindObjectToCoreModuleId } from '../binding';
-bindObjectToCoreModuleId('path', path);
-bindObjectToCoreModuleId('os', os);
-bindObjectToCoreModuleId('tty', tty);
-bindObjectToCoreModuleId('util', util);
-bindObjectToCoreModuleId('assert', assert);
-bindObjectToCoreModuleId('events', events);
+import { register } from '../binding';
+register('path', path);
+register('os', os);
+register('tty', tty);
+register('util', util);
+register('assert', assert);
+register('events', events);
+register('buffer', BufferModule);
+
+// Register require('buffer').Buffer as global
+global.Buffer = BufferModule.Buffer;
