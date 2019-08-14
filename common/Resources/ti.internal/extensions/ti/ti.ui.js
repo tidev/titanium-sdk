@@ -49,7 +49,7 @@ uiModule.fetchSemanticColor = function fetchSemanticColor (colorName) {
 			}
 		}
 		try {
-			return colorset[colorName][uiModule.semanticColorType];
+			return colorset[colorName][uiModule.semanticColorType].color || colorset[colorName][uiModule.semanticColorType];
 		} catch (error) {
 			console.log(`Failed to lookup color for ${colorName}`);
 		}

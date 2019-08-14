@@ -5778,17 +5778,24 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				function generateSemanticColors() {
 					const colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
 					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
+					const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 
 					function hexToRgb(hex) {
+						let alpha = '1.000';
+						let color = hex;
+						if (hex.color) {
+							alpha = hex.alpha;
+							color = hex.color;
+						}
 						// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-						var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-						hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+						color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
 
-						var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+						var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
 						return result ? {
 							r: parseInt(result[1], 16),
 							g: parseInt(result[2], 16),
-							b: parseInt(result[3], 16)
+							b: parseInt(result[3], 16),
+							alpha
 						} : null;
 					}
 
@@ -5801,12 +5808,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						const colorDir = path.join(assetCatalog, `${color}.colorset`);
 
 						if (!colorValue.light) {
-							console.warn(`Skipping ${color} as it does not include a light value`);
+							this.logger.warn(`Skipping ${color} as it does not include a light value`);
 							continue;
 						}
 
 						if (!colorValue.dark) {
-							console.warn(`Skipping ${color} as it does not include a dark value`);
+							this.logger.warn(`Skipping ${color} as it does not include a dark value`);
 							continue;
 						}
 
@@ -5831,7 +5838,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${defaultRGB.r}`,
 									green: `${defaultRGB.g}`,
 									blue: `${defaultRGB.b}`,
-									alpha: '1.000'
+									alpha: `${defaultRGB.alpha}`
 								}
 							}
 						});
@@ -5849,7 +5856,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${lightRGB.r}`,
 									green: `${lightRGB.g}`,
 									blue: `${lightRGB.b}`,
-									alpha: '1.000'
+									alpha: `${lightRGB.alpha}`
 								}
 							}
 						});
@@ -5867,7 +5874,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${darkRGB.r}`,
 									green: `${darkRGB.g}`,
 									blue: `${darkRGB.b}`,
-									alpha: '1.000'
+									alpha: `${darkRGB.alpha}`
 								}
 							}
 						});
