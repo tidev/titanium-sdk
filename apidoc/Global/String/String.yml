@@ -33,7 +33,7 @@ methods:
         repeatable: true
         summary: |
             Values to substitute into the `formatString`.  The method expects a variable number
-            of `value` arugments, one for each `%` conversion specification in the format
+            of `value` arguments, one for each `%` conversion specification in the format
             string. Optional on Android.
         type: [ String, Number ]
         
