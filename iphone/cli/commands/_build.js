@@ -5781,10 +5781,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 
 					function hexToRgb(hex) {
-						let alpha = '1.000';
+						let alpha = 1;
 						let color = hex;
 						if (hex.color) {
-							alpha = hex.alpha;
+							alpha = hex.alpha / 100; // convert from 0-100 range to 0-1 range
 							color = hex.color;
 						}
 						// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -5795,7 +5795,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							r: parseInt(result[1], 16),
 							g: parseInt(result[2], 16),
 							b: parseInt(result[3], 16),
-							alpha
+							alpha: alpha.toFixed(3)
 						} : null;
 					}
 
