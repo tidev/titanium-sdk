@@ -46,6 +46,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+		// Set the limit of supported tabs to 5, due the implementation of BottomNavigationView
+		this.maxTabsSupported = 5;
+		this.TAG = "TiUIBottomNavigationTabGroup";
 	}
 
 	@Override
