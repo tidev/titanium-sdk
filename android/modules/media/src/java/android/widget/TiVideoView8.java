@@ -179,6 +179,30 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	}
 
+	private void constantDeprecationWarning(int constant)
+	{
+		StringBuilder warningMessage = new StringBuilder();
+		warningMessage.append("has been deprecated. Use ");
+		switch (constant) {
+			case MediaModule.VIDEO_SCALING_ASPECT_FILL:
+				warningMessage.insert(0, "Ti.Media.VIDEO_SCALING_ASPECT_FILL ");
+				warningMessage.insert(warningMessage.length(), "Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FILL");
+				break;
+			case MediaModule.VIDEO_SCALING_ASPECT_FIT:
+				warningMessage.insert(0, "Ti.Media.VIDEO_SCALING_ASPECT_FIT ");
+				warningMessage.insert(warningMessage.length(), "Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT");
+				break;
+			case MediaModule.VIDEO_SCALING_MODE_FILL:
+				warningMessage.insert(0, "Ti.Media.VIDEO_SCALING_MODE_FILL ");
+				warningMessage.insert(warningMessage.length(), "Ti.Media.VIDEO_SCALING_RESIZE");
+				break;
+			default:
+				return;
+		}
+		warningMessage.append(" instead.");
+		Log.w("VideoPlayerProxy", warningMessage.toString());
+	}
+
 	protected void measureVideo(int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec)
 	{
 		Log.e(TAG,
@@ -196,7 +220,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					height = videoHeight;
 					break;
 				}
-				case MediaModule.VIDEO_SCALING_ASPECT_FILL: {
+				case MediaModule.VIDEO_SCALING_ASPECT_FILL:
+				case MediaModule.VIDEO_SCALING_RESIZE_ASPECT_FILL: {
 					if (videoWidth * height > width * videoHeight) {
 						width = height * videoWidth / videoHeight;
 					} else if (videoWidth * height < width * videoHeight) {
@@ -204,7 +229,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					}
 					break;
 				}
-				case MediaModule.VIDEO_SCALING_ASPECT_FIT: {
+				case MediaModule.VIDEO_SCALING_ASPECT_FIT:
+				case MediaModule.VIDEO_SCALING_RESIZE_ASPECT: {
 					if (videoWidth * height > width * videoHeight) {
 						height = width * videoHeight / videoWidth;
 					} else if (videoWidth * height < width * videoHeight) {
@@ -212,12 +238,14 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					}
 					break;
 				}
-				case MediaModule.VIDEO_SCALING_MODE_FILL: {
+				case MediaModule.VIDEO_SCALING_MODE_FILL:
+				case MediaModule.VIDEO_SCALING_RESIZE: {
 					width = MeasureSpec.getSize(widthMeasureSpec);
 					height = MeasureSpec.getSize(heightMeasureSpec);
 					break;
 				}
 			}
+			constantDeprecationWarning(mScalingMode);
 		}
 		String model = Build.MODEL;
 		if (model != null && model.equals("SPH-P100")) {
