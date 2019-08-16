@@ -87,7 +87,7 @@ methods:
       On failure, this will throw an [Error](BatchQueryError) that reports the failed index and partial results
     returns:
         type: Array<Titanium.Database.ResultSet>
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     parameters:
       - name: queries
         summary: Array of SQL queries to execute.
@@ -97,8 +97,8 @@ methods:
   - name: executeAllAsync
     summary: |
       Asynchronously executes an array of SQL statements against the database and fires a callback with a possible Error, and an array of `ResultSet`.
-      On failure, this will call the callback with an [Error](PossibleBatchQueryError) that reports the failed index, and a second arguemnt with the partial results
-    platforms: [android]
+      On failure, this will call the callback with an [Error](PossibleBatchQueryError) that reports the failed index, and a second argument with the partial results
+    platforms: [android, iphone, ipad]
     parameters:
       - name: queries
         summary: Array of SQL queries to execute.
