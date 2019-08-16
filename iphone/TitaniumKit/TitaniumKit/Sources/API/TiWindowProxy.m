@@ -46,6 +46,7 @@
 
 - (void)_configure
 {
+  forceModal = YES;
   [self replaceValue:nil forKey:@"orientationModes" notification:NO];
   [super _configure];
 }
@@ -561,8 +562,8 @@
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-        isForceModalDisable = ![TiUtils boolValue:@"forceModal" properties:dict def:NO];
-        theController.modalInPresentation = !isForceModalDisable;
+        forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
+        theController.modalInPresentation = forceModal;
       }
 #endif
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
@@ -738,7 +739,7 @@
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
-  if (isModal && (closing || isForceModalDisable)) {
+  if (isModal && (closing || !forceModal)) {
     [self windowDidClose];
   }
 }
