@@ -9,9 +9,10 @@
 
 @implementation TiConsole
 
-- (void)log:(id)level withMessage:(id)args
+- (void)log:(id)unused
 {
-  [self info:level];
+  NSArray *currentArgs = [JSContext currentArguments];
+  [self logMessage:currentArgs severity:@"info"];
 }
 
 - (void)time:(NSString *)label
