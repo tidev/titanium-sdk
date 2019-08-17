@@ -191,11 +191,13 @@
     return nil;
   }
 
+#if !TARGET_OS_MACCATALYST
 #ifdef USE_TI_CONTACTS
   if ([value isKindOfClass:[TiContactsPerson class]]) {
     ENSURE_TYPE(value, TiContactsPerson);
     return [UIApplicationShortcutIcon iconWithContact:[(TiContactsPerson *)value nativePerson]];
   }
+#endif
 #endif
 
   if ([value isKindOfClass:[UIApplicationShortcutIcon class]]) {

@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#if !TARGET_OS_MACCATALYST
 #ifdef USE_TI_NETWORK
 
 #import "TiDOMDocumentProxy.h"
-#import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/TiProxy.h>
 
 @class TiBlob;
@@ -16,14 +16,14 @@
 @protocol SecurityManagerProtocol <NSObject>
 @required
 - (BOOL)willHandleURL:(NSURL *)url;
-- (id<APSConnectionDelegate>)connectionDelegateForUrl:(NSURL *)url;
+- (id)connectionDelegateForUrl:(NSURL *)url;
 @end
 
-@interface TiNetworkHTTPClientProxy : TiProxy <APSHTTPRequestDelegate> {
-  APSHTTPRequest *httpRequest;
+@interface TiNetworkHTTPClientProxy : TiProxy {
+  id httpRequest;
   NSTimeInterval _uploadTime;
   NSTimeInterval _downloadTime;
-  id<APSConnectionDelegate> apsConnectionDelegate;
+  id apsConnectionDelegate;
   id<SecurityManagerProtocol> apsConnectionManager;
 
   BOOL hasOnload;
@@ -34,7 +34,7 @@
   BOOL hasOnredirect;
 }
 
-@property (nonatomic, readonly) APSHTTPResponse *response;
+@property (nonatomic, readonly) id response;
 
 // state information
 @property (nonatomic, readonly) NSNumber *status;
@@ -75,4 +75,5 @@
 - (NSNumber *)connected;
 @end
 
+#endif
 #endif

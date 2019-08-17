@@ -6,6 +6,7 @@
  */
 #import <TitaniumKit/TiModule.h>
 
+#if !TARGET_OS_MACCATALYST
 #ifdef USE_TI_CONTACTS
 
 #import "TiContactsPerson.h"
@@ -56,4 +57,5 @@
 
 @end
 
+#endif
 #endif

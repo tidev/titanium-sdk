@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollBridge.h"
-#import "APSAnalytics.h"
 #import "KrollCallback.h"
 #import "TiApp.h"
 #import "TiConsole.h"
@@ -509,18 +508,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
                   }];
   }
 
-  // FIXME Re-enable analytics setters here
-  if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
-    APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
-    NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
-    NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
-    NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
-    if (buildType != nil || buildType.length > 0) {
-      [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
-    }
-    [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
-    [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
-  }
+
 
   // Load the "console" object into the global scope
   objcJSContext[@"console"] = [[TiConsole alloc] init];

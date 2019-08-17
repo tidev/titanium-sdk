@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "APSHTTPClient.h"
 #import "TiDimension.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -56,7 +55,6 @@ typedef enum {
  */
 @interface ImageLoaderRequest : NSObject {
   @private
-  APSHTTPRequest *request;
   NSObject<ImageLoaderDelegate> *delegate;
   NSDictionary *userInfo;
   NSURL *url;
@@ -69,7 +67,7 @@ typedef enum {
  The request to use for loading remote images.
  @return The request instance.
  */
-@property (nonatomic, readwrite, retain) APSHTTPRequest *request;
+@property (nonatomic, readwrite, retain) id request;
 
 /**
  Whether or not the request has completed.
@@ -121,7 +119,7 @@ typedef enum {
  The class is singleton and not supposed to be subclassed.
  The instance should not be instantiated directly, but lazily created with <sharedLoader>.
  */
-@interface ImageLoader : NSObject <NSCacheDelegate, APSHTTPRequestDelegate> {
+@interface ImageLoader : NSObject <NSCacheDelegate> {
   @private
   NSCache *cache;
   NSOperationQueue *queue;

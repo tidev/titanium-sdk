@@ -11,12 +11,18 @@ var win = Ti.UI.createWindow({
 });
 
 var btn = Ti.UI.createButton({
-    title: 'Trigger'
+    title: 'Titanium rocks!',
+    top: 100
 });
 
 btn.addEventListener('click', function() {
-    Ti.API.info('Hello world!');
+    alert('Hello world!');
 });
+
+win.add(Ti.UI.createImageView({
+    image: 'example.png',
+    top: 200
+}))
 
 win.add(btn);
 win.open();

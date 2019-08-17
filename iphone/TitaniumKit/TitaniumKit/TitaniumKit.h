@@ -14,8 +14,6 @@ FOUNDATION_EXPORT double TitaniumKitVersionNumber;
 FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 
 #import <TitaniumKit/APIModule.h>
-#import <TitaniumKit/APSAnalytics.h>
-#import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/NSData+Additions.h>

@@ -230,16 +230,6 @@
 
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];
-  } else if ([[request trigger] isKindOfClass:[UNLocationNotificationTrigger class]]) {
-    CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)[request trigger] region];
-
-    NSDictionary *dict = @{
-      @"latitude" : NUMDOUBLE(region.center.latitude),
-      @"longitude" : NUMDOUBLE(region.center.longitude),
-      @"radius" : NUMDOUBLE(region.radius),
-      @"identifier" : region.identifier
-    };
-    [event setObject:dict forKey:@"region"];
   }
 
   return event;

@@ -23,12 +23,12 @@ typedef NS_ENUM(NSInteger, APSRequestError) {
 
 @protocol APSHTTPRequestDelegate <NSObject>
 @optional
-- (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response;
-- (void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response;
-- (void)request:(APSHTTPRequest *)request onDataStream:(APSHTTPResponse *)response;
-- (void)request:(APSHTTPRequest *)request onSendStream:(APSHTTPResponse *)response;
-- (void)request:(APSHTTPRequest *)request onReadyStateChange:(APSHTTPResponse *)response;
-- (void)request:(APSHTTPRequest *)request onRedirect:(APSHTTPResponse *)response;
+- (void)request:(id)request onLoad:(id)response;
+- (void)request:(id)request onError:(id)response;
+- (void)request:(id)request onDataStream:(id)response;
+- (void)request:(id)request onSendStream:(id)response;
+- (void)request:(id)request onReadyStateChange:(id)response;
+- (void)request:(id)request onRedirect:(id)response;
 
 @end
 
@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, APSRequestError) {
 @property (nonatomic, strong, readwrite) NSString *requestUsername;
 @property (nonatomic, strong, readwrite) NSString *requestPassword;
 @property (nonatomic, strong, readwrite) APSHTTPPostForm *postForm;
-@property (nonatomic, strong, readonly) APSHTTPResponse *response;
+@property (nonatomic, strong, readonly) idresponse;
 @property (nonatomic, weak, readwrite) NSObject<APSHTTPRequestDelegate> *delegate;
 @property (nonatomic, weak, readwrite) NSObject<APSConnectionDelegate> *connectionDelegate;
 @property (nonatomic, assign, readwrite) NSTimeInterval timeout;

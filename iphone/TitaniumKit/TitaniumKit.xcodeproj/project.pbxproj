@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -23,8 +23,8 @@
 /* Begin PBXBuildFile section */
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
-		4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */; };
-		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
+		4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */; platformFilter = ios; };
+		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; platformFilter = ios; };
 		B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B7624B6A216663C7000C365A /* ObjcProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B7624B6B216663C7000C365A /* ObjcProxy.m */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
@@ -749,6 +749,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = DB258CC31F09757E000D0D8D;
@@ -985,7 +986,11 @@
 				INFOPLIST_FILE = TitaniumKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
@@ -1024,7 +1029,11 @@
 				INFOPLIST_FILE = TitaniumKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",

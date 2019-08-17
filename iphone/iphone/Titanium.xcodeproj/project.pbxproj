@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 48;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -117,21 +117,21 @@
 		24CA8BFB111161FE0084E2DE /* TiUITableViewRowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B39111161FE0084E2DE /* TiUITableViewRowProxy.m */; };
 		24CA8C08111161FE0084E2DE /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B56111161FE0084E2DE /* AppModule.m */; };
 		24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B64111161FE0084E2DE /* AccelerometerModule.m */; };
-		24CA8C76111167B60084E2DE /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		24CA8C78111167B60084E2DE /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C77111167B60084E2DE /* AddressBookUI.framework */; };
+		24CA8C76111167B60084E2DE /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; platformFilter = ios; settings = {ATTRIBUTES = (Weak, ); }; };
+		24CA8C78111167B60084E2DE /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C77111167B60084E2DE /* AddressBookUI.framework */; platformFilter = ios; };
 		24CA8C7C111167B60084E2DE /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7B111167B60084E2DE /* CFNetwork.framework */; };
 		24CA8C7E111167B60084E2DE /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7D111167B60084E2DE /* CoreLocation.framework */; };
 		24CA8C80111167B60084E2DE /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7F111167B60084E2DE /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24CA8C82111167B60084E2DE /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C81111167B60084E2DE /* MessageUI.framework */; };
 		24CA8C84111167B60084E2DE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C83111167B60084E2DE /* MobileCoreServices.framework */; };
-		24CA8C86111167B60084E2DE /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; };
+		24CA8C86111167B60084E2DE /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; platformFilter = ios; };
 		24CA8C88111167B60084E2DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C87111167B60084E2DE /* QuartzCore.framework */; };
 		24CA8C8A111167B60084E2DE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C89111167B60084E2DE /* SystemConfiguration.framework */; };
 		24CA8CED1111689B0084E2DE /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */; };
 		24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
-		24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D5C75811E6364F00F097E2 /* libtiverify.a */; };
+		24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D5C75811E6364F00F097E2 /* libtiverify.a */; platformFilter = ios; };
 		24DEDAC7112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24E50E1A1160666300AF54AF /* LauncherButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E061160666300AF54AF /* LauncherButton.m */; };
 		24E50E1B1160666300AF54AF /* LauncherItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E081160666300AF54AF /* LauncherItem.m */; };
@@ -1065,14 +1065,10 @@
 				DB4E9B7020B2E9510064ADF9 /* Navigation Window */,
 				DB0D54921F3B491300E2B771 /* Toolbar */,
 				BBDD81351A2C71E5003CDA10 /* AttributedString */,
-				24CA8C65111165D40084E2DE /* Canvas */,
 				24ADC5081299F4730014DB75 /* Clipboard */,
-				24CA8C64111165B60084E2DE /* Email Dialog */,
 				24CA8C5A111165420084E2DE /* ImageView */,
 				24D06FDE11D020E600F615D8 /* iOS */,
 				502A68CF16EEAA4A00661EF6 /* ListView */,
-				DBB0FE8D20D9364E00B85333 /* Matrix 2D/3D */,
-				24CA8C5F111165720084E2DE /* Option Dialog */,
 				84DEE90F1815CE67000D7B78 /* RefreshControl */,
 				B4F97B6C111A418700E2F72C /* Scroll View */,
 				B43663DA11138AB300782262 /* Scrollable View */,
@@ -1086,7 +1082,6 @@
 				24CA8C5F111165720084E2DE /* Option Dialog */,
 				24CA8C66111166550084E2DE /* Webview */,
 				24CA8C591111653B0084E2DE /* Widgets */,
-				24CA8C5B111165470084E2DE /* Window */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -1280,7 +1275,6 @@
 			children = (
 				84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */,
 				84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */,
-				502A68CF16EEAA4A00661EF6 /* ListView */,
 				DB769E00210F0D92004D9338 /* TableView */,
 			);
 			name = "TableView & ListView";
@@ -2038,7 +2032,6 @@
 				LastUpgradeCheck = 0900;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
-						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 0;
@@ -2374,9 +2367,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
+				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = "";
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
+				DEVELOPMENT_TEAM = 6K4KHD4NQF;
 				ENABLE_BITCODE = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
@@ -2388,7 +2386,10 @@
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -2402,6 +2403,9 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WARNING_CFLAGS = "-Wno-arc-performSelector-leaks";
 			};
@@ -2416,9 +2420,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
+				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				DEVELOPMENT_TEAM = "";
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
+				DEVELOPMENT_TEAM = 6K4KHD4NQF;
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2428,7 +2437,10 @@
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -2442,6 +2454,9 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WARNING_CFLAGS = "-Wno-arc-performSelector-leaks";
 			};

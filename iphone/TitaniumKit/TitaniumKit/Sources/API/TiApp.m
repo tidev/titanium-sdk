@@ -1384,15 +1384,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if (trigger != nil) {
     if ([trigger isKindOfClass:[UNCalendarNotificationTrigger class]]) {
       [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)trigger nextTriggerDate]) forKey:@"date"];
-    } else if ([trigger isKindOfClass:[UNLocationNotificationTrigger class]]) {
-      CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)trigger region];
-      NSDictionary *dict = @{
-        @"latitude" : NUMDOUBLE(region.center.latitude),
-        @"longitude" : NUMDOUBLE(region.center.longitude),
-        @"radius" : NUMDOUBLE(region.radius),
-        @"identifier" : region.identifier
-      };
-      [event setObject:dict forKey:@"region"];
     }
   }
 

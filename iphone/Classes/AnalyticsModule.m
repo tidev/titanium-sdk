@@ -6,7 +6,6 @@
  */
 
 #import "AnalyticsModule.h"
-@import TitaniumKit.APSAnalytics;
 @import TitaniumKit.TiBase;
 @import TitaniumKit.TiUtils;
 
@@ -38,7 +37,7 @@ static const NSInteger ANALYTICS_DISABLED = -2;
 
 - (NSString *)lastEvent
 {
-  return [[APSAnalytics sharedInstance] performSelector:@selector(getLastEvent)];
+  return @"";
 }
 
 - (void)navEvent:(NSString *)from to:(NSString *)to withName:(NSString *)name withData:(NSDictionary *)data
@@ -58,7 +57,6 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   if (data == nil) {
     data = [NSDictionary dictionary];
   }
-  [[APSAnalytics sharedInstance] sendAppNavEventFromView:from toView:to withName:name payload:data];
 }
 
 - (NSInteger)featureEvent:(NSString *)name withData:(id)data
@@ -87,7 +85,6 @@ static const NSInteger ANALYTICS_DISABLED = -2;
     data = value;
   }
   if ([AnalyticsModule validatePayload:data level:0]) {
-    [[APSAnalytics sharedInstance] sendAppFeatureEvent:name payload:data];
     return JSON_VALIDATION_PASSED;
   }
 
@@ -113,12 +110,11 @@ static const NSInteger ANALYTICS_DISABLED = -2;
 
 - (void)setOptedOut:(BOOL)optedOut
 {
-  [[APSAnalytics sharedInstance] setOptedOut:optedOut];
 }
 
 - (BOOL)optedOut
 {
-  return [[APSAnalytics sharedInstance] isOptedOut];
+  return NO;
 }
 
 READWRITE_IMPL(BOOL, optedOut, OptedOut);

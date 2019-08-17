@@ -6,6 +6,8 @@
  */
 #import <TitaniumKit/TiProxy.h>
 
+#if !TARGET_OS_MACCATALYST
+
 #ifdef USE_TI_CONTACTS
 #import "ContactsModule.h"
 #import <AddressBook/AddressBook.h>
@@ -22,4 +24,5 @@
 - (CNSaveRequest *)getSaveRequestForAddition:(NSString *)containerIdentifier;
 
 @end
+#endif
 #endif

@@ -6,6 +6,7 @@
  */
 #import <TitaniumKit/TiProxy.h>
 
+#if !TARGET_OS_MACCATALYST
 #ifdef USE_TI_CONTACTS
 
 #import <AddressBook/AddressBook.h>
@@ -51,4 +52,5 @@
 
 @end
 
+#endif
 #endif

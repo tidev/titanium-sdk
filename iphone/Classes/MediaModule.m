@@ -30,7 +30,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIPopoverController.h>
 #ifdef USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS
+#if !TARGET_OS_MACCATALYST
 #import <AssetsLibrary/AssetsLibrary.h>
+#endif
 #endif
 #import "TiUIiOSLivePhoto.h"
 #ifdef USE_TI_MEDIAVIDEOPLAYER
@@ -417,28 +419,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)setAudioSessionMode:(NSNumber *)mode
 {
-  DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
 
-  switch ([mode unsignedIntegerValue]) {
-  case kAudioSessionCategory_AmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
-    break;
-  case kAudioSessionCategory_SoloAmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
-    break;
-  case kAudioSessionCategory_PlayAndRecord:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
-    break;
-  case kAudioSessionCategory_RecordAudio:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
-    break;
-  case kAudioSessionCategory_MediaPlayback:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
-    break;
-  default:
-    DebugLog(@"Unsupported audioSessionMode specified");
-    break;
-  }
 }
 
 #if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)

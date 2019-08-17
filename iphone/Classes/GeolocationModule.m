@@ -7,7 +7,6 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
-#import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/TiApp.h>
 
@@ -15,7 +14,7 @@
 
 extern NSString *const TI_APPLICATION_GUID;
 
-@interface GeolocationCallback : NSObject <APSHTTPRequestDelegate> {
+@interface GeolocationCallback : NSObject {
   JSValue *callback;
 }
 - (id)initWithCallback:(JSValue *)callback;
@@ -52,18 +51,6 @@ extern NSString *const TI_APPLICATION_GUID;
     [url appendFormat:@"%@=%@&", key, [value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
   }
 
-  APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
-  [req addRequestHeader:@"User-Agent" value:[[TiApp app] systemUserAgent]];
-  [req setUrl:[NSURL URLWithString:url]];
-  [req setDelegate:self];
-  [req setMethod:@"GET"];
-  // Place it in the main thread since we're not using a queue and yet we need the
-  // delegate methods to be called...
-  TiThreadPerformOnMainThread(^{
-    [req send];
-    [req autorelease];
-  },
-      NO);
 }
 
 - (void)requestSuccess:(NSString *)data
@@ -76,7 +63,7 @@ extern NSString *const TI_APPLICATION_GUID;
   [callback callWithArguments:@[ event ]];
 }
 
-- (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
+- (void)request:(id)request onLoad:(id)response
 {
   [[TiApp app] stopNetwork];
 
@@ -90,7 +77,7 @@ extern NSString *const TI_APPLICATION_GUID;
   [self autorelease];
 }
 
-- (void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
+- (void)request:(id)request onError:(id)response
 {
   [[TiApp app] stopNetwork];
   [self requestError:[response error]];

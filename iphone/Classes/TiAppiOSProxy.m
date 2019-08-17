@@ -714,9 +714,6 @@
       CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
                                                                    radius:radius
                                                                identifier:identifier];
-
-      trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
-                                                         repeats:triggersOnce];
       RELEASE_TO_NIL(circularRegion);
     } else {
       DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");

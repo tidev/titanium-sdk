@@ -6,7 +6,6 @@
  */
 
 #import "TiExceptionHandler.h"
-#import "APSAnalytics.h"
 #import "TiApp.h"
 #import "TiBase.h"
 
@@ -234,6 +233,5 @@ static void TiSignalHandler(int code)
 {
   NSException *exception = [NSException exceptionWithName:@"SIGNAL_ERROR" reason:[NSString stringWithFormat:@"signal error code: %d", code] userInfo:nil];
   [[TiExceptionHandler defaultExceptionHandler] reportException:exception];
-  [[APSAnalytics sharedInstance] flush];
   signal(code, SIG_DFL);
 }

@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#if !TARGET_OS_MACCATALYST
 #ifdef USE_TI_CONTACTS
 
 #import "TiContactsPerson.h"
@@ -634,4 +635,5 @@ static NSDictionary *iOS9propertyKeys;
 }
 
 @end
+#endif
 #endif

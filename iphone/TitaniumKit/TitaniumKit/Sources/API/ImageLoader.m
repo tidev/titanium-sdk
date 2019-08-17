@@ -527,23 +527,6 @@ DEFINE_EXCEPTIONS
     return image;
   }
 
-  APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
-  [req setUrl:url];
-  [req setMethod:@"GET"];
-  [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-  [req setSynchronous:YES];
-  [[TiApp app] startNetwork];
-  [req send];
-  [[TiApp app] stopNetwork];
-
-  if (req != nil && [[req response] error] == nil) {
-    NSData *data = [[req response] responseData];
-    UIImage *resultImage = [UIImage imageWithData:data];
-    ImageCacheEntry *result = [self setImage:resultImage forKey:url hires:NO];
-    [result setData:data];
-    return [result imageForSize:CGSizeZero];
-  }
-
   return nil;
 }
 
@@ -606,16 +589,6 @@ DEFINE_EXCEPTIONS
   }
 
   NSDictionary *dict = [NSDictionary dictionaryWithObject:request forKey:@"request"];
-  APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
-  [req setDelegate:self];
-  [req setUrl:url];
-  [req setUserInfo:dict];
-  [req setMethod:@"GET"];
-  [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-  [req setTimeout:20];
-  [req setTheQueue:queue];
-  [req send];
-  [request setRequest:req];
 
   [[TiApp app] startNetwork];
 }
@@ -686,7 +659,7 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Delegates
 
-- (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
+- (void)request:(id)request onLoad:(id)response
 {
   // hold while we're working with it (release below)
   [request retain];
@@ -771,7 +744,7 @@ DEFINE_EXCEPTIONS
   [req release];
 }
 
-- (void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
+- (void)request:(id )request onError:(id)response
 {
   [[TiApp app] stopNetwork];
   ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
