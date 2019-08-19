@@ -99,7 +99,7 @@
     "commitizen": "^4.0.3",
     "core-js": "^2.6.5",
     "cz-conventional-changelog": "^3.0.2",
-    "danger": "^9.1.4",
+    "danger": "^9.1.8",
     "eslint": "^6.2.1",
     "eslint-config-axway": "^4.3.0",
     "eslint-plugin-mocha": "^6.1.0",
