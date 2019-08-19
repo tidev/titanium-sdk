@@ -69,7 +69,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 {
 	private static final String TAG = "TiVideoView8";
 	// TITANIUM
-	private int mScalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
+	private int mScalingMode = MediaModule.VIDEO_SCALING_RESIZE_ASPECT;
 	// settable by the client
 	private Uri mUri;
 	@SuppressWarnings("unused")
@@ -181,26 +181,25 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 	private void constantDeprecationWarning(int constant)
 	{
-		StringBuilder warningMessage = new StringBuilder();
-		warningMessage.append("has been deprecated. Use ");
+		String message = null;
+		final String MESSAGE_FORMAT = "%s has been deprecated. Use %s instead.";
 		switch (constant) {
 			case MediaModule.VIDEO_SCALING_ASPECT_FILL:
-				warningMessage.insert(0, "Ti.Media.VIDEO_SCALING_ASPECT_FILL ");
-				warningMessage.insert(warningMessage.length(), "Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FILL");
+				message = String.format(MESSAGE_FORMAT, "Ti.Media.VIDEO_SCALING_ASPECT_FILL",
+										"Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FILL");
 				break;
 			case MediaModule.VIDEO_SCALING_ASPECT_FIT:
-				warningMessage.insert(0, "Ti.Media.VIDEO_SCALING_ASPECT_FIT ");
-				warningMessage.insert(warningMessage.length(), "Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT");
+				message = String.format(MESSAGE_FORMAT, "Ti.Media.VIDEO_SCALING_ASPECT_FIT",
+										"Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT");
 				break;
 			case MediaModule.VIDEO_SCALING_MODE_FILL:
-				warningMessage.insert(0, "Ti.Media.VIDEO_SCALING_MODE_FILL ");
-				warningMessage.insert(warningMessage.length(), "Ti.Media.VIDEO_SCALING_RESIZE");
+				message =
+					String.format(MESSAGE_FORMAT, "Ti.Media.VIDEO_SCALING_MODE_FILL", "Ti.Media.VIDEO_SCALING_RESIZE");
 				break;
-			default:
-				return;
 		}
-		warningMessage.append(" instead.");
-		Log.w("VideoPlayerProxy", warningMessage.toString());
+		if (message != null) {
+			Log.w("VideoPlayerProxy", message);
+		}
 	}
 
 	protected void measureVideo(int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec)
