@@ -44,7 +44,6 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		// Setup the action bar for navigation tabs.
 		super(proxy, activity);
-		this.TAG = "TiUITabLayoutTabGroup";
 	}
 
 	/**

@@ -126,7 +126,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public abstract String getTabTitle(int index);
 
 	// region protected fields
-	protected static String TAG = "";
+	protected final static String TAG = "TiUIAbstractTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE =
 		"Trying to customize an unknown layout, sticking to the default one";
 
@@ -135,9 +135,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected boolean tabsDisabled = false;
 	protected int numTabsWhenDisabled;
 	protected int colorPrimaryInt;
-	// Max number of tabs supported. Currently in use for BottomNavigation style only.
-	// Default value of -1 is used to represent no tab limit.
-	protected int maxTabsSupported = -1;
 	protected PagerAdapter tabGroupPagerAdapter;
 	protected ViewPager tabGroupViewPager;
 	protected TiInsetsProvider insetsProvider = new TiInsetsProvider();
@@ -235,17 +232,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	public void addTab(TabProxy tabProxy)
 	{
-		// Guard for adding more windows than tab controller items available.
-		if (tabs.size() == maxTabsSupported) {
-			Log.w(TAG, "You have reached the limit of supported tabs for this style of navigation.");
-			return;
-		}
 		TiUITab abstractTab = new TiUITab(tabProxy);
 		tabs.add(abstractTab);
 		tabFragmentIDs.add(fragmentIdGenerator.getAndIncrement());
 
 		this.tabGroupPagerAdapter.notifyDataSetChanged();
-
 		addTabItemInController(tabProxy);
 	}
 
