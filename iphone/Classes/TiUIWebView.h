@@ -40,11 +40,13 @@
 
 @end
 
+#if IS_SDK_IOS_11
 @interface WebAppProtocolHandler : NSObject <WKURLSchemeHandler> {
 }
 
 + (NSString *)specialProtocolScheme;
 
 @end
+#endif
 
 #endif

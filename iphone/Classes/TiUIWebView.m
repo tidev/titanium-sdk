@@ -76,11 +76,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     [config setUserContentController:controller];
 
+#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
         [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
       }
     }
+#endif
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
@@ -1329,6 +1331,7 @@ static NSString *UIKitLocalizedString(NSString *string)
 
 @end
 
+#if IS_SDK_IOS_11
 @implementation WebAppProtocolHandler
 
 + (NSString *)specialProtocolScheme
@@ -1379,5 +1382,6 @@ static NSString *UIKitLocalizedString(NSString *string)
 }
 
 @end
+#endif
 
 #endif
