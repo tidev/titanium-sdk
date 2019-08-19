@@ -416,15 +416,17 @@ properties:
         `Titanium.UI.createPicker({ nativeSpinner:true });`, or before the picker is added to its parent.
 
         Example as follows:
+
             var picker = Ti.UI.createPicker({
-                type:Ti.UI.PICKER_TYPE_TIME,
+                type: Ti.UI.PICKER_TYPE_TIME,
                 nativeSpinner: true,
                 format24: false,
                 minuteInterval: 4,
-                minDate:new Date(2009,0,1),
-                maxDate:new Date(2014,11,31),
-                value:new Date(2014,3,12)
+                minDate: new Date(2018, 5, 24),
+                maxDate: new Date(2020, 5, 24),
+                value: new Date(2019, 5, 24)
             });
+
     type: Boolean
     default: false
     platforms: [android]

@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const AndroidSDK = require('./androidsdk');
 const ant = require('./ant');
+const git = require('../git');
 const utils = require('../utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
@@ -107,6 +108,9 @@ class Android {
 
 		// Copy android/modules/*/lib/*.jar
 		await this.copyModuleLibraries(path.join(ANDROID_ROOT, 'modules'), ANDROID_DEST);
+
+		// Discard local changes on the generated V8Snapshots.h
+		await git.discardLocalChange(ANDROID_ROOT, 'runtime/v8/src/native/V8Snapshots.h');
 
 		// Copy over module resources
 		const filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium-(.+)?.(jar|res.zip|respackage))?$'); // eslint-disable-line security/detect-non-literal-regexp

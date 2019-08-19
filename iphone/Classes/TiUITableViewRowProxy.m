@@ -384,6 +384,10 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (void)configureBackground:(UITableViewCell *)cell
 {
+  if (![self shouldUseBackgroundView]) {
+    return; // Ignore custom selection styles for native selections
+  }
+
   [(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
   [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
 
@@ -416,7 +420,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       ((UIImageView *)cell.selectedBackgroundView).image = image;
     }
 
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     cell.selectedBackgroundView.backgroundColor = ((theColor == nil) ? [UIColor clearColor] : theColor);
   } else {
     if (![cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
@@ -424,7 +428,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     }
     TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView *)cell.selectedBackgroundView;
     selectedBGView.grouped = [[table tableView] style] == UITableViewStyleGrouped;
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     if (theColor == nil) {
       switch (cell.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
@@ -840,6 +844,15 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 {
   [callbackCell handleEvent:type];
   [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
+}
+
+- (BOOL)shouldUseBackgroundView
+{
+  return [self valueForKey:@"selectedBackgroundColor"]
+      || [self valueForKey:@"backgroundImage"]
+      || [self valueForKey:@"selectedBackgroundImage"]
+      || [self valueForKey:@"backgroundLeftCap"]
+      || [self valueForKey:@"backgroundTopCap"];
 }
 
 - (void)setSelectedBackgroundColor:(id)arg

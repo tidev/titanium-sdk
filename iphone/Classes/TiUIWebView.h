@@ -39,7 +39,7 @@
 
 @end
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
 @interface WebAppProtocolHandler : NSObject <WKURLSchemeHandler> {
 }
 
