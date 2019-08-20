@@ -348,7 +348,7 @@ public class TiUIDialog extends TiUIView
 			}
 
 			dialogWrapper.setDialog(dialog);
-			builder = null;
+			this.builder = null;
 		}
 
 		try {
