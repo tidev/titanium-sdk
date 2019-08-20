@@ -951,7 +951,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		// Handle app exit ourselves since the above window proxy did not handle the back event.
-		boolean exitOnClose = true;
+		boolean exitOnClose = (TiActivityWindows.getWindowCount() <= 1);
 		if (this.window != null) {
 			exitOnClose = TiConvert.toBoolean(this.window.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
 		}
@@ -1689,19 +1689,33 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	private boolean shouldFinishRootActivity()
 	{
+		// Do not finish root activity if disabled globally. (Typically done when restarting LiveView.)
 		if (TiBaseActivity.canFinishRoot == false) {
 			return false;
 		}
 
+		// This method only applies to "Ti.UI.Window" based activities.
+		// If this is the root activity, then let it do its default finish handling.
 		if (this instanceof TiRootActivity) {
 			return false;
 		}
 
-		boolean exitOnClose = (TiActivityWindows.getWindowCount() <= 1);
+		// Determine if this activity's "Ti.UI.Window" reference is still in the global collection.
+		// - Will not be in the collection if its close() method was called.
+		// - Will be in collection when pressing Back button or finish() was called natively.
+		boolean isTiWindowOpen = false;
+		if (this.launchIntent != null) {
+			int windowId =
+				this.launchIntent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID);
+			if (windowId != TiActivityWindows.INVALID_WINDOW_ID) {
+				isTiWindowOpen = TiActivityWindows.hasWindow(windowId);
+			}
+		}
+
+		// If this is the last "Ti.UI.Window" activity, then exit by default unless "exitOnClose" property was set.
+		boolean exitOnClose = (TiActivityWindows.getWindowCount() <= (isTiWindowOpen ? 1 : 0));
 		if ((this.window != null) && this.window.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
 			exitOnClose = TiConvert.toBoolean(this.window.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
-		} else if (this.launchIntent != null) {
-			exitOnClose = this.launchIntent.getBooleanExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, exitOnClose);
 		}
 		return exitOnClose;
 	}
