@@ -847,11 +847,12 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
 {
   ENSURE_SINGLE_ARG(color, NSString);
 
+#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
-  } else {
-    return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
   }
+#endif
+  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
 }
 
 @end
