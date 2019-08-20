@@ -55,7 +55,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener
@@ -83,7 +83,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 	private View footerView;
 	private String searchText;
 	private boolean caseInsensitive;
-	private RelativeLayout searchLayout;
+	private LinearLayout searchLayout;
 	private static final String TAG = "TiListView";
 
 	/* We cache properties that already applied to the recycled list item in ViewItem.java
@@ -663,57 +663,48 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 	private void layoutSearchView(TiViewProxy searchView)
 	{
 		TiUIView search = searchView.getOrCreateView();
-		RelativeLayout layout = new RelativeLayout(proxy.getActivity());
-		layout.setGravity(Gravity.NO_GRAVITY);
+		LinearLayout layout = new LinearLayout(proxy.getActivity());
+		layout.setOrientation(LinearLayout.VERTICAL);
 		layout.setPadding(0, 0, 0, 0);
 		addSearchLayout(layout, searchView, search);
 		setNativeView(layout);
 	}
 
-	private void addSearchLayout(RelativeLayout layout, TiViewProxy searchView, TiUIView search)
+	private void addSearchLayout(LinearLayout layout, TiViewProxy searchView, TiUIView search)
 	{
-		RelativeLayout.LayoutParams p = createBasicSearchLayout();
-		p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-
+		// Fetch the height of the SearchBar/SearchView.
 		TiDimension rawHeight;
 		if (searchView.hasProperty(TiC.PROPERTY_HEIGHT)) {
 			rawHeight = TiConvert.toTiDimension(searchView.getProperty(TiC.PROPERTY_HEIGHT), 0);
 		} else {
 			rawHeight = TiConvert.toTiDimension(MIN_SEARCH_HEIGHT, 0);
 		}
-		p.height = rawHeight.getAsPixels(layout);
 
-		View nativeView = search.getNativeView();
-		layout.addView(nativeView, p);
+		// Add the search view to the top of the vertical layout.
+		LinearLayout.LayoutParams params =
+			new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, rawHeight.getAsPixels(layout));
+		layout.addView(search.getNativeView(), params);
 
-		p = createBasicSearchLayout();
-		p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		p.addRule(RelativeLayout.BELOW, nativeView.getId());
+		// Add the ListView to the bottom of the vertical layout.
+		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+											   LinearLayout.LayoutParams.MATCH_PARENT);
 		ViewParent parentWrapper = wrapper.getParent();
 		if (parentWrapper != null && parentWrapper instanceof ViewGroup) {
 			// get the previous layout params so we can reset with new layout
-			ViewGroup.LayoutParams lp = wrapper.getLayoutParams();
+			ViewGroup.LayoutParams lastParams = wrapper.getLayoutParams();
 			ViewGroup parentView = (ViewGroup) parentWrapper;
 			// remove view from parent
 			parentView.removeView(wrapper);
 			// add new layout
-			layout.addView(wrapper, p);
-			parentView.addView(layout, lp);
+			layout.addView(wrapper, params);
+			parentView.addView(layout, lastParams);
 
 		} else {
-			layout.addView(wrapper, p);
+			layout.addView(wrapper, params);
 		}
 		this.searchLayout = layout;
 	}
 
-	private RelativeLayout.LayoutParams createBasicSearchLayout()
-	{
-		RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-																		RelativeLayout.LayoutParams.MATCH_PARENT);
-		p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-		return p;
-	}
 	private void setHeaderOrFooterView(Object viewObj, boolean isHeader)
 	{
 		if (viewObj instanceof TiViewProxy) {
