@@ -11,8 +11,6 @@ const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
-const appc = require('node-appc');
-const version = appc.version;
 
 program.parse(process.argv);
 
@@ -53,10 +51,10 @@ async function generateIndexJSON(dirToTraverse) {
 
 function determineBabelOptions() {
 	// eslint-disable-next-line security/detect-non-literal-require
-	const minSupportedIosSdk = version.parseMin(require(path.join(ROOT_DIR, 'iphone/package.json')).vendorDependencies['ios sdk']);
+	const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
 	const options = {
 		targets: {
-			ios: minSupportedIosSdk
+			ios: minIosVersion
 		},
 		useBuiltIns: 'entry',
 		// DO NOT include web polyfills!
