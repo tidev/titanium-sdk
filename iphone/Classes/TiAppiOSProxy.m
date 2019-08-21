@@ -126,6 +126,13 @@
                                                  name:kTiApplicationLaunchedFromURL
                                                object:nil];
   }
+
+  if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeTraitCollection:)
+                                                 name:kTiTraitCollectionChanged
+                                               object:nil];
+  }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -179,9 +186,24 @@
   if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
   }
+  if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+  }
 }
 
 #pragma mark Public
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)userInterfaceStyle
+{
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+#endif
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self fireEvent:@"traitcollectionchange"];
+}
 
 - (void)didReceiveApplicationShortcutNotification:(NSNotification *)info
 {
@@ -1266,6 +1288,35 @@
 
   return NUMINT(0);
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleUnspecified);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_LIGHT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleLight);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_DARK
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleDark);
+  }
+
+  return NUMINT(0);
+}
+#endif
 
 #pragma mark UTI Text Type Constants
 

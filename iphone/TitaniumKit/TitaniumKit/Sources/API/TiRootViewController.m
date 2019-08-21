@@ -1419,6 +1419,9 @@
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
 {
   [self resetTransformAndForceLayout:YES];
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged];
+
   [super traitCollectionDidChange:previousTraitCollection];
 }
 
