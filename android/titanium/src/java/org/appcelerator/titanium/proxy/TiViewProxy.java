@@ -40,6 +40,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -1029,24 +1030,33 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundColor()
 	// clang - format on
 	{
-		// Return property if available.
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			return getProperties().getString(TiC.PROPERTY_BACKGROUND_COLOR);
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_COLOR));
 		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
 		// Try to get the background drawable if one is available.
-		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
 		// If only backgroundColor is defined then no ColorStateList is created, we resort to only the color defined.
-		if (backgroundDrawable == null) {
-			View view = getOrCreateView().getNativeView();
-			if (view != null) {
-				if (view.getBackground() instanceof ColorDrawable) {
-					return TiUIHelper.hexStringFrom(((ColorDrawable) view.getBackground()).getColor());
+		TiBackgroundDrawable tiBackgroundDrawable = view.getBackground();
+		if (tiBackgroundDrawable == null) {
+			View nativeView = view.getNativeView();
+			if (nativeView != null) {
+				Drawable drawable = nativeView.getBackground();
+				if (drawable instanceof ColorDrawable) {
+					return TiUIHelper.hexStringFrom(((ColorDrawable) drawable).getColor());
 				}
 			}
 			return null;
 		}
+
 		// It shouldn't matter if we request the color for DEFAULT_STATE_1 or DEFAULT_STATE_2. They are the same.
-		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
+		return TiUIHelper.getBackgroundColorForState(tiBackgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
 	}
 
 	// clang-format off
@@ -1055,14 +1065,17 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundSelectedColor()
 	// clang - format on
 	{
-		// Return property if available.
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
-			return getProperties().getString(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR));
 		}
+
+		// Fetch the view.
 		TiUIView view = getOrCreateView();
 		if (view == null) {
 			return null;
 		}
+
 		// Try to get the background drawable if one is available.
 		TiBackgroundDrawable backgroundDrawable = view.getBackground();
 		if (backgroundDrawable == null) {
@@ -1077,12 +1090,19 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundFocusedColor()
 	// clang - format on
 	{
-		// Return property if available.
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
-			return getProperties().getString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR));
 		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
 		// Try to get the background drawable if one is available.
-		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
 		if (backgroundDrawable == null) {
 			return null;
 		}
@@ -1095,12 +1115,19 @@ public abstract class TiViewProxy extends KrollProxy
 	public String getBackgroundDisabledColor()
 	// clang - format on
 	{
-		// Return property if available.
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR)) {
-			return getProperties().getString(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR));
 		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
 		// Try to get the background drawable if one is available.
-		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
 		if (backgroundDrawable == null) {
 			return null;
 		}

@@ -927,7 +927,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (cli.argv['source-maps']) {
 		this.sourceMaps = true;
 		// if they haven't, respect the tiapp.xml value if set one way or the other
-	} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+	} else if (Object.prototype.hasOwnProperty.call(cli.tiapp, 'source-maps')) { // they've explicitly set a value in tiapp.xml
 		this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
 	} else { // otherwise turn on by default for non-production builds
 		this.sourceMaps = this.deployType !== 'production';
@@ -1972,6 +1972,9 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 	} else {
 		this.logger.info(__('Profiler disabled'));
 	}
+
+	this.logger.info(__('Transpile javascript: %s', (this.transpile ? 'true' : 'false').cyan));
+	this.logger.info(__('Generate source maps: %s', (this.sourceMaps ? 'true' : 'false').cyan));
 
 	next();
 };

@@ -14,6 +14,9 @@ JSExportAs(timeLog,
            -(void)timeLog
            : (id)args withData
            : (NSArray *)logData);
+JSExportAs(log,
+           -(void)log
+           : (id)unused);
 @end
 
 // This is a version of the API module which has custom support for log() to

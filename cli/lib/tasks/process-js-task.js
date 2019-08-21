@@ -102,6 +102,9 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * we also depend on some config values from the builder this is used to
 	 * fallback to a full task run if required.
 	 *
+	 * This will also dummy process the unchanged JS files again to properly
+	 * fire expected hooks and populate the builder with required data.
+	 *
 	 * @return {Promise}
 	 */
 	async loadResultAndSkip() {
@@ -111,7 +114,11 @@ class ProcessJsTask extends IncrementalFileTask {
 			return this.doFullTaskRun();
 		}
 
-		Object.keys(this.data.jsFiles).forEach(relPath => this.builder.unmarkBuildDirFile(this.data.jsFiles[relPath].dest));
+		this.jsFiles = this.data.jsFiles;
+		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
+		return Promise.all(Object.keys(this.jsFiles).map(relPath => {
+			return limit(() => this.processJsFile(this.jsFiles[relPath].src));
+		}));
 	}
 
 	/**
