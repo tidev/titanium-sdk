@@ -30,11 +30,13 @@
   // If the arg is an NSNumber wrapping a BOOL we should print the string equivalent for the boolean!
   NSMutableArray *newArray = [NSMutableArray array];
   [args enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-    if ([self isNSBoolean:obj]) {
-      [newArray addObject:[NSString stringWithFormat:[obj boolValue] ? @"true" : @"false"]];
-    } else {
-      [newArray addObject:obj];
+    if ([obj isKindOfClass:[JSValue class]]) {
+      obj = ((JSValue *)obj).toObject;
     }
+    if ([self isNSBoolean:obj]) {
+      obj = [obj boolValue] ? @"true" : @"false";
+    }
+    [newArray addObject:obj];
   }];
   NSLog(@"[%@] %@", [severity uppercaseString], [newArray componentsJoinedByString:@" "]);
 }
@@ -49,26 +51,32 @@
 
 - (void)debug:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
+
   [self logMessage:args severity:@"debug"];
 }
 
 - (void)info:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"info"];
 }
 
 - (void)warn:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"warn"];
 }
 
 - (void)error:(NSArray *)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"error"];
 }
 
 - (void)trace:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"trace"];
 }
 
@@ -84,16 +92,23 @@
 
 - (void)notice:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"info"];
 }
 
 - (void)critical:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"error"];
 }
 
 - (void)log:(id)level withMessage:(id)args
 {
+  if ([JSContext currentArguments] > 0) {
+    NSMutableArray *array = [NSMutableArray arrayWithArray:[JSContext currentArguments]];
+    [array removeObjectAtIndex:0];
+    args = array;
+  }
   if (args == nil) {
     [self logMessage:level severity:@"info"];
   } else {
