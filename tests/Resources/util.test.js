@@ -8,47 +8,12 @@
 /* eslint no-unused-expressions: "off" */
 /* eslint no-array-constructor: "off" */
 /* eslint no-new-wrappers: "off" */
-'use strict';
 
-const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
-const utilities = require('./utilities/utilities');
+const should = require('./utilities/assertions');
 
 let util;
 
-/**
- * Compares two version strings and returns true if the actual version is
- * greater than or equal to the expected version
- * @param {string} version actual version we're checking
- * @param {string} expected version to match against
- * @returns {boolean}
- */
-function greaterOrEqualTo(version, expected) {
-	const expectedParts = expected.split('.');
-	const actualParts = version.split('.');
-	// Pad shorter array with 0s
-	while (expectedParts.length > actualParts.length) {
-		actualParts.push(0);
-	}
-	while (actualParts.length > expectedParts.length) {
-		expectedParts.push(0);
-	}
-	// shoudl be the same length now
-	const length = expectedParts.length;
-	for (let i = 0; i < length; i++) {
-		const actualNum = Number.parseInt(actualParts[i]);
-		const expectedNum = Number.parseInt(expectedParts[i]);
-		if (actualNum > expectedNum) {
-			return true;
-		}
-		if (actualNum < expectedNum) {
-			return false;
-		}
-		// else, continue to next segment
-	}
-	return true; // everything matched
-}
-
-describe.only('util', () => {
+describe('util', () => {
 	it('should be required as core module', () => {
 		util = require('util');
 		util.should.be.an.Object;
@@ -1203,7 +1168,7 @@ describe.only('util', () => {
 			});
 
 			it('should return false for other values', () => {
-				util.types.isArgumentsObject([]).should.be.false
+				util.types.isArgumentsObject([]).should.be.false;
 				util.types.isArgumentsObject({ [Symbol.toStringTag]: 'Arguments' }).should.be.false;
 			});
 		});
@@ -1223,11 +1188,11 @@ describe.only('util', () => {
 		describe('#isAsyncFunction()', () => {
 			it('should return true for async functions', () => {
 				util.types.isAsyncFunction(async () => {}).should.be.true;
-			})
+			});
 
 			it('should return false for normal functions', () => {
 				util.types.isAsyncFunction(() => {}).should.be.true;
-			})
+			});
 		});
 
 		describe('#isNativeError()', () => {
@@ -1420,7 +1385,7 @@ describe.only('util', () => {
 				util.types.isMapIterator(map.values()).should.be.true;
 				util.types.isMapIterator(map.entries()).should.be.true;
 				util.types.isMapIterator(map[Symbol.iterator]()).should.be.true;
-			})
+			});
 
 			it('should return false for other iterators', () => {
 				const set = new Set();
@@ -1433,10 +1398,10 @@ describe.only('util', () => {
 
 			it('should return true for built-in DataView instance', () => {
 				util.types.isDataView(new DataView(ab)).should.be.true;
-			})
+			});
 
 			it('should return false for typed array instance', () => {
-				util.types.isDataView(new Float64Array()).should.be.false
+				util.types.isDataView(new Float64Array()).should.be.false;
 			});
 		});
 
@@ -1457,7 +1422,7 @@ describe.only('util', () => {
 
 			it('should return false for Promise like objects', () => {
 				util.types.isPromise({ then: () => {}, catch: () => {} }).should.be.false;
-			})
+			});
 		});
 
 		describe('#isRegExp()', () => {
@@ -1476,24 +1441,24 @@ describe.only('util', () => {
 
 		describe('#isGeneratorFunction()', () => {
 			it('should return true for generator function', () => {
-				util.types.isGeneratorFunction(function* foo() {}).should.be.true;
+				util.types.isGeneratorFunction(function *foo() {}).should.be.true;
 			});
 
 			it('should return false for normal function', () => {
 				util.types.isGeneratorFunction(function foo() {}).should.be.false;
-			})
+			});
 		});
 
 		describe('#isGeneratorObject()', () => {
 			it('should return true for generator object', () => {
-				function* foo() {}
+				function *foo() {}
 				const generator = foo();
 				util.types.isGeneratorObject(generator).should.be.true;
-			})
+			});
 
 			it('should return false for any other object', () => {
 				util.types.isGeneratorObject({}).should.be.false;
-			})
+			});
 		});
 
 		describe('#isWeakMap()', () => {
@@ -1505,7 +1470,7 @@ describe.only('util', () => {
 			it('should return false for other values', () => {
 				util.types.isWeakMap({}).to.be.false;
 				util.types.isWeakMap(new Map()).to.be.false;
-			})
+			});
 		});
 
 		describe('#isWeakSet()', () => {
@@ -1517,7 +1482,7 @@ describe.only('util', () => {
 			it('should return false for other values', () => {
 				util.types.isWeakSet({}).to.be.false;
 				util.types.isWeakSet(new Set()).to.be.false;
-			})
+			});
 		});
 
 		describe('Typed Arrays', () => {

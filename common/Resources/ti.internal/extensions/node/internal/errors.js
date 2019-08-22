@@ -84,8 +84,8 @@ function getMessage(key, args, self) {
 	if (typeof msg === 'function') {
 		assert(
 			msg.length <= args.length, // Default options do not count.
-			`Code: ${key}; The provided arguments length (${args.length}) does not ` +
-				`match the required ones (${msg.length}).`
+			`Code: ${key}; The provided arguments length (${args.length}) does not `
+				+	`match the required ones (${msg.length}).`
 		);
 		return msg.apply(self, args);
 	}
@@ -93,8 +93,8 @@ function getMessage(key, args, self) {
 	const expectedLength = (msg.match(/%[dfijoOs]/g) || []).length;
 	assert(
 		expectedLength === args.length,
-		`Code: ${key}; The provided arguments length (${args.length}) does not ` +
-			`match the required ones (${expectedLength}).`
+		`Code: ${key}; The provided arguments length (${args.length}) does not `
+			+ `match the required ones (${expectedLength}).`
 	);
 	if (args.length === 0) {
 		return msg;
@@ -113,6 +113,7 @@ function addCodeToName(err, name, code) {
 	// from the name.
 	// @fixme: This only works on V8/Android, iOS/JSC has a different Error structure.
 	// should we try to make errors behave the same across platforms?
+	// eslint-disable-next-line no-unused-expressions
 	err.stack;
 	// Reset the name to the actual name.
 	if (name === 'SystemError') {
@@ -128,10 +129,10 @@ function addCodeToName(err, name, code) {
 }
 
 E('ERR_INTERNAL_ASSERTION', (message) => {
-	const suffix = 'This is caused by either a bug in Titanium ' +
-		'or incorrect usage of Titanium internals.\n' +
-		'Please open an issue with this stack trace at ' +
-		'https://jira.appcelerator.org\n';
+	const suffix = 'This is caused by either a bug in Titanium '
+		+ 'or incorrect usage of Titanium internals.\n'
+		+ 'Please open an issue with this stack trace at '
+		+ 'https://jira.appcelerator.org\n';
 	return message === undefined ? suffix : `${message}\n${suffix}`;
 }, Error);
 E('ERR_INVALID_ARG_TYPE', (name, expected, actual) => {
@@ -167,7 +168,7 @@ let maxStack_ErrorMessage;
  * values indicating max call stack size has been exceeded.
  * "Maximum call stack size exceeded" in V8.
  *
- * @param {Error} err
+ * @param {Error} err The error to check
  * @returns {boolean}
  */
 export function isStackOverflowError(err) {
