@@ -668,6 +668,7 @@ function formatRaw(ctx, value, recurseTimes, typedArray) {
 			}
 		} else if (isRegExp(value)) {
 			// Make RegExps say that they are RegExps
+			// eslint-disable-next-line security/detect-non-literal-regexp
 			const regExp = constructor !== null ? value : new RegExp(value);
 			base = RegExpPrototype.toString.call(regExp);
 			const prefix = getPrefix(constructor, tag, 'RegExp');
