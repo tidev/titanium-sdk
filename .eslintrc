@@ -5,11 +5,11 @@
     "sourceType": "script"
   },
   "globals": {
-    "Ti": false,
-    "Titanium": false,
-    "__filename": false,
-    "__dirname": false,
-    "kroll": false
+    "Ti": "readonly",
+    "Titanium": "readonly",
+    "__filename": "readonly",
+    "__dirname": "readonly",
+    "kroll": "readonly"
   },
   "rules": {
     "strict": ["error", "global"]
@@ -46,7 +46,7 @@
     {
       "files": [ "common/Resources/**/*.js" ],
       "parserOptions": {
-        "ecmaVersion": 2017,
+        "ecmaVersion": 2018,
         "sourceType": "module"
       },
       "rules": {
