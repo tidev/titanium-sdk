@@ -309,9 +309,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			activity.getSupportActionBar().setHomeButtonEnabled(
 				!getProperties().optBoolean(TiC.PROPERTY_HIDES_BACK_BUTTON, false));
 			// Get a reference to the root window in the NavigationWindow.
-			WindowProxy rootWindowProxy = ((NavigationWindowProxy) this.getNavigationWindow()).getRootWindowProxy();
+			TiWindowProxy rootTiWindowProxy =
+				((NavigationWindowProxy) this.getNavigationWindow()).getRootTiWindowProxy();
 			// If the root window matches this window do not show the Up navigation button.
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootWindowProxy != this);
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootTiWindowProxy != this);
 		}
 
 		// Handle barColor property.
