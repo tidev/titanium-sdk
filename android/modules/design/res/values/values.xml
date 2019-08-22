@@ -12,84 +12,84 @@
     <declare-styleable name="AppBarLayout"><attr name="elevation"/><attr name="android:background"/><attr format="boolean" name="expanded"/><attr name="android:keyboardNavigationCluster"/><attr name="android:touchscreenBlocksFocus"/></declare-styleable>
     <declare-styleable name="AppBarLayoutStates"><attr format="boolean" name="state_collapsed"/><attr format="boolean" name="state_collapsible"/></declare-styleable>
     <declare-styleable name="AppBarLayout_Layout"><attr name="layout_scrollFlags">
-            
+
             <flag name="scroll" value="0x1"/>
 
-            
+
             <flag name="exitUntilCollapsed" value="0x2"/>
 
-            
+
             <flag name="enterAlways" value="0x4"/>
 
-            
+
             <flag name="enterAlwaysCollapsed" value="0x8"/>
 
-            
+
             <flag name="snap" value="0x10"/>
         </attr><attr format="reference" name="layout_scrollInterpolator"/></declare-styleable>
     <declare-styleable name="BottomNavigationView"><attr name="menu"/><attr name="itemIconTint"/><attr name="itemTextColor"/><attr name="itemBackground"/><attr name="elevation"/></declare-styleable>
     <declare-styleable name="BottomSheetBehavior_Layout"><attr format="dimension" name="behavior_peekHeight">
-            
+
             <enum name="auto" value="-1"/>
         </attr><attr format="boolean" name="behavior_hideable"/><attr format="boolean" name="behavior_skipCollapsed"/></declare-styleable>
     <declare-styleable name="CollapsingToolbarLayout"><attr format="dimension" name="expandedTitleMargin"/><attr format="dimension" name="expandedTitleMarginStart"/><attr format="dimension" name="expandedTitleMarginTop"/><attr format="dimension" name="expandedTitleMarginEnd"/><attr format="dimension" name="expandedTitleMarginBottom"/><attr format="reference" name="expandedTitleTextAppearance"/><attr format="reference" name="collapsedTitleTextAppearance"/><attr format="color" name="contentScrim"/><attr format="color" name="statusBarScrim"/><attr format="reference" name="toolbarId"/><attr format="dimension" name="scrimVisibleHeightTrigger"/><attr format="integer" name="scrimAnimationDuration"/><attr name="collapsedTitleGravity">
-            
+
             <flag name="top" value="0x30"/>
-            
+
             <flag name="bottom" value="0x50"/>
-            
+
             <flag name="left" value="0x03"/>
-            
+
             <flag name="right" value="0x05"/>
-            
+
             <flag name="center_vertical" value="0x10"/>
-            
+
             <flag name="fill_vertical" value="0x70"/>
-            
+
             <flag name="center_horizontal" value="0x01"/>
-            
+
             <flag name="center" value="0x11"/>
-            
+
             <flag name="start" value="0x00800003"/>
-            
+
             <flag name="end" value="0x00800005"/>
         </attr><attr name="expandedTitleGravity">
-            
+
             <flag name="top" value="0x30"/>
-            
+
             <flag name="bottom" value="0x50"/>
-            
+
             <flag name="left" value="0x03"/>
-            
+
             <flag name="right" value="0x05"/>
-            
+
             <flag name="center_vertical" value="0x10"/>
-            
+
             <flag name="fill_vertical" value="0x70"/>
-            
+
             <flag name="center_horizontal" value="0x01"/>
-            
+
             <flag name="center" value="0x11"/>
-            
+
             <flag name="start" value="0x00800003"/>
-            
+
             <flag name="end" value="0x00800005"/>
         </attr><attr format="boolean" name="titleEnabled"/><attr name="title"/></declare-styleable>
     <declare-styleable name="CollapsingToolbarLayout_Layout"><attr name="layout_collapseMode">
-            
+
             <enum name="none" value="0"/>
-            
+
             <enum name="pin" value="1"/>
-            
+
             <enum name="parallax" value="2"/>
         </attr><attr format="float" name="layout_collapseParallaxMultiplier"/></declare-styleable>
     <declare-styleable name="DesignTheme"><attr format="reference" name="bottomSheetDialogTheme"/><attr format="reference" name="bottomSheetStyle"/><attr format="reference|color" name="textColorError"/></declare-styleable>
     <declare-styleable name="FloatingActionButton"><attr name="backgroundTint"/><attr name="backgroundTintMode"/><attr format="color" name="rippleColor"/><attr name="fabSize">
-            
+
             <enum name="auto" value="-1"/>
-            
+
             <enum name="normal" value="0"/>
-            
+
             <enum name="mini" value="1"/>
         </attr><attr format="dimension" name="fabCustomSize"/><attr name="elevation"/><attr format="dimension" name="pressedTranslationZ"/><attr format="dimension" name="borderWidth"/><attr format="boolean" name="useCompatPadding"/></declare-styleable>
     <declare-styleable name="FloatingActionButton_Behavior_Layout"><attr format="boolean" name="behavior_autoHide"/></declare-styleable>
@@ -107,15 +107,15 @@
             <enum name="center" value="1"/>
         </attr><attr format="dimension" name="tabMinWidth"/><attr format="dimension" name="tabMaxWidth"/><attr format="reference" name="tabTextAppearance"/><attr format="color" name="tabTextColor"/><attr format="color" name="tabSelectedTextColor"/><attr format="dimension" name="tabPaddingStart"/><attr format="dimension" name="tabPaddingTop"/><attr format="dimension" name="tabPaddingEnd"/><attr format="dimension" name="tabPaddingBottom"/><attr format="dimension" name="tabPadding"/></declare-styleable>
     <declare-styleable name="TextInputLayout"><attr format="reference" name="hintTextAppearance"/><attr name="android:hint"/><attr format="boolean" name="hintEnabled"/><attr format="boolean" name="errorEnabled"/><attr format="reference" name="errorTextAppearance"/><attr format="boolean" name="counterEnabled"/><attr format="integer" name="counterMaxLength"/><attr format="reference" name="counterTextAppearance"/><attr format="reference" name="counterOverflowTextAppearance"/><attr name="android:textColorHint"/><attr format="boolean" name="hintAnimationEnabled"/><attr format="boolean" name="passwordToggleEnabled"/><attr format="reference" name="passwordToggleDrawable"/><attr format="string" name="passwordToggleContentDescription"/><attr format="color" name="passwordToggleTint"/><attr name="passwordToggleTintMode">
-            
+
             <enum name="src_over" value="3"/>
-            
+
             <enum name="src_in" value="5"/>
-            
+
             <enum name="src_atop" value="9"/>
-            
+
             <enum name="multiply" value="14"/>
-            
+
             <enum name="screen" value="15"/>
         </attr></declare-styleable>
     <dimen name="design_appbar_elevation">4dp</dimen>
@@ -286,8 +286,9 @@
         <item name="maxActionInlineWidth">@dimen/design_snackbar_action_inline_max_width</item>
     </style>
     <style name="Widget.Design.TabLayout" parent="Base.Widget.Design.TabLayout">
+        <item name="tabMaxWidth">0dp</item>
         <item name="tabGravity">fill</item>
-        <item name="tabMode">fixed</item>
+        <item name="tabMode">scrollable</item>
     </style>
     <style name="Widget.Design.TextInputLayout" parent="android:Widget">
         <item name="hintTextAppearance">@style/TextAppearance.Design.Hint</item>
