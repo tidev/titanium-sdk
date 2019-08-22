@@ -6,9 +6,12 @@
  */
 
 #import "TiUIiOSProxy.h"
+
+#ifdef USE_TI_UIIOS
+
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
-#ifdef USE_TI_UIIOS
+#import <TitaniumKit/TiBlob.h>
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiUIiOSPreviewActionGroupProxy.h"
@@ -79,10 +82,6 @@
 
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
-#import <TitaniumKit/TiBlob.h>
 #endif
 
 #if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
