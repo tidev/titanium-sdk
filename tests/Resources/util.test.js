@@ -1496,6 +1496,30 @@ describe.only('util', () => {
 			})
 		});
 
+		describe('#isWeakMap()', () => {
+			it('should return true for built-in WeakMap', () => {
+				const map = new WeakMap();
+				util.types.isWeakMap(map).to.be.true;
+			});
+
+			it('should return false for other values', () => {
+				util.types.isWeakMap({}).to.be.false;
+				util.types.isWeakMap(new Map()).to.be.false;
+			})
+		});
+
+		describe('#isWeakSet()', () => {
+			it('should return true for built-in WeakSet', () => {
+				const map = new WeakSet();
+				util.types.isWeakSet(map).to.be.true;
+			});
+
+			it('should return false for other values', () => {
+				util.types.isWeakSet({}).to.be.false;
+				util.types.isWeakSet(new Set()).to.be.false;
+			})
+		});
+
 		describe('Typed Arrays', () => {
 			it('should correctly check typed arrays', () => {
 				should(!util.types.isUint8Array({ [Symbol.toStringTag]: 'Uint8Array' })).be.true;
