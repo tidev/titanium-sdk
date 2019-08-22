@@ -1138,7 +1138,7 @@ function groupArrayElements(ctx, output, value) {
 		let order = 'padStart';
 		if (value !== undefined) {
 			for (let i = 0; i < output.length; i++) {
-				if (typeof value[i] !== 'number' && typeof value[i] !== 'bigint') {
+				if (typeof value[i] !== 'number') {
 					order = 'padEnd';
 					break;
 				}
@@ -1210,9 +1210,11 @@ function formatPrimitive(fn, value, ctx) {
 	if (typeof value === 'number') {
 		return formatNumber(fn, value);
 	}
+	/*
 	if (typeof value === 'bigint') {
 		return formatBigInt(fn, value);
 	}
+	*/
 	if (typeof value === 'boolean') {
 		return fn(`${value}`, 'boolean');
 	}
@@ -1577,8 +1579,10 @@ export function formatWithOptions(inspectOptions, ...args) {
 							const tempArg = args[++a];
 							if (typeof tempArg === 'number') {
 								tempStr = formatNumber(stylizeNoColor, tempArg);
+							/*
 							} else if (typeof tempArg === 'bigint') {
 								tempStr = `${tempArg}n`;
+							*/
 							} else {
 								let constr;
 								if (typeof tempArg !== 'object'
@@ -1609,9 +1613,12 @@ export function formatWithOptions(inspectOptions, ...args) {
 							break;
 						case 100: // 'd'
 							const tempNum = args[++a];
+							/*
 							if (typeof tempNum === 'bigint') {
 								tempStr = `${tempNum}n`;
-							} else if (typeof tempNum === 'symbol') {
+							} else
+							*/
+							if (typeof tempNum === 'symbol') {
 								tempStr = 'NaN';
 							} else {
 								tempStr = formatNumber(stylizeNoColor, Number(tempNum));
@@ -1632,9 +1639,11 @@ export function formatWithOptions(inspectOptions, ...args) {
 						}
 						case 105: // 'i'
 							const tempInteger = args[++a];
+							/*
 							if (typeof tempInteger === 'bigint') {
 								tempStr = `${tempInteger}n`;
-							} else if (typeof tempInteger === 'symbol') {
+							} else */
+							if (typeof tempInteger === 'symbol') {
 								tempStr = 'NaN';
 							} else {
 								tempStr = formatNumber(stylizeNoColor, parseInt(tempInteger));
