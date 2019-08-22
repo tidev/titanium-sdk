@@ -105,7 +105,7 @@ methods:
           Output the time since a timer was started by calling
           [console.time](Global.console.time) to the console, as well as any
           other `data` arguments provided. To log extra data a label must
-          be provided. If not timer exists a warning will be logged to the
+          be provided. If no timer exists a warning will be logged to the
           console.
     parameters:
       - name: label
@@ -113,8 +113,8 @@ methods:
         type: String
         optional: true
         default: "default"
-      - name: ...data
-        summary: Extra log data to be provided when logging
+      - name: data
+        summary: Extra log data to be provided when logging, can be a single argument or any number of arguments.
         type: Object
         optional: true
     since: 7.5.0
