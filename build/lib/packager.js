@@ -10,13 +10,12 @@ const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
-const appc = require('node-appc');
-const version = appc.version;
 const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
 const copyPackageAndDependencies = utils.copyPackageAndDependencies;
+const moduleCopier = require('./module-copier');
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
@@ -84,12 +83,12 @@ function determineBabelOptions() {
 	const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
 	// Now pull out min IOS target
 	// eslint-disable-next-line security/detect-non-literal-require
-	const minSupportedIosSdk = version.parseMin(require(path.join(ROOT_DIR, 'iphone/package.json')).vendorDependencies['ios sdk']);
+	const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
 	// TODO: filter to only targets relevant for platforms we're building?
 	const options = {
 		targets: {
 			chrome: chromeVersion,
-			ios: minSupportedIosSdk
+			ios: minIosVersion
 		},
 		useBuiltIns: 'entry',
 		// DO NOT include web polyfills!
@@ -176,12 +175,9 @@ class Packager {
 	 * @returns {Promise<void>}
 	 */
 	async packageNodeModules() {
+		console.log('Copying production npm dependencies');
 		// Copy node_modules/
-		await this.copy([ 'node_modules' ]);
-
-		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
-		console.log('Pruning to production npm dependencies');
-		await exec('npm prune --production', { cwd: this.zipSDKDir });
+		await moduleCopier.execute(this.srcDir, this.zipSDKDir);
 
 		// Remove any remaining binary scripts from node_modules
 		await fs.remove(path.join(this.zipSDKDir, 'node_modules/.bin'));

@@ -47,7 +47,7 @@ public class TiUIDialog extends TiUIView
 		}
 		public void onClick(DialogInterface dialog, int which)
 		{
-			handleEvent(result);
+			handleEvent(result, true);
 			hide(null);
 		}
 	}
@@ -134,7 +134,7 @@ public class TiUIDialog extends TiUIView
 				@Override
 				public void onClick(DialogInterface dialog, int which)
 				{
-					handleEvent(which);
+					handleEvent(which, true);
 					hide(null);
 				}
 			});
@@ -143,7 +143,7 @@ public class TiUIDialog extends TiUIView
 				@Override
 				public void onClick(DialogInterface dialog, int which)
 				{
-					handleEvent(which);
+					handleEvent(which, false);
 					hide(null);
 				}
 			});
@@ -285,7 +285,7 @@ public class TiUIDialog extends TiUIView
 						}
 						ViewCompat.setImportantForAccessibility(listView, importance);
 					} else {
-						listView.setContentDescription(composeContentDescription());
+						listView.setContentDescription(getProxy().composeContentDescription());
 					}
 				}
 			}
@@ -322,7 +322,8 @@ public class TiUIDialog extends TiUIView
 										  ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL))
 										  : -1;
 					Log.d(TAG, "onCancelListener called. Sending index: " + cancelIndex, Log.DEBUG_MODE);
-					handleEvent(cancelIndex);
+					// In case wew cancel the Dialog we should not overwrite the selectedIndex
+					handleEvent(cancelIndex, false);
 					hide(null);
 				}
 			});
@@ -335,9 +336,9 @@ public class TiUIDialog extends TiUIView
 			// can also be used.
 			ListView listView = dialog.getListView();
 			if (listView != null) {
-				listView.setContentDescription(composeContentDescription());
 				int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 				if (proxy != null) {
+					listView.setContentDescription(proxy.composeContentDescription());
 					Object propertyValue = proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
 					if (propertyValue != null && TiConvert.toBoolean(propertyValue)) {
 						importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
@@ -347,7 +348,7 @@ public class TiUIDialog extends TiUIView
 			}
 
 			dialogWrapper.setDialog(dialog);
-			builder = null;
+			this.builder = null;
 		}
 
 		try {
@@ -438,7 +439,7 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	public void handleEvent(int id)
+	public void handleEvent(int id, boolean saveSelectedIndex)
 	{
 		int cancelIndex =
 			(proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
@@ -452,8 +453,8 @@ public class TiUIDialog extends TiUIView
 				id &= ~BUTTON_MASK;
 			} else {
 				data.put(TiC.PROPERTY_BUTTON, false);
-				// If an option was selected and the user accepted it, update the proxy.
-				if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
+				// If an option was selected, the user accepted and we are showing radio buttons, update the proxy.
+				if (proxy.hasProperty(TiC.PROPERTY_OPTIONS) && saveSelectedIndex) {
 					proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
 				}
 			}

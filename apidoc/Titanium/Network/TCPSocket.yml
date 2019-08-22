@@ -4,7 +4,7 @@ extends: Titanium.Proxy
 deprecated:
     since: "1.7.0"
     notes: |
-        USE <Titanium.Network.Socket.TCP> WHERE POSSIBLE.
+        Use [Titanium.Network.Socket.TCP](Titanium.Network.Socket.TCP) where possible.
 summary: |
     The TCPSocket instance returned from <Titanium.Network.createTCPSocket>.  This object
     represents a socket which either listens locally on the device for connections,

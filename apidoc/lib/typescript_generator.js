@@ -475,12 +475,12 @@ class GlobalTemplateWriter {
 			const normalizedTypes = docType.map(typeName => this.normalizeType(typeName));
 			return normalizedTypes.indexOf('any') !== -1 ? 'any' : normalizedTypes.join(' | ');
 		}
-
-		if (docType.indexOf('<') !== -1) {
-			const typeRe = /(\w+)<([\w.,]+)>/;
-			const matches = docType.match(typeRe);
-			const baseType = matches[1];
-			const subTypes = matches[2].split(',').map(type => this.normalizeType(type));
+		const lessThanIndex = docType.indexOf('<');
+		if (lessThanIndex !== -1) {
+			const baseType = docType.slice(0, lessThanIndex);
+			const greaterThanIndex = docType.lastIndexOf('>');
+			const subType = docType.slice(lessThanIndex + 1, greaterThanIndex);
+			const subTypes = subType.split(',').map(type => this.normalizeType(type.trim()));
 			if (baseType === 'Array') {
 				return subTypes.map(typeName => {
 					if (usageHint === 'parameter') {

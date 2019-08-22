@@ -1418,7 +1418,7 @@ properties:
     summary: The insets for table view separators (applies to all cells).
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.TableView.tableSeparatorInsets> instead.
+        notes: Use [Titanium.UI.TableView.tableSeparatorInsets](Titanium.UI.TableView.tableSeparatorInsets) instead.
     description: |
         Cell separators do not extend all the way to the edge of the table view.
         This property sets the default inset for all cells in the table. Set this to a dictionary

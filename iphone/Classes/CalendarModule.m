@@ -225,7 +225,10 @@ GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
                                } else {
                                  propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                                }
-                               [callback callWithArguments:@[ propertiesDict ]];
+                               TiThreadPerformOnMainThread(^{
+                                 [callback callWithArguments:@[ propertiesDict ]];
+                               },
+                                   [NSThread isMainThread]);
                              }];
   },
       NO);
