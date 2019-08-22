@@ -16,7 +16,7 @@
   },
   "overrides": [
     {
-      "files": [ "tests/Resources/es6.*.js" ],
+      "files": [ "tests/Resources/es6.*.js", "tests/Resources/util.test.js" ],
       "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"
