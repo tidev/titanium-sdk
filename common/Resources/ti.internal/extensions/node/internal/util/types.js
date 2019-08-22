@@ -196,11 +196,11 @@ export function isUint32Array(value) {
 }
 
 export function isWeakMap(value) {
-	return checkPrototype(value, 'WekMap');
+	return checkPrototype(value, 'WeakMap');
 }
 
 export function isWeakSet(value) {
-	return checkPrototype(value, 'WekSet');
+	return checkPrototype(value, 'WeakSet');
 }
 
 // @todo isWebAssemblyCompiledModule
