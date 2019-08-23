@@ -576,7 +576,7 @@ class FrameworkIntegrator {
 			isa: 'PBXBuildFile',
 			fileRef: fileRefUuid,
 			fileRef_comment: frameworkPackageName,
-			settings: { ATTRIBUTES: [ 'CodeSignOnCopy' ]  }
+			settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
 		};
 		this._xobjs.PBXBuildFile[embeddedBuildFileUuid + '_comment'] = frameworkPackageName + ' in Embed Frameworks';
 
