@@ -38,11 +38,15 @@ import {
 import { codes, isStackOverflowError } from '../errors';
 import {
 	customInspectSymbol,
+	getOwnNonIndexProperties,
 	isError,
 	join,
+	propertyFilter,
 	removeColors,
 	uncurryThis
 } from '../util';
+
+const { ALL_PROPERTIES, ONLY_ENUMERABLE } = propertyFilter;
 
 const BooleanPrototype = Boolean.prototype;
 const DatePrototype = Date.prototype;
@@ -481,34 +485,6 @@ function noPrototypeIterator(ctx, value, recurseTimes) {
 		return formatRaw(ctx, newVal, recurseTimes);
 	}
 }
-
-function isAllDigits(s) {
-	if (s.length === 0) {
-		return false;
-	}
-	for (var i = 0; i < s.length; ++i) {
-		const code = s.charCodeAt(i);
-		if (code < 48 || code > 57) {
-			return false;
-		}
-	}
-	return true;
-}
-
-function getOwnNonIndexProperties(obj, filter) {
-	const props = [];
-	const keys = filter === ONLY_ENUMERABLE ? Object.keys(obj) : Object.getOwnPropertyNames(obj);
-	for (var i = 0; i < keys.length; ++i) {
-		const key = keys[i];
-		if (!isAllDigits(key)) {
-			props.push(key);
-		}
-	}
-	return props;
-}
-
-const ALL_PROPERTIES = 0;
-const ONLY_ENUMERABLE = 2;
 
 function formatValue(ctx, value, recurseTimes, typedArray) {
 	// Primitive types cannot have properties.
