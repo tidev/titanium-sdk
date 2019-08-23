@@ -1,4 +1,4 @@
-import { uncurryThis } from '../util';
+import { isBuffer, uncurryThis } from '../util';
 
 const TypedArrayPrototype = Object.getPrototypeOf(Uint8Array.prototype);
 
@@ -176,7 +176,12 @@ export function isSymbolObject(value) {
 }
 
 export function isTypedArray(value) {
-	return TypedArrayProto_toStringTag(value) !== undefined;
+	const isBuiltInTypedArray = TypedArrayProto_toStringTag(value) !== undefined;
+	if (isBuiltInTypedArray) {
+		return true;
+	}
+
+	return value[isBuffer] === true;
 }
 
 export function isUint8Array(value) {

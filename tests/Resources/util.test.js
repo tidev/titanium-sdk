@@ -1485,6 +1485,29 @@ describe('util', () => {
 			});
 		});
 
+		describe('#isTypedArray()', () => {
+			it('should return true for built-in typed arrays', () => {
+				should(util.types.isTypedArray(new Uint8Array())).be.true;
+				should(util.types.isTypedArray(new Uint8ClampedArray())).be.true;
+				should(util.types.isTypedArray(new Uint16Array())).be.true;
+				should(util.types.isTypedArray(new Uint32Array())).be.true;
+				should(util.types.isTypedArray(new Int8Array())).be.true;
+				should(util.types.isTypedArray(new Int16Array())).be.true;
+				should(util.types.isTypedArray(new Int32Array())).be.true;
+				should(util.types.isTypedArray(new Float32Array())).be.true;
+				should(util.types.isTypedArray(new Float64Array())).be.true;
+			});
+
+			it('should return true for our own Buffer', () => {
+				should(util.types.isTypedArray(Buffer.alloc())).be.true;
+			});
+
+			it('should return false for other values', () => {
+				util.types.isTypedArray({}).should.be.false;
+				util.types.isTypedArray([]).should.be.false;
+			});
+		});
+
 		describe('Typed Arrays', () => {
 			it('should correctly check typed arrays', () => {
 				should(!util.types.isUint8Array({ [Symbol.toStringTag]: 'Uint8Array' })).be.true;

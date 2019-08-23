@@ -3,6 +3,7 @@ import { isNativeError } from './util/types';
 const kNodeModulesRE = /^(.*)[\\/]node_modules[\\/]/;
 
 export const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
+export const isBuffer = Symbol.for('titanium.buffer.isBuffer');
 
 const colorRegExp = /\u001b\[\d\d?m/g; // eslint-disable-line no-control-regex
 
@@ -78,4 +79,37 @@ export function uncurryThis(f) {
 	return function () {
 		return f.call.apply(f, arguments);
 	};
+}
+
+const ALL_PROPERTIES = 0;
+const ONLY_ENUMERABLE = 2;
+
+export const propertyFilter = {
+	ALL_PROPERTIES,
+	ONLY_ENUMERABLE
+};
+
+export function getOwnNonIndexProperties(obj, filter) {
+	const props = [];
+	const keys = filter === ONLY_ENUMERABLE ? Object.keys(obj) : Object.getOwnPropertyNames(obj);
+	for (var i = 0; i < keys.length; ++i) {
+		const key = keys[i];
+		if (!isAllDigits(key)) {
+			props.push(key);
+		}
+	}
+	return props;
+}
+
+function isAllDigits(s) {
+	if (s.length === 0) {
+		return false;
+	}
+	for (var i = 0; i < s.length; ++i) {
+		const code = s.charCodeAt(i);
+		if (code < 48 || code > 57) {
+			return false;
+		}
+	}
+	return true;
 }
