@@ -6,6 +6,9 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint security/detect-new-buffer: "off" */
+/* eslint node/no-deprecated-api: ["error", { ignoreGlobalItems: ['new Buffer()']}]  */
+/* eslint node/no-unsupported-features/node-builtins: ["error", { version: ">=8.2.0" }] */
 'use strict';
 const should = require('./utilities/assertions');
 let BufferModule;
@@ -47,6 +50,7 @@ describe('buffer', () => {
 
 describe('Buffer', () => {
 	it('is available off the \'buffer\' module as Buffer', () => {
+		// eslint-disable-next-line node/prefer-global/buffer
 		should(BufferModule.Buffer).exist;
 	});
 

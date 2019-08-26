@@ -61,7 +61,7 @@ async function build(script, targets, properties) {
 
 	// add properties
 	for (const k in properties) {
-		if (properties.hasOwnProperty(k)) {
+		if (Object.prototype.hasOwnProperty.call(properties, k)) {
 			args.push('-D' + k + '=' + properties[k]);
 		}
 	}
