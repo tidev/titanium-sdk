@@ -106,12 +106,12 @@
 
 - (void)log:(id)level withMessage:(id)args
 {
-  if ([JSContext currentArguments] > 0) {
+  if ([JSContext currentArguments].count > 0) {
     NSMutableArray *array = [NSMutableArray arrayWithArray:[JSContext currentArguments]];
     [array removeObjectAtIndex:0];
     args = array;
   }
-  if (args == nil) {
+  if (args == nil || [args count] == 0) {
     [self logMessage:level severity:@"info"];
   } else {
     [self logMessage:args severity:level];
