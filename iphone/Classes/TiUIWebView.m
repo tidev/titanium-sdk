@@ -72,7 +72,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     WKUserContentController *controller = [[[WKUserContentController alloc] init] autorelease];
 
     [controller addUserScript:[self userScriptTitaniumInjectionForAppEvent]];
-    [controller addScriptMessageHandler:self name:@"_Ti_"];
 
     [config setUserContentController:controller];
 
@@ -184,7 +183,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   NSURL *url = [TiUtils toURL:value proxy:self.proxy];
 
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+
   if ([[self class] isLocalURL:url]) {
+    [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
     [self loadLocalURL:url];
   } else {
     [self loadRequestWithURL:[NSURL URLWithString:[TiUtils stringValue:value]]];
@@ -226,6 +228,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     NSLog(@"[ERROR] Ti.UI.WebView.data can only be a TiBlob or TiFile object, was %@", [(TiProxy *)value apiName]);
   }
 
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
+
   [[self webView] loadData:data
                    MIMEType:[self mimeTypeForData:data]
       characterEncodingName:@"UTF-8"
@@ -264,6 +269,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([[self webView] isLoading]) {
     [[self webView] stopLoading];
   }
+
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
 
   // No options, default load behavior
   if (options == nil) {
