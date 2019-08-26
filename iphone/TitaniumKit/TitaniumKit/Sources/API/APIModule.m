@@ -23,7 +23,7 @@
 - (void)logMessage:(id)args severity:(NSString *)severity
 {
   if (args == nil) {
-    args = @[ @"null" ];
+    args = @[ [NSNull null] ];
   } else if (!([args isKindOfClass:[NSArray class]])) {
     args = @[ args ];
   }
@@ -35,6 +35,8 @@
     }
     if ([self isNSBoolean:obj]) {
       obj = [obj boolValue] ? @"true" : @"false";
+    } else if (obj == nil) {
+      obj = [NSNull null];
     }
     [newArray addObject:obj];
   }];
