@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
-/* global Titanium */
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
