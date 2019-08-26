@@ -35,10 +35,8 @@ public class NavigationWindowProxy extends WindowProxy
 		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
 			opened = true;
 			Object rootView = getProperties().get(TiC.PROPERTY_WINDOW);
-			if (rootView instanceof WindowProxy) {
-				openWindow(((WindowProxy) rootView), arg);
-			} else {
-				openTabGroup(((TabGroupProxy) rootView), arg);
+			if (rootView instanceof WindowProxy || rootView instanceof TabGroupProxy) {
+				openWindow(rootView, arg);
 			}
 			return;
 		}
@@ -70,30 +68,26 @@ public class NavigationWindowProxy extends WindowProxy
 
 	// clang-format off
 	@Kroll.method
-	public void openWindow(WindowProxy window, @Kroll.argument(optional = true) Object arg)
+	public void openWindow(Object childToOpen, @Kroll.argument(optional = true) Object arg)
 	// clang-format on
 	{
 		if (!opened) {
 			open(null);
 		}
-		window.setNavigationWindow(this);
-		windows.add(window);
-		window.open(arg);
-	}
 
-	// clang-format off
-	@Kroll.method
-	public void openTabGroup(TabGroupProxy tabGroup, @Kroll.argument(optional = true) Object arg)
-	// clang-format on
-	{
-		if (!opened) {
-			open(null);
+		// Guard for types different from Window and TabGroup
+		if (!(childToOpen instanceof TiWindowProxy)) {
+			return;
 		}
-		tabGroup.setNavigationWindow(this);
-		windows.add(tabGroup);
-		// tabgroup.js deals with passing the tabs from the creation dictionary to the native setTabs method.
-		// In this case we need to do it manually since the JS "open()" does not get called.
-		tabGroup.callPropertySync(TiC.PROPERTY_OPEN, ((Object[]) arg));
+		windows.add(((TiWindowProxy) childToOpen));
+		((TiWindowProxy) childToOpen).setNavigationWindow(this);
+		if (childToOpen instanceof WindowProxy) {
+			((WindowProxy) childToOpen).open(arg);
+		} else if (childToOpen instanceof TabGroupProxy) {
+			// tabgroup.js deals with passing the tabs from the creation dictionary to the native setTabs method.
+			// In this case we need to do it manually since the JS "open()" does not get called.
+			((TabGroupProxy) childToOpen).callPropertySync(TiC.PROPERTY_OPEN, new Object[] { arg });
+		}
 	}
 
 	// clang-format off
