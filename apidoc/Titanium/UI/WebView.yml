@@ -282,8 +282,7 @@ methods:
     summary: Pauses native webview plugins.
     description: |
         Add a `pause` handler to your <Titanium.Android.Activity> and invoke
-        this method to pause native plugins. This is important with Flash content
-        as it will continue in the background unless this method is invoked.
+        this method to pause native plugins.
 
         Call [resume](Titanium.UI.WebView.resume) to unpause native plugins.
     since: "1.8.0"
@@ -825,11 +824,9 @@ properties:
   - name: pluginState
     summary: Determines how to treat content that requires plugins in this web view.
     description: |
-        This setting affects the loading of content that requires web plugins, such as
-        Flash Player.
+        This setting affects the loading of content that requires web plugins.
 
-        To use the Flash Player plugin, hardware acceleration must be enabled for your
-        application. To enable hardware acceleration, add the `tool-api-level` and
+        To enable hardware acceleration, add the `tool-api-level` and
         `manifest` elements shown below inside the `android` element in your `tiapp.xml` file.
 
             <android xmlns:android="http://schemas.android.com/apk/res/android">
