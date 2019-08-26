@@ -111,7 +111,7 @@
     [array removeObjectAtIndex:0];
     args = array;
   }
-  if (args == nil || [args count] == 0) {
+  if (args == nil || ([args isKindOfClass:[NSArray class]] && [args count] == 0)) {
     [self logMessage:level severity:@"info"];
   } else {
     [self logMessage:args severity:level];
