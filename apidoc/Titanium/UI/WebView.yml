@@ -105,8 +105,7 @@ description: |
 
     **Plugin Support**
 
-    The Android web view supports native plugins such as Flash Player. Note that the Chromium-based
-    web view introduced in Android 4.4 does not support the Flash Player plugin.
+    The Android web view supports native plugins.
 
     To use plugin content, you must set the [pluginState](Titanium.UI.WebView.pluginState) property
     to either [WEBVIEW_PLUGINS_ON](Titanium.UI.Android.WEBVIEW_PLUGINS_ON) or
