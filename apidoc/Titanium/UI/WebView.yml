@@ -140,20 +140,13 @@ description: |
             }
         </style>
 
+    To have a WKWebView scale the page the same way as UIWebView, add the following meta tag to the HTML header:
 
-    **WKWebView**
-    
-    With Titanium SDK 8.0.0, we now use WKWebView to implement Ti.UI.WebView (as Apple has deprecated UIWebView).
-    WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView 
-    a little modification is required in the HTML files:
-    
-        <style>
-          @font-face
-            {
-              font-family: 'Lato-Regular';
-              src: url('fonts/Lato-Regular.ttf');
-            }
-        </style>
+        <html>
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+        </html>
 
     ### Ti.UI.SIZE and WebViews
 
