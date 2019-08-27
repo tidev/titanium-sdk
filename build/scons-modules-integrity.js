@@ -14,6 +14,7 @@ const modulesPath = path.join(__dirname, '../support/module/packaged/modules.jso
  */
 async function handleModule(moduleObject, moduleName) {
 	const hash = await utils.generateSSRIHashFromURL(moduleObject.url);
+	// eslint-disable-next-line require-atomic-updates
 	moduleObject.integrity = hash.toString();
 	return {
 		[moduleName]: moduleObject

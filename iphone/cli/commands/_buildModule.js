@@ -625,137 +625,132 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 	// since the archiver library didn't set max listeners, we squelch all error output
 	console.error = function () {};
 
-	try {
-		// if the zip file is there, remove it
-		fs.ensureDirSync(this.distDir);
-		fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
-		const zipStream = fs.createWriteStream(moduleZipFullPath);
-		zipStream.on('close', function () {
-			console.error = origConsoleError;
-			next();
-		});
-		dest.catchEarlyExitAttached = true; // silence exceptions
-		dest.pipe(zipStream);
+	// if the zip file is there, remove it
+	fs.ensureDirSync(this.distDir);
+	fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
+	const zipStream = fs.createWriteStream(moduleZipFullPath);
+	zipStream.on('close', function () {
+		console.error = origConsoleError;
+		next();
+	});
+	dest.catchEarlyExitAttached = true; // silence exceptions
+	dest.pipe(zipStream);
 
-		this.logger.info(__('Creating module zip'));
+	this.logger.info(__('Creating module zip'));
 
-		// 1. documentation folder
-		const mdRegExp = /\.md$/;
-		if (fs.existsSync(this.documentationDir)) {
-			(function walk(dir, parent) {
-				if (!fs.existsSync(dir)) {
+	// 1. documentation folder
+	const mdRegExp = /\.md$/;
+	if (fs.existsSync(this.documentationDir)) {
+		(function walk(dir, parent) {
+			if (!fs.existsSync(dir)) {
+				return;
+			}
+
+			fs.readdirSync(dir).forEach(function (name) {
+				const file = path.join(dir, name);
+				if (!fs.existsSync(file)) {
 					return;
 				}
-
-				fs.readdirSync(dir).forEach(function (name) {
-					const file = path.join(dir, name);
-					if (!fs.existsSync(file)) {
-						return;
-					}
-					if (fs.statSync(file).isDirectory()) {
-						return walk(file, path.join(parent, name));
-					}
-
-					let contents = fs.readFileSync(file).toString();
-
-					if (mdRegExp.test(name)) {
-						contents = markdown.toHTML(contents);
-						name = name.replace(/\.md$/, '.html');
-					}
-
-					dest.append(contents, { name: path.join(parent, name) });
-				});
-			}(this.documentationDir, path.join(moduleFolders, 'documentation')));
-		}
-
-		// 2. example folder
-		this.dirWalker(this.exampleDir, function (file) {
-			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
-		}.bind(this));
-
-		// 3. platform folder
-		if (fs.existsSync(this.platformDir)) {
-			this.dirWalker(this.platformDir, function (file, name) {
-				var stat = fs.statSync(file);
-				if (name !== 'README.md') {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
+				if (fs.statSync(file).isDirectory()) {
+					return walk(file, path.join(parent, name));
 				}
-			}.bind(this));
-		}
 
-		// 4. hooks folder
-		const hookFiles = {};
-		if (fs.existsSync(this.hooksDir)) {
-			this.dirWalker(this.hooksDir, function (file) {
-				const relFile = path.relative(this.hooksDir, file);
-				hookFiles[relFile] = 1;
-				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
-			}.bind(this));
-		}
-		if (fs.existsSync(this.sharedHooksDir)) {
-			this.dirWalker(this.sharedHooksDir, function (file) {
-				var relFile = path.relative(this.sharedHooksDir, file);
-				if (!hookFiles[relFile]) {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+				let contents = fs.readFileSync(file).toString();
+
+				if (mdRegExp.test(name)) {
+					contents = markdown.toHTML(contents);
+					name = name.replace(/\.md$/, '.html');
 				}
-			}.bind(this));
-		}
 
-		// 5. Resources folder
-		if (fs.existsSync(this.resourcesDir)) {
-			this.dirWalker(this.resourcesDir, function (file, name) {
-				if (name !== 'README.md') {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'Resources', path.relative(this.resourcesDir, file)) });
-				}
-			}.bind(this));
-		}
-
-		// 6. assets folder, not including js files
-		if (fs.existsSync(this.assetsDir)) {
-			this.dirWalker(this.assetsDir, function (file) {
-				if (path.extname(file) !== '.js') {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
-				}
-			}.bind(this));
-		}
-
-		// 7. Append the framework/library file
-		// If it is a (Swift) framework, we handle it as a directory (which it acttually is)
-		if (this.isFramework) {
-			this.dirWalker(binarylibFile, function (file) {
-				var stat = fs.statSync(file);
-				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, binarylibName, path.relative(binarylibFile, file)), mode: stat.mode });
+				dest.append(contents, { name: path.join(parent, name) });
 			});
-		} else {
-			dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
-		}
-
-		// 8. LICENSE file
-		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
-
-		// 9. manifest
-		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders, 'manifest') });
-
-		// 10. module.xcconfig
-		if (fs.existsSync(this.moduleXcconfigFile)) {
-			let contents = fs.readFileSync(this.moduleXcconfigFile).toString();
-
-			contents = '// This flag is generated by the module build, do not change it.\nTI_MODULE_VERSION=' + this.moduleVersion + '\n\n' + contents;
-
-			dest.append(contents, { name: path.join(moduleFolders, 'module.xcconfig') });
-		}
-
-		// 11. metadata.json
-		dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolders, 'metadata.json') });
-
-		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
-		dest.finalize();
-	// eslint-disable-next-line no-useless-catch
-	} catch (ex) {
-		throw ex;
-	} finally {
-		console.error = origConsoleError;
+		}(this.documentationDir, path.join(moduleFolders, 'documentation')));
 	}
+
+	// 2. example folder
+	this.dirWalker(this.exampleDir, function (file) {
+		dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
+	}.bind(this));
+
+	// 3. platform folder
+	if (fs.existsSync(this.platformDir)) {
+		this.dirWalker(this.platformDir, function (file, name) {
+			var stat = fs.statSync(file);
+			if (name !== 'README.md') {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
+			}
+		}.bind(this));
+	}
+
+	// 4. hooks folder
+	const hookFiles = {};
+	if (fs.existsSync(this.hooksDir)) {
+		this.dirWalker(this.hooksDir, function (file) {
+			const relFile = path.relative(this.hooksDir, file);
+			hookFiles[relFile] = 1;
+			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+		}.bind(this));
+	}
+	if (fs.existsSync(this.sharedHooksDir)) {
+		this.dirWalker(this.sharedHooksDir, function (file) {
+			var relFile = path.relative(this.sharedHooksDir, file);
+			if (!hookFiles[relFile]) {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+			}
+		}.bind(this));
+	}
+
+	// 5. Resources folder
+	if (fs.existsSync(this.resourcesDir)) {
+		this.dirWalker(this.resourcesDir, function (file, name) {
+			if (name !== 'README.md') {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'Resources', path.relative(this.resourcesDir, file)) });
+			}
+		}.bind(this));
+	}
+
+	// 6. assets folder, not including js files
+	if (fs.existsSync(this.assetsDir)) {
+		this.dirWalker(this.assetsDir, function (file) {
+			if (path.extname(file) !== '.js') {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
+			}
+		}.bind(this));
+	}
+
+	// 7. Append the framework/library file
+	// If it is a (Swift) framework, we handle it as a directory (which it acttually is)
+	if (this.isFramework) {
+		this.dirWalker(binarylibFile, function (file) {
+			var stat = fs.statSync(file);
+			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, binarylibName, path.relative(binarylibFile, file)), mode: stat.mode });
+		});
+	} else {
+		dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
+	}
+
+	// 8. LICENSE file
+	dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
+
+	// 9. manifest
+	dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders, 'manifest') });
+
+	// 10. module.xcconfig
+	if (fs.existsSync(this.moduleXcconfigFile)) {
+		let contents = fs.readFileSync(this.moduleXcconfigFile).toString();
+
+		contents = '// This flag is generated by the module build, do not change it.\nTI_MODULE_VERSION=' + this.moduleVersion + '\n\n' + contents;
+
+		dest.append(contents, { name: path.join(moduleFolders, 'module.xcconfig') });
+	}
+
+	// 11. metadata.json
+	dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolders, 'metadata.json') });
+
+	this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
+	dest.finalize();
+
+	console.error = origConsoleError;
 };
 
 iOSModuleBuilder.prototype.runModule = function runModule(next) {
