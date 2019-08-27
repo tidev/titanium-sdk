@@ -256,14 +256,8 @@
   }
 
   int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
-  switch (theStyle) {
-  case UIStatusBarStyleDefault:
-  case UIStatusBarStyleLightContent:
-    barStyle = theStyle;
-    break;
-  default:
-    barStyle = UIStatusBarStyleDefault;
-  }
+
+  [self assignStatusBarStyle:theStyle];
 
   if (!isModal && (tab == nil)) {
     openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
@@ -283,14 +277,7 @@
 - (void)setStatusBarStyle:(id)style
 {
   int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
-  switch (theStyle) {
-  case UIStatusBarStyleDefault:
-  case UIStatusBarStyleLightContent:
-    barStyle = theStyle;
-    break;
-  default:
-    barStyle = UIStatusBarStyleDefault;
-  }
+  [self assignStatusBarStyle:theStyle];
   [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
   if (focussed) {
     TiThreadPerformOnMainThread(^{
@@ -504,6 +491,21 @@
 - (TiProxy *)tabGroup
 {
   return [tab tabGroup];
+}
+
+- (void)assignStatusBarStyle:(int)style
+{
+  switch (style) {
+  case UIStatusBarStyleDefault:
+  case UIStatusBarStyleLightContent:
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  case UIStatusBarStyleDarkContent:
+#endif
+    barStyle = style;
+    break;
+  default:
+    barStyle = UIStatusBarStyleDefault;
+  }
 }
 
 - (NSNumber *)orientation
