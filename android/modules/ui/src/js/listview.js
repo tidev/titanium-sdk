@@ -39,7 +39,7 @@ exports.bootstrap = function (Titanium) {
 	// Recursive function that process childTemplates and append corresponding proxies to
 	// property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
 	function processChildTemplates(properties) {
-		if (!properties.hasOwnProperty('childTemplates')) {
+		if (!Object.prototype.hasOwnProperty.call(properties, 'childTemplates')) {
 			return;
 		}
 
