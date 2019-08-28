@@ -57,7 +57,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     }];
     [self reportScriptError:error];
 
-  // cant generate script error, fallback to default behaviour
+    // cant generate script error, fallback to default behaviour
   } @catch (NSException *e) {
     id<TiExceptionHandlerDelegate> currentDelegate = _delegate;
     if (currentDelegate == nil) {
