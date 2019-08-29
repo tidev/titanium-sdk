@@ -223,7 +223,7 @@ iOSBuilder.prototype.findCertificates = function findCertificates(name, type) {
 			for (const scope of types) {
 				if (scopes[scope]) {
 					for (const cert of scopes[scope]) {
-						if (cert.name === name) {
+						if (cert.name === name || cert.fullname === name) {
 							certs.push(cert);
 						}
 					}
@@ -680,12 +680,15 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperName(order) {
 	const cli = this.cli,
 		iosInfo = this.iosInfo,
-		developerCertLookup = {};
+		developerCertLookup = [];
 
 	Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
 		(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
 			if (!d.invalid) {
-				developerCertLookup[d.name.toLowerCase()] = d.name;
+				developerCertLookup.push({
+					name: d.name,
+					fullname: d.fullname
+				});
 			}
 		});
 	});
@@ -705,7 +708,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 					if (!d.invalid) {
 						Array.isArray(developerCerts[keychain]) || (developerCerts[keychain] = []);
 						developerCerts[keychain].push(d);
-						maxDevCertLen = Math.max(d.name.length, maxDevCertLen);
+						maxDevCertLen = Math.max(d.fullname.length, maxDevCertLen);
 					}
 				});
 			});
@@ -713,7 +716,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 			// sort the certs
 			Object.keys(developerCerts).forEach(function (keychain) {
 				developerCerts[keychain] = developerCerts[keychain].sort(function (a, b) {
-					return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+					return a.fullname.toLowerCase().localeCompare(b.fullname.toLowerCase());
 				});
 			});
 
@@ -725,7 +728,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 						var expires = moment(opt.after),
 							day = expires.format('D'),
 							hour = expires.format('h');
-						return '  ' + num + appc.string.rpad(opt.name, maxDevCertLen + 1).cyan
+						return '  ' + num + appc.string.rpad(opt.fullname, maxDevCertLen + 1).cyan
 							+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
 							+ (day.length === 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
 							+ (hour.length === 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
@@ -733,8 +736,8 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 					}
 				},
 				margin: '',
-				optionLabel: 'name',
-				optionValue: 'name',
+				optionLabel: 'fullname',
+				optionValue: 'fullname',
 				numbered: true,
 				relistOnError: true,
 				complete: true,
@@ -751,9 +754,16 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 				return callback(null, value);
 			}
 			if (value) {
-				const v = developerCertLookup[value.toLowerCase()];
-				if (v) {
-					return callback(null, v);
+				// value can either be a fullname (Apple Development: Joe Bloggs (TEAMID)) or just name (Joe Bloggs (TEAMID)). We want to use fullname, so if we were provided
+				// a name try to map it back to the correct format.
+				const v = developerCertLookup.filter(cert => cert.name.toLowerCase() === value.toLowerCase() || cert.fullname.toLowerCase() === value.toLowerCase());
+
+				if (v.length === 1) {
+					return callback(null, v[0].fullname);
+				}
+
+				if (v.length > 1) {
+					return callback(new Error(__('Unable to determine correct certificate from supplied value')));
 				}
 			}
 			callback(new Error(__('Invalid developer certificate "%s"', value)));
@@ -771,12 +781,15 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 iOSBuilder.prototype.configOptionDistributionName = function configOptionDistributionName(order) {
 	const cli = this.cli,
 		iosInfo = this.iosInfo,
-		distributionCertLookup = {};
+		distributionCertLookup = [];
 
 	Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
 		(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
 			if (!d.invalid) {
-				distributionCertLookup[d.name.toLowerCase()] = d.name;
+				distributionCertLookup.push({
+					name: d.name,
+					fullname: d.fullname
+				});
 			}
 		});
 	});
@@ -796,7 +809,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 					if (!d.invalid) {
 						Array.isArray(distributionCerts[keychain]) || (distributionCerts[keychain] = []);
 						distributionCerts[keychain].push(d);
-						maxDistCertLen = Math.max(d.name.length, maxDistCertLen);
+						maxDistCertLen = Math.max(d.fullname.length, maxDistCertLen);
 					}
 				});
 			});
@@ -804,7 +817,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 			// sort the certs
 			Object.keys(distributionCerts).forEach(function (keychain) {
 				distributionCerts[keychain] = distributionCerts[keychain].sort(function (a, b) {
-					return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+					return a.fullname.toLowerCase().localeCompare(b.fullname.toLowerCase());
 				});
 			});
 
@@ -816,7 +829,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 						var expires = moment(opt.after),
 							day = expires.format('D'),
 							hour = expires.format('h');
-						return '  ' + num + appc.string.rpad(opt.name, maxDistCertLen + 1).cyan
+						return '  ' + num + appc.string.rpad(opt.fullname, maxDistCertLen + 1).cyan
 							+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
 							+ (day.length === 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
 							+ (hour.length === 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
@@ -824,8 +837,8 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 					}
 				},
 				margin: '',
-				optionLabel: 'name',
-				optionValue: 'name',
+				optionLabel: 'fullname',
+				optionValue: 'fullname',
 				numbered: true,
 				relistOnError: true,
 				complete: true,
@@ -841,9 +854,16 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 				return callback(null, value);
 			}
 			if (value) {
-				const v = distributionCertLookup[value.toLowerCase()];
-				if (v) {
-					return callback(null, v);
+				// value can either be a fullname (Apple Distribution: Joe Bloggs (TEAMID)) or just name (Joe Bloggs (TEAMID)). We want to use fullname, so if we were provided
+				// a name try to map it back to the correct format.
+				const v = distributionCertLookup.filter(cert => cert.name.toLowerCase() === value.toLowerCase());
+
+				if (v.length === 1) {
+					return callback(null, v[0].fullname);
+				}
+
+				if (v.length > 1) {
+					return callback(new Error(__('Unable to determine correct certificate from supplied value')));
 				}
 			}
 			callback(new Error(__('Invalid distribution certificate "%s"', value)));
@@ -2677,6 +2697,13 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 				this.logger.info('  ' + __('Now: %s', cyan(this.titaniumSdkVersion)));
 				return true;
 			}
+		}
+
+		if (this.certDeveloperName !== manifest.developerName) {
+			this.logger.info(__('Forcing rebuild: developerName changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.developerName));
+			this.logger.info('  ' + __('Now: %s', this.certDeveloperName));
+			return true;
 		}
 
 		return false;
