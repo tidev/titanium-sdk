@@ -6370,7 +6370,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		}, this);
 
 		// remove invalid architectures from TitaniumKit.framework for App Store distributions
-		if (this.target === 'dist-appstore') {
+		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
 			this.logger.info(__('Removing invalid architectures from TitaniumKit.framework'));
 
 			const titaniumKitPath = path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework', 'TitaniumKit');
