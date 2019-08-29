@@ -6,9 +6,12 @@
  */
 
 #import "TiUIiOSProxy.h"
+
+#ifdef USE_TI_UIIOS
+
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
-#ifdef USE_TI_UIIOS
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiUIiOSPreviewActionGroupProxy.h"
@@ -79,10 +82,6 @@
 
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
-#import <TitaniumKit/TiBlob.h>
 #endif
 
 #if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
@@ -388,6 +387,19 @@
 }
 #endif
 
+#ifdef IS_SDK_IOS_13
+- (TiBlob *)systemImage:(id)arg
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return nil;
+  }
+  ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
+  UIImage *image = [UIImage systemImageNamed:arg];
+  TiBlob *blob = [[TiBlob alloc] initWithImage:image];
+  return blob;
+}
+#endif
+
 - (void)setAppBadge:(id)value
 {
   ENSURE_UI_THREAD(setAppBadge, value);
@@ -443,6 +455,24 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
   }
   return [NSNull null];
 }
+
+#if IS_SDK_IOS_13
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL, UIBlurEffectStyleSystemUltraThinMaterial);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL, UIBlurEffectStyleSystemThinMaterial);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL, UIBlurEffectStyleSystemMaterial);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL, UIBlurEffectStyleSystemThickMaterial);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL, UIBlurEffectStyleSystemChromeMaterial);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_LIGHT, UIBlurEffectStyleSystemUltraThinMaterialLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_LIGHT, UIBlurEffectStyleSystemThinMaterialLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_LIGHT, UIBlurEffectStyleSystemMaterialLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_LIGHT, UIBlurEffectStyleSystemThickMaterialLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_LIGHT, UIBlurEffectStyleSystemChromeMaterialLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_DARK, UIBlurEffectStyleSystemUltraThinMaterialDark);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK, UIBlurEffectStyleSystemThinMaterialDark);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK, UIBlurEffectStyleSystemMaterialDark);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK, UIBlurEffectStyleSystemThickMaterialDark);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK, UIBlurEffectStyleSystemChromeMaterialDark);
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
@@ -800,9 +830,11 @@ MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMe
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
 #endif
 
+#if IS_SDK_IOS_11
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_AUTOMATIC, UINavigationItemLargeTitleDisplayModeAutomatic);
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_ALWAYS, UINavigationItemLargeTitleDisplayModeAlways);
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDisplayModeNever);
+#endif
 
 #ifdef USE_TI_UIWEBVIEW
 

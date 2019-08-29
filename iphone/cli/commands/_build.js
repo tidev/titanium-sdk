@@ -2609,6 +2609,9 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 	} else {
 		this.logger.info(__('Set to copy files instead of symlinking'));
 	}
+
+	this.logger.info(__('Transpile javascript: %s', (this.transpile ? 'true' : 'false').cyan));
+	this.logger.info(__('Generate source maps: %s', (this.sourceMaps ? 'true' : 'false').cyan));
 };
 
 iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
@@ -6367,7 +6370,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		}, this);
 
 		// remove invalid architectures from TitaniumKit.framework for App Store distributions
-		if (this.target === 'dist-appstore') {
+		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
 			this.logger.info(__('Removing invalid architectures from TitaniumKit.framework'));
 
 			const titaniumKitPath = path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework', 'TitaniumKit');
