@@ -46,6 +46,7 @@
 
 - (void)_configure
 {
+  forceModal = YES;
   [self replaceValue:nil forKey:@"orientationModes" notification:NO];
   [super _configure];
 }
@@ -560,6 +561,13 @@
           [theController setModalPresentationStyle:style];
         }
       }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+        forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
+        theController.modalInPresentation = forceModal;
+      }
+#endif
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] showModalController:theController animated:animated];
     } else {
@@ -733,7 +741,7 @@
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
-  if (isModal && closing) {
+  if (isModal && (closing || !forceModal)) {
     [self windowDidClose];
   }
 }
