@@ -2904,19 +2904,21 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     // TODO eval once and pass in the controller name and props as args?
     DebugLog(@"[DEBUG] Failed to load native class %@, trying Alloy widget / CommonJS module", viewTemplate.type);
     NSString *code = [NSString stringWithFormat:@"var result;"
+                                                 "var jsModule;"
                                                  "try {"
-                                                 "  var jsModule = require('/alloy/widgets/%@/controllers/widget');"
-                                                 "  if (!jsModule) {"
+                                                 "    jsModule = require('/alloy/widgets/%@/controllers/widget');"
+                                                 "} catch (error) {"
+                                                 "  try {"
                                                  "    jsModule = require('%@');"
+                                                 "  } catch (e) {"
+                                                 "    Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
                                                  "  }"
-                                                 "  if (jsModule) {"
-                                                 "    result = function (parameters) {"
+                                                 "}"
+                                                 "if (jsModule) {"
+                                                 "  result = function (parameters) {"
                                                  "      const obj = new jsModule(parameters);"
                                                  "      return obj.getView();"
                                                  "    };"
-                                                 "  }"
-                                                 "} catch (e) {"
-                                                 "  Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
                                                  "}"
                                                  "result;",
                                viewTemplate.type, viewTemplate.type, viewTemplate.type];
