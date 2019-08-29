@@ -7,8 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.WebView', function () {
 	var win;
@@ -60,4 +59,27 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
+	it.ios('beforeload', (finish) => {
+		let webView;
+		const url = 'https://www.appcelerator.com/';
+		var beforeLoaded = false;
+
+		win = Ti.UI.createWindow();
+		webView = Ti.UI.createWebView({
+			url: url
+		});
+
+		webView.addEventListener('beforeload', (e) => {
+			if (beforeLoaded === true) {
+				if (e.url !== url) {
+					webView.stopLoading();
+					finish();
+				}
+			}
+			beforeLoaded = true;
+		});
+
+		win.add(webView);
+		win.open();
+	});
 });

@@ -963,7 +963,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   // Handle blacklisted URL's
   if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
-    NSString *urlCandidate = webView.URL.absoluteString;
+    NSString *urlCandidate = navigationAction.request.URL.absoluteString;
 
     for (NSString *blackListedURL in _blacklistedURLs) {
       if ([urlCandidate rangeOfString:blackListedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
@@ -985,7 +985,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([[self proxy] _hasListeners:@"beforeload"]) {
     [[self proxy] fireEvent:@"beforeload"
                  withObject:@{
-                   @"url" : webView.URL.absoluteString,
+                   @"url" : navigationAction.request.URL.absoluteString,
                    @"navigationType" : @(navigationAction.navigationType)
                  }];
   }
