@@ -2845,6 +2845,31 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [self replaceValue:accessibilityHidden forKey:@"accessibilityHidden" notification:NO];
 }
 
+- (NSObject *)accessibilityElement
+{
+  return self.view.accessibilityElement;
+}
+
+- (NSString *)accessibilityLabel
+{
+  return [self accessibilityElement].accessibilityLabel;
+}
+
+- (NSString *)accessibilityValue
+{
+  return [self accessibilityElement].accessibilityValue;
+}
+
+- (NSString *)accessibilityHint
+{
+  return [self accessibilityElement].accessibilityHint;
+}
+
+- (NSNumber *)accessibilityHidden
+{
+  return NUMBOOL([self accessibilityElement].accessibilityElementsHidden);
+}
+
 #pragma mark - View Templates
 
 - (void)unarchiveFromTemplate:(id)viewTemplate_

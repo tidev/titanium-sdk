@@ -363,7 +363,10 @@ DEFINE_EXCEPTIONS
 
 - (void)setAccessibilityHidden_:(id)accessibilityHidden
 {
-  self.accessibilityElementsHidden = [TiUtils boolValue:accessibilityHidden def:NO];
+  id accessibilityElement = self.accessibilityElement;
+  if (accessibilityElement != nil) {
+    [accessibilityElement setAccessibilityElementsHidden:[TiUtils boolValue:accessibilityHidden def:NO]];
+  }
 }
 
 #pragma mark Layout
