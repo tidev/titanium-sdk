@@ -40,6 +40,21 @@ methods:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
 
+  - name: systemImage
+    summary: |
+        Get image from SF Symbols provided by Apple.
+    description: |
+        More details on SF Symbols can be found on https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview.
+        One can download SF Symbols app from https://developer.apple.com/design/downloads/SF-Symbols.dmg and 
+        use it to lookup the inbuilt SF Symbol name.
+    parameters:
+      - name: name
+        summary: Name of SF Symbol.
+        type: String
+    returns:
+      - type: Titanium.Blob
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
 properties:
   - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     summary: |

@@ -10,10 +10,19 @@
 var should = require('./utilities/assertions');
 
 describe.ios('Titanium.UI.iOS', function () {
+	const isiOS13 =  (parseInt(Ti.Platform.version.split('.')[0]) >= 13);
 
-	it('#constants', function () {
+	it('#systemImage()', function () {
+		if (isiOS13) {
+			should(Ti.UI.iOS.systemImage).not.be.undefined;
+			should(Ti.UI.iOS.systemImage).be.a.Function;
+			var systemImage = Ti.UI.iOS.systemImage('drop.triangle.fill');
+			should(systemImage).be.an.Object;
+		}
+	});
+
+	it('.BLUR_EFFECT_STYLE_SYSTEM_* constants', function () {
 		// Used in BlurView.effect. Need to copy under #constatnt test case
-		var isiOS13 =  (parseInt(Ti.Platform.version.split('.')[0]) >= 13);
 		if (isiOS13) {
 			should(Ti.UI.iOS.BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL).be.a.Number;
 			should(Ti.UI.iOS.BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL).be.a.Number;

@@ -6,9 +6,12 @@
  */
 
 #import "TiUIiOSProxy.h"
+
+#ifdef USE_TI_UIIOS
+
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
-#ifdef USE_TI_UIIOS
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiUIiOSPreviewActionGroupProxy.h"
@@ -79,10 +82,6 @@
 
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
-#import <TitaniumKit/TiBlob.h>
 #endif
 
 #if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
@@ -385,6 +384,19 @@
     _SystemIcon = [[TiUIiOSSystemIconProxy alloc] _initWithPageContext:[self pageContext]];
   }
   return _SystemIcon;
+}
+#endif
+
+#ifdef IS_SDK_IOS_13
+- (TiBlob *)systemImage:(id)arg
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return nil;
+  }
+  ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
+  UIImage *image = [UIImage systemImageNamed:arg];
+  TiBlob *blob = [[TiBlob alloc] initWithImage:image];
+  return blob;
 }
 #endif
 
