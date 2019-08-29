@@ -450,6 +450,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     @"Network",
     @"Stream",
     @"UI",
+    @"WatchSession",
     @"XML" ];
   for (NSString *name in legacyModuleNames) {
     // We must generate the block and copy it to put it into heap or else every instance of the block shares
