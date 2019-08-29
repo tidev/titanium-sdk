@@ -267,45 +267,53 @@ public abstract class TiViewProxy extends KrollProxy
 		return super.handleMessage(msg);
 	}
 
+	protected KrollDict getRectForNativeView(View nativeView)
+	{
+		KrollDict d = new KrollDict();
+
+		int position[] = new int[2];
+		nativeView.getLocationInWindow(position);
+
+		TiDimension nativeWidth = new TiDimension(nativeView.getWidth(), TiDimension.TYPE_WIDTH);
+		TiDimension nativeHeight = new TiDimension(nativeView.getHeight(), TiDimension.TYPE_HEIGHT);
+		TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
+		TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
+		TiDimension localLeft = new TiDimension(nativeView.getX(), TiDimension.TYPE_LEFT);
+		TiDimension localTop = new TiDimension(nativeView.getY(), TiDimension.TYPE_TOP);
+
+		// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+		View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+		if (decorView != null) {
+			d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+			d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+			d.put(TiC.PROPERTY_X, localLeft.getAsDefault(decorView));
+			d.put(TiC.PROPERTY_Y, localTop.getAsDefault(decorView));
+			d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(decorView));
+			d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(decorView));
+		}
+
+		return d;
+	}
+
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getRect()
 	// clang-format on
 	{
-		KrollDict d = new KrollDict();
-		if (view != null) {
-			View v = view.getOuterView();
-			if (v != null) {
-				int position[] = new int[2];
-				v.getLocationInWindow(position);
-
-				TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
-				TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
-				TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
-				TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
-				TiDimension localLeft = new TiDimension(v.getX(), TiDimension.TYPE_LEFT);
-				TiDimension localTop = new TiDimension(v.getY(), TiDimension.TYPE_TOP);
-
-				// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-				View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
-				if (decorView != null) {
-					d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-					d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-					d.put(TiC.PROPERTY_X, localLeft.getAsDefault(decorView));
-					d.put(TiC.PROPERTY_Y, localTop.getAsDefault(decorView));
-					d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(decorView));
-					d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(decorView));
-				}
-			}
+		KrollDict result = new KrollDict();
+		if (this.view != null) {
+			View outerView = this.view.getOuterView();
+			if (outerView != null)
+				result = getRectForNativeView(outerView);
 		}
-		if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
-			d.put(TiC.PROPERTY_WIDTH, 0);
-			d.put(TiC.PROPERTY_HEIGHT, 0);
-			d.put(TiC.PROPERTY_X, 0);
-			d.put(TiC.PROPERTY_Y, 0);
+		if (!result.containsKey(TiC.PROPERTY_WIDTH)) {
+			result.put(TiC.PROPERTY_WIDTH, 0);
+			result.put(TiC.PROPERTY_HEIGHT, 0);
+			result.put(TiC.PROPERTY_X, 0);
+			result.put(TiC.PROPERTY_Y, 0);
 		}
-		return d;
+		return result;
 	}
 
 	// clang-format off

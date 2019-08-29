@@ -34,6 +34,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
@@ -599,6 +600,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		//		}
 
 		if (content != null) {
+			if (getRowProxy().hasPropertyAndNotNull(TiC.PROPERTY_HEIGHT)
+				&& getRowProxy().getProperty(TiC.PROPERTY_HEIGHT).toString().equals(TiC.LAYOUT_SIZE)) {
+				content.setLayoutParams(
+					new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			}
 			content.layout(contentLeft, top, contentRight, bottom);
 		}
 

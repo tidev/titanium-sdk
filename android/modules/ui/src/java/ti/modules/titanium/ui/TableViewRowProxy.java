@@ -25,6 +25,8 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
+import android.view.View;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -54,6 +56,22 @@ public class TableViewRowProxy extends TiViewProxy
 		// TIMOB-24058: Prevent setOnClickListener() from being set allowing
 		// backgroundSelectedColor and backgroundSelectedImage to function
 		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, false);
+	}
+
+	@Override
+	public KrollDict getRect()
+	{
+		KrollDict result = new KrollDict();
+		if (this.tableViewItem != null) {
+			result = getRectForNativeView(this.tableViewItem);
+		}
+		if (!result.containsKey(TiC.PROPERTY_WIDTH)) {
+			result.put(TiC.PROPERTY_WIDTH, 0);
+			result.put(TiC.PROPERTY_HEIGHT, 0);
+			result.put(TiC.PROPERTY_X, 0);
+			result.put(TiC.PROPERTY_Y, 0);
+		}
+		return result;
 	}
 
 	@Override
