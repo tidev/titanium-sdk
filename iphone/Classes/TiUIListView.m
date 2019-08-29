@@ -1154,6 +1154,43 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return NO;
 }
 
+#if IS_SDK_IOS_13
+- (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
+}
+
+- (void)tableView:(UITableView *)tableView didBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  editing = YES;
+}
+
+- (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
+{
+  if ([self.proxy _hasListeners:@"itemsselected"]) {
+    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
+    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
+      NSIndexPath *indexPath = tableView.indexPathsForSelectedRows[i];
+      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+
+      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                          theSection, @"section",
+                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                      nil];
+      if (i == 0) {
+        [startingItem setDictionary:eventObject];
+      }
+      [selectedItems addObject:eventObject];
+    }
+    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
+  }
+}
+#endif
+
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
