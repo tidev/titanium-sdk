@@ -9,9 +9,9 @@
 
 #ifdef USE_TI_UIIOS
 
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
-#import <TitaniumKit/TiBlob.h>
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiUIiOSPreviewActionGroupProxy.h"
