@@ -220,7 +220,9 @@
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
   }
-  navController.view.backgroundColor = theWindow.view.backgroundColor;
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    navController.view.backgroundColor = theWindow.view.backgroundColor;
+  }
 }
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
