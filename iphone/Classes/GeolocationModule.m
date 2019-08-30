@@ -316,12 +316,11 @@ extern NSString *const TI_APPLICATION_GUID;
 
     locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
     }
 #endif
-
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
 
@@ -605,7 +604,7 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
 
 - (BOOL)showBackgroundLocationIndicator
 {
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return showBackgroundLocationIndicator;
   }
@@ -616,7 +615,7 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
 
 - (void)setShowBackgroundLocationIndicator:(BOOL)value
 {
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     showBackgroundLocationIndicator = value;
     return;

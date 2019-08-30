@@ -13,10 +13,9 @@
 
 @synthesize bubbleParent;
 
-- (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
++ (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
 {
-  NSString *exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];
-  JSContext *context = [JSContext currentContext];
+  NSString *exceptionName = @"org.appcelerator";
   NSDictionary *details = @{
     kTiExceptionSubreason : subreason,
     kTiExceptionLocation : location
@@ -24,21 +23,34 @@
   NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
   JSGlobalContextRef jsContext = [context JSGlobalContextRef];
   JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
-  [context setException:[JSValue valueWithJSValueRef:jsValueRef inContext:context]];
+  return [JSValue valueWithJSValueRef:jsValueRef inContext:context];
+}
+
+- (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
+{
+  NSString *exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];
+  NSDictionary *details = @{
+    kTiExceptionSubreason : subreason,
+    kTiExceptionLocation : location
+  };
+  NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
+  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
+  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
+  return [JSValue valueWithJSValueRef:jsValueRef inContext:context];
+}
+
+- (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
+{
+  JSContext *context = [JSContext currentContext];
+  JSValue *error = [self createError:reason subreason:subreason location:location inContext:context];
+  [context setException:error];
 }
 
 + (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
 {
-  NSString *exceptionName = @"org.appcelerator";
   JSContext *context = [JSContext currentContext];
-  NSDictionary *details = @{
-    kTiExceptionSubreason : subreason,
-    kTiExceptionLocation : location
-  };
-  NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
-  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
-  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
-  [context setException:[JSValue valueWithJSValueRef:jsValueRef inContext:context]];
+  JSValue *error = [ObjcProxy createError:reason subreason:subreason location:location inContext:context];
+  [context setException:error];
 }
 
 // Conversion methods for interacting with "old" KrollObject style proxies

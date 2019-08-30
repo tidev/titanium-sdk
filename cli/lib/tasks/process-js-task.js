@@ -43,6 +43,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.builder = options.builder;
 		this.platform = this.builder.cli.argv.platform;
+		this.forceCleanBuildPropertyName = this.platform === 'ios' ? 'forceCleanBuild' : 'forceRebuild';
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
@@ -101,6 +102,9 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * we also depend on some config values from the builder this is used to
 	 * fallback to a full task run if required.
 	 *
+	 * This will also dummy process the unchanged JS files again to properly
+	 * fire expected hooks and populate the builder with required data.
+	 *
 	 * @return {Promise}
 	 */
 	async loadResultAndSkip() {
@@ -110,7 +114,11 @@ class ProcessJsTask extends IncrementalFileTask {
 			return this.doFullTaskRun();
 		}
 
-		Object.keys(this.data.jsFiles).forEach(relPath => this.builder.unmarkBuildDirFile(this.data.jsFiles[relPath].dest));
+		this.jsFiles = this.data.jsFiles;
+		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
+		return Promise.all(Object.keys(this.jsFiles).map(relPath => {
+			return limit(() => this.processJsFile(this.jsFiles[relPath].src));
+		}));
 	}
 
 	/**
@@ -315,7 +323,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @return {Boolean} True if a full build is required, false if not.
 	 */
 	requiresFullBuild() {
-		if (this.builder.forceCleanBuild) {
+		if (this.builder[this.forceCleanBuildPropertyName]) {
 			this.logger.trace('Full build required, force clean build flag is set.');
 			return true;
 		}
