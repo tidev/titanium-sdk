@@ -4,7 +4,7 @@ exports.bootstrap = function (Titanium) {
 	var Properties = Titanium.App.Properties;
 
 	function nullOrDefaultValue(defaultValue) {
-		if (typeof(defaultValue) === 'undefined') {
+		if (typeof defaultValue === 'undefined') {
 			return null;
 		}
 		return defaultValue;

@@ -43,6 +43,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.builder = options.builder;
 		this.platform = this.builder.cli.argv.platform;
+		this.forceCleanBuildPropertyName = this.platform === 'ios' ? 'forceCleanBuild' : 'forceRebuild';
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
@@ -322,7 +323,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @return {Boolean} True if a full build is required, false if not.
 	 */
 	requiresFullBuild() {
-		if (this.builder.forceCleanBuild) {
+		if (this.builder[this.forceCleanBuildPropertyName]) {
 			this.logger.trace('Full build required, force clean build flag is set.');
 			return true;
 		}

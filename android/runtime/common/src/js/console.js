@@ -23,7 +23,7 @@ function join(args) {
 		return (arg === null)
 			? 'null'
 			: ((typeof arg === 'object')
-				? (arg.hasOwnProperty('toString') ? arg.toString() : JSON.stringify(arg))
+				? (Object.prototype.hasOwnProperty.call(arg, 'toString') ? arg.toString() : JSON.stringify(arg))
 				: arg);
 	}).join(' ');
 }

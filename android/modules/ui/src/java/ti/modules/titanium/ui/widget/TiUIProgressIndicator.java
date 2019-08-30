@@ -22,25 +22,17 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 
-public class TiUIProgressIndicator extends TiUIView implements Handler.Callback, DialogInterface.OnCancelListener
+public class TiUIProgressIndicator
+	extends TiUIView implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener
 {
 	private static final String TAG = "TiUIProgressDialog";
-
-	private static final int MSG_SHOW = 100;
-	private static final int MSG_PROGRESS = 101;
-	private static final int MSG_HIDE = 102;
 
 	public static final int INDETERMINANT = 0;
 	public static final int DETERMINANT = 1;
 
 	public static final int STATUS_BAR = 0;
 	public static final int DIALOG = 1;
-
-	protected Handler handler;
 
 	protected boolean visible;
 	protected ProgressDialog progressDialog;
@@ -55,32 +47,6 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 	{
 		super(proxy);
 		Log.d(TAG, "Creating an progress indicator", Log.DEBUG_MODE);
-		handler = new Handler(Looper.getMainLooper(), this);
-	}
-
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_SHOW: {
-				handleShow();
-				return true;
-			}
-			case MSG_PROGRESS: {
-				if (progressDialog != null) {
-					progressDialog.setProgress(msg.arg1);
-				} else {
-					Activity parent = (Activity) this.proxy.getActivity();
-					parent.setProgress(msg.arg1);
-				}
-				return true;
-			}
-			case MSG_HIDE: {
-				handleHide();
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	@Override
@@ -109,10 +75,15 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			if (visible) {
-				int value = TiConvert.toInt(newValue);
-				int thePos = (value - min) * incrementFactor;
-
-				handler.obtainMessage(MSG_PROGRESS, thePos, -1).sendToTarget();
+				int progressValue = (TiConvert.toInt(newValue, 0) - this.min) * this.incrementFactor;
+				if (this.progressDialog != null) {
+					this.progressDialog.setProgress(progressValue);
+				} else {
+					Activity activity = (Activity) this.proxy.getActivity();
+					if (activity != null) {
+						activity.setProgress(progressValue);
+					}
+				}
 			}
 
 		} else if (key.equals(TiC.PROPERTY_CANCELABLE)) {
@@ -173,6 +144,8 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 			type = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TYPE));
 		}
 
+		int progressValue = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VALUE), 0);
+
 		if (location == STATUS_BAR) {
 			incrementFactor = 10000 / (max - min);
 			Activity parent = (Activity) proxy.getActivity();
@@ -189,13 +162,25 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 				parent.setProgressBarIndeterminate(false);
 				parent.setProgressBarIndeterminateVisibility(false);
 				parent.setProgressBarVisibility(true);
+				parent.setProgress((progressValue - this.min) * this.incrementFactor);
 				statusBarTitle = parent.getTitle();
 				parent.setTitle(message);
 			} else {
 				Log.w(TAG, "Unknown type: " + type);
+				return;
 			}
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
+
+			// If existing dialog references a destroyed activity, then drop reference to dialog.
+			if (progressDialog != null) {
+				Activity activity = progressDialog.getOwnerActivity();
+				if ((activity == null) || activity.isFinishing() || activity.isDestroyed()) {
+					progressDialog = null;
+				}
+			}
+
+			// Create progress dialog if not done already.
 			if (progressDialog == null) {
 				Activity a = TiApplication.getInstance().getCurrentActivity();
 				if ((a == null) || a.isFinishing() || a.isDestroyed()) {
@@ -210,81 +195,99 @@ public class TiUIProgressIndicator extends TiUIView implements Handler.Callback,
 					progressDialog.setOwnerActivity(a);
 				}
 				progressDialog.setOnCancelListener(this);
+				progressDialog.setOnDismissListener(this);
 			}
 
+			// Set up dialog.
+			// Note: We must call setCanceledOnTouchOutside() before setCancelable().
 			progressDialog.setMessage(message);
-			// setCanceledOnTouchOutside() overrides the value of setCancelable(), so order of execution matters.
 			progressDialog.setCanceledOnTouchOutside(
 				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, false));
 			progressDialog.setCancelable(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, false));
-
 			if (type == INDETERMINANT) {
 				progressDialog.setIndeterminate(true);
 			} else if (type == DETERMINANT) {
 				progressDialog.setIndeterminate(false);
 				progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				if (min != 0) {
-					progressDialog.setMax(max - min); // no min setting so shift
-				} else {
-					progressDialog.setMax(max);
-				}
-				progressDialog.setProgress(0);
+				progressDialog.setMax(this.max - this.min);
 			} else {
 				Log.w(TAG, "Unknown type: " + type);
 			}
+
+			// Show the dialog.
+			// Note: The setProgress() method only works after the dialog is shown.
 			try {
 				progressDialog.show();
+				if (type == DETERMINANT) {
+					progressDialog.setProgress(progressValue - this.min);
+				}
 			} catch (Exception ex) {
 				Log.e(TAG, "Failed to show progress indicator dialog.", ex);
+				return;
 			}
 		} else {
 			Log.w(TAG, "Unknown location: " + location);
+			return;
 		}
+
+		// Flag progress indicator as shown.
 		visible = true;
 	}
 
 	public void hide(KrollDict options)
 	{
-		if (!visible) {
-			return;
-		}
-		handler.sendEmptyMessage(MSG_HIDE);
+		handleHide();
 	}
 
 	protected void handleHide()
 	{
-		if (progressDialog != null) {
-			Activity ownerActivity = progressDialog.getOwnerActivity();
-			if (ownerActivity instanceof TiBaseActivity) {
-				((TiBaseActivity) ownerActivity).removeDialog(progressDialog);
-				if (!ownerActivity.isFinishing() && !ownerActivity.isDestroyed()) {
-					try {
-						progressDialog.dismiss();
-					} catch (Exception ex) {
-						Log.e(TAG, "Failed to hide ProgressIndicator dialog.", ex);
+		if (!this.visible) {
+			return;
+		}
+
+		if (this.location == DIALOG) {
+			if (this.progressDialog != null) {
+				Activity ownerActivity = this.progressDialog.getOwnerActivity();
+				if (ownerActivity instanceof TiBaseActivity) {
+					((TiBaseActivity) ownerActivity).removeDialog(progressDialog);
+					if (!ownerActivity.isFinishing() && !ownerActivity.isDestroyed()) {
+						try {
+							this.progressDialog.dismiss();
+						} catch (Exception ex) {
+							Log.e(TAG, "Failed to hide ProgressIndicator dialog.", ex);
+						}
 					}
 				}
+				this.progressDialog = null;
 			}
-			progressDialog = null;
-		} else {
+		} else if (this.location == STATUS_BAR) {
 			Activity parent = proxy.getActivity();
 			if (parent != null) {
 				parent.setProgressBarIndeterminate(false);
 				parent.setProgressBarIndeterminateVisibility(false);
 				parent.setProgressBarVisibility(false);
-				if (visible) {
-					parent.setTitle(statusBarTitle);
+				if (this.visible) {
+					parent.setTitle(this.statusBarTitle);
 				}
 			}
-			statusBarTitle = null;
+			this.statusBarTitle = null;
 		}
-		visible = false;
+
+		this.visible = false;
 	}
 
 	@Override
 	public void onCancel(DialogInterface dialog)
 	{
-		visible = false;
+		this.visible = false;
+		this.progressDialog = null;
 		fireEvent(TiC.EVENT_CANCEL, null);
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog)
+	{
+		this.visible = false;
+		this.progressDialog = null;
 	}
 }

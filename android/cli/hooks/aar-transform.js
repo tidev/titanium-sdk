@@ -440,7 +440,7 @@ class SimpleFileCache {
 	 * @return {boolean}
 	 */
 	has(key) {
-		return this.data.hasOwnProperty(key);
+		return Object.prototype.hasOwnProperty.call(this.data, key);
 	}
 
 	/**

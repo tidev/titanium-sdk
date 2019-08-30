@@ -64,7 +64,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 				return next();
 			}
 
-			const creator = new(require(path.join(creatorDir, filename)))(logger, config, cli); // eslint-disable-line security/detect-non-literal-require
+			const creator = new (require(path.join(creatorDir, filename)))(logger, config, cli); // eslint-disable-line security/detect-non-literal-require
 			this.creators[creator.type] = creator;
 
 			try {

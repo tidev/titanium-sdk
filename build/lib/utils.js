@@ -60,7 +60,7 @@ Utils.copyAndModifyFile = async function (srcFolder, destFolder, filename, subst
 
 	// Go through each substitution and replace!
 	for (const key in substitutions) {
-		if (substitutions.hasOwnProperty(key)) {
+		if (Object.prototype.hasOwnProperty.call(substitutions, key)) {
 			str = str.split(key).join(substitutions[key]);
 		}
 	}

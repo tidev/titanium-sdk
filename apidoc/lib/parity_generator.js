@@ -24,7 +24,7 @@ function sort(object) {
 	const sorted = {};
 	const array = [];
 	for (const key in object) {
-		if (object.hasOwnProperty(key)) {
+		if (Object.prototype.hasOwnProperty.call(object, key)) {
 			array.push(key);
 		}
 	}

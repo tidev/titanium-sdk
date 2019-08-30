@@ -10,6 +10,7 @@
 #import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -552,11 +553,16 @@
     if (currentWindow == nil) {
       currentWindow = self;
     }
-    image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
-
+    if ([icon isKindOfClass:[TiBlob class]]) {
+      image = [(TiBlob *)icon image];
+    } else {
+      image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+    }
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
       activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+    } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
+      activeImage = [(TiBlob *)activeIcon image];
     }
   }
   [rootController setTitle:title];
