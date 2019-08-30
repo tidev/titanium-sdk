@@ -33,7 +33,7 @@
 			"integrity": "sha512-pAkWgutKTmp0h+ccalxPtweX9clgKEXQlrrVQPAPHPU1QtTMI0mi+tmqgKdlg27ReeqWm3aGPF9S8vmeyvMB2g=="
 		},
 		"ti.applesignin": {
-			"url":"https://github.com/appcelerator-modules/titanium-apple-sign-in/releases/download/v1.1.0/ti.applesignin-iphone-1.1.0.zip",
+			"url":"https://github.com/hansemannn/titanium-apple-sign-in/releases/download/v1.1.0/ti.applesignin-iphone-1.1.0.zip",
 			"integrity":"sha512-CsKIS5v2L9kcfRxVsa3RsZczyht1LaqAzF4PSRo1W+FKFmPRWiFvfa+hBmjAJd6lWfzBoJM1CoA8aoGi+/Bs8g=="
 		}
 	},
