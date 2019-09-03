@@ -29,7 +29,9 @@ public class DrawerLayoutProxy extends TiViewProxy
 	@Kroll.constant
 	public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
 	@Kroll.constant
-	public static final int GRAVITY_BOTH = 1;
+	public static final int GRAVITY_NONE = Gravity.NO_GRAVITY;
+	@Kroll.constant
+	public static final int GRAVITY_BOTH = Gravity.CENTER_HORIZONTAL;
 	@Kroll.constant
 	public static final int GRAVITY_LEFT = Gravity.LEFT;
 	@Kroll.constant
@@ -233,7 +235,7 @@ public class DrawerLayoutProxy extends TiViewProxy
 		if (hasProperty(TiC.PROPERTY_DRAWER_GRAVITY)) {
 			return (Integer) getProperty(TiC.PROPERTY_DRAWER_GRAVITY);
 		}
-		return GRAVITY_BOTH;
+		return Gravity.NO_GRAVITY;
 	}
 
 	// clang-format off
