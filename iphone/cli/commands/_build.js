@@ -856,7 +856,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 			if (value) {
 				// value can either be a fullname (Apple Distribution: Joe Bloggs (TEAMID)) or just name (Joe Bloggs (TEAMID)). We want to use fullname, so if we were provided
 				// a name try to map it back to the correct format.
-				const v = distributionCertLookup.filter(cert => cert.name.toLowerCase() === value.toLowerCase());
+				const v = distributionCertLookup.filter(cert => cert.name.toLowerCase() === value.toLowerCase() || cert.fullname.toLowerCase() === value.toLowerCase());
 
 				if (v.length === 1) {
 					return callback(null, v[0].fullname);
