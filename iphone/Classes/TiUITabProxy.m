@@ -342,6 +342,13 @@
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
   }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && [viewController isKindOfClass:[TiViewController class]]) {
+    TiViewController *toViewController = (TiViewController *)viewController;
+    if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+      TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
+      navigationController.view.backgroundColor = windowProxy.view.backgroundColor;
+    }
+  }
   [self handleWillShowViewController:viewController animated:animated];
 }
 
