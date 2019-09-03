@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -402,6 +402,13 @@ static NSArray *touchEventsArray;
     [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
   },
       NO);
+}
+
+- (void)clearMotionEffects:(id)unused
+{
+  [self.view.motionEffects enumerateObjectsUsingBlock:^(__kindof UIMotionEffect *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    [self.view removeMotionEffect:obj];
+  }];
 }
 
 - (id)getViewById:(id)arg
@@ -2838,6 +2845,31 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [self replaceValue:accessibilityHidden forKey:@"accessibilityHidden" notification:NO];
 }
 
+- (NSObject *)accessibilityElement
+{
+  return self.view.accessibilityElement;
+}
+
+- (NSString *)accessibilityLabel
+{
+  return [self accessibilityElement].accessibilityLabel;
+}
+
+- (NSString *)accessibilityValue
+{
+  return [self accessibilityElement].accessibilityValue;
+}
+
+- (NSString *)accessibilityHint
+{
+  return [self accessibilityElement].accessibilityHint;
+}
+
+- (NSNumber *)accessibilityHidden
+{
+  return NUMBOOL([self accessibilityElement].accessibilityElementsHidden);
+}
+
 #pragma mark - View Templates
 
 - (void)unarchiveFromTemplate:(id)viewTemplate_
@@ -2897,19 +2929,21 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     // TODO eval once and pass in the controller name and props as args?
     DebugLog(@"[DEBUG] Failed to load native class %@, trying Alloy widget / CommonJS module", viewTemplate.type);
     NSString *code = [NSString stringWithFormat:@"var result;"
+                                                 "var jsModule;"
                                                  "try {"
-                                                 "  var jsModule = require('/alloy/widgets/%@/controllers/widget');"
-                                                 "  if (!jsModule) {"
+                                                 "    jsModule = require('/alloy/widgets/%@/controllers/widget');"
+                                                 "} catch (error) {"
+                                                 "  try {"
                                                  "    jsModule = require('%@');"
+                                                 "  } catch (e) {"
+                                                 "    Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
                                                  "  }"
-                                                 "  if (jsModule) {"
-                                                 "    result = function (parameters) {"
+                                                 "}"
+                                                 "if (jsModule) {"
+                                                 "  result = function (parameters) {"
                                                  "      const obj = new jsModule(parameters);"
                                                  "      return obj.getView();"
                                                  "    };"
-                                                 "  }"
-                                                 "} catch (e) {"
-                                                 "  Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
                                                  "}"
                                                  "result;",
                                viewTemplate.type, viewTemplate.type, viewTemplate.type];
