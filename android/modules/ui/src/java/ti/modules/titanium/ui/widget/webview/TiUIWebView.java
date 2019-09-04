@@ -1069,7 +1069,7 @@ public class TiUIWebView extends TiUIView
 
 	public void stopLoading()
 	{
-		new Handler(getMainLooper()).post(new Runnable() {
+		getWebView().getHandler().post(new Runnable() {
 			@Override
 			public void run()
 			{
