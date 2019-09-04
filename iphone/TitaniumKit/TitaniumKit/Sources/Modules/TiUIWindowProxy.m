@@ -293,13 +293,13 @@
 
 #pragma mark - UINavController, NavItem UI
 
-- (void)setNavTintColor:(id)colorString
+- (void)setNavTintColor:(id)color
 {
-  NSString *color = [TiUtils stringValue:colorString];
-  [self replaceValue:color forKey:@"navTintColor" notification:NO];
+  __block TiColor *newColor = [TiUtils colorValue:color];
+
+  [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
   TiThreadPerformOnMainThread(^{
     if (controller != nil) {
-      TiColor *newColor = [TiUtils colorValue:color];
       if (newColor == nil) {
         //Get from TabGroup
         newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
@@ -312,13 +312,14 @@
       NO);
 }
 
-- (void)setBarColor:(id)colorString
+- (void)setBarColor:(id)color
 {
-  ENSURE_UI_THREAD(setBarColor, colorString);
-  NSString *color = [TiUtils stringValue:colorString];
-  [self replaceValue:color forKey:@"barColor" notification:NO];
+  ENSURE_UI_THREAD(setBarColor, color);
+
+  TiColor *newColor = [TiUtils colorValue:color];
+  [self replaceValue:newColor forKey:@"barColor" notification:NO];
+
   if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
-    TiColor *newColor = [TiUtils colorValue:color];
     if (newColor == nil) {
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
@@ -329,7 +330,7 @@
     UINavigationBar *navBar = [[controller navigationController] navigationBar];
     [navBar setBarStyle:navBarStyle];
     [navBar setBarTintColor:barColor];
-    [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    [self refreshBackButton];
   }
 }
 
