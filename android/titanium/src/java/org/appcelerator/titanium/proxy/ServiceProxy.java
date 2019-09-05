@@ -42,6 +42,7 @@ public class ServiceProxy extends KrollProxy
 	private IntentProxy intentProxy;
 	private int notificationId;
 	private KrollProxy notificationProxy;
+	private int foregroundServiceType;
 
 	// Set only if the service is started via bindService as opposed to startService
 	private ServiceConnection serviceConnection = null;
@@ -130,7 +131,7 @@ public class ServiceProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void foregroundNotify(int notificationId, KrollProxy notificationProxy)
+	public void foregroundNotify(int notificationId, KrollProxy notificationProxy, int foregroundServiceType)
 	{
 		// Validate arguments.
 		if (notificationId == 0) {
@@ -145,6 +146,7 @@ public class ServiceProxy extends KrollProxy
 		{
 			this.notificationId = notificationId;
 			this.notificationProxy = notificationProxy;
+			this.foregroundServiceType = foregroundServiceType;
 		}
 		updateForegroundState();
 	}
@@ -268,6 +270,7 @@ public class ServiceProxy extends KrollProxy
 				// Fetch the proxy's notification and ID.
 				int notificationId = 0;
 				Notification notificationObject = null;
+				int foregroundServiceType = 0;
 				try {
 					// Fetch notification settings from proxy.
 					synchronized (ServiceProxy.this)
@@ -282,6 +285,7 @@ public class ServiceProxy extends KrollProxy
 								Method method = proxyClass.getMethod("buildNotification");
 								notificationObject = (Notification) method.invoke(object);
 							}
+							foregroundServiceType = ServiceProxy.this.foregroundServiceType;
 						}
 					}
 
@@ -357,7 +361,11 @@ public class ServiceProxy extends KrollProxy
 				// Note: A notification will be shown in the status bar while enabled.
 				try {
 					if (isForeground) {
-						service.startForeground(notificationId, notificationObject);
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+							service.startForeground(notificationId, notificationObject, foregroundServiceType);
+						} else {
+							service.startForeground(notificationId, notificationObject);
+						}
 					} else {
 						service.stopForeground(true);
 					}

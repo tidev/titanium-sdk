@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
@@ -521,6 +522,23 @@ public class AndroidModule extends KrollModule
 	public static final int IMPORTANCE_NONE = NotificationManagerCompat.IMPORTANCE_NONE;
 	@Kroll.constant
 	public static final int IMPORTANCE_UNSPECIFIED = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
+
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MANIFEST = ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_NONE = ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_DATA_SYNC = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_PHONE_CALL = ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_LOCATION = ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
 
 	protected RProxy r;
 	private LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
