@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-NSMutableArray *TiCreateNonRetainingArray()
+NSMutableArray *TiCreateNonRetainingArray(void)
 {
   CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
   callbacks.retain = NULL;
@@ -29,7 +29,7 @@ NSMutableArray *TiCreateNonRetainingArray()
   return (NSMutableArray *)CFArrayCreateMutable(nil, 0, &callbacks);
 }
 
-NSMutableDictionary *TiCreateNonRetainingDictionary()
+NSMutableDictionary *TiCreateNonRetainingDictionary(void)
 {
   CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
   CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;
@@ -115,6 +115,7 @@ NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
+NSString *const kTiTraitCollectionChanged = @"TiTraitCollectionChanged";
 
 #ifndef TI_USE_AUTOLAYOUT
 NSString *const kTiBehaviorSize = @"SIZE";

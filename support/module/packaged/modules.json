@@ -31,6 +31,10 @@
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.6/ti.identity-iphone-1.0.6.zip",
 			"integrity": "sha512-pAkWgutKTmp0h+ccalxPtweX9clgKEXQlrrVQPAPHPU1QtTMI0mi+tmqgKdlg27ReeqWm3aGPF9S8vmeyvMB2g=="
+		},
+		"ti.applesignin": {
+			"url":"https://github.com/appcelerator-modules/titanium-apple-sign-in/releases/download/v1.1.0/ti.applesignin-iphone-1.1.0.zip",
+			"integrity":"sha512-CsKIS5v2L9kcfRxVsa3RsZczyht1LaqAzF4PSRo1W+FKFmPRWiFvfa+hBmjAJd6lWfzBoJM1CoA8aoGi+/Bs8g=="
 		}
 	},
 	"android": {
@@ -71,8 +75,8 @@
 	},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.2/hyperloop-4.0.2.zip",
-			"integrity": "sha512-oKxHxWEyW1K+6/XgMoXB8Lt4+aZh4yl6L/+Q0F0lr1IlHkgfEUzzUVDsGfJOJ/KCDfP2WYXFKLz4VssJDJRHWg=="
+			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.3/hyperloop-4.0.3.zip",
+			"integrity": "sha512-IXraXPaHVfM4MvdGv5KJCfPJb6mXMNfaDiOL/rFWXt7sug6Ekaa8JJ96MtyNNxz6CGLZgGL46lqjJNRnJQj1mQ=="
 		}
 	}
 }
