@@ -105,7 +105,6 @@ methods:
         type: Number
         default: Titanium.Android.FOREGROUND_SERVICE_TYPE_NONE
         optional: true
-        since: "8.3.0"
 
   - name: start
     summary: Starts the Service.
