@@ -15,7 +15,6 @@ import android.os.Bundle;
  * To retrieve the callback, fill the Activity's Intent with the following two properties:
  * <code>
  * int uniqueWindowId = TiActivityWindows.addWindow(this);
- * intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
  * intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, uniqueWindowId);
  * </code>
  */

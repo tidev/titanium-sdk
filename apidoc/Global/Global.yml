@@ -16,7 +16,7 @@ description: |
     #### console
 
     Titanium provides [console](Global.console) support familiar to many javascript developers
-    for logging at the toplevel, in addition to the <Titanium.API> logging facilities.
+    for logging at the toplevel, in addition to the [Titanium](Titanium.API) logging facilities.
 
     #### Timers
 
@@ -106,7 +106,7 @@ methods:
         type: String
 
   - name: L
-    summary: An alias for <Titanium.Locale.getString>.
+    summary: An alias for [Titanium.Locale.getString](Titanium.Locale.getString).
     returns:
         summary: Localized string defined by `key`, or value of `hint` otherwise.
         type: String

@@ -10,6 +10,7 @@
 #import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -111,11 +112,23 @@
     [self performSelector:_cmd withObject:args afterDelay:0.1];
     return;
   }
-  TiWindowProxy *window = [args objectAtIndex:0];
 
-  BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-  [controllerStack addObject:[window hostingController]];
-  [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
+  @try {
+    TiWindowProxy *window = [args objectAtIndex:0];
+
+    // Prevent UIKit  crashes when trying to push a window while it's already in the nav stack (e.g. on really slow devices)
+    if ([[[self rootController].navigationController viewControllers] containsObject:window.hostingController]) {
+      NSLog(@"[WARN] Trying to push a view controller that is already in the navigation window controller stack. Skipping open …");
+      return;
+    }
+
+    BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+    [controllerStack addObject:[window hostingController]];
+
+    [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
+  } @catch (NSException *ex) {
+    NSLog(@"[ERROR] %@", ex.description);
+  }
 }
 
 - (void)closeOnUIThread:(NSArray *)args
@@ -244,10 +257,9 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   [window processForSafeArea];
 #endif
-
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -373,7 +385,7 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
 #endif
   if (theWindow == rootWindow) {
@@ -541,11 +553,16 @@
     if (currentWindow == nil) {
       currentWindow = self;
     }
-    image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
-
+    if ([icon isKindOfClass:[TiBlob class]]) {
+      image = [(TiBlob *)icon image];
+    } else {
+      image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+    }
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
       activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+    } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
+      activeImage = [(TiBlob *)activeIcon image];
     }
   }
   [rootController setTitle:title];
@@ -730,7 +747,7 @@
 
 @synthesize parentOrientationController;
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   if (rootWindow == nil) {
@@ -748,7 +765,6 @@
   return NO;
 }
 #endif
-
 - (BOOL)hidesStatusBar
 {
   if (rootWindow == nil) {

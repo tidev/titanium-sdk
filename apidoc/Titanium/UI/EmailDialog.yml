@@ -4,12 +4,20 @@ summary: |
     An email dialog is a modal window that allows users to compose and send an email.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/emaildialog/emaildialog_android.png" height="150" style="border: 1px solid black;"/></td>
-        <td><img src="images/emaildialog/emaildialog_ios.png" height="150" style="border: 1px solid black;"/></td>
-        <td><img src="images/emaildialog/emaildialog_wp.png" height="150" style="border: 1px solid black;"/></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/emaildialog/emaildialog_android.png" height="150"/></td>
+          <td><img src="images/emaildialog/emaildialog_ios.png" height="150"/></td>
+          <td><img src="images/emaildialog/emaildialog_wp.png" height="150"/></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      <tfoot>
     </table>
 
     The Email Dialog is created with the <Titanium.UI.createEmailDialog> method. The user needs to

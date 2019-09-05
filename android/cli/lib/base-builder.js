@@ -3,10 +3,9 @@
 const appc = require('node-appc'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	DOMParser = require('xmldom').DOMParser,
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
 	util = require('util'),
-	wrench = require('wrench'),
 	i18nLib = appc.i18n(__dirname),
 	__ = i18nLib.__,
 	xml = appc.xml;
@@ -63,9 +62,7 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 			this.logger.warn(__('Please check for possible duplicate resources.'));
 			fs.unlinkSync(dest);
 		} else {
-			if (!fs.existsSync(destDir)) {
-				wrench.mkdirSyncRecursive(destDir);
-			}
+			fs.ensureDirSync(destDir);
 			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
 		}
 		fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + srcDoc.toString());
@@ -110,7 +107,7 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 	});
 
 	root.appendChild(dom.createTextNode('\n'));
-	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+	fs.ensureDirSync(destDir);
 	destExists && fs.unlinkSync(dest);
 	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };

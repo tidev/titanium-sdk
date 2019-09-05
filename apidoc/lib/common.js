@@ -10,14 +10,14 @@ const yaml = require('js-yaml'),
 	fs = require('fs'),
 	colors = require('colors'), // eslint-disable-line no-unused-vars
 	nodeappc = require('node-appc'),
-	pagedown = require('pagedown'),
-	converter = new pagedown.Converter(),
+	MarkdownIt = require('markdown-it'),
 	ignoreList = [ 'node_modules', '.travis.yml' ],
 	LOG_INFO = 0,
 	LOG_WARN = LOG_INFO + 1,
 	LOG_ERROR = LOG_WARN + 1;
 
 let logLevel = LOG_INFO;
+let md;
 
 exports.VALID_PLATFORMS = [ 'android', 'blackberry', 'iphone', 'ipad', 'windowsphone' ];
 exports.VALID_OSES = [ 'android', 'blackberry', 'ios', 'windowsphone' ];
@@ -61,7 +61,10 @@ exports.REGEXP_CHEVRON_LINKS = /(?!`)<[^>]+?>(?!`)/g;
  * @return {string} HTML
  */
 exports.markdownToHTML = function markdownToHTML(text) {
-	return converter.makeHtml(text);
+	if (!md) {
+		throw new Error('Markdown parser not initalized. Call "createMarkdown" before trying to render any markdown.');
+	}
+	return md.render(text).trim();
 };
 
 exports.LOG_INFO = LOG_INFO;
@@ -216,7 +219,7 @@ exports.parseYAML = function parseYAML(path) {
  * @param {Object} type sub-type of class?
  * @return {boolean} true if found, false otherwise
  */
-exports.findAPI = function (doc, className, memberName, type) {
+exports.findAPI = function findAPI(doc, className, memberName, type) {
 	var cls = doc[className],
 		x = 0;
 
@@ -228,4 +231,78 @@ exports.findAPI = function (doc, className, memberName, type) {
 		}
 	}
 	return false;
+};
+
+exports.createMarkdown = function createMarkdown(doc) {
+	const typeLinkPattern = /^<([a-zA-Z][a-zA-Z0-9._]+)>/;
+	md = new MarkdownIt({
+		html: true
+	});
+	md.use(typeAutolinkPlugin);
+
+	/**
+	 * Adds a new rule to the inline parser to automatically create link tokens
+   * for types, e.g. `<Titanium.UI.View>`.
+	 *
+	 * @param {MarkdownIt} md markdown-it parser instance
+	 */
+	function typeAutolinkPlugin(md) {
+		md.inline.ruler.after('autolink', 'type-autolink', (state, silent) => {
+			const pos = state.pos;
+			if (state.src.charCodeAt(pos) !== 0x3C/* < */) {
+				return false;
+			}
+
+			const tail = state.src.slice(pos);
+			if (tail.indexOf('>') === -1) {
+				return false;
+			}
+
+			if (typeLinkPattern.test(tail)) {
+				const linkMatch = tail.match(typeLinkPattern);
+				const url = linkMatch[0].slice(1, -1);
+				if (!isValidType(url)) {
+					return false;
+				}
+				if (!silent) {
+					let token;
+					token = state.push('link_open', 'a', 1);
+					token.attrs = [ [ 'href', url ] ];
+					token.markup = 'autolink';
+					token.info = 'auto';
+
+					token = state.push('text', '', 0);
+					token.content = url;
+
+					token = state.push('link_close', 'a', -1);
+					token.markup = 'autolink';
+					token.info = 'auto';
+				}
+				state.pos += linkMatch[0].length;
+				return true;
+			}
+
+			return false;
+		});
+	}
+
+	function isValidType(apiName) {
+		if (apiName in doc) {
+			return true;
+		}
+
+		if (apiName.indexOf('.') === -1) {
+			return false;
+		}
+
+		const member = apiName.split('.').pop();
+		const cls = apiName.substring(0, apiName.lastIndexOf('.'));
+
+		if (!(cls in doc) && !apiName.startsWith('Modules.')) {
+			return false;
+		}
+
+		const memberTypeCandidates = [ 'properties', 'methods', 'events' ];
+		return memberTypeCandidates.some(memberType => exports.findAPI(doc, cls, member, memberType));
+	}
 };

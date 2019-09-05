@@ -22,12 +22,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
-import android.os.Build;
 import android.text.Html;
-import android.text.InputType;
 import android.text.Layout;
-import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -743,34 +739,15 @@ public class TiUILabel extends TiUIView
 
 		// If auto-link is enabled, then scan the text for links and apply URLSpans to it.
 		// Note: This must be done after the text has been turned into a Spannable up above.
-		boolean hasLinks = false;
 		if (this.autoLinkFlags != 0) {
-			hasLinks = Linkify.addLinks((Spannable) text, this.autoLinkFlags);
-		}
-		MovementMethod movementMethod = hasLinks ? LinkMovementMethod.getInstance() : null;
-		if (movementMethod != textView.getMovementMethod()) {
-			// Fetch the view's current focus/enable states.
-			boolean isFocusable = textView.isFocusable();
-			boolean isClickable = textView.isClickable();
-			boolean isLongClickable = textView.isLongClickable();
-
-			// Update the view's movement method. (Will either add link support or remove it.)
-			textView.setMovementMethod(movementMethod);
-
-			// Restore the view's focus/enable states.
-			// We need to do this because setMovementMethod() resets these settings.
-			textView.setFocusable(isFocusable);
-			textView.setClickable(isClickable);
-			textView.setLongClickable(isLongClickable);
+			Linkify.addLinks((Spannable) text, this.autoLinkFlags);
 		}
 
 		// Update the text view's ellipsize feature.
 		TruncateAt updatedEllipsizeType = this.ellipsize;
-		if (movementMethod != null) {
+		if (textView.getMovementMethod() != null) {
 			// Android doesn't support start/middle ellipsis when a MovementMethod is configured.
 			// If this is what's configured, then use "end" ellipsis mode instead.
-			// TODO: In the future, we can work-around this by not using LinkMovementMethod for links above
-			//       and handle the URLs in onTouchEvent() ourselves as seen in Google's "TextView.java" code.
 			if ((updatedEllipsizeType == TruncateAt.START) || (updatedEllipsizeType == TruncateAt.MIDDLE)) {
 				updatedEllipsizeType = TruncateAt.END;
 			}

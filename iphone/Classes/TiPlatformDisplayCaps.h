@@ -1,22 +1,28 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_PLATFORM
 
-#import <TitaniumKit/TiProxy.h>
+@import JavaScriptCore;
+@import TitaniumKit.ObjcProxy;
 
-@interface TiPlatformDisplayCaps : TiProxy {
-}
+@protocol TiPlatformDisplayCapsExports <JSExport>
 
-@property (nonatomic, readonly) NSNumber *platformHeight;
-@property (nonatomic, readonly) NSNumber *platformWidth;
-@property (nonatomic, readonly) NSNumber *density;
-@property (nonatomic, readonly) NSString *dpi;
-@property (nonatomic, readonly) NSNumber *logicalDensityFactor;
+// Properties (and accesors)
+READONLY_PROPERTY(NSString *, density, Density);
+READONLY_PROPERTY(NSNumber *, dpi, Dpi);
+READONLY_PROPERTY(NSNumber *, logicalDensityFactor, LogicalDensityFactor);
+READONLY_PROPERTY(NSNumber *, platformHeight, PlatformHeight);
+READONLY_PROPERTY(NSNumber *, platformWidth, PlatformWidth);
+// TODO xdpi
+// TODO ydpi
 
+@end
+
+@interface TiPlatformDisplayCaps : ObjcProxy <TiPlatformDisplayCapsExports>
 @end
 
 #endif

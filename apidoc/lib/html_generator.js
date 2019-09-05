@@ -55,7 +55,8 @@ function convertAPIToLink(apiName) {
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 
 		if (!(cls in doc) && !apiName.startsWith('Modules.')) {
-			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
+			common.log(common.LOG_WARN, 'Cannot find class: %s, referenced by %s', cls, apiName);
+			console.log(apiName);
 			return apiName;
 		} else {
 			if (common.findAPI(doc, cls, member, 'properties')) {
@@ -415,7 +416,19 @@ function exportType(api) {
 					t = 'Array&lt;' + convertAPIToLink(t) + '&gt;';
 				}
 			} else if (t.indexOf('Callback<') === 0) {
-				t = 'Callback&lt;' + convertAPIToLink(t.substring(t.indexOf('<') + 1, t.lastIndexOf('>'))) + '&gt;';
+				// Parse out the multiple types of args!
+				const subTypes = t.substring(t.indexOf('<') + 1, t.lastIndexOf('>'));
+				// split by ', ' then convert to link for each and join by ', '
+				const linkified = subTypes.split(',').map(t =>  {
+					t = t.trim();
+					if (t.startsWith('Array<')) {
+						const apiName = /Array<(.+)>/.exec(t);
+						return convertAPIToLink(apiName[1]);
+					} else {
+						return convertAPIToLink(t);
+					}
+				}).join(', ');
+				t = `Callback&lt;${linkified}&gt;`;
 			} else if (t.indexOf('Dictionary<') === 0) {
 				t = 'Dictionary&lt;' + convertAPIToLink(t.substring(t.indexOf('<') + 1, t.lastIndexOf('>'))) + '&gt;';
 			} else {
@@ -518,6 +531,7 @@ exports.exportData = function exportHTML(apis) {
 		property: []
 	};
 	doc = apis;
+	common.createMarkdown(doc);
 
 	common.log(common.LOG_INFO, 'Annotating HTML-specific attributes...');
 

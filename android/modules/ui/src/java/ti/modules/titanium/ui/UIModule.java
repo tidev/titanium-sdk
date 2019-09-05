@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 // clang-format off
 @Kroll.module
-@Kroll.dynamicApis(properties = { "currentWindow" })
+
 public class UIModule extends KrollModule
 // clang-format on
 {

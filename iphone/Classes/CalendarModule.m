@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,8 @@
 
 #import "CalendarModule.h"
 #import "TiCalendarCalendar.h"
+@import TitaniumKit.TiBase;
+@import TitaniumKit.TiUtils;
 
 @implementation CalendarModule
 
@@ -27,7 +29,7 @@
   return store;
 }
 
-- (NSArray *)allEventKitCalendars
+- (NSArray<EKCalendar *> *)allEventKitCalendars
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
@@ -50,16 +52,16 @@
   return @"Ti.Calendar";
 }
 
-- (void)startup
+- (void)_configure
 {
-  [super startup];
+  [super _configure];
   store = NULL;
 }
 
 - (void)eventStoreChanged:(NSNotification *)notification
 {
   if ([self _hasListeners:@"change"]) {
-    [self fireEvent:@"change" withObject:nil];
+    [self fireEvent:@"change" withDict:nil];
   }
 }
 
@@ -72,14 +74,9 @@
   [super dealloc];
 }
 
-- (void)didReceiveMemoryWarning:(NSNotification *)notification
-{
-  [super didReceiveMemoryWarning:notification];
-}
-
 #pragma mark - Public API's
 
-- (NSArray *)allCalendars
+- (NSArray<TiCalendarCalendar *> *)allCalendars
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
@@ -92,16 +89,17 @@
 
   NSArray *calendars_ = [self allEventKitCalendars];
 
-  NSMutableArray *calendars = [NSMutableArray arrayWithCapacity:[calendars_ count]];
+  NSMutableArray<TiCalendarCalendar *> *calendars = [NSMutableArray arrayWithCapacity:[calendars_ count]];
   for (EKCalendar *calendar_ in calendars_) {
-    TiCalendarCalendar *calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
+    TiCalendarCalendar *calendar = [[[TiCalendarCalendar alloc] initWithCalendar:calendar_ module:self] autorelease];
     [calendars addObject:calendar];
   }
 
   return calendars;
 }
+GETTER_IMPL(NSArray<TiCalendarCalendar *> *, allCalendars, AllCalendars);
 
-- (NSArray *)allEditableCalendars
+- (NSArray<TiCalendarCalendar *> *)allEditableCalendars
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
@@ -114,25 +112,24 @@
 
   NSArray *calendars_ = [self allEventKitCalendars];
 
-  NSMutableArray *editableCalendars = [NSMutableArray array];
+  NSMutableArray<TiCalendarCalendar *> *editableCalendars = [NSMutableArray array];
   for (EKCalendar *calendar_ in calendars_) {
     if ([calendar_ allowsContentModifications]) {
-      TiCalendarCalendar *calendar = [[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self];
+      TiCalendarCalendar *calendar = [[TiCalendarCalendar alloc] initWithCalendar:calendar_ module:self];
       [editableCalendars addObject:calendar];
       RELEASE_TO_NIL(calendar);
     }
   }
   return editableCalendars;
 }
+GETTER_IMPL(NSArray<TiCalendarCalendar *> *, allEditableCalendars, AllEditableCalendars);
 
-- (TiCalendarCalendar *)getCalendarById:(id)arg
+- (TiCalendarCalendar *)getCalendarById:(NSString *)calendarId
 {
-  ENSURE_SINGLE_ARG(arg, NSString);
-
   if (![NSThread isMainThread]) {
     __block id result = nil;
     TiThreadPerformOnMainThread(^{
-      result = [[self getCalendarById:arg] retain];
+      result = [[self getCalendarById:calendarId] retain];
     },
         YES);
     return [result autorelease];
@@ -149,7 +146,7 @@
   //not optimal but best way to fix non existing shared calendar error
   NSArray *allCalendars = [ourStore calendarsForEntityType:EKEntityTypeEvent];
   for (EKCalendar *cal in allCalendars) {
-    if ([cal.calendarIdentifier isEqualToString:arg]) {
+    if ([cal.calendarIdentifier isEqualToString:calendarId]) {
       calendar_ = cal;
       break;
     }
@@ -158,7 +155,7 @@
   if (calendar_ == NULL) {
     return NULL;
   }
-  TiCalendarCalendar *calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
+  TiCalendarCalendar *calendar = [[[TiCalendarCalendar alloc] initWithCalendar:calendar_ module:self] autorelease];
   return calendar;
 }
 
@@ -182,14 +179,13 @@
   if (calendar_ == NULL) {
     return nil;
   }
-  TiCalendarCalendar *calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
+  TiCalendarCalendar *calendar = [[[TiCalendarCalendar alloc] initWithCalendar:calendar_ module:self] autorelease];
   return calendar;
 }
+GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
 
-- (void)requestAuthorization:(id)args forEntityType:(EKEntityType)entityType
+- (void)requestAuthorization:(JSValue *)callback forEntityType:(EKEntityType)entityType
 {
-  ENSURE_SINGLE_ARG(args, KrollCallback);
-  KrollCallback *callback = args;
   NSString *errorStr = nil;
   int code = 0;
   BOOL doPrompt = NO;
@@ -214,12 +210,10 @@
 
   if (!doPrompt) {
     NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
-    NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-
-    [callback call:invocationArray thisObject:self];
-    [invocationArray release];
+    [callback callWithArguments:@[ propertiesDict ]];
     return;
   }
+
   TiThreadPerformOnMainThread(^() {
     EKEventStore *ourstore = [self store];
     [ourstore requestAccessToEntityType:EKEntityTypeEvent
@@ -231,9 +225,10 @@
                                } else {
                                  propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                                }
-                               KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
-                               [[callback context] enqueue:invocationEvent];
-                               RELEASE_TO_NIL(invocationEvent);
+                               TiThreadPerformOnMainThread(^{
+                                 [callback callWithArguments:@[ propertiesDict ]];
+                               },
+                                   [NSThread isMainThread]);
                              }];
   },
       NO);
@@ -241,7 +236,7 @@
 
 #pragma mark - Public API
 
-- (NSNumber *)hasCalendarPermissions:(id)unused
+- (BOOL)hasCalendarPermissions
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCalendarsUsageDescription"];
 
@@ -249,94 +244,79 @@
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCalendarsUsageDescription\" inside the plist in your tiapp.xml when accessing the native calendar. Please add the key and re-run the application.");
   }
 
-  return NUMBOOL([EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent] == EKAuthorizationStatusAuthorized);
+  return [self calendarAuthorization] == EKAuthorizationStatusAuthorized;
 }
 
-- (void)requestEventsAuthorization:(id)args
+- (void)requestCalendarPermissions:(JSValue *)callback
 {
-  DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization()", @"5.1.0", @"Calendar.requestCalendarPermissions()");
-  [self requestCalendarPermissions:args];
+  [self requestAuthorization:callback forEntityType:EKEntityTypeEvent];
 }
 
-- (void)requestCalendarPermissions:(id)args
+- (EKAuthorizationStatus)calendarAuthorization
 {
-  ENSURE_SINGLE_ARG(args, KrollCallback);
-  [self requestAuthorization:args forEntityType:EKEntityTypeEvent];
+  return [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
 }
-
-// Not documented + used, yet. Part of the 5.2.0 release.
-- (void)requestRemindersPermissions:(id)args
-{
-  ENSURE_SINGLE_ARG(args, KrollCallback);
-  [self requestAuthorization:args forEntityType:EKEntityTypeReminder];
-}
-
-- (NSNumber *)eventsAuthorization
-{
-  DEPRECATED_REPLACED(@"Calendar.eventsAuthorization", @"5.2.0", @"Calendar.calendarAuthorization");
-  return [self calendarAuthorization];
-}
-
-- (NSNumber *)calendarAuthorization
-{
-  EKAuthorizationStatus result = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
-  return [NSNumber numberWithInteger:result];
-}
+GETTER_IMPL(EKAuthorizationStatus, calendarAuthorization, CalendarAuthorization);
 
 #pragma mark - Properties
 
-MAKE_SYSTEM_PROP(STATUS_NONE, EKEventStatusNone);
-MAKE_SYSTEM_PROP(STATUS_CONFIRMED, EKEventStatusConfirmed);
-MAKE_SYSTEM_PROP(STATUS_TENTATIVE, EKEventStatusTentative);
-MAKE_SYSTEM_PROP(STATUS_CANCELED, EKEventStatusCanceled);
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATUS_CANCELLED, EKEventStatusCanceled, @"Calendar.STATUS_CANCELLED", @"5.2.0", @"Calendar.STATUS_CANCELED")
+#define MAKE_PROP(TYPE, NAME, VALUE) \
+  -(TYPE)NAME                        \
+  {                                  \
+    return VALUE;                    \
+  }
 
-MAKE_SYSTEM_PROP(AVAILABILITY_NOTSUPPORTED, EKEventAvailabilityNotSupported);
-MAKE_SYSTEM_PROP(AVAILABILITY_BUSY, EKEventAvailabilityBusy);
-MAKE_SYSTEM_PROP(AVAILABILITY_FREE, EKEventAvailabilityFree);
-MAKE_SYSTEM_PROP(AVAILABILITY_TENTATIVE, EKEventAvailabilityTentative);
-MAKE_SYSTEM_PROP(AVAILABILITY_UNAVAILABLE, EKEventAvailabilityUnavailable);
+MAKE_PROP(EKEventStatus, STATUS_NONE, EKEventStatusNone);
+MAKE_PROP(EKEventStatus, STATUS_CONFIRMED, EKEventStatusConfirmed);
+MAKE_PROP(EKEventStatus, STATUS_TENTATIVE, EKEventStatusTentative);
+MAKE_PROP(EKEventStatus, STATUS_CANCELED, EKEventStatusCanceled);
 
-MAKE_SYSTEM_PROP(SPAN_THISEVENT, EKSpanThisEvent);
-MAKE_SYSTEM_PROP(SPAN_FUTUREEVENTS, EKSpanFutureEvents);
+MAKE_PROP(EKEventAvailability, AVAILABILITY_NOTSUPPORTED, EKEventAvailabilityNotSupported);
+MAKE_PROP(EKEventAvailability, AVAILABILITY_BUSY, EKEventAvailabilityBusy);
+MAKE_PROP(EKEventAvailability, AVAILABILITY_FREE, EKEventAvailabilityFree);
+MAKE_PROP(EKEventAvailability, AVAILABILITY_TENTATIVE, EKEventAvailabilityTentative);
+MAKE_PROP(EKEventAvailability, AVAILABILITY_UNAVAILABLE, EKEventAvailabilityUnavailable);
 
-MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_DAILY, EKRecurrenceFrequencyDaily);
-MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_WEEKLY, EKRecurrenceFrequencyWeekly);
-MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_MONTHLY, EKRecurrenceFrequencyMonthly);
-MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_YEARLY, EKRecurrenceFrequencyYearly);
+MAKE_PROP(EKSpan, SPAN_THISEVENT, EKSpanThisEvent);
+MAKE_PROP(EKSpan, SPAN_FUTUREEVENTS, EKSpanFutureEvents);
 
-MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, EKAuthorizationStatusNotDetermined);
-MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, EKAuthorizationStatusRestricted);
-MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, EKAuthorizationStatusDenied);
-MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, EKAuthorizationStatusAuthorized);
+MAKE_PROP(EKRecurrenceFrequency, RECURRENCEFREQUENCY_DAILY, EKRecurrenceFrequencyDaily);
+MAKE_PROP(EKRecurrenceFrequency, RECURRENCEFREQUENCY_WEEKLY, EKRecurrenceFrequencyWeekly);
+MAKE_PROP(EKRecurrenceFrequency, RECURRENCEFREQUENCY_MONTHLY, EKRecurrenceFrequencyMonthly);
+MAKE_PROP(EKRecurrenceFrequency, RECURRENCEFREQUENCY_YEARLY, EKRecurrenceFrequencyYearly);
 
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_UNKNOWN, EKParticipantStatusUnknown);
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_PENDING, EKParticipantStatusPending);
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_ACCEPTED, EKParticipantStatusAccepted);
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_DECLINED, EKParticipantStatusDeclined);
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_TENTATIVE, EKParticipantStatusTentative);
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_DELEGATED, EKParticipantStatusDelegated);
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_COMPLETED, EKParticipantStatusCompleted);
-MAKE_SYSTEM_PROP(ATTENDEE_STATUS_IN_PROCESS, EKParticipantStatusInProcess);
+MAKE_PROP(EKAuthorizationStatus, AUTHORIZATION_UNKNOWN, EKAuthorizationStatusNotDetermined);
+MAKE_PROP(EKAuthorizationStatus, AUTHORIZATION_RESTRICTED, EKAuthorizationStatusRestricted);
+MAKE_PROP(EKAuthorizationStatus, AUTHORIZATION_DENIED, EKAuthorizationStatusDenied);
+MAKE_PROP(EKAuthorizationStatus, AUTHORIZATION_AUTHORIZED, EKAuthorizationStatusAuthorized);
 
-MAKE_SYSTEM_PROP(ATTENDEE_ROLE_UNKNOWN, EKParticipantRoleUnknown);
-MAKE_SYSTEM_PROP(ATTENDEE_ROLE_REQUIRED, EKParticipantRoleRequired);
-MAKE_SYSTEM_PROP(ATTENDEE_ROLE_OPTIONAL, EKParticipantRoleOptional);
-MAKE_SYSTEM_PROP(ATTENDEE_ROLE_CHAIR, EKParticipantRoleChair);
-MAKE_SYSTEM_PROP(ATTENDEE_ROLE_NON_PARTICIPANT, EKParticipantRoleNonParticipant);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_UNKNOWN, EKParticipantStatusUnknown);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_PENDING, EKParticipantStatusPending);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_ACCEPTED, EKParticipantStatusAccepted);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_DECLINED, EKParticipantStatusDeclined);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_TENTATIVE, EKParticipantStatusTentative);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_DELEGATED, EKParticipantStatusDelegated);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_COMPLETED, EKParticipantStatusCompleted);
+MAKE_PROP(EKParticipantStatus, ATTENDEE_STATUS_IN_PROCESS, EKParticipantStatusInProcess);
 
-MAKE_SYSTEM_PROP(ATTENDEE_TYPE_UNKNOWN, EKParticipantTypeUnknown);
-MAKE_SYSTEM_PROP(ATTENDEE_TYPE_PERSON, EKParticipantTypePerson);
-MAKE_SYSTEM_PROP(ATTENDEE_TYPE_ROOM, EKParticipantTypeRoom);
-MAKE_SYSTEM_PROP(ATTENDEE_TYPE_RESOURCE, EKParticipantTypeResource);
-MAKE_SYSTEM_PROP(ATTENDEE_TYPE_GROUP, EKParticipantTypeGroup);
+MAKE_PROP(EKParticipantRole, ATTENDEE_ROLE_UNKNOWN, EKParticipantRoleUnknown);
+MAKE_PROP(EKParticipantRole, ATTENDEE_ROLE_REQUIRED, EKParticipantRoleRequired);
+MAKE_PROP(EKParticipantRole, ATTENDEE_ROLE_OPTIONAL, EKParticipantRoleOptional);
+MAKE_PROP(EKParticipantRole, ATTENDEE_ROLE_CHAIR, EKParticipantRoleChair);
+MAKE_PROP(EKParticipantRole, ATTENDEE_ROLE_NON_PARTICIPANT, EKParticipantRoleNonParticipant);
 
-MAKE_SYSTEM_PROP(SOURCE_TYPE_LOCAL, EKSourceTypeLocal);
-MAKE_SYSTEM_PROP(SOURCE_TYPE_EXCHANGE, EKSourceTypeExchange);
-MAKE_SYSTEM_PROP(SOURCE_TYPE_CALDAV, EKSourceTypeCalDAV);
-MAKE_SYSTEM_PROP(SOURCE_TYPE_MOBILEME, EKSourceTypeMobileMe);
-MAKE_SYSTEM_PROP(SOURCE_TYPE_SUBSCRIBED, EKSourceTypeSubscribed);
-MAKE_SYSTEM_PROP(SOURCE_TYPE_BIRTHDAYS, EKSourceTypeBirthdays);
+MAKE_PROP(EKParticipantType, ATTENDEE_TYPE_UNKNOWN, EKParticipantTypeUnknown);
+MAKE_PROP(EKParticipantType, ATTENDEE_TYPE_PERSON, EKParticipantTypePerson);
+MAKE_PROP(EKParticipantType, ATTENDEE_TYPE_ROOM, EKParticipantTypeRoom);
+MAKE_PROP(EKParticipantType, ATTENDEE_TYPE_RESOURCE, EKParticipantTypeResource);
+MAKE_PROP(EKParticipantType, ATTENDEE_TYPE_GROUP, EKParticipantTypeGroup);
+
+MAKE_PROP(EKSourceType, SOURCE_TYPE_LOCAL, EKSourceTypeLocal);
+MAKE_PROP(EKSourceType, SOURCE_TYPE_EXCHANGE, EKSourceTypeExchange);
+MAKE_PROP(EKSourceType, SOURCE_TYPE_CALDAV, EKSourceTypeCalDAV);
+MAKE_PROP(EKSourceType, SOURCE_TYPE_MOBILEME, EKSourceTypeMobileMe);
+MAKE_PROP(EKSourceType, SOURCE_TYPE_SUBSCRIBED, EKSourceTypeSubscribed);
+MAKE_PROP(EKSourceType, SOURCE_TYPE_BIRTHDAYS, EKSourceTypeBirthdays);
 @end
 
 #endif

@@ -773,6 +773,10 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<arg value="-p"/>
 			<arg value="require('../package.json').v8.mode"/>
 		</exec>
+		<exec executable="node" dir="${ti.build.dir}" outputproperty="libv8.checksum">
+			<arg value="-p"/>
+			<arg value="require('../package.json').v8.checksum"/>
+		</exec>
 		<property name="dist.libv8.dir" location="${dist.dir}/libv8/${libv8.version}/${libv8.mode}"/>
 		<property name="libv8.archive" value="libv8-${libv8.version}-${libv8.mode}.tar.bz2"/>
 		<mkdir dir="${dist.libv8.dir}"/>
@@ -780,7 +784,17 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<ti.jsonMap file="${dist.libv8.dir}/libv8.json" prefix="libv8.current"/>
 
 		<condition property="libv8.latest">
-			<equals arg1="${libv8.current.version}" arg2="${libv8.version}"/>
+			<and>
+				<!-- is it the version we want/need? -->
+				<equals arg1="${libv8.current.version}" arg2="${libv8.version}"/>
+				<and>
+					<!-- Does the tar.bz2 file exist and does it's checksum match expectations? -->
+					<resourceexists>
+						<file file="${dist.libv8.dir}/${libv8.archive}"/>
+					</resourceexists>
+					<checksum file="${dist.libv8.dir}/${libv8.archive}" algorithm="SHA-512" property="${libv8.checksum}"/>
+				</and>
+			</and>
 		</condition>
 		<antcall target="download.libv8"/>
 	</target>
@@ -788,6 +802,15 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="download.libv8" unless="libv8.latest">
 		<get src="http://timobile.appcelerator.com.s3.amazonaws.com/libv8/${libv8.archive}"
 			dest="${dist.libv8.dir}" verbose="true" usetimestamp="true"/>
+		<checksum file="${dist.libv8.dir}/${libv8.archive}" algorithm="SHA-512" property="libv8.checksum.actual"/>
+		<!-- verify the checksum matches expectations -->
+		<fail message="Checksum for libv8 downloaded does not match expectations! Expected: ${libv8.checksum}, Received: ${libv8.checksum.actual}">
+			<condition>
+				<not>
+					<equals arg1="${libv8.checksum.actual}" arg2="${libv8.checksum}" />
+				</not>
+			</condition>
+		</fail>
 		<untar compression="bzip2" src="${dist.libv8.dir}/${libv8.archive}" dest="${dist.libv8.dir}"/>
 	</target>
 

@@ -93,4 +93,12 @@ public class NavigationWindowProxy extends WindowProxy
 	{
 		return "Ti.UI.NavigationWindow";
 	}
+
+	public WindowProxy getRootWindowProxy()
+	{
+		if (!windows.isEmpty()) {
+			return windows.get(0);
+		}
+		return null;
+	}
 }

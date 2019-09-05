@@ -133,6 +133,44 @@ description:  |
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the
     color yellow is applied.
 
+    #### Dark Mode
+
+    In iOS 13 Apple introduced support for users to adopt a system-wide Dark Mode setting where the screens, view, menus, and controls use a darker color palette. You can read more about this in the Apple Human Interface Guidelines.
+
+    There are two aspects to dark mode that can be specified for your app, colors and images.
+
+    ##### Specifying Dark Mode colors
+
+    To specify colors for dark mode, also known as semantic colors, first create a file called `semantic.colors.json` in the Resources directory for classic applications, or in the assets directory for Alloy applications. Then you can specify color names in the following format:
+
+    ````
+      {
+        "textColor": { // the name for your color
+          "dark": {
+            "color": "#ff85e2", // hex color code to be set
+            "alpha": "50.0" // can be set from a range of 0-100
+          },
+          "light": "#ff1f1f"
+        }
+      }
+    ````
+
+    To reference these colors in your application use the <Titanium.UI.fetchSemanticColor> API, this is a cross platform API that on iOS 13 and above will use the native method that checks the users system-wide setting, and in all other instances will check the <Titanium.UI.semanticColorType> property and return the correct color for the current setting.
+
+    ##### Specifying Dark Mode images
+
+    Note: Dark Mode images are iOS only.
+
+    To specify dark mode images, use the `-dark` suffix on the image name. When building your app the images are set as the dark mode variant, then refer to images as normal and iOS will select the correct image dependent on the users system-wide setting.
+
+    For example given an image `logo.png` with `@2x` and `@3x` variants, the following dark mode images should exist:
+
+      * logo-dark.png
+      * logo-dark@2x.png
+      * logo-dark@3x.png
+
+    And you would reference the image as before using `logo-dark.png`
+
 extends: Titanium.Module
 since: "0.4"
 
@@ -148,7 +186,7 @@ methods:
         optional: true
     deprecated:
         since: "8.0.0"
-        notes: Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
+        notes: Use [Titanium.UI.createMatrix2D](Titanium.UI.createMatrix2D) instead.
 
   - name: createMatrix2D
     summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
@@ -158,6 +196,29 @@ methods:
       - name: parameters
         summary: Initial transformation of the matrix.
         type: Matrix2DCreationDict
+        optional: true
+
+  - name: create3DMatrix
+    summary: Creates and returns an instance of <Titanium.UI.3DMatrix>.
+    returns:
+        type: Titanium.UI.3DMatrix
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix3DCreationDict
+        optional: true
+    deprecated:
+        since: "8.0.0"
+        notes: Use [Titanium.UI.createMatrix3D](Titanium.UI.createMatrix3D) instead.
+
+  - name: createMatrix3D
+    summary: Creates and returns an instance of <Titanium.UI.Matrix3D>.
+    returns:
+        type: Titanium.UI.Matrix3D
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: Matrix3DCreationDict
         optional: true
 
   - name: convertUnits
@@ -178,6 +239,16 @@ methods:
         type: Number
         constants: Titanium.UI.UNIT_*
 
+  - name: fetchSemanticColor
+    summary: |
+        Fetches the correct color to be used with a UI element dependent on the users current dark mode setting on iOS 13 and above, or the [Titanium.UI.semanticColorType](Titanium.UI.semanticColorType) setting in other instances.
+    parameters:
+      - name: colorName
+        summary: Name of the semantic color defined in the applications colorset.
+        type: String
+    returns:
+      - type: String
+    since: "8.2.0"
 
 properties:
   - name: ANIMATION_CURVE_EASE_IN
@@ -510,7 +581,7 @@ properties:
   - name: ATTRIBUTE_LINE_BREAK
     deprecated:
         since: "7.5.0"
-        notes: Use <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode> instead.  
+        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.  
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
@@ -832,8 +903,8 @@ properties:
   - name: AUTODETECT_ADDRESS
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -843,8 +914,8 @@ properties:
   - name: AUTODETECT_ALL
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -853,8 +924,8 @@ properties:
   - name: AUTODETECT_CALENDAR
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR) instead.
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -864,8 +935,8 @@ properties:
   - name: AUTODETECT_LINK
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -874,8 +945,8 @@ properties:
   - name: AUTODETECT_NONE
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE) instead.
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
@@ -884,8 +955,8 @@ properties:
   - name: AUTODETECT_PHONE
     deprecated:
         since: "1.8.0"
-        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
         removed: "6.0.0"
+        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -1788,7 +1859,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_ASCII](Titanium.UI.KEYBOARD_TYPE_ASCII) instead.
 
   - name: KEYBOARD_DECIMAL_PAD
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
@@ -1803,7 +1874,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD](Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD) instead.
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -1815,7 +1886,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_DEFAULT](Titanium.UI.KEYBOARD_TYPE_DEFAULT) instead.
 
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
@@ -1827,7 +1898,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_EMAIL](Titanium.UI.KEYBOARD_TYPE_EMAIL) instead.
 
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
@@ -1840,7 +1911,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD) instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
@@ -1853,7 +1924,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION) instead.
 
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
@@ -1867,7 +1938,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD](Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD) instead.
 
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
@@ -1881,7 +1952,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_PHONE_PAD](Titanium.UI.KEYBOARD_TYPE_PHONE_PAD) instead.
 
   - name: KEYBOARD_URL
     summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
@@ -1893,7 +1964,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
-        notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
+        notes: Use [Titanium.UI.KEYBOARD_TYPE_URL](Titanium.UI.KEYBOARD_TYPE_URL) instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number
@@ -2309,6 +2380,23 @@ properties:
     type: Number
     permission: read-only
 
+  - name: SEMANTIC_COLOR_TYPE_DARK
+    summary: Return the dark value from the applications colorset
+    type: String
+    permission: read-only
+    since: "8.2.0"
+
+  - name: SEMANTIC_COLOR_TYPE_LIGHT
+    summary: Return the light value from the applications colorset.
+    type: String
+    permission: read-only
+    since: "8.2.0"
+
+  - name: semanticColorType
+    summary: When running on Android, iOS 10 or lower, or Windows the value to return form the applications colorset.
+    type: String
+    constants: Titanium.UI.SEMANTIC_COLOR_TYPE_*
+    since: "8.2.0"
 
   - name: SIZE
     summary: SIZE behavior for UI layout.
@@ -2410,7 +2498,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: TEXT_STYLE_HEADLINE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2420,7 +2508,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_SUBHEADLINE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for subheadings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2430,7 +2518,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_BODY
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for body texts.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2440,7 +2528,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_FOOTNOTE
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used in footnotes.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2450,7 +2538,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION1
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for standard captions.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2460,7 +2548,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION2
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for alternate captions.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2470,7 +2558,7 @@ properties:
     since: "3.2.0"
 
   - name: TEXT_STYLE_CALLOUT
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for callouts.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2480,7 +2568,7 @@ properties:
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE1
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for first level hierarchical headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2490,7 +2578,7 @@ properties:
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE2
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for second level hierarchical headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2500,7 +2588,7 @@ properties:
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE3
-    summary: Specifies the text style for the <Font> Object.
+    summary: The font used for third level hierarchical headings.
     description: |
         One of the group of textStyle constants for the <Font> Object.
     type: String
@@ -2508,6 +2596,16 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
     since: "6.0.0"
+
+  - name: TEXT_STYLE_LARGE_TITLE
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+    since: "8.1.0"
 
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
@@ -2728,15 +2826,15 @@ properties:
     type: Titanium.UI.Window
     permission: read-only
     deprecated:
-        since: 3.5.0
-        removed: 6.0.0
+        since: "3.5.0"
+        removed: "6.0.0"
 
   - name: orientation
     summary: Updates the orientation of the current window to the specified orientation value.
     deprecated:
         since: "1.7.2"
         removed: "3.0.0"
-        notes: Use <Titanium.UI.Window.orientationModes> instead.
+        notes: Use [Titanium.UI.Window.orientationModes](Titanium.UI.Window.orientationModes) instead.
     type: Number
     platforms: [android, iphone, ipad]
 

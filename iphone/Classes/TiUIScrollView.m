@@ -147,7 +147,7 @@
 
 - (void)adjustScrollViewInsets
 {
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   id viewProxy = self.proxy;
   while (viewProxy && ![viewProxy isKindOfClass:[TiWindowProxy class]]) {
     viewProxy = [viewProxy parent];

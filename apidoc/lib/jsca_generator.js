@@ -334,6 +334,7 @@ exports.exportData = function exportJSCA(apis) {
 		aliases: [ { type: 'Titanium', name: 'Ti' } ]
 	};
 	doc = apis; // TODO make doc a field on a type, rather than this weird file-global!
+	common.createMarkdown(doc);
 
 	common.log(common.LOG_INFO, 'Annotating JSCA-specific attributes...');
 

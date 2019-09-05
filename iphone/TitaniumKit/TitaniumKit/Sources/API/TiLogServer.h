@@ -4,9 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#ifndef DISABLE_TI_LOG_SERVER
-
 @import Foundation;
 
 /**
@@ -77,5 +74,3 @@
 - (void)send:(dispatch_data_t *)buffer;
 
 @end
-
-#endif

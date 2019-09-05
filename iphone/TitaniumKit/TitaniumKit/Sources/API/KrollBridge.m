@@ -1,14 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollBridge.h"
 #import "APSAnalytics.h"
 #import "KrollCallback.h"
-#import "KrollContext.h"
-#import "KrollObject.h"
 #import "TiApp.h"
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
@@ -16,8 +14,6 @@
 #import "TiSharedConfig.h"
 #import "TiUtils.h"
 #import "TopTiModule.h"
-#import <JavaScriptCore/JavaScriptCore.h>
-#import <libkern/OSAtomic.h>
 
 #ifndef TI_USE_NATIVE
 #define TI_USE_NATIVE 0
@@ -68,166 +64,6 @@ typedef NS_ENUM(NSInteger, ModuleType) {
 
   [super dealloc];
 }
-@end
-
-@implementation TitaniumObject
-
-- (NSDictionary *)modules
-{
-  return modules;
-}
-
-- (id)initWithContext:(KrollContext *)context_ host:(TiHost *)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL *)baseURL_
-{
-  TopTiModule *module = [[[TopTiModule alloc] _initWithPageContext:pageContext_] autorelease];
-  [module setHost:host_];
-  [module _setBaseURL:baseURL_];
-
-  if (self = [super initWithTarget:module context:context_]) {
-    pageContext = pageContext_;
-    modules = [[NSMutableDictionary alloc] init];
-    host = [host_ retain];
-    [(KrollBridge *)pageContext_ registerProxy:module krollObject:self];
-
-    // Pre-cache a few modules we always use
-    // TODO: We actually support native apps if the "UI" namespace is wrapped out.
-    // We could move the UI-core to an own framework as well, plugging it in based
-    // on the API usage. This would be highly experimental, but a possible option
-    TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
-    TiModule *api = [host moduleNamed:@"API" context:pageContext_];
-    if (!TI_USE_NATIVE) {
-      [self addModule:@"UI" module:ui];
-    }
-    [self addModule:@"API" module:api];
-
-    if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
-      APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
-      NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
-      NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
-      NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
-      if (buildType != nil || buildType.length > 0) {
-        [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
-      }
-      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
-      [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
-    }
-  }
-  return self;
-}
-
-#if KROLLBRIDGE_MEMORY_DEBUG == 1
-- (id)retain
-{
-  NSLog(@"[MEMORY DEBUG] RETAIN: %@ (%d)", self, [self retainCount] + 1);
-  return [super retain];
-}
-- (oneway void)release
-{
-  NSLog(@"[MEMORY DEBUG] RELEASE: %@ (%d)", self, [self retainCount] - 1);
-  [super release];
-}
-#endif
-
-- (void)dealloc
-{
-  RELEASE_TO_NIL(host);
-  RELEASE_TO_NIL(modules);
-  RELEASE_TO_NIL(dynprops);
-  [super dealloc];
-}
-
-- (void)gc
-{
-}
-
-- (BOOL)hasProperty:(NSString *)propertyName
-{
-  if (dynprops != nil && dynprops[propertyName] != nil) {
-    return YES;
-  }
-
-  id module = modules[propertyName];
-  if (module != nil) {
-    return YES;
-  }
-  module = [host moduleNamed:propertyName context:pageContext];
-  if (module != nil) {
-    return YES;
-  }
-
-  return [super hasProperty:propertyName];
-}
-
-- (id)valueForKey:(NSString *)key
-{
-  // allow dynprops to override built-in modules
-  // in case you want to re-define them
-  if (dynprops != nil) {
-    id result = [dynprops objectForKey:key];
-    if (result != nil) {
-      if (result == [NSNull null]) {
-        return nil;
-      }
-      return result;
-    }
-  }
-  id module = [modules objectForKey:key];
-  if (module != nil) {
-    return module;
-  }
-  module = [host moduleNamed:key context:pageContext];
-  if (module != nil) {
-    return [self addModule:key module:module];
-  }
-  //go against module
-  return [super valueForKey:key];
-}
-
-- (void)setValue:(id)value forKey:(NSString *)key
-{
-  if (dynprops == nil) {
-    dynprops = [[NSMutableDictionary dictionary] retain];
-  }
-  if (value == nil) {
-    value = [NSNull null];
-  }
-  [dynprops setValue:value forKey:key];
-}
-
-- (id)valueForUndefinedKey:(NSString *)key
-{
-  if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"]) {
-    return [self description];
-  }
-  if (dynprops != nil) {
-    return [dynprops objectForKey:key];
-  }
-  //NOTE: we need to return nil here since in JS you can ask for properties
-  //that don't exist and it should return undefined, not an exception
-  return nil;
-}
-
-- (id)addModule:(NSString *)name module:(TiModule *)module
-{
-  // Have we received a JS Module?
-  if (![module respondsToSelector:@selector(unboundBridge:)]) {
-    [modules setObject:module forKey:name];
-    return module;
-  }
-  KrollObject *ko = [pageContext registerProxy:module];
-  if (ko == nil) {
-    return nil;
-  }
-  [self noteKrollObject:ko forKey:name];
-  [modules setObject:ko forKey:name];
-  return ko;
-}
-
-- (TiModule *)moduleNamed:(NSString *)name context:(id<TiEvaluator>)context
-{
-  return [modules objectForKey:name];
-}
-
 @end
 
 OSSpinLock krollBridgeRegistryLock = OS_SPINLOCK_INIT;
@@ -294,11 +130,11 @@ CFMutableSetRef krollBridgeRegistry = nil;
   signed long proxiesCount = CFDictionaryGetCount(registeredProxies);
   OSSpinLockUnlock(&proxyLock);
 
-  //During a memory panic, we may not get the chance to copy proxies.
+  // During a memory panic, we may not get the chance to copy proxies.
   while (keepWarning) {
     keepWarning = NO;
 
-    for (id proxy in (NSDictionary *)registeredProxies) {
+    for (id proxy in [(NSDictionary *)registeredProxies allKeys]) {
       [proxy didReceiveMemoryWarning:notification];
 
       OSSpinLockLock(&proxyLock);
@@ -369,7 +205,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
   [self removeProxies];
   RELEASE_TO_NIL(preload);
   RELEASE_TO_NIL(context);
-  RELEASE_TO_NIL(titanium);
   OSSpinLockLock(&krollBridgeRegistryLock);
   CFSetRemoveValue(krollBridgeRegistry, self);
   OSSpinLockUnlock(&krollBridgeRegistryLock);
@@ -551,7 +386,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
 - (void)gc
 {
   [context gc];
-  [titanium gc];
 }
 
 #pragma mark Delegate
@@ -568,55 +402,138 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)didStartNewContext:(KrollContext *)kroll
 {
-  // create Titanium global object
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-  // Load the "Titanium" object into the global scope
-  NSString *basePath = (url == nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
-  titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
-
-  JSContextRef jsContext = [kroll context];
-  JSValueRef tiRef = [KrollObject toValue:kroll value:titanium];
-
-  NSString *titaniumNS = [NSString stringWithFormat:@"T%sanium", "it"];
-  JSStringRef prop = JSStringCreateWithCFString((CFStringRef)titaniumNS);
-  JSStringRef prop2 = JSStringCreateWithCFString((CFStringRef)[NSString stringWithFormat:@"%si", "T"]);
-  JSObjectRef globalRef = JSContextGetGlobalObject(jsContext);
-  JSObjectSetProperty(jsContext, globalRef, prop, tiRef,
-      kJSPropertyAttributeDontDelete | kJSPropertyAttributeDontEnum,
-      NULL);
-  JSObjectSetProperty(jsContext, globalRef, prop2, tiRef,
-      kJSPropertyAttributeDontDelete | kJSPropertyAttributeDontEnum,
-      NULL);
-  JSStringRelease(prop);
-  JSStringRelease(prop2);
-
-  // Load the "console" object into the global scope
-  console = [[KrollObject alloc] initWithTarget:[[[TiConsole alloc] _initWithPageContext:self] autorelease] context:kroll];
-  prop = JSStringCreateWithCFString((CFStringRef) @"console");
-  JSObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kJSPropertyAttributeNone, NULL);
-
+  JSGlobalContextRef jsContext = [kroll context];
+  JSContext *objcJSContext = [JSContext contextWithJSGlobalContextRef:jsContext];
+  JSValue *global = [objcJSContext globalObject];
   // Make the global object itself available under the name "global"
-  JSStringRef globalPropertyName = JSStringCreateWithCFString((CFStringRef) @"global");
-  JSObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
-  JSStringRelease(globalPropertyName);
-
+  [global defineProperty:@"global"
+              descriptor:@{
+                JSPropertyDescriptorEnumerableKey : @NO,
+                JSPropertyDescriptorWritableKey : @NO,
+                JSPropertyDescriptorConfigurableKey : @NO,
+                JSPropertyDescriptorValueKey : global
+              }];
   // Set the __dirname and __filename for the app.js.
   // For other files, it will be injected via the `TitaniumModuleRequireFormat` property
-  JSStringRef dirnameProperty = JSStringCreateWithCFString((CFStringRef) @"__dirname");
-  JSStringRef filenameProperty = JSStringCreateWithCFString((CFStringRef) @"__filename");
-  JSObjectSetProperty(jsContext, globalRef, dirnameProperty, [KrollObject toValue:kroll value:@"/"], kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
-  JSObjectSetProperty(jsContext, globalRef, filenameProperty, [KrollObject toValue:kroll value:@"/app.js"], kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
-  JSStringRelease(dirnameProperty);
-  JSStringRelease(filenameProperty);
+  [global defineProperty:@"__dirname"
+              descriptor:@{
+                JSPropertyDescriptorEnumerableKey : @NO,
+                JSPropertyDescriptorWritableKey : @NO,
+                JSPropertyDescriptorConfigurableKey : @NO,
+                JSPropertyDescriptorValueKey : @"/"
+              }];
+  [global defineProperty:@"__filename"
+              descriptor:@{
+                JSPropertyDescriptorEnumerableKey : @NO,
+                JSPropertyDescriptorWritableKey : @NO,
+                JSPropertyDescriptorConfigurableKey : @NO,
+                JSPropertyDescriptorValueKey : @"/app.js"
+              }];
+  // Now define "Ti" and "Titanium" on the global
+  TopTiModule *module = [[TopTiModule alloc] init];
+  JSValue *titanium = [JSValue valueWithObject:module inContext:objcJSContext];
+  NSDictionary *dictionary = @{
+    JSPropertyDescriptorEnumerableKey : @NO,
+    JSPropertyDescriptorWritableKey : @YES,
+    JSPropertyDescriptorConfigurableKey : @NO,
+    JSPropertyDescriptorValueKey : titanium
+  };
+  [global defineProperty:@"Titanium" descriptor:dictionary];
+  [global defineProperty:@"Ti" descriptor:dictionary];
+
+  // Hack the old-school way of doing a module here
+  NSArray *legacyModuleNames = @[ @"App",
+    @"Contacts",
+    @"Media",
+    @"Network",
+    @"Stream",
+    @"UI",
+    @"WatchSession",
+    @"XML" ];
+  for (NSString *name in legacyModuleNames) {
+    // We must generate the block and copy it to put it into heap or else every instance of the block shares
+    // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
+    JSValue * (^lazyLoad)(void) = ^() {
+      JSValue *result;
+      TiModule *mod = [host moduleNamed:name context:self];
+      if (mod != nil) {
+        KrollObject *ko = [self registerProxy:mod];
+        result = [JSValue valueWithJSValueRef:[ko jsobject] inContext:[JSContext currentContext]];
+      } else {
+        result = [JSValue valueWithUndefinedInContext:[JSContext currentContext]];
+      }
+      [[JSContext currentThis] defineProperty:name
+                                   descriptor:@{
+                                     JSPropertyDescriptorValueKey : result,
+                                     JSPropertyDescriptorWritableKey : @NO,
+                                     JSPropertyDescriptorEnumerableKey : @NO,
+                                     JSPropertyDescriptorConfigurableKey : @NO
+                                   }];
+      return result;
+    };
+    [titanium defineProperty:name
+                  descriptor:@{
+                    JSPropertyDescriptorConfigurableKey : @YES,
+                    JSPropertyDescriptorGetKey : [[lazyLoad copy] autorelease]
+                  }];
+  }
+
+  // New JSExport based modules
+  // Basically a whitelist of Ti.* modules to load lazily
+  NSArray *moduleNames = @[ @"Accelerometer", @"Analytics", @"API", @"Calendar", @"Codec", @"Database", @"Filesystem", @"Geolocation", @"Gesture", @"Locale", @"Platform", @"Utils" ];
+  for (NSString *name in moduleNames) {
+    // We must generate the block and copy it to put it into heap or else every instance of the block shares
+    // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
+    JSValue * (^lazyLoad)(void) = ^() {
+      JSValue *result;
+      Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", name]);
+      if (moduleClass != nil) {
+        result = [JSValue valueWithObject:[[moduleClass alloc] init] inContext:[JSContext currentContext]];
+      } else {
+        result = [JSValue valueWithUndefinedInContext:[JSContext currentContext]];
+      }
+      [[JSContext currentThis] defineProperty:name
+                                   descriptor:@{
+                                     JSPropertyDescriptorValueKey : result,
+                                     JSPropertyDescriptorWritableKey : @NO,
+                                     JSPropertyDescriptorEnumerableKey : @NO,
+                                     JSPropertyDescriptorConfigurableKey : @NO
+                                   }];
+      return result;
+    };
+    [titanium defineProperty:name
+                  descriptor:@{
+                    JSPropertyDescriptorConfigurableKey : @YES,
+                    JSPropertyDescriptorGetKey : [[lazyLoad copy] autorelease]
+                  }];
+  }
+
+  // FIXME Re-enable analytics setters here
+  if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
+    APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
+    NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
+    NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
+    NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
+    if (buildType != nil || buildType.length > 0) {
+      [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
+    }
+    [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
+    [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
+  }
+
+  // Load the "console" object into the global scope
+  objcJSContext[@"console"] = [[TiConsole alloc] init];
 
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
     for (NSString *name in preload) {
-      KrollObject *ti = (KrollObject *)[titanium valueForKey:name];
-      NSDictionary *values = [preload valueForKey:name];
+      JSValue *moduleJSObject = titanium[name];
+      KrollObject *ti = (KrollObject *)JSObjectGetPrivate(JSValueToObject(jsContext, moduleJSObject.JSValueRef, NULL));
+      NSDictionary *values = preload[name];
       for (id key in values) {
-        id target = [values objectForKey:key];
+        id target = values[key];
         KrollObject *ko = [self krollObjectForProxy:target];
         if (ko == nil) {
           ko = [self registerProxy:target];
@@ -625,13 +542,13 @@ CFMutableSetRef krollBridgeRegistry = nil;
         [ti setStaticValue:ko forKey:key purgable:NO];
       }
     }
-    //We need to run this before the app.js, which means it has to be here.
+    // We need to run this before the app.js, which means it has to be here.
     TiBindingRunLoopAnnounceStart(kroll);
     [self evalFile:[url path] callback:self selector:@selector(booted)];
   } else {
     // now load the app.js file and get started
     NSURL *startURL = [host startURL];
-    //We need to run this before the app.js, which means it has to be here.
+    // We need to run this before the app.js, which means it has to be here.
     TiBindingRunLoopAnnounceStart(kroll);
     [self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
   }
@@ -658,7 +575,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
     NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
     [[NSNotificationCenter defaultCenter] postNotification:notification];
   }
-  [titanium gc];
 
   if (shutdownCondition) {
     [shutdownCondition lock];
@@ -675,7 +591,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
   },
       NO);
   [self removeProxies];
-  RELEASE_TO_NIL(titanium);
   RELEASE_TO_NIL(console);
   RELEASE_TO_NIL(context);
   RELEASE_TO_NIL(preload);
@@ -714,11 +629,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
-#ifdef USE_JSCORE_FRAMEWORK
-  if (![proxy isKindOfClass:[TiModule class]]) {
-    [ourKrollObject applyGarbageCollectionSafeguard];
-  }
-#endif
+  [ourKrollObject applyGarbageCollectionSafeguard];
 
   [self registerProxy:proxy
           krollObject:ourKrollObject];
@@ -1040,9 +951,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
     // b. let M = X + (json main field)
     m = [x stringByAppendingPathComponent:mainString];
     m = [self pathByStandarizingPath:m];
-    if ([self fileExists:m]) {
-      packageJSONMainCache[packageJsonPath] = m; // cache from package.json to main value
-      return m;
+    ResolvedModule *resolved = [self tryFileOrDirectory:m];
+    if (resolved) {
+      packageJSONMainCache[packageJsonPath] = resolved->path; // cache from package.json to main value
+      return resolved->path;
     }
   }
   return nil;
@@ -1202,19 +1114,19 @@ CFMutableSetRef krollBridgeRegistry = nil;
     if (json) {
       type = JSON;
     }
-    return [[ResolvedModule alloc] initWithType:type andPath:path];
+    return [[[ResolvedModule alloc] initWithType:type andPath:path] autorelease];
   }
 
   // 2. If X.js is a file, load X.js as JavaScript text.  STOP
   NSString *asJS = [path stringByAppendingString:@".js"];
   if ([self fileExists:asJS]) {
-    return [[ResolvedModule alloc] initWithType:JS andPath:asJS];
+    return [[[ResolvedModule alloc] initWithType:JS andPath:asJS] autorelease];
   }
 
   // 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
   NSString *asJSON = [path stringByAppendingString:@".json"];
   if ([self fileExists:asJSON]) {
-    return [[ResolvedModule alloc] initWithType:JSON andPath:asJSON];
+    return [[[ResolvedModule alloc] initWithType:JSON andPath:asJSON] autorelease];
   }
 
   return nil;
@@ -1230,12 +1142,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   NSString *indexJS = [path stringByAppendingPathComponent:@"index.js"];
   if ([self fileExists:indexJS]) {
-    return [[ResolvedModule alloc] initWithType:JS andPath:indexJS];
+    return [[[ResolvedModule alloc] initWithType:JS andPath:indexJS] autorelease];
   }
 
   NSString *indexJSON = [path stringByAppendingPathComponent:@"index.json"];
   if ([self fileExists:indexJSON]) {
-    return [[ResolvedModule alloc] initWithType:JSON andPath:indexJSON];
+    return [[[ResolvedModule alloc] initWithType:JSON andPath:indexJSON] autorelease];
   }
   return nil;
 }
@@ -1268,14 +1180,14 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // Are they just trying to load the top-level module? If so, return that as our path
   NSRange separatorLocation = [path rangeOfString:@"/"];
   if (separatorLocation.location == NSNotFound) {
-    return [[ResolvedModule alloc] initWithType:Native andPath:moduleID];
+    return [[[ResolvedModule alloc] initWithType:Native andPath:moduleID] autorelease];
   }
 
   // check rest of path
   NSString *assetPath = [path substringFromIndex:separatorLocation.location + 1];
   // Treat require('module.id/module.id') == require('module.id')
   if ([assetPath isEqualToString:moduleID]) {
-    return [[ResolvedModule alloc] initWithType:Native andPath:moduleID];
+    return [[[ResolvedModule alloc] initWithType:Native andPath:moduleID] autorelease];
   }
 
   // we need to load the actual module to determine beyond this...
@@ -1299,7 +1211,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     return nil;
   }
   // asset inside module
-  return [[ResolvedModule alloc] initWithType:NativeJS andPath:filepath];
+  return [[[ResolvedModule alloc] initWithType:NativeJS andPath:filepath] autorelease];
 }
 
 - (NSString *)pathByStandarizingPath:(NSString *)relativePath
@@ -1338,7 +1250,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     // For CommonJS we need to look for module.id/module.id.js first...
     NSString *filename = [[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"];
     if ([self fileExists:filename]) {
-      return [[ResolvedModule alloc] initWithType:JS andPath:filename];
+      return [[[ResolvedModule alloc] initWithType:JS andPath:filename] autorelease];
     }
 
     // Then try module.id as directory

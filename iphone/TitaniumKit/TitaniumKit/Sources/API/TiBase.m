@@ -7,9 +7,7 @@
 
 #import "TiBase.h"
 #import "TiApp.h"
-#ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
-#endif
 
 #include <pthread.h>
 #include <stdarg.h>
@@ -23,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-NSMutableArray *TiCreateNonRetainingArray()
+NSMutableArray *TiCreateNonRetainingArray(void)
 {
   CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
   callbacks.retain = NULL;
@@ -31,7 +29,7 @@ NSMutableArray *TiCreateNonRetainingArray()
   return (NSMutableArray *)CFArrayCreateMutable(nil, 0, &callbacks);
 }
 
-NSMutableDictionary *TiCreateNonRetainingDictionary()
+NSMutableDictionary *TiCreateNonRetainingDictionary(void)
 {
   CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
   CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;
@@ -65,10 +63,10 @@ void TiLogMessage(NSString *str, ...)
   NSLog(@"%@", message);
 #pragma pop
 
-#ifndef DISABLE_TI_LOG_SERVER
-  // next we send the message to the log server to be sent or queued up
-  [[TiLogServer defaultLogServer] log:message];
-#endif
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) { // FIXME: cache the value, since it only changes once?
+    // next we send the message to the log server to be sent or queued up
+    [[TiLogServer defaultLogServer] log:message];
+  }
 }
 
 NSString *const kTiASCIIEncoding = @"ascii";
@@ -117,6 +115,7 @@ NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
+NSString *const kTiTraitCollectionChanged = @"TiTraitCollectionChanged";
 
 #ifndef TI_USE_AUTOLAYOUT
 NSString *const kTiBehaviorSize = @"SIZE";

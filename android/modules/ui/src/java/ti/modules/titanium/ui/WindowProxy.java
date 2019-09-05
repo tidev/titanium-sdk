@@ -20,9 +20,11 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -39,6 +41,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
@@ -53,13 +57,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
-import android.view.WindowManager;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_MODAL,
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-		TiC.PROPERTY_FLAG_SECURE
+		TiC.PROPERTY_FLAG_SECURE,
+		TiC.PROPERTY_BAR_COLOR
 })
 // clang-format on
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -141,14 +146,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
-		if (topActivity == null || topActivity.isFinishing()) {
+		if (topActivity == null || topActivity.isFinishing() || topActivity.isDestroyed()) {
 			return;
 		}
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
 		int windowId = TiActivityWindows.addWindow(this);
-		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
@@ -162,11 +166,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+		} else if (hasActivityTransitions()) {
+			topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
 		} else {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
-			} else {
-				topActivity.startActivity(intent);
+			topActivity.startActivity(intent);
+			if (topActivity instanceof TiRootActivity) {
+				// A fade-in transition from root splash screen to first window looks better than a slide-up.
+				// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
+				topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 			}
 		}
 
@@ -178,26 +185,41 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleClose(KrollDict options)
 	{
+		// Fetch this window's "exitOnClose" property setting.
+		boolean exitOnClose = (TiActivityWindows.getWindowCount() <= 1);
+		exitOnClose = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), exitOnClose);
+
+		// Remove this window proxy from the active/open collection.
+		// Note: If the activity's onCreate() can't find this proxy, then it'll automatically destroy itself.
+		//       This is needed in case the proxy's close() method was called before the activity was created.
+		TiActivityWindows.removeWindow(this);
+
+		// Fetch this proxy's assigned activity, if opened.
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
 		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
-		if (activity != null && !activity.isFinishing()) {
-			if (super.hasActivityTransitions()) {
-				activity.finishAfterTransition();
-			} else {
-				activity.finish();
-			}
-			if (!animated) {
-				activity.overridePendingTransition(0, 0);
-			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-					   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
-				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
-				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
-				activity.overridePendingTransition(enterAnimation, exitAnimation);
-			}
+		windowActivity = null;
+		if (activity == null) {
+			return;
+		}
 
-			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
-			TiApplication.removeFromActivityStack(activity);
-			windowActivity = null;
+		// Do not continue if the activity is already being destroyed.
+		if (activity.isFinishing() || activity.isDestroyed()) {
+			return;
+		}
+
+		// Destroy the activity and apply exit animations if configured.
+		if (!exitOnClose && super.hasActivityTransitions()) {
+			activity.finishAfterTransition();
+		} else {
+			activity.finish();
+		}
+		if (!animated) {
+			activity.overridePendingTransition(0, 0);
+		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
+				   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+			activity.overridePendingTransition(enterAnimation, exitAnimation);
 		}
 	}
 
@@ -286,11 +308,24 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 			activity.getSupportActionBar().setHomeButtonEnabled(
 				!getProperties().optBoolean(TiC.PROPERTY_HIDES_BACK_BUTTON, false));
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			// Get a reference to the root window in the NavigationWindow.
+			WindowProxy rootWindowProxy = ((NavigationWindowProxy) this.getNavigationWindow()).getRootWindowProxy();
+			// If the root window matches this window do not show the Up navigation button.
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootWindowProxy != this);
 		}
 
+		// Handle barColor property.
+		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
+			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)));
+			ActionBar actionBar = activity.getSupportActionBar();
+			// Guard for using a theme with actionBar disabled.
+			if (actionBar != null) {
+				actionBar.setBackgroundDrawable(new ColorDrawable(colorInt));
+			} else {
+				Log.w(TAG, "Trying to set a barColor on a Window with ActionBar disabled. Property will be ignored.");
+			}
+		}
 		activity.getActivityProxy().getDecorView().add(this);
-		activity.addWindowToStack(this);
 
 		// Need to handle the cached activity proxy properties and url window in the JS side.
 		callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
@@ -361,12 +396,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					   || TiC.PROPERTY_LEFT.equals(name) || TiC.PROPERTY_RIGHT.equals(name)) {
 				// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
 				return;
-			} else if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
-				Activity activity = (windowActivity != null) ? (Activity) (windowActivity.get()) : null;
-				if (activity != null) {
-					Intent intent = activity.getIntent();
-					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
-				}
 			} else if (TiC.PROPERTY_HIDES_BACK_BUTTON.equals(name)) {
 				if (windowActivity != null && windowActivity.get() != null
 					&& windowActivity.get().getSupportActionBar() != null) {
@@ -374,7 +403,22 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		}
-
+		if (name.equals(TiC.PROPERTY_BAR_COLOR)) {
+			// Guard for activity being destroyed
+			if (windowActivity != null && windowActivity.get() != null) {
+				// Get a reference to the ActionBar.
+				ActionBar actionBar = ((AppCompatActivity) windowActivity.get()).getSupportActionBar();
+				// Check if it is available ( app is using a theme with one or a Toolbar is used as one ).
+				if (actionBar != null) {
+					// Change to background to the new color.
+					actionBar.setBackgroundDrawable(
+						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value))));
+				} else {
+					// Log a warning if there is no ActionBar available.
+					Log.w(TAG, "There is no ActionBar available for this Window.");
+				}
+			}
+		}
 		super.onPropertyChanged(name, value);
 	}
 
@@ -385,7 +429,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
-		windowActivity.get().setSustainMode(mode);
+		Activity activity = getWindowActivity();
+		if (activity instanceof TiBaseActivity) {
+			((TiBaseActivity) activity).setSustainMode(mode);
+		}
 	}
 
 	// clang-format off
@@ -543,61 +590,62 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Nullable
 	private Transition createTransition(KrollDict props, String key)
 	{
-		if (LOLLIPOP_OR_GREATER) {
-			Transition t = null;
-			final int transitionType = props.getInt(key);
-			switch (transitionType) {
-				case TiUIView.TRANSITION_EXPLODE:
-					t = new Explode();
-					break;
-
-				case TiUIView.TRANSITION_FADE_IN:
-					t = new Fade(Fade.IN);
-					break;
-
-				case TiUIView.TRANSITION_FADE_OUT:
-					t = new Fade(Fade.OUT);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_TOP:
-					t = new Slide(Gravity.TOP);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_RIGHT:
-					t = new Slide(Gravity.RIGHT);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_BOTTOM:
-					t = new Slide(Gravity.BOTTOM);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_LEFT:
-					t = new Slide(Gravity.LEFT);
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_BOUNDS:
-					t = new ChangeBounds();
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
-					t = new ChangeClipBounds();
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_TRANSFORM:
-					t = new ChangeTransform();
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
-					t = new ChangeImageTransform();
-					break;
-
-				default:
-					break;
-			}
-			return t;
-		} else {
+		// Validate arguments.
+		if ((props == null) || (key == null)) {
 			return null;
 		}
+
+		// This feature is only supported on Android 5.0 and higher.
+		if (!LOLLIPOP_OR_GREATER) {
+			return null;
+		}
+
+		// Create the requested transition.
+		Transition transition = null;
+		final int transitionType = props.getInt(key);
+		switch (transitionType) {
+			case TiUIView.TRANSITION_EXPLODE:
+				transition = new Explode();
+				break;
+			case TiUIView.TRANSITION_FADE_IN:
+				transition = new Fade(Fade.IN);
+				break;
+			case TiUIView.TRANSITION_FADE_OUT:
+				transition = new Fade(Fade.OUT);
+				break;
+			case TiUIView.TRANSITION_SLIDE_TOP:
+				transition = new Slide(Gravity.TOP);
+				break;
+			case TiUIView.TRANSITION_SLIDE_RIGHT:
+				transition = new Slide(Gravity.RIGHT);
+				break;
+			case TiUIView.TRANSITION_SLIDE_BOTTOM:
+				transition = new Slide(Gravity.BOTTOM);
+				break;
+			case TiUIView.TRANSITION_SLIDE_LEFT:
+				transition = new Slide(Gravity.LEFT);
+				break;
+			case TiUIView.TRANSITION_CHANGE_BOUNDS:
+				transition = new ChangeBounds();
+				break;
+			case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
+				transition = new ChangeClipBounds();
+				break;
+			case TiUIView.TRANSITION_CHANGE_TRANSFORM:
+				transition = new ChangeTransform();
+				break;
+			case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
+				transition = new ChangeImageTransform();
+				break;
+			default:
+				return null;
+		}
+
+		// Exclude the top status bar and bottom navigation bar from the transition animation.
+		// This prevents the activity window's animation from overlapping it, which looks bad.
+		transition.excludeTarget(android.R.id.statusBarBackground, true);
+		transition.excludeTarget(android.R.id.navigationBarBackground, true);
+		return transition;
 	}
 
 	@Override

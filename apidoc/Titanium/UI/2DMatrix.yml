@@ -7,9 +7,23 @@ description: |
     A 2D affine transformation can be  represented by a 3 by 3 matrix:
 
     <table>
-    <tr><td><i>a</i></td><td><i>b</i></td><td>0</td></tr>
-    <tr><td><i>c</i></td><td><i>d</i></td><td>0</td></tr>
-    <tr><td><i>tx</i></td><td><i>ty</i></td><td>1</td></tr>
+      <tbody>
+        <tr>
+          <td><i>a</i></td>
+          <td><i>b</i></td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><i>c</i></td>
+          <td><i>d</i></td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><i>tx</i></td>
+          <td><i>ty</i></td>
+          <td>1</td>
+        </tr>
+      </tbody>
     </table>
 
     The third column is constant (0,0,1).
@@ -32,7 +46,7 @@ since: "0.9"
 platforms: [android, iphone, ipad]
 deprecated:
     since: "8.0.0"
-    notes: Use <Titanium.UI.Matrix2D> for improved ES6+ compatibility instead.
+    notes: Use [Titanium.UI.Matrix2D](Titanium.UI.Matrix2D) for improved ES6+ compatibility instead.
 
 methods:
   - name: invert
