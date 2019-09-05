@@ -100,6 +100,13 @@ methods:
         summary: Notification to display in the status bar. Cannot be null.
         type: Titanium.Android.Notification
 
+      - name: foregroundServiceType
+        summary: Notification service type specified by <Titanium.Android.FOREGROUND_SERVICE_TYPE_*>.
+        type: Number
+        default: Titanium.Android.FOREGROUND_SERVICE_TYPE_NONE
+        optional: true
+        since: "8.3.0"
+
   - name: start
     summary: Starts the Service.
     description: |
