@@ -268,6 +268,27 @@
 
 - (void)viewWillAppear:(BOOL)animated; // Called when the view is about to made visible. Default does nothing
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
+    if (controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll)) {
+      UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
+      [appearance configureWithTransparentBackground];
+      if (newColor == nil) {
+        //Get from TabGroup
+        newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
+      }
+      if (newColor == nil) {
+        appearance.backgroundColor = self.view.backgroundColor;
+      } else {
+        appearance.backgroundColor = newColor.color;
+      }
+      controller.navigationController.navigationBar.standardAppearance = appearance;
+      controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+      controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
+    }
+  }
+#endif
   shouldUpdateNavBar = YES;
   [self setupWindowDecorations];
   [super viewWillAppear:animated];
