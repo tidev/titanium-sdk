@@ -1545,8 +1545,6 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: HINT_TYPE_STATIC
-    deprecated:
-        since: "6.2.0"
     summary: |
         Use when creating a TextField to specify the hintType as static.
     type: Number
