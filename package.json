@@ -1,11 +1,11 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "7.5.0",
+  "version": "8.2.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
-    "windows": "6"
+    "windows": "7"
   },
   "keywords": [
     "appcelerator",
@@ -18,56 +18,106 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "test": "grunt"
+    "test": "npm run ios-sanity-check && grunt",
+    "android": "./build/scons cleanbuild android",
+    "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s --no-docs android && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s android",
+    "ios": "./build/scons cleanbuild ios",
+    "ios-sanity-check": "./build/scons check-ios-toplevel",
+    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s --no-docs ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios",
+    "commit": "git-cz"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "iphone/**/*.{m,h}": [
+      "npx clang-format -style=file -i",
+      "git add"
+    ],
+    "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
+      "npm run ios-sanity-check --"
+    ],
+    "*.java": [
+      "npx clang-format -style=file -i",
+      "git add"
+    ],
+    "!(**/locales/**/*).js": "eslint"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
     "appc-aar-tools": "^1.1.5",
     "appc-tasks": "^1.0.1",
-    "archiver": "^2.1.1",
+    "archiver": "^3.1.1",
     "async": "^2.6.1",
     "buffer-equal": "1.0.0",
-    "clean-css": "4.0.11",
-    "colors": "^1.3.0",
+    "clean-css": "4.2.1",
+    "colors": "^1.3.3",
     "css-parse": "2.0.0",
     "ejs": "^2.6.1",
     "fields": "0.1.24",
-    "fs-extra": "^0.30.0",
-    "glob": "^7.1.2",
-    "humanize": "0.0.9",
-    "ioslib": "^1.7.5",
-    "lodash.defaultsdeep": "^4.6.0",
+    "fs-extra": "^8.0.1",
+    "ioslib": "^1.7.13",
+    "klaw-sync": "^6.0.0",
+    "liveview": "^1.5.0",
+    "lodash.defaultsdeep": "^4.6.1",
     "markdown": "0.5.0",
     "moment": "^2.22.2",
-    "node-appc": "^0.2.47",
-    "node-titanium-sdk": "^0.6.4",
+    "node-appc": "^0.3.4",
+    "node-titanium-sdk": "^3.2.1",
     "node-uuid": "1.4.8",
-    "pngjs": "^3.3.3",
+    "p-limit": "^2.2.0",
+    "pngjs": "^3.4.0",
     "request": "^2.87.0",
-    "semver": "^5.5.0",
+    "semver": "^6.3.0",
     "sprintf": "0.1.5",
-    "temp": "0.8.3",
-    "windowslib": "^0.6.7",
-    "wrench": "1.5.9",
-    "xcode": "^1.0.0",
+    "temp": "0.9.0",
+    "windowslib": "^0.6.8",
+    "xcode": "^2.0.0",
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
-    "clang-format": "^1.2.3",
-    "commander": "^2.15.1",
-    "danger": "^2.1.5",
-    "eslint-config-axway": "^2.0.14",
-    "eslint-plugin-mocha": "^5.0.0",
-    "grunt": "^1.0.3",
-    "grunt-appc-js": "^2.1.0",
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^8.1.0",
+    "@seadub/danger-plugin-dependencies": "0.1.0",
+    "@seadub/danger-plugin-eslint": "^1.0.1",
+    "@seadub/danger-plugin-junit": "0.1.1",
+    "clang-format": "1.2.3",
+    "commander": "^3.0.1",
+    "commitizen": "^4.0.3",
+    "core-js": "^2.6.5",
+    "cz-conventional-changelog": "^3.0.2",
+    "danger": "^9.1.8",
+    "eslint": "^6.2.2",
+    "eslint-config-axway": "^4.3.0",
+    "eslint-plugin-mocha": "^6.1.0",
+    "glob": "^7.1.4",
+    "grunt": "^1.0.4",
     "grunt-clang-format": "^1.1.0",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-clean": "^1.0.0",
-    "grunt-mocha-test": "^0.13.3",
-    "js-yaml": "^3.12.0",
-    "mocha": "^5.2.0",
-    "pagedown": "~1.1.0",
-    "ssri": "^5.3.0"
+    "grunt-cli": "^1.3.2",
+    "grunt-contrib-clean": "^2.0.0",
+    "grunt-eslint": "^22.0.0",
+    "husky": "^3.0.4",
+    "js-yaml": "^3.13.1",
+    "lint-staged": "^9.2.5",
+    "markdown-it": "^9.1.0",
+    "rollup": "^1.20.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "ssri": "^6.0.1"
   },
   "repository": {
     "type": "git",
@@ -77,10 +127,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": "4.x || 6.x || 8.x"
+    "node": "8.x || 10.x"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=8"
   },
   "license": "Apache-2.0"
 }

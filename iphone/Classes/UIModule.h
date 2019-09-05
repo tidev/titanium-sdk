@@ -1,10 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiModule.h"
+#import <TitaniumKit/TiModule.h>
 
 #ifdef USE_TI_UI
 
@@ -20,9 +20,6 @@
 @interface UIModule : TiModule {
 
   @private
-#ifdef USE_TI_UIIPHONE
-  TiProxy *iphone;
-#endif
 #ifdef USE_TI_UIIPAD
   TiProxy *ipad;
 #endif
@@ -181,41 +178,32 @@
 @property (nonatomic, readonly) NSNumber *LIST_ACCESSORY_TYPE_DETAIL;
 @property (nonatomic, readonly) NSNumber *LIST_ACCESSORY_TYPE_DISCLOSURE;
 
-//IOS7 Constants
 @property (nonatomic, readonly) NSNumber *EXTEND_EDGE_LEFT;
 @property (nonatomic, readonly) NSNumber *EXTEND_EDGE_RIGHT;
 @property (nonatomic, readonly) NSNumber *EXTEND_EDGE_TOP;
 @property (nonatomic, readonly) NSNumber *EXTEND_EDGE_BOTTOM;
 @property (nonatomic, readonly) NSNumber *EXTEND_EDGE_NONE;
 @property (nonatomic, readonly) NSNumber *EXTEND_EDGE_ALL;
-//IOS7 TextStyle Constants
+
 @property (nonatomic, readonly) NSString *TEXT_STYLE_HEADLINE;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_SUBHEADLINE;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_BODY;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_FOOTNOTE;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_CAPTION1;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_CAPTION2;
-
-//IOS9 TextStyle Constants
 @property (nonatomic, readonly) NSString *TEXT_STYLE_TITLE1;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_TITLE2;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_TITLE3;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_CALLOUT;
+@property (nonatomic, readonly) NSString *TEXT_STYLE_LARGE_TITLE;
 
-#ifdef USE_TI_UI2DMATRIX
-- (id)create2DMatrix:(id)args;
-#endif
-
-#ifdef USE_TI_UI3DMATRIX
-- (id)create3DMatrix:(id)args;
-#endif
+- (id)createMatrix2D:(id)args;
+- (id)create2DMatrix:(id)args; // Deprecated since 8.0.0
+- (id)createMatrix3D:(id)args;
+- (id)create3DMatrix:(id)args; // Deprecated since 8.0.0
 
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args;
-#endif
-
-#ifdef USE_TI_UIIPHONE
-@property (nonatomic, readonly) TiProxy *iPhone;
 #endif
 
 #ifdef USE_TI_UIIPAD

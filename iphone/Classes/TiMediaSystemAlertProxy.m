@@ -1,17 +1,29 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIASYSTEMALERT
 
 #import "TiMediaSystemAlertProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaSystemAlertProxy
 
 #pragma mark Proxy Lifecycle
+
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+{
+  if (self = [super _initWithPageContext:context]) {
+    DebugLog(@"[WARN] The iOS-only SystemAlert API has been deprecated and moved to an external module in 8.0.0.");
+    DebugLog(@"[WARN] It will be removed from the core in the future, please migrate!");
+  }
+
+  return self;
+}
 
 - (void)_destroy
 {
@@ -36,7 +48,7 @@
   if ([url_ isKindOfClass:[NSString class]]) {
     url = [[TiUtils toURL:url_ proxy:self] retain];
 
-    if ([url isFileURL] == NO) {
+    if (![url isFileURL]) {
 #ifndef __clang_analyzer__
       // we need to download it and save it off into temp file
       NSData *data = [NSData dataWithContentsOfURL:url];

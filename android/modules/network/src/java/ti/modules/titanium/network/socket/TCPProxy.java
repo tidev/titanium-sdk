@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiStream;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
@@ -374,86 +373,26 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 	// TiStream interface methods
 	@Kroll.method
-	public int read(Object args[]) throws IOException
+	//public void read(BufferProxy buffer)
+	//public void read(BufferProxy buffer, KrollFunction resultsCallback)
+	//public void read(BufferProxy buffer, int offset, int length)
+	//public void read(BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
+	public int read(Object args[]) throws Exception
 	{
 		if (!isConnected()) {
 			throw new IOException("Unable to read from socket, not connected");
 		}
 
-		BufferProxy bufferProxy = null;
-		int offset = 0;
-		int length = 0;
+		return TiStreamHelper.readTiStream(TAG, getKrollObject(), this, args);
+	}
 
-		if (args.length == 1 || args.length == 3) {
-			if (args.length > 0) {
-				if (args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
-			}
-
-			if (args.length == 3) {
-				if (args[1] instanceof Integer) {
-					offset = ((Integer) args[1]).intValue();
-
-				} else if (args[1] instanceof Double) {
-					offset = ((Double) args[1]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid offset argument");
-				}
-
-				if (args[2] instanceof Integer) {
-					length = ((Integer) args[2]).intValue();
-
-				} else if (args[2] instanceof Double) {
-					length = ((Double) args[2]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid length argument");
-				}
-			}
-
-		} else {
-			throw new IllegalArgumentException("Invalid number of arguments");
-		}
-
-		// Attempt to read from the socket.
-		final BufferProxy finalBufferProxy = bufferProxy;
-		final int finalOffset = offset;
-		final int finalLength = length;
-		final RunnableResult finalRunnableResult = new RunnableResult();
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run()
-			{
-				try {
-					finalRunnableResult.streamedByteCount =
-						TiStreamHelper.read(clientSocket.getInputStream(), finalBufferProxy, finalOffset, finalLength);
-				} catch (Exception ex) {
-					finalRunnableResult.exception = ex;
-				}
-			}
-		};
-		if (TiApplication.isUIThread()) {
-			try {
-				Thread thread = new Thread(runnable);
-				thread.start();
-				thread.join();
-			} catch (Exception ex) {
-				finalRunnableResult.exception = ex;
-			}
-		} else {
-			runnable.run();
-		}
-
-		// If the above read failed, then update the socket state and throw an exception.
-		if (finalRunnableResult.exception != null) {
-			finalRunnableResult.exception.printStackTrace();
-			String message = finalRunnableResult.exception.getMessage();
+	public int readSync(Object bufferProxy, int offset, int length) throws IOException
+	{
+		try {
+			return TiStreamHelper.read(clientSocket.getInputStream(), (BufferProxy) bufferProxy, offset, length);
+		} catch (Exception e) {
+			e.printStackTrace();
+			String message = e.getMessage();
 			if (message == null) {
 				message = "Unknown Error";
 			}
@@ -463,92 +402,29 @@ public class TCPProxy extends KrollProxy implements TiStream
 			}
 			throw ex;
 		}
-
-		// The read was successful. Return the number of bytes read.
-		return finalRunnableResult.streamedByteCount;
 	}
 
 	@Kroll.method
-	public int write(Object args[]) throws IOException
+	//public void write(BufferProxy buffer)
+	//public void write(BufferProxy buffer, KrollFunction resultsCallback)
+	//public void write(BufferProxy buffer, int offset, int length)
+	//public void write(BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
+	public int write(Object args[]) throws Exception
 	{
 		if (!isConnected()) {
 			throw new IOException("Unable to write to socket, not connected");
 		}
 
-		BufferProxy bufferProxy = null;
-		int offset = 0;
-		int length = 0;
+		return TiStreamHelper.writeTiStream(TAG, getKrollObject(), this, args);
+	}
 
-		if (args.length == 1 || args.length == 3) {
-			if (args.length > 0) {
-				if (args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
-			}
-
-			if (args.length == 3) {
-				if (args[1] instanceof Integer) {
-					offset = ((Integer) args[1]).intValue();
-
-				} else if (args[1] instanceof Double) {
-					offset = ((Double) args[1]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid offset argument");
-				}
-
-				if (args[2] instanceof Integer) {
-					length = ((Integer) args[2]).intValue();
-
-				} else if (args[2] instanceof Double) {
-					length = ((Double) args[2]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid length argument");
-				}
-			}
-
-		} else {
-			throw new IllegalArgumentException("Invalid number of arguments");
-		}
-
-		// Write to the socket.
-		final BufferProxy finalBufferProxy = bufferProxy;
-		final int finalOffset = offset;
-		final int finalLength = length;
-		final RunnableResult finalRunnableResult = new RunnableResult();
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run()
-			{
-				try {
-					finalRunnableResult.streamedByteCount = TiStreamHelper.write(
-						clientSocket.getOutputStream(), finalBufferProxy, finalOffset, finalLength);
-				} catch (Exception ex) {
-					finalRunnableResult.exception = ex;
-				}
-			}
-		};
-		if (TiApplication.isUIThread()) {
-			try {
-				Thread thread = new Thread(runnable);
-				thread.start();
-				thread.join();
-			} catch (Exception ex) {
-				finalRunnableResult.exception = ex;
-			}
-		} else {
-			runnable.run();
-		}
-
-		// If the above write failed, then update the socket state and throw an exception.
-		if (finalRunnableResult.exception != null) {
-			finalRunnableResult.exception.printStackTrace();
-			String message = finalRunnableResult.exception.getMessage();
+	public int writeSync(Object buffer, int offset, int length) throws IOException
+	{
+		try {
+			return TiStreamHelper.write(clientSocket.getOutputStream(), (BufferProxy) buffer, offset, length);
+		} catch (Exception e) {
+			e.printStackTrace();
+			String message = e.getMessage();
 			if (message == null) {
 				message = "Unknown Error";
 			}
@@ -556,9 +432,6 @@ public class TCPProxy extends KrollProxy implements TiStream
 			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(ex.getMessage(), 0));
 			throw ex;
 		}
-
-		// The write was successful. Return the number of bytes written.
-		return finalRunnableResult.streamedByteCount;
 	}
 
 	@Kroll.method
@@ -597,18 +470,19 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Override
+	public void release()
+	{
+		try {
+			close();
+		} catch (Exception e) {
+			// do nothing...
+		}
+		super.release();
+	}
+
+	@Override
 	public String getApiName()
 	{
 		return "Ti.Network.Socket.TCP";
-	}
-
-	/** Private class used to capture async results of the "TCPProxy" read() and write() methods. */
-	private static class RunnableResult
-	{
-		/** The number of bytes read/written to/from the socket if successful. */
-		int streamedByteCount;
-
-		/** Provides the exception error that occurred if failed. Set to null if read/write was successful. */
-		Exception exception;
 	}
 }

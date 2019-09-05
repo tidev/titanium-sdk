@@ -14,8 +14,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
+import android.content.res.ColorStateList;
+import android.os.Build;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -66,8 +66,13 @@ public class TiUIProgressBar extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			final int color = TiConvert.toColor(d, TiC.PROPERTY_COLOR);
-			progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
 			handleSetMessageColor(color);
+		}
+		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
+			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
+			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
 		}
 		updateProgress();
 	}
@@ -86,8 +91,13 @@ public class TiUIProgressBar extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			final int color = TiConvert.toColor(TiConvert.toString(newValue));
-			progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
 			handleSetMessageColor(color);
+		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
+			int tintColor = TiConvert.toColor(TiConvert.toString(newValue));
+			handleSetTintColor(tintColor);
+		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
+			int trackTintColor = TiConvert.toColor(TiConvert.toString(newValue));
+			handleSetTrackTintColor(trackTintColor);
 		}
 	}
 
@@ -140,5 +150,21 @@ public class TiUIProgressBar extends TiUIView
 	protected void handleSetMessageColor(int color)
 	{
 		label.setTextColor(color);
+	}
+
+	protected void handleSetTintColor(int color)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+			progress.setProgressTintList(singleColorStateList);
+		}
+	}
+
+	protected void handleSetTrackTintColor(int color)
+	{
+		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			progress.setProgressBackgroundTintList(singleColorStateList);
+		}
 	}
 }

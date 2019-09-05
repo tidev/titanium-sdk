@@ -2,7 +2,7 @@
 name: Titanium.Calendar.Attendee
 summary: An object that represents a single attendee of an event.
 description: |
-    The API supports retrieving information about the attendee of an event.  
+    The API supports retrieving information about the attendee of an event.
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "6.0.0"
@@ -13,27 +13,31 @@ properties:
     summary: Indicates whether this attendee is the event organizer.
     type: Boolean
     platforms: [iphone, ipad]
+    permission: read-only
 
   - name: name
     summary: The attendee name.
     type: String
     platforms: [android, iphone, ipad]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    permission: read-only
 
   - name: email
     summary: The attendee email.
     description: |
-        Due to privacy concerns in iOS, this value will be empty if the attendee 
-        is the device owner. 
+        Due to privacy concerns in iOS, this value will be empty if the attendee
+        is the device owner.
     type: String
     platforms: [android, iphone, ipad]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    permission: read-only
 
   - name: role
     summary: The role of the attendee.
     type: Number
     constants: Titanium.Calendar.ATTENDEE_ROLE_*
     platforms: [iphone, ipad]
+    permission: read-only
 
   - name: type
     summary: The type of the attendee.
@@ -41,6 +45,7 @@ properties:
     constants: Titanium.Calendar.ATTENDEE_TYPE_*
     platforms: [android, iphone, ipad]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    permission: read-only
 
   - name: status
     summary: The status of the attendee.
@@ -48,6 +53,7 @@ properties:
     constants: Titanium.Calendar.ATTENDEE_STATUS_*
     platforms: [android, iphone, ipad]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    permission: read-only
 
   - name: relationship
     summary: The relationship of the attendee to the user.
@@ -55,3 +61,4 @@ properties:
     constants: Titanium.Calendar.RELATIONSHIP_*
     platforms: [android]
     since: "6.2.0"
+    permission: read-only

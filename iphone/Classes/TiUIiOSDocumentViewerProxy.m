@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 #import "TiUIiOSDocumentViewerProxy.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @implementation TiUIiOSDocumentViewerProxy
 
@@ -96,7 +96,7 @@
   NSMutableArray *result = [NSMutableArray array];
 
   for (UIImage *image in [self controller].icons) {
-    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image];
+    TiBlob *blob = [[TiBlob alloc] initWithImage:image];
     [result addObject:image];
     [blob release];
   }

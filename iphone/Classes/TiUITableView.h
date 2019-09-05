@@ -6,12 +6,12 @@
  */
 #ifdef USE_TI_UITABLEVIEW
 
-#import "TiDimension.h"
 #import "TiUISearchBarProxy.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUIView.h"
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiUIView.h>
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
@@ -61,7 +61,6 @@
   UIButton *searchScreenView;
   NSString *filterAttribute;
   NSString *searchString;
-  NSMutableArray *searchResultIndexes;
   BOOL searchActivated;
   BOOL filterAnchored;
   BOOL filterCaseInsensitive;
@@ -80,9 +79,12 @@
   UIEdgeInsets rowSeparatorInsets;
   CGPoint tableContentOffset;
   BOOL isSearched;
+  BOOL isSearchBarInNavigation;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
+@property (nonatomic, assign) BOOL shouldDelayScrolling;
+@property (nonatomic, retain) NSMutableArray *searchResultIndexes;
 
 #pragma mark Framework
 - (CGFloat)tableRowHeight:(CGFloat)height;

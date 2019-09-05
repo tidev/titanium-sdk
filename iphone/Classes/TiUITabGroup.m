@@ -7,10 +7,10 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabGroup.h"
-#import "TiColor.h"
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITabGroup
 
@@ -172,11 +172,11 @@ DEFINE_EXCEPTIONS
   UIColor *nTintColor = [navTintColor color];
   BOOL translucent = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"translucent"] def:YES];
 
-  //Update the UINavigationBar appearance.
-  [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setBarStyle:navBarStyle];
-  [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTitleTextAttributes:theAttributes];
-  [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setBarTintColor:theColor];
-  [[UINavigationBar appearanceWhenContainedIn:[UITabBarController class], nil] setTintColor:nTintColor];
+  // Update the UINavigationBar appearance
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setBarStyle:navBarStyle];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setTitleTextAttributes:theAttributes];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setBarTintColor:theColor];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setTintColor:nTintColor];
 
   if ([[moreController viewControllers] count] != 1) {
     return;
@@ -379,15 +379,12 @@ DEFINE_EXCEPTIONS
 
 - (void)setTabsTintColor_:(id)value
 {
-  ENSURE_TYPE_OR_NIL(value, NSString);
   [[controller tabBar] setTintColor:[[TiUtils colorValue:value] color]];
 }
 
 - (void)setUnselectedItemTintColor_:(id)value
 {
-  ENSURE_TYPE_OR_NIL(value, NSString);
-
-  if (![TiUtils isIOS10OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSLog(@"[ERROR] The 'unselectedItemTintColor' property is only available on iOS 10 and later.");
     return;
   }

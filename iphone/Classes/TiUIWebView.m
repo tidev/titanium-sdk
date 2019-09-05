@@ -7,67 +7,29 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebView.h"
-#import "Mimetypes.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiExceptionHandler.h"
-#import "TiFile.h"
-#import "TiHost.h"
-#import "TiProxy.h"
 #import "TiUIWebViewProxy.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import "TiUIiOSWebViewConfigurationProxy.h"
+#import "TiUIiOSWebViewDecisionHandlerProxy.h"
+
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/SBJSON.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiExceptionHandler.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiFilesystemFileProxy.h>
+#import <TitaniumKit/TiHost.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
+
+#import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 
 extern NSString *const TI_APPLICATION_ID;
-static NSString *const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti.App.id=Ti.appId;Ti.App._xhr=XMLHttpRequest;"
-                                              "Ti._broker=function(module,method,data){try{var url='app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+module+'/'+method+'?'+Ti.App._JSON(data,1);"
-                                              "var xhr=new Ti.App._xhr();xhr.open('GET',url,false);xhr.send()}catch(X){}};"
-                                              "Ti._hexish=function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';var l=4-h.length;while(l-->0){r+='0'};r+=h}return r};"
-                                              "Ti._bridgeEnc=function(o){return'<'+Ti._hexish(o)+'>'};"
-                                              "Ti.App._JSON=function(object,bridge){var type=typeof object;switch(type){case'undefined':case'function':case'unknown':return undefined;case'number':case'boolean':return object;"
-                                              "case'string':if(bridge===1)return Ti._bridgeEnc(object);return'\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"'}"
-                                              "if((object===null)||(object.nodeType==1))return'null';if(object.constructor.toString().indexOf('Date')!=-1){return'new Date('+object.getTime()+')'}"
-                                              "if(object.constructor.toString().indexOf('Array')!=-1){var res='[';var pre='';var len=object.length;for(var i=0;i<len;i++){var value=object[i];"
-                                              "if(value!==undefined)value=Ti.App._JSON(value,bridge);if(value!==undefined){res+=pre+value;pre=', '}}return res+']'}var objects=[];"
-                                              "for(var prop in object){var value=object[prop];if(value!==undefined){value=Ti.App._JSON(value,bridge)}"
-                                              "if(value!==undefined){objects.push(Ti.App._JSON(prop,bridge)+': '+value)}}return'{'+objects.join(',')+'}'};"
-                                              "Ti.App._dispatchEvent=function(type,evtid,evt){var listeners=Ti.App._listeners[type];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.id==evtid){entry.callback.call(entry.callback,evt)}}}};Ti.App.fireEvent=function(name,evt){Ti._broker('App','fireEvent',{name:name,event:evt})};Ti.API.log=function(a,b){Ti._broker('API','log',{level:a,message:b})};Ti.API.debug=function(e){Ti._broker('API','log',{level:'debug',message:e})};Ti.API.error=function(e){Ti._broker('API','log',{level:'error',message:e})};Ti.API.info=function(e){Ti._broker('API','log',{level:'info',message:e})};Ti.API.fatal=function(e){Ti._broker('API','log',{level:'fatal',message:e})};Ti.API.warn=function(e){Ti._broker('API','log',{level:'warn',message:e})};Ti.App.addEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(typeof(listeners)=='undefined'){listeners=[];Ti.App._listeners[name]=listeners}var newid=Ti.pageToken+Ti.App._listener_id++;listeners.push({callback:fn,id:newid});Ti._broker('App','addEventListener',{name:name,id:newid})};Ti.App.removeEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.callback==fn){listeners.splice(c,1);Ti._broker('App','removeEventListener',{name:name,id:entry.id});break}}}};";
-
-static NSString *const kMimeTextHTML = @"text/html";
-static NSString *const kContentData = @"kContentData";
-static NSString *const kContentDataEncoding = @"kContentDataEncoding";
-static NSString *const kContentTextEncoding = @"kContentTextEncoding";
-static NSString *const kContentMimeType = @"kContentMimeType";
-static NSString *const kContentInjection = @"kContentInjection";
-
-static unsigned long localId = 0;
-
-NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
-{
-  if (encoding == NSUTF8StringEncoding) {
-    return @"utf-8";
-  } else if (encoding == NSUTF16StringEncoding) {
-    return @"utf-16";
-  } else if (encoding == NSASCIIStringEncoding) {
-    return @"us-ascii";
-  } else if (encoding == NSISOLatin1StringEncoding) {
-    return @"latin1";
-  } else if (encoding == NSShiftJISStringEncoding) {
-    return @"shift_jis";
-  } else if (encoding == NSWindowsCP1252StringEncoding) {
-    return @"windows-1251";
-  }
-  return nil;
-}
-
-@interface LocalProtocolHandler : NSURLProtocol {
-}
-+ (void)setContentInjection:(NSString *)contentInjection;
-
-@end
+static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';var l=4-h.length;while(l-->0){r+='0'};r+=h}return r};Ti._bridgeEnc=function(o){return'<'+Ti._hexish(o)+'>'};Ti._JSON=function(object,bridge){var type=typeof object;switch(type){case'undefined':case'function':case'unknown':return undefined;case'number':case'boolean':return object;case'string':if(bridge===1)return Ti._bridgeEnc(object);return'\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"'}if((object===null)||(object.nodeType==1))return'null';if(object.constructor.toString().indexOf('Date')!=-1){return'new Date('+object.getTime()+')'}if(object.constructor.toString().indexOf('Array')!=-1){var res='[';var pre='';var len=object.length;for(var i=0;i<len;i++){var value=object[i];if(value!==undefined)value=Ti._JSON(value,bridge);if(value!==undefined){res+=pre+value;pre=', '}}return res+']'}var objects=[];for(var prop in object){var value=object[prop];if(value!==undefined){value=Ti._JSON(value,bridge)}if(value!==undefined){objects.push(Ti._JSON(prop,bridge)+': '+value)}}return'{'+objects.join(',')+'}'};";
 
 @implementation TiUIWebView
-@synthesize reloadData, reloadDataProperties;
 
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
@@ -80,49 +42,74 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)dealloc
 {
-  if (webview != nil) {
-    webview.delegate = nil;
-
-    // per doc, must stop webview load before releasing
-    if (webview.loading) {
-      [webview stopLoading];
-    }
-  }
-  if (listeners != nil) {
-    RELEASE_TO_NIL(listeners);
-  }
-  RELEASE_TO_NIL(pageToken);
-  RELEASE_TO_NIL(webview);
-  RELEASE_TO_NIL(url);
-  RELEASE_TO_NIL(spinner);
-  RELEASE_TO_NIL(basicCredentials);
-  RELEASE_TO_NIL(reloadData);
-  RELEASE_TO_NIL(reloadDataProperties);
-  RELEASE_TO_NIL(lastValidLoad);
-  RELEASE_TO_NIL(blacklistedURLs);
-  RELEASE_TO_NIL(insecureConnection);
+  RELEASE_TO_NIL(_pageToken);
+  RELEASE_TO_NIL(_loadingIndicator);
   [super dealloc];
 }
 
-+ (BOOL)isLocalURL:(NSURL *)url
+- (void)viewDidClose
 {
-  NSString *scheme = [url scheme];
-  return [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"];
+  _isViewDetached = YES;
+  if (_webView != nil) {
+    [_webView setUIDelegate:nil];
+    [_webView setNavigationDelegate:nil];
+    if (_webView.loading) {
+      [_webView stopLoading];
+    }
+  }
+  [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
+  [_webView removeFromSuperview];
+  RELEASE_TO_NIL(_webView);
+}
+
+#pragma mark Internal API's
+
+- (WKWebView *)webView
+{
+  if (_webView == nil) {
+    TiUIiOSWebViewConfigurationProxy *configProxy = [[self proxy] valueForKey:@"configuration"];
+    WKWebViewConfiguration *config = configProxy ? [configProxy configuration] : [[[WKWebViewConfiguration alloc] init] autorelease];
+    WKUserContentController *controller = [[[WKUserContentController alloc] init] autorelease];
+
+    [controller addUserScript:[self userScriptTitaniumInjectionForAppEvent]];
+
+    [config setUserContentController:controller];
+
+#if IS_SDK_IOS_11
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
+        [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
+      }
+    }
+#endif
+
+    _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
+
+    _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
+
+    [_webView setUIDelegate:self];
+    [_webView setNavigationDelegate:self];
+    [_webView setContentMode:[self contentModeForWebView]];
+    [_webView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+
+    // KVO for "progress" event
+    [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
+
+    [self addSubview:_webView];
+    [self _initializeLoadingIndicator];
+  }
+
+  return _webView;
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
-  /*	webview is a little _special_ and refuses to share events.
-	 *	As such, we have to take the events away if we have event listeners
-	 *	Or let webview has his entire cake. Through experimenting, if the
-	 *	webview is interested, a subview or subsubview will be the target.
-	 */
-
   UIView *view = [super hitTest:point withEvent:event];
-  if (([self hasTouchableListener]) && willHandleTouches) {
-    UIView *superview = [view superview];
-    UIView *superduperview = [superview superview];
-    if ((view == webview) || (superview == webview) || (superduperview == webview)) {
+  if (([self hasTouchableListener]) && _willHandleTouches) {
+    UIView *superView = [view superview];
+    UIView *parentSuperView = [superView superview];
+
+    if ((view == [self webView]) || (superView == [self webView]) || (parentSuperView == [self webView]) || ([parentSuperView superview] == [self webView]) || ([[parentSuperView superview] superview] == [self webView])) {
       return self;
     }
   }
@@ -130,95 +117,18 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   return view;
 }
 
-- (void)setWillHandleTouches_:(id)args
+- (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-  willHandleTouches = [TiUtils boolValue:args def:YES];
-}
-
-- (UIWebView *)webview
-{
-  if (webview == nil) {
-    // we attach the XHR bridge the first time we need a webview
-    [[TiApp app] attachXHRBridgeIfRequired];
-
-    webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
-    webview.delegate = self;
-    webview.opaque = NO;
-    webview.backgroundColor = [UIColor whiteColor];
-    webview.contentMode = UIViewContentModeRedraw;
-    webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-
-#if IS_XCODE_9
-    if ([TiUtils isIOS11OrGreater]) {
-      webview.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-#endif
-
-    [self addSubview:webview];
-
-    BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
-    ignoreSslError = [TiUtils boolValue:[[self proxy] valueForKey:@"ignoreSslError"] def:NO];
-    isAuthenticated = NO;
-
-    // only show the loading indicator if it's a remote URL and 'hideLoadIndicator' property is not set.
-    if (![[self class] isLocalURL:url] && !hideLoadIndicator) {
-      TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
-      UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
-      if (bgcolor != nil) {
-        // check to see if the background is a dark color and if so, we want to
-        // show the white indicator instead
-        if ([Webcolor isDarkColor:[bgcolor _color]]) {
-          style = UIActivityIndicatorViewStyleWhite;
-        }
-      }
-      spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
-      [spinner setHidesWhenStopped:YES];
-      spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-      [self addSubview:spinner];
-      [spinner sizeToFit];
-      [spinner startAnimating];
-    }
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"DefaultUserAgent"] == nil) {
-      NSString *defaultUserAgent = [webview stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-      [[NSUserDefaults standardUserDefaults] setObject:defaultUserAgent forKey:@"DefaultUserAgent"];
-    }
-  }
-  return webview;
-}
-
-- (id)accessibilityElement
-{
-  return [self webview];
-}
-
-- (void)loadURLRequest:(NSMutableURLRequest *)request
-{
-
-  if (basicCredentials != nil) {
-    [request setValue:basicCredentials forHTTPHeaderField:@"Authorization"];
-  }
-
-  // Set the custom request headers if specified
-  NSDictionary *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
-  if (requestHeaders != nil) {
-    for (NSString *key in [requestHeaders allKeys]) {
-      [request setValue:[requestHeaders objectForKey:key] forHTTPHeaderField:key];
-    }
-  }
-
-  [[self webview] loadRequest:request];
-}
-
-- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-  [super frameSizeChanged:frame bounds:bounds];
-  if (webview != nil) {
-    [TiUtils setView:webview positionRect:bounds];
-
-    if (spinner != nil) {
-      spinner.center = self.center;
-    }
+  if (_webView != nil) {
+    NSDictionary *event = (NSDictionary *)obj;
+    NSString *name = [event objectForKey:@"type"];
+    NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);", name, listener, [TiUtils jsonStringify:event]];
+    [_webView evaluateJavaScript:js
+               completionHandler:^(id result, NSError *error) {
+                 if (error != nil) {
+                   NSLog(@"[ERROR] Error firing event '%@': %@", name, error.localizedDescription);
+                 }
+               }];
   }
 }
 
@@ -233,346 +143,540 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   return [NSURL URLWithString:[[NSString stringWithFormat:@"app://%@/%@", TI_APPLICATION_ID, path] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 }
 
-- (NSString *)titaniumInjection
++ (BOOL)isLocalURL:(NSURL *)url
 {
-  if (pageToken == nil) {
-    pageToken = [[NSString stringWithFormat:@"%lu", (unsigned long)[self hash]] retain];
-    [(TiUIWebViewProxy *)self.proxy setPageToken:pageToken];
-  }
-  NSMutableString *html = [[[NSMutableString alloc] init] autorelease];
-  [html appendString:@"<script id='__ti_injection'>"];
-  NSString *ti = [NSString stringWithFormat:@"%@%s", @"Ti", "tanium"];
-  [html appendFormat:@"window.%@={};window.Ti=%@;Ti.pageToken=%@;Ti.appId='%@';", ti, ti, pageToken, TI_APPLICATION_ID];
-  [html appendString:kTitaniumJavascript];
-  [html appendString:@"</script>"];
-  return html;
+  NSString *scheme = [url scheme];
+  return [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"];
 }
 
-+ (NSString *)content:(NSString *)content withInjection:(NSString *)injection
+#pragma mark Public API's
+
+- (void)setHandlePlatformUrl_:(id)arg
 {
-  if ([content length] == 0) {
-    return content;
-  }
-  // attempt to make well-formed HTML and inject in our Titanium bridge code
-  // However, we only do this if the content looks like HTML
-  NSRange range = [content rangeOfString:@"<html"];
-  if (range.location == NSNotFound) {
-    //TODO: Someone did a DOCTYPE, and our search wouldn't find it. This search is tailored for him
-    //to cause the bug to go away, but is this really the right thing to do? Shouldn't we have a better
-    //way to check?
-    range = [content rangeOfString:@"<!DOCTYPE html"];
-  }
-
-  if (range.location != NSNotFound) {
-    NSMutableString *html = [[NSMutableString alloc] initWithCapacity:[content length] + 2000];
-    NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length] - range.location) locale:nil];
-    if (nextRange.location != NSNotFound) {
-      [html appendString:[content substringToIndex:nextRange.location + 1]];
-      [html appendString:injection];
-      [html appendString:[content substringFromIndex:nextRange.location + 1]];
-    } else {
-      // oh well, just jack it in
-      [html appendString:injection];
-      [html appendString:content];
-    }
-
-    return [html autorelease];
-  }
-  return content;
+  DEPRECATED_REPLACED(@"UI.WebView.handlePlatformUrl", @"8.0.0", @"Use UI.WebView.allowedURLSchemes in conjuction with UI.WebView.handleurl event");
 }
 
-- (void)loadHTML:(NSString *)content
-            encoding:(NSStringEncoding)encoding
-    textEncodingName:(NSString *)textEncodingName
-            mimeType:(NSString *)mimeType
-             baseURL:(NSURL *)baseURL
+- (void)setZoomLevel_:(id)zoomLevel
 {
-  if (baseURL == nil) {
-    baseURL = [NSURL fileURLWithPath:[TiHost resourcePath]];
-  }
-  content = [[self class] content:content withInjection:[self titaniumInjection]];
+  ENSURE_TYPE(zoomLevel, NSNumber);
 
-  [self ensureLocalProtocolHandler];
-  [[self webview] loadData:[content dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:baseURL];
-  if (scalingOverride == NO) {
-    [[self webview] setScalesPageToFit:NO];
-  }
+  [[self webView] evaluateJavaScript:[NSString stringWithFormat:@"document.body.style.zoom = %@;", zoomLevel]
+                   completionHandler:nil];
 }
 
-- (void)loadFile:(NSString *)absolutePath
-            encoding:(NSStringEncoding)encoding
-    textEncodingName:(NSString *)textEncodingName
-            mimeType:(NSString *)mimeType
-{
-  NSURL *requestURL = [NSURL fileURLWithPath:absolutePath];
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
-  [NSURLProtocol setProperty:textEncodingName forKey:kContentTextEncoding inRequest:request];
-  [NSURLProtocol setProperty:mimeType forKey:kContentMimeType inRequest:request];
-
-  [request setValue:[NSString stringWithFormat:@"%lu", (localId++)] forHTTPHeaderField:@"X-Titanium-Local-Id"];
-
-  [self loadURLRequest:request];
-  if (scalingOverride == NO) {
-    [[self webview] setScalesPageToFit:NO];
-  }
-}
-
-- (UIScrollView *)scrollview
-{
-  return [[self webview] scrollView];
-}
-
-#pragma mark Public APIs
-
-- (id)url
-{
-  NSString *result = [[[webview request] URL] absoluteString];
-  if (result != nil) {
-    return result;
-  }
-  return url;
-}
-
-- (void)setAllowsLinkPreview_:(id)value
-{
-  if ([TiUtils isIOS9OrGreater] == NO) {
-    return;
-  }
-  ENSURE_TYPE(value, NSNumber);
-  [webview setAllowsLinkPreview:[TiUtils boolValue:value]];
-}
-
-- (void)reload
-{
-  RELEASE_TO_NIL(lastValidLoad);
-  if (webview == nil) {
-    return;
-  }
-  if (reloadData != nil) {
-    [self performSelector:reloadMethod withObject:reloadData withObject:reloadDataProperties];
-    return;
-  }
-  [webview reload];
-}
-
-- (void)stopLoading
-{
-  [webview stopLoading];
-}
-
-- (void)goBack
-{
-  [webview goBack];
-}
-
-- (void)goForward
-{
-  [webview goForward];
-}
-
-- (BOOL)loading
-{
-  return [webview isLoading];
-}
-
-- (BOOL)canGoBack
-{
-  return [webview canGoBack];
-}
-
-- (BOOL)canGoForward
-{
-  return [webview canGoForward];
-}
-
-- (void)setIgnoreSslError_:(id)value
+- (void)setWillHandleTouches_:(id)value
 {
   ENSURE_TYPE(value, NSNumber);
 
-  ignoreSslError = [TiUtils boolValue:value def:NO];
-  isAuthenticated = NO;
-  [[self proxy] replaceValue:value forKey:@"ignoreSslError" notification:NO];
+  [[self proxy] replaceValue:value forKey:@"willHandleTouches" notification:NO];
+  _willHandleTouches = [TiUtils boolValue:value def:YES];
 }
 
-- (void)setBackgroundColor_:(id)color
+- (void)setUrl_:(id)value
 {
-  UIColor *c = [Webcolor webColorNamed:color];
-  [self setBackgroundColor:c];
-  [[self webview] setBackgroundColor:c];
-}
+  ENSURE_TYPE(value, NSString);
+  [[self proxy] replaceValue:value forKey:@"url" notification:NO];
 
-- (void)setAutoDetect_:(NSArray *)values
-{
-  UIDataDetectorTypes result = UIDataDetectorTypeNone;
-  for (NSNumber *thisNumber in values) {
-    result |= [TiUtils intValue:thisNumber];
+  if ([[self webView] isLoading]) {
+    [[self webView] stopLoading];
   }
-  [[self webview] setDataDetectorTypes:result];
-}
 
-- (void)setZoomLevel_:(id)value
-{
-  ENSURE_TYPE(value, NSNumber);
+  NSURL *url = [TiUtils toURL:value proxy:self.proxy];
 
-  [[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.zoom = %@;", value]];
-}
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
 
-- (void)setHtml_:(NSString *)content withObject:(id)property
-{
-  NSString *baseURLString = [TiUtils stringValue:@"baseURL" properties:property];
-  NSURL *baseURL = baseURLString == nil ? nil : [NSURL URLWithString:baseURLString];
-  NSString *mimeType = [TiUtils stringValue:@"mimeType" properties:property def:kMimeTextHTML];
-  ignoreNextRequest = YES;
-  [self setReloadData:content];
-  [self setReloadDataProperties:property];
-  reloadMethod = @selector(setHtml_:withObject:);
-  RELEASE_TO_NIL(lastValidLoad);
-  [self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:mimeType baseURL:baseURL];
-}
-
-- (void)setData_:(id)args
-{
-  ignoreNextRequest = YES;
-  [self setReloadData:args];
-  [self setReloadDataProperties:nil];
-  reloadMethod = @selector(setData_:);
-  RELEASE_TO_NIL(url);
-  RELEASE_TO_NIL(lastValidLoad);
-  ENSURE_SINGLE_ARG(args, NSObject);
-
-  [self stopLoading];
-
-  if ([args isKindOfClass:[TiBlob class]]) {
-    TiBlob *blob = (TiBlob *)args;
-    TiBlobType type = [blob type];
-    switch (type) {
-    case TiBlobTypeData: {
-      [self ensureLocalProtocolHandler];
-      // Empty NSURL since nil is not accepted here
-      NSURL *emptyURL = [[NSURL new] autorelease];
-      [[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:emptyURL];
-      if (scalingOverride == NO) {
-        [[self webview] setScalesPageToFit:YES];
-      }
-      break;
-    }
-    case TiBlobTypeFile: {
-      url = [[NSURL fileURLWithPath:[blob path]] retain];
-      [self loadLocalURL];
-      break;
-    }
-    default: {
-      [self.proxy throwException:@"invalid blob type" subreason:[NSString stringWithFormat:@"expected either file or data blob, was: %d", type] location:CODELOCATION];
-    }
-    }
-  } else if ([args isKindOfClass:[TiFile class]]) {
-    TiFile *file = (TiFile *)args;
-    url = [[NSURL fileURLWithPath:[file path]] retain];
-    [self loadLocalURL];
+  if ([[self class] isLocalURL:url]) {
+    [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
+    [self loadLocalURL:url];
   } else {
-    [self.proxy throwException:@"invalid datatype" subreason:[NSString stringWithFormat:@"expected a TiBlob, was: %@", [args class]] location:CODELOCATION];
+    [self loadRequestWithURL:[NSURL URLWithString:[TiUtils stringValue:value]]];
   }
 }
 
-- (void)setScalesPageToFit_:(id)args
+- (void)setBackgroundColor_:(id)value
 {
-  // allow the user to overwrite the scale (usually if local)
-  BOOL scaling = [TiUtils boolValue:args];
-  scalingOverride = YES;
-  [[self webview] setScalesPageToFit:scaling];
+  [[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+
+  [[self webView] setOpaque:NO];
+  [[self webView] setBackgroundColor:[[TiUtils colorValue:value] color]];
+}
+
+- (void)setData_:(id)value
+{
+  [[self proxy] replaceValue:value forKey:@"data" notification:NO];
+
+  if ([[self webView] isLoading]) {
+    [[self webView] stopLoading];
+  }
+
+  NSData *data = nil;
+
+  if ([value isKindOfClass:[TiBlob class]]) {
+    data = [(TiBlob *)value data];
+  } else if ([value isKindOfClass:[TiFile class]]) {
+#ifdef USE_TI_FILESYSTEM
+    data = [[(TiFilesystemFileProxy *)value blob] data];
+#endif
+  } else {
+    NSLog(@"[ERROR] Ti.UI.WebView.data can only be a TiBlob or TiFile object, was %@", [(TiProxy *)value apiName]);
+  }
+
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
+
+  [[self webView] loadData:data
+                   MIMEType:[self mimeTypeForData:data]
+      characterEncodingName:@"UTF-8"
+                    baseURL:[[NSBundle mainBundle] resourceURL]];
+}
+
+- (void)setBlacklistedURLs_:(id)blacklistedURLs
+{
+  ENSURE_TYPE(blacklistedURLs, NSArray);
+
+  for (id blacklistedURL in blacklistedURLs) {
+    ENSURE_TYPE(blacklistedURL, NSString);
+  }
+
+  _blacklistedURLs = blacklistedURLs;
+}
+
+- (void)setHtml_:(id)args
+{
+  NSString *content = nil;
+  NSDictionary *options = nil;
+
+  if ([args isKindOfClass:[NSArray class]]) {
+    content = [TiUtils stringValue:[args objectAtIndex:0]];
+    if ([args count] == 2) {
+      options = [args objectAtIndex:1];
+    }
+  } else if ([args isKindOfClass:[NSString class]]) {
+    content = [TiUtils stringValue:args];
+  } else {
+    [self throwException:@"Invalid argument" subreason:@"Requires single string argument or two arguments (String, Object)" location:CODELOCATION];
+  }
+
+  [[self proxy] replaceValue:content forKey:@"html" notification:NO];
+
+  if ([[self webView] isLoading]) {
+    [[self webView] stopLoading];
+  }
+
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
+
+  // No options, default load behavior
+  if (options == nil) {
+    [[self webView] loadHTMLString:content baseURL:[NSURL fileURLWithPath:[TiHost resourcePath]]];
+    return;
+  }
+
+  // Options available, handle them!
+  NSString *baseURL = options[@"baseURL"];
+  NSString *mimeType = options[@"mimeType"];
+
+  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL URLWithString:baseURL] : [NSURL fileURLWithPath:baseURL];
+
+  [[self webView] loadData:[content dataUsingEncoding:NSUTF8StringEncoding]
+                   MIMEType:mimeType
+      characterEncodingName:@"UTF-8"
+                    baseURL:url];
 }
 
 - (void)setDisableBounce_:(id)value
 {
-  BOOL bounces = ![TiUtils boolValue:value];
-  [[self scrollview] setBounces:bounces];
+  [[self proxy] replaceValue:[value isEqual:@1] ? @0 : @1 forKey:@"disableBounce" notification:NO];
+  [[[self webView] scrollView] setBounces:![TiUtils boolValue:value]];
 }
 
 - (void)setScrollsToTop_:(id)value
 {
-  BOOL scrollsToTop = [TiUtils boolValue:value def:YES];
-  [[self scrollview] setScrollsToTop:scrollsToTop];
+  [[self proxy] replaceValue:value forKey:@"scrollsToTop" notification:NO];
+  [[[self webView] scrollView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
-- (void)setUrl_:(id)args
+- (void)setAllowsBackForwardNavigationGestures_:(id)value
 {
-  ignoreNextRequest = YES;
-  isAuthenticated = NO;
-  [self setReloadData:args];
-  [self setReloadDataProperties:nil];
-  reloadMethod = @selector(setUrl_:);
-
-  RELEASE_TO_NIL(url);
-  RELEASE_TO_NIL(lastValidLoad);
-  ENSURE_SINGLE_ARG(args, NSString);
-
-  url = [[TiUtils toURL:args proxy:(TiProxy *)self.proxy] retain];
-
-  if (insecureConnection) {
-    [insecureConnection cancel];
-  }
-
-  [self stopLoading];
-
-  if ([[self class] isLocalURL:url]) {
-    [self loadLocalURL];
-  } else {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [self loadURLRequest:request];
-    if (scalingOverride == NO) {
-      [[self webview] setScalesPageToFit:YES];
-    }
-  }
-}
-
-- (void)setBlacklistedURLs_:(id)args
-{
-  ENSURE_TYPE(args, NSArray);
-
-  if (blacklistedURLs) {
-    RELEASE_TO_NIL(blacklistedURLs);
-  }
-
-  for (id blacklistedURL in args) {
-    ENSURE_TYPE(blacklistedURL, NSString);
-  }
-
-  blacklistedURLs = [args copy];
-}
-
-- (void)setHandlePlatformUrl_:(id)arg
-{
-  [[self proxy] replaceValue:arg forKey:@"handlePlatformUrl" notification:NO];
-  willHandleUrl = [TiUtils boolValue:arg];
+  [[self proxy] replaceValue:value forKey:@"allowsBackForwardNavigationGestures" notification:NO];
+  [[self webView] setAllowsBackForwardNavigationGestures:[TiUtils boolValue:value def:NO]];
 }
 
 - (void)setUserAgent_:(id)value
 {
-  ENSURE_TYPE_OR_NIL(value, NSString);
+  [[self proxy] replaceValue:value forKey:@"userAgent" notification:NO];
+  [[self webView] setCustomUserAgent:[TiUtils stringValue:value]];
+}
 
-  if (value == nil || [value isEqualToString:@""]) {
-    value = [[NSUserDefaults standardUserDefaults] objectForKey:@"DefaultUserAgent"];
+- (void)setEnableZoomControls_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  BOOL enableZoom = [TiUtils boolValue:value def:YES];
+
+  if (!enableZoom) {
+    WKUserContentController *controller = [[[self webView] configuration] userContentController];
+    [controller addUserScript:[self userScriptDisableZoom]];
+  }
+}
+
+- (void)setScalesPageToFit_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  BOOL scalesPageToFit = [TiUtils boolValue:value];
+  BOOL enableZoom = [TiUtils boolValue:[[self proxy] valueForKey:@"enableZoomControls"] def:YES];
+
+  if (scalesPageToFit && enableZoom) {
+    WKUserContentController *controller = [[[self webView] configuration] userContentController];
+    [controller addUserScript:[self userScriptScalesPageToFit]];
+  }
+}
+
+- (void)setDisableContextMenu_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  BOOL disableContextMenu = [TiUtils boolValue:value];
+
+  if (disableContextMenu == YES) {
+    WKUserContentController *controller = [[[self webView] configuration] userContentController];
+    [controller addUserScript:[self userScriptDisableContextMenu]];
+  }
+}
+
+- (void)setKeyboardDisplayRequiresUserAction_:(id)value
+{
+  [self _setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value]];
+  [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+}
+
+#pragma mark Utilities
+
+- (void)loadRequestWithURL:(NSURL *)url
+{
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
+                                                         cachePolicy:[TiUtils intValue:[[self proxy] valueForKey:@"cachePolicy"] def:NSURLRequestUseProtocolCachePolicy]
+                                                     timeoutInterval:[TiUtils doubleValue:[[self proxy] valueForKey:@"timeout"] def:60]];
+
+  // Set request headers
+  NSDictionary<NSString *, id> *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
+
+  if (requestHeaders != nil) {
+    for (NSString *key in requestHeaders) {
+      [request setValue:requestHeaders[key] forHTTPHeaderField:key];
+    }
+
+    // Inject user-agent by using the obj-c nullability to set and reset it
+    NSString *userAgent = requestHeaders[@"User-Agent"];
+    [[self webView] setCustomUserAgent:userAgent];
   }
 
-  [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"UserAgent" : value }];
-  [[self proxy] replaceValue:value forKey:@"userAgent" notification:NO];
+  [self addCookieHeaderForRequest:request];
+
+  [[self webView] loadRequest:request];
 }
 
-- (void)ensureLocalProtocolHandler
+- (WKUserScript *)userScriptScalesPageToFit
 {
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [NSURLProtocol registerClass:[LocalProtocolHandler class]];
-  });
+  NSString *source = @"var meta = document.createElement('meta'); \
+    meta.setAttribute('name', 'viewport'); \
+    meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1'); \
+    document.getElementsByTagName('head')[0].appendChild(meta);";
+
+  return [[[WKUserScript alloc] initWithSource:source injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES] autorelease];
 }
 
-- (void)loadLocalURL
+- (WKUserScript *)userScriptTitaniumInjectionForAppEvent
 {
-  [self ensureLocalProtocolHandler];
+  if (_pageToken == nil) {
+    _pageToken = [[NSString stringWithFormat:@"%lu", (unsigned long)[self hash]] retain];
+    [(TiUIWebViewProxy *)self.proxy setPageToken:_pageToken];
+  }
+
+  NSString *titanium = [NSString stringWithFormat:@"%@%s", @"Ti", "tanium"];
+  NSString *source = @"var callbacks = {}; var Ti = {}; var %@ = Ti; Ti.pageToken = %@; \
+    Ti._listener_id = 1; Ti._listeners={}; %@\
+    Ti.App = { \
+                fireEvent: function(name, payload) { \
+                var _payload = payload; \
+                if (typeof payload === 'string') { \
+                  _payload = JSON.parse(payload); \
+                } \
+                if (callbacks[name]) { \
+                  callbacks[name](_payload); \
+                } \
+              window.webkit.messageHandlers._Ti_.postMessage({name: name, payload: _payload, method: 'fireEvent'},'*'); \
+                }, \
+    addEventListener: function(name, callback) { \
+    callbacks[name] = callback; \
+    var listeners=Ti._listeners[name]; \
+    if(typeof(listeners)=='undefined'){ \
+    listeners=[];Ti._listeners[name]=listeners} \
+    var newid=Ti.pageToken+Ti._listener_id++; \
+    listeners.push({callback:callback,id:newid});\
+    window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'addEventListener', callback: Ti._JSON({name:name, id:newid},1)},'*'); \
+    }, \
+    removeEventListener: function(name, fn) { \
+    var listeners=Ti._listeners[name]; \
+    if(listeners){ \
+    for(var c=0;c<listeners.length;c++){ \
+    var entry=listeners[c]; \
+    if(entry.callback==fn){ \
+    listeners.splice(c,1);\
+    window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'removeEventListener', callback: Ti._JSON({name:name, id:entry.id},1)},'*'); \
+    delete callbacks[name]; break}}}\
+    }, \
+    _dispatchEvent: function(type,evtid,evt){ \
+    var listeners=Ti._listeners[type]; \
+    if(listeners){ \
+    for(var c=0;c<listeners.length;c++){ \
+    var entry=listeners[c]; \
+    if(entry.id==evtid){ \
+    entry.callback.call(entry.callback,evt) \
+    }}}}}; \
+    Ti.API = { \
+    debug: function(message) { \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'debug', method: 'log', callback: Ti._JSON({level:'debug', message:message},1)},'*'); \
+    }, \
+    error: function(message) { \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'error', method: 'log', callback: Ti._JSON({level:'error', message:message},1)},'*'); \
+    }, \
+    info: function(message){ \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'info', method: 'log', callback: Ti._JSON({level:'info', message:message},1)},'*'); \
+    }, \
+    fatal: function(message){ \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'fatal', method: 'log', callback: Ti._JSON({level:'fatal', message:message},1)},'*'); \
+    }, \
+    warn: function(message){ \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
+    }, \
+    log: function(level, message){ \
+    window.webkit.messageHandlers._Ti_.postMessage({name: level, method: 'log', callback: Ti._JSON({level: level, message:message},1)},'*'); \
+    }, \
+    }; \
+    ";
+
+  NSString *sourceString = [NSString stringWithFormat:source, titanium, _pageToken, baseInjectScript];
+  return [[[WKUserScript alloc] initWithSource:sourceString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
+}
+
+- (WKUserScript *)userScriptDisableZoom
+{
+  NSString *source = @"var meta = document.createElement('meta'); \
+    meta.setAttribute('name', 'viewport'); \
+    meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); \
+    document.getElementsByTagName('head')[0].appendChild(meta);";
+
+  return [[[WKUserScript alloc] initWithSource:source injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES] autorelease];
+}
+
+- (WKUserScript *)userScriptDisableContextMenu
+{
+  NSString *source = @"var style = document.createElement('style'); \
+    style.type = 'text/css'; \
+    style.innerText = '*:not(input):not(textarea) { -webkit-user-select: none; -webkit-touch-callout: none; }'; \
+    var head = document.getElementsByTagName('head')[0]; \
+    head.appendChild(style);";
+
+  return [[[WKUserScript alloc] initWithSource:source
+                                 injectionTime:WKUserScriptInjectionTimeAtDocumentEnd
+                              forMainFrameOnly:YES] autorelease];
+}
+
+- (WKUserScript *)userScriptTitaniumJSEvaluationFromString:(NSString *)string
+{
+  return [[[WKUserScript alloc] initWithSource:string
+                                 injectionTime:WKUserScriptInjectionTimeAtDocumentEnd
+                              forMainFrameOnly:YES] autorelease];
+}
+
+- (WKUserScript *)userScriptCookieOut
+{
+  return [[[WKUserScript alloc] initWithSource:@"window.webkit.messageHandlers._Ti_Cookie_.postMessage(document.cookie);" injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
+}
+
+- (WKUserScript *)userScriptCookieInForDomain:(NSString *)validDomain
+{
+  NSMutableString *script = [[NSMutableString alloc] init];
+  [script appendString:@"var cookieNames = document.cookie.split('; ').map(function(cookie) { return cookie.split('=')[0] } );\n"];
+
+  for (NSHTTPCookie *cookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]) {
+    // Skip cookies that will break our script
+    if ([cookie.value rangeOfString:@"'"].location != NSNotFound) {
+      continue;
+    }
+    // Check the cookie for current domain?
+    if (![validDomain hasSuffix:cookie.domain] && ![cookie.domain hasSuffix:validDomain]) {
+      continue;
+    }
+    // Create a line that appends this cookie to the web view's document's cookies
+    [script appendFormat:@"if (cookieNames.indexOf('%@') == -1) { document.cookie='%@'; };\n", cookie.name, [self javascriptStringWithCookie:cookie]];
+  }
+
+  return [[[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
+}
+
+- (NSString *)javascriptStringWithCookie:(NSHTTPCookie *)cookie
+{
+  NSString *string = [NSString stringWithFormat:@"%@=%@;domain=%@;path=%@", cookie.name, cookie.value, cookie.domain, cookie.path ?: @"/"];
+
+  if (cookie.secure) {
+    string = [string stringByAppendingString:@";secure=true"];
+  }
+
+  return string;
+}
+
+- (NSString *)pathFromComponents:(NSArray *)args
+{
+  NSString *newPath;
+  id first = [args objectAtIndex:0];
+
+  if ([first hasPrefix:@"file://"]) {
+    newPath = [[NSURL URLWithString:first] path];
+  } else if ([first characterAtIndex:0] != '/') {
+    newPath = [[[NSURL URLWithString:[self resourcesDirectory]] path] stringByAppendingPathComponent:[self resolveFile:first]];
+  } else {
+    newPath = [self resolveFile:first];
+  }
+
+  if ([args count] > 1) {
+    for (int c = 1; c < [args count]; c++) {
+      newPath = [newPath stringByAppendingPathComponent:[self resolveFile:[args objectAtIndex:c]]];
+    }
+  }
+
+  return [newPath stringByStandardizingPath];
+}
+
+- (id)resolveFile:(id)arg
+{
+#ifdef USE_TI_FILESYSTEM
+  if ([arg isKindOfClass:[TiFilesystemFileProxy class]]) {
+    return [(TiFilesystemFileProxy *)arg path];
+  }
+#endif
+  return [TiUtils stringValue:arg];
+}
+
+- (NSString *)resourcesDirectory
+{
+  return [NSString stringWithFormat:@"%@/", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path]];
+}
+
+// http://stackoverflow.com/a/32765708/5537752
+- (NSString *)mimeTypeForData:(NSData *)data
+{
+  uint8_t c;
+  [data getBytes:&c length:1];
+
+  switch (c) {
+  case 0xFF:
+    return @"image/jpeg";
+    break;
+  case 0x89:
+    return @"image/png";
+    break;
+  case 0x47:
+    return @"image/gif";
+    break;
+  case 0x49:
+  case 0x4D:
+    return @"image/tiff";
+    break;
+  case 0x25:
+    return @"application/pdf";
+    break;
+  case 0xD0:
+    return @"application/vnd";
+    break;
+  case 0x46:
+    return @"text/plain";
+    break;
+  default:
+    return @"application/octet-stream";
+  }
+
+  return nil;
+}
+
+// WARNING: This is not officially available in WKWebView!
+- (void)_setKeyboardDisplayRequiresUserAction:(BOOL)value
+{
+  Class class = NSClassFromString([NSString stringWithFormat:@"W%@tV%@", @"KConten", @"iew"]);
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.3"]) {
+    SEL selector = sel_getUid("_startAssistingNode:userIsInteracting:blurPreviousNode:changingActivityState:userObject:");
+    Method method = class_getInstanceMethod(class, selector);
+    IMP original = method_getImplementation(method);
+    IMP override = imp_implementationWithBlock(^void(id me, void *arg0, BOOL arg1, BOOL arg2, BOOL arg3, id arg4) {
+      ((void (*)(id, SEL, void *, BOOL, BOOL, BOOL, id))original)(me, selector, arg0, !value, arg2, arg3, arg4);
+    });
+    method_setImplementation(method, override);
+  } else {
+    SEL selector = sel_getUid("_startAssistingNode:userIsInteracting:blurPreviousNode:userObject:");
+    Method method = class_getInstanceMethod(class, selector);
+    IMP original = method_getImplementation(method);
+    IMP override = imp_implementationWithBlock(^void(id me, void *arg0, BOOL arg1, BOOL arg2, id arg3) {
+      ((void (*)(id, SEL, void *, BOOL, BOOL, id))original)(me, selector, arg0, !value, arg2, arg3);
+    });
+    method_setImplementation(method, override);
+  }
+}
+
+- (void)addCookieHeaderForRequest:(NSMutableURLRequest *)request
+{
+  /*
+   To support cookie
+   https://stackoverflow.com/questions/26573137
+   https://github.com/haifengkao/YWebView
+   */
+
+  NSString *validDomain = request.URL.host;
+
+  if (validDomain.length <= 0) {
+    return;
+  }
+  if (!_tiCookieHandlerAdded) {
+    _tiCookieHandlerAdded = YES;
+    WKUserContentController *controller = [[[self webView] configuration] userContentController];
+    [controller addUserScript:[self userScriptCookieInForDomain:validDomain]];
+    [controller addUserScript:[self userScriptCookieOut]];
+    [controller addScriptMessageHandler:self name:@"_Ti_Cookie_"];
+  }
+
+  BOOL requestIsSecure = [request.URL.scheme isEqualToString:@"https"];
+
+  NSMutableArray *array = [NSMutableArray array];
+  for (NSHTTPCookie *cookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]) {
+    // Don't even bother with values containing a `'`
+    if ([cookie.name rangeOfString:@"'"].location != NSNotFound) {
+      continue;
+    }
+    // Check the cookie for current domain.
+    if (![validDomain hasSuffix:cookie.domain] && ![cookie.domain hasSuffix:validDomain]) {
+      continue;
+    }
+
+    if (cookie.secure && !requestIsSecure) {
+      continue;
+    }
+    NSString *value = [NSString stringWithFormat:@"%@=%@", cookie.name, cookie.value];
+    [array addObject:value];
+  }
+
+  NSString *header = [array componentsJoinedByString:@";"];
+  if (![header isEqualToString:@""]) {
+    [request setValue:header forHTTPHeaderField:@"Cookie"];
+  }
+}
+
+- (void)loadLocalURL:(NSURL *)url
+{
   NSStringEncoding encoding = NSUTF8StringEncoding;
   NSString *path = [url path];
   NSString *mimeType = [Mimetypes mimeTypeForExtension:path];
-  NSString *textEncodingName = @"utf-8";
   NSError *error = nil;
   NSURL *baseURL = [[url copy] autorelease];
 
@@ -597,15 +701,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       } else {
         // if we get here, it succeeded using UTF8
         encoding = NSUTF8StringEncoding;
-        textEncodingName = @"utf-8";
       }
     } else {
       error = nil;
-      textEncodingName = HTMLTextEncodingNameForStringEncoding(encoding);
-      if (textEncodingName == nil) {
-        DebugLog(@"[WARN] Could not determine correct text encoding for content: %@.", url);
-        textEncodingName = @"utf-8";
-      }
     }
     if ((error != nil && [error code] == 261) || [mimeType isEqualToString:(NSString *)svgMimeType]) {
       //TODO: Shouldn't we be checking for an HTML mime type before trying to read? This is right now rather inefficient, but it
@@ -613,17 +711,14 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       // this is a different encoding than specified, just send it to the webview to load
 
       NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-      [self loadURLRequest:request];
-      if (scalingOverride == NO) {
-        [[self webview] setScalesPageToFit:YES];
-      }
+      [self loadRequestWithURL:url];
       return;
     } else if (error != nil) {
       DebugLog(@"[DEBUG] Cannot load file: %@. Error message was: %@", path, error);
-      RELEASE_TO_NIL(url);
       return;
     }
-    [self loadFile:path encoding:encoding textEncodingName:textEncodingName mimeType:mimeType];
+    NSURL *requestURL = [NSURL fileURLWithPath:path];
+    [self loadRequestWithURL:requestURL];
   } else {
     // convert it into a app:// relative path to load the resource
     // from our application
@@ -635,7 +730,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     if (html != nil) {
       //Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
-      [self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType baseURL:baseURL];
+      [[self webView] loadHTMLString:html baseURL:baseURL];
     } else {
       NSLog(@"[WARN] couldn't load URL: %@", url);
       RELEASE_TO_NIL(url);
@@ -643,399 +738,684 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   }
 }
 
-- (void)setBasicAuthentication:(NSArray *)args
+#pragma mark Delegates
+
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
 {
-  ENSURE_ARG_COUNT(args, 2);
+  BOOL isEvent = [[message body] isKindOfClass:[NSDictionary class]] && [[message body] objectForKey:@"name"];
 
-  NSString *username = [args objectAtIndex:0];
-  NSString *password = [args objectAtIndex:1];
+  if (isEvent) {
+    NSString *name = [[message body] objectForKey:@"name"];
+    NSDictionary *payload = [[message body] objectForKey:@"payload"];
 
-  if (username == nil && password == nil) {
-    RELEASE_TO_NIL(basicCredentials);
-    return;
-  }
+    if ([message.name isEqualToString:@"_Ti_"]) {
+      NSString *callback = [[message body] objectForKey:@"callback"];
 
-  NSString *toEncode = [NSString stringWithFormat:@"%@:%@", username, password];
-  NSData *data = [toEncode dataUsingEncoding:NSUTF8StringEncoding];
-  NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
+      SBJSON *decoder = [[[SBJSON alloc] init] autorelease];
+      NSError *error = nil;
+      NSDictionary *event = [decoder fragmentWithString:callback error:&error];
 
-  if (base64Encoded != nil) {
-    RELEASE_TO_NIL(basicCredentials);
-    basicCredentials = [[NSString stringWithFormat:@"Basic %@", base64Encoded] retain];
-    if (url != nil) {
-      [self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
-    }
-  }
-}
+      NSString *method = [[message body] objectForKey:@"method"];
+      NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";
 
-- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)code
-{
-  return [[self webview] stringByEvaluatingJavaScriptFromString:code];
-}
+      // FIXME: This doesn't play nice with the new obj-c based modules!
+      // Unify the special handling for init with the code in KrollBridge?
+      // Maybe just fork the behavior altogether here, since I don't think the event stuff will work properly?
+      id module;
+      if ([moduleName isEqualToString:@"API"]) {
+        // Really we need to grab the same instance we stuck into the Ti namespace, not a brand new one. But how?
+        // Maybe grab Ti from global and just ask for property with module name?
+        Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", moduleName]);
+        module = [[moduleClass alloc] init];
+      } else {
+        id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
+        TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
+        [tiModule setExecutionContext:context];
+        module = tiModule;
+      }
 
-- (CGFloat)contentHeightForWidth:(CGFloat)value
-{
-  CGRect oldBounds = [[self webview] bounds];
-  BOOL oldVal = webview.scalesPageToFit;
-  [webview setScalesPageToFit:NO];
-  [webview setBounds:CGRectMake(0, 0, value, 1)];
-  CGFloat ret = [webview sizeThatFits:CGSizeMake(value, 1)].height;
-  [webview setBounds:oldBounds];
-  [webview setScalesPageToFit:oldVal];
-  return ret;
-}
-
-- (CGFloat)contentWidthForWidth:(CGFloat)value
-{
-  CGRect oldBounds = [[self webview] bounds];
-  BOOL oldVal = webview.scalesPageToFit;
-  [webview setScalesPageToFit:NO];
-  [webview setBounds:CGRectMake(0, 0, 10, 1)];
-  CGFloat ret = [webview sizeThatFits:CGSizeMake(10, 1)].width;
-  [webview setBounds:oldBounds];
-  [webview setScalesPageToFit:oldVal];
-  return ret;
-}
-
-- (void)setKeyboardDisplayRequiresUserAction_:(id)value
-{
-  ENSURE_TYPE(value, NSNumber);
-  [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
-
-  [[self webview] setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value def:YES]];
-}
-
-#pragma mark WebView Delegate
-
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
-{
-  NSURL *newUrl = [request URL];
-
-  if (blacklistedURLs && blacklistedURLs.count > 0) {
-    NSString *urlAbsoluteString = [newUrl absoluteString];
-
-    for (NSString *blackListedUrl in blacklistedURLs) {
-      if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        if ([[self proxy] _hasListeners:@"blacklisturl"]) {
-          [[self proxy] fireEvent:@"blacklisturl"
-                       withObject:@{
-                         @"url" : urlAbsoluteString,
-                         @"message" : @"Webview did not load blacklisted url."
-                       }];
+      if ([method isEqualToString:@"fireEvent"]) {
+        [module fireEvent:name withObject:payload];
+      } else if ([method isEqualToString:@"addEventListener"]) {
+        id listenerid = [event objectForKey:@"id"];
+        [module addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+      } else if ([method isEqualToString:@"removeEventListener"]) {
+        id listenerid = [event objectForKey:@"id"];
+        [module removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+      } else if ([method isEqualToString:@"log"]) {
+        NSString *level = [event objectForKey:@"level"];
+        NSString *message = [event objectForKey:@"message"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+        if ([module respondsToSelector:@selector(log:withMessage:)]) {
+          [module performSelector:@selector(log:withMessage:) withObject:level withObject:message];
         }
-
-        [self stopSpinner];
-        return NO;
+#pragma clang diagnostic pop
       }
-    }
-  }
-
-  if ([self.proxy _hasListeners:@"beforeload"]) {
-    NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
-    [self.proxy fireEvent:@"beforeload" withObject:event];
-  }
-
-  if (navigationType != UIWebViewNavigationTypeOther) {
-    RELEASE_TO_NIL(lastValidLoad);
-  }
-
-  // Handle invalid SSL certificate
-  if (ignoreSslError && !isAuthenticated) {
-    RELEASE_TO_NIL(insecureConnection);
-    isAuthenticated = NO;
-    insecureConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
-    [insecureConnection start];
-
-    return NO;
-  }
-
-  NSString *scheme = [[newUrl scheme] lowercaseString];
-  if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
-      || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
-    DebugLog(@"[DEBUG] New scheme: %@", request);
-    BOOL valid = !ignoreNextRequest;
-    if ([scheme hasPrefix:@"http"]) {
-      //UIWebViewNavigationTypeOther means we are either in a META redirect
-      //or it is a js request from within the page
-      valid = valid && (navigationType != UIWebViewNavigationTypeOther);
-    }
-    if (valid) {
-      [self setReloadData:[newUrl absoluteString]];
-      [self setReloadDataProperties:nil];
-      reloadMethod = @selector(setUrl_:);
-    }
-    if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
-      [LocalProtocolHandler setContentInjection:[self titaniumInjection]];
-    }
-
-    // Use "onlink" callback property to decide the navigation policy
-    KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
-    if (onLink != nil) {
-      TiValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : newUrl.absoluteString } ]];
-      if (functionResult != NULL && TiValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
-        return TiValueToBoolean([onLink.bridge.krollContext context], functionResult);
-      }
-    }
-
-    return YES;
-  }
-
-  UIApplication *uiApp = [UIApplication sharedApplication];
-
-  if ([uiApp canOpenURL:newUrl] && !willHandleUrl) {
-    if ([TiUtils isIOS10OrGreater]) {
-      [uiApp openURL:newUrl options:@{} completionHandler:nil];
-    } else {
-      [uiApp openURL:newUrl];
-    }
-    return NO;
-  }
-
-  //It's likely to fail, but that way we pass it on to error handling.
-  return YES;
-}
-
-- (void)webViewDidStartLoad:(UIWebView *)webView
-{
-}
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView
-{
-  [self stopSpinner];
-
-  [url release];
-  url = [[[webview request] URL] retain];
-  NSString *urlAbs = [url absoluteString];
-  NSString *appPath = [[[NSBundle mainBundle] resourceURL] absoluteString];
-  if (![urlAbs isEqualToString:appPath]) {
-    [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
-  }
-
-  if ([self.proxy _hasListeners:@"load"]) {
-    if (![urlAbs isEqualToString:lastValidLoad]) {
-      NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
-      [self.proxy fireEvent:@"load" withObject:event];
-      [lastValidLoad release];
-      lastValidLoad = [urlAbs retain];
-    }
-  }
-
-  // Disable the context menu when selecting a range of text
-  BOOL disableContextMenu = [TiUtils boolValue:[[self proxy] valueForKey:@"disableContextMenu"] def:NO];
-  if (disableContextMenu) {
-    [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitUserSelect='none';"];
-    [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
-    [webView stringByEvaluatingJavaScriptFromString:@"window.getSelection().removeAllRanges();"];
-  }
-
-  [webView setNeedsDisplay];
-  ignoreNextRequest = NO;
-  TiUIWebViewProxy *ourProxy = (TiUIWebViewProxy *)[self proxy];
-  [ourProxy webviewDidFinishLoad];
-}
-
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
-{
-  // Ignore "Frame Load Interrupted" errors. Seen after opening url-schemes that
-  // are already handled by the `Ti.App.iOS.handleurl` event
-  if (error.code == 102 && [error.domain isEqual:@"WebKitErrorDomain"])
-    return;
-
-  NSString *offendingUrl = [self url];
-
-  if ([[error domain] isEqual:NSURLErrorDomain]) {
-    offendingUrl = [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey];
-
-    // this means the pending request has been cancelled and should be
-    // safely squashed
-    if ([error code] == NSURLErrorCancelled) {
       return;
     }
   }
 
-  NSLog(@"[ERROR] Error loading: %@, Error: %@", offendingUrl, error);
+  if ([message.name isEqualToString:@"_Ti_Cookie_"]) {
+    NSArray<NSString *> *cookies = [message.body componentsSeparatedByString:@"; "];
+    for (NSString *cookie in cookies) {
+      // Get this cookie's name and value
+      NSArray<NSString *> *components = [cookie componentsSeparatedByString:@"="];
+      if (components.count < 2) {
+        continue;
+      }
 
-  if ([self.proxy _hasListeners:@"error"]) {
-    NSString *message = [TiUtils messageFromError:error];
-    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:message forKey:@"message"];
+      // Get the cookie in shared storage with that name
+      NSHTTPCookie *localCookie = nil;
+      for (NSHTTPCookie *httpCookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:self.webView.URL]) {
+        NSString *cookieName = httpCookie.name;
+        NSString *secondComponent = components[0];
+        if ([cookieName isEqualToString:secondComponent]) {
+          localCookie = httpCookie;
+          break;
+        }
+      }
 
-    // We combine some error codes into a single one which we share with Android.
-    NSInteger rawErrorCode = [error code];
-    NSInteger returnErrorCode = rawErrorCode;
+      //If there is a cookie with a stale value, update it now.
+      if (localCookie != nil) {
+        NSMutableDictionary *cookieProperties = [localCookie.properties mutableCopy];
+        cookieProperties[NSHTTPCookieValue] = components[1];
+        NSHTTPCookie *updatedCookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:updatedCookie];
+      } else {
+        // We need NSHTTPCookieOriginURL for NSHTTPCookie to be created
+        NSString *cookieWithURL = [NSString stringWithFormat:@"%@; ORIGINURL=%@;", cookie, self.webView.URL];
+        NSHTTPCookie *httpCookie = [self cookieForString:cookieWithURL];
 
-    if (rawErrorCode == NSURLErrorUserCancelledAuthentication) {
-      returnErrorCode = NSURLErrorUserAuthenticationRequired; // URL_ERROR_AUTHENTICATION
-    } else if (rawErrorCode == NSURLErrorNoPermissionsToReadFile || rawErrorCode == NSURLErrorCannotCreateFile || rawErrorCode == NSURLErrorFileIsDirectory || rawErrorCode == NSURLErrorCannotCloseFile || rawErrorCode == NSURLErrorCannotWriteToFile || rawErrorCode == NSURLErrorCannotRemoveFile || rawErrorCode == NSURLErrorCannotMoveFile) {
-      returnErrorCode = NSURLErrorCannotOpenFile; // URL_ERROR_FILE
-    } else if (rawErrorCode == NSURLErrorDNSLookupFailed) {
-      returnErrorCode = NSURLErrorCannotFindHost; // URL_ERROR_HOST_LOOKUP
+        if (httpCookie) {
+          [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:httpCookie];
+        }
+      }
     }
+  }
 
-    [event setObject:[NSNumber numberWithInteger:returnErrorCode] forKey:@"errorCode"];
-    [event setObject:offendingUrl forKey:@"url"];
-    [self.proxy fireEvent:@"error" withObject:event errorCode:returnErrorCode message:message];
+  if ([[self proxy] _hasListeners:@"message"]) {
+    [[self proxy] fireEvent:@"message"
+                 withObject:@{
+                   @"url" : message.frameInfo.request.URL.absoluteString ?: [[NSBundle mainBundle] bundlePath],
+                   @"body" : message.body,
+                   @"name" : message.name,
+                   @"isMainFrame" : NUMBOOL(message.frameInfo.isMainFrame),
+                 }];
   }
 }
 
-#pragma mark NSURLConnection Delegates (used for the "ignoreSslError" property)
-
-- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *_Nullable))completionHandler
 {
-  if ([challenge previousFailureCount] == 0) {
-    isAuthenticated = YES;
+  NSString *authenticationMethod = [[challenge protectionSpace] authenticationMethod];
+  NSDictionary<NSString *, NSString *> *basicAuthentication = [[self proxy] valueForKey:@"basicAuthentication"];
+  BOOL ignoreSSLError = [TiUtils boolValue:[[self proxy] valueForKey:@"ignoreSslError"] def:NO];
 
-    [[challenge sender] useCredential:[NSURLCredential credentialForTrust:[[challenge protectionSpace] serverTrust]]
-           forAuthenticationChallenge:challenge];
+  // Basic authentication
+  if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodDefault]
+      || [authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic]
+      || [authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPDigest]) {
+
+    // If "basicAuthentication" property set -> Try to handle
+    if (basicAuthentication != nil && [challenge previousFailureCount] == 0) {
+      NSString *username = [TiUtils stringValue:@"username" properties:basicAuthentication];
+      NSString *password = [TiUtils stringValue:@"password" properties:basicAuthentication];
+      NSURLCredentialPersistence persistence = [TiUtils intValue:@"persistence" properties:basicAuthentication def:NSURLCredentialPersistenceNone];
+
+      completionHandler(NSURLSessionAuthChallengeUseCredential, [[[NSURLCredential alloc] initWithUser:username
+                                                                                              password:password
+                                                                                           persistence:persistence] autorelease]);
+      // If "ignoreSslError" is set, ignore the possible error
+    } else if (ignoreSSLError) {
+      // Allow invalid certificates if specified
+      NSURLCredential *credential = [[[NSURLCredential alloc] initWithTrust:[challenge protectionSpace].serverTrust] autorelease];
+      completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+      // Default: Reject authentication challenge
+    } else {
+      if ([[self proxy] _hasListeners:@"sslerror"]) {
+        [self.proxy fireEvent:@"sslerror"];
+      }
+      completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+    }
+    // HTTPS in general
+  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    // Default: Reject authentication challenge
   } else {
-    [[challenge sender] cancelAuthenticationChallenge:challenge];
+    completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
   }
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response;
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-  isAuthenticated = YES;
+  [self _cleanupLoadingIndicator];
+  [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
-  [webview loadRequest:[NSURLRequest requestWithURL:url]];
-  [insecureConnection cancel];
-}
-
-- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
-{
-  return [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust];
-}
-
-#pragma mark UIGestureRecognizer Delegates
-
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
-{
-  return !willHandleTouches;
-}
-
-#pragma mark TiEvaluator
-
-- (void)evalFile:(NSString *)path
-{
-  NSURL *url_ = [path hasPrefix:@"file:"] ? [NSURL URLWithString:path] : [NSURL fileURLWithPath:path];
-
-  if (![path hasPrefix:@"/"] && ![path hasPrefix:@"file:"]) {
-    NSURL *root = [[[self proxy] _host] baseURL];
-    url_ = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@", root, path]];
-  }
-
-  NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
-  [self stringByEvaluatingJavaScriptFromString:code];
-}
-
-- (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
-{
-  // don't bother firing an app event to the webview if we don't have a webview yet created
-  if (webview != nil) {
-    NSDictionary *event = (NSDictionary *)obj;
-    NSString *name = [event objectForKey:@"type"];
-    NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);", name, listener, [TiUtils jsonStringify:event]];
-    // Not waiting for JS execution since this can cause deadlock on main queue.
-    [webview performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:)
-                              withObject:js
-                           waitUntilDone:NO];
+  if ([[self proxy] _hasListeners:@"load"]) {
+    [[self proxy] fireEvent:@"load" withObject:@{ @"url" : webView.URL.absoluteString, @"title" : webView.title }];
   }
 }
 
-- (void)stopSpinner
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error
 {
-  if (spinner != nil) {
-    [UIView beginAnimations:@"webspiny" context:nil];
-    [UIView setAnimationDuration:0.3];
-    [spinner removeFromSuperview];
-    [UIView commitAnimations];
-    [spinner autorelease];
-    spinner = nil;
+  [self _cleanupLoadingIndicator];
+  [self _fireErrorEventWithError:error];
+}
+
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error
+{
+  [self _cleanupLoadingIndicator];
+  [self _fireErrorEventWithError:error];
+}
+
+- (void)webView:(WKWebView *)webView didReceiveServerRedirectForProvisionalNavigation:(WKNavigation *)navigation
+{
+  if ([[self proxy] _hasListeners:@"redirect"]) {
+    [[self proxy] fireEvent:@"redirect" withObject:@{ @"url" : webView.URL.absoluteString, @"title" : webView.title }];
   }
 }
 
-@end
-
-@implementation LocalProtocolHandler
-static NSString *_contentInjection = nil;
-
-+ (void)setContentInjection:(NSString *)contentInjection
+- (BOOL)webView:(WKWebView *)webView shouldPreviewElement:(WKPreviewElementInfo *)elementInfo
 {
-  if (_contentInjection != nil) {
-    RELEASE_TO_NIL(_contentInjection);
+  return [TiUtils boolValue:[[self proxy] valueForKey:@"allowsLinkPreview"] def:NO];
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
+{
+  UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil
+                                                                           message:message
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+  [alertController addAction:[UIAlertAction actionWithTitle:UIKitLocalizedString([TiUtils stringValue:[[self proxy] valueForKey:@"ok"]] ?: NSLocalizedString(@"OK", nil))
+                                                      style:UIAlertActionStyleCancel
+                                                    handler:^(UIAlertAction *action) {
+                                                      completionHandler();
+                                                    }]];
+
+  [[TiApp app] showModalController:alertController animated:YES];
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completionHandler
+{
+  UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil
+                                                                           message:message
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+
+  [alertController addAction:[UIAlertAction actionWithTitle:UIKitLocalizedString([TiUtils stringValue:[[self proxy] valueForKey:@"ok"]] ?: NSLocalizedString(@"OK", nil))
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction *action) {
+                                                      completionHandler(YES);
+                                                    }]];
+
+  [alertController addAction:[UIAlertAction actionWithTitle:UIKitLocalizedString([TiUtils stringValue:[[self proxy] valueForKey:@"cancel"]] ?: NSLocalizedString(@"Cancel", nil))
+                                                      style:UIAlertActionStyleCancel
+                                                    handler:^(UIAlertAction *action) {
+                                                      completionHandler(NO);
+                                                    }]];
+
+  [[TiApp app] showModalController:alertController animated:YES];
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString *_Nullable))completionHandler
+{
+  UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil
+                                                                           message:prompt
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+
+  [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+    textField.text = defaultText;
+  }];
+  [alertController addAction:[UIAlertAction actionWithTitle:UIKitLocalizedString([TiUtils stringValue:[[self proxy] valueForKey:@"ok"]] ?: NSLocalizedString(@"OK", nil))
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction *action) {
+                                                      completionHandler(alertController.textFields.firstObject.text ?: defaultText);
+                                                    }]];
+
+  [alertController addAction:[UIAlertAction actionWithTitle:UIKitLocalizedString([TiUtils stringValue:[[self proxy] valueForKey:@"cancel"]] ?: NSLocalizedString(@"Cancel", nil))
+                                                      style:UIAlertActionStyleCancel
+                                                    handler:^(UIAlertAction *action) {
+                                                      completionHandler(nil);
+                                                    }]];
+
+  [[TiApp app] showModalController:alertController animated:YES];
+}
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(nonnull WKNavigationAction *)navigationAction decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler
+{
+  if (_isViewDetached) {
+    decisionHandler(WKNavigationActionPolicyCancel);
+    return;
   }
-  _contentInjection = [contentInjection retain];
-}
+  NSArray<NSString *> *allowedURLSchemes = [[self proxy] valueForKey:@"allowedURLSchemes"];
 
-- (void)dealloc
-{
-  RELEASE_TO_NIL(_contentInjection);
-  [super dealloc];
-}
+  // Handle blacklisted URL's
+  if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
+    NSString *urlCandidate = navigationAction.request.URL.absoluteString;
 
-+ (BOOL)canInitWithRequest:(NSURLRequest *)request
-{
-  return [request.URL.scheme isEqualToString:@"file"];
-}
+    for (NSString *blackListedURL in _blacklistedURLs) {
+      if ([urlCandidate rangeOfString:blackListedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
+        if ([[self proxy] _hasListeners:@"blacklisturl"]) {
+          [[self proxy] fireEvent:@"blacklisturl"
+                       withObject:@{
+                         @"url" : urlCandidate,
+                         @"message" : @"Webview did not load blacklisted url."
+                       }];
+        }
 
-+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
-{
-  // TIMOB-25762: iOS 11.3 breaks NSURLProtocol properties, so we need to set it here instead of inside the webview
-  [NSURLProtocol setProperty:_contentInjection forKey:@"kContentInjection" inRequest:(NSMutableURLRequest *)request];
-
-  return request;
-}
-
-+ (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b
-{
-  return NO;
-}
-
-- (void)startLoading
-{
-  id<NSURLProtocolClient> client = [self client];
-  NSURLRequest *request = [self request];
-  NSURL *url = [request URL];
-  NSString *absolutePath = [url path];
-
-  NSStringEncoding contentDataEncoding = [[[self class] propertyForKey:kContentDataEncoding inRequest:request] unsignedIntegerValue];
-  if (contentDataEncoding == 0) {
-    contentDataEncoding = NSUTF8StringEncoding;
-  }
-  NSString *contentTextEncoding = [[self class] propertyForKey:kContentTextEncoding inRequest:request];
-  NSData *contentData = [[self class] propertyForKey:kContentData inRequest:request];
-  if (contentData == nil) {
-    contentData = [TiUtils loadAppResource:url];
-    if (contentData == nil) {
-      contentData = [NSData dataWithContentsOfFile:absolutePath];
-      if (contentData == nil) {
-        NSLog(@"[ERROR] Error loading %@", absolutePath);
-        [client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
-        [client URLProtocolDidFinishLoading:self];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [self _cleanupLoadingIndicator];
         return;
       }
     }
   }
-  NSString *contentMimeType = [[self class] propertyForKey:kContentMimeType inRequest:request];
-  if (contentMimeType == nil) {
-    contentMimeType = [Mimetypes mimeTypeForExtension:absolutePath];
+
+  if ([[self proxy] _hasListeners:@"beforeload"]) {
+    [[self proxy] fireEvent:@"beforeload"
+                 withObject:@{
+                   @"url" : navigationAction.request.URL.absoluteString,
+                   @"navigationType" : @(navigationAction.navigationType)
+                 }];
   }
-  NSString *contentInjection = [[self class] propertyForKey:kContentInjection inRequest:request];
-  if ((contentInjection != nil) && [contentMimeType isEqualToString:kMimeTextHTML]) {
-    NSString *content = [[NSString alloc] initWithData:contentData encoding:contentDataEncoding];
-    contentData = [[TiUIWebView content:content withInjection:contentInjection] dataUsingEncoding:contentDataEncoding];
-    [content release];
+
+  // Use "onlink" callback property to decide the navigation policy
+  KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
+  if (onLink != nil) {
+    JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : navigationAction.request.URL.absoluteString } ]];
+    if (functionResult != NULL && JSValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
+      if (JSValueToBoolean([onLink.bridge.krollContext context], functionResult)) {
+        decisionHandler(WKNavigationActionPolicyAllow);
+      } else {
+        decisionHandler(WKNavigationActionPolicyCancel);
+      }
+      return;
+    }
   }
-  NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:contentMimeType expectedContentLength:[contentData length] textEncodingName:contentTextEncoding];
-  [client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-  [client URLProtocol:self didLoadData:contentData];
-  [client URLProtocolDidFinishLoading:self];
-  [response release];
+
+  NSString *scheme = [navigationAction.request.URL.scheme lowercaseString];
+
+  if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
+    if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
+      // Event to return url to Titanium in order to handle OAuth and more
+      if ([[self proxy] _hasListeners:@"handleurl"]) {
+        TiThreadPerformOnMainThread(^{
+          [[self proxy] fireEvent:@"handleurl"
+                       withObject:@{
+                         @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
+                         @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
+                       }];
+        },
+            NO);
+      } else {
+        // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
+        DebugLog(@"[WARN] In iOS, please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
+        DebugLog(@"[WARN] In iOS, it returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
+
+        [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+        decisionHandler(WKNavigationActionPolicyCancel);
+      }
+    }
+  } else if (!([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"] || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) && [[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
+    // Support tel: protocol
+    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    decisionHandler(WKNavigationActionPolicyCancel);
+  } else {
+    decisionHandler(WKNavigationActionPolicyAllow);
+  }
 }
 
-- (void)stopLoading
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
-  // NO-OP
+  NSDictionary<NSString *, id> *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
+  NSURL *requestedURL = navigationResponse.response.URL;
+
+  // If we have request headers set, we do a little hack to persist them across different URL's,
+  // which is not officially supported by iOS.
+  if (requestHeaders != nil && requestedURL != nil && ![requestedURL.absoluteString isEqualToString:_currentURL.absoluteString]) {
+    _currentURL = requestedURL;
+    decisionHandler(WKNavigationResponsePolicyCancel);
+    [self loadRequestWithURL:_currentURL];
+    return;
+  }
+
+  decisionHandler(WKNavigationResponsePolicyAllow);
+}
+
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+  if (!navigationAction.targetFrame.isMainFrame) {
+    [webView loadRequest:navigationAction.request];
+  }
+
+  return nil;
+}
+#pragma mark Internal Utilities
+
+static NSString *UIKitLocalizedString(NSString *string)
+{
+  NSBundle *UIKitBundle = [NSBundle bundleForClass:[UIApplication class]];
+  return UIKitBundle ? [UIKitBundle localizedStringForKey:string value:string table:nil] : string;
+}
+
+- (void)_fireErrorEventWithError:(NSError *)error
+{
+  if ([[self proxy] _hasListeners:@"error"]) {
+    NSURL *errorURL = _webView.URL;
+
+    if (errorURL.absoluteString == nil) {
+      errorURL = [NSURL URLWithString:[[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
+    }
+
+    [[self proxy] fireEvent:@"error"
+                 withObject:@{
+                   @"success" : @NO,
+                   @"code" : @(error.code),
+                   @"url" : NULL_IF_NIL(errorURL),
+                   @"error" : [error localizedDescription]
+                 }];
+  }
+}
+
+- (void)_initializeLoadingIndicator
+{
+  BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
+
+  if ([[self class] _isLocalURL:_webView.URL] || hideLoadIndicator) {
+    return;
+  }
+
+  TiColor *backgroundColor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
+  UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
+
+  if (backgroundColor != nil && [Webcolor isDarkColor:backgroundColor.color]) {
+    style = UIActivityIndicatorViewStyleWhite;
+  }
+  _loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
+  [_loadingIndicator setHidesWhenStopped:YES];
+
+  [self addSubview:_loadingIndicator];
+
+  UIView *superview = self;
+  NSDictionary *variables = NSDictionaryOfVariableBindings(_loadingIndicator, superview);
+  NSArray<NSLayoutConstraint *> *verticalConstraints =
+      [NSLayoutConstraint constraintsWithVisualFormat:@"V:[superview]-(<=1)-[_loadingIndicator]"
+                                              options:NSLayoutFormatAlignAllCenterX
+                                              metrics:nil
+                                                views:variables];
+  [self addConstraints:verticalConstraints];
+
+  NSArray<NSLayoutConstraint *> *horizontalConstraints =
+      [NSLayoutConstraint constraintsWithVisualFormat:@"H:[superview]-(<=1)-[_loadingIndicator]"
+                                              options:NSLayoutFormatAlignAllCenterY
+                                              metrics:nil
+                                                views:variables];
+  [self addConstraints:horizontalConstraints];
+  [_loadingIndicator startAnimating];
+}
+
+- (void)_cleanupLoadingIndicator
+{
+  if (_loadingIndicator == nil)
+    return;
+
+  [UIView beginAnimations:@"_hideAnimation" context:nil];
+  [UIView setAnimationDuration:0.3];
+  [_loadingIndicator removeFromSuperview];
+  [UIView commitAnimations];
+  _loadingIndicator = nil;
+}
+
++ (BOOL)_isLocalURL:(NSURL *)url
+{
+  NSString *scheme = [url scheme];
+  return [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"];
+}
+
+#pragma mark Layout helper
+
+- (void)setWidth_:(id)width_
+{
+  width = TiDimensionFromObject(width_);
+  [self updateContentMode];
+}
+
+- (void)setHeight_:(id)height_
+{
+  height = TiDimensionFromObject(height_);
+  [self updateContentMode];
+}
+
+- (void)updateContentMode
+{
+  if ([self webView] != nil) {
+    [[self webView] setContentMode:[self contentModeForWebView]];
+  }
+}
+
+- (UIViewContentMode)contentModeForWebView
+{
+  if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+    return UIViewContentModeScaleAspectFit;
+  } else {
+    return UIViewContentModeScaleToFill;
+  }
+}
+
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+  for (UIView *child in [self subviews]) {
+    [TiUtils setView:child positionRect:bounds];
+  }
+
+  [super frameSizeChanged:frame bounds:bounds];
+}
+
+- (CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
+{
+  if (autoWidth > 0) {
+    //If height is DIP returned a scaled autowidth to maintain aspect ratio
+    if (TiDimensionIsDip(height) && autoHeight > 0) {
+      return roundf(autoWidth * height.value / autoHeight);
+    }
+    return autoWidth;
+  }
+
+  CGFloat calculatedWidth = TiDimensionCalculateValue(width, autoWidth);
+  if (calculatedWidth > 0) {
+    return calculatedWidth;
+  }
+
+  return 0;
+}
+
+- (CGFloat)contentHeightForWidth:(CGFloat)width_
+{
+  if (width_ != autoWidth && autoWidth > 0 && autoHeight > 0) {
+    return (width_ * autoHeight / autoWidth);
+  }
+
+  if (autoHeight > 0) {
+    return autoHeight;
+  }
+
+  CGFloat calculatedHeight = TiDimensionCalculateValue(height, autoHeight);
+  if (calculatedHeight > 0) {
+    return calculatedHeight;
+  }
+
+  return 0;
+}
+
+- (UIViewContentMode)contentMode
+{
+  if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+    return UIViewContentModeScaleAspectFit;
+  } else {
+    return UIViewContentModeScaleToFill;
+  }
+}
+
+#pragma mark KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+  if ([keyPath isEqualToString:@"estimatedProgress"] && object == [self webView]) {
+    if ([[self proxy] _hasListeners:@"progress"]) {
+      [[self proxy] fireEvent:@"progress"
+                   withObject:@{
+                     @"value" : NUMDOUBLE([[self webView] estimatedProgress]),
+                     @"url" : [[[self webView] URL] absoluteString] ?: [[NSBundle mainBundle] bundlePath]
+                   }];
+    }
+  } else {
+    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+  }
+}
+
+#pragma mark Cookie Utility
+
+/*
+ To support cookie for iOS <11
+ https://stackoverflow.com/questions/26573137
+ https://github.com/haifengkao/YWebView
+ */
+
+- (NSDictionary *)cookieMapForString:(NSString *)cokieStr
+{
+  NSMutableDictionary *cookieMap = [NSMutableDictionary dictionary];
+
+  NSArray *cookieKeyValueStrings = [cokieStr componentsSeparatedByString:@";"];
+  for (NSString *cookieKeyValueString in cookieKeyValueStrings) {
+    //Find the position of the first "="
+    NSRange separatorRange = [cookieKeyValueString rangeOfString:@"="];
+
+    if (separatorRange.location != NSNotFound && separatorRange.location > 0 && separatorRange.location < ([cookieKeyValueString length] - 1)) {
+      //The above conditions ensure that there is content before and after "=", and the key or value is not empty.
+
+      NSRange keyRange = NSMakeRange(0, separatorRange.location);
+      NSString *key = [cookieKeyValueString substringWithRange:keyRange];
+      NSString *value = [cookieKeyValueString substringFromIndex:separatorRange.location + separatorRange.length];
+
+      key = [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+      value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+      [cookieMap setObject:value forKey:key];
+    }
+  }
+  return cookieMap;
+}
+
+- (NSDictionary *)cookiePropertiesForString:(NSString *)cookieStr
+{
+  NSDictionary *cookieMap = [self cookieMapForString:cookieStr];
+
+  NSMutableDictionary *cookieProperties = [NSMutableDictionary dictionary];
+  for (NSString *key in [cookieMap allKeys]) {
+
+    NSString *value = [cookieMap objectForKey:key];
+    NSString *uppercaseKey = [key uppercaseString]; //Mainly to eliminate the problem of naming irregularities
+
+    if ([uppercaseKey isEqualToString:@"DOMAIN"]) {
+      if (![value hasPrefix:@"."] && ![value hasPrefix:@"www"]) {
+        value = [NSString stringWithFormat:@".%@", value];
+      }
+      [cookieProperties setObject:value forKey:NSHTTPCookieDomain];
+    } else if ([uppercaseKey isEqualToString:@"VERSION"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieVersion];
+    } else if ([uppercaseKey isEqualToString:@"MAX-AGE"] || [uppercaseKey isEqualToString:@"MAXAGE"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieMaximumAge];
+    } else if ([uppercaseKey isEqualToString:@"PATH"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookiePath];
+    } else if ([uppercaseKey isEqualToString:@"ORIGINURL"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieOriginURL];
+    } else if ([uppercaseKey isEqualToString:@"PORT"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookiePort];
+    } else if ([uppercaseKey isEqualToString:@"SECURE"] || [uppercaseKey isEqualToString:@"ISSECURE"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieSecure];
+    } else if ([uppercaseKey isEqualToString:@"COMMENT"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieComment];
+    } else if ([uppercaseKey isEqualToString:@"COMMENTURL"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieCommentURL];
+    } else if ([uppercaseKey isEqualToString:@"EXPIRES"]) {
+      NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+      [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
+      [cookieProperties setObject:[dateFormatter dateFromString:value] forKey:NSHTTPCookieExpires];
+    } else if ([uppercaseKey isEqualToString:@"DISCART"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieDiscard];
+    } else if ([uppercaseKey isEqualToString:@"NAME"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieName];
+    } else if ([uppercaseKey isEqualToString:@"VALUE"]) {
+      [cookieProperties setObject:value forKey:NSHTTPCookieValue];
+    } else {
+      [cookieProperties setObject:key forKey:NSHTTPCookieName];
+      [cookieProperties setObject:value forKey:NSHTTPCookieValue];
+    }
+  }
+
+  //Since the cookieWithProperties: method properties can not be without NSHTTPCookiePath, so you need to confirm this, if not, the default is "/"
+  if (![cookieProperties objectForKey:NSHTTPCookiePath]) {
+    [cookieProperties setObject:@"/" forKey:NSHTTPCookiePath];
+  }
+  return cookieProperties;
+}
+
+- (NSHTTPCookie *)cookieForString:(NSString *)cookieStr
+{
+  NSDictionary *cookieProperties = [self cookiePropertiesForString:cookieStr];
+  NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
+  return cookie;
 }
 
 @end
+
+#if IS_SDK_IOS_11
+@implementation WebAppProtocolHandler
+
++ (NSString *)specialProtocolScheme
+{
+  return @"app";
+}
+
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask
+{
+  NSURLRequest *request = [urlSchemeTask request];
+  NSURL *url = [request URL];
+  DebugLog(@"[DEBUG] Requested resource via app protocol, loading: %@", url);
+
+  // see if it's a compiled resource
+  NSData *data = [TiUtils loadAppResource:url];
+  if (data == nil) {
+    // check to see if it's a local resource in the bundle, could be
+    // a bundled image, etc. - or we could be running from XCode :)
+    NSString *urlpath = [url path];
+    if ([urlpath characterAtIndex:0] == '/') {
+      if ([[NSFileManager defaultManager] fileExistsAtPath:urlpath]) {
+        data = [[[NSData alloc] initWithContentsOfFile:urlpath] autorelease];
+      }
+    }
+    if (data == nil) {
+      NSString *resourceurl = [TiHost resourcePath];
+      NSString *path = [NSString stringWithFormat:@"%@%@", resourceurl, urlpath];
+      data = [[[NSData alloc] initWithContentsOfFile:path] autorelease];
+    }
+  }
+
+  if (data != nil) {
+    NSURLCacheStoragePolicy caching = NSURLCacheStorageAllowedInMemoryOnly;
+    NSString *mime = [Mimetypes mimeTypeForExtension:[url path]];
+    NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:mime expectedContentLength:[data length] textEncodingName:@"utf-8"];
+    [urlSchemeTask didReceiveResponse:response];
+    [urlSchemeTask didReceiveData:data];
+    [urlSchemeTask didFinish];
+    [response release];
+  } else {
+    NSLog(@"[ERROR] Error loading %@", url);
+    [urlSchemeTask didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
+  }
+}
+
+- (void)webView:(nonnull WKWebView *)webView stopURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask
+{
+}
+
+@end
+#endif
 
 #endif

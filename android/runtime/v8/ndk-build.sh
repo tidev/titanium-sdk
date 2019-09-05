@@ -23,11 +23,11 @@ if [ "$ANDROID_PLATFORM" = "" ]; then
 		fi
 
 		if [ "$ANDROID_SDK" = "" ]; then
-			echo "Error: The path to the Android SDK platform must be set in the ANDROID_PLATFORM environment variable (e.g. /opt/android-sdk-macosx/platforms/android-16)"
+			echo "Error: The path to the Android SDK platform must be set in the ANDROID_PLATFORM environment variable (e.g. /opt/android-sdk-macosx/platforms/android-19)"
 			exit 1
 		fi
 	fi
-	export ANDROID_PLATFORM="$(cd "$ANDROID_SDK"; pwd)/platforms/android-16"
+	export ANDROID_PLATFORM="$(cd "$ANDROID_SDK"; pwd)/platforms/android-19"
 fi
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)

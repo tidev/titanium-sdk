@@ -10,7 +10,6 @@
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
-anvil/driver/config.js
 ._*
 npm-debug.log
 
@@ -18,23 +17,29 @@ node_modules/
 
 retirejs.output.json
 
-anvil/driver/titanium_mobile
-anvil/hub/config.js
-support/ti_mocha_script/testApp
+/support/ti_mocha_script/testApp
 
 /titanium-mobile-mocha-suite
 junit.*.xml
 
 # intelliJ Android User-specific configurations
-android/.idea/libraries/
-android/.idea/workspace.xml
-android/.idea/tasks.xml
-android/.idea/.name
-android/.idea/compiler.xml
-android/.idea/copyright/profiles_settings.xml
-android/.idea/encodings.xml
-android/.idea/misc.xml
-android/.idea/modules.xml
-android/.idea/scopes/scope_settings.xml
-android/.idea/vcs.xml
+/android/.idea/libraries/
+/android/.idea/workspace.xml
+/android/.idea/tasks.xml
+/android/.idea/.name
+/android/.idea/compiler.xml
+/android/.idea/copyright/profiles_settings.xml
+/android/.idea/encodings.xml
+/android/.idea/misc.xml
+/android/.idea/modules.xml
+/android/.idea/scopes/scope_settings.xml
+/android/.idea/vcs.xml
 *.iml
+
+/iphone/TitaniumKit/Carthage
+/iphone/TitaniumKit/docs
+/iphone/TitaniumKit/build
+/iphone/lib/libTiCore.a
+
+.vscode/
+/android/runtime/v8/src/native/V8Snapshots.h

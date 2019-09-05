@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -182,13 +183,16 @@ public class TitaniumModule extends KrollModule
 		}
 	}
 
-	private int createTimer(KrollFunction callback, long timeout, Object[] args, boolean interval)
+	private int createTimer(KrollFunction callback, Number timeout, Object[] args, boolean interval)
 	{
 		// Generate an unique identifier for this timer.
 		// This will later be used by the developer to cancel a timer.
 		final int timerId = lastTimerId++;
 
-		Timer timer = new Timer(timerId, getRuntimeHandler(), callback, timeout, args, interval);
+		if (timeout == null || timeout.longValue() < 1L) {
+			timeout = 1L;
+		}
+		Timer timer = new Timer(timerId, getRuntimeHandler(), callback, timeout.longValue(), args, interval);
 		activeTimers.append(timerId, timer);
 
 		timer.schedule();
@@ -219,18 +223,28 @@ public class TitaniumModule extends KrollModule
 	// clang-format off
 	@Kroll.method
 	@Kroll.topLevel
-	public int setTimeout(KrollFunction krollFunction, long timeout, final Object[] args)
+	public int setTimeout(KrollFunction krollFunction, Object[] args)
 	// clang-format on
 	{
+		Number timeout = null;
+		if (args != null && args.length > 0) {
+			timeout = (Number) args[0];
+			args = Arrays.copyOfRange(args, 1, args.length);
+		}
 		return createTimer(krollFunction, timeout, args, false);
 	}
 
 	// clang-format off
 	@Kroll.method
 	@Kroll.topLevel
-	public int setInterval(KrollFunction krollFunction, long timeout, final Object[] args)
+	public int setInterval(KrollFunction krollFunction, Object[] args)
 	// clang-format on
 	{
+		Number timeout = null;
+		if (args != null && args.length > 0) {
+			timeout = (Number) args[0];
+			args = Arrays.copyOfRange(args, 1, args.length);
+		}
 		return createTimer(krollFunction, timeout, args, true);
 	}
 

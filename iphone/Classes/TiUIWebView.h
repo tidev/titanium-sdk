@@ -6,52 +6,46 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiUIView.h"
+#import <WebKit/WebKit.h>
 
-@interface TiUIWebView : TiUIView <UIWebViewDelegate, NSURLConnectionDelegate> {
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiUIView.h>
+
+@interface TiUIWebView : TiUIView <WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler> {
   @private
-  UIWebView *webview;
-  UIActivityIndicatorView *spinner;
-  NSURL *url;
-  NSMutableDictionary *listeners;
-  NSURLConnection *insecureConnection;
-  NSString *pageToken;
-  BOOL scalingOverride;
-  NSString *basicCredentials;
+  WKWebView *_webView;
+  NSString *_pageToken;
 
-  BOOL ignoreNextRequest;
-  BOOL ignoreSslError;
-  BOOL isAuthenticated;
-  id reloadData;
-  id reloadDataProperties;
-  SEL reloadMethod;
+  TiDimension width;
+  TiDimension height;
+  CGFloat autoHeight;
+  CGFloat autoWidth;
 
-  BOOL willHandleTouches;
-  BOOL willHandleUrl;
-  NSString *lastValidLoad;
-  NSArray *blacklistedURLs;
+  BOOL _willHandleTouches;
+  NSArray<NSString *> *_blacklistedURLs;
+  NSURL *_currentURL;
+  UIActivityIndicatorView *_loadingIndicator;
+  BOOL _isViewDetached;
+  BOOL _tiCookieHandlerAdded;
 }
 
-@property (nonatomic, readonly) id url;
-@property (nonatomic, readwrite, retain) id reloadData;
-@property (nonatomic, readwrite, retain) id reloadDataProperties;
+// Used from the proxy
+- (void)setHtml_:(id)args;
+- (void)viewDidClose;
 
-- (void)evalFile:(NSString *)path;
-- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)code;
+- (WKWebView *)webView;
+
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
 
-- (void)stopLoading;
-- (void)goBack;
-- (void)goForward;
-- (BOOL)loading;
-- (BOOL)canGoBack;
-- (BOOL)canGoForward;
-- (void)reload;
-- (UIWebView *)webview;
+@end
 
-- (void)setHtml_:(NSString *)content withObject:(id)property;
-- (void)setAllowsLinkPreview_:(id)value;
+#if IS_SDK_IOS_11
+@interface WebAppProtocolHandler : NSObject <WKURLSchemeHandler> {
+}
+
++ (NSString *)specialProtocolScheme;
 
 @end
+#endif
 
 #endif

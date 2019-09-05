@@ -9,18 +9,14 @@ package ti.modules.titanium.ui.android;
 import ti.modules.titanium.ui.widget.TiUIDrawerLayout;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
@@ -34,15 +30,6 @@ public class DrawerLayoutProxy extends TiViewProxy
 	public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
 	@Kroll.constant
 	public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
-
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-
-	private static final int MSG_OPEN_LEFT = MSG_FIRST_ID + 300;
-	private static final int MSG_CLOSE_LEFT = MSG_FIRST_ID + 301;
-	private static final int MSG_TOGGLE_LEFT = MSG_FIRST_ID + 302;
-	private static final int MSG_OPEN_RIGHT = MSG_FIRST_ID + 303;
-	private static final int MSG_CLOSE_RIGHT = MSG_FIRST_ID + 304;
-	private static final int MSG_TOGGLE_RIGHT = MSG_FIRST_ID + 305;
 
 	private static final String TAG = "DrawerLayoutProxy";
 
@@ -62,136 +49,51 @@ public class DrawerLayoutProxy extends TiViewProxy
 		return drawer;
 	}
 
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		AsyncResult result = null;
-
-		switch (msg.what) {
-			case MSG_OPEN_LEFT: {
-				result = (AsyncResult) msg.obj;
-				if (drawer != null) {
-					drawer.openLeft();
-				}
-				result.setResult(null);
-				return true;
-			}
-			case MSG_CLOSE_LEFT: {
-				result = (AsyncResult) msg.obj;
-				if (drawer != null) {
-					drawer.closeLeft();
-				}
-				result.setResult(null);
-				return true;
-			}
-			case MSG_TOGGLE_LEFT: {
-				result = (AsyncResult) msg.obj;
-				if (drawer != null) {
-					drawer.toggleLeft();
-				}
-				result.setResult(null);
-				return true;
-			}
-			case MSG_OPEN_RIGHT: {
-				result = (AsyncResult) msg.obj;
-				if (drawer != null) {
-					drawer.openRight();
-				}
-				result.setResult(null);
-				return true;
-			}
-			case MSG_CLOSE_RIGHT: {
-				result = (AsyncResult) msg.obj;
-				if (drawer != null) {
-					drawer.closeRight();
-				}
-				result.setResult(null);
-				return true;
-			}
-			case MSG_TOGGLE_RIGHT: {
-				result = (AsyncResult) msg.obj;
-				if (drawer != null) {
-					drawer.toggleRight();
-				}
-				result.setResult(null);
-				return true;
-			}
-
-			default: {
-				return super.handleMessage(msg);
-			}
-		}
-	}
-
 	@Kroll.method
 	public void toggleLeft()
 	{
-		if (TiApplication.isUIThread()) {
-			if (drawer != null) {
-				drawer.toggleLeft();
-			}
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOGGLE_LEFT));
+		if (drawer != null) {
+			drawer.toggleLeft();
 		}
 	}
 
 	@Kroll.method
 	public void openLeft()
 	{
-		if (TiApplication.isUIThread()) {
-			if (drawer != null) {
-				drawer.openLeft();
-			}
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN_LEFT));
+		if (drawer != null) {
+			drawer.openLeft();
 		}
 	}
 
 	@Kroll.method
 	public void closeLeft()
 	{
-		if (TiApplication.isUIThread()) {
-			if (drawer != null) {
-				drawer.closeLeft();
-			}
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE_LEFT));
+		if (drawer != null) {
+			drawer.closeLeft();
 		}
 	}
 
 	@Kroll.method
 	public void toggleRight()
 	{
-		if (TiApplication.isUIThread()) {
-			if (drawer != null) {
-				drawer.toggleRight();
-			}
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOGGLE_RIGHT));
+		if (drawer != null) {
+			drawer.toggleRight();
 		}
 	}
 
 	@Kroll.method
 	public void openRight()
 	{
-		if (TiApplication.isUIThread()) {
-			if (drawer != null) {
-				drawer.openRight();
-			}
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN_RIGHT));
+		if (drawer != null) {
+			drawer.openRight();
 		}
 	}
 
 	@Kroll.method
 	public void closeRight()
 	{
-		if (TiApplication.isUIThread()) {
-			if (drawer != null) {
-				drawer.closeRight();
-			}
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE_RIGHT));
+		if (drawer != null) {
+			drawer.closeRight();
 		}
 	}
 

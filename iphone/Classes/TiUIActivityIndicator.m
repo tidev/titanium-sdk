@@ -7,10 +7,10 @@
 #ifdef USE_TI_UIACTIVITYINDICATOR
 
 #import "TiUIActivityIndicator.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "WebFont.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/WebFont.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation TiUIActivityIndicator
 
@@ -187,7 +187,11 @@
   textColor = [newColor retain];
   if (messageLabel != nil) {
     if (textColor == nil) {
-      [messageLabel setTextColor:[UIColor blackColor]];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      [messageLabel setTextColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.labelColor : UIColor.blackColor];
+#else
+      [messageLabel setTextColor:UIColor.blackColor];
+#endif
     } else {
       [messageLabel setTextColor:textColor];
     }

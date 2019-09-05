@@ -6,8 +6,8 @@
  */
 
 #import "KrollContext.h"
-#import "TiToJS.h"
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 @class KrollBridge;
 
@@ -21,7 +21,7 @@
  *  NOTE: This is an object that is never made explicitly by TiIdToValue;
  *  instead, all JS functions become KrollCallbacks, and both KrollCallbacks
  *  and KrollObjectProperties will be converted into functions.
- *  (or TiObjectRefs at any rate)
+ *  (or JSObjectRefs at any rate)
  *  Instead, KrollWrapper is used in two places currently: When a function is
  *  retained as a property by a proxy (to avoid the above retain loop),
  *  and for JS-based modules which do not need proxy properties but do need to
@@ -30,13 +30,13 @@
  *  KrollWrappers.
  */
 @interface KrollWrapper : NSObject {
-  TiObjectRef jsobject;
+  JSObjectRef jsobject;
   KrollBridge *bridge;
   BOOL protecting;
 }
 
 // Access the native JSCore object
-@property (nonatomic, readwrite, assign) TiObjectRef jsobject;
+@property (nonatomic, readwrite, assign) JSObjectRef jsobject;
 
 // Access the kroll bridge (e.g. for the kroll context)
 @property (nonatomic, readwrite, assign) KrollBridge *bridge;
@@ -51,6 +51,6 @@
 - (void)replaceValue:(id)value forKey:(NSString *)key notification:(BOOL)notify;
 
 // Executes an async JavaScript function and returns the resulting JSCore value if any
-- (TiValueRef)executeWithArguments:(NSArray<id> *)arguments;
+- (JSValueRef)executeWithArguments:(NSArray<id> *)arguments;
 
 @end

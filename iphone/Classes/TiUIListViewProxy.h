@@ -7,7 +7,7 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIListSectionProxy.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIListViewProxy : TiViewProxy <TiUIListViewDelegate>
 

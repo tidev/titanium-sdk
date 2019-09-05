@@ -50,7 +50,7 @@ static void <%- className %>_getBinding(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	v8::String::Utf8Value bindingValue(binding);
+	v8::String::Utf8Value bindingValue(isolate, binding);
 	LOGD(TAG, "Looking up binding: %s", *bindingValue);
 
 	titanium::bindings::BindEntry *extBinding = titanium::bindings::<%- className %>Bindings::lookupGeneratedInit(
@@ -98,7 +98,7 @@ static void <%- className %>_dispose(Isolate* isolate)
 	uint32_t length = propertyNames->Length();
 
 	for (uint32_t i = 0; i < length; ++i) {
-		v8::String::Utf8Value binding(propertyNames->Get(i));
+		v8::String::Utf8Value binding(isolate, propertyNames->Get(i));
 		int bindingLength = binding.length();
 
 		titanium::bindings::BindEntry *extBinding =

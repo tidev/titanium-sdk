@@ -11,18 +11,32 @@
  * - Load the app developer's main "app.js" script after doing all of the above.
  */
 
-'use strict';
-
 // Log the app name, app version, and Titanium version on startup.
-Ti.API.info(Ti.App.name + ' ' + Ti.App.version + ' (Powered by Titanium ' + Ti.version + '.' + Ti.buildHash + ')');
+Ti.API.info(`${Ti.App.name} ${Ti.App.version} (Powered by Titanium ${Ti.version}.${Ti.buildHash})`);
 
-// Load all JavaScript extensions.
-require('./ti.internal/extensions/Error');
+// Attempt to load crash analytics module.
+// NOTE: This should be the first module that loads on startup.
+try {
+	require('com.appcelerator.aca');
+} catch (e) {
+	// Could not load module, silently ignore exception.
+}
+
+// Load JS language polyfills
+import '@babel/polyfill';
+// import all of our polyfills/extensions
+import './ti.internal/extensions';
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
-require('./ti.internal/bootstrap.loader').loadAsync(function () {
+import loadAsync from './ti.internal/bootstrap.loader';
+loadAsync(function () {
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
 	require('./app');
+
+	// This event is to be fired after "app.js" execution. Reasons:
+	// - Allow system to queue startup related events until "app.js" has had a chance to add listeners.
+	// - For Alloy apps, we now know that Alloy has been initialized and its globals were added.
+	Ti.App.fireEvent('started');
 });

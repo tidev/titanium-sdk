@@ -7,8 +7,9 @@
 #ifdef USE_TI_UIIOSANIMATOR
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
 #import "TiAnimatorProxy.h"
-#import "TiProxy.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiViewProxy.h>
+
 @interface TiSnapBehavior : TiProxy <TiBehaviorProtocol> {
   TiViewProxy *_snapItem;
   CGFloat _damping;

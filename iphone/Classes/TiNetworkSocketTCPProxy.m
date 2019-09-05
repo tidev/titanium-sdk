@@ -7,8 +7,7 @@
 #ifdef USE_TI_NETWORKSOCKET
 #import "TiNetworkSocketTCPProxy.h"
 #import "NetworkModule.h"
-#import "TiBlob.h"
-#import "TiBuffer.h"
+#import <TitaniumKit/TiBuffer.h>
 
 static NSString *SOCK_KEY = @"socket";
 static NSString *ARG_KEY = @"arg";

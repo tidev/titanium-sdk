@@ -49,7 +49,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 
 	// TiStream interface methods
 	@Kroll.method
-	public int read(Object args[]) throws IOException
+	public int read(Object args[]) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to read from buffer, not open");
@@ -59,56 +59,20 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 			throw new IOException("Unable to read on a stream, not opened in read mode");
 		}
 
-		BufferProxy bufferProxy = null;
-		int offset = 0;
-		int length = 0;
+		return TiStreamHelper.readTiStream(TAG, getKrollObject(), this, args);
+	}
 
-		if (args.length == 1 || args.length == 3) {
-			if (args.length > 0) {
-				if (args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
-			}
-
-			if (args.length == 3) {
-				if (args[1] instanceof Integer) {
-					offset = ((Integer) args[1]).intValue();
-
-				} else if (args[1] instanceof Double) {
-					offset = ((Double) args[1]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid offset argument");
-				}
-
-				if (args[2] instanceof Integer) {
-					length = ((Integer) args[2]).intValue();
-
-				} else if (args[2] instanceof Double) {
-					length = ((Double) args[2]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid length argument");
-				}
-			}
-
-		} else {
-			throw new IllegalArgumentException("Invalid number of arguments");
-		}
-
+	public int readSync(Object bufferProxy, int offset, int length) throws IOException
+	{
 		ByteArrayInputStream bufferInputStream =
-			new ByteArrayInputStream(buffer.getBuffer(), position, (buffer.getLength() - position));
+			new ByteArrayInputStream(this.buffer.getBuffer(), this.position, (this.buffer.getLength() - this.position));
 		int bytesRead;
 
 		try {
-			bytesRead = TiStreamHelper.read(bufferInputStream, bufferProxy, offset, length);
+			bytesRead = TiStreamHelper.read(bufferInputStream, (BufferProxy) bufferProxy, offset, length);
 
 			if (bytesRead > -1) {
-				position += bytesRead;
+				this.position += bytesRead;
 			}
 
 			return bytesRead;
@@ -120,7 +84,11 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public int write(Object args[]) throws IOException
+	//public void write(BufferProxy buffer)
+	//public void write(BufferProxy buffer, KrollFunction resultsCallback)
+	//public void write(BufferProxy buffer, int offset, int length)
+	//public void write(BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
+	public int write(Object args[]) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to write to buffer, not open");
@@ -130,48 +98,12 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 			throw new IOException("Unable to write on stream, not opened in read or append mode");
 		}
 
-		BufferProxy bufferProxy = null;
-		int offset = 0;
-		int length = 0;
+		return TiStreamHelper.writeTiStream(TAG, getKrollObject(), this, args);
+	}
 
-		if (args.length == 1 || args.length == 3) {
-			if (args.length > 0) {
-				if (args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
-			}
-
-			if (args.length == 3) {
-				if (args[1] instanceof Integer) {
-					offset = ((Integer) args[1]).intValue();
-
-				} else if (args[1] instanceof Double) {
-					offset = ((Double) args[1]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid offset argument");
-				}
-
-				if (args[2] instanceof Integer) {
-					length = ((Integer) args[2]).intValue();
-
-				} else if (args[2] instanceof Double) {
-					length = ((Double) args[2]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid length argument");
-				}
-			}
-
-		} else {
-			throw new IllegalArgumentException("Invalid number of arguments");
-		}
-
-		int bytesWritten = buffer.write(position, bufferProxy.getBuffer(), offset, length);
+	public int writeSync(Object bufferProxy, int offset, int length) throws IOException
+	{
+		int bytesWritten = buffer.write(position, ((BufferProxy) bufferProxy).getBuffer(), offset, length);
 		position += bytesWritten;
 
 		return bytesWritten;

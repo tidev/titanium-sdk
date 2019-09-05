@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_APPIOSSEARCHQUERY) || defined(USE_TI_APPIOSSEARCHABLEITEM)
-#import "TiProxy.h"
 #import <CoreSpotlight/CoreSpotlight.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiAppiOSSearchableItemProxy : TiProxy {
 }

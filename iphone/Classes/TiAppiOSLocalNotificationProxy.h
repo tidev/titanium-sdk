@@ -6,7 +6,7 @@
  */
 
 #ifdef USE_TI_APPIOS
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 #import <UserNotifications/UserNotifications.h>
 

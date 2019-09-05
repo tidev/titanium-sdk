@@ -6,18 +6,18 @@
  */
 #ifdef USE_TI_UILISTVIEW
 #import "TiUIListView.h"
-#import "TiApp.h"
-#import "TiRootViewController.h"
 #import "TiUILabelProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
 #import "TiUIListSectionProxy.h"
 #import "TiUISearchBarProxy.h"
-#import "TiWindowProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiRootViewController.h>
+#import <TitaniumKit/TiWindowProxy.h>
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -77,6 +77,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   CGPoint tableContentOffset;
   BOOL isSearched;
   UIView *dimmingView;
+  BOOL isSearchBarInNavigation;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -113,7 +114,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     _tableView.prefetchDataSource = nil;
   }
 
@@ -193,7 +194,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _searchWrapper = [self initWrapperProxy];
   _headerWrapper = [self initWrapperProxy];
 
-  [_headerViewProxy add:_searchWrapper];
+  isSearchBarInNavigation = [TiUtils boolValue:[(TiViewProxy *)self.proxy valueForUndefinedKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+  if (!isSearchBarInNavigation) {
+    [_headerViewProxy add:_searchWrapper];
+  }
   [_headerViewProxy add:_headerWrapper];
 }
 
@@ -212,7 +216,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
 
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       _tableView.prefetchDataSource = self;
     }
 
@@ -235,12 +239,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self configureHeaders];
     _defaultSeparatorInsets = [_tableView separatorInset];
 
-    [_tableView setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      _tableView.cellLayoutMarginsFollowReadableWidth = NO;
+    if (style == UITableViewStyleGrouped || style == UITableViewStylePlain) {
+      _tableView.layoutMargins = UIEdgeInsetsZero;
     }
+    _tableView.cellLayoutMarginsFollowReadableWidth = NO;
   }
+
   if ([_tableView superview] != self) {
     [self addSubview:_tableView];
   }
@@ -577,17 +581,21 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
-  UIView *searchSuperView = [searchController.view superview];
-  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+    UIView *searchSuperView = [searchController.view superview];
+    searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
 
-  CGFloat width = [_searchWrapper view].frame.size.width;
-  UIView *view = searchController.searchBar.superview;
-  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
-  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
-  [searchViewProxy ensureSearchBarHierarchy];
+    CGFloat width = [_searchWrapper view].frame.size.width;
+    UIView *view = searchController.searchBar.superview;
+    view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+    searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+    [searchViewProxy ensureSearchBarHierarchy];
+  }
 }
 
 #pragma mark - Public API
@@ -758,7 +766,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (args != nil) {
     _refreshControlProxy = [args retain];
 
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [[self tableView] setRefreshControl:_refreshControlProxy.control];
     } else {
       [[self tableView] addSubview:[_refreshControlProxy control]];
@@ -947,6 +955,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (_footerViewProxy != nil) {
     [_footerViewProxy windowWillClose];
   }
+
+  if (searchController.isActive) {
+    searchController.active = NO;
+  }
+
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(dismissSearchController) object:nil];
 }
 
 #pragma mark - SectionIndexTitle Support
@@ -1140,6 +1154,43 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return NO;
 }
 
+#if IS_SDK_IOS_13
+- (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
+}
+
+- (void)tableView:(UITableView *)tableView didBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  editing = YES;
+}
+
+- (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
+{
+  if ([self.proxy _hasListeners:@"itemsselected"]) {
+    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
+    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
+      NSIndexPath *indexPath = tableView.indexPathsForSelectedRows[i];
+      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+
+      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                          theSection, @"section",
+                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                      nil];
+      if (i == 0) {
+        [startingItem setDictionary:eventObject];
+      }
+      [selectedItems addObject:eventObject];
+    }
+    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
+  }
+}
+#endif
+
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
@@ -1252,13 +1303,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
 
-  if ([self canEditRowAtIndexPath:realIndexPath] == YES && [self canInsertRowAtIndexPath:realIndexPath] == YES) {
+  if ([self canEditRowAtIndexPath:realIndexPath] && [self canInsertRowAtIndexPath:realIndexPath]) {
     DebugLog(@"[WARN] The row at sectionIndex=%i and itemIndex=%i has both 'canEdit' and 'canInsert'. Please use either 'canEdit' for deleting or 'canInsert' for inserting a row.", realIndexPath.section, realIndexPath.row);
   }
 
-  if ([self canEditRowAtIndexPath:realIndexPath] == YES) {
+  if ([self canEditRowAtIndexPath:realIndexPath]) {
     return UITableViewCellEditingStyleDelete;
-  } else if ([self canInsertRowAtIndexPath:realIndexPath] == YES) {
+  } else if ([self canInsertRowAtIndexPath:realIndexPath]) {
     return UITableViewCellEditingStyleInsert;
   }
 
@@ -1845,10 +1896,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
-    if ((scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO)) {
+    if ((scrollView.contentOffset.y < pullThreshhold) && !pullActive) {
       pullActive = YES;
       [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES)) {
+    } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive)) {
       pullActive = NO;
       [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
@@ -1958,7 +2009,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   if ([self.proxy _hasListeners:@"pullend"]) {
-    if ((_pullViewProxy != nil) && (pullActive == YES)) {
+    if ((_pullViewProxy != nil) && (pullActive)) {
       pullActive = NO;
       [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
@@ -2025,9 +2076,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if ([searchBar.text length] == 0) {
     self.searchString = @"";
     [self buildResultsForSearchText];
-    if ([searchController isActive]) {
-      [searchController setActive:NO];
-    }
+    [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
   }
 }
 
@@ -2116,10 +2165,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       searchControllerPresenter = [[[TiApp app] controller] retain];
     }
   }
-  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
   searchControllerPresenter.definesPresentationContext = YES;
   [searchControllerPresenter presentViewController:controller
-                                          animated:shouldAnimate
+                                          animated:NO
                                         completion:^{
                                           isSearched = YES;
                                           [self showDimmingView];
@@ -2133,9 +2181,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     return;
   }
 
-  // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
-  // as soon as we remove iOS < 9 support
-  id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
+  UIBarButtonItem *searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]];
   [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
   [_tableView setEditing:NO];
 }
@@ -2191,6 +2237,24 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)viewGetFocus
 {
+#if IS_SDK_IOS_11
+  if (isSearchBarInNavigation) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    UIViewController *controller;
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      controller = [proxy windowHoldingController];
+    } else {
+      controller = [[TiApp app] controller];
+    }
+    if (!controller.navigationItem.searchController) {
+      controller.navigationItem.searchController = searchController;
+    }
+  }
+#endif
+
   if (isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
     [searchController performSelector:@selector(setActive:) withObject:@YES afterDelay:.1];
@@ -2359,7 +2423,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  }
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];
@@ -2372,7 +2440,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)dismissSearchController
 {
-  [searchController setActive:NO];
+  if (searchController.isActive) {
+    searchController.active = NO;
+  }
 }
 
 - (void)keyboardWillChangeFrame:(NSNotification *)notification

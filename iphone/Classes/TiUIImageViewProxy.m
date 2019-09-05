@@ -7,21 +7,17 @@
 #ifdef USE_TI_UIIMAGEVIEW
 
 #import "TiUIImageViewProxy.h"
-#import "OperationQueue.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiFile.h"
 #import "TiUIImageView.h"
+#import <TitaniumKit/OperationQueue.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
 
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200
 
 @implementation TiUIImageViewProxy
 @synthesize imageURL;
-
-#ifdef TI_USE_KROLL_THREAD
-@synthesize loadEventState;
-#endif
 
 static NSArray *imageKeySequence;
 
@@ -53,11 +49,6 @@ static NSArray *imageKeySequence;
   if ([self _hasListeners:@"load"]) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
     [self fireEvent:@"load" withObject:event];
-#ifdef TI_USE_KROLL_THREAD
-  } else {
-    RELEASE_TO_NIL(loadEventState);
-    loadEventState = [stateString copy];
-#endif
   }
 }
 
@@ -136,9 +127,6 @@ static NSArray *imageKeySequence;
   [self replaceValue:nil forKey:@"image" notification:NO];
 
   RELEASE_TO_NIL(imageURL);
-#ifdef TI_USE_KROLL_THREAD
-  RELEASE_TO_NIL(loadEventState);
-#endif
   [super dealloc];
 }
 
@@ -160,13 +148,13 @@ static NSArray *imageKeySequence;
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 
     if (image != nil) {
-      return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+      return [[[TiBlob alloc] initWithImage:image] autorelease];
     }
 
     // we're on the non-UI thread, we need to block to load
 
     image = [[ImageLoader sharedLoader] loadRemote:url_];
-    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+    return [[[TiBlob alloc] initWithImage:image] autorelease];
   }
   return nil;
 }

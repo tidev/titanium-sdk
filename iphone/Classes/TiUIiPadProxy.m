@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIPAD
 
 #import "TiUIiPadProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiPadProxy
 

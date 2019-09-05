@@ -7,7 +7,7 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIListViewProxy.h"
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView>
 

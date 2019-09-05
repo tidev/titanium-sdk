@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
-#import "TiProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIAttributedStringProxy
 
@@ -107,7 +107,7 @@
         paragraphStyle.lineHeightMultiple = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"hyphenationFactor"]) {
         paragraphStyle.hyphenationFactor = (float)[TiUtils floatValue:objectValue];
-      } else if ([TiUtils isIOS9OrGreater] && [key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
+      } else if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
         paragraphStyle.allowsDefaultTighteningForTruncation = [TiUtils boolValue:objectValue];
       } else {
         DebugLog(@"[WARN] Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE - Unsupported property %@", key);

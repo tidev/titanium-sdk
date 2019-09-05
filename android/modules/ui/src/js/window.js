@@ -1,21 +1,17 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
- 
-var url = require("url"),
-	path = require('path'),
-	Script = kroll.binding('evals').Script,
-	assets = kroll.binding("assets"),
-	NativeModule = require('native_module'),
-	bootstrapModule = require('bootstrap'),
+'use strict';
+
+var Script = kroll.binding('evals').Script,
 	PersistentHandle = require('ui').PersistentHandle;
 
-var TAG = "Window";
+var TAG = 'Window';
 
-exports.bootstrap = function(Titanium) {
+exports.bootstrap = function (Titanium) {
 
 	var TiWindow = Titanium.TiWindow;
 	var Window = Titanium.UI.Window;
@@ -32,31 +28,30 @@ exports.bootstrap = function(Titanium) {
 
 	Titanium.UI.createWindow = createWindow;
 
-	// Activity getter (account for scenario when heavy weight window's activity is not created yet) 
-	var activityProxyGetter = function () {
+	// Activity getter (account for scenario when heavy weight window's activity is not created yet)
+	function activityProxyGetter() {
 		var activityProxy = this._getWindowActivityProxy();
 		if (activityProxy) {
 			return activityProxy;
-		} else if (this._cachedActivityProxy == null) {
+		} else if (this._cachedActivityProxy == null) { // eslint-disable-line
 			this._cachedActivityProxy = {};
 		}
 
 		return this._cachedActivityProxy;
 	}
 	Window.prototype.getActivity = activityProxyGetter;
-	Object.defineProperty(Window.prototype, "activity", { get: activityProxyGetter });
-
+	Object.defineProperty(Window.prototype, 'activity', { get: activityProxyGetter });
 
 	var _open = Window.prototype.open;
-	Window.prototype.open = function(options) {
+	Window.prototype.open = function (options) {
 		// Retain the window until it has closed.
 		var handle = new PersistentHandle(this);
 
 		var self = this;
-		this.once("close", function(e) {
+		this.once('close', function (e) {
 			if (e._closeFromActivityForcedToDestroy) {
 				if (kroll.DBG) {
-					kroll.log(TAG, "Window is closed because the activity is forced to destroy by Android OS.");
+					kroll.log(TAG, 'Window is closed because the activity is forced to destroy by Android OS.');
 				}
 				return;
 			}
@@ -69,17 +64,17 @@ exports.bootstrap = function(Titanium) {
 			handle.dispose();
 
 			if (kroll.DBG) {
-				kroll.log(TAG, "Window is closed normally.");
+				kroll.log(TAG, 'Window is closed normally.');
 			}
 		});
 
 		_open.call(this, options);
-	}
+	};
 
 	var _add = Window.prototype.add;
-	Window.prototype.add = function(child) {
+	Window.prototype.add = function (child) {
 		if (child instanceof TiWindow) {
-			throw new Error("Cannot add window/tabGroup to another window/tabGroup.");	    
+			throw new Error('Cannot add window/tabGroup to another window/tabGroup.');
 		}
 
 		_add.call(this, child);
@@ -90,28 +85,28 @@ exports.bootstrap = function(Titanium) {
 		// or garbage collected and V8 will recoganize the closures and retain all
 		// the related proxies.
 		this._children.push(child);
-	}
+	};
 
 	var _remove = Window.prototype.remove;
-	Window.prototype.remove = function(child) {
+	Window.prototype.remove = function (child) {
 		_remove.call(this, child);
 
 		// Remove the child in the Javascript side so it can be detached and garbage collected.
 		var children = this._children;
 		if (children) {
 			var childIndex = children.indexOf(child);
-			if (childIndex != -1) {
+			if (childIndex !== -1) {
 				children.splice(childIndex, 1);
 			}
 		}
-	}
+	};
 
-	Window.prototype.postWindowCreated = function() {
+	Window.prototype.postWindowCreated = function () {
 		if (kroll.DBG) {
-			kroll.log(TAG, "Checkpoint: postWindowCreated()");
+			kroll.log(TAG, 'Checkpoint: postWindowCreated()');
 		}
 		if (this._cachedActivityProxy) {
 			this._internalActivity.extend(this._cachedActivityProxy);
 		}
-	}
-}
+	};
+};

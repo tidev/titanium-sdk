@@ -10,7 +10,7 @@
 #import "TiUIRefreshControlProxy.h"
 #endif
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIScrollViewImpl : UIScrollView {
   @private

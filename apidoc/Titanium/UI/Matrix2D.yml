@@ -1,0 +1,294 @@
+---
+name: Titanium.UI.Matrix2D
+summary: The 2D Matrix is an object for holding values for an affine transformation matrix.
+description: |
+    A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space.
+    A 2D affine transformation can be  represented by a 3 by 3 matrix:
+
+    <table>
+      <tbody>
+        <tr>
+          <td><i>a</i></td>
+          <td><i>b</i></td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><i>c</i></td>
+          <td><i>d</i></td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><i>tx</i></td>
+          <td><i>ty</i></td>
+          <td>1</td>
+        </tr>
+      </tbody>
+    </table>
+
+    The third column is constant (0,0,1).
+
+    On iOS, the matrix terms, `a`, `b`, `c`, `d`, `tx`, and `ty`,
+    are available as properties. On Android, the matrix terms are not available as properties.
+
+    Use the <Titanium.UI.createMatrix2D> method to create a new 2D matrix. You can
+    pass an optional <Matrix2DCreationDict> dictionary to the method to initialize the
+    matrix. For example, the following creates a new matrix with a 45 degree rotation.
+
+        var matrix = Ti.UI.createMatrix2D({
+            rotate: 45
+        });
+
+    If you pass no arguments, `createMatrix2D` returns an identity matrix.
+
+extends: Titanium.Proxy
+since: "8.0.0"
+platforms: [android, iphone, ipad]
+methods:
+  - name: invert
+    summary: Returns a matrix constructed by inverting this matrix.
+    returns:
+        type: Titanium.UI.Matrix2D
+  - name: multiply
+    summary: Returns a matrix constructed by combining two existing matrices.
+    description: |
+        The argument, `t2` is concatenated to the matrix instance against which the function is invoked. The
+        resulting matrix is the result of multiplying this matrix by `t2`. You might perform several
+        multiplications in order to create a single matrix that contains the cumulative effects of
+        several transformations.
+
+        Note that matrix operations are not commutative -- the order in which you concatenate matrices
+        is important. That is, the result of multiplying matrix `t1` by matrix `t2` does not necessarily
+        equal the result of multiplying matrix `t2` by matrix `t1`.
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+      - name: t2
+        summary: The second matrix.
+        type: Titanium.UI.Matrix2D
+
+  - name: rotate
+    summary: Returns a matrix constructed by rotating this matrix.
+    description: |
+        There are two distinct versions of this method, depending on whether one argument
+        or two are specified.
+
+        *   `rotate(angle)`. The standard `rotate` method.
+        *   `rotate(fromAngle, toAngle)`. Android only. Used for specifying rotation
+            animations.
+
+        In both cases, a positive value specifies clockwise rotation and a negative value
+        specifies counter-clockwise rotation.
+
+        Details for each version are discussed below.
+
+        #### rotate(angle)
+
+        Returns a matrix constructed by rotating this matrix.
+
+        Note that the resulting  matrix only expresses the final transformation, not the
+        direction of the rotation. For example, the matrix produced by `m1.rotate(-10)`
+        is identical to the matrix produced by `m1.rotate(350)` and `m1.rotate(710)`.
+
+        Note that if you specify a rotation matrix as the `transform` property of an
+        animation, the animation animates the view from its current rotation to the
+        rotation represented by the matrix by its shortest path. So to rotate a view
+        in a complete circle, the easiest method is to chain together three animations,
+        rotating 120 degrees each time.
+
+        For the purposes of animation, it should be noted that the rotation angle is
+        normalized to the range -180 <= angle < 180. In other
+        words, an angle of 180 degrees is normalized to -180. This makes no difference
+        except when determining which direction an animation rotates. 179 degrees rotates
+        rotate clockwise, but 180 degrees is normalized to -180, so rotates counter-clockwise.
+
+        #### rotate(angle, toAngle) -- Android Only
+
+        This is an Android-specific method used for creating rotation animations.
+        Returns a `Matrix2D` object that represents a rotation from `angle` to `toAngle`.
+
+        Angles are specified in degrees. Positive values represent clockwise rotation, and negative values
+        represent counter-clockwise rotation. Values are not normalized, so for example an
+        angle of 720 degrees represents two complete clockwise revolutions.
+
+        The resulting object cannot be expressed as an affine transform, but can be used with the
+        <Titanium.UI.Animation.transform> property to specify a rotation animation.
+
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+
+      - name: angle
+        summary: |
+            Angle to rotate to, in degrees. On Android, if `angleTo` is specified, this specifies
+            the starting angle for a rotation animation.
+        type: Number
+
+      - name: toAngle
+        summary: Ending angle for a rotation animation, in degrees. Android only.
+        type: Number
+        optional: true
+
+  - name: scale
+    summary: |
+        Returns a `Matrix2D` object that specifies a scaling animation from one scale to another.
+    description: |
+        There are two distinct versions of this method, depending on whether two arguments
+        or four are specified.
+
+        *   `scale(sx, sy)`. The standard `scale` method.
+        *   `scale(fromSx, fromSy, toSx, toSy)`. Android only. Used for specifying a
+            scaling animation from one size to another.
+
+        #### scale(sx, sy)
+
+        Returns a matrix constructed by applying a scale transform to this matrix.
+        Scaling the current matrix by `sx` along the X axis and by `sy` along the Y axis.
+
+        #### scale(sx, sy, toSx, toSy) -- Android Only
+
+        This Android-specific method returns a `Matrix2D` object that can be used to
+        create a scaling animation from one scale factor to another scale factor.
+
+        The resulting object cannot be expressed as an affine transform, but can be used with the
+        <Titanium.UI.Animation.transform> property to specify a scaling animation.
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+
+      - name: sx
+        summary: |
+            Horizontal scaling factor. If `toSx` and `toSy` are specified,
+            this specifies the starting horizontal scaling factor, at the beginning
+            of an animation.
+        type: Number
+
+      - name: sy
+        summary: |
+            Vertical scaling factor. If `toSx` and `toSy` are specified,
+            this specifies the starting vertical scaling factor, at the beginning of
+            an animation.
+        type: Number
+
+      - name: toSx
+        summary: |
+            Ending horizontal scaling factor, at the end of an animation.
+            If specified, `toSy` must be specified as well. Android only.
+        type: Number
+        optional: true
+
+      - name: toSy
+        summary: |
+            Ending vertical scaling factor, at the end of an animation.
+            If specified, `toSx` must be specified as well. Android only.
+        type: Number
+        optional: true
+
+
+  - name: translate
+    summary: Returns a matrix constructed by applying a translation transform to this matrix.
+    returns:
+        type: Titanium.UI.Matrix2D
+    parameters:
+      - name: tx
+        summary: Horizontal component of the translation.
+        type: Number
+      - name: ty
+        summary: Vertical component of the translation.
+        type: Number
+properties:
+  - name: a
+    summary: The entry at position [1,1] in the matrix.
+    type: Number
+    exclude-platforms: [android]
+  - name: b
+    summary: The entry at position [1,2] in the matrix.
+    type: Number
+    exclude-platforms: [android]
+  - name: c
+    summary: The entry at position [2,1] in the matrix.
+    type: Number
+    exclude-platforms: [android]
+  - name: d
+    summary: The entry at position [2,2] in the matrix.
+    type: Number
+    exclude-platforms: [android]
+  - name: tx
+    summary: The entry at position [3,1] in the matrix.
+    type: Number
+    exclude-platforms: [android]
+  - name: ty
+    summary: The entry at position [3,2] in the matrix.
+    type: Number
+    exclude-platforms: [android]
+
+examples:
+  - title: Apply a 2D Matrix to a Label
+    example: |
+        The following uses a 2D matrix to translate a label in the y direction.
+
+            var win = Ti.UI.createWindow({
+              backgroundColor: 'white'
+            });
+
+            var label = Ti.UI.createLabel({
+              font: { fontSize: 50 },
+              text: 'Titanium',
+              textAlign: 'center',
+              top: 100
+            });
+            win.add(label);
+
+            var button = Ti.UI.createButton({
+              title: 'Animate',
+              bottom: 20,
+              width: 200,
+              height: 40
+            });
+            win.add(button);
+
+            button.addEventListener('click', function() {
+              var t1 = Ti.UI.createMatrix2D();
+              t1 = t1.translate(0, 300);
+              var a1 = Ti.UI.createAnimation();
+              a1.transform = t1;
+              a1.duration = 800;
+              label.animate(a1);
+            });
+            win.open();
+
+---
+name: Matrix2DCreationDict
+summary: Simple object passed to <Titanium.UI.createMatrix2D> to initialize a matrix.
+description: |
+    The matrix is initialized with the specified transforms.
+
+    On iOS, rotation is always performed first, regardless of the order the
+    properties are specified in.
+
+    On Android, specifying both `scale` and `rotate` the same dictionary results
+    in an incorrect transformation.
+
+properties:
+  - name: scale
+    summary: |
+        Scale the matrix by the specified scaling factor. The same scaling factor is used
+        for both horizontal and vertical scaling.
+    type: Number
+    optional: true
+    default: 1
+  - name: rotate
+    summary: |
+        Rotation angle, in degrees. See the [rotate](Titanium.UI.Matrix2D.rotate) method
+        for a discussion of rotation.
+    type: Number
+    optional: true
+    default: No rotation.
+  - name: anchorPoint
+    summary: |
+        Point to rotate around, specified as a dictionary object with `x` and `y`
+        properties, where { x: 0.5, y: 0.5 } represents the center of whatever is being
+        rotated.
+    type: Dictionary
+    optional: true
+    default: (0.5, 0.5)
+    platforms: [android]

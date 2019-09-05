@@ -37,6 +37,8 @@ function markdownToHTML(text) {
 
 /**
  * Fixes illegal names like "2DMatrix" (not a valid JavaScript name)
+ * TODO: 2DMatrix / 3DMatrix are deprecated in 8.0.0. Remove this check
+ * once ripped out.
  * @param {string} ns raw fully-qualified name
  * @return {string} safe name
  */
@@ -332,6 +334,7 @@ exports.exportData = function exportJSCA(apis) {
 		aliases: [ { type: 'Titanium', name: 'Ti' } ]
 	};
 	doc = apis; // TODO make doc a field on a type, rather than this weird file-global!
+	common.createMarkdown(doc);
 
 	common.log(common.LOG_INFO, 'Annotating JSCA-specific attributes...');
 

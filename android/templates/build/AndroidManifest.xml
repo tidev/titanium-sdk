@@ -18,19 +18,31 @@
 		android:theme="@style/Theme.AppCompat<% if (tiapp.fullscreen || tiapp['statusbar-hidden'] || tiapp['navbar-hidden']) { %>.NoTitleBar<% if (tiapp.fullscreen || tiapp['statusbar-hidden']) { %>.Fullscreen<% } %><% } %>">
 
 		<activity android:name=".<%- classname %>Activity"
-			android:label="@string/app_name" android:theme="@style/Theme.Titanium"
-			android:configChanges="keyboardHidden|orientation|fontScale|screenSize|smallestScreenSize|screenLayout">
+			android:configChanges="<%- allActivityConfigChanges %>"
+			android:label="@string/app_name"
+			android:theme="@style/Theme.Titanium"
+			android:alwaysRetainTaskState="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name="org.appcelerator.titanium.TiActivity"
-			android:configChanges="keyboardHidden|orientation|fontScale|screenSize|smallestScreenSize|screenLayout" />
-		<activity android:name="org.appcelerator.titanium.TiTranslucentActivity"
-			android:configChanges="keyboardHidden|orientation|fontScale|screenSize|smallestScreenSize|screenLayout"
+		<activity
+			android:name="org.appcelerator.titanium.TiActivity"
+			android:configChanges="<%- allActivityConfigChanges %>" />
+		<activity
+			android:name="org.appcelerator.titanium.TiTranslucentActivity"
+			android:configChanges="<%- allActivityConfigChanges %>"
 			android:theme="@style/Theme.Titanium.Translucent" />
+		<activity
+			android:name="ti.modules.titanium.media.TiCameraActivity"
+			android:configChanges="<%- allActivityConfigChanges %>"
+			android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen" />
+		<activity
+			android:name="ti.modules.titanium.media.TiVideoActivity"
+			android:configChanges="<%- allActivityConfigChanges %>"
+			android:theme="@style/Theme.AppCompat.Fullscreen" />
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
 
 		<provider

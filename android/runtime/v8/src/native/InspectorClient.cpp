@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2017-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,7 @@ InspectorClient::InspectorClient(v8::Local<v8::Context> context, v8::Platform* p
 	// FIXME Replace reference to V8Runtime::v8_isolate with isolate_
 	isolate_ = V8Runtime::v8_isolate;
 	inspector_ = v8_inspector::V8Inspector::create(V8Runtime::v8_isolate, this);
-	v8::String::Value contextName(STRING_NEW(V8Runtime::v8_isolate, "Titanium Main Context"));
+	v8::String::Value contextName(V8Runtime::v8_isolate, STRING_NEW(V8Runtime::v8_isolate, "Titanium Main Context"));
 	inspector_->contextCreated(v8_inspector::V8ContextInfo(
 			context, kContextGroupId, v8_inspector::StringView(*contextName, contextName.length())));
 
@@ -56,7 +56,7 @@ void InspectorClient::connect()
 void InspectorClient::BreakAtStart()
 {
 	v8::HandleScope scope(V8Runtime::v8_isolate);
-	v8::String::Value pauseReason(STRING_NEW(V8Runtime::v8_isolate, "PauseOnNextStatement"));
+	v8::String::Value pauseReason(V8Runtime::v8_isolate, STRING_NEW(V8Runtime::v8_isolate, "PauseOnNextStatement"));
 	session_->schedulePauseOnNextStatement(v8_inspector::StringView(*pauseReason, pauseReason.length()), v8_inspector::StringView());
 }
 
@@ -78,7 +78,7 @@ void InspectorClient::runMessageLoopOnPause(int context_group_id)
 	running_nested_loop_ = true;
 	while (!terminated_) {
 		v8::Local<v8::String> message = JSDebugger::WaitForMessage();
-		v8::String::Value buffer(message);
+		v8::String::Value buffer(V8Runtime::v8_isolate, message);
 		v8_inspector::StringView message_view(*buffer, buffer.length());
 		sendMessage(message_view);
 
@@ -105,6 +105,7 @@ void InspectorClient::Initialize(v8::Local<v8::Object> target, v8::Local<v8::Con
 void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::Isolate* isolate = args.GetIsolate();
+	v8::Local<v8::Context> context = isolate->GetCurrentContext();
 	v8::HandleScope scope(isolate);
 
 	assert(args.Length() >= 2);
@@ -118,9 +119,12 @@ void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Val
 	// Instead, we pass the app.js source and filename and compile it, schedule a pause and then run it.
 	// This does duplicate some existing logic in ScriptModule.cpp for Script.runInThisContext impl
 	v8::TryCatch tryCatch(isolate);
-	v8::Local<v8::String> source = args[0]->ToString();
-	v8::Local<v8::String> filename = args[1]->ToString();
-	v8::Local<v8::Script> script = v8::Script::Compile(source, filename);
+	v8::Local<v8::String> source_text = args[0]->ToString(context).FromMaybe(v8::String::Empty(isolate));
+	v8::Local<v8::String> filename = args[1]->ToString(context).FromMaybe(v8::String::Empty(isolate));
+	v8::ScriptOrigin origin(filename);
+	v8::ScriptCompiler::Source source(source_text, origin);
+
+	v8::MaybeLocal<v8::Script> script = v8::ScriptCompiler::Compile(context, &source);
 	if (script.IsEmpty()) {
 		// Hack because I can't get a proper stacktrace on SyntaxError
 		V8Util::fatalException(isolate, tryCatch); // try to throw SyntaxError exception
@@ -132,12 +136,8 @@ void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Val
 	// This basically queues up a pause to happen as soon as we invoke app.js
 	JSDebugger::debugBreak();
 
-	v8::Local<v8::Value> result = script->Run();
-	if (result.IsEmpty()) {
-		args.GetReturnValue().Set(v8::Undefined(isolate));
-		return;
-	}
-	args.GetReturnValue().Set(result);
+	v8::MaybeLocal<v8::Value> result = script.ToLocalChecked()->Run(context);
+	args.GetReturnValue().Set(result.FromMaybe(v8::Undefined(isolate).As<Value>()));
 }
 
 } // namespace titanium

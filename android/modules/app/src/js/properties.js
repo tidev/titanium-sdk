@@ -1,28 +1,29 @@
-exports.bootstrap = function(Titanium) {
-	var TAG = "properties";
+'use strict';
+
+exports.bootstrap = function (Titanium) {
 	var Properties = Titanium.App.Properties;
 
 	function nullOrDefaultValue(defaultValue) {
-		if (typeof(defaultValue) === 'undefined') {
+		if (typeof defaultValue === 'undefined') {
 			return null;
 		}
 		return defaultValue;
 	}
 
 	function propertyGetter(delegate) {
-		return function(key, defaultValue) {
+		return function (key, defaultValue) {
 			if (!Properties.hasProperty(key)) {
 				return nullOrDefaultValue(defaultValue);
 			}
 			return delegate.call(Properties, key);
-		}
+		};
 	}
 
-	["getBool", "getDouble", "getInt", "getString"].forEach(function(getter) {
+	[ 'getBool', 'getDouble', 'getInt', 'getString' ].forEach(function (getter) {
 		Properties[getter] = propertyGetter(Properties[getter]);
 	});
 
-	Properties.getList = Properties.getObject = function(key, defaultValue) {
+	Properties.getList = Properties.getObject = function (key, defaultValue) {
 		if (!Properties.hasProperty(key)) {
 			return nullOrDefaultValue(defaultValue);
 		}
@@ -30,7 +31,7 @@ exports.bootstrap = function(Titanium) {
 		return JSON.parse(Properties.getString(key));
 	};
 
-	Properties.setList = Properties.setObject = function(key, val) {
+	Properties.setList = Properties.setObject = function (key, val) {
 		Properties.setString(key, JSON.stringify(val));
 	};
 };

@@ -129,6 +129,15 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getResponseData();
 	}
 
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public KrollDict getResponseDictionary()
+	// clang-format on
+	{
+		return client.getResponseDict();
+	}
+
 	@Kroll.method
 	public String getResponseHeader(String header)
 	{

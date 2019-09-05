@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TIUIiOSAlertDialogStyleProxy : TiProxy {
 }

@@ -312,9 +312,10 @@ function hideAPIMembers(apis, type) {
  * Generates accessors from the given list of properties
  * @param {Array<Object>} apis Array of property objects
  * @param {String} className Name of the class
+ * @param {String} methods Array of defined methods on the API
  * @returns {Array<Object>} Array of methods
  */
-function generateAccessors(apis, className) {
+function generateAccessors(apis, className, methods) {
 	const rv = [];
 	apis.forEach(function (api) {
 
@@ -322,12 +323,14 @@ function generateAccessors(apis, className) {
 			return;
 		}
 
+		const getterName = 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1);
+		const setterName = 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1);
 		// Generate getter
-		if (!('permission' in api && api.permission === 'write-only') && !api.name.match(common.REGEXP_CONSTANTS)) {
+		if (!('permission' in api && api.permission === 'write-only') && !api.name.match(common.REGEXP_CONSTANTS) && !methods.includes(getterName)) {
 			rv.push({
-				name: 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
+				name: getterName,
 				summary: 'Gets the value of the <' + className + '.' + api.name + '> property.',
-				deprecated: api.deprecated || null,
+				deprecated: api.deprecated || { since: '8.0.0', notes: 'Access <' + className + '.' + api.name + '> instead.' },
 				platforms: api.platforms,
 				since: api.since,
 				returns: { type: api.type, __subtype: 'return' },
@@ -339,11 +342,11 @@ function generateAccessors(apis, className) {
 		}
 
 		// Generate setter
-		if (!('permission' in api && api.permission === 'read-only')) {
+		if (!('permission' in api && api.permission === 'read-only') && !methods.includes(setterName)) {
 			rv.push({
-				name: 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
+				name: setterName,
 				summary: 'Sets the value of the <' + className + '.' + api.name + '> property.',
-				deprecated: api.deprecated || null,
+				deprecated: api.deprecated || { since: '8.0.0', notes: 'Set the value using <' + className + '.' + api.name + '> instead.'  },
 				platforms: api.platforms,
 				since: api.since,
 				parameters: [ {
@@ -477,7 +480,8 @@ function processAPIs (api) {
 		let accessors;
 		api = hideAPIMembers(api, 'properties');
 		api.properties = processAPIMembers(api.properties, 'properties', api.since, api.__addon);
-		if (api.__subtype !== 'pseudo' && (accessors = generateAccessors(api.properties, api.name))) {
+		const methods = api.methods.map(method => method.name);
+		if (api.__subtype !== 'pseudo' && (accessors = generateAccessors(api.properties, api.name, methods))) {
 			if (assert(api, 'methods')) {
 				matches = [];
 				accessors.forEach(function (accessor) {

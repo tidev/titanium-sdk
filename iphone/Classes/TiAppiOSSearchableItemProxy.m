@@ -7,7 +7,7 @@
 #if defined(USE_TI_APPIOSSEARCHQUERY) || defined(USE_TI_APPIOSSEARCHABLEITEM)
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiAppiOSSearchableItemProxy
 

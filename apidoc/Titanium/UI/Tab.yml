@@ -265,18 +265,18 @@ properties:
     description: |
         The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
     type: String
-    since: "4.1.0"
+    since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, android]
 
   - name: activeTitleColor
     summary: Defines the color of the title of tab when it's active.
     description: |
         The color of the title of the tab when it's active. If not defined, it will use the default tint color.
     type: String
-    since: "4.1.0"
+    since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, android]
 
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
@@ -288,7 +288,7 @@ events:
     summary: Fired when the tab loses focus.
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.unselected> instead.
+        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -330,7 +330,7 @@ events:
     summary: Fired when the tab gains focus.
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.selected> instead.
+        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) instead.
     properties:
       - name: index
         summary: Index of the current active tab.

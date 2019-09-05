@@ -40,39 +40,6 @@ description: |
     See also the "Understand the Lifecycle Callbacks" section in
     [Android Developers: Activity Lifecycle](https://developer.android.com/training/basics/activity-lifecycle/starting.html).
 
-    #### Handling Application Restarts 
-
-    Every Android application has a root activity that starts the application. For Titanium
-    applications, the root activity displays the splash screen. When a backgrounded
-    application is left inactive (for about 30 minutes or so), upon reopening the app Android
-    kills off activities above the root activity. This reveals the splash screen activity, making it 
-    appear as if the application is hung. There are two ways to handle this scenario:
-
-    * Add the following to the root `<ti:app>` element in your project's tiapp.xml:
-
-            <property name="ti.android.root.reappears.restart" type="bool">true</property>
-
-    * Create an event listener for the `"resume"` event on the current Android activity that
-    re-intiializes the application. The benefit to this approach is that it avoids a full
-    application restart, which occurs with the first option.
-
-            if(Ti.Platform.osname == "android") {
-                var initialLaunchPerformed = false;
-                Ti.Android.currentActivity.onResume = function() {
-                    if (!initialLaunchPerformed) {
-                        initialLaunchPerformed = true;
-                        return;
-                    }
-                    // If we reach this point the root activity is being resumed for the second (or greater time).
-                    // Re-run the application-specific start-up code again.
-                    runApplication();
-                };
-            }
-
-            function runApplication() {
-                // Start-up code here...
-            }
-
     #### Don't keep activities option
 
     Android 4.0 and greater devices have an option called **Don't keep activities** under the **Developer
@@ -93,6 +60,16 @@ description: |
     hitting the BACK button in the root window will not allow the application to exit.
 
     #### Deprecated Behavior
+
+    Prior to Release 8.0.0, you would set the below "tiapp.xml" property to `true` to handle the case
+    where the Android OS would automatically close all child activity windows after the app has been backgrounded
+    for about 30 minutes, bringing the app back to the root splash screen activity window. The below property
+    would restart your app's UI in this case. This is no longer needed in 8.0.0 since Titanium now sets the
+    "AndroidManifest.xml" setting
+    [android:alwaysRetainTaskState](https://developer.android.com/guide/topics/manifest/activity-element#always)
+    to the root activity instead
+
+            <property name="ti.android.root.reappears.restart" type="bool">true</property>
 
     Prior to Release 3.4.0, to monitor lifecycle events, use the activity's events, `create`, `destroy`,
     `pause`, `resume`, `start` and `stop`, to be notified when an activity is created, destroyed, paused,
@@ -176,10 +153,12 @@ methods:
   - name: setResult
     summary: Sets the result of this activity using an `Intent`. 
     description: |
-        This should be used in the case when the Activity responds to
-        [startActivityForResult](Titanium.Android.Activity.startActivityForResult). 
+        This method should only be used by [Ti.Android.rootActivity](Titanium.Android.rootActivity) when launched
+        by another app via [startActivityForResult](Titanium.Android.Activity.startActivityForResult). After calling
+        `setResult()`, you are expected to call the root activity's [finish](Titanium.Android.Activity.finish)
+        method afterwards to return the result to the calling app.
 
-        Also see Android's documentation for
+        See Android's documentation for
         [setResult](https://developer.android.com/reference/android/app/Activity.html#setResult(int)).
     parameters:
 
@@ -258,13 +237,13 @@ methods:
         summary: Name of the permission that the receiver should hold in order to receive the broadcast.
         type: String
         optional: true
-events:
 
+events:
   - name: create
     summary: Fired from the activity's `onCreate` method.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onCreate> instead.
+        notes: Use [Titanium.Android.Activity.onCreate](Titanium.Android.Activity.onCreate) instead.
     description: |
         See also:
         [onCreate](https://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
@@ -274,14 +253,19 @@ events:
     summary: Fired from the activity's `onDestroy` method.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onDestroy> instead.
+        notes: Use [Titanium.Android.Activity.onDestroy](Titanium.Android.Activity.onDestroy) instead.
     description: |
         See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
 
   - name: newintent
-    summary: Fired when the activity is already running and certain flags are set in its intent. 
+    summary: |
+        Fired when the activity is already running and an intent different than the one that launched it was received.
     description: |
+        This event will only be fired by [Ti.Android.rootActivity](Titanium.Android.rootActivity), which is
+        the splash screen activity. This event will never be fired by any of the child activities. The root
+        activity' [intent](Titanium.Android.Intent) property will be updated when to the new intent when fired.
+
         See also:
         [onNewIntent](https://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
@@ -303,7 +287,7 @@ events:
     summary: Fired when the activity is paused.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onPause> instead.
+        notes: Use [Titanium.Android.Activity.onPause](Titanium.Android.Activity.onPause) instead.
     description: |
         See also:
         [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
@@ -313,7 +297,7 @@ events:
     summary: Fired when the activity is resumed.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onResume> instead.
+        notes: Use [Titanium.Android.Activity.onResume](Titanium.Android.Activity.onResume) instead.
     description: |
         See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
@@ -322,7 +306,7 @@ events:
     summary: Fired when the activity is started.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onStart> instead.
+        notes: Use [Titanium.Android.Activity.onStart](Titanium.Android.Activity.onStart) instead.
     description: |
         See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
@@ -331,7 +315,7 @@ events:
     summary: Fired when the activity is stopped.
     deprecated:
         since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onStop> instead.
+        notes: Use [Titanium.Android.Activity.onStop](Titanium.Android.Activity.onStop) instead.
     description: |
         See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
@@ -375,7 +359,10 @@ properties:
     permission: read-only
 
   - name: intent
-    summary: The `Intent` that was used to start this Activity.
+    summary: The last `Intent` received by this activity.
+    description: |
+        Will initially be set to the intent that created/launched the activity. If this is the app's root activity,
+        then this intent will change when a "newintent" event has been fired.
     type: Titanium.Android.Intent
     permission: read-only
 

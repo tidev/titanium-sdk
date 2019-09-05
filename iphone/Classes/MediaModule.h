@@ -6,13 +6,15 @@
  */
 #ifdef USE_TI_MEDIA
 
-#import "KrollCallback.h"
-#import "MediaPlayer/MediaPlayer.h"
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
+#import <MediaPlayer/MediaPlayer.h>
+#endif
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"
 #import "TiMediaTypes.h"
-#import "TiModule.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/KrollCallback.h>
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @class AVAudioRecorder;
 
@@ -54,7 +56,6 @@
   KrollCallback *pickerErrorCallback;
   KrollCallback *pickerCancelCallback;
 
-  id popover;
   TiViewProxy *cameraView;
 
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)

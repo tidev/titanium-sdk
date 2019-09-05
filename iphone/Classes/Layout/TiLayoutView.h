@@ -6,14 +6,14 @@
  */
 
 #ifdef TI_USE_AUTOLAYOUT
-#import <UIKit/UIKit.h>
 #import "TiLayoutDimension.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
+#import <UIKit/UIKit.h>
 
-#define TI_CONSTR(FORMAT,VIEWS) [NSLayoutConstraint constraintsWithVisualFormat:FORMAT options:NSLayoutFormatDirectionLeftToRight metrics:nil views:VIEWS]
+#define TI_CONSTR(FORMAT, VIEWS) [NSLayoutConstraint constraintsWithVisualFormat:FORMAT options:NSLayoutFormatDirectionLeftToRight metrics:nil views:VIEWS]
 #define TI_STRING(...) [NSString stringWithFormat:__VA_ARGS__]
 
-@interface TiLayoutView : UIView<LayoutAutosizing>
+@interface TiLayoutView : UIView <LayoutAutosizing>
 
 // debug only, remove
 #ifdef TI_UNIT_TESTS
@@ -27,39 +27,37 @@
 @property (nonatomic, retain) id center_;
 #endif
 
-@property(nonatomic) TiDimension defaultHeight;
-@property(nonatomic) TiDimension defaultWidth;
+@property (nonatomic) TiDimension defaultHeight;
+@property (nonatomic) TiDimension defaultWidth;
 //@property(nonatomic, retain) UIView* innerView;
-@property(nonatomic, retain) NSString* viewName;
-@property(nonatomic, copy) void (^onLayout)(TiLayoutView* sender, CGRect rect);
-@property(nonatomic, copy) void (^onViewRemoved)(TiLayoutView* sender);
-@property(nonatomic) BOOL horizontalWrap;
-@property(nonatomic) BOOL loaded;
-@property(nonatomic, readonly) BOOL isInToolbar;
-@property(nonatomic, readonly) BOOL isToolbar;
+@property (nonatomic, retain) NSString *viewName;
+@property (nonatomic, copy) void (^onLayout)(TiLayoutView *sender, CGRect rect);
+@property (nonatomic, copy) void (^onViewRemoved)(TiLayoutView *sender);
+@property (nonatomic) BOOL horizontalWrap;
+@property (nonatomic) BOOL loaded;
+@property (nonatomic, readonly) BOOL isInToolbar;
+@property (nonatomic, readonly) BOOL isToolbar;
 
+- (instancetype)initWithProperties:(NSDictionary *)properties;
 
--(instancetype)initWithProperties:(NSDictionary*)properties;
+- (TiLayoutConstraint *)tiLayoutConstraint;
 
+- (void)setLeft_:(id)args;
+- (void)setRight_:(id)args;
+- (void)setTop_:(id)args;
+- (void)setBottom_:(id)args;
+- (void)setWidth_:(id)args;
+- (void)setHeight_:(id)args;
+- (void)setLayout_:(id)args;
+- (void)setCenter_:(id)args;
 
--(TiLayoutConstraint*) tiLayoutConstraint;
+- (void)animateProperties:(NSDictionary *)properties withDuration:(NSUInteger)milli andCallback:(void (^)(BOOL finished))callback;
 
--(void)setLeft_:(id)args;
--(void)setRight_:(id)args;
--(void)setTop_:(id)args;
--(void)setBottom_:(id)args;
--(void)setWidth_:(id)args;
--(void)setHeight_:(id)args;
--(void)setLayout_:(id)args;
--(void)setCenter_:(id)args;
++ (void)removeConstraints:(UIView *)parent fromChild:(UIView *)child;
+- (CGSize)sizeThatFits:(CGSize)size height:(id)height;
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
+- (void)initializeTiLayoutView;
 
--(void)animateProperties:(NSDictionary*)properties withDuration:(NSUInteger)milli andCallback:(void (^)(BOOL finished))callback;
-
-+(void)removeConstraints:(UIView*)parent fromChild:(UIView*)child;
--(CGSize)sizeThatFits:(CGSize)size height:(id)height;
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
--(void)initializeTiLayoutView;
-
--(CGFloat)heightIfWidthWere:(CGFloat)width;
+- (CGFloat)heightIfWidthWere:(CGFloat)width;
 @end
 #endif

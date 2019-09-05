@@ -82,6 +82,11 @@ properties:
     type: Boolean
     default: false
 
+  - name: masterViewVisible
+    summary: Determines whether to show the master view or hide.
+    type: Boolean
+    default: true
+
   - name: portraitSplit
     summary: Determines the width of the `masterView` in portrait mode.
     description: |
@@ -149,15 +154,6 @@ examples:
             </Alloy>
 
             **controllers/index.js:**
-
-            $.index.addEventListener('visible',function(e){
-              if (e.view === 'detail') {
-                e.button.title = "Master";
-                $.index.detailView.getWindow().leftNavButton = e.button;
-              } else if (e.view === 'master') {
-                $.index.detailView.getWindow().leftNavButton = null;
-              }
-            });
 
             $.index.open();
 

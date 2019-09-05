@@ -30,6 +30,32 @@ methods:
         format.
         
 properties:
+  - name: FLAG_TRANSLUCENT_NAVIGATION
+    summary: Window flag which makes the Android system's navigation bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's bottom navigation bar semi-transparent. This flag will only work if you also set the
+        [Window.extendSafeArea](Titanium.UI.Window.extendSafeArea) property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+        On Android 4.4, navigation bar can only be translucent in portrait mode while newer OS versions support
+        this flag for all orientations.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
+  - name: FLAG_TRANSLUCENT_STATUS
+    summary: Window flag which makes the Android system's top status bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's top status bar semi-transparent. This flag will only work if you also set the
+        <Titanium.UI.Window.extendSafeArea> property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
   - name: GRAVITY_AXIS_CLIP
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
     type: Number
@@ -169,7 +195,7 @@ properties:
   - name: LINKIFY_ALL
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -177,7 +203,7 @@ properties:
   - name: LINKIFY_EMAIL_ADDRESSES
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+        notes: Use [Titanium.UI.AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES) instead.
     summary: Converts strings formatted as email addresses into clickable links.
     type: Number
     permission: read-only
@@ -185,7 +211,7 @@ properties:
   - name: LINKIFY_MAP_ADDRESSES
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     permission: read-only
@@ -193,7 +219,7 @@ properties:
   - name: LINKIFY_PHONE_NUMBERS
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -201,7 +227,7 @@ properties:
   - name: LINKIFY_WEB_URLS
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -618,7 +644,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to disable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is not loaded, and any
+        Content that requires a plugin, is not loaded, and any
         alternative content is displayed instead.
     type: Number
     permission: read-only
@@ -627,7 +653,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to enable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is always loaded, whether or not a plugin is
+        Content that requires a plugin,, is always loaded, whether or not a plugin is
         available for the content.
     type: Number
     permission: read-only
@@ -635,7 +661,7 @@ properties:
   - name: WEBVIEW_PLUGINS_ON_DEMAND
     summary: Display a placeholder and only load plugins when user selects it.
     description: |
-        Content that requires a plugin, such as Flash Player, is replaced by a placeholder. When 
+        Content that requires a plugin, is replaced by a placeholder. When 
         the user clicks on the placeholder, the plugin is loaded and the content is displayed.
         
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to load plugins on demand.
@@ -796,6 +822,20 @@ properties:
     type: Number
     permission: read-only
     since: "5.2.0"
+
+  - name: TABS_STYLE_DEFAULT
+    summary: The default TabGroup style that places the Tabs bellow the ActionBar and above the Window content.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
+
+  - name: TABS_STYLE_BOTTOM_NAVIGATION
+    summary: TabGroup style taking advantage of a bottom navigation controller for switching between tabs.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
 
 examples:
   - title: Android Preferences Example

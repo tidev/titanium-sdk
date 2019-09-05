@@ -7,10 +7,10 @@
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
 
 #import "TiUITextWidget.h"
-#import "TiApp.h"
 #import "TiUITextWidgetProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
@@ -73,18 +73,12 @@
 
 - (void)dealloc
 {
-//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadRemoveFromSuperviewOnMainThread(textWidgetView, YES);
-  TiThreadReleaseOnMainThread(textWidgetView, NO);
-  textWidgetView = nil; //Wasted action, yes.
-#else
+  //Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
   TiThreadPerformOnMainThread(^{
     [textWidgetView removeFromSuperview];
     RELEASE_TO_NIL(textWidgetView);
   },
       YES);
-#endif
   [super dealloc];
 }
 
@@ -160,8 +154,8 @@
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
 
-  if (![TiUtils isIOS10OrGreater]) {
-    NSLog(@"[ERROR] The 'autofillType' property is only available on iOS 10 and later.");
+  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    NSLog(@"[ERROR] The 'autofillHint' property is only available on iOS 10 and later.");
     return;
   }
 
@@ -173,7 +167,7 @@
   [[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
 }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 - (void)setPasswordRules_:(NSString *)passwordRules
 {
   ENSURE_TYPE_OR_NIL(passwordRules, NSString);

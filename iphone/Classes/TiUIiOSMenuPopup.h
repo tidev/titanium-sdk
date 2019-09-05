@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIOSMENUPOPUP
-#import "TiUIView.h"
 #import "TiUIiOSMenuPopupProxy.h"
+#import <TitaniumKit/TiUIView.h>
 #import <UIKit/UIKit.h>
 
 @interface TiUIiOSMenuPopup : TiUIView

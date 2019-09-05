@@ -189,7 +189,7 @@ typedef enum {
  * [stmt bindParameters: [NSArray arrayWithObjects: @"Widget", @"Blue", nil]];
  *
  * // Execute the INSERT
- * if ([stmt executeUpdate] == NO)
+ * if (![stmt executeUpdate])
  *     NSLog(@"INSERT failed");
  *
  * </pre>
@@ -210,7 +210,7 @@ typedef enum {
  * [stmt bindParameterDictionary: parameters];
  *
  * // Execute the INSERT
- * if ([stmt executeUpdate] == NO)
+ * if (![stmt executeUpdate])
  *     NSLog(@"INSERT failed");
  *
  * </pre>

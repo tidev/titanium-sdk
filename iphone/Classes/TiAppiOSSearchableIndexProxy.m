@@ -7,7 +7,7 @@
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
 #import "TiAppiOSSearchableIndexProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiAppiOSSearchableIndexProxy
 
@@ -18,11 +18,7 @@
 
 - (id)isSupported:(id)unused
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
-  } else {
-    return NUMBOOL(NO);
-  }
+  return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
 }
 
 - (void)addToDefaultSearchableIndex:(id)args

@@ -6,8 +6,8 @@
  */
 
 #import "TiUIAlertDialogProxy.h"
-#import "TiApp.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
 
 static NSCondition *alertCondition;
 static BOOL alertShowing = NO;
@@ -140,7 +140,7 @@ static BOOL alertShowing = NO;
     curIndex++;
   }
 
-  if ([TiUtils isIOS9OrGreater] && preferredIndex >= 0) {
+  if (preferredIndex >= 0) {
     [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
   }
 

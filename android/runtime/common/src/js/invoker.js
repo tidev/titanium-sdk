@@ -1,11 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-var TAG = "invoker";
+'use strict';
 
 /**
  * Generates a wrapped invoker function for a specific API
@@ -39,7 +38,7 @@ var TAG = "invoker";
 
 function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 	var namespace = invocationAPI.namespace;
-	var names = namespace.split(".");
+	var names = namespace.split('.');
 	var length = names.length;
 	if (namespace === apiName) {
 		length = 0;
@@ -52,17 +51,18 @@ function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 		var api;
 
 		// Create a module wrapper only if it hasn't been wrapped already.
-		if (apiNamespace.hasOwnProperty(name)) {
+		if (Object.prototype.hasOwnProperty.call(apiNamespace, name)) {
 			api = apiNamespace[name];
 
 		} else {
 			function SandboxAPI() {
-				var proto = this.__proto__;
+				// FIXME: Use non-deprecated way to get prototype!
+				var proto = this.__proto__; // eslint-disable-line no-proto
 				Object.defineProperty(this, '_events', {
-					get: function() {
+					get: function () {
 						return proto._events;
 					},
-					set: function(value) {
+					set: function (value) {
 						proto._events = value;
 					}
 				});
@@ -92,14 +92,18 @@ exports.genInvoker = genInvoker;
 /**
  * Creates and returns a single invoker function that wraps
  * a delegate function, thisObj, and scopeVars
+ * @param {object} thisObj The `this` object to use when invoking the `delegate` function
+ * @param {function} delegate The function to wrap/delegate to under the hood
+ * @param {object} scopeVars The scope variables to splice into the arguments when calling the delegate
+ * @return {function}
  */
 function createInvoker(thisObj, delegate, scopeVars) {
-	var urlInvoker = function invoker() {
+	var urlInvoker = function invoker() { // eslint-disable-line func-style
 		var args = Array.prototype.slice.call(arguments);
 		args.splice(0, 0, invoker.__scopeVars__);
 
 		return delegate.apply(invoker.__thisObj__, args);
-	}
+	};
 
 	urlInvoker.__delegate__ = delegate;
 	urlInvoker.__thisObj__ = thisObj;

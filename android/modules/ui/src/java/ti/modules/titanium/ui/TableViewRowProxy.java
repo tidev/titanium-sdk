@@ -190,12 +190,7 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		super.setProperty(name, value);
 		if (tableViewItem != null) {
-			if (TiApplication.isUIThread()) {
-				tableViewItem.setRowData(this);
-			} else {
-				Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-				message.sendToTarget();
-			}
+			tableViewItem.setRowData(this);
 		}
 	}
 

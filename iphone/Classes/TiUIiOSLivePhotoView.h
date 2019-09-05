@@ -6,9 +6,9 @@
  */
 
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
-#import "TiUIView.h"
 #import "TiUIiOSLivePhoto.h"
 #import <PhotosUI/PhotosUI.h>
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIiOSLivePhotoView : TiUIView <PHLivePhotoViewDelegate> {
   TiDimension width;

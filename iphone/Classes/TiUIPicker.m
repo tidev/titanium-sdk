@@ -9,7 +9,7 @@
 #import "TiUIPicker.h"
 #import "TiUIPickerColumnProxy.h"
 #import "TiUIPickerRowProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #define DEFAULT_ROW_HEIGHT 40
 #define DEFAULT_COLUMN_PADDING 30
@@ -54,13 +54,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (UIControl *)picker
 {
   if (picker == nil) {
-    float width = 320;
-    float height = 216;
-
-    if ([TiUtils isIOS9OrGreater]) {
-      width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
-      height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
-    }
+    CGFloat width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
+    CGFloat height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
 
     NSString *widthString = [TiUtils stringValue:[self.proxy valueForKey:@"width"]];
     NSString *heightString = [TiUtils stringValue:[self.proxy valueForKey:@"height"]];
@@ -84,7 +79,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
       [(UIDatePicker *)picker setDatePickerMode:type];
       [picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
     }
-    [picker setBackgroundColor:[UIColor whiteColor]];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    [picker setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
+#else
+    [picker setBackgroundColor:UIColor.whiteColor];
+#endif
     [self addSubview:picker];
   }
   return picker;
@@ -184,7 +183,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
   if (picker == nil) {
     [[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
-  } else if ([self isDatePicker] == NO) {
+  } else if (![self isDatePicker]) {
     [(UIPickerView *)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
   }
 }

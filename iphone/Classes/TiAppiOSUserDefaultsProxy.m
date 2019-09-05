@@ -7,7 +7,7 @@
 #ifdef USE_TI_APPIOS
 
 #import "TiAppiOSUserDefaultsProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiAppiOSUserDefaultsProxy {
   NSData *_defaultsNull;

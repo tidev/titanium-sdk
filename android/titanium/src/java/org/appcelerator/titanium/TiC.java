@@ -35,6 +35,8 @@ public class TiC
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
 
+	public static final String EXTRA_TI_NEW_INTENT = "ti.intent.extra.NEW_INTENT";
+
 	/**
 	 * ERROR_CODE constants are for values of the code property in
 	 * events and callback objects. When you can use a nonzero OS-provided
@@ -471,6 +473,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_SHORTCUT = "shortcut";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_SOURCE = "source";
 
 	/**
@@ -580,6 +587,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_SHORTCUT_ITEM_CLICK = "shortcutitemclick";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_SINGLE_TAP = "singletap";
 
 	/**
@@ -591,6 +603,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_START = "start";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_STARTED = "started";
 
 	/**
 	 * @module.api
@@ -731,7 +748,6 @@ public class TiC
 	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
 	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
 	public static final String INTENT_PROPERTY_START_MODE = "startMode";
-	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
 	public static final String LAYOUT_FILL = "fill";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
@@ -792,6 +808,11 @@ public class TiC
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
+	 * @module.ape
+	 */
+	public static final String PROPERTY_ACTIVE_TITLE_COLOR = "activeTitleColor";
+
+	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_SWIPEABLE = "swipeable";
@@ -800,11 +821,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK = "smoothScrollOnTabClick";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR = "activeTabBackgroundColor";
 
 	/**
 	 * @module.api
@@ -1016,6 +1032,9 @@ public class TiC
 	 */
 	public static final String PROPERTY_BACKGROUND_PREFIX = "background";
 
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_REPEAT = "backgroundRepeat";
 
 	/**
@@ -1415,6 +1434,7 @@ public class TiC
 
 	/**
 	 * @module.api
+	 * @deprecated Value will be changed to "countryCode" in SDK 9.0.0
 	 */
 	public static final String PROPERTY_COUNTRY_CODE = "country_code";
 
@@ -1427,6 +1447,11 @@ public class TiC
 	 * @module.api
 	 */ // TIMOB-4478
 	public static final String PROPERTY_CURRENT_PAGE = "currentPage";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CURVE = "curve";
 
 	/**
 	 * @module.api
@@ -1616,6 +1641,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FAST_SCROLL = "fastScroll";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EXTEND_SAFE_AREA = "extendSafeArea";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FATHER = "father";
 
 	/**
@@ -1729,6 +1764,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HIDES_BACK_BUTTON = "hidesBackButton";
 
 	/**
 	 * @module.api
@@ -1923,6 +1963,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INDEX = "index";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INCLUDE_FONT_PADDING = "includeFontPadding";
 
 	/**
@@ -1979,6 +2024,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_KIND = "kind";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LABELS = "labels";
 
 	/**
 	 * @module.api
@@ -2422,6 +2472,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_LINK = "onlink";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
 
 	/**
@@ -2669,6 +2724,9 @@ public class TiC
 	 */
 	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
 
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REVERSE = "reverse";
 
 	/**
@@ -2865,6 +2923,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SHADOW_RADIUS = "shadowRadius";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHIFT_MODE = "shiftMode";
 
 	/**
 	 * @module.api
@@ -3134,6 +3197,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TITLE_COLOR = "titleColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	/**
 	 * @module.api
@@ -3193,6 +3261,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
+
+	/**
+	 * module.api
+	 */
+	public static final String PROPERTY_TRACK_TINT_COLOR = "trackTintColor";
 
 	/**
 	 * @module.api
@@ -3502,5 +3575,7 @@ public class TiC
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
 	public static final String URL_APP_JS = "app://app.js";
-	public static final String URL_ANDROID_ASSET_RESOURCES = "file:///android_asset/Resources/";
+	public static final String URL_ANDROID_ASSET = "file:///android_asset/";
+	public static final String URL_ANDROID_ASSET_RESOURCES = URL_ANDROID_ASSET + "Resources/";
+	public static final String PATH_APP_JS = "Resources/app.js";
 }

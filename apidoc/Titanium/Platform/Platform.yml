@@ -23,16 +23,27 @@ events:
 methods:
   - name: canOpenURL
     summary: |
-        Returns whether the system is configured with a default application to handle the URL's protocol.
+        Returns whether the system is configured with a default application to handle the URL's protocol/scheme.
     description: |
         On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
         summary: The url to check.
         type: String
+
+  - name: cpus
+    summary: |
+        Returns an array of basic cpu information for all logical processors
+    description: |
+        This is intended to provide an implementation similar to Node's `os.cpus()`.
+    returns:
+        type: Array<CPU>
+    platforms: [android]
+    since: "8.0.0"
 
   - name: createUUID
     summary: Creates a globally-unique identifier.
@@ -42,14 +53,26 @@ methods:
 
   - name: openURL
     summary: |
-        Opens this URL using the system's default application for its protocol.
+        Opens this URL using the system's default application for its protocol/scheme.
     description: |
-        **iOS Note**: For iOS 10 and later, this method is performed asynchronously 
+        Here are some example URL strings this can be set to.
+
+          * `'https://www.appcelerator.com'`  (Opens in web browser.)
+          * `'mailto:user@domain.com'`  (Opens a new draft in e-mail app.)
+          * `'mailto:user@domain.com?cc=johndoe@domain.com,janedoe@domain.com&subject=My%20Subject&body=The%20body.'`
+          * `'tel:123-456-7890'`  (Opens phone app if applicable.)
+          * `'geo:37.774,-122.431?z=12'`  (Opens map on Android.)
+          * `'maps:?address=London,UK'`  (Opens map on iOS.)
+
+        You can use the <Titanium.Platform.canOpenURL> method to determine if the system has a registered
+        application for the given URL before invoking the <Titanium.Platform.openURL> method.
+
+        **iOS Note**: For iOS 10 and later, this method is performed asynchronously
         and will call the function passed as an (optional) third parameter instead
         of returning a boolean synchronously.
-        
+
         Example:
-          
+
             Ti.Platform.openURL('myapp://', {
               'UIApplicationOpenURLOptionUniversalLinksOnly': true
             }, function(e) {
@@ -117,7 +140,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: availableMemory
-    summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
+    summary: System's unused memory, measured in bytes.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -155,16 +178,16 @@ properties:
     description: |
         On Android, this may be the UDID (unique device ID). For iOS, this
         is a unique identifier for this install of the application.
-        
+
         Previously on iOS this may have been a UDID, but access to
         this has been restricted by Apple. For more information, see
         [UUID Article on NSHipster](http://nshipster.com/uuid-udid-unique-identifier/)
         documentation.
 
         To use a UUID across different applications of the same vendor,
-        use <Titanium.Platform.identifierForVendor> instead. 
+        use <Titanium.Platform.identifierForVendor> instead.
 
-        To use a UUID for tracking / advertising purposes, 
+        To use a UUID for tracking / advertising purposes,
         use <Titanium.Platform.identifierForAdvertising> instead.
     platforms: [android, iphone, ipad]
     type: String
@@ -173,9 +196,9 @@ properties:
   - name: identifierForVendor
     summary: An alphanumeric string that uniquely identifies a device to the app's vendor.
     description: |
-        The value of this property is the same for apps that come from the same 
-        vendor running on the same device. A different value is returned for apps 
-        on the same device that come from different vendors, and for apps on 
+        The value of this property is the same for apps that come from the same
+        vendor running on the same device. A different value is returned for apps
+        on the same device that come from different vendors, and for apps on
         different devices regardless of vendor. See the [Apple docs](https://developer.apple.com/reference/uikit/uidevice/1620059-identifierforvendor) for more infos.
     platforms: [iphone, ipad]
     type: String
@@ -185,32 +208,32 @@ properties:
   - name: identifierForAdvertising
     summary: An alphanumeric string unique to each device, used only for serving advertisements.
     description: |
-        Unlike the <Titanium.Platform.identifierForVendor> property, the same 
-        value is returned to all vendors. This identifier may change, for example, 
+        Unlike the <Titanium.Platform.identifierForVendor> property, the same
+        value is returned to all vendors. This identifier may change, for example,
         if the user erases the device, so you should not cache it.
-        
-        In iOS 10.0 and later, the value of this property is all zeroes when the 
+
+        In iOS 10.0 and later, the value of this property is all zeroes when the
         user has limited ad tracking.
-        
+
         If the value is `null`, wait and get the value again later. This happens,
         for example, after the device has been restarted but before the user has
         unlocked the device.
     type: String
     platforms: [iphone, ipad]
     since: "7.0.0"
- 
+
   - name: isAdvertisingTrackingEnabled
     summary: A Boolean value that indicates whether the user has limited ad tracking.
     description: |
-        Check the value of this property before performing any advertising tracking. 
-        If the value is false, use the advertising identifier only for the following 
-        purposes: frequency capping, attribution, conversion events, estimating the 
+        Check the value of this property before performing any advertising tracking.
+        If the value is false, use the advertising identifier only for the following
+        purposes: frequency capping, attribution, conversion events, estimating the
         number of unique users, advertising fraud detection, and debugging.
     platforms: [iphone, ipad]
     type: Boolean
     permission: read-only
     since: "7.0.0"
-        
+
   - name: locale
     summary: System's default language.
     description: |
@@ -258,7 +281,7 @@ properties:
       - title: Testing for a Virtual Device
         example: |
             Determine whether the application is running on a virtual device.
-                if (Ti.Platform.model === 'Simulator' || Ti.Platform.model.indexOf('sdk') !== -1 ){
+                if (Ti.Platform.model.indexOf('Simulator') !== -1 || Ti.Platform.model.indexOf('sdk') !== -1 ){
                   alert('Accelerometer does not work on a virtual device');
                 } else {
                   // Add Accelerometer event listener
@@ -294,7 +317,7 @@ properties:
     permission: read-only
 
   - name: processorCount
-    summary: Number of processing cores.
+    summary: Number of logical processing cores.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -305,6 +328,18 @@ properties:
       On iOS this is "javascriptcore", on Android either "v8" or "rhino".
     type: String
     permission: read-only
+
+  - name: totalMemory
+    summary: System's total memory, measured in bytes.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: uptime
+    summary: System uptime since last boot in seconds.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: username
     summary: |
@@ -329,3 +364,44 @@ examples:
               Ti.API.info('The battery event source is ' + e.source);
               Ti.API.info('The battery event name ' + e.type);
             });
+---
+name: CPU
+summary: Simple object holding the data for a logical cpu.
+properties:
+
+  - name: model
+    summary: General description of the CPU
+    type: String
+
+  - name: speed
+    summary: Speed of the CPU in MHz
+    type: Number
+
+  - name: times
+    summary: A collection of timings for this logical CPU.
+    type: CPUTimes
+
+---
+name: CPUTimes
+summary: Simple object holding the data for a logical cpu execution times.
+properties:
+
+  - name: user
+    summary: The number of milliseconds the CPU has spent in user mode.
+    type: Number
+
+  - name: nice
+    summary: The number of milliseconds the CPU has spent in nice mode.
+    type: Number
+
+  - name: sys
+    summary: The number of milliseconds the CPU has spent in sys mode.
+    type: Number
+
+  - name: idle
+    summary: The number of milliseconds the CPU has spent in idle mode.
+    type: Number
+
+  - name: irq
+    summary: The number of milliseconds the CPU has spent in irq mode.
+    type: Number

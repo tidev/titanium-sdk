@@ -10,9 +10,9 @@
 #import "LauncherButton.h"
 #import "LauncherItem.h"
 #import "TiUIDashboardItemProxy.h"
-#import "TiUIView.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @implementation TiUIDashboardItem
 

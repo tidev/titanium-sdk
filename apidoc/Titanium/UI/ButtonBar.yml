@@ -42,6 +42,11 @@ events:
         type: Number
 properties:
   - name: index
+    deprecated:
+        since: "8.0.0"
+        notes: |
+            This property has been deprecated in Titanium SDK 8.0.0 as this property has no effect 
+            and will be removed in SDK 9.0.0.
     summary: Index of the currently selected button.
     type: Number
   - name: labels

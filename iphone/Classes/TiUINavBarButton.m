@@ -7,13 +7,13 @@
 #ifdef USE_TI_UIBUTTON
 
 #import "TiUINavBarButton.h"
-#import "ImageLoader.h"
-#import "TiBlob.h"
 #import "TiButtonUtil.h"
 #import "TiUIButton.h"
 #import "TiUIButtonProxy.h"
-#import "TiUIView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUtils.h>
 
 #define NAVBAR_MEMORY_DEBUG 0
 
@@ -124,6 +124,9 @@ DEFINE_EXCEPTIONS
   proxy = proxy_; // Don't retain
 
   self.accessibilityLabel = [proxy_ valueForUndefinedKey:@"accessibilityLabel"];
+  self.accessibilityValue = [proxy_ valueForUndefinedKey:@"accessibilityValue"];
+  self.accessibilityHint = [proxy_ valueForUndefinedKey:@"accessibilityHint"];
+  self.accessibilityIdentifier = [TiUtils composeAccessibilityIdentifier:self];
 
   self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"] def:0.0];
   //A width of 0 is treated as Auto by the iPhone OS, so this is safe.

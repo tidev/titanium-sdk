@@ -422,9 +422,9 @@ public @interface Kroll {
 	 * public void processProperties(KrollDict d) {
 	 *     if (d.containsKey("title")) { ... }
 	 * }
-	 * &#064;Kroll.dynamicApis(methods = { "yql" })
-	 * public class YahooModule {
-	 *     // yql is defined in JS source somewhere..
+	 * &#064;Kroll.dynamicApis(methods = { "hide", "show" })
+	 * public class ActivityIndicatorProxy extends TiViewProxy {
+	 *     // hide/show are defined in JS source somewhere..
 	 * }
 	 * </pre>
 	 */

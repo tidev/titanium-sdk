@@ -6,8 +6,8 @@
  */
 
 #ifdef USE_TI_APPIOSSEARCHQUERY
-#import "TiProxy.h"
 #import <CoreSpotlight/CoreSpotlight.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiAppiOSSearchQueryProxy : TiProxy {
   CSSearchQuery *query;

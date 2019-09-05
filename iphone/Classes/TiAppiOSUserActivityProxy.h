@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
 
@@ -70,7 +70,7 @@
 
 - (void)resignCurrent:(id)unused;
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 - (NSString *)persistentIdentifier;
 
 - (void)setPersistentIdentifier:(NSString *)value;

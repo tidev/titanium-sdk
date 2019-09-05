@@ -7,11 +7,11 @@
 #ifdef USE_TI_UIOPTIONDIALOG
 
 #import "TiUIOptionDialogProxy.h"
-#import "TiApp.h"
-#import "TiTab.h"
-#import "TiToolbar.h"
 #import "TiToolbarButton.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiTab.h>
+#import <TitaniumKit/TiToolbar.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIOptionDialogProxy
 @synthesize dialogView;

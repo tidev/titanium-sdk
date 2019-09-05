@@ -8,7 +8,7 @@
 
 #import "TiUILabelProxy.h"
 #import "TiUILabel.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUILabelProxy
 

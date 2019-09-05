@@ -21,8 +21,11 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -30,15 +33,21 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
-import android.util.Pair;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.ViewParent;
+
 // clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_EXIT_ON_CLOSE,
@@ -55,8 +64,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
-	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
@@ -71,6 +78,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	protected List<Pair<View, String>> sharedElementPairs;
+	public TiWindowProxy navigationWindow;
 
 	public static interface PostOpenListener {
 		public void onPostOpen(TiWindowProxy window);
@@ -95,28 +103,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		throw new IllegalStateException("Windows are created during open");
-	}
-
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_OPEN: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleOpen((KrollDict) result.getArg());
-				result.setResult(null); // signal opened
-				return true;
-			}
-			case MSG_CLOSE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleClose((KrollDict) result.getArg());
-				result.setResult(null); // signal closed
-				return true;
-			}
-			default: {
-				return super.handleMessage(msg);
-			}
-		}
 	}
 
 	@Kroll.method
@@ -148,12 +134,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			options = new KrollDict();
 		}
 
-		if (TiApplication.isUIThread()) {
-			handleOpen(options);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
+		handleOpen(options);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -177,12 +158,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			options = new KrollDict();
 		}
 
-		if (TiApplication.isUIThread()) {
-			handleClose(options);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
+		handleClose(options);
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -307,6 +283,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 		fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, null, false);
 	}
 
+	public void fireSafeAreaChangedEvent()
+	{
+		TiUIHelper.firePostLayoutEvent(this);
+	}
+
 	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
@@ -426,6 +407,87 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public KrollDict getSafeAreaPadding()
+	// clang-format on
+	{
+		// Initialize safe-area padding to zero. (ie: no padding)
+		double paddingLeft = 0;
+		double paddingTop = 0;
+		double paddingRight = 0;
+		double paddingBottom = 0;
+
+		// Fetch safe-area from activity. (Returned safe-area is relative to root decor view.)
+		Rect safeAreaRect = null;
+		Activity activity = getActivity();
+		if (activity instanceof TiBaseActivity) {
+			safeAreaRect = ((TiBaseActivity) activity).getSafeAreaRect();
+		}
+
+		// Fetch content view that the safe-area should be made relative to.
+		View contentView = null;
+		if (this.tabGroup != null) {
+			// This window is displayed within a TabGroup. Use the TabGroup's container view.
+			// Note: Don't use this window's content view because if its tab is not currently selected,
+			//       then this window's view coordinates will be offscreen and won't intersect safe-area.
+			TiUIView uiView = this.tabGroup.peekView();
+			if (uiView != null) {
+				contentView = uiView.getNativeView();
+			}
+		}
+		if ((contentView == null) && (this.view != null)) {
+			// Use this window's content view.
+			contentView = this.view.getNativeView();
+		}
+
+		// Calculate safe-area padding relative to content view.
+		if ((contentView != null) && (safeAreaRect != null)) {
+			// Get the content view's x/y position relative to window's root decor view.
+			// Note: Do not use the getLocationInWindow() method, because it'll fetch the view's current position
+			//       during transition animations. Such as when the ActionBar is being shown/hidden.
+			int contentX = contentView.getLeft();
+			int contentY = contentView.getTop();
+			{
+				ViewParent viewParent = contentView.getParent();
+				for (; viewParent instanceof View; viewParent = viewParent.getParent()) {
+					View view = (View) viewParent;
+					contentX += view.getLeft() - view.getScrollX();
+					contentY += view.getTop() - view.getScrollY();
+				}
+			}
+
+			// Convert safe-area coordinates to be relative to content view.
+			safeAreaRect.offset(-contentX, -contentY);
+
+			// Calculate the safe-area padding relative to the content view.
+			// Do not allow the padding to be less than zero on any side.
+			paddingLeft = (double) Math.max(safeAreaRect.left, 0);
+			paddingTop = (double) Math.max(safeAreaRect.top, 0);
+			paddingRight = (double) Math.max(contentView.getWidth() - safeAreaRect.right, 0);
+			paddingBottom = (double) Math.max(contentView.getHeight() - safeAreaRect.bottom, 0);
+
+			// Convert padding values from pixels to Titanium's default units.
+			TiDimension leftDimension = new TiDimension(paddingLeft, TiDimension.TYPE_LEFT);
+			TiDimension topDimension = new TiDimension(paddingTop, TiDimension.TYPE_TOP);
+			TiDimension rightDimension = new TiDimension(paddingRight, TiDimension.TYPE_RIGHT);
+			TiDimension bottomDimension = new TiDimension(paddingBottom, TiDimension.TYPE_BOTTOM);
+			paddingLeft = leftDimension.getAsDefault(contentView);
+			paddingTop = topDimension.getAsDefault(contentView);
+			paddingRight = rightDimension.getAsDefault(contentView);
+			paddingBottom = bottomDimension.getAsDefault(contentView);
+		}
+
+		// Return the result via a titanium "ViewPadding" dictionary.
+		KrollDict dictionary = new KrollDict();
+		dictionary.put(TiC.PROPERTY_LEFT, paddingLeft);
+		dictionary.put(TiC.PROPERTY_TOP, paddingTop);
+		dictionary.put(TiC.PROPERTY_RIGHT, paddingRight);
+		dictionary.put(TiC.PROPERTY_BOTTOM, paddingBottom);
+		return dictionary;
+	}
+
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);
 	protected abstract Activity getWindowActivity();
@@ -455,6 +517,66 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// to force the view to be drawn due to TIMOB-7685
 		if (nativeView != null) {
 			nativeView.postInvalidate();
+		}
+	}
+
+	protected void fillIntent(Activity activity, Intent intent)
+	{
+		int windowFlags = 0;
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
+		}
+
+		//Set the fullscreen flag
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			}
+		}
+
+		//Set the secure flag
+		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
+			}
+		}
+
+		//Stuff flags in intent
+		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
+
+		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
+							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
+		}
+
+		if (hasProperty(TiC.PROPERTY_EXTEND_SAFE_AREA)) {
+			boolean value = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXTEND_SAFE_AREA), false);
+			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
+		}
+
+		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			// Use proxy's assigned "exitOnClose" property setting.
+			boolean exitOnClose = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, exitOnClose);
+		} else if (activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity())) {
+			// We're opening child activity from Titanium root activity. Have it exit out of app by default.
+			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+		}
+
+		// Set the theme property
+		if (hasProperty(TiC.PROPERTY_THEME)) {
+			String theme = TiConvert.toString(getProperty(TiC.PROPERTY_THEME));
+			if (theme != null) {
+				try {
+					intent.putExtra(TiC.PROPERTY_THEME,
+									TiRHelper.getResource("style." + theme.replaceAll("[^A-Za-z0-9_]", "_")));
+				} catch (Exception e) {
+					Log.w(TAG, "Cannot find the theme: " + theme);
+				}
+			}
 		}
 	}
 
@@ -497,6 +619,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public TiWindowProxy getNavigationWindow()
+	// clang-format on
+	{
+		return navigationWindow;
+	}
+
+	public void setNavigationWindow(TiWindowProxy navigationWindow)
+	{
+		this.navigationWindow = navigationWindow;
+	}
+
 	/**
 	 * Helper method to create an activity options bundle.
 	 * @param activity The activity on which options bundle should be created.
@@ -506,15 +642,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
-		if (hasActivityTransitions()) {
-			Bundle b = ActivityOptions
-						   .makeSceneTransitionAnimation(
-							   activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]))
-						   .toBundle();
-			return b;
+		ActivityOptionsCompat options = null;
+
+		// Do NOT apply transitions to launch activity.
+		if (hasActivityTransitions() && !(activity instanceof TiLaunchActivity)) {
+			if (!sharedElementPairs.isEmpty()) {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+					activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
+			} else {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity);
+			}
 		} else {
-			return null;
+			options = ActivityOptionsCompat.makeBasic();
 		}
+		return (options != null) ? options.toBundle() : null;
 	}
 
 	/**
@@ -522,7 +663,36 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	protected boolean hasActivityTransitions()
 	{
-		final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
-		return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
+		// This feature is only supported on Android 5.0 and higher.
+		if (!LOLLIPOP_OR_GREATER) {
+			return false;
+		}
+
+		// Don't do transition if "animated" property was set false.
+		boolean isAnimated = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ANIMATED), true);
+		if (!isAnimated) {
+			return false;
+		}
+
+		// Do activity transition if at least 1 shared element has been configured.
+		// Note: It doesn't matter if transition animation properties were assigned.
+		//       System will do default transition animation if not assign to window proxy.
+		if ((this.sharedElementPairs != null) && (this.sharedElementPairs.size() > 0)) {
+			return true;
+		}
+
+		// Do activity transition if at least 1 transition property was assigned to proxy.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION) || hasPropertyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) {
+			return true;
+		}
+
+		// Don't do activity transition.
+		return false;
 	}
 }

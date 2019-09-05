@@ -33,26 +33,6 @@ public class MenuItemProxy extends KrollProxy
 	private MenuItem item;
 
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-
-	private static final int MSG_GROUP_ID = MSG_FIRST_ID + 200;
-	private static final int MSG_ITEM_ID = MSG_FIRST_ID + 201;
-	private static final int MSG_ORDER = MSG_FIRST_ID + 202;
-	private static final int MSG_TITLE = MSG_FIRST_ID + 203;
-	private static final int MSG_TITLE_CONDENSED = MSG_FIRST_ID + 204;
-	private static final int MSG_SUB_MENU = MSG_FIRST_ID + 205;
-	private static final int MSG_CHECKED = MSG_FIRST_ID + 206;
-	private static final int MSG_CHECKABLE = MSG_FIRST_ID + 207;
-	private static final int MSG_ENABLED = MSG_FIRST_ID + 208;
-	private static final int MSG_VISIBLE = MSG_FIRST_ID + 209;
-	private static final int MSG_SET_CHECKED = MSG_FIRST_ID + 210;
-	private static final int MSG_SET_CHECKABLE = MSG_FIRST_ID + 211;
-	private static final int MSG_SET_ENABLED = MSG_FIRST_ID + 212;
-	private static final int MSG_SET_VISIBLE = MSG_FIRST_ID + 213;
-	private static final int MSG_SET_ICON = MSG_FIRST_ID + 214;
-	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 215;
-	private static final int MSG_SET_TITLE_CONDENSED = MSG_FIRST_ID + 216;
-	private static final int MSG_ACTION_VIEW_EXPANDED = MSG_FIRST_ID + 217;
-
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 1000;
 
 	private final class CompatActionExpandListener implements MenuItemCompat.OnActionExpandListener
@@ -76,109 +56,13 @@ public class MenuItemProxy extends KrollProxy
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		AsyncResult result = null;
-		result = (AsyncResult) msg.obj;
-
-		switch (msg.what) {
-			case MSG_GROUP_ID: {
-				result.setResult(item.getGroupId());
-				return true;
-			}
-			case MSG_ITEM_ID: {
-				result.setResult(item.getItemId());
-				return true;
-			}
-			case MSG_ORDER: {
-				result.setResult(item.getOrder());
-				return true;
-			}
-			case MSG_TITLE: {
-				result.setResult(item.getTitle());
-				return true;
-			}
-			case MSG_TITLE_CONDENSED: {
-				result.setResult(item.getTitleCondensed());
-				return true;
-			}
-			case MSG_SUB_MENU: {
-				result.setResult(item.hasSubMenu());
-				return true;
-			}
-			case MSG_CHECKED: {
-				result.setResult(item.isChecked());
-				return true;
-			}
-			case MSG_CHECKABLE: {
-				result.setResult(item.isCheckable());
-				return true;
-			}
-			case MSG_ENABLED: {
-				result.setResult(item.isEnabled());
-				return true;
-			}
-			case MSG_VISIBLE: {
-				result.setResult(item.isVisible());
-				return true;
-			}
-			case MSG_SET_CHECKED: {
-				item.setChecked((Boolean) result.getArg());
-				result.setResult(this);
-				return true;
-			}
-			case MSG_SET_CHECKABLE: {
-				item.setCheckable((Boolean) result.getArg());
-				result.setResult(this);
-				return true;
-			}
-			case MSG_SET_ENABLED: {
-				item.setEnabled((Boolean) result.getArg());
-				result.setResult(this);
-				return true;
-			}
-			case MSG_SET_VISIBLE: {
-				item.setVisible((Boolean) result.getArg());
-				result.setResult(this);
-				return true;
-			}
-			case MSG_SET_ICON: {
-				result.setResult(handleSetIcon(result.getArg()));
-				return true;
-			}
-			case MSG_SET_TITLE: {
-				item.setTitle((String) result.getArg());
-				result.setResult(this);
-				return true;
-			}
-			case MSG_SET_TITLE_CONDENSED: {
-				item.setTitleCondensed((String) result.getArg());
-				result.setResult(this);
-				return true;
-			}
-			case MSG_ACTION_VIEW_EXPANDED: {
-				result.setResult(isAppCompatActionViewExpanded());
-				return true;
-			}
-
-			default: {
-				return super.handleMessage(msg);
-			}
-		}
-	}
-
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getGroupId()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return item.getGroupId();
-		}
-
-		return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GROUP_ID));
+		return item.getGroupId();
 	}
 
 	// clang-format off
@@ -187,11 +71,7 @@ public class MenuItemProxy extends KrollProxy
 	public int getItemId()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return item.getItemId();
-		}
-
-		return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ITEM_ID));
+		return item.getItemId();
 	}
 
 	// clang-format off
@@ -200,11 +80,7 @@ public class MenuItemProxy extends KrollProxy
 	public int getOrder()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return item.getOrder();
-		}
-
-		return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ORDER));
+		return item.getOrder();
 	}
 
 	// clang-format off
@@ -213,11 +89,7 @@ public class MenuItemProxy extends KrollProxy
 	public String getTitle()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return (String) item.getTitle();
-		}
-
-		return (String) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TITLE));
+		return (String) item.getTitle();
 	}
 
 	// clang-format off
@@ -226,21 +98,13 @@ public class MenuItemProxy extends KrollProxy
 	public String getTitleCondensed()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return (String) item.getTitleCondensed();
-		}
-
-		return (String) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TITLE_CONDENSED));
+		return (String) item.getTitleCondensed();
 	}
 
 	@Kroll.method
 	public boolean hasSubMenu()
 	{
-		if (TiApplication.isUIThread()) {
-			return item.hasSubMenu();
-		}
-
-		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SUB_MENU));
+		return item.hasSubMenu();
 	}
 
 	// clang-format off
@@ -249,11 +113,7 @@ public class MenuItemProxy extends KrollProxy
 	public boolean isChecked()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return item.isChecked();
-		}
-
-		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CHECKED));
+		return item.isChecked();
 	}
 
 	// clang-format off
@@ -262,11 +122,7 @@ public class MenuItemProxy extends KrollProxy
 	public boolean isCheckable()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return item.isCheckable();
-		}
-
-		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CHECKABLE));
+		return item.isCheckable();
 	}
 
 	// clang-format off
@@ -275,11 +131,7 @@ public class MenuItemProxy extends KrollProxy
 	public boolean isEnabled()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return item.isEnabled();
-		}
-
-		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ENABLED));
+		return item.isEnabled();
 	}
 
 	// clang-format off
@@ -288,11 +140,7 @@ public class MenuItemProxy extends KrollProxy
 	public boolean isVisible()
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			return item.isVisible();
-		}
-
-		return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_VISIBLE));
+		return item.isVisible();
 	}
 
 	// clang-format off
@@ -301,13 +149,8 @@ public class MenuItemProxy extends KrollProxy
 	public MenuItemProxy setCheckable(boolean checkable)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			item.setCheckable(checkable);
-			return this;
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_CHECKABLE),
-																   checkable);
+		item.setCheckable(checkable);
+		return this;
 	}
 
 	// clang-format off
@@ -316,13 +159,8 @@ public class MenuItemProxy extends KrollProxy
 	public MenuItemProxy setChecked(boolean checked)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			item.setChecked(checked);
-			return this;
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_CHECKED),
-																   checked);
+		item.setChecked(checked);
+		return this;
 	}
 
 	// clang-format off
@@ -331,16 +169,15 @@ public class MenuItemProxy extends KrollProxy
 	public MenuItemProxy setEnabled(boolean enabled)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			item.setEnabled(enabled);
-			return this;
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ENABLED),
-																   enabled);
+		item.setEnabled(enabled);
+		return this;
 	}
 
-	private MenuItemProxy handleSetIcon(Object icon)
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public MenuItemProxy setIcon(Object icon)
+	// clang-format on
 	{
 		if (icon != null) {
 			if (icon instanceof String) {
@@ -362,18 +199,6 @@ public class MenuItemProxy extends KrollProxy
 		}
 		return this;
 	}
-	// clang-format off
-	@Kroll.method
-	@Kroll.setProperty
-	public MenuItemProxy setIcon(Object icon)
-	// clang-format on
-	{
-		if (TiApplication.isUIThread()) {
-			return handleSetIcon(icon);
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ICON), icon);
-	}
 
 	// clang-format off
 	@Kroll.method
@@ -381,13 +206,8 @@ public class MenuItemProxy extends KrollProxy
 	public MenuItemProxy setTitle(String title)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			item.setTitle(title);
-			return this;
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TITLE),
-																   title);
+		item.setTitle(title);
+		return this;
 	}
 
 	// clang-format off
@@ -396,13 +216,8 @@ public class MenuItemProxy extends KrollProxy
 	public MenuItemProxy setTitleCondensed(String title)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			item.setTitleCondensed(title);
-			return this;
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(
-			getMainHandler().obtainMessage(MSG_SET_TITLE_CONDENSED), title);
+		item.setTitleCondensed(title);
+		return this;
 	}
 
 	// clang-format off
@@ -411,13 +226,8 @@ public class MenuItemProxy extends KrollProxy
 	public MenuItemProxy setVisible(boolean visible)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			item.setVisible(visible);
-			return this;
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_VISIBLE),
-																   visible);
+		item.setVisible(visible);
+		return this;
 	}
 
 	// clang-format off
@@ -428,22 +238,13 @@ public class MenuItemProxy extends KrollProxy
 	{
 		if (view instanceof TiViewProxy) {
 			final View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				TiMessenger.postOnMain(new Runnable() {
-					public void run()
-					{
-						item.setActionView(v);
-					}
-				});
-
-			} else {
-				TiMessenger.postOnMain(new Runnable() {
-					public void run()
-					{
-						MenuItemCompat.setActionView(item, v);
-					}
-				});
-			}
+			TiMessenger.postOnMain(new Runnable() {
+				@Override
+				public void run()
+				{
+					item.setActionView(v);
+				}
+			});
 		} else {
 			Log.w(TAG, "Invalid type for actionView", Log.DEBUG_MODE);
 		}
@@ -455,74 +256,37 @@ public class MenuItemProxy extends KrollProxy
 	public void setShowAsAction(final int flag)
 	// clang-format on
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run()
-				{
-					item.setShowAsAction(flag);
-				}
-			});
-
-		} else {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run()
-				{
-					MenuItemCompat.setShowAsAction(item, flag);
-				}
-			});
-			Log.i(TAG, "Action bar unsupported by this device. Ignoring showAsAction property.", Log.DEBUG_MODE);
-		}
+		TiMessenger.postOnMain(new Runnable() {
+			@Override
+			public void run()
+			{
+				item.setShowAsAction(flag);
+			}
+		});
 	}
 
 	@Kroll.method
 	public void collapseActionView()
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run()
-				{
-					item.collapseActionView();
-				}
-			});
-
-		} else {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run()
-				{
-					MenuItemCompat.collapseActionView(item);
-				}
-			});
-		}
+		TiMessenger.postOnMain(new Runnable() {
+			@Override
+			public void run()
+			{
+				item.collapseActionView();
+			}
+		});
 	}
 
 	@Kroll.method
 	public void expandActionView()
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run()
-				{
-					item.expandActionView();
-				}
-			});
-
-		} else {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run()
-				{
-					MenuItemCompat.expandActionView(item);
-				}
-			});
-		}
-	}
-
-	private boolean isAppCompatActionViewExpanded()
-	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			return item.isActionViewExpanded();
-		} else {
-			return MenuItemCompat.isActionViewExpanded(item);
-		}
+		TiMessenger.postOnMain(new Runnable() {
+			@Override
+			public void run()
+			{
+				item.expandActionView();
+			}
+		});
 	}
 
 	// clang-format off
@@ -531,18 +295,7 @@ public class MenuItemProxy extends KrollProxy
 	public boolean isActionViewExpanded()
 	// clang-format on
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			if (TiApplication.isUIThread()) {
-				isAppCompatActionViewExpanded();
-			}
-
-			return (Boolean) TiMessenger.sendBlockingMainMessage(
-				getMainHandler().obtainMessage(MSG_ACTION_VIEW_EXPANDED));
-		}
-
-		// If this system does not support expandable action views, we will
-		// always return false since the menu item can never "expand".
-		return false;
+		return item.isActionViewExpanded();
 	}
 
 	@Override

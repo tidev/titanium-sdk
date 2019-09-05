@@ -7,14 +7,15 @@
 #ifdef USE_TI_APP
 
 #import "AppModule.h"
-#import "ListenerEntry.h"
-#import "TiApp.h"
-#import "TiHost.h"
+#import "TiUtils+Addons.h"
+#import <TitaniumKit/ListenerEntry.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiHost.h>
 #if defined(USE_TI_APPIOS)
 #import "TiAppiOSProxy.h"
 #endif
 
-#import "TiLayoutQueue.h"
+#import <TitaniumKit/TiLayoutQueue.h>
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
 

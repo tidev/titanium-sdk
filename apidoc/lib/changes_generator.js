@@ -137,6 +137,8 @@ exports.exportData = function exportChanges (apis) {
 		endVersion = apis.__endVersion || null,
 		changed = null;
 
+	common.createMarkdown(apis);
+
 	common.log(common.LOG_INFO, 'Checking API versions...');
 
 	for (className in apis) {

@@ -9,6 +9,12 @@ description: |
     animated from its current state to the state described by the animation object. The properties
     that can be animated include the view's position, size, colors, transformation matrix and opacity.
 
+    You can also specify an animation curve or *easing function* to control the pace of the
+    animation. To use an easing function, set the animation's `curve` property to one of the
+    `ANIMATION_CURVE` constants defined in <Titanium.UI>. For example,
+    [ANIMATION_CURVE_EASE_IN](Titanium.UI.ANIMATION_CURVE_EASE_IN) specifies an animation that
+    starts slowly and then speeds up.
+
     Animations can be set to reverse themselves automatically on completion, and to repeat a given
     number of times. For more complicated effects, multiple animations can be combined in sequence,
     starting one animation when the previous animation completes.
@@ -23,13 +29,7 @@ description: |
 
     iOS supports both 2D and 3D matrix transformations in animations.
 
-    In iOS, you can also specify an animation curve or *easing function* to control the pace of the
-    animation. To use an easing function, set the animation's `curve` property to one of the
-    `ANIMATION_CURVE` constants defined in <Titanium.UI>. For example,
-    [ANIMATION_CURVE_EASE_IN](Titanium.UI.ANIMATION_CURVE_EASE_IN) specifies an animation that
-    starts slowly and then speeds up.
-
-    Finally, iOS also supports *transitions* between windows or views. You can create a transition
+    iOS also supports *transitions* between windows or views. You can create a transition
     by creating an animation object and setting the `view` property to the view you want to
     transition to. The `transition` property specifies the transition effect to apply. Use one of
     the transition style constants defined in <Titanium.UI.iOS.AnimationStyle>.
@@ -37,13 +37,10 @@ description: |
     #### Android Platform Notes
 
     Android supports 2D matrix transformations. Note that the
-    [2DMatrix.rotate](Titanium.UI.2DMatrix.rotate) method operates differently on Android. Called
+    [Matrix2D.rotate](Titanium.UI.Matrix2D.rotate) method operates differently on Android. Called
     with a single argument, it rotates from zero to the specified angle. That is, it ignores any
     existing rotation. Called with two arguments, it interprets the first argument as a "from"
     angle and the second argument as a "to" angle.
-
-    Android doesn't support any animation curves or easing functions. Animations always interpolate
-    linearly between the start state and the end state.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
@@ -65,7 +62,7 @@ properties:
         the view's top-left corner, `{0.5, 0.5}` at its center and `{1, 1}` at its bottom-right
         corner.
 
-        This property's value will overwrite the [anchorPoint](MatrixCreationDict.anchorPoint) used in the matrix's creation dictionary.
+        This property's value will overwrite the [anchorPoint](Matrix2DCreationDict.anchorPoint) used in the matrix's creation dictionary.
 
         See the "Using an anchorPoint" example for a demonstration.
     type: Point
@@ -107,7 +104,18 @@ properties:
     summary: Animation curve or easing function to apply to the animation.
     type: Number
     constants: Titanium.UI.ANIMATION_CURVE_*
+    platforms: [android, iphone, ipad]
+    since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
+  
+  - name: dampingRatio
+    summary: |
+        The damping ratio for the spring animation as it approaches its quiescent state.
+    description: |
+        Use a value between 0 and 1. For a smoother deceleration use values closer to 1.
+        To increase oscillation use value closer to 0.
+    type: Number
     platforms: [iphone, ipad]
+    since: "8.1.0"
 
   - name: delay
     summary: Delay, in milliseconds before starting the animation.
@@ -144,6 +152,17 @@ properties:
   - name: right
     summary: Value of the `right` property at the end of the animation.
     type: Number
+    
+  - name: springVelocity
+    summary: The initial spring velocity.
+    description: |
+        For smooth start to the animation, match this value to the velocity of view as it was prior to attachment.
+        A value of 1 corresponds to the total animation distance traversed in one second. 
+        For example, if the total animation distance is 200 points and you want the start of the 
+        animation to match a view velocity of 100 pt/s, use a value of 0.5.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "8.1.0"
 
   - name: top
     summary: Value of the `top` property at the end of the animation.
@@ -156,7 +175,7 @@ properties:
         specified transform.
 
         3D transforms are only supported on iOS.
-    type: [Titanium.UI.2DMatrix, Titanium.UI.3DMatrix]
+    type: [Titanium.UI.Matrix2D, Titanium.UI.Matrix3D]
 
 
   - name: transition
@@ -231,7 +250,7 @@ examples:
             win.add(box);
 
             box.addEventListener('click', function() {
-              var matrix = Ti.UI.create2DMatrix();
+              var matrix = Ti.UI.createMatrix2D();
               matrix = matrix.rotate(180);
               matrix = matrix.scale(2, 2);
               var a = Ti.UI.createAnimation({
@@ -263,7 +282,7 @@ examples:
             var animationCount = 0;
             var animationTypePointer = 0;
 
-            var t = Ti.UI.create2DMatrix();
+            var t = Ti.UI.createMatrix2D();
             t = t.rotate(90);
 
             // animation properties

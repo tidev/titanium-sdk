@@ -8,7 +8,7 @@
 
 #import "TiDOMAttrProxy.h"
 #import "TiDOMElementProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDOMAttrProxy
 

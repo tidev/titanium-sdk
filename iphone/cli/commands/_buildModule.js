@@ -28,7 +28,6 @@ const appc = require('node-appc'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	temp = require('temp'),
 	util = require('util'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__,
 	series = appc.async.series;
 
@@ -46,8 +45,10 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.manifest      = cli.manifest;
 	this.moduleId      = cli.manifest.moduleid;
 	this.moduleName    = cli.manifest.name;
+	this.moduleIdAsIdentifier = this.scrubbedModuleId();
 	this.moduleVersion = cli.manifest.version;
 	this.moduleGuid    = cli.manifest.guid;
+	this.isFramework   = fs.existsSync(path.join(this.projectDir, 'Info.plist')); // TODO: There MUST be a better way to determine if it's a framework (Swift)
 
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
@@ -153,7 +154,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 	this.distDir = path.join(this.projectDir, 'dist');
 	this.templatesDir = path.join(this.platformPath, 'templates');
-	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'ios', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
+	this.assetsTemplateFile = path.join(this.templatesDir, 'module', this.isFramework ? 'swift' : 'objc', 'template', 'ios', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
 
 	[ 'assets', 'documentation', 'example', 'platform', 'Resources' ].forEach(function (folder) {
@@ -183,6 +184,7 @@ iOSModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', this.platformPath.cyan));
 	this.logger.info(__('Project directory: %s', this.projectDir.cyan));
 	this.logger.info(__('Module ID: %s', this.moduleId.cyan));
+	this.logger.info(__('Module Type: ' + (this.isFramework ? 'Framework (Swift)' : 'Static Library (Objective-C)')));
 };
 
 iOSModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
@@ -207,7 +209,15 @@ iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) 
 		bindingReg = /\$\(([^$]+)\)/g;
 
 	if (fs.existsSync(this.tiXcconfigFile)) {
-		fs.readFileSync(this.tiXcconfigFile).toString().split('\n').forEach(function (line) {
+		const contents = fs.readFileSync(this.tiXcconfigFile).toString();
+		// with move to 8.0.0, we needed to add FRAMEWORK_SEARCH_PATHS to titanium.xcconfig
+		if (!contents.includes('FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"')) {
+			this.logger.warn(`Build may fail due to missing FRAMEWORK_SEARCH_PATHS value in ${this.tiXcconfigFile.cyan}
+Please append the following line to that file:
+
+FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"`);
+		}
+		contents.split('\n').forEach(function (line) {
 			const match = line.match(re);
 			if (match) {
 				const keyList = [];
@@ -320,7 +330,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				return cb();
 			}
 
-			fs.existsSync(this.assetsDir) || wrench.mkdirSyncRecursive(this.assetsDir);
+			fs.ensureDirSync(this.assetsDir);
 
 			titaniumPrepHook(
 				path.join(this.platformPath, 'titanium_prep'),
@@ -369,7 +379,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				moduleAssetsFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier + 'ModuleAssets.m');
 
 			this.logger.debug(__('Writing module assets file: %s', moduleAssetsFile.cyan));
-			fs.existsSync(moduleAssetsDir) || wrench.mkdirSyncRecursive(moduleAssetsDir);
+			fs.ensureDirSync(moduleAssetsDir);
 			fs.writeFileSync(moduleAssetsFile, data);
 			cb();
 		},
@@ -446,35 +456,44 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 		}.bind(this));
 	}.bind(this));
 
-	let count = 0;
-	function done() {
-		if (++count === 2) {
-			next();
+	const xcBuild = this.xcodeEnv.executables.xcodebuild;
+
+	const xcodeBuildArgumentsForTarget = function (target) {
+		let args = [
+			'-configuration', 'Release',
+			'-sdk', target,
+			'-UseNewBuildSystem=NO',
+			'ONLY_ACTIVE_ARCH=NO',
+			'clean', 'build'
+		];
+
+		if (this.isFramework) {
+			args.push('-scheme');
+			args.push(this.moduleIdAsIdentifier);
+			args.push('CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'Release-' + target));
 		}
-	}
 
-	// Create a build for the device
-	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
-		'-configuration', 'Release',
-		'-sdk', 'iphoneos',
-		'-UseNewBuildSystem=NO',
-	], opts, 'xcode-dist', done);
+		return args;
+	}.bind(this);
 
-	// Create a build for the simulator
-	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
-		'-configuration', 'Release',
-		'-sdk', 'iphonesimulator',
-		'-UseNewBuildSystem=NO',
-	], opts, 'xcode-sim', done);
+	// 1. Create a build for the simulator
+	xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphonesimulator'), opts, 'xcode-sim', () => {
+		// 2. Create a build for the device
+		xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphoneos'), opts, 'xcode-dist', next);
+	});
 };
 
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
+	this.logger.info(__('Creating universal library'));
+
+	const moduleId = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a';
 	const findLib = function (dest) {
-		let lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleId + '.a');
+		let lib = path.join(this.projectDir, 'build', 'Release-' + dest, moduleId);
 		if (!fs.existsSync(lib)) {
 			// unfortunately the initial module project template incorrectly
 			// used the camel-cased module id
 			lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleIdAsIdentifier + '.a');
+			this.logger.debug('Searching library: ' + lib);
 			if (!fs.existsSync(lib)) {
 				return new Error(__('Unable to find the built %s library', 'Release-' + dest));
 			}
@@ -497,28 +516,66 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 	}
 	args.push(lib);
 
-	args.push(
-		'-create',
-		'-output',
-		path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a')
-	);
+	// Frameworks are handled differently. Based on https://gist.github.com/cromandini/1a9c4aeab27ca84f5d79
+	if (this.isFramework) {
+		const simFramework = args[1];
+		const deviceFramework = args[0];
+		const basename = path.basename(simFramework); // Same for sim and dist
+		const universalFrameworkDir = path.join(this.projectDir, 'build', 'universal');
+		const universalFrameworkFile = path.join(universalFrameworkDir, basename);
+		const swiftModulesDir = path.join(this.projectDir, 'build', 'Release-iphonesimulator', basename, 'Modules', this.moduleIdAsIdentifier + '.swiftmodule');
 
-	this.logger.info(__('Creating universal library'));
-	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
-
-	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
-		if (code) {
-			this.logger.error(__('Failed to generate universal binary (code %s):', code));
-			this.logger.error(err.trim() + '\n');
-			process.exit(1);
+		// Create universal framework directory, e.g. <module-project>/build/universal
+		fs.emptyDirSync(universalFrameworkDir);
+		fs.copySync(deviceFramework, universalFrameworkFile); // Copy device framework to universal dir
+		// If exists, copy .swiftmodule directory to <module-project>/build/universal/<module-name>.framework/Modules/<module-name>.swiftmodule/
+		if (fs.existsSync(swiftModulesDir)) {
+			fs.copySync(swiftModulesDir, path.join(universalFrameworkFile, 'Modules', path.basename(swiftModulesDir)));
 		}
 
-		next();
-	}.bind(this));
+		// Append executive name, e.g. <module-name>.framework/<module-name>
+		// FIXME: Use less hacky approach here
+		args[0] += '/' + this.moduleIdAsIdentifier;
+		args[1] += '/' + this.moduleIdAsIdentifier;
+
+		// Prepare lipo build
+		args.push(
+			'-create',
+			'-output',
+			path.join(universalFrameworkFile, this.moduleIdAsIdentifier)
+		);
+
+		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to generate universal framework (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
+			}
+			fs.copySync(universalFrameworkFile, path.join(this.projectDir, 'build', basename));
+			fs.removeSync(universalFrameworkDir);
+			next();
+		}.bind(this));
+	} else {
+		args.push(
+			'-create',
+			'-output',
+			path.join(this.projectDir, 'build', moduleId)
+		);
+		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to generate universal binary (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
+			}
+			next();
+		}.bind(this));
+	}
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
-	const args = [ '-info', path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a') ];
+	const args = [ '-info', path.join(this.projectDir, 'build', this.isFramework ? this.moduleIdAsIdentifier + '.framework/' + this.moduleIdAsIdentifier : 'lib' + this.moduleId + '.a') ];
 
 	this.logger.info(__('Verifying universal library'));
 	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
@@ -560,7 +617,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		moduleZipName = [ moduleId, '-iphone-', version, '.zip' ].join(''),
 		moduleZipFullPath = path.join(this.distDir, moduleZipName),
 		moduleFolders = path.join('modules', 'iphone', moduleId, version),
-		binarylibName = 'lib' + moduleId + '.a',
+		binarylibName = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + moduleId + '.a',
 		binarylibFile = path.join(this.projectDir, 'build', binarylibName);
 
 	this.moduleZipPath = moduleZipFullPath;
@@ -568,22 +625,22 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 	// since the archiver library didn't set max listeners, we squelch all error output
 	console.error = function () {};
 
-	try {
-		// if the zip file is there, remove it
-		fs.ensureDirSync(this.distDir);
-		fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
-		const zipStream = fs.createWriteStream(moduleZipFullPath);
-		zipStream.on('close', function () {
-			console.error = origConsoleError;
-			next();
-		});
-		dest.catchEarlyExitAttached = true; // silence exceptions
-		dest.pipe(zipStream);
+	// if the zip file is there, remove it
+	fs.ensureDirSync(this.distDir);
+	fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
+	const zipStream = fs.createWriteStream(moduleZipFullPath);
+	zipStream.on('close', function () {
+		console.error = origConsoleError;
+		next();
+	});
+	dest.catchEarlyExitAttached = true; // silence exceptions
+	dest.pipe(zipStream);
 
-		this.logger.info(__('Creating module zip'));
+	this.logger.info(__('Creating module zip'));
 
-		// 1. documentation folder
-		const mdRegExp = /\.md$/;
+	// 1. documentation folder
+	const mdRegExp = /\.md$/;
+	if (fs.existsSync(this.documentationDir)) {
 		(function walk(dir, parent) {
 			if (!fs.existsSync(dir)) {
 				return;
@@ -608,84 +665,92 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 				dest.append(contents, { name: path.join(parent, name) });
 			});
 		}(this.documentationDir, path.join(moduleFolders, 'documentation')));
-
-		// 2. example folder
-		this.dirWalker(this.exampleDir, function (file) {
-			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
-		}.bind(this));
-
-		// 3. platform folder
-		if (fs.existsSync(this.platformDir)) {
-			this.dirWalker(this.platformDir, function (file, name) {
-				var stat = fs.statSync(file);
-				if (name !== 'README.md') {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
-				}
-			}.bind(this));
-		}
-
-		// 4. hooks folder
-		const hookFiles = {};
-		if (fs.existsSync(this.hooksDir)) {
-			this.dirWalker(this.hooksDir, function (file) {
-				const relFile = path.relative(this.hooksDir, file);
-				hookFiles[relFile] = 1;
-				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
-			}.bind(this));
-		}
-		if (fs.existsSync(this.sharedHooksDir)) {
-			this.dirWalker(this.sharedHooksDir, function (file) {
-				var relFile = path.relative(this.sharedHooksDir, file);
-				if (!hookFiles[relFile]) {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
-				}
-			}.bind(this));
-		}
-
-		// 5. Resources folder
-		if (fs.existsSync(this.resourcesDir)) {
-			this.dirWalker(this.resourcesDir, function (file, name) {
-				if (name !== 'README.md') {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'Resources', path.relative(this.resourcesDir, file)) });
-				}
-			}.bind(this));
-		}
-
-		// 6. assets folder, not including js files
-		if (fs.existsSync(this.assetsDir)) {
-			this.dirWalker(this.assetsDir, function (file) {
-				if (path.extname(file) !== '.js') {
-					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
-				}
-			}.bind(this));
-		}
-
-		// 7. the merge *.a file
-		// 8. LICENSE file
-		// 9. manifest
-		dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
-		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
-		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders, 'manifest') });
-
-		// 10. module.xcconfig
-		if (fs.existsSync(this.moduleXcconfigFile)) {
-			let contents = fs.readFileSync(this.moduleXcconfigFile).toString();
-
-			contents = '// This flag is generated by the module build, do not change it.\nTI_MODULE_VERSION=' + this.moduleVersion + '\n\n' + contents;
-
-			dest.append(contents, { name: path.join(moduleFolders, 'module.xcconfig') });
-		}
-
-		// 11. metadata.json
-		dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolders, 'metadata.json') });
-
-		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
-		dest.finalize();
-	} catch (ex) {
-		throw ex;
-	} finally {
-		console.error = origConsoleError;
 	}
+
+	// 2. example folder
+	this.dirWalker(this.exampleDir, function (file) {
+		dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
+	}.bind(this));
+
+	// 3. platform folder
+	if (fs.existsSync(this.platformDir)) {
+		this.dirWalker(this.platformDir, function (file, name) {
+			var stat = fs.statSync(file);
+			if (name !== 'README.md') {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
+			}
+		}.bind(this));
+	}
+
+	// 4. hooks folder
+	const hookFiles = {};
+	if (fs.existsSync(this.hooksDir)) {
+		this.dirWalker(this.hooksDir, function (file) {
+			const relFile = path.relative(this.hooksDir, file);
+			hookFiles[relFile] = 1;
+			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+		}.bind(this));
+	}
+	if (fs.existsSync(this.sharedHooksDir)) {
+		this.dirWalker(this.sharedHooksDir, function (file) {
+			var relFile = path.relative(this.sharedHooksDir, file);
+			if (!hookFiles[relFile]) {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+			}
+		}.bind(this));
+	}
+
+	// 5. Resources folder
+	if (fs.existsSync(this.resourcesDir)) {
+		this.dirWalker(this.resourcesDir, function (file, name) {
+			if (name !== 'README.md') {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'Resources', path.relative(this.resourcesDir, file)) });
+			}
+		}.bind(this));
+	}
+
+	// 6. assets folder, not including js files
+	if (fs.existsSync(this.assetsDir)) {
+		this.dirWalker(this.assetsDir, function (file) {
+			if (path.extname(file) !== '.js') {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
+			}
+		}.bind(this));
+	}
+
+	// 7. Append the framework/library file
+	// If it is a (Swift) framework, we handle it as a directory (which it acttually is)
+	if (this.isFramework) {
+		this.dirWalker(binarylibFile, function (file) {
+			var stat = fs.statSync(file);
+			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, binarylibName, path.relative(binarylibFile, file)), mode: stat.mode });
+		});
+	} else {
+		dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
+	}
+
+	// 8. LICENSE file
+	dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
+
+	// 9. manifest
+	dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders, 'manifest') });
+
+	// 10. module.xcconfig
+	if (fs.existsSync(this.moduleXcconfigFile)) {
+		let contents = fs.readFileSync(this.moduleXcconfigFile).toString();
+
+		contents = '// This flag is generated by the module build, do not change it.\nTI_MODULE_VERSION=' + this.moduleVersion + '\n\n' + contents;
+
+		dest.append(contents, { name: path.join(moduleFolders, 'module.xcconfig') });
+	}
+
+	// 11. metadata.json
+	dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolders, 'metadata.json') });
+
+	this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
+	dest.finalize();
+
+	console.error = origConsoleError;
 };
 
 iOSModuleBuilder.prototype.runModule = function runModule(next) {
@@ -725,7 +790,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 	series(this, [
 		function (cb) {
 			// 1. create temp dir
-			wrench.mkdirSyncRecursive(tmpDir);
+			fs.ensureDirSync(tmpDir);
 
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
@@ -788,6 +853,12 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			);
 		}
 	], next);
+};
+
+iOSModuleBuilder.prototype.scrubbedModuleId = function () {
+	return this.moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
+		return s.substring(0, 1).toUpperCase() + s.substring(1);
+	}).join('');
 };
 
 // create the builder instance and expose the public api

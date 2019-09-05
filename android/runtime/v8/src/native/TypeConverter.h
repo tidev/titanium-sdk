@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,8 @@
 #include <map>
 #include <jni.h>
 #include <v8.h>
+
+#define MAX_STACK 10
 
 namespace titanium {
 class TypeConverter
@@ -89,10 +91,12 @@ public:
 
 	// string convert methods
 	static jstring jsStringToJavaString(v8::Local<v8::String> jsString);
+	static jstring jsStringToJavaString(v8::Isolate* isolate, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, jstring javaString);
 
 	static jstring jsStringToJavaString(JNIEnv *env, v8::Local<v8::String> jsString);
+	static jstring jsStringToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, JNIEnv *env, jstring javaString);
 
@@ -159,6 +163,9 @@ public:
 	static jdoubleArray jsArrayToJavaDoubleArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jdoubleArray javaDoubleArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jobjectArray javaObjectArray);
+
+	static v8::Local<v8::Object> javaThrowableToJSError(v8::Isolate* isolate, jthrowable javaException);
+	static v8::Local<v8::Object> javaThrowableToJSError(v8::Isolate* isolate, JNIEnv *env, jthrowable javaException);
 
 	// object convert methods
 	static inline jobject jsValueToJavaObject(v8::Isolate* isolate, v8::Local<v8::Value> jsValue) {

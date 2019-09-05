@@ -9,9 +9,9 @@
 
 #ifdef USE_TI_NETWORK
 
-#import "TiProxy.h"
 #import <Foundation/Foundation.h>
 #import <Foundation/NSNetServices.h>
+#import <TitaniumKit/TiProxy.h>
 
 // NSNetServiceBrowser delegate
 @interface TiNetworkBonjourBrowserProxy : TiProxy <NSNetServiceBrowserDelegate> {

@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -41,6 +42,7 @@ import android.app.Activity;
 // clang-format on
 public class LabelProxy extends TiViewProxy
 {
+	private static final String TAG = "LabelProxy";
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -48,7 +50,6 @@ public class LabelProxy extends TiViewProxy
 	{
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
 		defaultValues.put(TiC.PROPERTY_ELLIPSIZE, UIModule.TEXT_ELLIPSIZE_TRUNCATE_END);
-		defaultValues.put(TiC.PROPERTY_WORD_WRAP, true);
 		defaultValues.put(TiC.PROPERTY_SHADOW_RADIUS, 1f);
 	}
 
@@ -64,6 +65,45 @@ public class LabelProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUILabel(this);
+	}
+
+	@Override
+	public void handleCreationDict(KrollDict properties)
+	{
+		// Validate argument.
+		if (properties == null) {
+			return;
+		}
+
+		// Let the base class handle it first. Will localize given properties if needed.
+		super.handleCreationDict(properties);
+
+		// Handle deprecated "wordWrap" property.
+		// Note: Not suported on iOS either. Is supported on Windows.
+		if (properties.containsKey(TiC.PROPERTY_WORD_WRAP)) {
+			logWordWrapWarning();
+		} else {
+			setProperty(TiC.PROPERTY_WORD_WRAP, true);
+		}
+	}
+
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		// Let the base class handle it first. Will localize property value if needed.
+		super.onPropertyChanged(name, value);
+
+		// Handle property change.
+		if (TiC.PROPERTY_WORD_WRAP.equals(name)) {
+			logWordWrapWarning();
+		}
+	}
+
+	private void logWordWrapWarning()
+	{
+		String message = "Ti.UI.Label property '" + TiC.PROPERTY_WORD_WRAP + "' is deprecated. "
+						 + "If setting false, then set '" + TiC.PROPERTY_MAX_LINES + "' to 1 instead.";
+		Log.w(TAG, message);
 	}
 
 	@Override

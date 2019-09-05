@@ -8,8 +8,8 @@
 
 #import "TiUIScrollView.h"
 #import "TiUIScrollViewProxy.h"
-#import "TiUtils.h"
-#import "TiWindowProxy.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiWindowProxy.h>
 
 @implementation TiUIScrollViewImpl
 
@@ -139,7 +139,7 @@
     [self addSubview:scrollView];
 #endif
   }
-  if ([TiUtils isIOS11OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     [self adjustScrollViewInsets];
   }
   return scrollView;
@@ -147,7 +147,7 @@
 
 - (void)adjustScrollViewInsets
 {
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   id viewProxy = self.proxy;
   while (viewProxy && ![viewProxy isKindOfClass:[TiWindowProxy class]]) {
     viewProxy = [viewProxy parent];
@@ -316,7 +316,7 @@
 - (void)scrollToBottom
 {
   /*
-     * Calculate the bottom height & width and, sets the offset from the 
+     * Calculate the bottom height & width and, sets the offset from the
      * content view’s origin that corresponds to the receiver’s origin.
      */
   UIScrollView *currScrollView = [self scrollView];

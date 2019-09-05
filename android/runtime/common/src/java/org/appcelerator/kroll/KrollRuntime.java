@@ -7,6 +7,7 @@
 package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -39,16 +40,19 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_DISPOSE = 101;
 	private static final int MSG_RUN_MODULE = 102;
 	private static final int MSG_EVAL_STRING = 103;
-
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
 
+	public interface OnDisposingListener {
+		void onDisposing(KrollRuntime runtime);
+	}
+
 	private static KrollRuntime instance;
+	private static ArrayList<OnDisposingListener> disposingListeners = new ArrayList<>();
 	private static int activityRefCount = 0;
 	private static int serviceReceiverRefCount = 0;
 
 	private WeakReference<KrollApplication> krollApplication;
-	private KrollRuntimeThread thread;
 	private long threadId;
 	private CountDownLatch initLatch = new CountDownLatch(1);
 	private KrollEvaluator evaluator;
@@ -73,80 +77,36 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024;
 	public static final String SOURCE_ANONYMOUS = "<anonymous>";
 
-	public static class KrollRuntimeThread extends Thread
-	{
-		private static final String TAG = "KrollRuntimeThread";
-
-		private KrollRuntime runtime = null;
-		private boolean runOnMain;
-
-		public KrollRuntimeThread(KrollRuntime runtime, int stackSize, boolean onMainThread)
-		{
-			super(null, null, TAG, stackSize);
-			this.runtime = runtime;
-			this.runOnMain = onMainThread;
-		}
-
-		public void run()
-		{
-			Looper looper;
-			if (runOnMain) {
-				looper = Looper.getMainLooper();
-			} else {
-				Looper.prepare();
-				synchronized (this)
-				{
-					looper = Looper.myLooper();
-					notifyAll();
-				}
-			}
-
-			// initialize the runtime instance
-			runtime.threadId = looper.getThread().getId();
-			runtime.handler = new Handler(looper, runtime);
-
-			// initialize the TiMessenger instance for the runtime thread
-			// NOTE: this must occur after threadId is set and before initRuntime() is called
-			TiMessenger.getMessenger();
-
-			// initialize the runtime
-			runtime.doInit();
-
-			if (!runOnMain) {
-				// start handling messages for this thread
-				Looper.loop();
-			}
-		}
-	}
-
 	public static void init(Context context, KrollRuntime runtime)
 	{
+		// Initialize asset helper, if not done already.
 		KrollAssetHelper.init(context);
-		// Initialized the runtime if it isn't already initialized
-		if (runtimeState != State.INITIALIZED) {
-			boolean onMainThread = runtime.runOnMainThread(context);
-			int stackSize = runtime.getThreadStackSize(context);
-			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
-			runtime.thread = new KrollRuntimeThread(runtime, stackSize, onMainThread);
-			runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
 
-			instance = runtime; // make sure this is set before the runtime thread is started
-			if (onMainThread) {
-				runtime.thread.run();
-			} else {
-				runtime.thread.start();
-			}
+		// Do not continue if already initialized.
+		if (runtimeState == State.INITIALIZED) {
+			return;
 		}
-	}
 
-	private boolean runOnMainThread(Context context)
-	{
-		if (context instanceof KrollApplication) {
-			KrollApplication ka = (KrollApplication) context;
-			ka.loadAppProperties();
-			return ka.runOnMainThread();
-		}
-		return KrollApplication.DEFAULT_RUN_ON_MAIN_THREAD;
+		// Keep a reference to the given runtime.
+		// Must be done before calling doInit() below.
+		instance = runtime;
+
+		// Load all application properties.
+		((KrollApplication) context).loadAppProperties();
+
+		// Set up runtime member variables.
+		Looper looper = Looper.getMainLooper();
+		runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
+		runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
+		runtime.threadId = looper.getThread().getId();
+		runtime.handler = new Handler(looper, runtime);
+
+		// Initialize the TiMessenger instance for the current thread.
+		// NOTE: This must occur after "threadId" is set and before doInit() is called.
+		TiMessenger.getMessenger();
+
+		// Initialize the given runtime.
+		runtime.doInit();
 	}
 
 	public static KrollRuntime getInstance()
@@ -373,30 +333,43 @@ public abstract class KrollRuntime implements Handler.Callback
 		waitForInit();
 	}
 
-	// The runtime instance keeps an internal reference count of all Titanium activities
-	// and all Titanium services that have been opened/started by the application.
-	// When the ref counts for both of them drop to 0, then we know there is nothing left
-	// to execute on the runtime, and we can therefore dispose of it.
+	/**
+	 * This method is expected to be called for every Titanium activity that has been created.
+	 * This will startup the JavaScript runtime when the activity count is 1 (the first activity created).
+	 * <p>
+	 * You must call the decrementActivityRefCount() when the Titanium activity is being destroyed.
+	 */
 	public static void incrementActivityRefCount()
 	{
 		waitForInit();
 
+		// Increment the activity count.
 		activityRefCount++;
-		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
+
+		// If this is the 1st activity, then start up the runtime, if not done already.
+		if ((activityRefCount == 1) && (instance != null)) {
 			syncInit();
 		}
 	}
 
 	public static void decrementActivityRefCount(boolean willDisposeRuntime)
 	{
-		activityRefCount--;
-		if (!willDisposeRuntime) {
-			return;
-		}
-		if ((activityRefCount + serviceReceiverRefCount) > 0 || instance == null) {
+		// Validate.
+		if (activityRefCount <= 0) {
+			Log.e(TAG, "The decrementActivityRefCount() method was called while count is zero.");
 			return;
 		}
 
+		// Decrement the activity count.
+		activityRefCount--;
+
+		// Terminate the runtime if activity count is zero.
+		if (!willDisposeRuntime) {
+			return;
+		}
+		if ((activityRefCount > 0) || (instance == null)) {
+			return;
+		}
 		instance.dispose();
 	}
 
@@ -408,22 +381,16 @@ public abstract class KrollRuntime implements Handler.Callback
 	// Similar to {@link #incrementActivityRefCount} but for a Titanium Service.
 	public static void incrementServiceReceiverRefCount()
 	{
-		waitForInit();
-
 		serviceReceiverRefCount++;
-		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
-			syncInit();
-		}
 	}
 
 	public static void decrementServiceReceiverRefCount()
 	{
-		serviceReceiverRefCount--;
-		if ((activityRefCount + serviceReceiverRefCount) > 0 || instance == null) {
-			return;
+		if (serviceReceiverRefCount > 0) {
+			serviceReceiverRefCount--;
+		} else {
+			Log.e(TAG, "The decrementServiceReceiverRefCount() method was called while count is zero.");
 		}
-
-		instance.dispose();
 	}
 
 	public static int getServiceReceiverRefCount()
@@ -448,8 +415,13 @@ public abstract class KrollRuntime implements Handler.Callback
 			runtimeState = State.DISPOSED;
 		}
 
+		// Invoke all OnDisposingListener objects before disposing this runtime.
+		onDisposing(this);
+
+		// Dispose/terminate the runtime.
 		doDispose();
 
+		// Request the application to dispose its native resources.
 		KrollApplication app = krollApplication.get();
 		if (app != null) {
 			app.dispose();
@@ -523,21 +495,73 @@ public abstract class KrollRuntime implements Handler.Callback
 	{
 		if (instance != null) {
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
-			KrollExceptionHandler currentHandler;
 			ExceptionMessage exceptionMessage =
 				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, javaStack);
 
 			if (!handlers.isEmpty()) {
-				for (String key : handlers.keySet()) {
-					currentHandler = handlers.get(key);
-					if (currentHandler != null) {
-						currentHandler.handleException(exceptionMessage);
+				for (KrollExceptionHandler handler : handlers.values()) {
+					if (handler != null) {
+						handler.handleException(exceptionMessage);
 					}
 				}
+				return;
 			}
 
 			// Handle exception with defaultExceptionHandler
 			instance.primaryExceptionHandler.handleException(exceptionMessage);
+		}
+	}
+
+	/**
+	 * Adds a listener to be invoked just before a Titanium JavaScript runtime instance has been terminated.
+	 * <p>
+	 * You cannot add the same listener instance twice. Duplicate listener instances will be ignored.
+	 * @param listener The listener to be added. Null references will be ignored.
+	 */
+	public static void addOnDisposingListener(KrollRuntime.OnDisposingListener listener)
+	{
+		if ((listener != null) && (disposingListeners.contains(listener) == false)) {
+			disposingListeners.add(listener);
+		}
+	}
+
+	/**
+	 * Removes the given listener by reference that was added via the addOnDisposingListener() method.
+	 * @param listener The listener to be removed by reference. Can be null.
+	 */
+	public static void removeOnDisposingListener(KrollRuntime.OnDisposingListener listener)
+	{
+		if (listener != null) {
+			disposingListeners.remove(listener);
+		}
+	}
+
+	/**
+	 * This method is intended to be called just before the given runtime's doDispose() method has been called.
+	 * Invokes all "OnDisposingListener" objects, allowing them to perform final cleanup operations.
+	 * @param runtime The runtime instance that is about to be disposed of. Can be null.
+	 */
+	private static void onDisposing(KrollRuntime runtime)
+	{
+		// Validate.
+		if (runtime == null) {
+			return;
+		}
+
+		// Create a shallow copy of all listeners to be iterated down below.
+		// We do this because an invoked listener can add/remove listeners in main collection.
+		ArrayList<OnDisposingListener> clonedListeners =
+			(ArrayList<OnDisposingListener>) KrollRuntime.disposingListeners.clone();
+		if (clonedListeners == null) {
+			return;
+		}
+
+		// Notify all listeners.
+		for (OnDisposingListener listener : clonedListeners) {
+			if (KrollRuntime.disposingListeners.contains(listener)) {
+				// Previous listener did not remove this listener. Invoke it.
+				listener.onDisposing(runtime);
+			}
 		}
 	}
 

@@ -85,7 +85,7 @@ void JSDebugger::sendCommand(JNIEnv *env, jstring command)
 
 	v8::Local<v8::Value> stringValue = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, command);
 	v8::Local<v8::String> message = stringValue.As<v8::String>();
-	v8::String::Value buffer(message);
+	v8::String::Value buffer(V8Runtime::v8_isolate, message);
 	v8_inspector::StringView message_view(*buffer, buffer.length());
 	client__->sendMessage(message_view);
 
@@ -121,7 +121,7 @@ void JSDebugger::receive(v8::Local<v8::String> message)
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	ASSERT(env != NULL);
 
-	jstring s = TypeConverter::jsStringToJavaString(env, message);
+	jstring s = TypeConverter::jsStringToJavaString(V8Runtime::v8_isolate, env, message);
 	env->CallVoidMethod(debugger__, handleMessage__, s);
 	env->DeleteLocalRef(s);
 }

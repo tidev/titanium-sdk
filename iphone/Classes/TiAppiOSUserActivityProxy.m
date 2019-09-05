@@ -7,7 +7,7 @@
 
 #import "TiAppiOSUserActivityProxy.h"
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
 
@@ -88,42 +88,43 @@
   }
 
   if ([props objectForKey:@"webpageURL"]) {
-    [_userActivity setWebpageURL:[NSURL URLWithString:[[TiUtils stringValue:@"webpageURL" properties:props] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+    NSString *webpageURLProxyString = [TiUtils stringValue:@"webpageURL" properties:props];
+    NSString *webpageURLString = [webpageURLProxyString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+
+    [_userActivity setWebpageURL:[NSURL URLWithString:webpageURLString]];
   }
 
   if ([props objectForKey:@"needsSave"]) {
     [_userActivity setNeedsSave:[TiUtils boolValue:@"needsSave" properties:props]];
   }
 
-  if ([TiUtils isIOS9OrGreater]) {
-    if ([props objectForKey:@"eligibleForPublicIndexing"]) {
-      [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:@"eligibleForPublicIndexing" properties:props]];
-    }
-
-    if ([props objectForKey:@"eligibleForSearch"]) {
-      [_userActivity setEligibleForSearch:[TiUtils boolValue:@"eligibleForSearch" properties:props]];
-    }
-
-    if ([props objectForKey:@"eligibleForHandoff"]) {
-      [_userActivity setEligibleForHandoff:[TiUtils boolValue:@"eligibleForHandoff" properties:props]];
-    }
-
-    if ([props objectForKey:@"expirationDate"]) {
-      [_userActivity setExpirationDate:[TiUtils dateForUTCDate:
-                                                    [TiUtils stringValue:@"expirationDate"
-                                                              properties:props]]];
-    }
-
-    if ([props objectForKey:@"keywords"]) {
-      [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keywords"]]];
-    }
-
-    if ([props objectForKey:@"requiredUserInfoKeys"]) {
-      [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
-    }
+  if ([props objectForKey:@"eligibleForPublicIndexing"]) {
+    [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:@"eligibleForPublicIndexing" properties:props]];
   }
 
-#if IS_XCODE_10
+  if ([props objectForKey:@"eligibleForSearch"]) {
+    [_userActivity setEligibleForSearch:[TiUtils boolValue:@"eligibleForSearch" properties:props]];
+  }
+
+  if ([props objectForKey:@"eligibleForHandoff"]) {
+    [_userActivity setEligibleForHandoff:[TiUtils boolValue:@"eligibleForHandoff" properties:props]];
+  }
+
+  if ([props objectForKey:@"expirationDate"]) {
+    [_userActivity setExpirationDate:[TiUtils dateForUTCDate:
+                                                  [TiUtils stringValue:@"expirationDate"
+                                                            properties:props]]];
+  }
+
+  if ([props objectForKey:@"keywords"]) {
+    [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keywords"]]];
+  }
+
+  if ([props objectForKey:@"requiredUserInfoKeys"]) {
+    [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
+  }
+
+#if IS_SDK_IOS_12
   if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
     if ([props objectForKey:@"eligibleForPrediction"]) {
       [_userActivity setEligibleForPrediction:[TiUtils boolValue:@"eligibleForPrediction" properties:props]];
@@ -273,8 +274,8 @@
   ENSURE_SINGLE_ARG(value, NSString);
   ENSURE_UI_THREAD(setWebpageURL, value);
 
-  [_userActivity setWebpageURL:
-                     [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+  NSURL *webpageURL = [NSURL URLWithString:[value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
+  [_userActivity setWebpageURL:webpageURL];
 }
 
 - (NSNumber *)needsSave
@@ -308,20 +309,14 @@
 #if defined(USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET)
   ENSURE_SINGLE_ARG(contentAttributeSet, TiAppiOSSearchableItemAttributeSetProxy);
   ENSURE_UI_THREAD(addContentAttributeSet, contentAttributeSet);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
   _userActivity.contentAttributeSet = ((TiAppiOSSearchableItemAttributeSetProxy *)contentAttributeSet).attributes;
 #endif
 }
 
 #pragma mark iOS 9 UserActivity Methods
+
 - (NSNumber *)eligibleForPublicIndexing
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return NUMBOOL(NO);
-  }
-
   return NUMBOOL(_userActivity.eligibleForPublicIndexing);
 }
 
@@ -329,18 +324,12 @@
 {
   ENSURE_SINGLE_ARG(value, NSNumber);
   ENSURE_UI_THREAD(setEligibleForPublicIndexing, value);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
+
   [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:value]];
 }
 
 - (NSNumber *)eligibleForSearch
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return NUMBOOL(NO);
-  }
-
   return NUMBOOL(_userActivity.eligibleForSearch);
 }
 
@@ -348,17 +337,12 @@
 {
   ENSURE_SINGLE_ARG(value, NSNumber);
   ENSURE_UI_THREAD(setEligibleForSearch, value);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
+
   [_userActivity setEligibleForSearch:[TiUtils boolValue:value]];
 }
 
 - (NSNumber *)eligibleForHandoff
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return NUMBOOL(NO);
-  }
   return NUMBOOL(_userActivity.eligibleForHandoff);
 }
 
@@ -366,15 +350,13 @@
 {
   ENSURE_SINGLE_ARG(value, NSNumber);
   ENSURE_UI_THREAD(setEligibleForHandoff, value);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
+
   [_userActivity setEligibleForHandoff:[TiUtils boolValue:value]];
 }
 
 - (NSString *)expirationDate
 {
-  if (![TiUtils isIOS9OrGreater] || _userActivity.expirationDate == nil) {
+  if (_userActivity.expirationDate == nil) {
     return nil;
   }
 
@@ -385,61 +367,44 @@
 {
   ENSURE_SINGLE_ARG(UTCDateFormat, NSString);
   ENSURE_UI_THREAD(setExpirationDate, UTCDateFormat);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
 
   [_userActivity setExpirationDate:[TiUtils dateForUTCDate:UTCDateFormat]];
 }
 
 - (NSArray *)requiredUserInfoKeys
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
-  NSArray *r = [[_userActivity requiredUserInfoKeys] allObjects];
-  return r;
+  return [[_userActivity requiredUserInfoKeys] allObjects];
 }
 
 - (void)setRequiredUserInfoKeys:(id)keys
 {
   ENSURE_ARRAY(keys);
   ENSURE_UI_THREAD(setRequiredUserInfoKeys, keys);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
+
   [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:keys]];
 }
 
 - (NSArray *)keywords
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
-  NSArray *r = [[_userActivity keywords] allObjects];
-  return r;
+  return [[_userActivity keywords] allObjects];
 }
 
 - (void)setKeywords:(id)keys
 {
   ENSURE_ARRAY(keys);
   ENSURE_UI_THREAD(setKeywords, keys);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
+
   [_userActivity setKeywords:[NSSet setWithArray:keys]];
 }
 
 - (void)resignCurrent:(id)unused
 {
   ENSURE_UI_THREAD(resignCurrent, unused);
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
+
   [_userActivity resignCurrent];
 }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 - (NSNumber *)eligibleForPrediction
 {
   if ([TiUtils isIOSVersionLower:@"12.0"]) {

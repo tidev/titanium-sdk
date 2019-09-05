@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -60,7 +60,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 
 	// call into the JS function with the provided argument
 	TryCatch tryCatch(V8Runtime::v8_isolate);
-	v8::MaybeLocal<v8::Value> object = jsFunction->Call(V8Runtime::v8_isolate->GetCurrentContext(), thisObject, length, jsFunctionArguments);
+	MaybeLocal<Value> object = jsFunction->Call(V8Runtime::v8_isolate->GetCurrentContext(), thisObject, length, jsFunctionArguments);
 
 	// make sure to delete the arguments since the arguments array is built on the heap
 	if (jsFunctionArguments) {
@@ -70,8 +70,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
-		return JNIUtil::undefinedObject;
-	} else if (object.IsEmpty()) {
+	} // if exception, object should be empty handle...so returns undefined
+	if (object.IsEmpty()) {
 		return JNIUtil::undefinedObject;
 	}
 

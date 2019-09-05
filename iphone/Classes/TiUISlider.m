@@ -7,9 +7,9 @@
 #ifdef USE_TI_UISLIDER
 
 #import "TiUISlider.h"
-#import "ImageLoader.h"
 #import "TiUISliderProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUISlider
 

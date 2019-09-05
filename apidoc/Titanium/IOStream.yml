@@ -14,6 +14,10 @@ methods:
   - name: read
     summary: Reads data from this stream into a buffer.
     description: |
+        Takes an optional `resultsCallback` function as the last argument. If specified,
+        the operation is done asynchronously. If no callback is passed in, the
+        operation is done synchronously.
+
         If `offset` and `length` are specified, data is written into the buffer starting at
         position `offset`. Data is read from this stream until one of the following occurs:
 
@@ -24,14 +28,13 @@ methods:
         If `offset` and `length` are omitted, data is written starting at the beginning
         of the buffer.
 
-        Returns the number of bytes read, or -1 if the end of stream was reached before
-        any data was read.
+        When called synchronously: returns the number of bytes read, or -1 if the end of
+        stream was reached before any data was read.
+
+        Returns 0 when called asynchronously.
 
         Throws an exception on error. For example, if the `offset` value is past
         the last byte of `buffer`.
-
-        This method is synchronous. To perform an asynchronous read on an `IOStream`, use
-        <Titanium.Stream.read>.
 
     returns:
         type: Number
@@ -57,9 +60,18 @@ methods:
         optional: true
         default: Length of the supplied buffer.
 
+      - name: resultsCallback
+        summary: Function to call with the results of the read operation.
+        type: Callback<ReadCallbackArgs>
+        optional: true
+
   - name: write
     summary: Writes data from a buffer to this stream.
     description: |
+        Takes an optional `resultsCallback` function as the last argument. If specified,
+        the operation is done asynchronously. If no callback is passed in, the
+        operation is done synchronously.
+
         If `offset` and `length` are specified, data is read from the buffer starting at
         `offset`. Bytes are read from the buffer and written to the stream until:
 
@@ -70,7 +82,9 @@ methods:
         If `offset` and `length` are omitted, all of the data in the buffer is written to
         this stream.
 
-        Returns the number of bytes actually written.
+        Returns the number of bytes actually written when called synchronously.
+
+        Returns 0 when called asynchronously.
 
         Throws an exception if an error is encountered.
     returns:
@@ -96,6 +110,11 @@ methods:
         type: Number
         optional: true
         default: Length of the supplied buffer.
+
+      - name: resultsCallback
+        summary: Function to call with the results of the write operation.
+        type: Callback<WriteCallbackArgs>
+        optional: true
 
   - name: isWritable
     summary: Indicates whether this stream is writable.

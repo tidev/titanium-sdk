@@ -45,7 +45,7 @@
     return;
   }
   protecting = YES;
-  TiValueProtect([[bridge krollContext] context], jsobject);
+  JSValueProtect([[bridge krollContext] context], jsobject);
 }
 
 - (void)unprotectJsobject
@@ -59,45 +59,45 @@
     return;
   }
   protecting = NO;
-  TiValueUnprotect([[bridge krollContext] context], jsobject);
+  JSValueUnprotect([[bridge krollContext] context], jsobject);
 }
 
 - (void)replaceValue:(id)value forKey:(NSString *)key notification:(BOOL)notify
 { /*
-   *  This is to be used ONLY from KrollBridge's require call, due to some
-   *  JS files assigning exports to a function instead of a standard
-   *  JS object.
+   *	This is to be used ONLY from KrollBridge's require call, due to some
+   *	JS files assigning exports to a function instead of a standard
+   *	JS object.
    */
   KrollContext *context = [bridge krollContext];
-  TiValueRef valueRef = [KrollObject toValue:context value:value];
+  JSValueRef valueRef = [KrollObject toValue:context value:value];
 
   /*
    * Properties can only be added to objects
    */
-  if (TiValueIsObject([context context], jsobject)) {
-    TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef)key);
-    TiObjectSetProperty([context context], jsobject, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
-    TiStringRelease(keyRef);
+  if (JSValueIsObject([context context], jsobject)) {
+    JSStringRef keyRef = JSStringCreateWithCFString((CFStringRef)key);
+    JSObjectSetProperty([context context], jsobject, keyRef, valueRef, kJSPropertyAttributeReadOnly, NULL);
+    JSStringRelease(keyRef);
   }
 }
 
-- (TiValueRef)executeWithArguments:(NSArray<id> *)arguments
+- (JSValueRef)executeWithArguments:(NSArray<id> *)arguments
 {
   if (![KrollBridge krollBridgeExists:[self bridge]]) {
     return NULL;
   }
 
-  TiObjectRef value = [self jsobject];
-  TiContextRef context = [self.bridge.krollContext context];
+  JSObjectRef value = [self jsobject];
+  JSContextRef context = [self.bridge.krollContext context];
 
-  TiValueRef callException = NULL;
-  TiValueRef callArgs[arguments.count];
+  JSValueRef callException = NULL;
+  JSValueRef callArgs[arguments.count];
 
   for (NSUInteger i = 0; i < arguments.count; i++) {
     callArgs[i] = [KrollObject toValue:self.bridge.krollContext value:[arguments objectAtIndex:i]];
   }
 
-  TiValueRef functionResult = TiObjectCallAsFunction(context, value, NULL, 1, callArgs, &callException);
+  JSValueRef functionResult = JSObjectCallAsFunction(context, value, NULL, 1, callArgs, &callException);
 
   if (callException != NULL) {
     id exceptionPayload = [KrollObject toID:self.bridge.krollContext value:callException];

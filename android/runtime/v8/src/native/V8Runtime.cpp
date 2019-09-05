@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,6 +23,7 @@
 #include "V8Util.h"
 
 #include "V8Runtime.h"
+#include "V8Snapshots.h"
 
 #define TAG "V8Runtime"
 
@@ -103,11 +104,11 @@ static void krollLog(const FunctionCallbackInfo<Value>& args)
 	Local<String> message = args[1].As<String>();
 	Local<String> space = STRING_NEW(isolate, " ");
 	for (uint32_t i = 2; i < len; ++i) {
-		message = String::Concat(String::Concat(message, space), args[i].As<String>());
+		message = String::Concat(isolate, String::Concat(isolate, message, space), args[i].As<String>());
 	}
 
-	v8::String::Utf8Value tagValue(tag);
-	v8::String::Utf8Value messageValue(message);
+	String::Utf8Value tagValue(isolate, tag);
+	String::Utf8Value messageValue(isolate, message);
 	__android_log_print(ANDROID_LOG_DEBUG, *tagValue, *messageValue);
 }
 
@@ -124,7 +125,7 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	KrollBindings::initFunctions(kroll, context);
 
-	SetMethod(isolate, kroll, "log", krollLog);
+	SetMethod(context, isolate, kroll, "log", krollLog);
 	// Move this into the EventEmitter::initTemplate call?
 	Local<FunctionTemplate> eect = Local<FunctionTemplate>::New(isolate, EventEmitter::constructorTemplate);
 	{
@@ -135,12 +136,12 @@ void V8Runtime::bootstrap(Local<Context> context)
 			titanium::V8Util::fatalException(isolate, tryCatch);
 			return;
 		}
-		kroll->Set(NEW_SYMBOL(isolate, "EventEmitter"), eventEmitterConstructor);
+		kroll->Set(context, NEW_SYMBOL(isolate, "EventEmitter"), eventEmitterConstructor);
 	}
 
-	kroll->Set(NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
-	kroll->Set(NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
-	kroll->Set(NEW_SYMBOL(isolate, "moduleContexts"), mc);
+	kroll->Set(context, NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
+	kroll->Set(context, NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
+	kroll->Set(context, NEW_SYMBOL(isolate, "moduleContexts"), mc);
 
 	LOG_TIMER(TAG, "Executing kroll.js");
 
@@ -160,7 +161,7 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	// Expose the global object as a property on itself
 	// (Allows you to set stuff on `global` from anywhere in JavaScript.)
-	global->Set(NEW_SYMBOL(isolate, "global"), global);
+	global->Set(context, NEW_SYMBOL(isolate, "global"), global);
 
 	// Set the __dirname and __filename for the app.js.
 	// For other files, it will be injected via the `NativeModule` JavaScript class
@@ -180,13 +181,14 @@ void V8Runtime::bootstrap(Local<Context> context)
 static void logV8Exception(Local<Message> msg, Local<Value> data)
 {
 	HandleScope scope(V8Runtime::v8_isolate);
-
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
 	// Log reason and location of the error.
-	LOGD(TAG, *v8::String::Utf8Value(msg->Get()));
+	LOGD(TAG, *String::Utf8Value(V8Runtime::v8_isolate, msg->Get()));
 	LOGD(TAG, "%s @ %d >>> %s",
-		*v8::String::Utf8Value(msg->GetScriptResourceName()),
-		msg->GetLineNumber(),
-		*v8::String::Utf8Value(msg->GetSourceLine()));
+		*String::Utf8Value(V8Runtime::v8_isolate, msg->GetScriptResourceName()),
+		msg->GetLineNumber(context).FromMaybe(-1),
+		*String::Utf8Value(V8Runtime::v8_isolate,
+		msg->GetSourceLine(context).FromMaybe(-1)));
 }
 
 } // namespace titanium
@@ -204,8 +206,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 {
 	if (!V8Runtime::initialized) {
 		// Initialize V8.
-		V8::InitializeICU();
-
 		// TODO Enable this when we use snapshots?
 		//V8::InitializeExternalStartupData(argv[0]);
 		V8Runtime::platform = platform::CreateDefaultPlatform();
@@ -226,6 +226,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// Create a new Isolate and make it the current one.
 		Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = &allocator;
+#ifdef V8_SNAPSHOT_H
+		create_params.snapshot_blob = &snapshot;
+#endif
 		isolate = Isolate::New(create_params);
 		isolate->Enter();
 
@@ -325,16 +328,23 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativ
 	Local<Value> jsFilename = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, filename);
 
 	TryCatch tryCatch(V8Runtime::v8_isolate);
-	Local<Script> script = Script::Compile(jsSource.As<String>(), jsFilename.As<String>());
-	Local<Value> result = script->Run();
-
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+	ScriptOrigin origin(jsFilename);
+	MaybeLocal<Script> maybeScript = Script::Compile(context, jsSource.As<String>(), &origin);
+	if (maybeScript.IsEmpty()) {
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
+		V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
+		return NULL;
+	}
+	Local<Script> script = maybeScript.ToLocalChecked();
+	MaybeLocal<Value> result = script->Run(context);
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
 		return NULL;
 	}
 
-	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, result);
+	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, result.ToLocalChecked());
 }
 
 JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIdle(JNIEnv *env, jobject self)
@@ -410,17 +420,19 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 		// Array and expose it on kroll above in nativeInit, and
 		// module.js will insert module contexts into this array in
 		// Module.prototype._runScript
+		Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
 		uint32_t length = V8Runtime::ModuleContexts()->Length();
 		for (uint32_t i = 0; i < length; ++i) {
-			Local<Value> moduleContext = V8Runtime::ModuleContexts()->Get(i);
+			MaybeLocal<Value> moduleContext = V8Runtime::ModuleContexts()->Get(context, i);
+			if (!moduleContext.IsEmpty()) {
+				// WrappedContext is simply a C++ wrapper for the V8 Context object,
+				// and is used to expose the Context to javascript. See ScriptsModule for
+				// implementation details
+				WrappedContext *wrappedContext = WrappedContext::Unwrap(V8Runtime::v8_isolate, moduleContext.ToLocalChecked().As<Object>());
+				ASSERT(wrappedContext != NULL);
 
-			// WrappedContext is simply a C++ wrapper for the V8 Context object,
-			// and is used to expose the Context to javascript. See ScriptsModule for
-			// implementation details
-			WrappedContext *wrappedContext = WrappedContext::Unwrap(V8Runtime::v8_isolate, moduleContext.As<Object>());
-			ASSERT(wrappedContext != NULL);
-
-			wrappedContext->Dispose();
+				wrappedContext->Dispose();
+			}
 		}
 
 		// KrollBindings

@@ -1702,7 +1702,7 @@ Failed:
 {
   // Call the delegate method for further configuration.
   if ([theDelegate respondsToSelector:@selector(onSocketWillConnect:)]) {
-    if ([theDelegate onSocketWillConnect:self] == NO) {
+    if (![theDelegate onSocketWillConnect:self]) {
       if (errPtr)
         *errPtr = [self getAbortError];
       return NO;
@@ -1960,7 +1960,7 @@ Failed:
 {
   // Call the delegate method for further configuration.
   if ([theDelegate respondsToSelector:@selector(onSocketWillConnect:)]) {
-    if ([theDelegate onSocketWillConnect:self] == NO) {
+    if (![theDelegate onSocketWillConnect:self]) {
       if (errPtr)
         *errPtr = [self getAbortError];
       return NO;
@@ -2478,7 +2478,7 @@ Failed:
 
 - (NSError *)errorFromCFStreamError:(CFStreamError)err
 {
-  if (err.domain == 0 && err.error == 0)
+  if (err.domain == 0 && err.error == noErr)
     return nil;
 
   // Can't use switch; these constants aren't int literals.

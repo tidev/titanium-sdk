@@ -8,8 +8,6 @@ package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -43,8 +41,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -57,44 +53,50 @@ import android.view.ViewAnimationUtils;
 // clang-format off
 @Kroll.proxy(propertyAccessors = {
 	// background properties
-	"backgroundImage",
-	"backgroundRepeat",
-	"backgroundSelectedImage",
-	"backgroundFocusedImage",
-	"backgroundDisabledImage",
-	"backgroundColor",
-	"backgroundSelectedColor",
-	"backgroundFocusedColor",
-	"backgroundDisabledColor",
-	"backgroundPadding",
-	"backgroundGradient",
+	TiC.PROPERTY_BACKGROUND_IMAGE,
+	TiC.PROPERTY_BACKGROUND_REPEAT,
+	TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE,
+	TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE,
+	TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE,
+	TiC.PROPERTY_BACKGROUND_COLOR,
+	TiC.PROPERTY_BACKGROUND_SELECTED_COLOR,
+	TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR,
+	TiC.PROPERTY_BACKGROUND_DISABLED_COLOR,
+	TiC.PROPERTY_BACKGROUND_PADDING,
+	TiC.PROPERTY_BACKGROUND_GRADIENT,
 	// border properties
-	"borderColor", "borderRadius", "borderWidth",
+	TiC.PROPERTY_BORDER_COLOR,
+	TiC.PROPERTY_BORDER_RADIUS,
+	TiC.PROPERTY_BORDER_WIDTH,
 	// layout / dimension (size/width/height have custom accessors)
-	"left", "top", "right", "bottom", "layout", "zIndex",
+	TiC.PROPERTY_LEFT,
+	TiC.PROPERTY_TOP,
+	TiC.PROPERTY_RIGHT,
+	TiC.PROPERTY_BOTTOM,
+	TiC.PROPERTY_LAYOUT,
+	TiC.PROPERTY_ZINDEX,
 	// accessibility
 	TiC.PROPERTY_ACCESSIBILITY_HINT,
 	TiC.PROPERTY_ACCESSIBILITY_LABEL,
 	TiC.PROPERTY_ACCESSIBILITY_VALUE,
 	TiC.PROPERTY_ACCESSIBILITY_HIDDEN,
 	// others
-	"focusable",
-	"touchEnabled",
-	"visible",
-	"enabled",
-	"opacity",
-	"softKeyboardOnFocus",
-	"transform",
-	"elevation",
-	"touchTestId",
-	"translationX",
-	"translationY",
-	"translationZ",
-	"rotation",
-	"rotationX",
-	"rotationY",
-	"scaleX",
-	"scaleY",
+	TiC.PROPERTY_FOCUSABLE,
+	TiC.PROPERTY_TOUCH_ENABLED,
+	TiC.PROPERTY_VISIBLE,
+	TiC.PROPERTY_ENABLED,
+	TiC.PROPERTY_OPACITY,
+	TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS,
+	TiC.PROPERTY_TRANSFORM,
+	TiC.PROPERTY_ELEVATION,
+	TiC.PROPERTY_TRANSLATION_X,
+	TiC.PROPERTY_TRANSLATION_Y,
+	TiC.PROPERTY_TRANSLATION_Z,
+	TiC.PROPERTY_ROTATION,
+	TiC.PROPERTY_ROTATION_X,
+	TiC.PROPERTY_ROTATION_Y,
+	TiC.PROPERTY_SCALE_X,
+	TiC.PROPERTY_SCALE_Y,
 	TiC.PROPERTY_TOUCH_FEEDBACK,
 	TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
 	TiC.PROPERTY_TRANSITION_NAME,
@@ -102,29 +104,13 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_ANCHOR_POINT
 })
 // clang-format on
-public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
+public abstract class TiViewProxy extends KrollProxy
 {
 	private static final String TAG = "TiViewProxy";
 
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-
-	private static final int MSG_GETVIEW = MSG_FIRST_ID + 100;
-	private static final int MSG_ADD_CHILD = MSG_FIRST_ID + 102;
-	private static final int MSG_REMOVE_CHILD = MSG_FIRST_ID + 103;
-	private static final int MSG_BLUR = MSG_FIRST_ID + 104;
-	private static final int MSG_FOCUS = MSG_FIRST_ID + 105;
-	private static final int MSG_SHOW = MSG_FIRST_ID + 106;
-	private static final int MSG_HIDE = MSG_FIRST_ID + 107;
 	private static final int MSG_ANIMATE = MSG_FIRST_ID + 108;
-	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 109;
-	private static final int MSG_GETSIZE = MSG_FIRST_ID + 110;
-	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
-	private static final int MSG_FINISH_LAYOUT = MSG_FIRST_ID + 112;
-	private static final int MSG_UPDATE_LAYOUT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
-	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 115;
-	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 116;
-
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected ArrayList<TiViewProxy> children;
@@ -261,47 +247,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	//This handler callback is tied to the UI thread.
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_GETVIEW: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleGetView());
-				return true;
-			}
-			case MSG_ADD_CHILD: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleAdd((TiViewProxy) result.getArg());
-				result.setResult(null); //Signal added.
-				return true;
-			}
-			case MSG_REMOVE_CHILD: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleRemove((TiViewProxy) result.getArg());
-				result.setResult(null); //Signal removed.
-				return true;
-			}
-			case MSG_BLUR: {
-				handleBlur();
-				return true;
-			}
-			case MSG_HIDE_KEYBOARD: {
-				handleHideKeyboard();
-				return true;
-			}
-			case MSG_FOCUS: {
-				handleFocus();
-				return true;
-			}
-			case MSG_SHOW: {
-				handleShow((KrollDict) msg.obj);
-				return true;
-			}
-			case MSG_HIDE: {
-				handleHide((KrollDict) msg.obj);
-				return true;
-			}
 			case MSG_ANIMATE: {
 				handleAnimate();
 				return true;
@@ -313,100 +263,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				handleQueuedAnimate();
 				return true;
 			}
-			case MSG_TOIMAGE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleToImage());
-				return true;
-			}
-			case MSG_GETSIZE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				KrollDict d = null;
-				d = new KrollDict();
-				d.put(TiC.PROPERTY_X, 0);
-				d.put(TiC.PROPERTY_Y, 0);
-				if (view != null) {
-					View v = view.getNativeView();
-					if (v != null) {
-						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
-						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
-
-						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
-						if (decorView != null) {
-							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-						}
-					}
-				}
-				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
-					d.put(TiC.PROPERTY_WIDTH, 0);
-					d.put(TiC.PROPERTY_HEIGHT, 0);
-				}
-
-				result.setResult(d);
-				return true;
-			}
-			case MSG_GETRECT: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				KrollDict d = null;
-				d = new KrollDict();
-				if (view != null) {
-					View v = view.getOuterView();
-					if (v != null) {
-						int position[] = new int[2];
-						v.getLocationInWindow(position);
-
-						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
-						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
-						TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
-						TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
-						TiDimension localLeft = new TiDimension(v.getX(), TiDimension.TYPE_LEFT);
-						TiDimension localTop = new TiDimension(v.getY(), TiDimension.TYPE_TOP);
-
-						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
-						if (decorView != null) {
-							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_X, localLeft.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_Y, localTop.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(decorView));
-						}
-					}
-				}
-				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
-					d.put(TiC.PROPERTY_WIDTH, 0);
-					d.put(TiC.PROPERTY_HEIGHT, 0);
-					d.put(TiC.PROPERTY_X, 0);
-					d.put(TiC.PROPERTY_Y, 0);
-				}
-
-				result.setResult(d);
-				return true;
-			}
-			case MSG_FINISH_LAYOUT: {
-				handleFinishLayout();
-				return true;
-			}
-			case MSG_UPDATE_LAYOUT: {
-				handleUpdateLayout((HashMap) msg.obj);
-				return true;
-			}
-			case MSG_INSERT_VIEW_AT: {
-				handleInsertAt((HashMap) msg.obj);
-				return true;
-			}
 		}
 		return super.handleMessage(msg);
 	}
-
-	/*
-	public Context getContext()
-	{
-		return getActivity();
-	}
-	*/
 
 	// clang-format off
 	@Kroll.method
@@ -414,8 +273,39 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public KrollDict getRect()
 	// clang-format on
 	{
-		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETRECT),
-															   getActivity());
+		KrollDict d = new KrollDict();
+		if (view != null) {
+			View v = view.getOuterView();
+			if (v != null) {
+				int position[] = new int[2];
+				v.getLocationInWindow(position);
+
+				TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+				TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+				TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
+				TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
+				TiDimension localLeft = new TiDimension(v.getX(), TiDimension.TYPE_LEFT);
+				TiDimension localTop = new TiDimension(v.getY(), TiDimension.TYPE_TOP);
+
+				// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+				View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+				if (decorView != null) {
+					d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+					d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+					d.put(TiC.PROPERTY_X, localLeft.getAsDefault(decorView));
+					d.put(TiC.PROPERTY_Y, localTop.getAsDefault(decorView));
+					d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(decorView));
+					d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(decorView));
+				}
+			}
+		}
+		if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+			d.put(TiC.PROPERTY_WIDTH, 0);
+			d.put(TiC.PROPERTY_HEIGHT, 0);
+			d.put(TiC.PROPERTY_X, 0);
+			d.put(TiC.PROPERTY_Y, 0);
+		}
+		return d;
 	}
 
 	// clang-format off
@@ -424,8 +314,28 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public KrollDict getSize()
 	// clang-format on
 	{
-		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE),
-															   getActivity());
+		KrollDict d = new KrollDict();
+		d.put(TiC.PROPERTY_X, 0);
+		d.put(TiC.PROPERTY_Y, 0);
+		if (view != null) {
+			View v = view.getNativeView();
+			if (v != null) {
+				TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+				TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+
+				// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+				View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+				if (decorView != null) {
+					d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+					d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+				}
+			}
+		}
+		if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+			d.put(TiC.PROPERTY_WIDTH, 0);
+			d.put(TiC.PROPERTY_HEIGHT, 0);
+		}
+		return d;
 	}
 
 	// clang-format off
@@ -551,12 +461,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (view != null) {
 			return view;
 		}
-
-		if (TiApplication.isUIThread()) {
-			return handleGetView();
-		}
-
-		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+		return handleGetView();
 	}
 
 	protected TiUIView handleGetView()
@@ -585,14 +490,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 
 			view = createView(activity);
+			if (view != null) {
+				if (isDecorView && baseActivity != null) {
+					baseActivity.setViewProxy(view.getProxy());
+				}
 
-			if (isDecorView && baseActivity != null) {
-				baseActivity.setViewProxy(view.getProxy());
+				realizeViews(view);
+				view.registerForTouch();
+				view.registerForKeyPress();
 			}
-
-			realizeViews(view);
-			view.registerForTouch();
-			view.registerForKeyPress();
 		}
 		return view;
 	}
@@ -688,15 +594,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		} else if (args instanceof TiViewProxy) {
 			TiViewProxy child = (TiViewProxy) args;
-			if (peekView() != null) {
-				if (TiApplication.isUIThread()) {
-					handleAdd(child);
-					return;
+			children.add(child);
+			child.parent = new WeakReference<TiViewProxy>(this);
+			if ((peekView() != null) && (view != null)) {
+				child.setActivity(getActivity());
+				if (this instanceof DecorViewProxy) {
+					child.isDecorView = true;
 				}
-				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_CHILD), child);
-			} else {
-				children.add(child);
-				child.parent = new WeakReference<TiViewProxy>(this);
+				view.add(child.getOrCreateView());
 			}
 			//TODO zOrder
 		} else {
@@ -744,19 +649,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			children = new ArrayList<TiViewProxy>();
 		}
 
-		if (view != null) {
-			if (TiApplication.isUIThread()) {
-				handleInsertAt(options);
-				return;
-			}
-			getMainHandler().obtainMessage(MSG_INSERT_VIEW_AT, options).sendToTarget();
-		} else {
-			handleInsertAt(options);
-		}
-	}
-
-	private void handleInsertAt(@SuppressWarnings("rawtypes") HashMap options)
-	{
 		TiViewProxy child = null;
 		Integer position = -1;
 		if (options.containsKey("view")) {
@@ -786,19 +678,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
-	private void handleAdd(TiViewProxy child)
-	{
-		children.add(child);
-		child.parent = new WeakReference<TiViewProxy>(this);
-		if (view != null) {
-			child.setActivity(getActivity());
-			if (this instanceof DecorViewProxy) {
-				child.isDecorView = true;
-			}
-			view.add(child.getOrCreateView());
-		}
-	}
-
 	/**
 	 * Removes a view from this view proxy, releasing the underlying native view if it exists.
 	 * @param child The child to remove.
@@ -813,13 +692,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 
 		if (peekView() != null) {
-			if (TiApplication.isUIThread()) {
-				handleRemove(child);
-				return;
-			}
-
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_CHILD), child);
-
+			handleRemove(child);
 		} else {
 			if (children != null) {
 				children.remove(child);
@@ -890,11 +763,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void show(@Kroll.argument(optional = true) KrollDict options)
 	{
 		setProperty(TiC.PROPERTY_VISIBLE, true);
-		if (TiApplication.isUIThread()) {
-			handleShow(options);
-		} else {
-			getMainHandler().obtainMessage(MSG_SHOW, options).sendToTarget();
-		}
+		handleShow(options);
 	}
 
 	protected void handleShow(KrollDict options)
@@ -918,11 +787,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void hide(@Kroll.argument(optional = true) KrollDict options)
 	{
 		setProperty(TiC.PROPERTY_VISIBLE, false);
-		if (TiApplication.isUIThread()) {
-			handleHide(options);
-		} else {
-			getMainHandler().obtainMessage(MSG_HIDE, options).sendToTarget();
-		}
+		handleHide(options);
 	}
 
 	protected void handleHide(KrollDict options)
@@ -985,7 +850,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void handlePendingAnimation(boolean forceQueue)
 	{
 		if (pendingAnimation != null && peekView() != null) {
-			if (forceQueue || !(TiApplication.isUIThread())) {
+			if (forceQueue) {
 				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
 					// Even this very small delay can help eliminate the bug
 					// whereby the animated view's parent suddenly becomes
@@ -1034,11 +899,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void blur()
 	{
-		if (TiApplication.isUIThread()) {
-			handleBlur();
-		} else {
-			getMainHandler().sendEmptyMessage(MSG_BLUR);
-		}
+		handleBlur();
 	}
 
 	protected void handleBlur()
@@ -1051,11 +912,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void focus()
 	{
-		if (TiApplication.isUIThread()) {
-			handleFocus();
-		} else {
-			getMainHandler().sendEmptyMessage(MSG_FOCUS);
-		}
+		handleFocus();
 	}
 
 	protected void handleFocus()
@@ -1081,12 +938,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		 * Callback don't exist. Just render on main thread and return blob.
 		 */
 		if (waitForFinish) {
-			if (TiApplication.isUIThread()) {
-				blob = handleToImage();
-			} else {
-				blob = (TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE),
-																	getActivity());
-			}
+			blob = handleToImage();
 		}
 
 		/*
@@ -1169,62 +1021,117 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (this.parent == null) {
 			return null;
 		}
-
 		return this.parent.get();
 	}
 
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public String getBackgroundDisabledColor()
-	// clang-format on
+	public String getBackgroundColor()
+	// clang - format on
 	{
-		// Try to get the background drawable if one is available.
-		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
-		// Guard for views without color state backgrounds.
-		if (backgroundDrawable == null) {
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
 			return null;
-		} else {
-			try {
-				// Get the backgroundDrawable background as a StateListDrawable.
-				StateListDrawable stateListDrawable = ((StateListDrawable) backgroundDrawable.getBackground());
-				// Get the reflection methods.
-				Method getStateDrawableIndexMethod =
-					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
-				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
-				// Get the disabled state's (as defined in TiUIHelper) index.
-				int index =
-					(int) getStateDrawableIndexMethod.invoke(stateListDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
-				// Get the drawable at the index.
-				Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
-				// Try to get the 0 index of the result.
-				if (drawable instanceof LayerDrawable) {
-					Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
-					// Cast it as a ColorDrawable.
-					if (drawableFromLayer instanceof ColorDrawable) {
-						// Transcript the color int to HexString.
-						String strColor =
-							String.format("#%08X", 0xFFFFFFFF & ((ColorDrawable) drawableFromLayer).getColor());
-						return strColor;
-					} else {
-						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
-									   + drawableFromLayer.getClass().toString());
-						return null;
-					}
-				} else {
-					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
-								   + drawable.getClass().toString());
-					return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		// If only backgroundColor is defined then no ColorStateList is created, we resort to only the color defined.
+		TiBackgroundDrawable tiBackgroundDrawable = view.getBackground();
+		if (tiBackgroundDrawable == null) {
+			View nativeView = view.getNativeView();
+			if (nativeView != null) {
+				Drawable drawable = nativeView.getBackground();
+				if (drawable instanceof ColorDrawable) {
+					return TiUIHelper.hexStringFrom(((ColorDrawable) drawable).getColor());
 				}
-			} catch (NoSuchMethodException e) {
-				Log.w(TAG, "Unable to get a method for reflection.");
-			} catch (IllegalAccessException e) {
-				Log.w(TAG, "Unable to access a method for reflection.");
-			} catch (InvocationTargetException e) {
-				Log.w(TAG, "Unable to invoke a method for reflection.");
 			}
 			return null;
 		}
+
+		// It shouldn't matter if we request the color for DEFAULT_STATE_1 or DEFAULT_STATE_2. They are the same.
+		return TiUIHelper.getBackgroundColorForState(tiBackgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getBackgroundSelectedColor()
+	// clang - format on
+	{
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
+		if (backgroundDrawable == null) {
+			return null;
+		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getBackgroundFocusedColor()
+	// clang - format on
+	{
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
+		if (backgroundDrawable == null) {
+			return null;
+		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getBackgroundDisabledColor()
+	// clang - format on
+	{
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
+		if (backgroundDrawable == null) {
+			return null;
+		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 	}
 
 	public void setParent(TiViewProxy parent)
@@ -1264,8 +1171,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public TiViewProxy[] getChildren()
 	// clang-format on
 	{
-		if (children == null)
+		if (children == null) {
 			return new TiViewProxy[0];
+		}
 		return children.toArray(new TiViewProxy[children.size()]);
 	}
 
@@ -1441,32 +1349,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return destPoint;
 	}
 
-	private void handleFinishLayout()
-	{
-		if (view.iszIndexChanged()) {
-			view.forceLayoutNativeView(true);
-			view.setzIndexChanged(false);
-		} else {
-			view.forceLayoutNativeView(false);
-		}
-	}
-
-	private void handleUpdateLayout(HashMap<String, Object> params)
-	{
-		for (String key : params.keySet()) {
-			setPropertyAndFire(key, params.get(key));
-		}
-		handleFinishLayout();
-	}
-
 	@Kroll.method
 	public void hideKeyboard()
 	{
-		if (TiApplication.isUIThread()) {
-			handleHideKeyboard();
-		} else {
-			getMainHandler().sendEmptyMessage(MSG_HIDE_KEYBOARD);
-		}
+		handleHideKeyboard();
 	}
 
 	protected void handleHideKeyboard()

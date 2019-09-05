@@ -40,12 +40,12 @@ description: |
     If using tab groups on iOS, see
     [iOS UI Element Usage Guidelines](https://developer.apple.com/ios/human-interface-guidelines/bars/tab-bars/).
 
-extends: Titanium.UI.View
+extends: Titanium.UI.Window
 since: "0.9"
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
-                 anchorPoint,animatedCenter,backgroundColor,backgroundDisabledColor,backgroundDisabledImage,
+                 anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
                  backgroundRepeat,backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,
                  borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
@@ -175,11 +175,11 @@ events:
   - name: selected
     summary: |
         Fired when a tab is selected.
-    since: 5.1.0
+    since: "5.1.0"
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.focus> instead.
+        notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -200,11 +200,11 @@ events:
   - name: unselected
     summary: |
         Fired when a tab is unselected.
-    since: 5.1.0
+    since: "5.1.0"
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.blur> instead.
+        notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) instead.
     properties:
       - name: index
         summary: |
@@ -281,7 +281,7 @@ methods:
 properties:
   - name: activeTab
     summary: Active tab.
-    type: Titanium.UI.Tab
+    type: [Number, Titanium.UI.Tab]
 
   - name: activity
     summary: |
@@ -396,6 +396,44 @@ properties:
     type: Number
     constants: Titanium.UI.Android.SOFT_INPUT_ADJUST_*
     availability: creation
+    platforms: [android]
+
+  - name: shiftMode
+    summary: Determines whether the [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) uses shiftMode.
+    description: |
+        In Android BottomNavigationView uses shiftMode by default. This mode changes
+        unselected tabs' properties - makes the title invisible and reduces the icon's
+        dimensions by half.
+
+        This property allows the user to choose whether they would use this design
+        behavior.
+
+        NOTE: This property only affects TabGroups with the [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
+    type: Boolean
+    default: true
+    since: "8.0.0"
+    platforms: [android]
+
+  - name: style
+    summary: Property defining which style for the TabGroup to be used.
+    description: |
+        Since 8.0.0 Titanium has introduce a new style to be used for the TabGroup component.
+
+        For backwards compatibility not taking advantage of this property results in using the default style
+        which is similar to the ActionBar Tabs style but sticking to the Material design Guidelines.
+
+        [TABS_STYLE_BOTTOM_DEFAULT](Titanium.UI.Android.TABS_STYLE_DEFAULT) is the style that was used in Titanium
+        prior to 8.0.0.GA. It displays the TabGroup with a list of Tabs at the top of the screen.
+
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) is a style that displays
+        the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this 
+        style is for items count between three and five: (https://material.io/design/components/bottom-navigation.html#usage) 
+        In Android it is limited to supporting a maximum number of five tabs.
+
+    availability: creation
+    constants: Titanium.UI.Android.TABS_STYLE_*
+    since: "8.0.0"
+    type: Number
     platforms: [android]
 
   - name: tabsBackgroundColor

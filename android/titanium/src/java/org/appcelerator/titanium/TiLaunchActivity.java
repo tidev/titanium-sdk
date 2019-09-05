@@ -6,30 +6,16 @@
  */
 package org.appcelerator.titanium;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.titanium.proxy.IntentProxy;
-import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
-import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.widget.Toast;
 
 /**
  * Titanium launch activities have a single TiContext and launch an associated
@@ -39,49 +25,36 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 {
 	private static final String TAG = "TiLaunchActivity";
 
-	private static final int MSG_FINISH = 100;
-	private static final int RESTART_DELAY = 500;
-	private static final int FINISH_DELAY = 500;
+	/**
+	 * Hash table of TiJSActivity derived class names and their assigned JavaScript URLs.
+	 * <p>
+	 * The key is the Java package name and class name of the TiJSActivity derived class.
+	 * The value is the JavaScript file URL assigned to it.
+	 */
+	private static HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
 
-	// Constants for Kindle fire fix for android bug 2373 (TIMOB-7843)
-	private static final AtomicInteger creationCounter = new AtomicInteger();
-	private static final int KINDLE_FIRE_RESTART_FLAGS =
-		(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
-		 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-	private static final String KINDLE_MODEL = "kindle";
-
-	// For general android bug 2373 condition checking.
-	private static final int VALID_LAUNCH_FLAGS =
-		Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
-
-	// For restarting due to android bug 2373 detection.
-	private boolean invalidLaunchDetected = false;
-	private AlertDialog invalidLaunchAlert;
-	private PendingIntent restartPendingIntent = null;
-	private AlarmManager restartAlarmManager = null;
-	private int restartDelay = 0;
-
-	// finishing2373 is a flag indicating we've elected
-	// to finish this instance of the activity because
-	// it's not the task root (i.e., it has come to life
-	// via android bug 2373, while there is another instance
-	// of this same activity "behind it".)
-	protected boolean finishing2373 = false;
-
-	protected TiUrl url;
-	protected boolean alloyIntent = false;
+	/** JavaScript file URL to be loaded by loadScript() method. This URL is assigned in onCreate() method. */
+	private TiUrl url;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
 	 */
 	public abstract String getUrl();
 
+	private boolean hasLoadedScript = false;
+
 	/**
-	 * @return is this an alloy activity that has been launched from an intent
+	 * The JavaScript URL that should be ran for the given TiJSActivity derived class name.
+	 * Will only return a result if given activity class was launched at least once.
+	 * @param className Java package and class name of the TiJSActivity query. Can be null.
+	 * @return Returns the JSActivity's assigned JavaScript URL if found. Returns null if given unknown class name.
 	 */
-	public boolean isAlloyIntent()
+	protected String getUrlForJSActivitClassName(String className)
 	{
-		return this.alloyIntent;
+		if (className == null) {
+			return null;
+		}
+		return TiLaunchActivity.jsActivityClassScriptMap.get(className);
 	}
 
 	/**
@@ -113,27 +86,17 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		return fullUrl;
 	}
+
 	protected String resolveUrl(TiUrl url)
 	{
 		return resolveUrl(url.url);
 	}
 
-	protected void loadActivityScript()
+	protected void loadScript()
 	{
 		try {
-			String fullUrl = resolveUrl(url);
-
-			// TIMOB-20502: if Alloy app and root activity is not available then
-			// run root activity first to initialize Alloy global variables etc...
-			// NOTE: this will only occur when launching from an intent or shortcut
-			this.alloyIntent = isJSActivity() && KrollAssetHelper.assetExists("Resources/alloy.js");
-			if (this.alloyIntent && !getTiApp().isRootActivityAvailable()) {
-				String rootUrl = resolveUrl("app.js");
-				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(rootUrl), rootUrl, activityProxy);
-				KrollRuntime.getInstance().evalString(KrollAssetHelper.readAsset(fullUrl), fullUrl);
-			} else {
-				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
-			}
+			String fullUrl = resolveUrl(this.url);
+			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
 		} finally {
 			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
 		}
@@ -142,26 +105,56 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		if (willFinishFalseRootActivity(savedInstanceState)) {
+		TiApplication tiApp = getTiApp();
+
+		// If this is a TiJSActivity derived class created via "tiapp.xml" <activity/> tags,
+		// then destroy it now and launch the root activity instead with the JSActivity's intent.
+		// Note: This feature used to bypass loading of "ti.main.js" and "app.js" which was problematic.
+		//       Titanium 8 resolved all "newintent" resume handling, making this feature obsolete.
+		if (isJSActivity()) {
+			// First, store the JSActivity class' script URL to hash table.
+			// To be retrieved later by root activity so that it knows which script to load when resumed.
+			TiLaunchActivity.jsActivityClassScriptMap.put(getClass().getName(), getUrl());
+
+			// Call this instance's Activity.onCreate() method, bypassing TiBaseActivity.onCreate() method.
+			activityOnCreate(savedInstanceState);
+
+			// Destroy this activity and launch/resume the root activity.
+			boolean isActivityForResult = (getCallingActivity() != null);
+			TiRootActivity rootActivity = tiApp.getRootActivity();
+			if (!isActivityForResult && (rootActivity != null)) {
+				// Copy the JSActivity's intent to the existing root activity and resume it.
+				rootActivity.onNewIntent(getIntent());
+				Intent resumeIntent = rootActivity.getLaunchIntent();
+				if (resumeIntent == null) {
+					resumeIntent = Intent.makeMainActivity(rootActivity.getComponentName());
+					resumeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					resumeIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+				}
+				startActivity(resumeIntent);
+				finish();
+				overridePendingTransition(android.R.anim.fade_in, 0);
+			} else {
+				// Launch a new root activity instance with JSActivity's intent embedded within launch intent.
+				Intent mainIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+				mainIntent.setPackage(null);
+				if (isActivityForResult) {
+					mainIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+				} else {
+					mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					mainIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+				}
+				if (getIntent() != null) {
+					mainIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, getIntent());
+				}
+				finish();
+				overridePendingTransition(android.R.anim.fade_in, 0);
+				startActivity(mainIntent);
+			}
 			return;
 		}
 
-		TiApplication tiApp = getTiApp();
-
-		if (!tiApp.isRestartPending()) {
-			// Check for a system application restart that we can't support.
-			if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-				super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
-				return;
-			}
-
-			// Check for android bug 2373.
-			if (checkInvalidLaunch(savedInstanceState)) {
-				return;
-			}
-		}
-
-		url = TiUrl.normalizeWindowUrl(getUrl());
+		this.url = TiUrl.normalizeWindowUrl(getUrl());
 
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily
@@ -176,388 +169,32 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		super.onCreate(savedInstanceState);
 	}
 
-	@Override
-	protected void onNewIntent(Intent intent)
-	{
-		super.onNewIntent(intent);
-		setIntent(intent);
-	}
-
-	@Override
-	protected void windowCreated(Bundle savedInstanceState)
-	{
-		super.windowCreated(savedInstanceState);
-		loadActivityScript();
-		scriptLoaded();
-		TiApplication.getInstance().postAppInfo();
-	}
-
-	protected boolean checkInvalidLaunch(Bundle savedInstanceState)
-	{
-		Intent intent = getIntent();
-		if (intent != null) {
-			TiProperties systemProperties = getTiApp().getAppProperties();
-			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false)
-										|| systemProperties.getBool("ti.android.bug2373.finishfalseroot", true);
-			if (!detectionDisabled) {
-				return checkInvalidLaunch(intent, savedInstanceState);
-			}
-		}
-		return false;
-	}
-
-	protected boolean checkInvalidLaunch(Intent intent, Bundle savedInstanceState)
-	{
-		invalidLaunchDetected = false;
-		String action = intent.getAction();
-		if (action != null && action.equals(Intent.ACTION_MAIN)) {
-			// First check: is the category CATEGORY_LAUNCHER missing?
-			invalidLaunchDetected = !(intent.hasCategory(Intent.CATEGORY_LAUNCHER));
-
-			if (!invalidLaunchDetected) {
-				// One more check, because Android 3.0+ will put in the launch category but leave out
-				// FLAG_ACTIVITY_RESET_TASK_IF_NEEDED from the flags, which still causes the problem.
-				// 0x4 is the flag that occurs when we restart because of the missing category/flag, so
-				// that one is okay as well.
-				// (addendum re timob-9285) Launching from history (FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
-				// also appears to be okay, so if that flag is there then don't consider this an invalid
-				// launch. VALID_LAUNCH_FLAGS contains both of these valid flags.
-				if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && intent.getFlags() != 0x4) {
-					invalidLaunchDetected = (intent.getFlags() & VALID_LAUNCH_FLAGS) == 0;
-				}
-			}
-
-			if (invalidLaunchDetected) {
-				Log.e(
-					TAG,
-					"Android issue 2373 detected (missing intent CATEGORY_LAUNCHER or FLAG_ACTIVITY_RESET_TASK_IF_NEEDED), restarting app. "
-						+ this);
-				layout = new TiCompositeLayout(this, window);
-				setContentView(layout);
-				TiProperties systemProperties = getTiApp().getAppProperties();
-				int backgroundColor =
-					TiColorHelper.parseColor(systemProperties.getString("ti.android.bug2373.backgroundColor", "black"));
-				getWindow().getDecorView().setBackgroundColor(backgroundColor);
-				layout.setBackgroundColor(backgroundColor);
-
-				activityOnCreate(savedInstanceState);
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	protected void alertMissingLauncher()
-	{
-		// No context, we have a launch problem.
-		TiProperties systemProperties = getTiApp().getAppProperties();
-		String message = systemProperties.getString("ti.android.bug2373.message", "An application restart is required");
-		final int restartDelay = systemProperties.getInt("ti.android.bug2373.restartDelay", RESTART_DELAY);
-		final int finishDelay = systemProperties.getInt("ti.android.bug2373.finishDelay", FINISH_DELAY);
-
-		if (systemProperties.getBool("ti.android.bug2373.skipAlert", false)) {
-			if (message != null && message.length() > 0) {
-				Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-			}
-			restartActivity(restartDelay, finishDelay);
-		} else {
-			OnClickListener restartListener = new OnClickListener() {
-				public void onClick(DialogInterface arg0, int arg1)
-				{
-					restartActivity(restartDelay, finishDelay);
-				}
-			};
-
-			String title = systemProperties.getString("ti.android.bug2373.title", "Restart Required");
-			String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
-			invalidLaunchAlert = new AlertDialog.Builder(this)
-									 .setTitle(title)
-									 .setMessage(message)
-									 .setPositiveButton(buttonText, restartListener)
-									 .setCancelable(false)
-									 .create();
-			invalidLaunchAlert.show();
-		}
-	}
-
-	protected void restartActivity(int delay)
-	{
-		restartActivity(delay, 0);
-	}
-
-	protected void restartActivity(int delay, int finishDelay)
-	{
-		Intent relaunch = new Intent(getApplicationContext(), getClass());
-		relaunch.setAction(Intent.ACTION_MAIN);
-		relaunch.addCategory(Intent.CATEGORY_LAUNCHER);
-
-		restartAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		if (restartAlarmManager != null) {
-			restartPendingIntent =
-				PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
-			restartDelay = delay;
-		}
-
-		if (finishDelay > 0) {
-			Handler handler = new Handler() {
-				@Override
-				public void handleMessage(Message msg)
-				{
-					if (msg.what == MSG_FINISH) {
-						doFinishForRestart();
-					} else {
-						super.handleMessage(msg);
-					}
-				}
-			};
-
-			handler.sendEmptyMessageDelayed(MSG_FINISH, finishDelay);
-		} else {
-			doFinishForRestart();
-		}
-	}
-
-	private void doFinishForRestart()
-	{
-		if (invalidLaunchAlert != null && invalidLaunchAlert.isShowing()) {
-			invalidLaunchAlert.cancel();
-		}
-		invalidLaunchAlert = null;
-
-		if (!isFinishing()) {
-			finish();
-		}
-	}
-
 	public boolean isJSActivity()
 	{
 		return false;
 	}
 
 	@Override
-	protected void onRestart()
-	{
-		if (finishing2373) {
-			activityOnRestart();
-			return;
-		}
-		super.onRestart();
-
-		TiApplication tiApp = getTiApp();
-
-		if (tiApp.isRestartPending()) {
-			return;
-		}
-
-		TiProperties systemProperties = tiApp.getAppProperties();
-
-		boolean restart = systemProperties.getBool("ti.android.root.reappears.restart", false);
-		if (restart) {
-			Log.w(TAG, "Tasks may have been destroyed by Android OS for inactivity. Restarting.");
-			tiApp.scheduleRestart(250);
-		}
-	}
-
-	@Override
-	protected void onPause()
-	{
-		if (finishing2373) {
-			activityOnPause();
-			return;
-		}
-
-		if (getTiApp().isRestartPending()) {
-			super.onPause(); // Will take care of finish() if needed.
-			return;
-		}
-
-		if (invalidLaunchDetected) {
-			doFinishForRestart();
-			activityOnPause();
-			return;
-		}
-
-		super.onPause();
-	}
-
-	@Override
-	protected void onStop()
-	{
-		if (getTiApp().isRestartPending()) {
-			super.onStop();
-			return;
-		}
-
-		if (invalidLaunchDetected || finishing2373) {
-			activityOnStop();
-			return;
-		}
-
-		super.onStop();
-	}
-
-	@Override
-	protected void onStart()
-	{
-		if (getTiApp().isRestartPending()) {
-			super.onStart();
-			return;
-		}
-
-		if (invalidLaunchDetected || finishing2373) {
-			activityOnStart();
-			return;
-		}
-		super.onStart();
-	}
-
-	@Override
 	protected void onResume()
 	{
-		if (finishing2373) {
-			activityOnResume();
-			return;
+		// Prevent script from loading on future resumes
+		if (!hasLoadedScript) {
+			hasLoadedScript = true;
+			loadScript();
 		}
-		if (getTiApp().isRestartPending() || isFinishing()) {
-			super.onResume();
-			return;
-		}
-
-		if (invalidLaunchDetected) {
-			alertMissingLauncher(); // This also kicks off the finish() and restart.
-			activityOnResume();
-			return;
-		}
-
-		// handle 'onIntent' event for both TiRootActivity and TiJSActivity
-		Intent intent = getIntent();
-		if (intent != null) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(intent));
-
-			if (!getTiApp().isRootActivityAvailable()) {
-				activityProxy.fireEvent(TiC.PROPERTY_ON_INTENT, data);
-			}
-		}
-
 		super.onResume();
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		if (finishing2373) {
+		if (isJSActivity()) {
+			// Call Activity.onDestroy() directly, bypassing TiBaseActivity.onDestroy() method.
+			// All JSActivity instances are destroyed upon onCreate(). It's an obsolete feature now.
 			activityOnDestroy();
-			return;
+		} else {
+			// Call TiBaseActivity.onDestroy() normally for root activity.
+			super.onDestroy();
 		}
-
-		TiApplication tiApp = getTiApp();
-
-		if (tiApp.isRestartPending() || invalidLaunchDetected) {
-			activityOnDestroy();
-			if (restartAlarmManager == null) {
-				restartActivity(0);
-			}
-			tiApp.beforeForcedRestart();
-			restartAlarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + restartDelay, restartPendingIntent);
-			restartPendingIntent = null;
-			restartAlarmManager = null;
-			invalidLaunchAlert = null;
-			invalidLaunchDetected = false;
-			return;
-		}
-
-		super.onDestroy();
-	}
-
-	/**
-	 * Determines whether to immediately kill of (i.e., finish()) this instance
-	 * of the activity because the app is trying to back out while the root activity
-	 * has been killed and garbage collected, or it is not really the task root activity,
-	 * and thus is likely a byproduct of Android bug 2373. There are three conditions when
-	 * we'll finish it:
-	 *
-	 * <p>(1) The user is backing out the app but the root activity has been killed
-	 * and garbage collected; or
-	 *
-	 * <p>(2) The Titanium developer has explicitly said she wants it shut down,
-	 * by setting the "finishfalseroot" property; or
-	 *
-	 * <p>(3) We recognize a specific condition we've seen on Kindle Fires. For whatever
-	 * reason, the Fire always tries to re-launch the launch activity
-	 * (i.e., a new instance of it) whenever the user selects the application
-	 * from the application drawer/shelf after the app has been restarted because
-	 * of our 2373 detection. We detect here when that new instance of the launch
-	 * activity is coming into existence, so that we can finish it immediately.
-	 *
-	 * @param savedInstanceStateThe Bundle passed to onCreate, which we will pass
-	 * on to a superclass onCreate if we decide to finish right away.
-	 *
-	 * @return true if we have detected one of the two conditions and are thus finishing
-	 * the Activity right away.
-	 */
-	protected boolean willFinishFalseRootActivity(Bundle savedInstanceState)
-	{
-		finishing2373 = false;
-
-		TiApplication tiApp = TiApplication.getInstance();
-
-		if (tiApp.getForceFinishRootActivity()) {
-			finishing2373 = true;
-			tiApp.setForceFinishRootActivity(false); // reset the value
-			activityOnCreate(savedInstanceState);
-			finish();
-			Log.d(TAG, "willFinishFalseRootActivity: TiApplication.forceFinishRoot = true");
-			return finishing2373;
-		}
-
-		if (isTaskRoot()) {
-			// Not a "false root" activity. This activity
-			// instance truly is the root of the task, so
-			// nothing needs to be done.
-			return finishing2373;
-		}
-
-		Intent intent = getIntent();
-		if (intent == null) {
-			// We need it. No other checks to make.
-			return finishing2373;
-		}
-
-		String action = intent.getAction();
-		if (action == null || !action.equals(Intent.ACTION_MAIN)) {
-			// No ACTION_MAIN, which means this activity wasn't started
-			// as a launch activity anyway, so there is no reason to shut
-			// it down.  For example, it could be that the app developer
-			// has designated (using intent filters) that this activity
-			// can be used for more things beyond being the launch activity,
-			// and we should allow that.
-			return finishing2373;
-		}
-
-		TiProperties systemProperties = null;
-
-		if (tiApp != null) {
-			systemProperties = tiApp.getAppProperties();
-		}
-
-		if (systemProperties != null && systemProperties.getBool("ti.android.bug2373.finishfalseroot", true)) {
-			finishing2373 = true;
-		} else if (Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && creationCounter.getAndIncrement() > 0
-				   && intent.getFlags() == KINDLE_FIRE_RESTART_FLAGS) {
-			finishing2373 = true;
-		}
-
-		if (finishing2373) {
-			// Jumps over TiBaseActivity's onCreate to fulfill directly
-			// the requirement that all Activity-derived classes must
-			// call Activity.onCreate.
-			activityOnCreate(savedInstanceState);
-			finish();
-		}
-
-		return finishing2373;
 	}
 }

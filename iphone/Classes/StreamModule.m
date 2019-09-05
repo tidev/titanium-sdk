@@ -6,9 +6,9 @@
  */
 
 #import "StreamModule.h"
-#import "TiBuffer.h"
 #import "TiDataStream.h"
-#import "TiStreamProxy.h"
+#import <TitaniumKit/TiBuffer.h>
+#import <TitaniumKit/TiStreamProxy.h>
 
 #ifdef USE_TI_STREAM
 @interface StreamModule (Private)

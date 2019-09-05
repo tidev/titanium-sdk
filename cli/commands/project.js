@@ -194,7 +194,7 @@ exports.run = function (logger, config, cli, finished) {
 					// Validate the platforms and override the tiapp.xml setting to true
 					value = args[1].split(',');
 					value.forEach(function (p) {
-						if (!result.hasOwnProperty(p)) {
+						if (!Object.prototype.hasOwnProperty.call(result, p)) {
 							logger.error(__('Unsupported deployment target "%s"', p) + '\n');
 							logger.log(__('Available deployment targets are:'));
 							Object.keys(result).sort().forEach(function (p) {

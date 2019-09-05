@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
+
 const times = new Map();
 function join(args) {
 	// Handle null / undefined args up front since we can't slice them
@@ -21,7 +23,7 @@ function join(args) {
 		return (arg === null)
 			? 'null'
 			: ((typeof arg === 'object')
-				? (arg.hasOwnProperty('toString') ? arg.toString() : JSON.stringify(arg))
+				? (Object.prototype.hasOwnProperty.call(arg, 'toString') ? arg.toString() : JSON.stringify(arg))
 				: arg);
 	}).join(' ');
 }

@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiNetworkCookieProxy : TiProxy {
   NSMutableDictionary *_cookieDict;

@@ -9,10 +9,10 @@
 #import "TiUITextField.h"
 #import "TiUITextFieldProxy.h"
 
-#import "TiApp.h"
 #import "TiUITextWidget.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
@@ -282,7 +282,7 @@
   }
 
   // TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
-  BOOL needsAdjustment = (![TiUtils isIOS10OrGreater] && ((UITextField *)textWidgetView).secureTextEntry);
+  BOOL needsAdjustment = (![TiUtils isIOSVersionOrGreater:@"10.0"] && ((UITextField *)textWidgetView).secureTextEntry);
 
   if (needsAdjustment) {
     NSString *str = ((UITextField *)textWidgetView).text;
@@ -297,15 +297,11 @@
 
 - (void)setShowUndoRedoActions_:(id)value
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
-
   TiTextField *tv = (TiTextField *)[self textWidgetView];
 
   [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
 
-  if ([TiUtils boolValue:value] == YES) {
+  if ([TiUtils boolValue:value]) {
     tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
     tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
   } else {

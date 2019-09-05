@@ -7,17 +7,17 @@
 #ifdef USE_TI_UIIMAGEVIEW
 
 #import "TiUIImageView.h"
-#import "ImageLoader.h"
-#import "OperationQueue.h"
-#import "TiBase.h"
-#import "TiBlob.h"
-#import "TiFile.h"
-#import "TiProxy.h"
 #import "TiUIImageViewProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/OperationQueue.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/UIImage+Resize.h>
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -156,7 +156,7 @@ DEFINE_EXCEPTIONS
     [self.proxy fireEvent:@"change" withObject:evt];
   }
 
-  if (repeatCount > 0 && ((reverse == NO && position == (loadTotal - 1)) || (reverse && position == 0))) {
+  if (repeatCount > 0 && ((!reverse && position == (loadTotal - 1)) || (reverse && position == 0))) {
     iterations++;
     if (iterations == repeatCount) {
       stopped = YES;
@@ -206,20 +206,6 @@ DEFINE_EXCEPTIONS
     timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain];
   }
 }
-
-#ifdef TI_USE_KROLL_THREAD
-- (void)listenerAdded:(NSString *)type count:(int)count
-{
-  if (count == 1 && [type isEqualToString:@"load"]) {
-    NSString *loadEventState = [(TiUIImageViewProxy *)[self proxy] loadEventState];
-    if (loadEventState) {
-      [[self proxy] fireEvent:@"load" withObject:@{ @"state" : loadEventState }];
-    }
-  } else {
-    [super listenerAdded:type count:count];
-  }
-}
-#endif
 
 - (void)stopTimerWithEvent:(NSString *)eventName
 {
@@ -707,11 +693,11 @@ DEFINE_EXCEPTIONS
 
 - (void)setTintColor_:(id)value
 {
-  ENSURE_TYPE_OR_NIL(value, NSString);
+  ENSURE_TYPE_OR_NIL(value, NSObject);
   UIImageRenderingMode renderingMode = value ? UIImageRenderingModeAlwaysTemplate : UIImageRenderingModeAlwaysOriginal;
 
   [imageView setImage:[[imageView image] imageWithRenderingMode:renderingMode]];
-  [imageView setTintColor:value ? [[TiUtils colorValue:value] _color] : nil];
+  [imageView setTintColor:value ? [[TiUtils colorValue:value] color] : nil];
 }
 
 - (void)setImages_:(id)args

@@ -1,15 +1,18 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
+
 var NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
-	bootstrap = require('bootstrap'),
 	invoker = require('invoker');
+
+require('bootstrap');
 
 var TAG = 'Module';
 
@@ -56,14 +59,12 @@ Module.runModule = function (source, filename, activityOrService) {
 	if (isService) {
 		module = new Module(id, null, {
 			currentService: activityOrService,
-			currentActivity: null,
-			currentWindow: null
+			currentActivity: null
 		});
 	} else {
 		module = new Module(id, null, {
 			currentService: null,
-			currentActivity: activityOrService,
-			currentWindow: activityOrService ? activityOrService.window : null
+			currentActivity: activityOrService
 		});
 	}
 
@@ -94,6 +95,7 @@ Module.prototype.load = function (filename, source) {
 
 	this.filename = filename;
 	this.path = path.dirname(filename);
+	this.paths = this.nodeModulesPaths(this.path);
 
 	if (!source) {
 		source = assets.readAsset('Resources' + filename);
@@ -184,10 +186,7 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
  */
 Module.prototype.loadExternalModule = function (id, externalBinding, context) {
 	var sourceUrl = (context === undefined) ? 'app://ti.main.js' : context.sourceUrl,
-		externalModule,
-		returnObj;
-
-	externalModule = Module.cache[id];
+		externalModule = Module.cache[id];
 
 	if (!externalModule) {
 		// Get the compiled bootstrap JS
@@ -281,7 +280,7 @@ Module.prototype.require = function (request, context) {
 
 		// Allow looking through node_modules
 		// 3. LOAD_NODE_MODULES(X, dirname(Y))
-		loaded = this.loadNodeModules(request, this.path, context);
+		loaded = this.loadNodeModules(request, this.paths, context);
 		if (loaded) {
 			return loaded.exports;
 		}
@@ -351,18 +350,15 @@ Module.prototype.loadCoreModule = function (id, context) {
 /**
  * Attempts to load a node module by id from the starting path
  * @param  {String} moduleId       The path of the module to load.
- * @param  {String} startDir       The starting directory
+ * @param  {String[]} dirs       paths to search
  * @param  {Object} context        context object
  * @return {Object}                The module's exports, if loaded. null if not.
  */
-Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
+Module.prototype.loadNodeModules = function (moduleId, dirs, context) {
 	var mod, // the loaded module
-		dirs = [],
 		i,
 		dir;
 
-	// 1. let DIRS=NODE_MODULES_PATHS(START)
-	dirs = this.nodeModulesPaths(startDir);
 	// 2. for each DIR in DIRS:
 	for (i = 0; i < dirs.length; i++) {
 		dir = dirs[i];
@@ -537,7 +533,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
 			// b. let M = X + (json main field)
 			var m = path.resolve(id, object.exports.main);
 			// c. LOAD_AS_FILE(M)
-			return this.loadAsFile(m, context);
+			return this.loadAsFileOrDirectory(m, context);
 		}
 	}
 
@@ -576,7 +572,6 @@ Module.prototype._runScript = function (source, filename) {
 	// to go this route. So added currentActivity check. (bill)
 	if (self.id === '.' && self.context.currentActivity) {
 		global.require = require;
-		Titanium.Android.currentActivity = self.context.currentActivity;
 
 		// check if we have an inspector binding...
 		var inspector = kroll.binding('inspector');

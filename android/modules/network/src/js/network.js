@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
 
-var bootstrap = require("bootstrap");
+require('bootstrap');
 
 // Keeps an object alive until dispose() is called.
 // This is currently used to keep "top level" objects
@@ -22,18 +23,18 @@ PersistentHandle.objects = {};
 
 PersistentHandle.lastId = 0;
 
-PersistentHandle.prototype.dispose = function() {
-	if (this.cell == -1) {
+PersistentHandle.prototype.dispose = function () {
+	if (this.cell === -1) {
 		// This handle has already been disposed.
 		return;
 	}
 
 	delete PersistentHandle.objects[this.cell];
 	this.cell = -1;
-}
+};
 
 exports.PersistentHandle = PersistentHandle;
 
-exports.bootstrap = function(Titanium) {
-	require("httpclient").bootstrap(Titanium);
-}
+exports.bootstrap = function (Titanium) {
+	require('httpclient').bootstrap(Titanium);
+};

@@ -213,6 +213,9 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
+    deprecated:
+        since: "8.0.0"
+        notes: If you want to disable wrapping, then set [Titanium.UI.Label.maxLines](Titanium.UI.Label.maxLines) to 1 instead.
 
   - name: verticalAlign
     summary: |

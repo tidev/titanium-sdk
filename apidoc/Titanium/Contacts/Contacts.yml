@@ -85,7 +85,7 @@ methods:
         type: Number
     
   - name: getGroupByID
-    summary: Gets the group with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getGroupByIdentifier> instead.
+    summary: Gets the group with the specified identifier.
     returns:
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad]
@@ -93,7 +93,9 @@ methods:
       - name: id
         summary: Group identifier.
         type: Number
-    osver: {ios: {max: "8.0"}}
+    deprecated:
+        since: "5.0.0"
+        notes: Use [Titanium.Contacts.getGroupByIdentifier](Titanium.Contacts.getGroupByIdentifier) instead.
 
   - name: getGroupByIdentifier
     summary: Gets the group with the specified identifier. 
@@ -105,7 +107,6 @@ methods:
         summary: Group identifier.
         type: String
     since: "5.0.0"
-    osver: {ios: {min: "9.0"}}
     
   - name: getPeopleWithName
     summary: |
@@ -120,14 +121,16 @@ methods:
         type: String
         
   - name: getPersonByID
-    summary: Gets the person with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getPersonByIdentifier> instead.
+    summary: Gets the person with the specified identifier.
     returns:
         type: Titanium.Contacts.Person
     parameters:
       - name: id
         summary: Contact identifier.
         type: Number
-    osver: {ios: {max: "8.0"}}
+    deprecated:
+        since: "5.0.0"
+        notes: Use [Titanium.Contacts.getPersonByIdentifier](Titanium.Contacts.getPersonByIdentifier) instead.
         
   - name: getPersonByIdentifier
     summary: Gets the person with the specified identifier.
@@ -213,8 +216,8 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
-        This method requests `Manifest.permission.READ_CONTACTS` on Android. If you require other permissions, you can also
-        use <Titanium.Android.requestPermissions>.
+        This method requests `Manifest.permission.READ_CONTACTS` and `Manifest.permission.WRITE_CONTACTS` on Android.
+        If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
 
         In iOS 6, Apple introduced the Info.plist key `NSContactsUsageDescription` that is used to display an
         own description while authorizing contacts permissions. In iOS 10, this key is mandatory and the application
@@ -230,7 +233,7 @@ methods:
   - name: requestAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Contacts.requestContactsPermissions> instead.
+        notes: Use [Titanium.Contacts.requestContactsPermissions](Titanium.Contacts.requestContactsPermissions) instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |
@@ -320,6 +323,10 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
+    deprecated:
+        since: 8.0.0
+        removed: 8.0.0
+        notes: "iOS 9 and later does not use this constant anymore. Use the other available constants instead."
     since: 2.1.3
 
   - name: AUTHORIZATION_UNKNOWN

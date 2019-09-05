@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,11 +8,10 @@
 
 #import "NetworkModule.h"
 #import "Reachability.h"
-#import "TiApp.h"
-#import "TiBlob.h"
 #import "TiNetworkCookieProxy.h"
 #import "TiNetworkSocketProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
 
 NSString *const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
@@ -130,18 +129,14 @@ static NSOperationQueue *_operationQueue = nil;
 {
   id arg = [args objectAtIndex:0];
   NSString *unencodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-      (CFStringRef)unencodedString,
-      NULL,
-      (CFStringRef) @"!*'();:@+$,/?%#[]=&",
-      kCFStringEncodingUTF8) autorelease];
+  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
 - (id)decodeURIComponent:(id)args
 {
   id arg = [args objectAtIndex:0];
   NSString *encodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (CFStringRef)encodedString, CFSTR(""), kCFStringEncodingUTF8) autorelease];
+  return [encodedString stringByRemovingPercentEncoding];
 }
 
 // Socket submodule

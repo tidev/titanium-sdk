@@ -218,35 +218,15 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.method(name = "_restart")
 	public void restart()
 	{
-		// Fetch the root activity hosting the JavaScript runtime.
-		TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
-		if (rootActivity == null) {
-			return;
-		}
-
-		// Fetch a path to the main script that was last loaded.
-		String appPath = rootActivity.getUrl();
-		if (appPath == null) {
-			return;
-		}
-		appPath = "Resources/" + appPath;
-
-		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
-		TiBaseActivity.canFinishRoot = false;
-
-		// terminate all activities excluding root
-		TiApplication.terminateActivityStack();
-
-		// allow termination again
-		TiBaseActivity.canFinishRoot = true;
-
-		// restart kroll runtime
-		KrollRuntime runtime = KrollRuntime.getInstance();
-		runtime.doDispose();
-		runtime.initRuntime();
-
-		// manually re-launch app
-		runtime.doRunModule(KrollAssetHelper.readAsset(appPath), appPath, getActivityProxy());
+		// Restart the JavaScript runtime on the next message pump.
+		// We don't want to terminate the JS runtime while it's still on the stack.
+		getMainHandler().post(new Runnable() {
+			@Override
+			public void run()
+			{
+				TiApplication.getInstance().softRestart();
+			}
+		});
 	}
 
 	@Kroll.method

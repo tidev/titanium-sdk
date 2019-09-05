@@ -51,11 +51,7 @@ CFLAGS += -Os -ffunction-sections -fdata-sections
 LDLIBS += -Wl,--gc-sections,--strip-all
 
 # exclude v8 libraries
-LDLIBS += -Wl,--exclude-libs=libv8_libbase
-LDLIBS += -Wl,--exclude-libs=libv8_libplatform
-LDLIBS += -Wl,--exclude-libs=libv8_nosnapshot
-LDLIBS += -Wl,--exclude-libs=libv8_builtins_generators
-LDLIBS += -Wl,--exclude-libs=libv8_builtins_setup
+#LDLIBS += -Wl,--exclude-libs=libv8_monolith
 
 # tune for common architectures
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
@@ -79,8 +75,7 @@ LOCAL_CFLAGS := $(CFLAGS)
 LOCAL_LDLIBS := $(LDLIBS)
 LOCAL_SRC_FILES := $(SRC_FILES)
 
-# When setting v8_enable_i18n_support=0
-LOCAL_WHOLE_STATIC_LIBRARIES := libv8_libbase libv8_libplatform libv8_base libv8_nosnapshot libv8_builtins_generators libv8_builtins_setup
+LOCAL_WHOLE_STATIC_LIBRARIES := libv8_monolith
 
 include $(BUILD_SHARED_LIBRARY)
 

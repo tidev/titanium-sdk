@@ -189,6 +189,11 @@ public class TiHTTPClient
 					if (baseFile instanceof TiFile) {
 						responseFile = (TiFile) baseFile;
 					}
+				} else if (f instanceof TiFileProxy) {
+					TiBaseFile baseFile = ((TiFileProxy) f).getBaseFile();
+					if (baseFile instanceof TiFile) {
+						responseFile = (TiFile) baseFile;
+					}
 				}
 				if (responseFile == null && Log.isDebugModeEnabled()) {
 					Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
@@ -624,6 +629,15 @@ public class TiHTTPClient
 		return blob;
 	}
 
+	public KrollDict getResponseDict()
+	{
+		try {
+			return new KrollDict(new JSONObject(getResponseText()));
+		} catch (Exception e) {
+		}
+		return null;
+	}
+
 	public DocumentProxy getResponseXML()
 	{
 		// avoid eating up tons of memory if we have a large binary data blob
@@ -718,6 +732,10 @@ public class TiHTTPClient
 
 	public void clearCookies(String url)
 	{
+		if (url == null) {
+			return;
+		}
+
 		List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieManager.getCookieStore().getCookies());
 		cookieManager.getCookieStore().removeAll();
 		String lower_url = url.toLowerCase();
@@ -1346,6 +1364,7 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
+				requestPending = false;
 
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);
@@ -1370,6 +1389,8 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				requestPending = false;
+
 				KrollDict data = new KrollDict();
 				data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);
@@ -1380,7 +1401,6 @@ public class TiHTTPClient
 
 				client = null;
 				clientThread = null;
-				requestPending = false;
 				// Fire the disposehandle event if the request is finished successfully or the errors occur.
 				// And it will dispose the handle of the httpclient in the JS.
 				proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);

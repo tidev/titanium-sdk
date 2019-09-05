@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
-#import "TiProxy.h"
 #import <CoreSpotlight/CoreSpotlight.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiAppiOSSearchableIndexProxy : TiProxy {
 }

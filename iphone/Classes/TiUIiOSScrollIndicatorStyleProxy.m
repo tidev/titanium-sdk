@@ -8,7 +8,7 @@
 
 #import "TiUIiOSScrollIndicatorStyleProxy.h"
 
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiOSScrollIndicatorStyleProxy
 

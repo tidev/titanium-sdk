@@ -9,7 +9,7 @@
 #import "TiUIListItemProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListViewProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate);
 

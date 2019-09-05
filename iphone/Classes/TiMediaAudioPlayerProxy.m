@@ -11,7 +11,7 @@
 
 #import "TiMediaAudioPlayerProxy.h"
 #import "TiMediaAudioSession.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaAudioPlayerProxy
 
@@ -68,11 +68,6 @@
 - (AVPlayer *)player
 {
   if (_player == nil) {
-    if (_url == nil) {
-      [self throwException:NSLocalizedString(@"Invalid URL passed to the audio-player", nil)
-                 subreason:NSLocalizedString(@"The \"url\" probably has not been set to a valid value.", nil)
-                  location:CODELOCATION];
-    }
     _player = [AVPlayer playerWithURL:_url];
     [self addNotificationObserver];
     _state = TiAudioPlayerStateInitialized;
@@ -265,6 +260,12 @@
 
 - (void)start:(id)unused
 {
+  if (_url == nil) {
+    [self throwException:NSLocalizedString(@"Invalid URL passed to the audio-player", nil)
+               subreason:NSLocalizedString(@"The \"url\" probably has not been set to a valid value.", nil)
+                location:CODELOCATION];
+  }
+
   if (![NSThread isMainThread]) {
     TiThreadPerformOnMainThread(^{
       [self start:unused];
@@ -377,7 +378,7 @@
 
   // The AVPlayer does not properly support state management on iOS < 10.
   // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     // iOS 10+: For playbackState property / playbackstate event
     [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
   } else {
@@ -410,7 +411,7 @@
     return;
   }
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [[self player] removeObserver:self forKeyPath:@"timeControlStatus"];
   } else {
     [[self player] removeObserver:self forKeyPath:@"rate"];
@@ -423,7 +424,7 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     if (object == _player && [keyPath isEqualToString:@"timeControlStatus"]) {
       [self handleTimeControlStatusNotification:nil];
     }

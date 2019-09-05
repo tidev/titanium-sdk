@@ -3,12 +3,20 @@ name: Titanium.UI.ProgressBar
 summary: A progress bar.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/progressbar/progressbar_android.png" height="50" /></td>
-        <td><img src="images/progressbar/progressbar_ios.png" height="25" /></td>
-        <td><img src="images/progressbar/progressbar_wp.png" height="25" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/progressbar/progressbar_android.png" height="50" /></td>
+          <td><img src="images/progressbar/progressbar_ios.png" height="25" /></td>
+          <td><img src="images/progressbar/progressbar_wp.png" height="25" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     A progress bar is used for displaying an ongoing activity with a defined progression.
@@ -61,8 +69,9 @@ properties:
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: String
-    platforms: [iphone, ipad]
-    since: "5.2.0"
+    platforms: [iphone, ipad, android]
+    since: {iphone: "5.2.0", ipad: "5.2.0", android: "8.0.0"}
+    osver: {android: {min: "5.0"}}
 
   - name: min
     summary: Minimum value of the progress bar.

@@ -25,11 +25,7 @@ import android.util.Log;
 public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 {
 	private static final String TAG = "PickerColumnProxy";
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_ADD = MSG_FIRST_ID + 100;
-	private static final int MSG_REMOVE = MSG_FIRST_ID + 101;
-	private static final int MSG_SET_ROWS = MSG_FIRST_ID + 102;
-	private static final int MSG_ADD_ARRAY = MSG_FIRST_ID + 103;
+
 	private PickerColumnListener columnListener = null;
 	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;
@@ -48,41 +44,10 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		columnListener = listener;
 	}
+
 	public void setUseSpinner(boolean value)
 	{
 		useSpinner = value;
-	}
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_ADD: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleAddRow((TiViewProxy) result.getArg());
-				result.setResult(null);
-				return true;
-			}
-			case MSG_ADD_ARRAY: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleAddRowArray((Object[]) result.getArg());
-				result.setResult(null);
-				return true;
-			}
-
-			case MSG_REMOVE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleRemoveRow((TiViewProxy) result.getArg());
-				result.setResult(null);
-				return true;
-			}
-			case MSG_SET_ROWS: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleSetRows((Object[]) result.getArg());
-				result.setResult(null);
-				return true;
-			}
-		}
-		return super.handleMessage(msg);
 	}
 
 	@Override
@@ -101,22 +66,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void add(Object args)
 	{
-		if (TiApplication.isUIThread()) {
-			handleAddRow((TiViewProxy) args);
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), args);
-		}
-	}
-
-	private void handleAddRowArray(Object[] o)
-	{
-		for (Object oChild : o) {
-			if (oChild instanceof PickerRowProxy) {
-				handleAddRow((PickerRowProxy) oChild);
-			} else {
-				Log.w(TAG, "add() unsupported argument type: " + oChild.getClass().getSimpleName());
-			}
-		}
+		handleAddRow((TiViewProxy) args);
 	}
 
 	private void handleAddRow(TiViewProxy o)
@@ -138,25 +88,13 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void remove(TiViewProxy o)
 	{
-		if (TiApplication.isUIThread() || peekView() == null) {
-			handleRemoveRow(o);
-
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE), o);
-		}
-	}
-
-	private void handleRemoveRow(TiViewProxy o)
-	{
-		if (o == null)
-			return;
 		if (o instanceof PickerRowProxy) {
 			int index = children.indexOf(o);
 			super.remove((PickerRowProxy) o);
 			if (columnListener != null && !suppressListenerEvents) {
 				columnListener.rowRemoved(this, index);
 			}
-		} else {
+		} else if (o != null) {
 			Log.w(TAG, "remove() unsupported argment type: " + o.getClass().getSimpleName());
 		}
 	}
@@ -173,11 +111,8 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 
 	protected void addRows(Object[] rows)
 	{
-		if (TiApplication.isUIThread()) {
-			handleAddRowArray(rows);
-
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_ARRAY), rows);
+		for (Object row : rows) {
+			addRow(row);
 		}
 	}
 
@@ -208,16 +143,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Kroll.setProperty
 	public void setRows(Object[] rows)
 	// clang-format on
-	{
-		if (TiApplication.isUIThread() || peekView() == null) {
-			handleSetRows(rows);
-
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ROWS), rows);
-		}
-	}
-
-	private void handleSetRows(Object[] rows)
 	{
 		try {
 			suppressListenerEvents = true;

@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_UIMASKEDIMAGE
 
-#import "TiUIView.h"
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIMaskedImage : TiUIView {
   @private

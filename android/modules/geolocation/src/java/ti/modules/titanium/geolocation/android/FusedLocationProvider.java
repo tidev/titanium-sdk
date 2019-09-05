@@ -218,19 +218,14 @@ public class FusedLocationProvider
 
 					final int accuracy =
 						geolocationModule.getProperties().optInt(TiC.PROPERTY_ACCURACY, GeolocationModule.ACCURACY_LOW);
-					if (locationProvider.getName().equals(GeolocationModule.PROVIDER_PASSIVE)) {
+					if (locationProvider.getName().equals(AndroidModule.PROVIDER_PASSIVE)) {
 						request.setPriority(LocationRequest.PRIORITY_NO_POWER);
 					} else {
 						switch (accuracy) {
 							case GeolocationModule.ACCURACY_LOW:
-							case GeolocationModule.ACCURACY_HUNDRED_METERS:
-							case GeolocationModule.ACCURACY_KILOMETER:
-							case GeolocationModule.ACCURACY_THREE_KILOMETERS:
 								request.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 								break;
 							case GeolocationModule.ACCURACY_HIGH:
-							case GeolocationModule.ACCURACY_NEAREST_TEN_METERS:
-							case GeolocationModule.ACCURACY_BEST_FOR_NAVIGATION:
 							default:
 								request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 						}

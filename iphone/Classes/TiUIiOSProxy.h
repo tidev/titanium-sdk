@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_UIIOS
 
@@ -162,7 +162,7 @@
 @property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_DARK;
 #endif
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
@@ -235,5 +235,8 @@
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 - (id)createFeedbackGenerator:(id)args;
 #endif
-
+#ifdef USE_TI_UIWEBVIEW
+- (id)createWebViewConfiguration:(id)args;
+- (id)createWebViewProcessPool:(id)args;
+#endif
 @end

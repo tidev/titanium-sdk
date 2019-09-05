@@ -8,8 +8,8 @@
 
 #import "TiUIiOSCoverFlowView.h"
 #import "AFOpenFlow/UIImageExtras.h"
-#import "ImageLoader.h"
-#import "TiBlob.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiBlob.h>
 
 @implementation TiUIiOSCoverFlowView
 

@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIDASHBOARDVIEW
 
 #import "LauncherView.h"
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIDashboardView : TiUIView <LauncherViewDelegate> {
 

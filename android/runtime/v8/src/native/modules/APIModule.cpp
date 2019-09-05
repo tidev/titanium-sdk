@@ -7,7 +7,6 @@
 
 #include <android/log.h>
 #include <v8.h>
-#include <v8-debug.h>
 #include <cstring>
 #include <signal.h>
 #include <unistd.h>
@@ -18,6 +17,7 @@
 #include "V8Runtime.h"
 #include "V8Util.h"
 #include "org.appcelerator.kroll.KrollModule.h"
+#include "JSDebugger.h"
 
 namespace titanium {
 
@@ -71,7 +71,7 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 	// TODO Use a constant here?
 	Local<ObjectTemplate> instanceTemplate = constructor->InstanceTemplate();
 	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "apiName"), APIModule::getter_apiName);
-	
+
 	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "bubbleParent"), APIModule::getter_undefined);
 	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "lifecycleContainer"), APIModule::getter_undefined);
 
@@ -83,7 +83,7 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 		SetProtoMethod(isolate, constructor, "debugBreak", debugBreak);
 	}
 	// Make API extend from KrollModule
-	constructor->Inherit(KrollModule::getProxyTemplate(isolate));
+	constructor->Inherit(KrollModule::getProxyTemplate(context));
 
 	// export an instance of API as "API" (basically make a static singleton)
 	v8::TryCatch tryCatch(isolate);
@@ -104,57 +104,65 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 
 void APIModule::logDebug(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
 }
 
 void APIModule::logInfo(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
 }
 
 void APIModule::logWarn(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_WARN, LCAT, *message);
 }
 
 void APIModule::logError(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_ERROR, LCAT, *message);
 }
 
 void APIModule::logTrace(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
 }
 
 void APIModule::logNotice(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_NOTICE, LCAT, *message);
 }
 
 void APIModule::logCritical(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_CRITICAL, LCAT, *message);
 }
 
 void APIModule::logFatal(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
-	v8::String::Utf8Value message(args[0]);
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+	v8::String::Utf8Value message(isolate, args[0]);
 	APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 }
 
@@ -201,13 +209,14 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 
 void APIModule::log(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope(args.GetIsolate());
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
 	if (args.Length()  == 1) {
-		v8::String::Utf8Value message(args[0]);
+		v8::String::Utf8Value message(isolate, args[0]);
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
 	} else {
-		v8::String::Utf8Value level(args[0]);
-		v8::String::Utf8Value message(APIModule::combineLogMessages(args, 1));
+		v8::String::Utf8Value level(isolate, args[0]);
+		v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args, 1));
 
 		if (strcasecmp(*level, "TRACE") == 0) {
 			APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
@@ -237,19 +246,20 @@ void APIModule::log(const FunctionCallbackInfo<Value>& args)
 
 Local<String> APIModule::combineLogMessages(const FunctionCallbackInfo<Value>& args, int startIndex)
 {
-    // Unfortunately there is no really reasonable way to do this in a memory
-    // and speed-efficient manner. Instead what we have is a series of string
-    // object concatenations, which is a rough emulation of what the + op would
-    // do in JS. Requiring the whitespace between arguments complicates matters
-    // by introducing the " " token.
-    Isolate* isolate = args.GetIsolate();
-    Local<String> space = NEW_SYMBOL(isolate, " ");
-    Local<String> message = String::Empty(isolate);
-    for (int i=startIndex; i < args.Length(); i++) {
-        message = String::Concat(message, String::Concat(space, args[i]->ToString(isolate)));
-    }
-
-    return message;
+	// Unfortunately there is no really reasonable way to do this in a memory
+	// and speed-efficient manner. Instead what we have is a series of string
+	// object concatenations, which is a rough emulation of what the + op would
+	// do in JS. Requiring the whitespace between arguments complicates matters
+	// by introducing the " " token.
+	Isolate* isolate = args.GetIsolate();
+	Local<Context> context = isolate->GetCurrentContext();
+	Local<String> space = NEW_SYMBOL(isolate, " ");
+	Local<String> message = String::Empty(isolate);
+	Local<String> empty = String::Empty(isolate);
+	for (int i=startIndex; i < args.Length(); i++) {
+		message = String::Concat(isolate, message, String::Concat(isolate, space, args[i]->ToString(context).FromMaybe(empty)));
+	}
+	return message;
 }
 
 void APIModule::getApiName(const FunctionCallbackInfo<Value>& args)
@@ -274,7 +284,7 @@ void APIModule::terminate(const FunctionCallbackInfo<Value>& args)
 
 void APIModule::debugBreak(const FunctionCallbackInfo<Value>& args)
 {
-	Debug::DebugBreak(args.GetIsolate());
+	JSDebugger::debugBreak();
 }
 
 void APIModule::undefined(const FunctionCallbackInfo<Value>& args)

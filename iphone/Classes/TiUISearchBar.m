@@ -13,9 +13,9 @@
 #ifdef USE_TI_UISEARCHBAR
 
 #import "TiUISearchBar.h"
-#import "ImageLoader.h"
 #import "TiUISearchBarProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUISearchBar
 
@@ -126,14 +126,9 @@
 {
   id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
 
-  NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
-
-  if ([TiUtils isIOS9OrGreater]) {
-    [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeHolder];
-  } else {
-    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setAttributedPlaceholder:placeHolder];
-  }
-  RELEASE_TO_NIL(placeHolder);
+  NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
+  [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeholder];
+  RELEASE_TO_NIL(placeholder);
 }
 
 - (void)setColor_:(id)value
@@ -189,10 +184,9 @@
 
 - (void)setTintColor_:(id)color
 {
-  TiColor *ticolor = [TiUtils colorValue:color];
-  UIColor *theColor = [ticolor _color];
-  [[self searchBar] setTintColor:theColor];
-  [self setTintColor:theColor];
+  TiColor *tiColor = [TiUtils colorValue:color];
+  [[self searchBar] setTintColor:tiColor.color];
+  [self setTintColor:tiColor.color];
 }
 
 - (void)setBarColor_:(id)value

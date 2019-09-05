@@ -6,8 +6,9 @@
  */
 
 #import "TiAppiOSProxy.h"
-#import "TiApp.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
 #import "TiAppiOSBackgroundServiceProxy.h"
@@ -110,20 +111,26 @@
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
   }
-  if ([TiUtils isIOS9OrGreater]) {
-    if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector
-                                               (didReceiveApplicationShortcutNotification:)
-                                                   name:kTiApplicationShortcut
-                                                 object:nil];
-    }
+
+  if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector
+                                             (didReceiveApplicationShortcutNotification:)
+                                                 name:kTiApplicationShortcut
+                                               object:nil];
   }
 
   if ((count == 1) && [type isEqual:@"handleurl"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didHandleURL:)
                                                  name:kTiApplicationLaunchedFromURL
+                                               object:nil];
+  }
+
+  if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeTraitCollection:)
+                                                 name:kTiTraitCollectionChanged
                                                object:nil];
   }
 }
@@ -176,14 +183,27 @@
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
   }
-  if ([TiUtils isIOS9OrGreater]) {
-    if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
-    }
+  if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
+  }
+  if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
   }
 }
 
 #pragma mark Public
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)userInterfaceStyle
+{
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+#endif
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self fireEvent:@"traitcollectionchange"];
+}
 
 - (void)didReceiveApplicationShortcutNotification:(NSNotification *)info
 {
@@ -228,23 +248,15 @@
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
-- (id)createSearchableIndex:(id)unused
+- (TiAppiOSSearchableIndexProxy *)createSearchableIndex:(id)unused
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return nil;
-  }
-
   return [[[TiAppiOSSearchableIndexProxy alloc] init] autorelease];
-  ;
 }
 #endif
 
 #ifdef USE_TI_APPIOSSEARCHABLEITEM
 - (id)createSearchableItem:(id)args
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return nil;
-  }
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -273,11 +285,8 @@
 #endif
 
 #ifdef USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET
-- (id)createSearchableItemAttributeSet:(id)args
+- (TiAppiOSSearchableItemAttributeSetProxy *)createSearchableItemAttributeSet:(id)args
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return nil;
-  }
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -300,9 +309,9 @@
 #endif
 
 #ifdef USE_TI_APPIOSSEARCHQUERY
-- (id)createSearchQuery:(id)args
+- (TiAppiOSSearchQueryProxy *)createSearchQuery:(id)args
 {
-  if (![TiUtils isIOS10OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSLog(@"[ERROR] Search-Queries are only available in iOS 10 and later.");
     return nil;
   }
@@ -322,7 +331,7 @@
 #endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
-- (id)createUserActivity:(id)args
+- (TiAppiOSUserActivityProxy *)createUserActivity:(id)args
 {
   if (![NSThread isMainThread]) {
     __block id result;
@@ -342,7 +351,7 @@
 }
 #endif
 
-- (id)createUserDefaults:(id)args
+- (TiAppiOSUserDefaultsProxy *)createUserDefaults:(id)args
 {
   NSString *suiteName;
   ENSURE_SINGLE_ARG(args, NSDictionary);
@@ -357,7 +366,7 @@
   return userDefaultsProxy;
 }
 
-- (id)registerBackgroundService:(id)args
+- (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
 {
   NSDictionary *a = nil;
   ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
@@ -389,6 +398,7 @@
 
   NSArray *categories;
   NSArray *typesRequested;
+
   ENSURE_ARG_OR_NIL_FOR_KEY(categories, args, @"categories", NSArray);
   ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
 
@@ -402,14 +412,14 @@
 
   NSUInteger types = UIUserNotificationTypeNone;
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     types = UNAuthorizationOptionNone;
   }
 
   if (typesRequested != nil) {
     for (id thisTypeRequested in typesRequested) {
       // Handle basic iOS 12+ enums
-      if ([TiUtils isIOS10OrGreater]) {
+      if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
         switch ([TiUtils intValue:thisTypeRequested]) {
         case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
         {
@@ -432,7 +442,7 @@
           break;
         }
         }
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
         // Handle additional iOS 12+ enums
         if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
           switch ([TiUtils intValue:thisTypeRequested]) {
@@ -476,10 +486,10 @@
     }
   }
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:types
                                                                         completionHandler:^(BOOL granted, NSError *error) {
-                                                                          if (granted == YES) {
+                                                                          if (granted) {
                                                                             [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithArray:nativeCategories]];
                                                                           }
 
@@ -511,12 +521,12 @@
   }
 }
 
-- (id)createUserNotificationAction:(id)args
+- (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
 {
   return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
-- (id)createUserNotificationCategory:(id)args
+- (TiAppiOSUserNotificationCategoryProxy *)createUserNotificationCategory:(id)args
 {
   return [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
@@ -533,7 +543,7 @@
 {
   DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"7.3.0", @"App.iOS.UserNotificationCenter.requestUserNotificationSettings");
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     DebugLog(@"[ERROR] Please use Ti.App.iOS.UserNotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
   }
 
@@ -596,7 +606,7 @@
     UNNotificationSetting carPlaySetting = [(UNNotificationSettings *)notificationSettings carPlaySetting];
 
     if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
       UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
       BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
 
@@ -651,7 +661,7 @@
                        nil];
 }
 
-- (id)scheduleLocalNotification:(id)args
+- (TiAppiOSLocalNotificationProxy *)scheduleLocalNotification:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSDictionary);
 
@@ -669,13 +679,13 @@
   NSNumber *summaryArgumentCount = [args objectForKey:@"summaryArgumentCount"];
   NSString *threadIdentifier = [TiUtils stringValue:@"threadIdentifier" properties:args];
   NSString *timezone = [TiUtils stringValue:@"timezone" properties:args];
+  NSString *identifier = [TiUtils stringValue:@"identifier" properties:args def:NSUUID.UUID.UUIDString];
 
   // Construct a new local notification proxy from our current context
   TiAppiOSLocalNotificationProxy *notification = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 
   // For iOS 10+, use the UserNotifications framework to manage notification
-  if ([TiUtils isIOS10OrGreater]) {
-    NSString *identifier = [TiUtils stringValue:@"identifier" properties:args def:NSUUID.UUID.UUIDString];
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSString *alertSubtitle = [TiUtils stringValue:@"alertSubtitle" properties:args];
     NSString *category = [TiUtils stringValue:@"category" properties:args];
     NSArray<NSDictionary<NSString *, id> *> *attachments = [args objectForKey:@"attachments"];
@@ -762,20 +772,7 @@
     }
 
     // Set additional user-info
-    if (userInfo != nil) {
-      // If user-info exists, but the "id" field does not, inject it
-      if ([userInfo objectForKey:@"id"] == nil) {
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:userInfo];
-        [dict setObject:identifier forKey:@"id"];
-        [content setUserInfo:dict];
-      } else {
-        // If user-info and "id" field exist, simply assign
-        [content setUserInfo:userInfo];
-      }
-    } else {
-      // If no user-info exists at all, inject the "id" field
-      [content setUserInfo:@{ @"id" : identifier }];
-    }
+    [self assignUserInfo:userInfo toContent:content ensureIdentifier:identifier];
 
     // Set attachments
     if (attachments != nil) {
@@ -826,23 +823,24 @@
       [content setCategoryIdentifier:[TiUtils stringValue:category]];
     }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
     // Add iOS 12+ API's to enable threading and notification groups
     if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
       // Set the string the notification adds to the category’s summary format string.
       if (summaryArgument != nil) {
         [content setSummaryArgument:summaryArgument];
       }
-      // Set a number that indicates how many items in the summary are represented in the summary.
+      // Set a number that indicates how many items are represented in the summary.
       if (summaryArgumentCount != nil) {
         [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
       }
-      // Set the thread identifier to enable grouped notifications
-      if (threadIdentifier != nil) {
-        [content setThreadIdentifier:threadIdentifier];
-      }
     }
 #endif
+
+    // Set the thread identifier to enable grouped notifications
+    if (threadIdentifier != nil) {
+      [content setThreadIdentifier:threadIdentifier];
+    }
 
     // Construct a new notiication request using our content and trigger (e.g. date or location)
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
@@ -892,7 +890,7 @@
       content.alertBody = alertBody;
     }
 
-    if (alertTitle != nil && [TiUtils isIOS82rGreater]) {
+    if (alertTitle != nil) {
       content.alertTitle = alertTitle;
     }
 
@@ -935,9 +933,8 @@
       }
     }
 
-    if (userInfo) {
-      content.userInfo = userInfo;
-    }
+    // Set additional user-info
+    [self assignUserInfo:userInfo toContent:content ensureIdentifier:identifier];
 
     id category = [args objectForKey:@"category"];
     if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
@@ -962,13 +959,34 @@
   }
 }
 
+/**
+ Assign custom user info to notification content and make sure it has an identifier.
+
+ @param userInfo User info dictionary to assign to the notification content
+ @param content Notification content, can either be UNMutableNotificationContent or UILocalNotification
+ @param notificationIdentifier The unique idenitifer for a notification.
+ */
+- (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString *)notificationIdentifier
+{
+  NSMutableDictionary *userInfoWithId = userInfo == nil ? @{ @"id" : notificationIdentifier } : userInfo.mutableCopy;
+  if (userInfoWithId[@"id"] == nil) {
+    userInfoWithId[@"id"] = notificationIdentifier;
+  }
+
+  if ([content isKindOfClass:UNMutableNotificationContent.class]) {
+    ((UNMutableNotificationContent *)content).userInfo = userInfoWithId;
+  } else if ([content isKindOfClass:UILocalNotification.class]) {
+    ((UILocalNotification *)content).userInfo = userInfoWithId;
+  }
+}
+
 - (void)cancelAllLocalNotifications:(id)unused
 {
   ENSURE_UI_THREAD(cancelAllLocalNotifications, unused);
 
   DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications()", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications()");
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
   } else {
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
@@ -982,7 +1000,7 @@
 
   DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification(identifier)", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications(identifier)");
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ identifier ]];
   } else {
     NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
@@ -1071,9 +1089,7 @@
 
 - (void)didReceiveWatchExtensionRequestNotification:(NSNotification *)notif
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
-  }
+  DebugLog(@"[WARN] The \"watchkitextensionrequest\" event is deprecated. Please use the Ti.App.iOS.WatchConnectivity API instead.");
   [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
 }
 
@@ -1081,9 +1097,8 @@
 
 - (void)sendWatchExtensionReply:(id)args
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
-  }
+  DebugLog(@"[WARN] The \"sendWatchExtensionReply\" method is deprecated. Please use the Ti.App.iOS.WatchConnectivity API instead.");
+
   enum Args {
     kArgKey = 0,
     kArgCount,
@@ -1133,7 +1148,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_NONE
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNAuthorizationOptionNone);
   }
 
@@ -1142,7 +1157,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_BADGE
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNAuthorizationOptionBadge);
   }
 
@@ -1151,7 +1166,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_SOUND
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNAuthorizationOptionSound);
   }
 
@@ -1160,7 +1175,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_ALERT
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNAuthorizationOptionAlert);
   }
 
@@ -1169,13 +1184,13 @@
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_CAR_PLAY
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNAuthorizationOptionCarPlay);
   }
   return NUMINT(0);
 }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 - (NSNumber *)USER_NOTIFICATION_TYPE_CRITICAL_ALERT
 {
   if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
@@ -1203,7 +1218,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationActionOptionNone);
   }
 
@@ -1212,7 +1227,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationActionOptionForeground);
   }
 
@@ -1221,25 +1236,17 @@
 
 - (NSNumber *)USER_NOTIFICATION_BEHAVIOR_DEFAULT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINT(UIUserNotificationActionBehaviorDefault);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserNotificationActionBehaviorDefault);
 }
 
 - (NSNumber *)USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINT(UIUserNotificationActionBehaviorTextInput);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserNotificationActionBehaviorTextInput);
 }
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_NONE
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationCategoryOptionNone);
   }
 
@@ -1248,7 +1255,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationCategoryOptionCustomDismissAction);
   }
 
@@ -1257,7 +1264,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationCategoryOptionAllowInCarPlay);
   }
 
@@ -1266,7 +1273,7 @@
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowTitle);
   }
 
@@ -1275,14 +1282,44 @@
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
   }
 
   return NUMINT(0);
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleUnspecified);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_LIGHT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleLight);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_DARK
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleDark);
+  }
+
+  return NUMINT(0);
+}
+#endif
+
 #pragma mark UTI Text Type Constants
+
 - (CFStringRef)UTTYPE_TEXT
 {
   return kUTTypeText;
@@ -1364,6 +1401,7 @@
 }
 
 #pragma mark UTI Composite Content Type Constants
+
 - (CFStringRef)UTTYPE_PDF
 {
   return kUTTypePDF;
@@ -1390,6 +1428,7 @@
 }
 
 #pragma mark UTI Image Content Types
+
 - (CFStringRef)UTTYPE_IMAGE
 {
   return kUTTypeImage;
@@ -1446,6 +1485,7 @@
 }
 
 #pragma mark UTI Audio Visual Content Types
+
 - (CFStringRef)UTTYPE_AUDIO_VISUAL_CONTENT
 {
   return kUTTypeAudiovisualContent;
@@ -1511,7 +1551,7 @@ MAKE_SYSTEM_PROP(FETCH_FAILED, UIBackgroundFetchResultFailed);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED, UNAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED, UNAuthorizationStatusAuthorized);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED, UNAuthorizationStatusNotDetermined);
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_PROVISIONAL, UNAuthorizationStatusProvisional);
 #endif
 

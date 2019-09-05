@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 
 #import "TiUIiOSSystemButtonProxy.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiUIiOSSystemButtonProxy
 

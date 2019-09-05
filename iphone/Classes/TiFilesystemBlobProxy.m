@@ -7,11 +7,11 @@
 #import "TiFilesystemBlobProxy.h"
 
 #ifdef USE_TI_FILESYSTEM
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
-#import "Mimetypes.h"
-#import "TiBlob.h"
-#import "TiUtils.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiFilesystemBlobProxy
 
@@ -137,10 +137,10 @@ FILENOOP(setHidden
   return NUMBOOL(NO);
 }
 
-- (id)read:(id)args
+- (TiBlob *)read:(id)args
 {
   NSString *mimetype = [Mimetypes mimeTypeForExtension:[[url path] lastPathComponent]];
-  return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:data mimetype:mimetype] autorelease];
+  return [[[TiBlob alloc] initWithData:data mimetype:mimetype] autorelease];
 }
 
 - (id)append:(id)args

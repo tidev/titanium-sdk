@@ -13,8 +13,8 @@
 #ifdef USE_TI_NETWORKSOCKET
 #import "AsyncSocket.h"
 #import "TiNetworkSocketProxy.h"
-#import "TiStreamProxy.h"
 #import <Foundation/Foundation.h>
+#import <TitaniumKit/TiStreamProxy.h>
 
 // Used to determine the type of processing
 typedef enum {

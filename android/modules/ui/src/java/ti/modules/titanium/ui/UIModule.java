@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -24,8 +25,6 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Message;
 import android.text.InputType;
 import android.text.util.Linkify;
 import android.view.View;
@@ -34,8 +33,8 @@ import android.widget.Toast;
 
 // clang-format off
 @Kroll.module
-@Kroll.dynamicApis(properties = { "currentWindow" })
-public class UIModule extends KrollModule implements Handler.Callback
+
+public class UIModule extends KrollModule
 // clang-format on
 {
 	private static final String TAG = "TiUIModule";
@@ -69,27 +68,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 	@Kroll.constant
 	public static final int KEYBOARD_APPEARANCE_DEFAULT = -1; // Not supported
-	@Kroll.constant
-	public static final int KEYBOARD_APPEARANCE_ALERT = -1; // Not supported
-
-	@Kroll.constant
-	public static final int KEYBOARD_ASCII = 0;
-	@Kroll.constant
-	public static final int KEYBOARD_NUMBERS_PUNCTUATION = 1;
-	@Kroll.constant
-	public static final int KEYBOARD_URL = 2;
-	@Kroll.constant
-	public static final int KEYBOARD_NUMBER_PAD = 3;
-	@Kroll.constant
-	public static final int KEYBOARD_PHONE_PAD = 4;
-	@Kroll.constant
-	public static final int KEYBOARD_EMAIL = 5;
-	@Kroll.constant
-	public static final int KEYBOARD_NAMEPHONE_PAD = 6;
-	@Kroll.constant
-	public static final int KEYBOARD_DEFAULT = 7;
-	@Kroll.constant
-	public static final int KEYBOARD_DECIMAL_PAD = 8;
 
 	@Kroll.constant
 	public static final int KEYBOARD_TYPE_ASCII = 0;
@@ -109,6 +87,15 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public static final int KEYBOARD_TYPE_DEFAULT = 7;
 	@Kroll.constant
 	public static final int KEYBOARD_TYPE_DECIMAL_PAD = 8;
+
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_EASE_IN = TiAnimationCurve.EASE_IN.toTiIntId();
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_EASE_IN_OUT = TiAnimationCurve.EASE_IN_OUT.toTiIntId();
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_EASE_OUT = TiAnimationCurve.EASE_OUT.toTiIntId();
+	@Kroll.constant
+	public static final int ANIMATION_CURVE_LINEAR = TiAnimationCurve.LINEAR.toTiIntId();
 
 	@Kroll.constant
 	public static final int AUTOLINK_ALL = Linkify.ALL;
@@ -393,9 +380,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int HIDDEN_BEHAVIOR_INVISIBLE = View.INVISIBLE;
 
-	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
-	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
-	protected static final int MSG_LAST_ID = MSG_SET_BACKGROUND_IMAGE;
+	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
 	public UIModule()
 	{
@@ -408,13 +393,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public void setBackgroundColor(String color)
 	// clang-format off
 	{
-		if (TiApplication.isUIThread()) {
-			doSetBackgroundColor(color);
-
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_COLOR, color);
-			message.sendToTarget();
-		}
+		doSetBackgroundColor(color);
 	}
 
 	protected void doSetBackgroundColor(String color)
@@ -431,13 +410,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public void setBackgroundImage(Object image)
 	// clang-format on
 	{
-		if (TiApplication.isUIThread()) {
-			doSetBackgroundImage(image);
-
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_IMAGE, image);
-			message.sendToTarget();
-		}
+		doSetBackgroundImage(image);
 	}
 
 	protected void doSetBackgroundImage(Object image)
@@ -514,24 +487,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 				windowProxy.setOrientationModes(orientationModes);
 			}
 		}
-	}
-
-	public boolean handleMessage(Message message)
-	{
-		switch (message.what) {
-			case MSG_SET_BACKGROUND_COLOR: {
-				doSetBackgroundColor((String) message.obj);
-
-				return true;
-			}
-			case MSG_SET_BACKGROUND_IMAGE: {
-				doSetBackgroundImage(message.obj);
-
-				return true;
-			}
-		}
-
-		return super.handleMessage(message);
 	}
 
 	@Override

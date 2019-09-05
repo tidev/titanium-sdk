@@ -5,8 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIOSANIMATOR
-#import "TiProxy.h"
-#import "TiViewProxy.h"
+
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @protocol TiBehaviorProtocol
 @required

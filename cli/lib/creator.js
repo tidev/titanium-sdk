@@ -5,7 +5,7 @@
  * access build properties.
  *
  * @copyright
- * Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -18,14 +18,13 @@ const appc = require('node-appc'),
 	async = require('async'),
 	ejs = require('ejs'),
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	http = require('http'),
 	i18n = appc.i18n(__dirname),
 	path = require('path'),
 	request = require('request'),
 	temp = require('temp'),
 	ti = require('node-titanium-sdk'),
-	wrench = require('wrench'),
 	__ = i18n.__,
 	__n = i18n.__n;
 
@@ -92,7 +91,7 @@ Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variable
 
 	variables || (variables = {});
 
-	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+	fs.ensureDirSync(destDir);
 
 	const _t = this,
 		ejsRegExp = /\.ejs$/,
@@ -241,6 +240,50 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 		},
 		required: true,
 		validate: validate
+	};
+};
+
+/**
+ * Defines the -c option to selec the code base (Swift or Obj-C).
+ *
+ * @param {Integer} order - The order to apply to this option.
+ *
+ * @returns {Object}
+ */
+Creator.prototype.configOptionCodeBase = function configCodeBase(order) {
+	const cli = this.cli;
+	const validTypes = [ 'swift', 'objc' ];
+	const logger = this.logger;
+
+	function validate(value, callback) {
+		if (!value || !validTypes.includes(value)) {
+			logger.error(__('Please specify a valid code base') + '\n');
+			return callback(true);
+		}
+		callback(null, value);
+	}
+
+	return {
+		abbr: 'c',
+		desc: __('the code base of the iOS project'),
+		order: order,
+		default: !cli.argv.prompt ? 'objc' : undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
+		prompt: function (callback) {
+			callback(fields.text({
+				promptLabel: __('iOS code base (' + validTypes.join('|') + ')'),
+				default: 'objc',
+				validate: validate
+			}));
+		},
+		required: true,
+		validate: validate,
+		values: validTypes,
+		verifyIfRequired: function (callback) {
+			if (cli.argv.platforms.includes('ios') || cli.argv.platforms.includes('iphone') || cli.argv.platforms.includes('ipad')) {
+				return callback(true);
+			}
+			return callback();
+		}
 	};
 };
 
@@ -505,10 +548,10 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
  */
 Creator.prototype.processTemplate = function processTemplate(next) {
 	// try to resolve the template dir
-	const template = this.cli.argv.template = this.cli.argv.template || 'default',
-		builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template),
-		searchPaths = [],
-		additionalPaths = this.config.get('paths.templates');
+	const template = this.cli.argv.template = this.cli.argv.template || 'default';
+	const additionalPaths = this.config.get('paths.templates');
+	const builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template);
+	const searchPaths = [];
 
 	// first check if the specified template is a built-in template name
 	if (fs.existsSync(builtinTemplateDir)) {
@@ -562,7 +605,7 @@ Creator.prototype.downloadFile = function downloadFile(url, callback) {
 	const tempName = temp.path({ suffix: '.zip' }),
 		tempDir = path.dirname(tempName);
 
-	fs.existsSync(tempDir) || wrench.mkdirSyncRecursive(tempDir);
+	fs.ensureDirSync(tempDir);
 
 	this.logger.info(__('Downloading %s', url.cyan));
 
@@ -607,7 +650,7 @@ Creator.prototype.downloadFile = function downloadFile(url, callback) {
  */
 Creator.prototype.unzipFile = function unzipFile(zipFile, callback) {
 	const dir = temp.mkdirSync({ prefix: 'titanium-' });
-	fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+	fs.ensureDirSync(dir);
 	this.logger.info(__('Extracting %s', zipFile.cyan));
 	const logger = this.logger;
 
@@ -615,7 +658,7 @@ Creator.prototype.unzipFile = function unzipFile(zipFile, callback) {
 		// clean up the temp dir
 		if (fs.existsSync(dir)) {
 			logger.debug(__('Removing temp unzip dir: %s', dir.cyan));
-			wrench.rmdirSyncRecursive(dir);
+			fs.rmdirSync(dir);
 		}
 	});
 

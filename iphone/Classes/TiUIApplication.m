@@ -6,20 +6,20 @@
  */
 
 #import "TiUIApplication.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiUIApplication
 
 #ifdef USE_TI_APPTRACKUSERINTERACTION
 - (void)sendEvent:(UIEvent *)event
 {
-  [super sendEvent:event];
-
   for (UITouch *touch in event.allTouches) {
     if (touch.phase == UITouchPhaseBegan) {
       [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserInteraction object:nil];
     }
   }
+
+  [super sendEvent:event];
 }
 #endif
 

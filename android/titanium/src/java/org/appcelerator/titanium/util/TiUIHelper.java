@@ -42,6 +42,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.graphics.drawable.PaintDrawable;
 import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -93,6 +94,7 @@ public class TiUIHelper
 {
 	private static final String TAG = "TiUIHelper";
 	private static final String customFontPath = "Resources/fonts";
+	private static final String DEFAULT_FONT_SIZE_STRING = "15dp";
 
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 	public static final String MIME_TYPE_PNG = "image/png";
@@ -231,7 +233,7 @@ public class TiUIHelper
 											 .create();
 					if (activity instanceof TiBaseActivity) {
 						TiBaseActivity baseActivity = (TiBaseActivity) activity;
-						baseActivity.addDialog(baseActivity.new DialogWrapper(
+						baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
 							dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
@@ -338,9 +340,8 @@ public class TiUIHelper
 
 	public static void styleText(TextView tv, HashMap<String, Object> d)
 	{
-
-		if (d == null) {
-			TiUIHelper.styleText(tv, null, null, null);
+		if ((d == null) || d.isEmpty()) {
+			TiUIHelper.styleText(tv, null, DEFAULT_FONT_SIZE_STRING, null);
 			return;
 		}
 
@@ -456,7 +457,7 @@ public class TiUIHelper
 
 	public static String getDefaultFontSize(Context context)
 	{
-		String size = "15.0px";
+		String size = DEFAULT_FONT_SIZE_STRING;
 		TextView tv = new TextView(context);
 		if (tv != null) {
 			size = String.valueOf(tv.getTextSize()) + "px";
@@ -642,15 +643,15 @@ public class TiUIHelper
 		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
 	}
 
-	private static final int[] BACKGROUND_DEFAULT_STATE_1 = { android.R.attr.state_window_focused,
-															  android.R.attr.state_enabled };
-	private static final int[] BACKGROUND_DEFAULT_STATE_2 = { android.R.attr.state_enabled };
-	private static final int[] BACKGROUND_SELECTED_STATE = { android.R.attr.state_window_focused,
-															 android.R.attr.state_enabled,
-															 android.R.attr.state_pressed };
-	private static final int[] BACKGROUND_FOCUSED_STATE = { android.R.attr.state_focused,
-															android.R.attr.state_window_focused,
-															android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_DEFAULT_STATE_1 = { android.R.attr.state_window_focused,
+															 android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_DEFAULT_STATE_2 = { android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_SELECTED_STATE = { android.R.attr.state_window_focused,
+															android.R.attr.state_enabled,
+															android.R.attr.state_pressed };
+	public static final int[] BACKGROUND_FOCUSED_STATE = { android.R.attr.state_focused,
+														   android.R.attr.state_window_focused,
+														   android.R.attr.state_enabled };
 	public static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
 
 	public static StateListDrawable buildBackgroundDrawable(String image, boolean tileImage, String color,
@@ -1220,5 +1221,62 @@ public class TiUIHelper
 			}
 		}
 		return mUri;
+	}
+
+	/**
+	 * Helper method for getting the actual color values for Views with defined custom backgrounds
+	 * that take advantage of color state lists.
+	 */
+	public static String getBackgroundColorForState(TiBackgroundDrawable backgroundDrawable, int[] state)
+	{
+		try {
+			// TiBackgroundDrawable's background can be either PaintDrawable or StateListDrawable.
+			// Handle the cases separately.
+			Drawable simpleDrawable = backgroundDrawable.getBackground();
+			if (simpleDrawable instanceof PaintDrawable) {
+				// For backwards compatibility return null if the required state is not the default one.
+				if (state != TiUIHelper.BACKGROUND_DEFAULT_STATE_1) {
+					return null;
+				}
+				return hexStringFrom(((PaintDrawable) simpleDrawable).getPaint().getColor());
+			} else if (simpleDrawable instanceof StateListDrawable) {
+				// Get the backgroundDrawable background as a StateListDrawable.
+				StateListDrawable stateListDrawable = (StateListDrawable) simpleDrawable;
+				// Get the reflection methods.
+				Method getStateDrawableIndexMethod =
+					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
+				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
+				// Get the disabled state's (as defined in TiUIHelper) index.
+				int index = (int) getStateDrawableIndexMethod.invoke(stateListDrawable, state);
+				// Get the drawable at the index.
+				Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
+				// Try to get the 0 index of the result.
+				if (drawable instanceof LayerDrawable) {
+					Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
+					// Cast it as a ColorDrawable.
+					if (drawableFromLayer instanceof ColorDrawable) {
+						// Transcript the color int to HexString.
+						String strColor = hexStringFrom(((ColorDrawable) drawableFromLayer).getColor());
+						return strColor;
+					} else {
+						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
+									   + drawableFromLayer.getClass().toString());
+						return null;
+					}
+				} else {
+					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
+								   + drawable.getClass().toString());
+					return null;
+				}
+			}
+		} catch (Exception e) {
+			Log.w(TAG, e.toString());
+		}
+		return null;
+	}
+
+	public static String hexStringFrom(int colorInt)
+	{
+		return String.format("#%08X", 0xFFFFFFFF & colorInt);
 	}
 }

@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIOSSYSTEMICON
 
 #import "TiUIiOSSystemIconProxy.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiUIiOSSystemIconProxy
 

@@ -167,10 +167,10 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			if (devs.length) {
 				logger.log(keychain.grey);
 				devs.sort(function (a, b) {
-					return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
+					return a.fullname === b.fullname ? 0 : a.fullname < b.fullname ? -1 : 1;
 				}).forEach(function (dev) {
 					counter++;
-					logger.log('  ' + dev.name.cyan + (dev.expired ? ' ' + styleBad(__('**EXPIRED**')) : dev.invalid ? ' ' + styleBad(__('**NOT VALID**')) : ''));
+					logger.log('  ' + dev.fullname.cyan + (dev.expired ? ' ' + styleBad(__('**EXPIRED**')) : dev.invalid ? ' ' + styleBad(__('**NOT VALID**')) : ''));
 					logger.log('  ' + rpad('  ' + __('Not valid before')) + ' = ' + styleValue(moment(dev.before).format('l LT')));
 					logger.log('  ' + rpad('  ' + __('Not valid after')) + ' = ' + styleValue(moment(dev.after).format('l LT')));
 				});
@@ -187,10 +187,10 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			if (dists.length) {
 				logger.log(keychain.grey);
 				dists.sort(function (a, b) {
-					return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
+					return a.fullname === b.fullname ? 0 : a.fullname < b.fullname ? -1 : 1;
 				}).forEach(function (dist) {
 					counter++;
-					logger.log('  ' + dist.name.cyan + (dist.expired ? ' ' + styleBad(__('**EXPIRED**')) : dist.invalid ? ' ' + styleBad(__('**NOT VALID**')) : ''));
+					logger.log('  ' + dist.fullname.cyan + (dist.expired ? ' ' + styleBad(__('**EXPIRED**')) : dist.invalid ? ' ' + styleBad(__('**NOT VALID**')) : ''));
 					logger.log('  ' + rpad('  ' + __('Not valid before')) + ' = ' + styleValue(moment(dist.before).format('l LT')));
 					logger.log('  ' + rpad('  ' + __('Not valid after')) + ' = ' + styleValue(moment(dist.after).format('l LT')));
 				});

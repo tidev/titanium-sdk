@@ -7,15 +7,15 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewRowProxy.h"
-#import "ImageLoader.h"
-#import "TiLayoutQueue.h"
 #import "TiSelectedCellbackgroundView.h"
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiLayoutQueue.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 #import <libkern/OSAtomic.h>
 
 NSString *const defaultRowTableClass = @"_default_";
@@ -150,16 +150,11 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 - (void)_destroy
 {
   RELEASE_TO_NIL(tableClass);
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadRemoveFromSuperviewOnMainThread(rowContainerView, NO);
-  TiThreadReleaseOnMainThread(rowContainerView, NO);
-#else
   TiThreadPerformOnMainThread(^{
     [rowContainerView removeFromSuperview];
     RELEASE_TO_NIL(rowContainerView);
   },
       YES);
-#endif
   rowContainerView = nil;
   [callbackCell setProxy:nil];
   callbackCell = nil;
@@ -389,6 +384,10 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (void)configureBackground:(UITableViewCell *)cell
 {
+  if (![self shouldUseBackgroundView]) {
+    return; // Ignore custom selection styles for native selections
+  }
+
   [(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
   [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
 
@@ -398,7 +397,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (bgImage != nil) {
     NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.backgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.backgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.backgroundView = view_;
     }
@@ -413,7 +412,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (selBgImage != nil) {
     NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.selectedBackgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.selectedBackgroundView = view_;
     }
@@ -421,7 +420,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       ((UIImageView *)cell.selectedBackgroundView).image = image;
     }
 
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     cell.selectedBackgroundView.backgroundColor = ((theColor == nil) ? [UIColor clearColor] : theColor);
   } else {
     if (![cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
@@ -429,11 +428,11 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     }
     TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView *)cell.selectedBackgroundView;
     selectedBGView.grouped = [[table tableView] style] == UITableViewStyleGrouped;
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     if (theColor == nil) {
       switch (cell.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        theColor = [Webcolor webColorNamed:@"#bbb"];
+        theColor = [Webcolor webColorNamed:@"#d9d9d9"];
         break;
       case UITableViewCellSelectionStyleNone:
         theColor = [UIColor clearColor];
@@ -784,7 +783,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (void)contentsWillChange
 {
-  if (attaching == NO) {
+  if (!attaching) {
     [self triggerUpdateIfHeightChanged];
   }
 }
@@ -845,6 +844,15 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 {
   [callbackCell handleEvent:type];
   [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
+}
+
+- (BOOL)shouldUseBackgroundView
+{
+  return [self valueForKey:@"selectedBackgroundColor"]
+      || [self valueForKey:@"backgroundImage"]
+      || [self valueForKey:@"selectedBackgroundImage"]
+      || [self valueForKey:@"backgroundLeftCap"]
+      || [self valueForKey:@"backgroundTopCap"];
 }
 
 - (void)setSelectedBackgroundColor:(id)arg

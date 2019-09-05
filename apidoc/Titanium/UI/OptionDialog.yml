@@ -6,12 +6,20 @@ summary: |
     be added below the options.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/optiondialog/optiondialog_android.png" height="75" /></td>
-        <td><img src="images/optiondialog/optiondialog_iphone.png" height="75" /></td>
-        <td><img src="images/optiondialog/optiondialog_ipad.png" height="75" /></td>
-      </tr>
-      <tr><th>Android</th><th>iPhone</th><td>iPad</td></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/optiondialog/optiondialog_android.png" height="75" /></td>
+          <td><img src="images/optiondialog/optiondialog_iphone.png" height="75" /></td>
+          <td><img src="images/optiondialog/optiondialog_ipad.png" height="75" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iPhone</th>
+          <th>iPad</th>
+        </tr>
+      </tfoot>
     </table>
 
     An option dialog is created using <Titanium.UI.createOptionDialog> or Alloy `<OptionDialog>`
@@ -225,7 +233,8 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: selectedIndex
-    summary: Defines the default selected option.
+    summary: Defines the default selected option. Since `8.1.0`, if not defined or -1 it will show a
+        normal list instead of radio buttons.
     platforms: [android]
     type: Number
     availability: creation
@@ -285,7 +294,7 @@ examples:
         var dialog;
         win.addEventListener('click', function() {
           dialog = Ti.UI.createOptionDialog(opts);
-          
+
           dialog.addEventListener('click', onSelectDialog);
           dialog.addEventListener('cancel', function(e) {
             alert('Dialog canceled! e.cancel = ' + e.cancel + ', e.index = ' + e.index);
@@ -299,11 +308,9 @@ examples:
             if (e.button === false && e.index === 0) {
               alert('Confirm option selected! e.index = ' + e.index);
             }
-
             if (e.button === false && eventeindex === 1) {
               alert('Cancel option selected! e.index = ' + e.index);
             }
-
             if (e.button === true && e.index === 0) {
               alert('Help Button clicked! e.index = ' + e.index);
             }
@@ -314,7 +321,8 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous example as an Alloy view.
+        Previous example as an Alloy view. You can set [cancel](Titanium.UI.OptionDialog.cancel)
+        and [destructive](Titanium.UI.OptionDialog.destructive) on a `<Option/>` tag.
 
         optiondialog.xml:
 
@@ -330,9 +338,9 @@ examples:
 
                         <!-- The Options tag sets the options property. -->
                         <Options>
-                            <Option>Confirm</Option>
+                            <Option destructive="true">Confirm</Option>
                             <Option platform="ios">Help</Option>
-                            <Option>Cancel</Option>
+                            <Option cancel="true">Cancel</Option>
                         </Options>
 
                         <!-- The ButtonNames tag sets the Android-only buttonNames property. -->

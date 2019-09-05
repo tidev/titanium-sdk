@@ -6,7 +6,7 @@
  */
 
 #import "TiAppiOSUserNotificationActionProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
 
@@ -26,7 +26,7 @@
 - (void)_initWithProperties:(NSDictionary *)properties
 {
   if (_notificationAction == nil) {
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       id identifier = [properties valueForKey:@"identifier"];
       id title = [properties valueForKey:@"title"];
       id activationMode = [properties valueForKey:@"activationMode"];
@@ -79,7 +79,7 @@
 
 - (void)setActivationMode:(id)value
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return; // Not available on iOS 10+
   }
 
@@ -88,7 +88,7 @@
 
 - (void)setBehavior:(id)value
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return; // Not available on iOS 10+
   }
 
@@ -97,7 +97,7 @@
 
 - (void)setDestructive:(id)value
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return; // Not available on iOS 10+
   }
 
@@ -106,7 +106,7 @@
 
 - (void)setAuthenticationRequired:(id)value
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return; // Not available on iOS 10+
   }
 

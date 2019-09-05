@@ -14,12 +14,11 @@
 
 const appc = require('node-appc'),
 	Creator = require('../creator'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -76,11 +75,12 @@ util.inherits(ModuleCreator, Creator);
 ModuleCreator.prototype.init = function init() {
 	return {
 		options: {
-			id:            this.configOptionId(150),
-			name:          this.configOptionName(140),
-			platforms:     this.configOptionPlatforms(120),
-			template:      this.configOptionTemplate(110),
-			'workspace-dir': this.configOptionWorkspaceDir(170)
+			id:              this.configOptionId(150),
+			name:            this.configOptionName(140),
+			platforms:       this.configOptionPlatforms(120),
+			template:        this.configOptionTemplate(110),
+			'workspace-dir': this.configOptionWorkspaceDir(170),
+			'code-base':	 this.configOptionCodeBase(150)
 		}
 	};
 };
@@ -97,7 +97,7 @@ ModuleCreator.prototype.run = function run(callback) {
 		projectDir = this.projectDir = appc.fs.resolvePath(this.cli.argv['workspace-dir'], projectName),
 		id = this.cli.argv.id;
 
-	fs.existsSync(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	fs.ensureDirSync(projectDir);
 
 	// download/install the project template
 	this.processTemplate(function (err, templateDir) {
@@ -151,8 +151,9 @@ ModuleCreator.prototype.run = function run(callback) {
 
 		platforms.scrubbed.forEach(function (platform) {
 			// if we're using the built-in template, load the platform specific template hooks
-			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0,
-				platformTemplateDir = path.join(this.sdk.path, platform, 'templates', this.projectType, this.cli.argv.template);
+			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0;
+			const templateBaseDir = platform === 'iphone' ? this.cli.argv['code-base'] : this.cli.argv.template;
+			const platformTemplateDir = path.join(this.sdk.path, platform, 'templates', this.projectType, templateBaseDir);
 
 			if (usingBuiltinTemplate) {
 				this.cli.scanHooks(path.join(platformTemplateDir, 'hooks'));

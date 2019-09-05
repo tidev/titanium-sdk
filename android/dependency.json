@@ -1,5 +1,5 @@
 {
-	"min_api_level": "16",
+	"min_api_level": "19",
 	"dependencies":
 	{
 		"appcompat":["compat","design"],

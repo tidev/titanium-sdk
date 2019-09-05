@@ -71,7 +71,7 @@ examples:
                 // Substitue the correct package name for your application
                 packageName: 'com.appcelerator.notificationsample'
             });
-            intent.flags |= Ti.Android.FLAG_ACTIVITY_CLEAR_TOP | Ti.Android.FLAG_ACTIVITY_NEW_TASK;
+            intent.flags |= Ti.Android.FLAG_ACTIVITY_NEW_TASK;
             intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
 
             // Create a PendingIntent to tie together the Activity and Intent
@@ -357,10 +357,16 @@ properties:
         external storage directory
         ([Filesystem.externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory)).
 
-        To create a raw resource, place the audio file in the `platform/android/res/raw`
+        Note that this sound property is ignored on Android 8.0 and above. On these OS versions,
+        you must use the [NotificationChannel.sound](Titanium.Android.NotificationChannel.sound)
+        property and that sound will play for any notification posted under that channel. Also, you will
+        still need to set this notification's sound property for OS versions older than Android 8.0 too,
+        meaning that the sound URL needs to be set in both places.
+
+        To play a raw resource file, place the audio file in the `platform/android/res/raw`
         folder and reference it as:
 
-            notification.sound = Ti.Filesystem.getResRawDirectory() + audioFileName;
+            notification.sound = Ti.Filesystem.resRawDirectory + audioFileName;
 
         To play a file from the Resources directory, first copy it to external storage. For example, you
         could define the following function:
@@ -405,6 +411,7 @@ properties:
             }
 
     type: String
+    osver: {android: {max: "7.1"}}
 
   - name: style
     summary: Style object that can apply a rich notification style.
@@ -440,13 +447,13 @@ properties:
         The application needs to also set the `android.permission.WAKE_LOCK` permission
         in the Android manifest section of the `tiapp.xml` file.
         
-        <ti:app>
-            <android>
-                <manifest>
-                    <uses-permission android:name="android.permission.WAKE_LOCK" />
-                </manifest>
-            </android>
-        </ti:app>
+            <ti:app>
+                <android>
+                    <manifest>
+                        <uses-permission android:name="android.permission.WAKE_LOCK" />
+                    </manifest>
+                </android>
+            </ti:app>
     type: wakeLockOptions
     default: 0
     since: "6.2.0"

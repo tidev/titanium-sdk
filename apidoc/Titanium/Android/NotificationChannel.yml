@@ -78,6 +78,21 @@ properties:
     summary: Whether notifications posted to this channel can appear as application icon badges in a Launcher.
     type: Boolean
 
+  - name: sound
+    summary: A URL to the sound to play.
+    description: |
+        The URL cannot refer to a file in the Resources directory, but it can refer to
+        a file in the raw resources directory
+        ([Filesystem.resRawDirectory](Titanium.Filesystem.resRawDirectory)).
+
+        To create a raw resource, place the audio file in the `platform/android/res/raw`
+        folder and reference it as:
+
+            notificationChannel.sound = Ti.Filesystem.resRawDirectory + 'my_sound.wav';
+
+    type: String
+    since: "7.5.0"
+
   - name: vibratePattern
     summary: The vibration pattern for notifications posted to this channel.
     description: Specify the pattern in milliseconds as an array. (e.g [100, 100, 100, 400, 400, 100, 100, 100])

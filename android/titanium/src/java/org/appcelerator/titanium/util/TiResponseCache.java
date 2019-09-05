@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
+import java.net.HttpURLConnection;
 import java.net.ResponseCache;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -412,8 +413,15 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheResponse get(URI uri, String rqstMethod, Map<String, List<String>> rqstHeaders) throws IOException
 	{
-		if (uri == null || cacheDir == null)
+		if (uri == null || cacheDir == null || rqstMethod == null) {
 			return null;
+		}
+
+		// We only support caching HTTP "GET" requests. (Apple and Google do not normally cache "HEAD".)
+		// Never cache methods which can make server-side changes such as "POST", "PUT", "DELETE", etc.
+		if (!rqstMethod.equals("GET")) {
+			return null;
+		}
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
@@ -509,8 +517,18 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
-		if (cacheDir == null)
+		if (cacheDir == null) {
 			return null;
+		}
+
+		// We only support caching HTTP "GET" requests. (Apple and Google do not normally cache "HEAD".)
+		// Never cache methods which can make server-side changes such as "POST", "PUT", "DELETE", etc.
+		if (conn instanceof HttpURLConnection) {
+			String requestMethod = ((HttpURLConnection) conn).getRequestMethod();
+			if ((requestMethod == null) || !requestMethod.equals("GET")) {
+				return null;
+			}
+		}
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
