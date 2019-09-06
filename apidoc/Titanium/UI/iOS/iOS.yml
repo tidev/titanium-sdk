@@ -1614,6 +1614,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED
     summary: User submitted a form.
@@ -1624,6 +1628,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD
     summary: User tapped the back or forward button.
@@ -1634,6 +1642,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_RELOAD
     summary: User tapped the reload button.
@@ -1644,6 +1656,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED
     summary: User resubmitted a form.
@@ -1654,6 +1670,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_OTHER
     summary: Some other action occurred.
@@ -1664,6 +1684,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: TABLEVIEW_INDEX_SEARCH
     summary: String that represents the magnifying glass on the table view index bar
