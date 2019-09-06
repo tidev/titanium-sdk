@@ -29,6 +29,8 @@
 
 - (void)_destroy
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
@@ -54,7 +56,16 @@
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(didChangeTraitCollection:)
+                                               name:kTiTraitCollectionChanged
+                                             object:nil];
   [super _configure];
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self updateTabBarItem];
 }
 
 - (NSString *)apiName
