@@ -3123,7 +3123,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Distribution"';
+		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDistributionName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 
 		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
@@ -3149,10 +3149,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	} else if (this.target === 'device') {
-		// sign the application using a signing identity that contains the phrase "iPhone Developer"
-		// as long as there's a valid development signing identity (identity certificate and private key)
-		// build and deployment should succeed.
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer"';
+		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDeveloperName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
