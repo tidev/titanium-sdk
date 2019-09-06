@@ -246,7 +246,7 @@
 
 - (void)setBackgroundColor_:(id)color
 {
-  [[self textWidgetView] setBackgroundColor:[Webcolor webColorNamed:color]];
+  [[self textWidgetView] setBackgroundColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setPadding_:(id)args

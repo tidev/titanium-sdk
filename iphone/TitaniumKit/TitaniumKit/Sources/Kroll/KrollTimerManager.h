@@ -23,7 +23,7 @@
  */
 @property (strong, nonatomic, nullable) NSArray<JSValue *> *arguments;
 
-- (instancetype)initWithCallback:(nonnull JSValue *)callback arguments:(nullable NSArray<JSValue *> *)arguments;
+- (_Nullable instancetype)initWithCallback:(nonnull JSValue *)callback arguments:(nullable NSArray<JSValue *> *)arguments;
 
 /**
  * The method that will be triggered when a timer fires.
@@ -40,7 +40,7 @@
 /**
  * Map of timer identifiers and the underlying native NSTimer.
  */
-@property (nonatomic, strong) NSMapTable<NSNumber *, NSTimer *> *timers;
+@property (nonatomic, strong, nullable) NSMapTable<NSNumber *, NSTimer *> *timers;
 
 /**
  * Initializes the timer manager in the given JS context. Exposes the global set/clear
@@ -48,7 +48,7 @@
  *
  * @param context The JSContext where timer function should be made available to.
  */
-- (instancetype)initInContext:(nonnull JSContext *)context;
+- (_Nullable instancetype)initInContext:(nonnull JSContext *)context;
 
 /**
  * Invalidates all timers.

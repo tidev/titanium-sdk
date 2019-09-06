@@ -16,9 +16,10 @@ exports.init = init;
  *
  * @param {Object} logger The logger instance.
  * @param {Object} config The hook config.
- * @param {Object}cli The Titanium CLI instance.
+ * @param {Object} cli The Titanium CLI instance.
  * @param {Object} appc The Appcelerator CLI instance.
  */
+// eslint-disable-next-line no-unused-vars
 function init(logger, config, cli, appc) {
 	cli.on('build.ios.xcodeproject', {
 		pre: function (data) {

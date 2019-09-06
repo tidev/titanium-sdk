@@ -764,14 +764,14 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   [self invoke:invocation];
 }
 
-- (void)invokeBlockOnThread:(void (^)())block
+- (void)invokeBlockOnThread:(void (^)(void))block
 {
   pthread_mutex_lock(&KrollEntryLock);
   block();
   pthread_mutex_unlock(&KrollEntryLock);
 }
 
-+ (void)invokeBlock:(void (^)())block
++ (void)invokeBlock:(void (^)(void))block
 {
   pthread_mutex_lock(&KrollEntryLock);
   block();

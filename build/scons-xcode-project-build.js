@@ -84,10 +84,12 @@ async function generateBundle(inputDir, outputDir) {
 		input: `${inputDir}/ti.main.js`,
 		plugins: [
 			resolve(),
-			commonjs(),
+			commonjs({
+				ignore: [ '/semantic.colors.json' ]
+			}),
 			babel(babelOptions)
 		],
-		external: [ './app', 'com.appcelerator.aca' ]
+		external: [ './app', 'com.appcelerator.aca', '/semantic.colors.json' ]
 	});
 
 	// write the bundle to disk

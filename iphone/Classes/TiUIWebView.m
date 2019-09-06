@@ -195,7 +195,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setBackgroundColor_:(id)value
 {
-  ENSURE_TYPE(value, NSString);
   [[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
 
   [[self webView] setOpaque:NO];

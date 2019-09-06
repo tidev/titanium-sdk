@@ -751,13 +751,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_PLUS_LIGHTER, kCGBlendModePlusLi
 MAKE_SYSTEM_STR(COLOR_GROUP_TABLEVIEW_BACKGROUND, IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND);
 MAKE_SYSTEM_STR(TABLEVIEW_INDEX_SEARCH, UITableViewIndexSearch);
 
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED, UIWebViewNavigationTypeLinkClicked);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED, UIWebViewNavigationTypeFormSubmitted);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD, UIWebViewNavigationTypeBackForward);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_RELOAD, UIWebViewNavigationTypeReload);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED, UIWebViewNavigationTypeFormResubmitted);
-MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER, UIWebViewNavigationTypeOther);
-
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args
 {
@@ -872,6 +865,18 @@ MAKE_SYSTEM_PROP(ACTION_POLICY_ALLOW, WKNavigationActionPolicyAllow);
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocumentStart);
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
+
+- (TiColor *)fetchSemanticColor:(id)color
+{
+  ENSURE_SINGLE_ARG(color, NSString);
+
+#if IS_SDK_IOS_11
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
+  }
+#endif
+  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+}
 
 @end
 #endif

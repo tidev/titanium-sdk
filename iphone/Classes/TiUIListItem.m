@@ -277,7 +277,7 @@
     if (sbgColor == nil) {
       switch (self.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        sbgColor = [Webcolor webColorNamed:@"#bbb"];
+        sbgColor = [Webcolor webColorNamed:@"#d9d9d9"];
         break;
       case UITableViewCellSelectionStyleNone:
         sbgColor = [UIColor clearColor];

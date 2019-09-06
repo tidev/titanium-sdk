@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-NSMutableArray *TiCreateNonRetainingArray()
+NSMutableArray *TiCreateNonRetainingArray(void)
 {
   CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
   callbacks.retain = NULL;
@@ -29,7 +29,7 @@ NSMutableArray *TiCreateNonRetainingArray()
   return (NSMutableArray *)CFArrayCreateMutable(nil, 0, &callbacks);
 }
 
-NSMutableDictionary *TiCreateNonRetainingDictionary()
+NSMutableDictionary *TiCreateNonRetainingDictionary(void)
 {
   CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
   CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;

@@ -9,6 +9,8 @@
 
 @interface TiApp (Addons)
 
+NS_ASSUME_NONNULL_BEGIN
+
 #ifdef USE_TI_FETCH
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 #endif
@@ -28,5 +30,7 @@
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
 #endif
+
+NS_ASSUME_NONNULL_END
 
 @end

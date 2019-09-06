@@ -72,7 +72,7 @@ properties:
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
     type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    constants: [Titanium.UI.KEYBOARD_APPEARANCE_DARK, Titanium.UI.KEYBOARD_APPEARANCE_LIGHT, Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT]
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
 

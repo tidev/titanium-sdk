@@ -7,6 +7,7 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
+#import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
@@ -342,6 +343,13 @@
 {
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
+  }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && [viewController isKindOfClass:[TiViewController class]]) {
+    TiViewController *toViewController = (TiViewController *)viewController;
+    if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+      TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
+      [((TiUITabGroup *)(tabGroup.view))tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+    }
   }
   [self handleWillShowViewController:viewController animated:animated];
 }

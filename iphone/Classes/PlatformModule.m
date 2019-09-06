@@ -8,6 +8,7 @@
 
 #import "PlatformModule.h"
 #import "TiPlatformDisplayCaps.h"
+#import "TiUtils+Addons.h"
 #import <TitaniumKit/TiApp.h>
 
 #import <mach/mach.h>
