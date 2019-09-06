@@ -131,7 +131,8 @@ public class ServiceProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void foregroundNotify(int notificationId, KrollProxy notificationProxy, int foregroundServiceType)
+	public void foregroundNotify(int notificationId, KrollProxy notificationProxy,
+								 @Kroll.argument(optional = true) int foregroundServiceType)
 	{
 		// Validate arguments.
 		if (notificationId == 0) {
