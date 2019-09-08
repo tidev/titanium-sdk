@@ -252,6 +252,10 @@
 
 - (void)applyBackgroundWithSelectedColor:(id)selectedBackgroundColor selectedImage:(id)selectedBackgroundImage
 {
+  if (!selectedBackgroundColor && !selectedBackgroundImage) {
+    return; // Ignore custom selection styles for native selections
+  }
+
   UIColor *sbgColor = (selectedBackgroundColor != nil) ? ([[TiUtils colorValue:selectedBackgroundColor] _color]) : nil;
   UIImage *sbgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:selectedBackgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
   if (sbgImage != nil) {
@@ -273,7 +277,7 @@
     if (sbgColor == nil) {
       switch (self.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        sbgColor = [Webcolor webColorNamed:@"#bbb"];
+        sbgColor = [Webcolor webColorNamed:@"#d9d9d9"];
         break;
       case UITableViewCellSelectionStyleNone:
         sbgColor = [UIColor clearColor];
