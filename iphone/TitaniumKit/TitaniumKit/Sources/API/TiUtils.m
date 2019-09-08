@@ -1234,7 +1234,16 @@ If the new path starts with / and the base url is app://..., we have to massage 
 {
   double height = 0;
   if (window && ![[UIApplication sharedApplication] isStatusBarHidden]) {
-    CGRect statusFrame = [[UIApplication sharedApplication] statusBarFrame];
+    CGRect statusFrame = CGRectZero;
+
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      statusFrame = UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame;
+#endif
+    } else {
+      statusFrame = [[UIApplication sharedApplication] statusBarFrame];
+    }
+
     height = statusFrame.size.height;
   }
 

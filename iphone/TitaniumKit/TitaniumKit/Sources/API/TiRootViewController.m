@@ -1000,7 +1000,16 @@
 - (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification
 {
   if ((![TiUtils isIPad]) && ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    CGRect statusBarFrame = CGRectZero;
+    
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      statusBarFrame = UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame;
+#endif
+    } else {
+      statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    }
+
     if (statusBarFrame.size.height == 0) {
       return;
     }
