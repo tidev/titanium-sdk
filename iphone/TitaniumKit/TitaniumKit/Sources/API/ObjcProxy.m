@@ -123,7 +123,7 @@
   }
   @finally {
     pthread_rwlock_unlock(&_listenerLock);
-    [self _listenerAdded:name count:ourCallbackCount];
+    [self _listenerAdded:name count:(int)ourCallbackCount];
   }
 }
 
@@ -159,7 +159,7 @@
   @finally {
     pthread_rwlock_unlock(&_listenerLock);
     if (removed) {
-      [self _listenerRemoved:name count:ourCallbackCount];
+      [self _listenerRemoved:name count:(int)ourCallbackCount];
     }
   }
 }

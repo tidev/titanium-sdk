@@ -3123,7 +3123,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Distribution"';
+		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDistributionName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 
 		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
@@ -3149,10 +3149,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	} else if (this.target === 'device') {
-		// sign the application using a signing identity that contains the phrase "iPhone Developer"
-		// as long as there's a valid development signing identity (identity certificate and private key)
-		// build and deployment should succeed.
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer"';
+		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDeveloperName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
@@ -5746,7 +5743,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					this.logger.info(__('Creating assets image set'));
 					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
 						imageSets = {},
-						imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
+						imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 					Object.keys(imageAssets).forEach(function (file) {
 						const imageName = imageAssets[file].name,
@@ -5771,13 +5768,21 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								};
 							}
 
-							imageSets[imageSetRelPath].images.push({
-								idiom: !match[3] ? 'universal' : match[3].replace('~', ''),
+							const imageSet = {
+								idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
 								filename: imageName + '.' + imageExt,
-								scale: !match[2] ? '1x' : match[2].replace('@', '')
-							});
-						}
+								scale: !match[3] ? '1x' : match[3].replace('@', '')
+							};
 
+							if (match[2]) {
+								imageSet.appearances = [ {
+									appearance: 'luminosity',
+									value: 'dark'
+								} ];
+							}
+
+							imageSets[imageSetRelPath].images.push(imageSet);
+						}
 						resourcesToCopy[file] = imageAssets[file];
 						resourcesToCopy[file].isImage = true;
 					}, this);
@@ -5792,6 +5797,116 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							}
 						});
 					}, this);
+				},
+
+				function generateSemanticColors() {
+					const colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
+					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
+					const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+
+					function hexToRgb(hex) {
+						let alpha = 1;
+						let color = hex;
+						if (hex.color) {
+							alpha = hex.alpha / 100; // convert from 0-100 range to 0-1 range
+							color = hex.color;
+						}
+						// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+						color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+
+						var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+						return result ? {
+							r: parseInt(result[1], 16),
+							g: parseInt(result[2], 16),
+							b: parseInt(result[3], 16),
+							alpha: alpha.toFixed(3)
+						} : null;
+					}
+
+					if (!fs.existsSync(colorsFile)) {
+						return;
+					}
+					const colors = fs.readJSONSync(colorsFile);
+
+					for (const [ color, colorValue ] of Object.entries(colors)) {
+						const colorDir = path.join(assetCatalog, `${color}.colorset`);
+
+						if (!colorValue.light) {
+							this.logger.warn(`Skipping ${color} as it does not include a light value`);
+							continue;
+						}
+
+						if (!colorValue.dark) {
+							this.logger.warn(`Skipping ${color} as it does not include a dark value`);
+							continue;
+						}
+
+						const defaultRGB = hexToRgb(colorValue.default || colorValue.light);
+						const lightRGB = hexToRgb(colorValue.light);
+						const darkRGB = hexToRgb(colorValue.dark);
+
+						const colorSource = {
+							info: {
+								version: 1,
+								author: 'xcode'
+							},
+							colors: []
+						};
+
+						// Default
+						colorSource.colors.push({
+							idiom: 'universal',
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${defaultRGB.r}`,
+									green: `${defaultRGB.g}`,
+									blue: `${defaultRGB.b}`,
+									alpha: `${defaultRGB.alpha}`
+								}
+							}
+						});
+
+						// Light
+						colorSource.colors.push({
+							idiom: 'universal',
+							appearances: [ {
+								appearance: 'luminosity',
+								value: 'light'
+							} ],
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${lightRGB.r}`,
+									green: `${lightRGB.g}`,
+									blue: `${lightRGB.b}`,
+									alpha: `${lightRGB.alpha}`
+								}
+							}
+						});
+
+						// Dark
+						colorSource.colors.push({
+							idiom: 'universal',
+							appearances: [ {
+								appearance: 'luminosity',
+								value: 'dark'
+							} ],
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${darkRGB.r}`,
+									green: `${darkRGB.g}`,
+									blue: `${darkRGB.b}`,
+									alpha: `${darkRGB.alpha}`
+								}
+							}
+						});
+
+						fs.ensureDirSync(colorDir);
+						fs.writeJsonSync(path.join(colorDir, 'Contents.json'), colorSource);
+						this.unmarkBuildDirFile(path.join(colorDir, 'Contents.json'));
+					}
 				},
 
 				function copyResources() {
