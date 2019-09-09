@@ -155,7 +155,7 @@
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
 
-  NSString *token = [NSString hexStringFromData:deviceToken];
+  NSString *token = [TiUtils convertToHexFromData:deviceToken];
 
   RELEASE_TO_NIL(remoteDeviceUUID);
   remoteDeviceUUID = [token copy];
