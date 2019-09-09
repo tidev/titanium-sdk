@@ -63,7 +63,7 @@ module.exports = function (grunt) {
 			path = require('path'),
 			apidoc = path.join(__dirname, 'apidoc');
 
-		const validate = fork(path.join(apidoc, 'validate'), [], { cwd: apidoc, silent: true });
+		const validate = fork(path.join(__dirname, 'node_modules', '.bin', 'tdoc-validate'), [ apidoc ], { silent: true });
 		let output = '';
 
 		validate.stderr.on('data', function (data) {

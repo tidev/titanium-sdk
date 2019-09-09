@@ -7,6 +7,7 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
+#import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
@@ -28,6 +29,8 @@
 
 - (void)_destroy
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
@@ -53,7 +56,16 @@
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(didChangeTraitCollection:)
+                                               name:kTiTraitCollectionChanged
+                                             object:nil];
   [super _configure];
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self updateTabBarItem];
 }
 
 - (NSString *)apiName
@@ -342,6 +354,13 @@
 {
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
+  }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && [viewController isKindOfClass:[TiViewController class]]) {
+    TiViewController *toViewController = (TiViewController *)viewController;
+    if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+      TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
+      [((TiUITabGroup *)(tabGroup.view))tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+    }
   }
   [self handleWillShowViewController:viewController animated:animated];
 }
