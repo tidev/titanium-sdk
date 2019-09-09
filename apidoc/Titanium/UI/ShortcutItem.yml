@@ -21,7 +21,7 @@ methods:
     platforms: [android]
 
   - name: pin
-    description: Pin shortcut to launcher.
+    summary: Pin shortcut to launcher.
     platforms: [android]
     osver: {android: {min: "8.0"}}
 
@@ -34,13 +34,13 @@ properties:
     availability: creation
 
   - name: title
-    description: Title of the shortcut.
+    summary: Title of the shortcut.
     type: String
     platforms: [android]
     availability: creation
 
   - name: description
-    description: Description of the shortcut.
+    summary: Description of the shortcut.
     type: String
     platforms: [android]
     availability: creation

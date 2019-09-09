@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -665,8 +666,10 @@ public class ListSectionProxy extends ViewProxy
 			DataItem dataItem = template.getDataItem(binding);
 			ViewItem viewItem = views.get(binding);
 			TiUIView view = viewItem.getView();
+			KrollProxy viewProxy = null;
 			//update extra event data for views
 			if (view != null) {
+				viewProxy = view.getProxy();
 				appendExtraEventData(view, itemIndex, sectionIndex, binding, itemId);
 			}
 			//if binding is contain in data given to us, process that data, otherwise
@@ -675,12 +678,18 @@ public class ListSectionProxy extends ViewProxy
 				KrollDict properties = new KrollDict((HashMap) data.get(binding));
 				KrollDict diffProperties = viewItem.generateDiffProperties(properties);
 				if (!diffProperties.isEmpty()) {
+					if (viewProxy != null && viewProxy.getProperties() != null) {
+						viewProxy.getProperties().putAll(diffProperties);
+					}
 					view.processProperties(diffProperties);
 				}
 
 			} else if (dataItem != null && view != null) {
 				KrollDict diffProperties = viewItem.generateDiffProperties(dataItem.getDefaultProperties());
 				if (!diffProperties.isEmpty()) {
+					if (viewProxy != null && viewProxy.getProperties() != null) {
+						viewProxy.getProperties().putAll(diffProperties);
+					}
 					view.processProperties(diffProperties);
 				}
 			} else {

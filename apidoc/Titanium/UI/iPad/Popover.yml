@@ -101,7 +101,7 @@ properties:
     summary: Height of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is deprecated. Set the height on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
+        notes: This property is deprecated. Set the height on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
   - name: leftNavButton
@@ -110,7 +110,7 @@ properties:
         since: "3.4.2"
         notes: This property is no longer supported.
     description: |
-        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
+        Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
         In an Alloy application, you can specify this property as a `<LeftNavButton>` child element
         of the `<Popover>` element:
@@ -138,7 +138,7 @@ properties:
         since: "3.4.2"
         notes: This property is no longer supported.
     description: |
-        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
+        Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
         In an Alloy application, you can specify this property as a `<RightNavButton>` child element
         of the `<Popover>` element:
@@ -159,14 +159,14 @@ properties:
         since: "3.4.2"
         notes: This property is no longer supported.
     description: |
-        Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
+        Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
 
   - name: width
     summary: Width of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is deprecated. Set the width on the [contentView](Titanium.UI.iPad.Popover.contentView) property instead.
+        notes: This property is deprecated. Set the width on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
     type: [Number, String]
 
 examples:

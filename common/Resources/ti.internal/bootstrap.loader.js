@@ -15,35 +15,30 @@
  * - Ensure "Google Play Services" is installed/updated on app startup on Android.
  */
 
-'use strict';
-
 /**
  * Attempts to load all bootstraps from a "bootstrap.json" file created by the app build system.
  * This is an optional feature and is the fastest method of acquiring boostraps configured for the app.
  * This JSON file, if provided, must be in the same directory as this script.
- * @returns {Array.<string>}
+ * @returns {string[]}
  * Returns an array of require() compatible strings if bootstraps were successfully loaded from JSON.
  * Returns an empty array if JSON file was found, but no bootstraps were configured for the app.
  * Returns null if JSON file was not found.
  */
 function fetchScriptsFromJson() {
-	var JSON_FILE_NAME = 'bootstrap.json',
-		jsonFile,
-		settings;
+	const JSON_FILE_NAME = 'bootstrap.json';
 
 	try {
-		jsonFile = Ti.Filesystem.getFile(
-			Ti.Filesystem.resourcesDirectory, 'ti.internal/' + JSON_FILE_NAME);
+		const jsonFile = Ti.Filesystem.getFile(
+			Ti.Filesystem.resourcesDirectory, `ti.internal/${JSON_FILE_NAME}`);
 		if (jsonFile.exists()) {
-			settings = JSON.parse(jsonFile.read().text);
+			const settings = JSON.parse(jsonFile.read().text);
 			if (Array.isArray(settings.scripts)) {
 				return settings.scripts;
-			} else {
-				return [];
 			}
+			return [];
 		}
 	} catch (error) {
-		Ti.API.error('Failed to read "' + JSON_FILE_NAME + '". Reason: ' + error.message);
+		Ti.API.error(`Failed to read "${JSON_FILE_NAME}". Reason: ${error.message}`);
 	}
 	return null;
 }
@@ -55,31 +50,27 @@ function fetchScriptsFromJson() {
  * Returns an empty array if no bootstrap files were found.
  */
 function fetchScriptsFromResourcesDirectory() {
-	var resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory),
-		resourceDirectoryPath = resourceDirectory.nativePath,
-		bootstrapScripts = [];
+	const resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
+	const resourceDirectoryPathLength = resourceDirectory.nativePath.length;
+	const bootstrapScripts = [];
 
 	function loadFrom(file) {
-		var index,
-			fileNameArray,
-			bootstrapPath;
-
 		if (file) {
 			if (file.isDirectory()) {
 				// This is a directory. Recursively look for bootstrap files under it.
-				fileNameArray = file.getDirectoryListing();
+				const fileNameArray = file.getDirectoryListing();
 				if (fileNameArray) {
-					for (index = 0; index < fileNameArray.length; index++) {
+					for (let index = 0; index < fileNameArray.length; index++) {
 						loadFrom(Ti.Filesystem.getFile(file.nativePath, fileNameArray[index]));
 					}
 				}
 			} else if (file.name.search(/.bootstrap.js$/) >= 0) {
 				// This is a bootstrap file.
 				// Convert its path to something loadable via require() and add it to the array.
-				bootstrapPath = file.nativePath;
+				let bootstrapPath = file.nativePath;
 				bootstrapPath = bootstrapPath.substr(
-					resourceDirectoryPath.length,
-					(bootstrapPath.length - resourceDirectoryPath.length) - '.js'.length);
+					resourceDirectoryPathLength,
+					(bootstrapPath.length - resourceDirectoryPathLength) - '.js'.length);
 				bootstrapScripts.push(bootstrapPath);
 			}
 		}
@@ -92,11 +83,11 @@ function fetchScriptsFromResourcesDirectory() {
  * Non-blocking function which loads and executes all bootstrap scripts configured for the app.
  * @param {function} finished Callback to be invoked once all bootstraps have finished executing. Cannot be null.
  */
-exports.loadAsync = function (finished) {
+function loadAsync(finished) {
 	// Acquire an array of all bootstrap scripts included with the app.
-	// - For best performance, attempt to fetch scripts via an optional JSON file create by the build system.
+	// - For best performance, attempt to fetch scripts via an optional JSON file created by the build system.
 	// - If JSON file not found (will return null), then search "Resources" directory for bootstrap files.
-	var bootstrapScripts = fetchScriptsFromJson();
+	let bootstrapScripts = fetchScriptsFromJson();
 	if (!bootstrapScripts) {
 		bootstrapScripts = fetchScriptsFromResourcesDirectory();
 	}
@@ -112,14 +103,13 @@ exports.loadAsync = function (finished) {
 
 	// Loads all bootstrap scripts found.
 	function loadBootstrapScripts(finished) {
-		var bootstrapIndex = 0;
+		let bootstrapIndex = 0;
 		function doLoad() {
 			// Attempt to load all bootstrap scripts.
-			var fileName, bootstrap;
 			while (bootstrapIndex < bootstrapScripts.length) {
 				// Load the next bootstrap.
-				fileName = bootstrapScripts[bootstrapIndex];
-				bootstrap = require(fileName);
+				const fileName = bootstrapScripts[bootstrapIndex];
+				const bootstrap = require(fileName); // eslint-disable-line security/detect-non-literal-require
 
 				// Invoke the bootstrap's execute() method if it has one. (This is optional.)
 				// We must wait for the given callback to be invoked before loading the next script.
@@ -140,15 +130,14 @@ exports.loadAsync = function (finished) {
 			// Last bootstrap has finished execution. Time to load the next one.
 			// Note: Add a tiny delay so whatever UI the last bootstrap loaded has time to close.
 			bootstrapIndex++;
-			setTimeout(function () {
-				doLoad();
-			}, 1);
+			setTimeout(() => doLoad(), 1);
 		}
 		doLoad();
 	}
-	loadBootstrapScripts(function () {
-		// We've finished loading/executing all bootstrap scripts.
-		// Inform caller by invoking the callback given to loadAsync().
-		finished();
-	});
-};
+
+	// We've finished loading/executing all bootstrap scripts.
+	// Inform caller by invoking the callback given to loadAsync().
+	loadBootstrapScripts(finished);
+}
+
+export default loadAsync;

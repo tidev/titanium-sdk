@@ -347,7 +347,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
-			int type = proxy.getProperties().getInt(TiC.PROPERTY_HINT_TYPE);
+			int type = UIModule.HINT_TYPE_STATIC;
+			if (proxy.getProperties() != null) {
+				type = TiConvert.toInt(proxy.getProperties().get(TiC.PROPERTY_HINT_TYPE), type);
+			}
 			setHintText(type, TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
 			tv.setHintTextColor(TiConvert.toColor((String) newValue));
@@ -921,7 +924,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	{
 		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
 		if (spannableText != null) {
-			int type = getProxy().getProperties().getInt(TiC.PROPERTY_HINT_TYPE);
+			int type = UIModule.HINT_TYPE_STATIC;
+			KrollProxy proxy = getProxy();
+			if ((proxy != null) && (proxy.getProperties() != null)) {
+				type = TiConvert.toInt(proxy.getProperties().get(TiC.PROPERTY_HINT_TYPE), type);
+			}
 			setHintText(type, spannableText);
 		}
 	}

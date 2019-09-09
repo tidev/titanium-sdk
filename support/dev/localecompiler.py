@@ -7,11 +7,6 @@
 import os, sys, codecs, shutil
 from xml.dom.minidom import parse
 
-template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.join(template_dir,'../'))
-
-from tiapp import *
-
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
 

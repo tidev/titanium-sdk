@@ -5,7 +5,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global kroll */
 'use strict';
 
 var tiBinding = kroll.binding('Titanium'),
@@ -39,8 +38,8 @@ bootstrap.defineLazyBinding(Titanium, 'API');
 // Context-bound modules -------------------------------------------------
 //
 // Specialized modules that require binding context specific data
-// within a script execution scope. This is how Ti.UI.currentWindow,
-// Ti.Android.currentService, and others are implemented.
+// within a script execution scope. This is how Ti.Android.currentService,
+// and others are implemented.
 function TitaniumWrapper(context) {
 	var sourceUrl = this.sourceUrl = context.sourceUrl;
 
@@ -48,7 +47,7 @@ function TitaniumWrapper(context) {
 	this.global = context.global;
 
 	this.Android = new AndroidWrapper(context);
-	this.UI = new UIWrapper(context, this.Android);
+	this.UI = new UIWrapper(context);
 
 	var scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
@@ -60,14 +59,9 @@ function TitaniumWrapper(context) {
 TitaniumWrapper.prototype = Titanium;
 Titanium.Wrapper = TitaniumWrapper;
 
-function UIWrapper(context, Android) {
-	this.currentWindow = context.currentWindow;
+function UIWrapper(context) {
 	this.currentTab = context.currentTab;
 	this.currentTabGroup = context.currentTabGroup;
-
-	if (!context.currentWindow && Android.currentActivity) {
-		this.currentWindow = Android.currentActivity.window;
-	}
 }
 UIWrapper.prototype = Titanium.UI;
 

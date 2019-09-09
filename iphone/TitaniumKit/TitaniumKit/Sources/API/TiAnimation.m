@@ -23,7 +23,7 @@
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
-@synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
+@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity;
 @synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
 - (id)initWithDictionary:(NSDictionary *)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
@@ -95,6 +95,8 @@
     SET_FLOAT_PROP(duration, properties);
     SET_FLOAT_PROP(opacity, properties);
     SET_FLOAT_PROP(delay, properties);
+    SET_FLOAT_PROP(dampingRatio, properties);
+    SET_FLOAT_PROP(springVelocity, properties);
     SET_INT_PROP(curve, properties);
     SET_INT_PROP(repeat, properties);
     SET_BOOL_PROP(visible, properties);
@@ -153,6 +155,8 @@
   RELEASE_TO_NIL(transition);
   RELEASE_TO_NIL(callback);
   RELEASE_TO_NIL(view);
+  RELEASE_TO_NIL(dampingRatio);
+  RELEASE_TO_NIL(springVelocity);
   [animatedViewProxy release];
   [super dealloc];
 }
@@ -397,7 +401,7 @@
     options |= ([autoreverse boolValue] ? (UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) : 0);
     options |= (([repeat intValue] > 0) ? UIViewAnimationOptionRepeat : 0);
 
-    void (^animation)() = ^{
+    void (^animation)(void) = ^{
       CGFloat repeatCount = [repeat intValue];
       if ((options & UIViewAnimationOptionAutoreverse)) {
         // What we have to do here in order to get the 'correct' animation
@@ -414,6 +418,10 @@
         [reverseAnimation setIsReverse:YES];
         [reverseAnimation setDuration:duration];
         [reverseAnimation setDelay:[NSNumber numberWithInt:0]];
+        if (dampingRatio != nil || springVelocity != nil) {
+          [reverseAnimation setDampingRatio:dampingRatio];
+          [reverseAnimation setSpringVelocity:springVelocity];
+        }
         switch ([curve intValue]) {
         case UIViewAnimationOptionCurveEaseIn:
           [reverseAnimation setCurve:[NSNumber numberWithInt:UIViewAnimationOptionCurveEaseOut]];
@@ -616,12 +624,22 @@
         [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
       }
     };
+    if (dampingRatio != nil || springVelocity != nil) {
+      [UIView animateWithDuration:animationDuration
+                            delay:([delay doubleValue] / 1000)
+           usingSpringWithDamping:[dampingRatio floatValue]
+            initialSpringVelocity:[springVelocity floatValue]
+                          options:options
+                       animations:animation
+                       completion:complete];
+    } else {
+      [UIView animateWithDuration:animationDuration
+                            delay:([delay doubleValue] / 1000)
+                          options:options
+                       animations:animation
+                       completion:complete];
+    }
 
-    [UIView animateWithDuration:animationDuration
-                          delay:([delay doubleValue] / 1000)
-                        options:options
-                     animations:animation
-                     completion:complete];
   } else {
     BOOL perform = YES;
 

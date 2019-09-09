@@ -7,7 +7,6 @@
 #ifdef USE_TI_NETWORKSOCKET
 #import "TiNetworkSocketTCPProxy.h"
 #import "NetworkModule.h"
-#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiBuffer.h>
 
 static NSString *SOCK_KEY = @"socket";

@@ -15,9 +15,9 @@ properties:
         If specified, this rule only applies to updates generated
         by the specified provider. If `null`, this rule applies to all updates.
     description: |
-        Can be [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS), 
-        [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK), or 
-        [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE).
+        Can be [PROVIDER_GPS](Titanium.Geolocation.Android.PROVIDER_GPS), 
+        [PROVIDER_NETWORK](Titanium.Geolocation.Android.PROVIDER_NETWORK), or 
+        [PROVIDER_PASSIVE](Titanium.Geolocation.Android.PROVIDER_PASSIVE).
     type: String
     default: null
     

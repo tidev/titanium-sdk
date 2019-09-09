@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,8 +9,9 @@
 
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
-#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
+
+@class TiBlob;
 
 // Not 'officially' a proxy since we don't want users being able to create these; they're
 // generated internally only for the media player.

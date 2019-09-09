@@ -189,6 +189,11 @@ public class TiHTTPClient
 					if (baseFile instanceof TiFile) {
 						responseFile = (TiFile) baseFile;
 					}
+				} else if (f instanceof TiFileProxy) {
+					TiBaseFile baseFile = ((TiFileProxy) f).getBaseFile();
+					if (baseFile instanceof TiFile) {
+						responseFile = (TiFile) baseFile;
+					}
 				}
 				if (responseFile == null && Log.isDebugModeEnabled()) {
 					Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
@@ -376,6 +381,9 @@ public class TiHTTPClient
 			FileDescriptor fileDescriptor = ((FileOutputStream) responseOut).getFD();
 			if (fileDescriptor != null) {
 				fileDescriptor.sync();
+			}
+			if (responseData != null) {
+				responseData.loadBitmapInfo();
 			}
 		}
 		responseOut.close();
@@ -616,7 +624,7 @@ public class TiHTTPClient
 		TiBlob blob = this.responseData;
 		if (blob == null) {
 			if (this.responseOut instanceof ByteArrayOutputStream) {
-				blob = TiBlob.blobFromData(((ByteArrayOutputStream) this.responseOut).toByteArray());
+				blob = TiBlob.blobFromData(((ByteArrayOutputStream) this.responseOut).toByteArray(), this.contentType);
 			} else if (this.responseText != null) {
 				blob = TiBlob.blobFromString(this.responseText);
 			}
@@ -727,6 +735,10 @@ public class TiHTTPClient
 
 	public void clearCookies(String url)
 	{
+		if (url == null) {
+			return;
+		}
+
 		List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieManager.getCookieStore().getCookies());
 		cookieManager.getCookieStore().removeAll();
 		String lower_url = url.toLowerCase();
@@ -1380,6 +1392,8 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				requestPending = false;
+
 				KrollDict data = new KrollDict();
 				data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);
