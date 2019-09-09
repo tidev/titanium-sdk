@@ -1,9 +1,0 @@
-<h2 id="properties">Properties</h2>
-
-% if data.properties is not None and len(data.properties) > 0:
-
-	<%include file="member_list.html" args="item_list=data.properties, platform_count=len(data.platforms), is_property_list=True, div_class='properties'"/>
-
-% else:
-	This type has no properties.
-% endif
