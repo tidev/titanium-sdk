@@ -1781,7 +1781,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		switch (this.deployType) {
 			case 'production':
 				this.showErrorController = false;
-				this.minifyJS = true;
+				this.minifyJS = false;
 				this.encryptJS = true;
 				this.minifyCSS = true;
 				this.allowDebugging = false;
@@ -1791,7 +1791,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 			case 'test':
 				this.showErrorController = true;
-				this.minifyJS = true;
+				this.minifyJS = false;
 				this.encryptJS = true;
 				this.minifyCSS = true;
 				this.allowDebugging = true;
