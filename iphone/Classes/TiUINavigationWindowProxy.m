@@ -213,12 +213,15 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
 #endif
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
+  }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    navController.view.backgroundColor = theWindow.view.backgroundColor;
   }
 }
 
@@ -386,7 +389,7 @@
   [super viewDidDisappear:animated];
 }
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   UIViewController *topVC = [navController topViewController];

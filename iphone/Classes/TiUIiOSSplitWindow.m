@@ -256,7 +256,7 @@
   RELEASE_TO_NIL(masterProxy);
   masterProxy = [args retain];
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   TiWindowProxy *masterWindowProxy = (TiWindowProxy *)masterProxy;
   masterWindowProxy.isMasterWindow = YES;
 #endif
@@ -282,7 +282,7 @@
   RELEASE_TO_NIL(detailProxy);
   detailProxy = [args retain];
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   TiWindowProxy *detailWindowProxy = (TiWindowProxy *)detailProxy;
   detailWindowProxy.isDetailWindow = YES;
 #endif
