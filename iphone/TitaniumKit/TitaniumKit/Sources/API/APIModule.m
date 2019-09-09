@@ -1,14 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #import "APIModule.h"
-#import "TiApp.h"
 #import "TiBase.h"
 #import "TiExceptionHandler.h"
-#import "TiUtils.h"
 
 @implementation APIModule
 
@@ -17,9 +15,32 @@
   return @"Ti.API";
 }
 
-- (void)logMessage:(NSArray *)args severity:(NSString *)severity
+- (bool)isNSBoolean:(id)object
 {
-  NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
+  return [object isKindOfClass:[@YES class]];
+}
+
+- (void)logMessage:(id)args severity:(NSString *)severity
+{
+  if (args == nil) {
+    args = @[ [NSNull null] ];
+  } else if (!([args isKindOfClass:[NSArray class]])) {
+    args = @[ args ];
+  }
+  // If the arg is an NSNumber wrapping a BOOL we should print the string equivalent for the boolean!
+  NSMutableArray *newArray = [NSMutableArray array];
+  [args enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    if ([obj isKindOfClass:[JSValue class]]) {
+      obj = ((JSValue *)obj).toObject;
+    }
+    if ([self isNSBoolean:obj]) {
+      obj = [obj boolValue] ? @"true" : @"false";
+    } else if (obj == nil) {
+      obj = [NSNull null];
+    }
+    [newArray addObject:obj];
+  }];
+  NSLog(@"[%@] %@", [severity uppercaseString], [newArray componentsJoinedByString:@" "]);
 }
 
 - (id)transform:(id)arg
@@ -30,53 +51,70 @@
   return arg;
 }
 
-- (void)debug:(NSArray *)args
+- (void)debug:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
+
   [self logMessage:args severity:@"debug"];
 }
 
-- (void)info:(NSArray *)args
+- (void)info:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"info"];
 }
 
-- (void)warn:(NSArray *)args
+- (void)warn:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"warn"];
 }
 
 - (void)error:(NSArray *)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"error"];
 }
 
-- (void)trace:(NSArray *)args
+- (void)trace:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"trace"];
 }
 
-- (void)timestamp:(NSArray *)args
+- (void)timestamp:(id)args
 {
-  NSLog(@"[TIMESTAMP] %f %@", [NSDate timeIntervalSinceReferenceDate], [self transform:[args objectAtIndex:0]]);
+  id firstArg = args;
+  if ([args isKindOfClass:[NSArray class]]) {
+    firstArg = [args objectAtIndex:0];
+  }
+  NSLog(@"[TIMESTAMP] %f %@", [NSDate timeIntervalSinceReferenceDate], [self transform:firstArg]);
   fflush(stderr);
 }
 
-- (void)notice:(NSArray *)args
+- (void)notice:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"info"];
 }
 
-- (void)critical:(NSArray *)args
+- (void)critical:(id)args
 {
+  args = [JSContext currentArguments] ?: args;
   [self logMessage:args severity:@"error"];
 }
 
-- (void)log:(NSArray *)args
+- (void)log:(id)level withMessage:(id)args
 {
-  if ([args count] > 1) {
-    [self logMessage:[args subarrayWithRange:NSMakeRange(1, [args count] - 1)] severity:[args objectAtIndex:0]];
+  if ([JSContext currentArguments].count > 0) {
+    NSMutableArray *array = [NSMutableArray arrayWithArray:[JSContext currentArguments]];
+    [array removeObjectAtIndex:0];
+    args = array;
+  }
+  if (args == nil || ([args isKindOfClass:[NSArray class]] && [args count] == 0)) {
+    [self logMessage:level severity:@"info"];
   } else {
-    [self logMessage:args severity:@"info"];
+    [self logMessage:args severity:level];
   }
 }
 

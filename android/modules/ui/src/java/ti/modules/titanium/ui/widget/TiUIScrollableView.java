@@ -48,8 +48,8 @@ public class TiUIScrollableView extends TiUIView
 {
 	private static final String TAG = "TiUIScrollableView";
 
-	private static final int PAGE_LEFT_ID = 200;
-	private static final int PAGE_RIGHT_ID = 201;
+	private static final int PAGE_LEFT_ID = View.generateViewId();
+	private static final int PAGE_RIGHT_ID = View.generateViewId();
 
 	private final ViewPager mPager;
 	private final ArrayList<TiViewProxy> mViews;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@
 #import "TiNetworkCookieProxy.h"
 #import "TiNetworkSocketProxy.h"
 #import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 
 NSString *const INADDR_ANY_token = @"INADDR_ANY";

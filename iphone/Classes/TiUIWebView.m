@@ -23,6 +23,7 @@
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
 
+#import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
 extern NSString *const TI_APPLICATION_ID;
@@ -71,9 +72,17 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     WKUserContentController *controller = [[[WKUserContentController alloc] init] autorelease];
 
     [controller addUserScript:[self userScriptTitaniumInjectionForAppEvent]];
-    [controller addScriptMessageHandler:self name:@"_Ti_"];
 
     [config setUserContentController:controller];
+
+#if IS_SDK_IOS_11
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
+        [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
+      }
+    }
+#endif
+
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
     _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
@@ -174,7 +183,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   NSURL *url = [TiUtils toURL:value proxy:self.proxy];
 
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+
   if ([[self class] isLocalURL:url]) {
+    [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
     [self loadLocalURL:url];
   } else {
     [self loadRequestWithURL:[NSURL URLWithString:[TiUtils stringValue:value]]];
@@ -183,7 +195,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setBackgroundColor_:(id)value
 {
-  ENSURE_TYPE(value, NSString);
   [[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
 
   [[self webView] setOpaque:NO];
@@ -209,6 +220,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   } else {
     NSLog(@"[ERROR] Ti.UI.WebView.data can only be a TiBlob or TiFile object, was %@", [(TiProxy *)value apiName]);
   }
+
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
 
   [[self webView] loadData:data
                    MIMEType:[self mimeTypeForData:data]
@@ -249,9 +263,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[self webView] stopLoading];
   }
 
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
+
   // No options, default load behavior
   if (options == nil) {
-    [[self webView] loadHTMLString:content baseURL:nil];
+    [[self webView] loadHTMLString:content baseURL:[NSURL fileURLWithPath:[TiHost resourcePath]]];
     return;
   }
 
@@ -259,10 +276,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   NSString *baseURL = options[@"baseURL"];
   NSString *mimeType = options[@"mimeType"];
 
+  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL URLWithString:baseURL] : [NSURL fileURLWithPath:baseURL];
+
   [[self webView] loadData:[content dataUsingEncoding:NSUTF8StringEncoding]
                    MIMEType:mimeType
       characterEncodingName:@"UTF-8"
-                    baseURL:[NSURL URLWithString:baseURL]];
+                    baseURL:url];
 }
 
 - (void)setDisableBounce_:(id)value
@@ -353,9 +372,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[self webView] setCustomUserAgent:userAgent];
   }
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    [self addCookieHeaderForRequest:request];
-  }
+  [self addCookieHeaderForRequest:request];
 
   [[self webView] loadRequest:request];
 }
@@ -377,7 +394,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [(TiUIWebViewProxy *)self.proxy setPageToken:_pageToken];
   }
 
-  NSString *source = @"var callbacks = {}; var Ti = {}; Ti.pageToken = %@; \
+  NSString *titanium = [NSString stringWithFormat:@"%@%s", @"Ti", "tanium"];
+  NSString *source = @"var callbacks = {}; var Ti = {}; var %@ = Ti; Ti.pageToken = %@; \
     Ti._listener_id = 1; Ti._listeners={}; %@\
     Ti.App = { \
                 fireEvent: function(name, payload) { \
@@ -399,7 +417,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     listeners.push({callback:callback,id:newid});\
     window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'addEventListener', callback: Ti._JSON({name:name, id:newid},1)},'*'); \
     }, \
-    removeEventListener: function(name, callback) { \
+    removeEventListener: function(name, fn) { \
     var listeners=Ti._listeners[name]; \
     if(listeners){ \
     for(var c=0;c<listeners.length;c++){ \
@@ -433,10 +451,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     warn: function(message){ \
     window.webkit.messageHandlers._Ti_.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
     }, \
+    log: function(level, message){ \
+    window.webkit.messageHandlers._Ti_.postMessage({name: level, method: 'log', callback: Ti._JSON({level: level, message:message},1)},'*'); \
+    }, \
     }; \
     ";
 
-  NSString *sourceString = [NSString stringWithFormat:source, _pageToken, baseInjectScript];
+  NSString *sourceString = [NSString stringWithFormat:source, titanium, _pageToken, baseInjectScript];
   return [[[WKUserScript alloc] initWithSource:sourceString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
 }
 
@@ -607,13 +628,16 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)addCookieHeaderForRequest:(NSMutableURLRequest *)request
 {
   /*
-   To support cookie for iOS <11
+   To support cookie
    https://stackoverflow.com/questions/26573137
    https://github.com/haifengkao/YWebView
    */
 
   NSString *validDomain = request.URL.host;
 
+  if (validDomain.length <= 0) {
+    return;
+  }
   if (!_tiCookieHandlerAdded) {
     _tiCookieHandlerAdded = YES;
     WKUserContentController *controller = [[[self webView] configuration] userContentController];
@@ -734,25 +758,37 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       NSString *method = [[message body] objectForKey:@"method"];
       NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";
 
-      id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
-      TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
-      [tiModule setExecutionContext:context];
+      // FIXME: This doesn't play nice with the new obj-c based modules!
+      // Unify the special handling for init with the code in KrollBridge?
+      // Maybe just fork the behavior altogether here, since I don't think the event stuff will work properly?
+      id module;
+      if ([moduleName isEqualToString:@"API"]) {
+        // Really we need to grab the same instance we stuck into the Ti namespace, not a brand new one. But how?
+        // Maybe grab Ti from global and just ask for property with module name?
+        Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", moduleName]);
+        module = [[moduleClass alloc] init];
+      } else {
+        id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
+        TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
+        [tiModule setExecutionContext:context];
+        module = tiModule;
+      }
 
       if ([method isEqualToString:@"fireEvent"]) {
-        [tiModule fireEvent:name withObject:payload];
+        [module fireEvent:name withObject:payload];
       } else if ([method isEqualToString:@"addEventListener"]) {
         id listenerid = [event objectForKey:@"id"];
-        [tiModule addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+        [module addEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"removeEventListener"]) {
-        id listenerid = [[message body] objectForKey:@"id"];
-        [tiModule removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
+        id listenerid = [event objectForKey:@"id"];
+        [module removeEventListener:[NSArray arrayWithObjects:name, listenerid, nil]];
       } else if ([method isEqualToString:@"log"]) {
         NSString *level = [event objectForKey:@"level"];
         NSString *message = [event objectForKey:@"message"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([tiModule respondsToSelector:@selector(log:)]) {
-          [tiModule performSelector:@selector(log:) withObject:@[ level, message ]];
+        if ([module respondsToSelector:@selector(log:withMessage:)]) {
+          [module performSelector:@selector(log:withMessage:) withObject:level withObject:message];
         }
 #pragma clang diagnostic pop
       }
@@ -760,7 +796,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"] && [message.name isEqualToString:@"_Ti_Cookie_"]) {
+  if ([message.name isEqualToString:@"_Ti_Cookie_"]) {
     NSArray<NSString *> *cookies = [message.body componentsSeparatedByString:@"; "];
     for (NSString *cookie in cookies) {
       // Get this cookie's name and value
@@ -953,7 +989,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   // Handle blacklisted URL's
   if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
-    NSString *urlCandidate = webView.URL.absoluteString;
+    NSString *urlCandidate = navigationAction.request.URL.absoluteString;
 
     for (NSString *blackListedURL in _blacklistedURLs) {
       if ([urlCandidate rangeOfString:blackListedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
@@ -975,7 +1011,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([[self proxy] _hasListeners:@"beforeload"]) {
     [[self proxy] fireEvent:@"beforeload"
                  withObject:@{
-                   @"url" : webView.URL.absoluteString,
+                   @"url" : navigationAction.request.URL.absoluteString,
                    @"navigationType" : @(navigationAction.navigationType)
                  }];
   }
@@ -994,6 +1030,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
+  NSString *scheme = [navigationAction.request.URL.scheme lowercaseString];
+
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
@@ -1008,13 +1046,17 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
             NO);
       } else {
         // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
-        DebugLog(@"[WARN] Please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
-        DebugLog(@"[WARN] It returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
+        DebugLog(@"[WARN] In iOS, please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
+        DebugLog(@"[WARN] In iOS, it returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
 
         [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
         decisionHandler(WKNavigationActionPolicyCancel);
       }
     }
+  } else if (!([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"] || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) && [[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
+    // Support tel: protocol
+    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    decisionHandler(WKNavigationActionPolicyCancel);
   } else {
     decisionHandler(WKNavigationActionPolicyAllow);
   }
@@ -1037,6 +1079,14 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+  if (!navigationAction.targetFrame.isMainFrame) {
+    [webView loadRequest:navigationAction.request];
+  }
+
+  return nil;
+}
 #pragma mark Internal Utilities
 
 static NSString *UIKitLocalizedString(NSString *string)
@@ -1314,4 +1364,58 @@ static NSString *UIKitLocalizedString(NSString *string)
 }
 
 @end
+
+#if IS_SDK_IOS_11
+@implementation WebAppProtocolHandler
+
++ (NSString *)specialProtocolScheme
+{
+  return @"app";
+}
+
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask
+{
+  NSURLRequest *request = [urlSchemeTask request];
+  NSURL *url = [request URL];
+  DebugLog(@"[DEBUG] Requested resource via app protocol, loading: %@", url);
+
+  // see if it's a compiled resource
+  NSData *data = [TiUtils loadAppResource:url];
+  if (data == nil) {
+    // check to see if it's a local resource in the bundle, could be
+    // a bundled image, etc. - or we could be running from XCode :)
+    NSString *urlpath = [url path];
+    if ([urlpath characterAtIndex:0] == '/') {
+      if ([[NSFileManager defaultManager] fileExistsAtPath:urlpath]) {
+        data = [[[NSData alloc] initWithContentsOfFile:urlpath] autorelease];
+      }
+    }
+    if (data == nil) {
+      NSString *resourceurl = [TiHost resourcePath];
+      NSString *path = [NSString stringWithFormat:@"%@%@", resourceurl, urlpath];
+      data = [[[NSData alloc] initWithContentsOfFile:path] autorelease];
+    }
+  }
+
+  if (data != nil) {
+    NSURLCacheStoragePolicy caching = NSURLCacheStorageAllowedInMemoryOnly;
+    NSString *mime = [Mimetypes mimeTypeForExtension:[url path]];
+    NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:mime expectedContentLength:[data length] textEncodingName:@"utf-8"];
+    [urlSchemeTask didReceiveResponse:response];
+    [urlSchemeTask didReceiveData:data];
+    [urlSchemeTask didFinish];
+    [response release];
+  } else {
+    NSLog(@"[ERROR] Error loading %@", url);
+    [urlSchemeTask didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
+  }
+}
+
+- (void)webView:(nonnull WKWebView *)webView stopURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask
+{
+}
+
+@end
+#endif
+
 #endif

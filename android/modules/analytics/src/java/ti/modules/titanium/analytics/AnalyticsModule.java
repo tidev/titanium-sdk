@@ -78,18 +78,17 @@ public class AnalyticsModule extends KrollModule
 			if (event == null) {
 				event = "";
 			}
+			JSONObject payload = null;
 			if (data instanceof HashMap) {
-				analytics.sendAppNavEvent(from, to, TiConvert.toJSON(data));
-
+				payload = TiConvert.toJSON(data);
 			} else if (data != null) {
 				try {
-					analytics.sendAppNavEvent(from, to, new JSONObject(data.toString()));
+					payload = new JSONObject(data.toString());
 				} catch (JSONException e) {
 					Log.e(TAG, "Cannot convert data into JSON");
 				}
-			} else {
-				analytics.sendAppNavEvent(from, to, null);
 			}
+			analytics.sendAppNavEvent(from, to, event, payload);
 		} else {
 			Log.e(
 				TAG,

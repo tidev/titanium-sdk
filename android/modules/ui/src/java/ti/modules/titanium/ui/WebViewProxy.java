@@ -171,25 +171,36 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	public String getHtml()
 	// clang-format on
 	{
-		if (!hasProperty(TiC.PROPERTY_HTML)) {
-			return getWebView().getJSValue("document.documentElement.outerHTML");
+		if (hasProperty(TiC.PROPERTY_HTML)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
 		}
-		return (String) getProperty(TiC.PROPERTY_HTML);
+
+		TiUIView view = peekView();
+		if (view instanceof TiUIWebView) {
+			return ((TiUIWebView) view).getJSValue("document.documentElement.outerHTML");
+		}
+
+		return null;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setHtml(String html)
-	// clang-format on
 	{
-		setProperty(TiC.PROPERTY_HTML, html);
+		setHtml(html, null);
+	}
 
-		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
-		// view is created.
-		TiUIView v = peekView();
-		if (v != null) {
-			((TiUIWebView) v).setHtml(html);
+	@Kroll.method
+	public void setHtml(String html, @Kroll.argument(optional = true) KrollDict optionalSettings)
+	{
+		// Store given values to proxy's property dictionary.
+		setProperty(TiC.PROPERTY_HTML, html);
+		setProperty(OPTIONS_IN_SETHTML, optionalSettings);
+
+		// Load given HTML into WebView if it exists.
+		// Note: If WebView hasn't been created yet, then properties set above will be loaded via processProperties().
+		TiUIView view = peekView();
+		if (view instanceof TiUIWebView) {
+			((TiUIWebView) view).setHtml(html, optionalSettings);
 		}
 	}
 

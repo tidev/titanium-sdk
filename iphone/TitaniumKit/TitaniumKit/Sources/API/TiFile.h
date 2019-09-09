@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiProxy.h"
 
+@class TiBlob; // forward declare
 /**
  The main interface for File-based proxies -- this is in the API
  since Filesystem implements it but we want to be able to have other
@@ -37,7 +38,7 @@
 
 /**
  Creates new instance of TiFile for a temporary file with specified path.
- 
+
  The references file will be deleted on file system when the TiFile object is released.
  @param path The absolute path.
  @return A created instance of TiFile.
@@ -55,8 +56,8 @@
  Returns the contents of the file as a TiBlob.
  @return The TiBlob object.
  */
-- (id)blob;
+- (TiBlob *)blob;
 
-- (id)toBlob:(id)args;
+- (TiBlob *)toBlob:(id)args;
 
 @end

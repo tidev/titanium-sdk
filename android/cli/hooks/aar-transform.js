@@ -11,9 +11,8 @@
 const AarTransformer = require('appc-aar-tools').AarTransformer,
 	async = require('async'),
 	crypto = require('crypto'),
-	fs = require('fs'),
-	path = require('path'),
-	wrench = require('wrench');
+	fs = require('fs-extra'),
+	path = require('path');
 
 /**
  * Version number to idenfity the data structure of transform results that are
@@ -441,7 +440,7 @@ class SimpleFileCache {
 	 * @return {boolean}
 	 */
 	has(key) {
-		return this.data.hasOwnProperty(key);
+		return Object.prototype.hasOwnProperty.call(this.data, key);
 	}
 
 	/**
@@ -481,9 +480,8 @@ class SimpleFileCache {
 	 */
 	persist() {
 		var dataToWrite = JSON.stringify(this.data);
-		if (!fs.existsSync(path.dirname(this.cachePathAndFilename))) {
-			wrench.mkdirSyncRecursive(path.dirname(this.cachePathAndFilename));
-		}
+		const dir = path.dirname(this.cachePathAndFilename);
+		fs.ensureDirSync(dir);
 		fs.writeFileSync(this.cachePathAndFilename, dataToWrite);
 	}
 }

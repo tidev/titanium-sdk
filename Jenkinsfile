@@ -17,7 +17,7 @@ def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline br
 // Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
-def runSecurityChecks = isMainlineBranch // run security checks if on mainline branch, by default (dependency check, RetireJS)
+def testOnDevices = isMainlineBranch // run tests on devices
 
 // Variables we can change
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
@@ -30,13 +30,43 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
-def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
+@NonCPS
+def hasAPIDocChanges() {
+	// https://javadoc.jenkins-ci.org/hudson/scm/ChangeLogSet.html
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.size(); j++) {
+            def entry = entries[j]
+			if (entry.msg.contains('[skip ci]')) {
+				echo "skipping commit: ${entry.msg}"
+				continue; // skip this commit
+			}
+			// echo "checking commit: ${entry.msg}"
+            def paths = entry.affectedPaths
+			for (int k = 0; k < paths.size(); k++) {
+				def path = paths[k]
+				if (path.startsWith('apidoc/')) {
+					return true
+				}
+			}
+        }
+    }
+	return false
+}
+
+def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
-			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
+			labels = 'git && osx && xcode-11' // Use xcode-11 to make use of ios 13 APIs
 		} else {
-			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
+			// run main branch tests on devices, use node with devices connected
+			if (testOnDevices) {
+				labels = 'git && osx && android-emulator && android-sdk && macos-rocket' // FIXME get working on windows/linux!
+			} else {
+				labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
+			}
 		}
 		node(labels) {
 			try {
@@ -72,9 +102,21 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 						sh 'npm ci'
 						dir('scripts') {
 							try {
-								timeout(20) {
-									sh "node test.js -b ../../${zipName} -p ${os}"
-								} // timeout
+								if ('ios'.equals(os)) {
+									timeout(20) {
+										sh "node test.js -b ../../${zipName} -p ${os}"
+									}
+								} else {
+									timeout(30) {
+										// run main branch tests on devices
+										if (testOnDevices) {
+											sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
+										// run PR tests on emulator
+										} else {
+											sh "node test.js -T emulator -C android-28-playstore-x86 -b ../../${zipName} -p ${os}"
+										}
+									}
+								}
 							} catch (e) {
 								if ('ios'.equals(os)) {
 									// Gather the crash report(s)
@@ -92,20 +134,24 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 									sh 'rm -f mocha_*.crash'
 								} else {
 									// gather crash reports/tombstones for Android
-									sh 'adb pull /data/tombstones'
-									archiveArtifacts 'tombstones/'
-									sh 'rm -f tombstones/'
-									// wipe tombstones and re-build dir with proper permissions/ownership on emulator
-									sh 'adb shell rm -rf /data/tombstones'
-									sh 'adb shell mkdir -m 771 /data/tombstones'
-									sh 'adb shell chown system:system /data/tombstones'
+									timeout(5) {
+										sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './adb-all.sh pull /data/tombstones'
+										archiveArtifacts allowEmptyArchive: true, artifacts: 'tombstones/'
+										sh returnStatus: true, script: 'rm -rf tombstones/'
+										// wipe tombstones and re-build dir with proper permissions/ownership on emulator
+										sh returnStatus: true, script: './adb-all.sh shell rm -rf /data/tombstones'
+										sh returnStatus: true, script: './adb-all.sh shell mkdir -m 771 /data/tombstones'
+										sh returnStatus: true, script: './adb-all.sh shell chown system:system /data/tombstones'
+									}
 								}
 								throw e
 							} finally {
 								// Kill the emulators!
 								if ('android'.equals(os)) {
-									sh 'adb shell am force-stop com.appcelerator.testApp.testing'
-									sh 'adb uninstall com.appcelerator.testApp.testing'
+									timeout(5) {
+										sh returnStatus: true, script: './adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
+										sh returnStatus: true, script: './adb-all.sh uninstall com.appcelerator.testApp.testing'
+									}
 									killAndroidEmulators()
 								} // if
 							} // finally
@@ -125,7 +171,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-10') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-11') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -173,10 +219,10 @@ timestamps {
 					}
 					// was it a failure?
 					if (npmTestResult != 0) {
-						// empty stashes of test reports, so danger step can still run.
-						stash allowEmpty: true, name: 'test-report-ios'
-						stash allowEmpty: true, name: 'test-report-android'
 						error readFile('npm_test.log')
+					} else if (env.BRANCH_NAME.equals('master') && hasAPIDocChanges()) {
+						// if we have a master branch build of SDK with updated apidocs, trigger a new doc site build
+						build job: 'docs/doctools/docs', wait: false
 					}
 				}
 
@@ -242,46 +288,14 @@ timestamps {
 					stash includes: 'dist/parity.html', name: 'parity'
 					stash includes: 'tests/', name: 'override-tests'
 				} // end 'Build' stage
-
-				if (runSecurityChecks) {
-					stage('Security') {
-						timeout(25) { // sometimes the upload hangs forever...
-							// Clean up and install only production dependencies
-							if (isGreenKeeper) {
-								sh 'npm install --production'
-							} else {
-								sh 'npm ci --production'
-							}
-
-							// Scan for Dependency Check and RetireJS warnings
-							dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
-							dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
-
-							// Adding appc-license scan, until we can get the output from Dependency Check/Track
-							sh 'npx appc-license > output.csv'
-							archiveArtifacts 'output.csv'
-
-							sh 'npx retire --exitwith 0'
-							step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
-
-							// Don't upload to Threadfix, we do that in a nightly security scan job
-							// re-install dev dependencies for testing later...
-							if (isGreenKeeper) {
-								sh 'npm install'
-							} else {
-								sh(returnStatus: true, script: 'npm ci') // ignore PEERINVALID grunt issue for now
-							}
-						} // timeout
-					} // end 'Security' stage
-				} // if(runSecurityChecks)
 			} // nodeJs
 		} // end node for checkout/build
 
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
+				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch, testOnDevices),
+				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch, testOnDevices),
 				failFast: true
 			)
 		}

@@ -1,9 +1,9 @@
 ---
 name: Titanium.UI.iPad.DocumentViewer
 deprecated:
-    since: 3.0.0
-    notes: Use <Titanium.UI.iOS.DocumentViewer> instead.
+    since: "3.0.0"
     removed: "6.0.0"
+    notes: Use [Titanium.UI.iOS.DocumentViewer](Titanium.UI.iOS.DocumentViewer) instead.
 summary: |
     A DocumentViewer provides in-app support for managing user interactions with files on the 
     local system.

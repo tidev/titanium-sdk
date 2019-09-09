@@ -10,7 +10,7 @@ createable: false
 deprecated:
     since: "5.4.0"
     removed: "7.0.0"
-    notes: Use <Titanium.UI.iOS.AlertDialogStyle> instead.
+    notes: Use [Titanium.UI.iOS.AlertDialogStyle](Titanium.UI.iOS.AlertDialogStyle) instead.
 
 properties:
   - name: DEFAULT
@@ -20,7 +20,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.AlertDialogStyle.DEFAULT> instead.
+        notes: Use [Titanium.UI.iOS.AlertDialogStyle.DEFAULT](Titanium.UI.iOS.AlertDialogStyle.DEFAULT) instead.
 
   - name: PLAIN_TEXT_INPUT
     summary: An alert dialog that allows the user to enter text.
@@ -29,7 +29,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> instead.
+        notes: Use [Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT](Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT) instead.
 
   - name: SECURE_TEXT_INPUT
     summary: An alert dialog that allows the user to enter text. The text field is obscured.
@@ -38,7 +38,7 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT> instead.
+        notes: Use [Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT](Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT) instead.
 
   - name: LOGIN_AND_PASSWORD_INPUT
     summary: An alert dialog that allows the user to enter login identifier and password.
@@ -47,4 +47,4 @@ properties:
     deprecated:
         since: "5.4.0"
         removed: "7.0.0"
-        notes: Use <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT> instead.
+        notes: Use [Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT](Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT) instead.

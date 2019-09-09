@@ -22,9 +22,22 @@ const __ = appc.i18n(__dirname).__;
 exports.run = function run(logger, config, cli, finished) {
 	const projectDir = cli.argv['project-dir'];
 
-	const toDelete = [ 'build', 'dist', 'libs', 'java-sources.txt' ];
-	toDelete.forEach((f) => {
+	const toDelete = [ 'build', 'dist', 'java-sources.txt' ];
+	toDelete.forEach(f => {
 		const target = path.join(projectDir, f);
+		if (appc.fs.exists(target)) {
+			logger.debug(__('Deleting %s', target.cyan));
+			fs.removeSync(target);
+		} else {
+			logger.debug(__('File does not exist %s', target.cyan));
+		}
+	});
+
+	// remove only the libraries we generate
+	const moduleid = cli.manifest.moduleid;
+	const arches = fs.readdirSync(path.join(projectDir, 'libs'));
+	arches.forEach(arch => {
+		const target = path.join(projectDir, 'libs', arch, `lib${moduleid}.so`);
 		if (appc.fs.exists(target)) {
 			logger.debug(__('Deleting %s', target.cyan));
 			fs.removeSync(target);

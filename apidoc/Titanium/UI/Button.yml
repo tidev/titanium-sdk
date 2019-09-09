@@ -4,12 +4,20 @@ summary: |
     A button widget that has four states: normal, disabled, focused and selected.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/button/button_android.png" height="50" /></td>
-        <td><img src="images/button/button_ios.png" height="50" /></td>
-        <td><img src="images/button/button_wp.png" height="50" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/button/button_android.png" height="50" /></td>
+          <td><img src="images/button/button_ios.png" height="50" /></td>
+          <td><img src="images/button/button_wp.png" height="50" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     A button displays its  selected state while it is being pressed. The focused state is
@@ -104,7 +112,7 @@ properties:
     description: |
         The underlying attributed string drawn by the label. If set, avoid setting common attributes
         in the label, such as `color` and `font`, as unexpected behaviors may result.
-        
+
         iOS Note: This property can also be used to supress the underline style when accessibility
         is enabled. To do so, set the `type` to <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> and the
         `value` to <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>.

@@ -50,7 +50,7 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 {
 	Isolate* isolate = context->GetIsolate();
 
-	Local<FunctionTemplate> pt = getProxyTemplate(context);
+	Local<FunctionTemplate> pt = getProxyTemplate(isolate);
 
 	v8::TryCatch tryCatch(isolate);
 	Local<Function> constructor;
@@ -105,7 +105,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(v8::Isolate* isolate)
 	Local<FunctionTemplate> t = titanium::Proxy::inheritProxyTemplate(
 		isolate,
 	<#if superProxyClassName??>
-		<@Proxy.superNamespace/>${superProxyClassName}::getProxyTemplate(context),
+		<@Proxy.superNamespace/>${superProxyClassName}::getProxyTemplate(isolate),
 	<#else>
 		titanium::Proxy::baseProxyTemplate.Get(isolate),
 	</#if>

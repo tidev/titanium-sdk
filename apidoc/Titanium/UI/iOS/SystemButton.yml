@@ -8,7 +8,8 @@ description: |
     
     See <Titanium.UI.Button> for more information on the `systemButton` property, including details
     on where system buttons can be used. In an Alloy application you can omit the `Ti.UI.iOS.SystemButton`
-    namespace when assigning a value to the `<Button>` element's `systemButton` attribute, for example:
+    namespace when assigning a value to the `<Button>` element's `systemButton` attribute, 
+    for example:
 
         <Button systemButton="CAMERA"/>
         <!-- Instead of -->
@@ -16,9 +17,7 @@ description: |
 
     A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
     create standard iOS buttons that can be used in other places, including table view rows.
-    Note: Starting at Titanium SDK 5.0, all icons have are automatically sized in the native behavior
-    and are not distorted any more.
-    These standard button types are:
+    Note: Starting at Titanium SDK 5.0, all icons have are automatically sized in the native behavior and are not distorted any more. These standard button types are:
 
     * [CONTACT_ADD](Titanium.UI.iOS.SystemButton.CONTACT_ADD)
     * [DISCLOSURE](Titanium.UI.iOS.SystemButton.DISCLOSURE)
@@ -26,21 +25,20 @@ description: |
     * [INFO_LIGHT](Titanium.UI.iOS.SystemButton.INFO_LIGHT)
 
     See Apple's 
-    [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/) 
-    in the iOS Developer Library for details on the proper usage of iOS standard buttons
-    and icons.
+    [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/) in the iOS Developer Library for details on the proper usage of iOS standard buttons and icons.
+
 extends: Titanium.Proxy
 since: "5.4.0"
 platforms: [iphone, ipad]
 
 properties:
   - name: ACTION
-    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button. 
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button. <img src="images/systembutton/system_icons.png"/>
     description: |
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
-    
+
   - name: ACTIVITY
     summary: |
         Use with [Button.systemButton](Titanium.UI.Button.systemButton) to create an activity indicator that
@@ -49,7 +47,7 @@ properties:
         When visible, the activity indicator is already started.
     type: Number
     permission: read-only
-    
+
   - name: ADD
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Add** button. 
     description: |
@@ -70,7 +68,7 @@ properties:
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
-    
+
   - name: CANCEL
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Cancel** button. 
     description: |
@@ -86,7 +84,7 @@ properties:
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
-    
+
   - name: CONTACT_ADD
     summary: Use with [Button.style](Titanium.UI.Button.style) to specify a **ContactAdd** button. 
     description: |
@@ -109,7 +107,7 @@ properties:
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
-    
+
   - name: EDIT
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Edit** button. 
     description: |
@@ -158,7 +156,7 @@ properties:
         The resulting button is not restricted to use in navigation bars and toolbars.   
     type: Number
     permission: read-only
-    
+
   - name: ORGANIZE
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Organize** button. 
     description: |
@@ -200,7 +198,7 @@ properties:
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
-    
+
   - name: SAVE
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Save** button. 
     description: |

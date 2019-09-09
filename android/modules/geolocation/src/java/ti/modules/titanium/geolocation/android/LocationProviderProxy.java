@@ -37,8 +37,8 @@ import android.os.Bundle;
 @Kroll.proxy
 public class LocationProviderProxy extends KrollProxy implements LocationListener
 {
-	public static final int STATE_DISABLED = 0;
-	public static final int STATE_ENABLED = 1;
+	public static final int STATE_ENABLED = 0;
+	public static final int STATE_DISABLED = 1;
 	public static final int STATE_OUT_OF_SERVICE = 2;
 	public static final int STATE_UNAVAILABLE = 3;
 	public static final int STATE_AVAILABLE = 4;

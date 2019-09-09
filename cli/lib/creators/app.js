@@ -14,12 +14,11 @@
 
 const appc = require('node-appc'),
 	Creator = require('../creator'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -97,7 +96,7 @@ AppCreator.prototype.run = function run(callback) {
 		platforms = ti.scrubPlatforms(argv.platforms),
 		projectDir = appc.fs.resolvePath(argv['workspace-dir'], argv.name);
 
-	fs.existsSync(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	fs.ensureDirSync(projectDir);
 
 	// download/install the project template
 	this.processTemplate(function (err, templateDir) {
@@ -154,7 +153,7 @@ AppCreator.prototype.run = function run(callback) {
 			function (next) {
 				// make sure the Resources dir exists
 				const dir = path.join(projectDir, 'Resources');
-				fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+				fs.ensureDirSync(dir);
 				next();
 			}
 		];
