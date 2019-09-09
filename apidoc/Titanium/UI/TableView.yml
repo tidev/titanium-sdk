@@ -183,6 +183,21 @@ events:
         type: Number
         platforms: [iphone, ipad]
 
+  - name: rowsselected
+    summary: |
+        Fired when user stops two-pan gesture interaction for selecting multiple rows. 
+        It is used in conjunction with <Titanium.UI.TableView.allowsMultipleSelectionInteraction>.
+    platforms: [iphone, ipad]
+    since: 8.2.0
+    properties:
+      - name: selectedRows
+        summary: List of rows selected by user.
+        type: Array<SelectedRowObject>
+
+      - name: startingRow
+        summary: First row selected when user started interaction.
+        type: SelectedRowObject
+
   - name: delete
     summary: Fired when a table row is deleted by the user.
     platforms: [iphone, ipad]
@@ -1192,6 +1207,27 @@ properties:
     default: true
     platforms: [iphone, ipad]
 
+  - name: allowsMultipleSelectionDuringEditing
+    summary: Determines whether multiple items of this table view can be selected at the same time while editing the table.
+    type: Boolean
+    default: false
+    since: 8.2.0
+    platforms: [iphone, ipad]
+
+  - name: allowsMultipleSelectionInteraction
+    summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
+    description: |
+        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
+        you must also set <Titanium.UI.TableView.allowsMultipleSelectionDuringEditing> to true.
+        Once user interaction stops the <Titanium.UI.TableView.rowsselected> event is fired.
+    type: Boolean
+    default: false
+    since: 8.2.0
+    platforms: [iphone, ipad]
+
+
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     description: |
@@ -1790,3 +1826,26 @@ properties:
   - name: bottom
     summary: Value specifying the bottom insets for the enclosing scroll view of the table.
     type: Number
+
+---
+name: SelectedRowObject
+summary: The arguments for the <Titanium.UI.TableView.rowsselected> event.
+since: 8.2.0
+platforms: [iphone, ipad]    
+properties:
+  - name: index
+    summary: Row index.
+    type: Number
+
+  - name: row
+    summary: Table view row object.
+    type: Titanium.UI.TableViewRow
+
+  - name: rowData
+    summary: |
+        Properties of the row. Use this property rather than `row` to access any custom row properties.
+    type: Dictionary<Titanium.UI.TableViewRow>
+
+  - name: section
+    summary: Table view section object, if the clicked row is contained in a section.
+    type: Titanium.UI.TableViewSection

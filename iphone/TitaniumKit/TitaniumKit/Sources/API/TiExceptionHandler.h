@@ -44,6 +44,11 @@
  */
 @property (nonatomic, readonly) NSString *backtrace;
 
+/**
+ * Returns the native stack as a static string.
+ */
+@property (nonatomic, readonly) NSArray<NSString *> *nativeStack;
+
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo;
 - (id)initWithDictionary:(NSDictionary *)dictionary;
 
