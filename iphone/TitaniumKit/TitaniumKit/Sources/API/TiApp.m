@@ -27,7 +27,7 @@ TiApp *sharedApp;
 
 NSString *TITANIUM_VERSION;
 
-extern void UIColorFlushCache();
+extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 #define TIV @"TiVerify"
@@ -35,7 +35,7 @@ extern void UIColorFlushCache();
 BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
 
 // TODO: Remove in SDK 9.0+
-TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
 @interface TiApp ()
 - (void)checkBackgroundServices;
@@ -573,6 +573,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
+// This is required because iOS does not conform to it's own recommended Obj-C compiler rules (Strict prototypes).
+// Muting the warnings until the UIApplicationDelegate fixes this.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
   RELEASE_TO_NIL(localNotification);
@@ -608,6 +613,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                   responseInfo:nil // iOS 9+ only
                              completionHandler:completionHandler];
 }
+
+#pragma clang diagnostic pop
 
 #pragma mark Apple Watchkit handleWatchKitExtensionRequest
 
@@ -689,9 +696,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
-- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler
+- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler
 {
-  typedef void (^NotificationBlock)();
+  typedef void (^NotificationBlock)(void);
 
   NotificationBlock myNotificationBlock = ^void() {
     [[NSNotificationCenter defaultCenter] postNotificationName:_notificationName object:self userInfo:_notification];
@@ -770,7 +777,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key
 {
   if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
-    void (^completionHandler)();
+    void (^completionHandler)(void);
     completionHandler = [backgroundTransferCompletionHandlers objectForKey:key];
     [backgroundTransferCompletionHandlers removeObjectForKey:key];
     completionHandler();
@@ -1260,7 +1267,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)handleRemoteNotificationWithIdentifier:(NSString *)identifier
                                    andUserInfo:(NSDictionary *)userInfo
                                   responseInfo:(NSDictionary *)responseInfo
-                             completionHandler:(void (^)())completionHandler
+                             completionHandler:(void (^)(void))completionHandler
 {
   RELEASE_TO_NIL(remoteNotification);
   [self generateNotification:userInfo];

@@ -7,9 +7,11 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
+#import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -27,6 +29,8 @@
 
 - (void)_destroy
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
@@ -52,7 +56,16 @@
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(didChangeTraitCollection:)
+                                               name:kTiTraitCollectionChanged
+                                             object:nil];
   [super _configure];
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self updateTabBarItem];
 }
 
 - (NSString *)apiName
@@ -342,6 +355,13 @@
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
   }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && [viewController isKindOfClass:[TiViewController class]]) {
+    TiViewController *toViewController = (TiViewController *)viewController;
+    if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+      TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
+      [((TiUITabGroup *)(tabGroup.view))tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+    }
+  }
   [self handleWillShowViewController:viewController animated:animated];
 }
 
@@ -552,11 +572,16 @@
     if (currentWindow == nil) {
       currentWindow = self;
     }
-    image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
-
+    if ([icon isKindOfClass:[TiBlob class]]) {
+      image = [(TiBlob *)icon image];
+    } else {
+      image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+    }
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
       activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+    } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
+      activeImage = [(TiBlob *)activeIcon image];
     }
   }
   [rootController setTitle:title];
