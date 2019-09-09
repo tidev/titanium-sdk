@@ -1810,8 +1810,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				this.includeAllTiModules = true;
 		}
 
-		if (cli.argv['skip-js-minify']) {
-			this.minifyJS = false;
+		if (cli.argv['minify']) {
+			this.minifyJS = true;
 		}
 		if (cli.argv['hide-error-controller']) {
 			this.showErrorController = false;

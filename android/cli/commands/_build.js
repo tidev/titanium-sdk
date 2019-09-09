@@ -975,8 +975,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option to bypass JavaScript minification', 'ti.android.compilejs'.cyan, '--skip-js-minify'.cyan));
 	}
 
-	if (cli.argv['skip-js-minify']) {
-		this.minifyJS = false;
+	if (cli.argv['minify']) {
+		this.minifyJS = true;
 	}
 
 	// Do we write out process.env into a file in the app to use?
