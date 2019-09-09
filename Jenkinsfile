@@ -30,11 +30,36 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
+@NonCPS
+def hasAPIDocChanges() {
+	// https://javadoc.jenkins-ci.org/hudson/scm/ChangeLogSet.html
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.size(); j++) {
+            def entry = entries[j]
+			if (entry.msg.contains('[skip ci]')) {
+				echo "skipping commit: ${entry.msg}"
+				continue; // skip this commit
+			}
+			// echo "checking commit: ${entry.msg}"
+            def paths = entry.affectedPaths
+			for (int k = 0; k < paths.size(); k++) {
+				def path = paths[k]
+				if (path.startsWith('apidoc/')) {
+					return true
+				}
+			}
+        }
+    }
+	return false
+}
+
 def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
-			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
+			labels = 'git && osx && xcode-11' // Use xcode-11 to make use of ios 13 APIs
 		} else {
 			// run main branch tests on devices, use node with devices connected
 			if (testOnDevices) {
@@ -109,13 +134,15 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 									sh 'rm -f mocha_*.crash'
 								} else {
 									// gather crash reports/tombstones for Android
-									sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './adb-all.sh pull /data/tombstones'
-									archiveArtifacts 'tombstones/'
-									sh 'rm -f tombstones/'
-									// wipe tombstones and re-build dir with proper permissions/ownership on emulator
-									sh returnStatus: true, script: './adb-all.sh shell rm -rf /data/tombstones'
-									sh returnStatus: true, script: './adb-all.sh shell mkdir -m 771 /data/tombstones'
-									sh returnStatus: true, script: './adb-all.sh shell chown system:system /data/tombstones'
+									timeout(5) {
+										sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './adb-all.sh pull /data/tombstones'
+										archiveArtifacts allowEmptyArchive: true, artifacts: 'tombstones/'
+										sh returnStatus: true, script: 'rm -rf tombstones/'
+										// wipe tombstones and re-build dir with proper permissions/ownership on emulator
+										sh returnStatus: true, script: './adb-all.sh shell rm -rf /data/tombstones'
+										sh returnStatus: true, script: './adb-all.sh shell mkdir -m 771 /data/tombstones'
+										sh returnStatus: true, script: './adb-all.sh shell chown system:system /data/tombstones'
+									}
 								}
 								throw e
 							} finally {
@@ -144,7 +171,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-10') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-11') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -193,6 +220,9 @@ timestamps {
 					// was it a failure?
 					if (npmTestResult != 0) {
 						error readFile('npm_test.log')
+					} else if (env.BRANCH_NAME.equals('master') && hasAPIDocChanges()) {
+						// if we have a master branch build of SDK with updated apidocs, trigger a new doc site build
+						build job: 'docs/doctools/docs', wait: false
 					}
 				}
 

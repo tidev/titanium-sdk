@@ -10,9 +10,8 @@
 const appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
-	wrench = require('wrench'),
 	exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
 
 exports.cliVersion = '>=3.2';
@@ -25,7 +24,7 @@ exports.init = function (logger, config, cli) {
 			}
 
 			const stagingArchiveDir = path.join(this.buildDir, this.tiapp.name + '.xcarchive');
-			fs.existsSync(stagingArchiveDir) && wrench.rmdirSyncRecursive(stagingArchiveDir);
+			fs.removeSync(stagingArchiveDir);
 
 			// inject the temporary archive path into the xcodebuild args
 			const args = data.args[1];
@@ -91,9 +90,9 @@ exports.init = function (logger, config, cli) {
 
 					// copy symbols
 					const archiveDsymDir = path.join(stagingArchiveDir, 'dSYMs');
-					fs.existsSync(archiveDsymDir) || wrench.mkdirSyncRecursive(archiveDsymDir);
+					fs.ensureDirSync(archiveDsymDir);
 					const bcSymbolMapsDir = path.join(stagingArchiveDir, 'BCSymbolMaps');
-					fs.existsSync(bcSymbolMapsDir) || wrench.mkdirSyncRecursive(bcSymbolMapsDir);
+					fs.ensureDirSync(bcSymbolMapsDir);
 					const dsymRegExp = /\.dSYM$/;
 					const bcSymbolMapsRegExp = /\.bcsymbolmap$/;
 					fs.readdirSync(productsDir).forEach(function (name) {
@@ -103,7 +102,7 @@ exports.init = function (logger, config, cli) {
 								var file = path.join(subdir, name);
 								if (dsymRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isDirectory()) {
 									logger.info(__('Archiving debug symbols: %s', file.cyan));
-									wrench.copyDirSyncRecursive(file, path.join(archiveDsymDir, name), { forceDelete: false });
+									fs.copySync(file, path.join(archiveDsymDir, name), { overwrite: false });
 								} else if (bcSymbolMapsRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isFile()) {
 									const dest = path.join(bcSymbolMapsDir, name);
 									logger.info(__('Archiving Bitcode Symbol Map: %s', file.cyan));
@@ -131,7 +130,7 @@ exports.init = function (logger, config, cli) {
 					const dest = path.join(archivesDir, name + ' ' + date + ' ' + time + '.xcarchive');
 
 					// move the finished archive directory into the correct location
-					fs.existsSync(archivesDir) || wrench.mkdirSyncRecursive(archivesDir);
+					fs.ensureDirSync(archivesDir);
 					appc.fs.copyDirSyncRecursive(stagingArchiveDir, dest, {
 						logger: logger.debug
 					});
@@ -181,9 +180,7 @@ exports.init = function (logger, config, cli) {
 		}
 
 		// make sure the output directory is good to go
-		if (!fs.existsSync(outputDir)) {
-			wrench.mkdirSyncRecursive(outputDir);
-		}
+		fs.ensureDirSync(outputDir);
 
 		const ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
 		if (fs.existsSync(ipaFile)) {
@@ -217,7 +214,7 @@ exports.init = function (logger, config, cli) {
 		const keychains = builder.iosInfo.certs.keychains;
 		Object.keys(keychains).some(function (keychain) {
 			return (keychains[keychain].distribution || []).some(function (d) {
-				if (!d.invalid && d.name === builder.certDistributionName) {
+				if (!d.invalid && d.fullname === builder.certDistributionName) {
 					exportsOptions.signingCertificate = d.fullname;
 					return true;
 				}

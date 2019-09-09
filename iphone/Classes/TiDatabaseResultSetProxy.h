@@ -43,6 +43,10 @@ JSExportAs(fieldByName,
   int rowCount;
 }
 
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithResults:database:` instead.
+  */
+- (id)initWithResults:(PLSqliteResultSet *)results database:(TiDatabaseProxy *)database pageContext:(id<TiEvaluator>)context __attribute__((deprecated));
 - (id)initWithResults:(PLSqliteResultSet *)results database:(TiDatabaseProxy *)database;
 
 @end

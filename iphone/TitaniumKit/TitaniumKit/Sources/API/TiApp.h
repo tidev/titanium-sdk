@@ -13,13 +13,11 @@
 #import "TiRootViewController.h"
 #import <JavaScriptCore/JavaScriptCore.h>
 
-extern BOOL applicationInMemoryPanic;
+extern BOOL applicationInMemoryPanic; // TODO: Remove in SDK 9.0+
 
+// TODO: Remove in SDK 9.0+
 TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 {
-  while (applicationInMemoryPanic) {
-    [NSThread sleepForTimeInterval:0.01];
-  }
 }
 
 /**
@@ -280,7 +278,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  @param _notificationName The name of the notification to schedule.
  @param completionHandler The optional completion handler to invoke if requried.
  */
-- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler;
+- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler;
 
 /**
  Tries to post a given background-mode notification with the given name. If the app did not finish launching so far, it will be queued

@@ -76,8 +76,8 @@ description: |
     To specify a location provider, create a new provider object, then register it
     with [addLocationProvider](Titanium.Geolocation.Android.createLocationProvider):
 
-        gpsProvider = Ti.Geolocation.Android.createLocationProvider({
-            name: Ti.Geolocation.PROVIDER_GPS,
+        var gpsProvider = Ti.Geolocation.Android.createLocationProvider({
+            name: Ti.Geolocation.Android.PROVIDER_GPS,
             minUpdateTime: 60, 
             minUpdateDistance: 100
         });

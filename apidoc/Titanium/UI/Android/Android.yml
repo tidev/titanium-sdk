@@ -195,7 +195,7 @@ properties:
   - name: LINKIFY_ALL
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -203,7 +203,7 @@ properties:
   - name: LINKIFY_EMAIL_ADDRESSES
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+        notes: Use [Titanium.UI.AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES) instead.
     summary: Converts strings formatted as email addresses into clickable links.
     type: Number
     permission: read-only
@@ -211,7 +211,7 @@ properties:
   - name: LINKIFY_MAP_ADDRESSES
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     permission: read-only
@@ -219,7 +219,7 @@ properties:
   - name: LINKIFY_PHONE_NUMBERS
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -227,7 +227,7 @@ properties:
   - name: LINKIFY_WEB_URLS
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -644,7 +644,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to disable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is not loaded, and any
+        Content that requires a plugin, is not loaded, and any
         alternative content is displayed instead.
     type: Number
     permission: read-only
@@ -653,7 +653,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to enable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is always loaded, whether or not a plugin is
+        Content that requires a plugin,, is always loaded, whether or not a plugin is
         available for the content.
     type: Number
     permission: read-only
@@ -661,7 +661,7 @@ properties:
   - name: WEBVIEW_PLUGINS_ON_DEMAND
     summary: Display a placeholder and only load plugins when user selects it.
     description: |
-        Content that requires a plugin, such as Flash Player, is replaced by a placeholder. When 
+        Content that requires a plugin, is replaced by a placeholder. When 
         the user clicks on the placeholder, the plugin is loaded and the content is displayed.
         
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to load plugins on demand.

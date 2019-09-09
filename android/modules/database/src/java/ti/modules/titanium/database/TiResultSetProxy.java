@@ -296,4 +296,14 @@ public class TiResultSetProxy extends KrollProxy
 	{
 		return "Ti.Database.ResultSet";
 	}
+
+	@Override
+	public void release()
+	{
+
+		// Close ResultSet on cleanup.
+		this.close();
+
+		super.release();
+	}
 }

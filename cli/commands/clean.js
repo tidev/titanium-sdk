@@ -12,10 +12,9 @@ const appc = require('node-appc'),
 	__ = i18n.__,
 	__n = i18n.__n,
 	ti = require('node-titanium-sdk'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
 	sprintf = require('sprintf'),
-	wrench = require('wrench'),
 	async = require('async'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml');
 
@@ -277,7 +276,7 @@ exports.run = function (logger, config, cli) {
 							var dir = path.join(buildDir, platform);
 							if (appc.fs.exists(dir)) {
 								logger.debug(__('Deleting %s', dir.cyan));
-								wrench.rmdirSyncRecursive(dir);
+								fs.removeSync(dir);
 							} else {
 								logger.debug(__('Directory does not exist %s', dir.cyan));
 							}
@@ -313,11 +312,7 @@ exports.run = function (logger, config, cli) {
 						var file = path.join(buildDir, dir);
 						cli.fireHook('clean.' + dir + '.pre', function () {
 							logger.debug(__('Deleting %s', file.cyan));
-							if (fs.lstatSync(file).isDirectory()) {
-								wrench.rmdirSyncRecursive(file);
-							} else {
-								fs.unlinkSync(file);
-							}
+							fs.removeSync(file);
 							cli.fireHook('clean.' + dir + '.post', function () {
 								next();
 							});
@@ -404,7 +399,7 @@ function patchLogger(logger, cli) {
 
 		logger.fileWriteEnabled = true;
 
-		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0o766);
+		fs.ensureDirSync(buildDir, 0o766);
 
 		// create our write stream
 		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { flags: 'w', encoding: 'utf8', mode: 0o666 });

@@ -4,10 +4,12 @@ summary: |
     A widget used to increment and decrement a value.
 description: |
     <table id="iOS Stepper">
-      <tr>
-        <td><img src="images/stepper/stepper.png" height="25" /></td>
-        <td><img src="images/stepper/stepper_custom.png" height="25" /></td>
-      </tr>
+      <tbody>
+        <tr>
+          <td><img src="images/stepper/stepper.png" height="25" /></td>
+          <td><img src="images/stepper/stepper_custom.png" height="25" /></td>
+        </tr>
+      </tbody>
     </table>
 
     A Stepper displays its selected state while it is being pressed.
@@ -64,14 +66,14 @@ properties:
   - name: minimum
     summary: |
         The minimum value the stepper will be set to, the value must be smaller than the maximum value.
-        If you attempt to set a value equal to or greater than maximum, the system will default the 
+        If you attempt to set a value equal to or greater than maximum, the system will default the
         value to 0.
     type: Number
 
   - name: maximum
     summary: |
         The maximum value the stepper will be set to, the value must be greater than the minimum value.
-        If you attempt to set a value equal to or lower than minimum, the system will default the 
+        If you attempt to set a value equal to or lower than minimum, the system will default the
         value to 100.
     type: Number
 

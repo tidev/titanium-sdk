@@ -8,9 +8,8 @@
 'use strict';
 
 const appc = require('node-appc'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 exports.cliVersion = '>=3.2';
@@ -32,7 +31,7 @@ exports.init = function (logger, config, cli) {
 
 			const outputDir = builder.outputDir;
 			if (outputDir && outputDir != path.dirname(dest)) { // eslint-disable-line eqeqeq
-				fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
+				fs.ensureDirSync(outputDir);
 				dest = path.join(outputDir, path.basename(dest));
 				fs.existsSync(dest) && fs.unlinkSync(dest);
 				appc.fs.copyFileSync(builder.apkFile, dest, { logger: logger.debug });

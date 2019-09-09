@@ -20,6 +20,11 @@
   [super dealloc];
 }
 
+- (id)initWithResults:(PLSqliteResultSet *)results database:(TiDatabaseProxy *)database pageContext:(id<TiEvaluator>)context
+{
+  return [self initWithResults:results database:database];
+}
+
 - (id)initWithResults:(PLSqliteResultSet *)results_ database:(TiDatabaseProxy *)database_
 {
   if (self = [self init]) {
@@ -125,7 +130,7 @@
 - (JSValue *)field:(NSInteger)index withType:(JSValue *)optionalType
 {
   if (results != nil) {
-    id result = [results objectForColumnIndex:index];
+    id result = [results objectForColumnIndex:(int)index];
     if ([result isKindOfClass:[NSData class]]) {
       result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
     }

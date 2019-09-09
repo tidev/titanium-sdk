@@ -22,43 +22,46 @@ description: |
     The following units are supported:
 
     <table class="doc-table" width="60%">
+      <thead>
         <tr>
-            <th>Unit</th>
-            <th>Specifier</th>
-            <th>Note</th>
+          <th>Unit</th>
+          <th>Specifier</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>pixels</td>
+          <td>px</td>
+          <td></td>
         </tr>
         <tr>
-            <td>pixels</td>
-            <td>px</td>
-            <td></td>
+          <td>density-independent pixels</td>
+          <td>dip</td>
+          <td>Equivalent to Apple "points."</td>
         </tr>
         <tr>
-            <td>density-independent pixels</td>
-            <td>dip</td>
-            <td>Equivalent to Apple "points."</td>
+          <td>inches</td>
+          <td>in</td>
+          <td></td>
         </tr>
         <tr>
-            <td>inches</td>
-            <td>in</td>
-            <td></td>
+          <td>millimeters</td>
+          <td>mm</td>
+          <td>Android, iOS only</td>
         </tr>
         <tr>
-            <td>millimeters</td>
-            <td>mm</td>
-            <td>Android, iOS only</td>
+          <td>centimeters</td>
+          <td>cm</td>
+          <td>Android, iOS only</td>
         </tr>
         <tr>
-            <td>centimeters</td>
-            <td>cm</td>
-            <td>Android, iOS only</td>
+          <td>points</td>
+          <td>pt</td>
+          <td>Typographical points of 1/72 of an inch. On Android, you can specify sizes and coordinates in typographical points. On other platforms, this unit is only used to specify font sizes. Not to be confused with Apple "points."</td>
         </tr>
-        <tr>
-            <td>points</td>
-            <td>pt</td>
-            <td>Typographical points of 1/72 of an inch. On Android, you can specify sizes and coordinates in typographical points. On other platforms, this unit is only used to specify font sizes. Not to be confused with Apple "points."</td>
-        </tr>
+      </tbody>
     </table>
-
 
     The interpretation of the density-independent pixel (DIP) varies by platform:
 
@@ -810,11 +813,17 @@ methods:
         type: Callback<Object>
         optional: true
 
+  - name: clearMotionEffects
+    summary: Removes all previously added motion effects.
+    description: Use this method together with <Titanium.UI.horizontalMotionEffect> and <Titanium.UI.verticalMotionEffect>.
+    since: "8.2.0"
+    platforms: [iphone, ipad]
+
   - name: finishLayout
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
-        notes: Use the <Titanium.Proxy.applyProperties> method to batch-update layout properties.
+        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     summary: |
         Finishes a batch update of the View's layout properties and schedules a layout pass of the
         view tree.
@@ -913,7 +922,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
-        notes: Use the <Titanium.Proxy.applyProperties> method to batch-update layout properties.
+        notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
@@ -963,7 +972,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
-        notes: Use the <Titanium.Proxy.applyProperties> method to batch-update layout properties.
+        notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     parameters:
       - name: params
         summary: Layout properties to be updated.
@@ -1151,7 +1160,7 @@ properties:
         A radial gradient is interpolated between two circles, defined by `startPoint` and
         `startRadius` and `endPoint` and `endRadius` respectively.
 
-        The start and end points and radius values can be defined in device units, in the view's
+        The start points, end points and radius values can be defined in device units, in the view's
         coordinates, or as percentages of the view's size. Thus, if a view is 60 x 60, the center
         point of the view can be specified as:
 
@@ -1404,7 +1413,8 @@ properties:
          * `min` (Number): Minimum amount it can move horizontally (-10 for example)
          * `max` (Number): Maximum amount it can move horizontally (10 for example)
 
-         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
+         To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
     type: Dictionary
     platforms: [iphone, ipad]
     since: 7.3.0
@@ -1776,7 +1786,8 @@ properties:
          * `min` (Number): Minimum amount it can move vertically (-10 for example)
          * `max` (Number): Maximum amount it can move vertically (10 for example)
 
-         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
+         To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
     type: Dictionary
     platforms: [iphone, ipad]
     since: 7.3.0

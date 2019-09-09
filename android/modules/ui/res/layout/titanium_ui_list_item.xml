@@ -25,7 +25,6 @@
         android:layout_height="fill_parent"
         android:adjustViewBounds="true"
         android:layout_gravity="right"
-        android:contentDescription="One of the following images: checkmark, child, or disclosure"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:maxHeight="17dp"

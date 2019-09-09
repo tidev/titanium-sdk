@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -32,7 +33,6 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Message;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -121,25 +121,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	public TabProxy[] getTabs()
-	{
-		TabProxy[] tps = null;
-
-		if (tabs != null) {
-			tps = tabs.toArray(new TabProxy[tabs.size()]);
-		}
-
-		return tps;
-	}
-
 	public int getTabIndex(TabProxy tabProxy)
 	{
 		return tabs.indexOf(tabProxy);
-	}
-
-	public ArrayList<TabProxy> getTabList()
-	{
-		return tabs;
 	}
 
 	@Kroll.method
@@ -405,6 +389,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
 		} else {
 			topActivity.startActivity(intent);
+			if (topActivity instanceof TiRootActivity) {
+				// A fade-in transition from root splash screen to first window looks better than a slide-up.
+				// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
+				topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+			}
 		}
 	}
 
@@ -489,9 +478,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Note: If the activity's onCreate() can't find this proxy, then it'll automatically destroy itself.
 		//       This is needed in case the proxy's close() method was called before the activity was created.
 		TiActivityWindows.removeWindow(this);
-
-		// Fire a "close" event.
-		fireEvent(TiC.EVENT_CLOSE, null);
 
 		// Release views/resources.
 		modelListener = null;

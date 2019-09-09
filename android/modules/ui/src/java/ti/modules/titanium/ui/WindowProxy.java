@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -56,6 +57,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -164,11 +166,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+		} else if (hasActivityTransitions()) {
+			topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
 		} else {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
-			} else {
-				topActivity.startActivity(intent);
+			topActivity.startActivity(intent);
+			if (topActivity instanceof TiRootActivity) {
+				// A fade-in transition from root splash screen to first window looks better than a slide-up.
+				// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
+				topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 			}
 		}
 
@@ -306,13 +311,19 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			// Get a reference to the root window in the NavigationWindow.
 			WindowProxy rootWindowProxy = ((NavigationWindowProxy) this.getNavigationWindow()).getRootWindowProxy();
 			// If the root window matches this window do not show the Up navigation button.
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootWindowProxy != this);
+			activityProxy.getActionBar().setDisplayHomeAsUp(rootWindowProxy != this);
 		}
 
 		// Handle barColor property.
 		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
 			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)));
-			activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(colorInt));
+			ActionBar actionBar = activity.getSupportActionBar();
+			// Guard for using a theme with actionBar disabled.
+			if (actionBar != null) {
+				actionBar.setBackgroundDrawable(new ColorDrawable(colorInt));
+			} else {
+				Log.w(TAG, "Trying to set a barColor on a Window with ActionBar disabled. Property will be ignored.");
+			}
 		}
 		activity.getActivityProxy().getDecorView().add(this);
 
@@ -579,61 +590,62 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Nullable
 	private Transition createTransition(KrollDict props, String key)
 	{
-		if (LOLLIPOP_OR_GREATER) {
-			Transition t = null;
-			final int transitionType = props.getInt(key);
-			switch (transitionType) {
-				case TiUIView.TRANSITION_EXPLODE:
-					t = new Explode();
-					break;
-
-				case TiUIView.TRANSITION_FADE_IN:
-					t = new Fade(Fade.IN);
-					break;
-
-				case TiUIView.TRANSITION_FADE_OUT:
-					t = new Fade(Fade.OUT);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_TOP:
-					t = new Slide(Gravity.TOP);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_RIGHT:
-					t = new Slide(Gravity.RIGHT);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_BOTTOM:
-					t = new Slide(Gravity.BOTTOM);
-					break;
-
-				case TiUIView.TRANSITION_SLIDE_LEFT:
-					t = new Slide(Gravity.LEFT);
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_BOUNDS:
-					t = new ChangeBounds();
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
-					t = new ChangeClipBounds();
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_TRANSFORM:
-					t = new ChangeTransform();
-					break;
-
-				case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
-					t = new ChangeImageTransform();
-					break;
-
-				default:
-					break;
-			}
-			return t;
-		} else {
+		// Validate arguments.
+		if ((props == null) || (key == null)) {
 			return null;
 		}
+
+		// This feature is only supported on Android 5.0 and higher.
+		if (!LOLLIPOP_OR_GREATER) {
+			return null;
+		}
+
+		// Create the requested transition.
+		Transition transition = null;
+		final int transitionType = props.getInt(key);
+		switch (transitionType) {
+			case TiUIView.TRANSITION_EXPLODE:
+				transition = new Explode();
+				break;
+			case TiUIView.TRANSITION_FADE_IN:
+				transition = new Fade(Fade.IN);
+				break;
+			case TiUIView.TRANSITION_FADE_OUT:
+				transition = new Fade(Fade.OUT);
+				break;
+			case TiUIView.TRANSITION_SLIDE_TOP:
+				transition = new Slide(Gravity.TOP);
+				break;
+			case TiUIView.TRANSITION_SLIDE_RIGHT:
+				transition = new Slide(Gravity.RIGHT);
+				break;
+			case TiUIView.TRANSITION_SLIDE_BOTTOM:
+				transition = new Slide(Gravity.BOTTOM);
+				break;
+			case TiUIView.TRANSITION_SLIDE_LEFT:
+				transition = new Slide(Gravity.LEFT);
+				break;
+			case TiUIView.TRANSITION_CHANGE_BOUNDS:
+				transition = new ChangeBounds();
+				break;
+			case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
+				transition = new ChangeClipBounds();
+				break;
+			case TiUIView.TRANSITION_CHANGE_TRANSFORM:
+				transition = new ChangeTransform();
+				break;
+			case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
+				transition = new ChangeImageTransform();
+				break;
+			default:
+				return null;
+		}
+
+		// Exclude the top status bar and bottom navigation bar from the transition animation.
+		// This prevents the activity window's animation from overlapping it, which looks bad.
+		transition.excludeTarget(android.R.id.statusBarBackground, true);
+		transition.excludeTarget(android.R.id.navigationBarBackground, true);
+		return transition;
 	}
 
 	@Override

@@ -9,6 +9,8 @@
 
 @interface TiApp (Addons)
 
+NS_ASSUME_NONNULL_BEGIN
+
 #ifdef USE_TI_FETCH
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 #endif
@@ -22,5 +24,13 @@
 #ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler;
 #endif
+
+#ifdef USE_TI_NETWORKREGISTERFORPUSHNOTIFICATIONS
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
+#endif
+
+NS_ASSUME_NONNULL_END
 
 @end

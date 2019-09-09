@@ -128,9 +128,11 @@ KrollContext *GetKrollContext(JSContextRef context)
 
 JSValueRef ThrowException(JSContextRef ctx, NSString *message, JSValueRef *exception)
 {
-  JSStringRef jsString = JSStringCreateWithCFString((CFStringRef)message);
-  *exception = JSValueMakeString(ctx, jsString);
-  JSStringRelease(jsString);
+  JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(ctx);
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:globalContextRef];
+  JSValue *value = [JSValue valueWithNewErrorFromMessage:message inContext:context];
+  *exception = value.JSValueRef;
+
   return JSValueMakeUndefined(ctx);
 }
 
@@ -186,7 +188,7 @@ static JSValueRef AlertCallback(JSContextRef jsContext, JSObjectRef jsFunction, 
   }
 
   KrollContext *ctx = GetKrollContext(jsContext);
-  NSString *message = [KrollObject toID:ctx value:args[0]];
+  NSString *message = [TiUtils stringValue:[KrollObject toID:ctx value:args[0]]];
 
   [[[TiApp app] controller] incrementActiveAlertControllerCount];
 
@@ -762,14 +764,14 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   [self invoke:invocation];
 }
 
-- (void)invokeBlockOnThread:(void (^)())block
+- (void)invokeBlockOnThread:(void (^)(void))block
 {
   pthread_mutex_lock(&KrollEntryLock);
   block();
   pthread_mutex_unlock(&KrollEntryLock);
 }
 
-+ (void)invokeBlock:(void (^)())block
++ (void)invokeBlock:(void (^)(void))block
 {
   pthread_mutex_lock(&KrollEntryLock);
   block();

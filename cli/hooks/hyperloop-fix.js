@@ -14,9 +14,8 @@
 
 'use strict';
 
-const fs = require('fs'),
-	path = require('path'),
-	wrench = require('wrench');
+const fs = require('fs-extra'),
+	path = require('path');
 
 /** The plugin's identifier */
 exports.id = 'com.appcelerator.hyperloop-fix';
@@ -40,7 +39,7 @@ exports.init = function init(logger, config, cli, appc) {
 			const pkgJson = require(pkgJsonFile);// eslint-disable-line security/detect-non-literal-require
 			if (pkgJson.version) {
 				(function walk(src, dest, root) {
-					appc.fs.exists(dest) || wrench.mkdirSyncRecursive(dest);
+					fs.ensureDirSync(dest);
 
 					fs.readdirSync(src).forEach(function (name) {
 						if (!root || !versionRE.test(name)) {
@@ -55,7 +54,7 @@ exports.init = function init(logger, config, cli, appc) {
 								fs.rmdirSync(from);
 							} else {
 								if (appc.fs.exists(to) && fs.statSync(to).isDirectory()) {
-									wrench.rmdirSyncRecursive(to);
+									fs.rmdirSync(to);
 								}
 								fs.renameSync(from, to);
 							}

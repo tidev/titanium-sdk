@@ -684,11 +684,11 @@ DEFINE_EXCEPTIONS
 
 - (void)setTintColor_:(id)value
 {
-  ENSURE_TYPE_OR_NIL(value, NSString);
+  ENSURE_TYPE_OR_NIL(value, NSObject);
   UIImageRenderingMode renderingMode = value ? UIImageRenderingModeAlwaysTemplate : UIImageRenderingModeAlwaysOriginal;
 
   [imageView setImage:[[imageView image] imageWithRenderingMode:renderingMode]];
-  [imageView setTintColor:value ? [[TiUtils colorValue:value] _color] : nil];
+  [imageView setTintColor:value ? [[TiUtils colorValue:value] color] : nil];
 }
 
 - (void)setImages_:(id)args
