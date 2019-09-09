@@ -272,7 +272,6 @@
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
     if (newColor == nil) {
-      //Get from TabGroup
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
     if (controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll)) {
@@ -401,10 +400,23 @@
   }
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
+    UINavigationBar *navigationBar = controller.navigationController.navigationBar;
     if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-      [[[controller navigationController] navigationBar] setLargeTitleTextAttributes:theAttributes];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
+        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
+      }
+#endif
+      navigationBar.largeTitleTextAttributes = theAttributes;
     }
-    [[[controller navigationController] navigationBar] setTitleTextAttributes:theAttributes];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      navigationBar.standardAppearance.titleTextAttributes = theAttributes;
+      navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
+    }
+#endif
+    navigationBar.titleTextAttributes = theAttributes;
   }
 }
 
