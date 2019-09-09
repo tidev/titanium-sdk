@@ -1350,6 +1350,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CONTENT_SIZE = "contentSize";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CONTENT_INSET_END_WITH_ACTIONS = "contentInsetEndWithActions";
 
 	/**
