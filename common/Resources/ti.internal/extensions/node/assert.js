@@ -666,7 +666,7 @@ function checkError(actual, expected, message) {
 		}
 
 		// If `expected` is a subclass of Error but `actual` wasn't an instance of it (above), fail
-		if (Error.isPrototypeOf(expected)) {
+		if (Object.prototype.isPrototypeOf.call(Error, expected)) {
 			return false;
 		}
 

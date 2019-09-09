@@ -268,6 +268,27 @@
 
 - (void)viewWillAppear:(BOOL)animated; // Called when the view is about to made visible. Default does nothing
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
+    if (controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll)) {
+      UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
+      [appearance configureWithTransparentBackground];
+      if (newColor == nil) {
+        //Get from TabGroup
+        newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
+      }
+      if (newColor == nil) {
+        appearance.backgroundColor = self.view.backgroundColor;
+      } else {
+        appearance.backgroundColor = newColor.color;
+      }
+      controller.navigationController.navigationBar.standardAppearance = appearance;
+      controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+      controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
+    }
+  }
+#endif
   shouldUpdateNavBar = YES;
   [self setupWindowDecorations];
   [super viewWillAppear:animated];
@@ -293,13 +314,13 @@
 
 #pragma mark - UINavController, NavItem UI
 
-- (void)setNavTintColor:(id)colorString
+- (void)setNavTintColor:(id)color
 {
-  NSString *color = [TiUtils stringValue:colorString];
-  [self replaceValue:color forKey:@"navTintColor" notification:NO];
+  __block TiColor *newColor = [TiUtils colorValue:color];
+
+  [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
   TiThreadPerformOnMainThread(^{
     if (controller != nil) {
-      TiColor *newColor = [TiUtils colorValue:color];
       if (newColor == nil) {
         //Get from TabGroup
         newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
@@ -312,13 +333,14 @@
       NO);
 }
 
-- (void)setBarColor:(id)colorString
+- (void)setBarColor:(id)color
 {
-  ENSURE_UI_THREAD(setBarColor, colorString);
-  NSString *color = [TiUtils stringValue:colorString];
-  [self replaceValue:color forKey:@"barColor" notification:NO];
+  ENSURE_UI_THREAD(setBarColor, color);
+
+  TiColor *newColor = [TiUtils colorValue:color];
+  [self replaceValue:newColor forKey:@"barColor" notification:NO];
+
   if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
-    TiColor *newColor = [TiUtils colorValue:color];
     if (newColor == nil) {
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
@@ -329,7 +351,7 @@
     UINavigationBar *navBar = [[controller navigationController] navigationBar];
     [navBar setBarStyle:navBarStyle];
     [navBar setBarTintColor:barColor];
-    [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    [self refreshBackButton];
   }
 }
 
