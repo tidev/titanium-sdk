@@ -382,6 +382,9 @@ public class TiHTTPClient
 			if (fileDescriptor != null) {
 				fileDescriptor.sync();
 			}
+			if (responseData != null) {
+				responseData.loadBitmapInfo();
+			}
 		}
 		responseOut.close();
 		responseOut = null;
@@ -621,7 +624,7 @@ public class TiHTTPClient
 		TiBlob blob = this.responseData;
 		if (blob == null) {
 			if (this.responseOut instanceof ByteArrayOutputStream) {
-				blob = TiBlob.blobFromData(((ByteArrayOutputStream) this.responseOut).toByteArray());
+				blob = TiBlob.blobFromData(((ByteArrayOutputStream) this.responseOut).toByteArray(), this.contentType);
 			} else if (this.responseText != null) {
 				blob = TiBlob.blobFromString(this.responseText);
 			}

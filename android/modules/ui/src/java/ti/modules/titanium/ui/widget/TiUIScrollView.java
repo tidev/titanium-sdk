@@ -6,24 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.HashMap;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
-import org.appcelerator.titanium.view.TiUIView;
-import org.xmlpull.v1.XmlPullParser;
-
-import ti.modules.titanium.ui.RefreshControlProxy;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
@@ -40,6 +22,22 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import java.util.HashMap;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiUIView;
+import org.xmlpull.v1.XmlPullParser;
+import ti.modules.titanium.ui.RefreshControlProxy;
+import ti.modules.titanium.ui.ScrollViewProxy;
 
 public class TiUIScrollView extends TiUIView
 {
@@ -448,9 +446,11 @@ public class TiUIScrollView extends TiUIView
 				KrollDict data = new KrollDict();
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
+
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
+			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			setContentOffset(l, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
@@ -575,13 +575,16 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
 			KrollDict data = new KrollDict();
+
 			if (!isScrolling && isTouching) {
 				isScrolling = true;
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
+
 			data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
+			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			setContentOffset(l, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
@@ -1059,6 +1062,19 @@ public class TiUIScrollView extends TiUIView
 				verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
 			}
 		}
+	}
+
+	private KrollDict contentSize()
+	{
+		TiDimension dimensionWidth = new TiDimension(getLayout().getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+		TiDimension dimensionHeight = new TiDimension(getLayout().getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+		double contentWidth = dimensionWidth.getAsDefault(getNativeView());
+		double contentHeight = dimensionHeight.getAsDefault(getNativeView());
+
+		KrollDict contentData = new KrollDict();
+		contentData.put(TiC.PROPERTY_WIDTH, contentWidth);
+		contentData.put(TiC.PROPERTY_HEIGHT, contentHeight);
+		return contentData;
 	}
 
 	@Override
