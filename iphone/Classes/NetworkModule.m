@@ -286,11 +286,8 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   // called by TiApp
   if (pushNotificationSuccess != nil) {
-    NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<" withString:@""]
-        stringByReplacingOccurrencesOfString:@">"
-                                  withString:@""]
-        stringByReplacingOccurrencesOfString:@" "
-                                  withString:@""];
+    NSString *token = [NSString hexStringFromData:deviceToken];
+
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:token forKey:@"deviceToken"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
