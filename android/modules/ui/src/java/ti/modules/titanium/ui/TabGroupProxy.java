@@ -479,9 +479,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		//       This is needed in case the proxy's close() method was called before the activity was created.
 		TiActivityWindows.removeWindow(this);
 
-		// Fire a "close" event.
-		fireEvent(TiC.EVENT_CLOSE, null);
-
 		// Release views/resources.
 		modelListener = null;
 		releaseViews();
