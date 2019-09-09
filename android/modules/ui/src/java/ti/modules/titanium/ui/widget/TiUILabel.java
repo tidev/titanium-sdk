@@ -68,7 +68,7 @@ public class TiUILabel extends TiUIView
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
 				// Only allow label to exceed width of parent if single-line and ellipsize is disabled.
-				if (isSingleLine() && (ellipsize == null) && (minimumFontSizeInPixels < FONT_SIZE_EPSILON)
+				if (isSingleLineMode() && (ellipsize == null) && (minimumFontSizeInPixels < FONT_SIZE_EPSILON)
 					&& (layoutParams != null) && (layoutParams.optionWidth == null) && !layoutParams.autoFillsWidth) {
 					widthMeasureSpec =
 						MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.UNSPECIFIED);
@@ -89,7 +89,7 @@ public class TiUILabel extends TiUIView
 				adjustTextFontSize(this);
 
 				// Apply ellipsis if enabled and if view has fixed height (ie: not sized to fit text).
-				if (!isSingleLine() && (viewHeightInLines <= 0) && (ellipsize != null) && (layoutParams != null)
+				if (!isSingleLineMode() && (viewHeightInLines <= 0) && (ellipsize != null) && (layoutParams != null)
 					&& ((layoutParams.optionHeight != null) || layoutParams.autoFillsHeight)) {
 					// First, we must reset/re-measure the text based on the original max lines setting.
 					// Note: Calling onMeasure() updates the view's StaticLayout and its getLineCount().
@@ -645,7 +645,7 @@ public class TiUILabel extends TiUIView
 	 * Determines if the Android "TextView" is to be displayed single-line or multiline.
 	 * @return Returns true if in single-line mode. Returns false if in multiline mode.
 	 */
-	private boolean isSingleLine()
+	private boolean isSingleLineMode()
 	{
 		// We're single-line if font auto-scaling is enabled.
 		if (this.minimumFontSizeInPixels >= FONT_SIZE_EPSILON) {
@@ -683,7 +683,7 @@ public class TiUILabel extends TiUIView
 		// Note: API call order is important! setSingleLine() method must be called before setLines().
 		//       The setMinLines() and setMaxLines() methods must be called last. This is because
 		//       the setSingleLine() and setLines() change the TextView's internal min/max line settings.
-		boolean isSingleLine = isSingleLine();
+		boolean isSingleLine = isSingleLineMode();
 		boolean isAutoScalingFont = (this.minimumFontSizeInPixels >= FONT_SIZE_EPSILON);
 		boolean isTrimmingNewlines = isAutoScalingFont;
 		textView.setSingleLine(isSingleLine);
