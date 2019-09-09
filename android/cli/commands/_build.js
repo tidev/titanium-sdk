@@ -941,7 +941,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
-			this.minifyJS = true;
+			this.minifyJS = false;
 			this.encryptJS = true;
 			this.minifyCSS = true;
 			this.allowDebugging = false;
@@ -951,7 +951,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			break;
 
 		case 'test':
-			this.minifyJS = true;
+			this.minifyJS = false;
 			this.encryptJS = true;
 			this.minifyCSS = true;
 			this.allowDebugging = true;
