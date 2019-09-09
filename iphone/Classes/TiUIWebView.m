@@ -72,11 +72,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     WKUserContentController *controller = [[[WKUserContentController alloc] init] autorelease];
 
     [controller addUserScript:[self userScriptTitaniumInjectionForAppEvent]];
-    [controller addScriptMessageHandler:self name:@"_Ti_"];
 
     [config setUserContentController:controller];
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
         [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
@@ -184,7 +183,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   NSURL *url = [TiUtils toURL:value proxy:self.proxy];
 
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+
   if ([[self class] isLocalURL:url]) {
+    [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
     [self loadLocalURL:url];
   } else {
     [self loadRequestWithURL:[NSURL URLWithString:[TiUtils stringValue:value]]];
@@ -193,7 +195,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setBackgroundColor_:(id)value
 {
-  ENSURE_TYPE(value, NSString);
   [[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
 
   [[self webView] setOpaque:NO];
@@ -219,6 +220,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   } else {
     NSLog(@"[ERROR] Ti.UI.WebView.data can only be a TiBlob or TiFile object, was %@", [(TiProxy *)value apiName]);
   }
+
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
 
   [[self webView] loadData:data
                    MIMEType:[self mimeTypeForData:data]
@@ -258,6 +262,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([[self webView] isLoading]) {
     [[self webView] stopLoading];
   }
+
+  [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
+  [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
 
   // No options, default load behavior
   if (options == nil) {
@@ -387,7 +394,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [(TiUIWebViewProxy *)self.proxy setPageToken:_pageToken];
   }
 
-  NSString *source = @"var callbacks = {}; var Ti = {}; Ti.pageToken = %@; \
+  NSString *titanium = [NSString stringWithFormat:@"%@%s", @"Ti", "tanium"];
+  NSString *source = @"var callbacks = {}; var Ti = {}; var %@ = Ti; Ti.pageToken = %@; \
     Ti._listener_id = 1; Ti._listeners={}; %@\
     Ti.App = { \
                 fireEvent: function(name, payload) { \
@@ -443,10 +451,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     warn: function(message){ \
     window.webkit.messageHandlers._Ti_.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
     }, \
+    log: function(level, message){ \
+    window.webkit.messageHandlers._Ti_.postMessage({name: level, method: 'log', callback: Ti._JSON({level: level, message:message},1)},'*'); \
+    }, \
     }; \
     ";
 
-  NSString *sourceString = [NSString stringWithFormat:source, _pageToken, baseInjectScript];
+  NSString *sourceString = [NSString stringWithFormat:source, titanium, _pageToken, baseInjectScript];
   return [[[WKUserScript alloc] initWithSource:sourceString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
 }
 
@@ -776,8 +787,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
         NSString *message = [event objectForKey:@"message"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([module respondsToSelector:@selector(log:)]) {
-          [module performSelector:@selector(log:) withObject:@[ level, message ]];
+        if ([module respondsToSelector:@selector(log:withMessage:)]) {
+          [module performSelector:@selector(log:withMessage:) withObject:level withObject:message];
         }
 #pragma clang diagnostic pop
       }
@@ -978,7 +989,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   // Handle blacklisted URL's
   if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
-    NSString *urlCandidate = webView.URL.absoluteString;
+    NSString *urlCandidate = navigationAction.request.URL.absoluteString;
 
     for (NSString *blackListedURL in _blacklistedURLs) {
       if ([urlCandidate rangeOfString:blackListedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
@@ -1000,7 +1011,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([[self proxy] _hasListeners:@"beforeload"]) {
     [[self proxy] fireEvent:@"beforeload"
                  withObject:@{
-                   @"url" : webView.URL.absoluteString,
+                   @"url" : navigationAction.request.URL.absoluteString,
                    @"navigationType" : @(navigationAction.navigationType)
                  }];
   }
@@ -1354,8 +1365,7 @@ static NSString *UIKitLocalizedString(NSString *string)
 
 @end
 
-#if IS_XCODE_9
-
+#if IS_SDK_IOS_11
 @implementation WebAppProtocolHandler
 
 + (NSString *)specialProtocolScheme

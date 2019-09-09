@@ -18,6 +18,11 @@
 
 #pragma mark - Internals
 
+- (id)_initWithPageContext:(id<TiEvaluator>)context calendar:(EKCalendar *)calendar_ module:(CalendarModule *)module_
+{
+  return [self initWithCalendar:calendar_ module:module_];
+}
+
 - (id)initWithCalendar:(EKCalendar *)calendar_ module:(CalendarModule *)module_
 {
   if (self = [super init]) {

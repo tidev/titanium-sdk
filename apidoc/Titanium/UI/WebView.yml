@@ -105,8 +105,7 @@ description: |
 
     **Plugin Support**
 
-    The Android web view supports native plugins such as Flash Player. Note that the Chromium-based
-    web view introduced in Android 4.4 does not support the Flash Player plugin.
+    The Android web view supports native plugins.
 
     To use plugin content, you must set the [pluginState](Titanium.UI.WebView.pluginState) property
     to either [WEBVIEW_PLUGINS_ON](Titanium.UI.Android.WEBVIEW_PLUGINS_ON) or
@@ -126,7 +125,68 @@ description: |
     <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookiesForDomain>, <Titanium.Network.getSystemCookies>,
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
+    
+    **WKWebView**
+    
+    With Titanium SDK 8.0.0, we now use WKWebView to implement Ti.UI.WebView (as Apple has deprecated UIWebView).
+    WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView 
+    a little modification is required in the HTML files:
+    
+        <style>
+          @font-face
+            {
+              font-family: 'Lato-Regular';
+              src: url('fonts/Lato-Regular.ttf');
+            }
+        </style>
 
+    To have a WKWebView scale the page the same way as UIWebView, add the following meta tag to the HTML header:
+
+        <html>
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+        </html>
+
+    ### Ti.UI.SIZE and WebViews
+
+    With Titanium 8.0.0+, <Titanium.UI.SIZE> does not work for WebViews. We recommend to give a **fixed height** 
+    to <Titanium.UI.WebView> (as noted in [TIDOC-3355](https://jira.appcelerator.org/browse/TIDOC-3355)).
+    
+    As a workaround you can try to get the `document.body.scrollHeight` inside <Titanium.UI.WebView.load> event 
+    of webview and set the height to webview. See following example.
+
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white';
+        });
+ 
+        var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
+ 
+        verticalView.add(Ti.UI.createLabel({text: 'Label 1', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+ 
+        var htmla = "<div style='font-family: Helvetica Neue; font-size:16px'><ul><li>Item 1</li><li>Item 2</li></ul></div>";
+        var html = "<!DOCTYPE html>";
+      
+        html += "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'><style type='text/css'>html {-webkit-text-size-adjust: none;}</style><script type='text/javascript'>document.ontouchmove = function(event){event.preventDefault();}</script></head><body style='overflow: hidden'>";
+        html += htmla;
+        html += "</body></html>";
+      
+        var webview = Ti.UI.createWebView({left: '14dp', right: '14dp', top: '7dp', height: Ti.UI.SIZE, html: html, backgroundColor: "yellow"});
+      
+        verticalView.add(webview);
+ 
+        verticalView.add(Ti.UI.createLabel({text: 'Label 2', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+ 
+        win.add(verticalView);
+ 
+        win.open();
+ 
+        webview.addEventListener('load', function(e) {
+          var result = webview.evalJSSync('document.body.scrollHeight');
+          Ti.API.info('webview height: ' + result);
+          webview.height = result;
+        });    
+    
     #### For More Information
 
     See [Integrating Web
@@ -229,8 +289,7 @@ methods:
     summary: Pauses native webview plugins.
     description: |
         Add a `pause` handler to your <Titanium.Android.Activity> and invoke
-        this method to pause native plugins. This is important with Flash content
-        as it will continue in the background unless this method is invoked.
+        this method to pause native plugins.
 
         Call [resume](Titanium.UI.WebView.resume) to unpause native plugins.
     since: "1.8.0"
@@ -297,7 +356,7 @@ methods:
     parameters:
       - name: propertyList
         summary: List of properties for listen.
-        type: Array
+        type: Array<String>
 
   - name: stopListeningToProperties
     summary: Remove native properties from observing.
@@ -306,7 +365,7 @@ methods:
     parameters:
       - name: propertyList
         summary: List of properties to remove.
-        type: Array
+        type: Array<String>
 
   - name: takeSnapshot
     summary: Takes a snapshot of the view's visible viewport.
@@ -772,11 +831,9 @@ properties:
   - name: pluginState
     summary: Determines how to treat content that requires plugins in this web view.
     description: |
-        This setting affects the loading of content that requires web plugins, such as
-        Flash Player.
+        This setting affects the loading of content that requires web plugins.
 
-        To use the Flash Player plugin, hardware acceleration must be enabled for your
-        application. To enable hardware acceleration, add the `tool-api-level` and
+        To enable hardware acceleration, add the `tool-api-level` and
         `manifest` elements shown below inside the `android` element in your `tiapp.xml` file.
 
             <android xmlns:android="http://schemas.android.com/apk/res/android">
@@ -1097,4 +1154,3 @@ properties:
   - name: url
     summary: The url of the link that should be navigated to.
     type: String
-

@@ -13,6 +13,11 @@
 
 #pragma mark - Internals
 
+- (id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant *)participant_
+{
+  return [self initWithParticipant:participant_];
+}
+
 - (id)initWithParticipant:(EKParticipant *)participant_
 {
   if (self = [super init]) {

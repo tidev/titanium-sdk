@@ -49,6 +49,11 @@ PROPERTY(NSString *, title, Title);
   CalendarModule *module;
   EKEvent *event;
 }
+
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithEvent:calendar:module:` instead.
+  */
+- (id)_initWithPageContext:(id<TiEvaluator>)context event:(EKEvent *)event_ calendar:(EKCalendar *)calendar_ module:(CalendarModule *)module_ __attribute__((deprecated));
 - (id)initWithEvent:(EKEvent *)event_ calendar:(EKCalendar *)calendar_ module:(CalendarModule *)module_;
 - (EKEvent *)event;
 + (NSArray<TiCalendarEvent *> *)convertEvents:(NSArray<EKEvent *> *)events_ calendar:(EKCalendar *)calendar_ module:(CalendarModule *)module_;

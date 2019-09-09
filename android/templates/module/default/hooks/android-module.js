@@ -9,10 +9,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
 
-var fs = require('fs'),
-	path = require('path'),
-	wrench = require('wrench');
+var fs = require('fs-extra'),
+	path = require('path');
 
 exports.cliVersion = '>=3.2';
 
@@ -23,7 +23,7 @@ exports.init = function (logger, config, cli, appc) {
 		pre: function (data, callback) {
 			// create the build/.apt_generated directory
 			var aptgenDir = path.join(this.projectDir, 'android', 'build', '.apt_generated');
-			fs.existsSync(aptgenDir) || wrench.mkdirSyncRecursive(aptgenDir);
+			fs.ensureDirSync(aptgenDir);
 
 			// determine the minimum supported Android SDK version
 			var packageJsonFile = (function scan(dir) {
@@ -32,7 +32,7 @@ exports.init = function (logger, config, cli, appc) {
 						return file;
 					}
 					dir = path.dirname(dir);
-					return dir != '/' && scan(dir);
+					return dir !== '/' && scan(dir);
 				}(__dirname)),
 				packageJson = require(packageJsonFile),
 				minAndroidAPILevel = parseInt(appc.version.parseMin(packageJson.vendorDependencies['android sdk']));
@@ -45,11 +45,11 @@ exports.init = function (logger, config, cli, appc) {
 				Object.keys(results.targets).forEach(function (idx) {
 					var target = results.targets[idx],
 						apiLevel = target['based-on'] && target['based-on']['api-level'] ? ~~target['based-on']['api-level'] : ~~target['api-level'],
-						gapi = target.type == 'add-on' && /google/i.test(target.name);
+						gapi = target.type === 'add-on' && /google/i.test(target.name);
 
-					if (apiLevel >= minAndroidAPILevel && (target.type == 'platform' || gapi)) {
+					if (apiLevel >= minAndroidAPILevel && (target.type === 'platform' || gapi)) {
 						apis[apiLevel] || (apis[apiLevel] = {});
-						if (typeof apis[apiLevel].idx == 'undefined' || gapi) {
+						if (typeof apis[apiLevel].idx === 'undefined' || gapi) {
 							apis[apiLevel].idx = idx;
 						}
 

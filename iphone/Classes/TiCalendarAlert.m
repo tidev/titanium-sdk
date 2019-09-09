@@ -12,6 +12,13 @@
 
 @implementation TiCalendarAlert
 
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+                     alert:(EKAlarm *)alert_
+                    module:(CalendarModule *)module_;
+{
+  return [self initWithAlert:alert_ module:module_];
+}
+
 - (id)initWithAlert:(EKAlarm *)alert_
              module:(CalendarModule *)module_
 {

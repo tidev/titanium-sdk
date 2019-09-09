@@ -149,7 +149,7 @@ properties:
   - name: text
     deprecated:
         since: "2.0.0"
-        notes: Use <Titanium.XML.Node.textContent> instead.
+        notes: Use [Titanium.XML.Node.textContent](Titanium.XML.Node.textContent) instead.
     summary: |
         Content (value) of all text nodes within this node.
     type: String

@@ -147,7 +147,25 @@ process.emitWarning = function (warning, options, code, ctor) { // eslint-disabl
 	}
 	this.emit('warning', warning);
 };
-process.env = {};
+function loadEnvJson() {
+	try {
+		const jsonFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '_env_.json');
+		if (jsonFile.exists()) {
+			return JSON.parse(jsonFile.read().text);
+		}
+	} catch (error) {
+		Ti.API.error(`Failed to read "_env_.json". Reason: ${error.message}`);
+	}
+	return {};
+}
+Object.defineProperty(process, 'env', {
+	get: function () {
+		delete this.env;
+		return this.env = loadEnvJson();
+	},
+	enumerable: true,
+	configurable: true
+});
 process.execArgv = [];
 process.execPath = ''; // FIXME: What makes sense here? Path to titanium CLI here?
 process.exit = () => {
@@ -253,3 +271,103 @@ Ti.App.addEventListener('uncaughtException', function (event) {
 });
 
 export default process;
+
+// Use a nice predictable class/structure for our Immediate/Tick "timers"
+// JS engine should be able to optimize easier
+class CallbackWithArgs {
+	constructor(func, args) {
+		this.func = func;
+		this.args = args;
+	}
+
+	run () {
+		if (this.args) {
+			this.func.apply(null, this.args);
+		} else {
+			this.fun();
+		}
+	}
+}
+// nextTick vs setImmediate should be handled in a semi-smart way
+// Basically nextTick needs to drain the full queue (and can cause infinite loops if nextTick callback calls nextTick!)
+// Then we should go through the "immediate" queue
+// http://plafer.github.io/2015/09/08/nextTick-vs-setImmediate/
+const tickQueue = [];
+const immediateQueue = [];
+let drainingTickQueue = false;
+let drainQueuesTimeout = null;
+
+/**
+ * Iteratively runs all "ticks" until there are no more.
+ * This can cause infinite recursion if a tick schedules another forever.
+ */
+function drainTickQueue() {
+	if (drainingTickQueue) {
+		return;
+	}
+	drainingTickQueue = true;
+
+	while (tickQueue.length) {
+		const tick = tickQueue.shift();
+		tick.run();
+	}
+	drainingTickQueue = false;
+}
+
+function drainQueues() {
+	// drain the full tick queue first...
+	drainTickQueue();
+	// tick queue should be empty!
+	const immediatesRemaining = processImmediateQueue();
+	if (immediatesRemaining !== 0) {
+		// re-schedule draining our queues, as we have at least one more "immediate" to handle
+		drainQueuesTimeout = setTimeout(drainQueues, 0);
+	} else {
+		drainQueuesTimeout = null;
+	}
+}
+
+/**
+ * Attempts to process "immediates" (in a much more leisurely way than ticks)
+ * We give a 100ms window to run them in before re-scheduling the timeout to process them again.
+ * If any ticks are added during invocation of immediate, we drain the tick queue fully before
+ * proceeding to next immediate (if we still have time in our window).
+ * @returns {number} number of remaining immediates to be processed
+ */
+function processImmediateQueue() {
+	const immediateDeadline = Date.now() + 100; // give us up to 100ms to process immediates
+	while (immediateQueue.length && (Date.now() < immediateDeadline)) {
+		const immediate = immediateQueue.shift();
+		immediate.run();
+		if (tickQueue.length > 0) {
+			// they added a tick! drain the tick queue before we do anything else (this *may* eat up our deadline/window to process any more immediates)
+			drainTickQueue();
+		}
+	}
+	return immediateQueue.length;
+}
+
+process.nextTick = function (callback, ...args) {
+	assertArgumentType(callback, 'callback', 'function');
+	tickQueue.push(new CallbackWithArgs(callback, args));
+	if (!drainQueuesTimeout) {
+		drainQueuesTimeout = setTimeout(drainQueues, 0);
+	}
+};
+
+global.setImmediate = function (callback, ...args) {
+	assertArgumentType(callback, 'callback', 'function');
+	const immediate = new CallbackWithArgs(callback, args);
+	immediateQueue.push(immediate);
+	if (!drainQueuesTimeout) {
+		drainQueuesTimeout = setTimeout(drainQueues, 0);
+	}
+	return immediate;
+};
+
+global.clearImmediate = function (immediate) {
+	const index = immediateQueue.indexOf(immediate);
+	if (index !== -1) {
+		immediateQueue.splice(index, 1);
+	}
+};

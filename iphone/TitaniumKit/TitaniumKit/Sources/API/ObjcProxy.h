@@ -114,6 +114,11 @@ JSExportAs(fireEvent,
 - (void)_destroy;
 - (void)_configure;
 
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `init` instead.
+ */
+- (id)_initWithPageContext:(id<TiEvaluator>)context __attribute__((deprecated));
+
 // hooks for when an event listener gets added/removed
 - (void)_listenerAdded:(NSString *)type count:(int)count;
 - (void)_listenerRemoved:(NSString *)type count:(int)count;
@@ -142,6 +147,9 @@ JSExportAs(fireEvent,
  */
 + (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location;
 - (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location;
+
++ (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context;
+- (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context;
 
 // FIXME: Should id be TiProxy* here?
 - (id)JSValueToNative:(JSValue *)jsValue;

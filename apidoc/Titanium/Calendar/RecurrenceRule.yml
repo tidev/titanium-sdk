@@ -37,7 +37,7 @@ properties:
 
   - name: daysOfTheWeek
     summary: |
-        The days of the week that the event occurs, as an Dictionay of `daysOfWeek` and `Week`.
+        The days of the week that the event occurs, as an array of objects `daysOfWeek` and `Week`.
     description: |
         On Android daysOfTheWeek is not valid for recurrence rules of type
         [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
@@ -101,8 +101,8 @@ properties:
 ---
 name: daysOfTheWeekDictionary
 summary: Dictionary containing `daysOfWeek` and `week`.
-since: "3.1.0"
-platforms: [iphone, ipad]
+since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
+platforms: [iphone, ipad, android]
 
 properties:
   - name: daysOfWeek
@@ -119,8 +119,8 @@ properties:
 ---
 name: recurrenceEndDictionary
 summary: Dictionary containing either `endDate` or `occurrenceCount` property.
-since: "3.1.0"
-platforms: [iphone, ipad]
+since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
+platforms: [iphone, ipad, android]
 
 properties:
   - name: endDate

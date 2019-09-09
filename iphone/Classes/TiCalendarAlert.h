@@ -26,6 +26,13 @@ PROPERTY(double, relativeOffset, RelativeOffset);
   EKAlarm *alert;
 }
 
+/**
+  @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `initWithAlert:module:` instead.
+  */
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+                     alert:(EKAlarm *)alert_
+                    module:(CalendarModule *)module_ __attribute__((deprecated));
+
 - (id)initWithAlert:(EKAlarm *)alert_
              module:(CalendarModule *)module_;
 

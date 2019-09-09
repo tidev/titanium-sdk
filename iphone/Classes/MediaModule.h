@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_MEDIA
 
-#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
-#import "MediaPlayer/MediaPlayer.h"
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
+#import <MediaPlayer/MediaPlayer.h>
 #endif
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"

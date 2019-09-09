@@ -25,9 +25,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AVFoundation/AVMediaFormat.h>
 #import <AudioToolbox/AudioToolbox.h>
-#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
-#import <MediaPlayer/MediaPlayer.h>
-#endif
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <Photos/Photos.h>
 #import <QuartzCore/QuartzCore.h>
@@ -1713,6 +1710,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self displayCamera:picker];
     }
   } else {
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
+      if (!allowTranscoding) {
+        picker.videoExportPreset = AVAssetExportPresetPassthrough;
+      }
+    }
     [self displayModalPicker:picker settings:args];
   }
 }
