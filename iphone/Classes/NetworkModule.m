@@ -286,7 +286,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   // called by TiApp
   if (pushNotificationSuccess != nil) {
-    NSString *token = [NSString hexStringFromData:deviceToken];
+    NSString *token = [TiUtils convertToHexFromData:deviceToken];
 
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:token forKey:@"deviceToken"];
