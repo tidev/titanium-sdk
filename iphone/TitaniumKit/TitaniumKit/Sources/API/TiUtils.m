@@ -1905,6 +1905,19 @@ If the new path starts with / and the base url is app://..., we have to massage 
   return value;
 }
 
++ (NSString *)convertToHexFromData:(NSData *)data
+{
+  NSUInteger dataLength = data.length;
+  unsigned char *dataBytes = (unsigned char *)data.bytes;
+  NSMutableString *encoded = [[NSMutableString alloc] initWithCapacity:dataLength * 2];
+  for (int i = 0; i < dataLength; i++) {
+    [encoded appendFormat:@"%02x", dataBytes[i]];
+  }
+  NSString *value = [encoded lowercaseString];
+  [encoded release];
+  return value;
+}
+
 + (NSString *)md5:(NSData *)data
 {
   unsigned char result[CC_MD5_DIGEST_LENGTH];
