@@ -33,8 +33,8 @@
 			"integrity": "sha512-pAkWgutKTmp0h+ccalxPtweX9clgKEXQlrrVQPAPHPU1QtTMI0mi+tmqgKdlg27ReeqWm3aGPF9S8vmeyvMB2g=="
 		},
 		"ti.applesignin": {
-			"url":"https://github.com/appcelerator-modules/titanium-apple-sign-in/releases/download/v1.1.0/ti.applesignin-iphone-1.1.0.zip",
-			"integrity":"sha512-CsKIS5v2L9kcfRxVsa3RsZczyht1LaqAzF4PSRo1W+FKFmPRWiFvfa+hBmjAJd6lWfzBoJM1CoA8aoGi+/Bs8g=="
+			"url": "https://github.com/appcelerator-modules/titanium-apple-sign-in/releases/download/v1.1.0/ti.applesignin-iphone-1.1.0.zip",
+			"integrity": "sha512-CsKIS5v2L9kcfRxVsa3RsZczyht1LaqAzF4PSRo1W+FKFmPRWiFvfa+hBmjAJd6lWfzBoJM1CoA8aoGi+/Bs8g=="
 		}
 	},
 	"android": {
@@ -75,8 +75,8 @@
 	},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.3/hyperloop-4.0.3.zip",
-			"integrity": "sha512-IXraXPaHVfM4MvdGv5KJCfPJb6mXMNfaDiOL/rFWXt7sug6Ekaa8JJ96MtyNNxz6CGLZgGL46lqjJNRnJQj1mQ=="
+			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.4/hyperloop-4.0.4.zip",
+			"integrity": "sha512-CMUMC9+d8QIr+m9qeWfEk49cIfoR5YVBQHsyvgsXvSA6sQY9VjIKu6oG5rjjPCSfQVDe87Qi8fYXTmtaPRHEXg=="
 		}
 	}
 }
