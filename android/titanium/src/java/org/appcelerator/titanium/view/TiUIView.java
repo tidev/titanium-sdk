@@ -880,13 +880,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						// it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
-						int removedChildIndex = parentView.findChildIndex(this);
-						parentView.remove(this);
-						initializeBorder(d, bgColor);
-						if (removedChildIndex == -1) {
-							parentView.add(this);
-						} else {
-							parentView.add(this, removedChildIndex);
+						if (parentView != null) {
+							int removedChildIndex = parentView.findChildIndex(this);
+							parentView.remove(this);
+							initializeBorder(d, bgColor);
+							if (removedChildIndex == -1) {
+								parentView.add(this);
+							} else {
+								parentView.add(this, removedChildIndex);
+							}
 						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
