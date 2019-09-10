@@ -3,12 +3,20 @@ name: Titanium.UI.ActivityIndicator
 summary: An activity indicator that lets the user know an action is taking place.
 description:  |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/activityindicator/activityindicator_android.png" height="75" /></td>
-        <td><img src="images/activityindicator/activityindicator_ios.png" height="75" /></td>
-        <td><img src="images/activityindicator/activityindicator_wp.png" height="75" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/activityindicator/activityindicator_android.png" height="75" /></td>
+          <td><img src="images/activityindicator/activityindicator_ios.png" height="75" /></td>
+          <td><img src="images/activityindicator/activityindicator_wp.png" height="75" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     An activity indicator can be used to show the progress of an operation in the UI to let the

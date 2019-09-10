@@ -20,6 +20,7 @@ import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -43,12 +44,31 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 	private static final String TAG = "TiRootActivity";
 
+	/**
+	 * Set true if Titanium "ti.main.js" script is currently loaded and running.
+	 * Set false if not loaded yet or if the JS runtime has been terminated after closing all activities.
+	 */
+	private static boolean isScriptRunning;
+
 	private ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
 	private LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
 	private Drawable[] backgroundLayers = { null, null };
 	private int runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
 	private boolean wasRuntimeStarted;
 	private boolean isDuplicateInstance;
+
+	static
+	{
+		// Set up a listener to be invoked every time the JavaScript runtime is being terminated.
+		// We want to hold on to this listener for the lifetime of the application.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				TiRootActivity.isScriptRunning = false;
+			}
+		});
+	}
 
 	public void addOnNewIntentListener(TiRootActivity.OnNewIntentListener listener)
 	{
@@ -131,6 +151,11 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		TiRootActivity rootActivity = tiApp.getRootActivity();
 		this.isDuplicateInstance = (rootActivity != null);
 
+		// Determine if this activity is being restored. This will happen when:
+		// - Developer option "Don't keep activities" is enabled and user navigated back to this activity.
+		// - The OS forced-quit this app due to low memory or system's "Background process limit" was exceeded.
+		boolean isNotRestoringActivity = (savedInstanceState == null);
+
 		// Determine if this activity was created via startActivityForResult().
 		// In this case, this activity needs to respond with setResult() and finish().
 		boolean isActivityForResult = (getCallingActivity() != null);
@@ -182,6 +207,16 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				} catch (Exception ex) {
 					Log.e(TAG, "Failed to close existing Titanium root activity.", ex);
 				}
+			} else if (!canResumeActivityUsing(newIntent) || !canResumeActivityUsing(rootActivity.getLaunchIntent())) {
+				// It's impossible to resume existing root activity. So, we have to destroy it and restart.
+				// Note: This typically happens with ACTION_SEND and ACTION_*_DOCUMENT intents.
+				rootActivity.finishAffinity();
+				TiApplication.terminateActivityStack();
+				if ((newIntent != null) && !newIntent.filterEquals(mainIntent)) {
+					mainIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, newIntent);
+				}
+				mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(mainIntent);
 			} else {
 				// Simulate "singleTask" handling by updating existing root activity's intent with received one.
 				if (newIntent == null) {
@@ -190,9 +225,13 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				rootActivity.onNewIntent(newIntent);
 
 				// Resume the pre-existing Titanium root activity.
-				// Note: On Android, you resume a backgrounded activity by using its initial launch intent.
+				// Note: You can resume a backgrounded activity by using its initial launch intent,
+				//       but we need to remove flags such as CLEAR_TOP to preserve its child activities.
 				Intent resumeIntent = rootActivity.getLaunchIntent();
-				if (resumeIntent == null) {
+				if (resumeIntent != null) {
+					resumeIntent = new Intent(resumeIntent);
+					resumeIntent.setFlags(mainIntent.getFlags());
+				} else {
 					resumeIntent = mainIntent;
 				}
 				startActivity(resumeIntent);
@@ -201,9 +240,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			// Destroy this activity before it is shown.
 			finish();
 
-			// Disable this activity's enter/exit animation. (Looks bad if we keep it.)
+			// Disable activity's exit animation. (Looks bad if we keep it on a Pixel XL.)
 			// Note: Must be done after calling finish() above.
-			overridePendingTransition(0, 0);
+			overridePendingTransition(android.R.anim.fade_in, 0);
 			return;
 		}
 
@@ -212,13 +251,17 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		// If this is a normal activity (not launched via startActivityForResult() method),
 		// then make sure it was launched via main intent and the Titanium runtime is not still active.
 		if (!isActivityForResult) {
-			boolean isRuntimeActive = (KrollRuntime.getActivityRefCount() > 0);
+			KrollRuntime krollRuntime = KrollRuntime.getInstance();
+			boolean isRuntimeActive = (krollRuntime != null) && TiRootActivity.isScriptRunning();
 			boolean isNotMainIntent = (newIntent == null) || !newIntent.filterEquals(mainIntent);
-			if (isRuntimeActive || isNotMainIntent) {
+			if ((isRuntimeActive && isNotRestoringActivity) || isNotMainIntent) {
+				// Destroy this activity instance.
 				this.isDuplicateInstance = true;
 				activityOnCreate(savedInstanceState);
 				finish();
-				overridePendingTransition(0, 0);
+				overridePendingTransition(android.R.anim.fade_in, 0);
+
+				// Set up an intent to relaunch this root activity.
 				final Intent relaunchIntent = isNotMainIntent ? mainIntent : newIntent;
 				if (isNotMainIntent && (newIntent != null)) {
 					// Embed this destroyed activity's intent within the new launch intent.
@@ -233,19 +276,35 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 						relaunchIntent.putExtra(TiC.EXTRA_TI_NEW_INTENT, newIntent);
 					}
 				}
+
+				// Re-launch this activity.
 				if (isRuntimeActive) {
-					// Wait for previous Titanium JavaScirpt runtime to be destroyed before relaunching.
+					// Wait for previous Titanium JavaScript runtime to be terminated before relaunching.
 					// Note: This happens if previous root activity is missing, but all child activities still exist.
 					//       Launching with FLAG_ACTIVITY_CLEAR_TOP while app is backgrounded will always do this.
-					TiApplication.terminateActivityStack();
 					KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
 						@Override
 						public void onDisposing(KrollRuntime runtime)
 						{
+							// Remove this listener.
 							KrollRuntime.removeOnDisposingListener(this);
+
+							// Relaunch root activity.
+							// Note: If system setting "Don't keep activities" is on, then we need CLEAR_TOP flag
+							//       to "finish" any temporarily destroyed activities so that they won't be restored.
+							relaunchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(relaunchIntent);
 						}
 					});
+					if (KrollRuntime.getActivityRefCount() > 0) {
+						Activity currentActvitiy = getTiApp().getCurrentActivity();
+						if (currentActvitiy != null) {
+							currentActvitiy.finishAffinity();
+						}
+						TiApplication.terminateActivityStack();
+					} else {
+						krollRuntime.dispose();
+					}
 				} else {
 					// Immediately relaunch with main intent.
 					startActivity(relaunchIntent);
@@ -258,11 +317,13 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		tiApp.setCurrentActivity(this, this);
 		tiApp.setRootActivity(this);
 		super.onCreate(savedInstanceState);
-		tiApp.verifyCustomModules(this);
+		if (isNotRestoringActivity) {
+			tiApp.verifyCustomModules(this);
+		}
 
 		// Invoke activity's onNewIntent() behavior if above code bundled an extra intent into it.
 		// This happens if activity was initially created with a non-main launcher intent, such as a URL scheme.
-		if ((newIntent != null) && newIntent.hasExtra(TiC.EXTRA_TI_NEW_INTENT)) {
+		if (isNotRestoringActivity && (newIntent != null) && newIntent.hasExtra(TiC.EXTRA_TI_NEW_INTENT)) {
 			try {
 				Object object = newIntent.getParcelableExtra(TiC.EXTRA_TI_NEW_INTENT);
 				if (object instanceof Intent) {
@@ -357,6 +418,11 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 	protected void loadScript()
 	{
+		// Do not continue if this activity's script has already been loaded.
+		if (TiRootActivity.isScriptRunning) {
+			return;
+		}
+
 		// Add a Titanium App module "started" event listener. Will be fired after "app.js" has been executed.
 		KrollModule appModule = getTiApp().getModuleByName("App");
 		if (appModule != null) {
@@ -412,6 +478,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 		// Load the main Titanium script.
 		super.loadScript();
+		TiRootActivity.isScriptRunning = true;
 	}
 
 	@Override
@@ -472,5 +539,44 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		if (tiApp.getRootActivity() == this) {
 			tiApp.setRootActivity(null);
 		}
+	}
+
+	/**
+	 * Determines if Titanium's main script has been loaded and currently running by this activity.
+	 * <p>
+	 * Note that this can be true after this root activity has been destroyed.
+	 * This can happen if we're in the middle of destroying the entire activity stack, which is the typical case.
+	 * Can also happen if Android developer option "Don't keep activities" is enabled which temporarily destroys
+	 * parent activities, but they'll be restored by the OS when back navigating.
+	 * @return
+	 * Returns true if Titanium's main script has been loaded by this activity and is actively running.
+	 * <p>
+	 * Returns false if script has never been loaded or has been terminated after all activities have been destroyed.
+	 */
+	public static boolean isScriptRunning()
+	{
+		return TiRootActivity.isScriptRunning;
+	}
+
+	/**
+	 * Determine if an existing activity can be resumed with the given intent via startActivity() method.
+	 * <p>
+	 * For example, an intent flag such as "FLAG_ACTIVITY_MULTIPLE_TASK" always creates a new activity instance
+	 * even if an existing activity with a matching intent already exists. This makes resumes impossible.
+	 * @param intent The intent to be checked. Can be null.
+	 * @return
+	 * Returns true if an activity can be resumed based on given intent's flags.
+	 * <p>
+	 * Returns false if impossible to resume or if given a null argument.
+	 */
+	private static boolean canResumeActivityUsing(Intent intent)
+	{
+		if (intent != null) {
+			final int BAD_FLAGS = (Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+			if ((intent.getFlags() & BAD_FLAGS) == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

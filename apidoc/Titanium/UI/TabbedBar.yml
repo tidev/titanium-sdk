@@ -50,7 +50,7 @@ properties:
         color or gradient to show through.
         For Android:
         [Titanium.UI.TABS_STYLE_*]
-        In Android [style](Ti.UI.TabbedBar.style) is only supported in the creation dictionary 
+        In Android [style](Titanium.UI.TabbedBar.style) is only supported in the creation dictionary 
         of the proxy.
     type: Number
     default: Titanium.UI.iOS.SystemButtonStyle.PLAIN for iOS, Ti.UI.TABS_STYLE_DEFAULT for Android

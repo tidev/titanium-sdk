@@ -3,12 +3,20 @@ name: Titanium.UI.TextField
 summary: A single line text field.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/textfield/textfield_android.png" height="25" /></td>
-        <td><img src="images/textfield/textfield_ios.png" height="25" /></td>
-        <td><img src="images/textfield/textfield_wp.png" height="25" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/textfield/textfield_android.png" height="25" /></td>
+          <td><img src="images/textfield/textfield_ios.png" height="25" /></td>
+          <td><img src="images/textfield/textfield_wp.png" height="25" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
@@ -34,7 +42,7 @@ methods:
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
     osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
@@ -59,12 +67,12 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.TextField.keyboardAppearance> instead.
+        notes: Use [Titanium.UI.TextField.keyboardAppearance](Titanium.UI.TextField.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
     type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    constants: [Titanium.UI.KEYBOARD_APPEARANCE_DARK, Titanium.UI.KEYBOARD_APPEARANCE_LIGHT, Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT]
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
 
@@ -74,7 +82,7 @@ properties:
         The underlying attributed string drawn by the textField. If set, avoid setting common attributes
         in TextField, such as `value`, `color` and `font`, as unexpected behaviors may result.
 
-        For Alloy, you can use an `<AttributedString>` element inside a `<TextField>` element and set 
+        For Alloy, you can use an `<AttributedString>` element inside a `<TextField>` element and set
         the text property as node text:
 
             <Alloy>
@@ -197,7 +205,7 @@ properties:
     type: Number
     constants: Titanium.UI.AUTOLINK_*
     default: undefined
-    since: 3.0.0
+    since: "3.0.0"
     platforms: [android]
 
   - name: borderStyle
@@ -334,7 +342,7 @@ properties:
     constants: [Titanium.UI.INPUT_TYPE_*]
     platforms: [android]
     default: Empty array. If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
-    since: 5.2.0
+    since: "5.2.0"
 
   - name: keyboardToolbar
     summary: |
@@ -437,23 +445,23 @@ properties:
     summary: Sets the padding of this text field.
     type: ViewPadding
     platforms: [android, iphone, ipad]
-    since: 6.0.0
+    since: "6.0.0"
 
   - name: paddingLeft
     summary: Left padding of this text field.
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: 6.1.0
-        notes: Use <Titanium.UI.TextField.padding> for parity instead.
+        since: "6.1.0"
+        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
 
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: 6.1.0
-        notes: Use <Titanium.UI.TextField.padding> for parity instead.
+        since: "6.1.0"
+        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
 
   - name: passwordMask
     summary: Obscure the input text from the user.
@@ -505,7 +513,7 @@ properties:
                     </TextField>
                 </Window>
             </Alloy>
-        
+
         The `sayHi` and `doAlert` methods are defined in the Alloy controller.
     type: Object
     platforms: [iphone, ipad]
@@ -547,7 +555,7 @@ properties:
     default: true
     platforms: [ipad]
     osver: {ios: {min: "9.0"}}
-    since: 5.0.0
+    since: "5.0.0"
 
   - name: textAlign
     summary: |
@@ -628,7 +636,7 @@ examples:
             var textField = Ti.UI.createTextField({
               backgroundColor: '#fafafa',
               color: 'green',
-              width: 250, 
+              width: 250,
               height: 40
             });
 
@@ -671,7 +679,7 @@ examples:
                 keyboardToolbarColor: '#999',
                 keyboardToolbarHeight: 40,
                 top: 10,
-                width: 300, 
+                width: 300,
                 height: 35
             });
 
@@ -703,10 +711,10 @@ examples:
                     <TextField
                         platform="ios"
                         borderStyle="Ti.UI.INPUT_BORDERSTYLE_BEZEL"
-                        keyboardToolbarColor="#999" 
+                        keyboardToolbarColor="#999"
                         keyboardToolbarHeight="40"
-                        top="10" 
-                        height="35" 
+                        top="10"
+                        height="35"
                         width="300"
                         value="Focus to see keyboard with toolbar">
 

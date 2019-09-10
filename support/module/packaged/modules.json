@@ -1,8 +1,8 @@
 {
 	"ios": {
 		"urlSession": {
-			"url": "https://github.com/appcelerator-modules/ti.urlsession/releases/download/v2.1.0/com.appcelerator.urlSession-iphone-2.1.0.zip",
-			"integrity": "sha512-q7IPaAjg8wpQH5lRyABMpZpQT5HxUgbHmdYT91Be0zGFOtqiQ0VUAn396gnp90+dTOnlKVWVsJQ9EyVHwtotCw=="
+			"url": "https://github.com/appcelerator-modules/ti.urlsession/releases/download/v2.2.0/com.appcelerator.urlSession-iphone-2.2.0.zip",
+			"integrity": "sha512-fyilD5d27RYZaq/s3XEWxJDzUSEjKiTeu+2W552q8JDk33kmTq3nA1yX6Q5k7Tyl3RFhkSPJ0cPgEzREvwCCzg=="
 		},
 		"facebook": {
 			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/ios-6.0.0/facebook-iphone-6.0.0.zip",
@@ -13,8 +13,8 @@
 			"integrity": "sha512-h1wM7mE/cgpk2n1YOYBNMNBQq5ViLxil6+GRnVqSaFB3LY3ubGSZVkZQ5rzC74anLlNXJVpsH/bP98AQ6zzXbA=="
 		},
 		"ti.map": {
-			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.1.0/ti.map-iphone-3.1.0.zip",
-			"integrity": "sha512-CHW1z4RugXToSdBg24UhUTVcg6XL+eY9Q1Org1XeJkuiQsR6DGzywL+MtLZxZw3XflrsfMpyrSNTDKHVmNSQEQ=="
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.1.2/ti.map-iphone-3.1.2.zip",
+			"integrity": "sha512-t/vHb0hckmfqQmElsRV6mG67m0P+dTe0lXHPYIIX6wAO5thz2kbWjVwgp53hx2IAfJtCsCO9bX15+V5nGZ5DUw=="
 		},
 		"ti.safaridialog": {
 			"url": "https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
@@ -29,8 +29,12 @@
 			"integrity": "sha512-3lJKS4miCleBbX0k4vjNV65MOZ2IPKQSRjUqPpuY0g2Wen14DwVDyphkkgVCG0cXmiVj8BHXp1ATzxwWeKw8yw=="
 		},
 		"ti.identity": {
-			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.5/ti.identity-iphone-1.0.5.zip",
-			"integrity": "sha512-cxSUsp/JIvWpqss9eI8UefvaU02QUzJKiNjjYMSzkM2/VF1WDHaSzfDKTQ/4NhO05GDyPtlx79dwHT24WsKB9Q=="
+			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.6/ti.identity-iphone-1.0.6.zip",
+			"integrity": "sha512-pAkWgutKTmp0h+ccalxPtweX9clgKEXQlrrVQPAPHPU1QtTMI0mi+tmqgKdlg27ReeqWm3aGPF9S8vmeyvMB2g=="
+		},
+		"ti.applesignin": {
+			"url":"https://github.com/appcelerator-modules/titanium-apple-sign-in/releases/download/v1.1.0/ti.applesignin-iphone-1.1.0.zip",
+			"integrity":"sha512-CsKIS5v2L9kcfRxVsa3RsZczyht1LaqAzF4PSRo1W+FKFmPRWiFvfa+hBmjAJd6lWfzBoJM1CoA8aoGi+/Bs8g=="
 		}
 	},
 	"android": {
@@ -55,8 +59,8 @@
 			"integrity": "sha512-G30ZTwV1VI+GI5FmRWJLGZUQgckvMYTiX7mYhWDLCGZac8cSQDpG4xylJlSp6B/isNqa6TBX4ZPE3ieJ50p0mA=="
 		},
 		"ti.playservices": {
-			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip",
-			"integrity": "sha512-bLhpzOjnmiTWFRjMuFfvqf0ePd1kbTdXLMVZJ+EsPrfn4JmxvkINS9Nu6ivjV+fmH9cBYVjZ5k9nGCeUdqZOlQ=="
+			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/16.1.3/ti.playservices-android-16.1.3.zip",
+			"integrity": "sha512-d2yGEw84lp30fzWRBr/PHJIn2jpIQy8OBih1MpFdaemyLW9+lLz2giPoMJD5VoBcTh/yXbfhXl8P5uPmNsffWg=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.1.0/ti.identity-android-2.1.0.zip",
@@ -71,8 +75,8 @@
 	},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.1/hyperloop-4.0.1.zip",
-			"integrity": "sha512-QDBUBBHXKzcus9o3xlwWnKvPKPaPArMZvttYlU9pPuwIGsnygRwMG6i+SlCIE4jKpRs28jBRfBtt2OpJzBl51A=="
+			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v4.0.3/hyperloop-4.0.3.zip",
+			"integrity": "sha512-IXraXPaHVfM4MvdGv5KJCfPJb6mXMNfaDiOL/rFWXt7sug6Ekaa8JJ96MtyNNxz6CGLZgGL46lqjJNRnJQj1mQ=="
 		}
 	}
 }

@@ -108,6 +108,7 @@ public:
 	static jclass krollDictClass;
 	static jclass tiJsErrorDialogClass;
 	static jclass referenceTableClass;
+	static jclass jsErrorClass;
 	static jclass krollWorkerClass;
 
 	// Java methods
@@ -140,9 +141,11 @@ public:
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
 
+	// KrollDict
 	static jmethodID krollDictInitMethod;
 	static jmethodID krollDictPutMethod;
 
+	// ReferenceTable
 	static jmethodID referenceTableCreateReferenceMethod;
 	static jmethodID referenceTableDestroyReferenceMethod;
 	static jmethodID referenceTableMakeWeakReferenceMethod;
@@ -151,12 +154,19 @@ public:
 	static jmethodID referenceTableGetReferenceMethod;
 	static jmethodID referenceTableIsStrongReferenceMethod;
 
+	// KrollRuntime
 	static jint krollRuntimeDontIntercept;
+	static jmethodID krollRuntimeDispatchExceptionMethod;
+
 	static jmethodID krollInvocationInitMethod;
 	static jmethodID krollExceptionInitMethod;
+
+	// KrollObject
 	static jfieldID krollObjectProxySupportField;
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollObjectOnEventFiredMethod;
+
+	// KrollProxy
 	static jmethodID krollProxyCreateProxyMethod;
 	static jfieldID krollProxyKrollObjectField;
 	static jfieldID krollProxyModelListenerField;
@@ -164,12 +174,17 @@ public:
 	static jmethodID krollProxyGetIndexedPropertyMethod;
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
+
+	// KrollLogging
 	static jmethodID krollLoggingLogWithDefaultLoggerMethod;
-	static jmethodID krollRuntimeDispatchExceptionMethod;
 	static jmethodID krollWorkerCloseMethod;
 	static jmethodID krollWorkerPostMessageMethod;
 
+	// KrollAssetHelper
 	static jmethodID krollAssetHelperReadAssetMethod;
+
+	// CustomError
+	static jmethodID getJSPropertiesMethod;
 
 };
 

@@ -42,11 +42,13 @@ class <%- moduleIdAsIdentifier %>Module: TiModule {
   }
 
   @objc(example:)
-  func example(arguments: Array<Any>?) -> String {
-    // Example method. 
-    // Call with "MyModule.example(args)"
+  func example(arguments: Array<Any>?) -> String? {
+    guard let arguments = arguments, let params = arguments[0] as? [String: Any] else { return nil }
 
-    return "hello world!"
+    // Example method. 
+    // Call with "MyModule.example({ hello: 'world' })"
+
+    return params["hello"] as? String
   }
   
   @objc public var exampleProp: String {

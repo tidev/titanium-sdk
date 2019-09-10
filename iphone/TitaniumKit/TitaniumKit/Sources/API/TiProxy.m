@@ -889,16 +889,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   if (![self _hasListeners:type]) {
     return;
   }
-  TiBindingEvent ourEvent;
-  ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-  if (report || (code != 0)) {
-    TiBindingEventSetErrorCode(ourEvent, code);
-  }
-  if (message != nil) {
-    TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-  }
-  TiBindingEventSetBubbles(ourEvent, propagate);
-  TiBindingEventFire(ourEvent);
+
+  TiThreadPerformOnMainThread(^{
+    TiBindingEvent ourEvent;
+    ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+    if (report || (code != 0)) {
+      TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil) {
+      TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
+  },
+      NSThread.isMainThread);
 }
 
 //Temporary method until source is removed, for our subclasses.
@@ -908,17 +912,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
 
-  TiBindingEvent ourEvent;
+  TiThreadPerformOnMainThread(^{
+    TiBindingEvent ourEvent;
 
-  ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-  if (report || (code != 0)) {
-    TiBindingEventSetErrorCode(ourEvent, code);
-  }
-  if (message != nil) {
-    TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-  }
-  TiBindingEventSetBubbles(ourEvent, propagate);
-  TiBindingEventFire(ourEvent);
+    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+    if (report || (code != 0)) {
+      TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil) {
+      TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
+  },
+      NSThread.isMainThread);
 }
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues

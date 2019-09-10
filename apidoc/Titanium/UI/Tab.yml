@@ -288,7 +288,7 @@ events:
     summary: Fired when the tab loses focus.
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.unselected> instead.
+        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -330,7 +330,7 @@ events:
     summary: Fired when the tab gains focus.
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.Tab.selected> instead.
+        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) instead.
     properties:
       - name: index
         summary: Index of the current active tab.

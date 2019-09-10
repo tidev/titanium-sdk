@@ -8,7 +8,6 @@
 
 #import "NetworkModule.h"
 #import <Foundation/Foundation.h>
-#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
 
 @interface TiNetworkTCPSocketProxy : TiProxy {

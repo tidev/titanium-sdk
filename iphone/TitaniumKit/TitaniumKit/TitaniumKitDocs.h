@@ -40,8 +40,8 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/Sources/API/UIImage+Alpha.h>
 #import <TitaniumKit/Sources/API/UIImage+Resize.h>
 #import <TitaniumKit/Sources/API/UIImage+RoundedCorner.h>
-#import <TitaniumKit/Sources/API/WebColor.h>
 #import <TitaniumKit/Sources/API/WebFont.h>
+#import <TitaniumKit/Sources/API/Webcolor.h>
 #import <TitaniumKit/Sources/API/XHRBridge.h>
 #import <TitaniumKit/Sources/Misc/TiDefines.h>
 #import <TitaniumKit/Sources/Misc/TiSharedConfig.h>

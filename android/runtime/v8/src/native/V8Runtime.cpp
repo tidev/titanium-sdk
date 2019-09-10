@@ -23,6 +23,7 @@
 #include "V8Util.h"
 
 #include "V8Runtime.h"
+#include "V8Snapshots.h"
 
 #define TAG "V8Runtime"
 
@@ -173,6 +174,9 @@ void V8Runtime::init(JNIEnv *env, jobject self, jobject debugger, jboolean DBG, 
 		// Create a new Isolate and make it the current one.
 		Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = &allocator;
+#ifdef V8_SNAPSHOT_H
+		create_params.snapshot_blob = &snapshot;
+#endif
 		isolate = Isolate::New(create_params);
 		V8Runtime::thread_isolateMap[threadId] = isolate;
 		V8Runtime::thread_lockerMap[threadId] = new Locker(isolate);

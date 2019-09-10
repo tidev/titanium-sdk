@@ -16,6 +16,7 @@ description: |
     adding methods to a Titanium object. (Adding a simple property such as an ID value is
     generally OK.)
 since: "0.1"
+
 methods:
   - name: addEventListener
     summary: Adds the specified callback as an event listener for the named event.
@@ -26,6 +27,7 @@ methods:
       - name: callback
         summary: Callback function to invoke when the event is fired.
         type: Callback<Object>
+
   - name: removeEventListener
     summary: Removes the specified callback as an event listener for the named event.
     description: |
@@ -48,6 +50,7 @@ methods:
       - name: callback
         summary: Callback function to remove. Must be the same function passed to `addEventListener`.
         type: Callback<Object>
+
   - name: fireEvent
     summary: Fires a synthesized event to any registered listeners.
     parameters:
@@ -58,6 +61,7 @@ methods:
         summary: A dictionary of keys and values to add to the <Titanium.Event> object
             sent to the listeners.
         type: Dictionary
+
   - name: applyProperties
     summary: Applies the properties to the proxy.
     description: |
@@ -70,7 +74,6 @@ methods:
     since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0"}
 
 properties:
-
   - name: bubbleParent
     summary: Indicates if the proxy will bubble an event to its parent.
     description: |
@@ -91,7 +94,7 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android,  iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: "3.2.0"
 
   - name: lifecycleContainer

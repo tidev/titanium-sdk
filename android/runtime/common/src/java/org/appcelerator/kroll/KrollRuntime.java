@@ -496,17 +496,16 @@ public abstract class KrollRuntime implements Handler.Callback
 	{
 		if (instance != null) {
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
-			KrollExceptionHandler currentHandler;
 			ExceptionMessage exceptionMessage =
 				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, javaStack);
 
 			if (!handlers.isEmpty()) {
-				for (String key : handlers.keySet()) {
-					currentHandler = handlers.get(key);
-					if (currentHandler != null) {
-						currentHandler.handleException(exceptionMessage);
+				for (KrollExceptionHandler handler : handlers.values()) {
+					if (handler != null) {
+						handler.handleException(exceptionMessage);
 					}
 				}
+				return;
 			}
 
 			// Handle exception with defaultExceptionHandler

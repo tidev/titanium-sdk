@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_GESTURE
 
 #import "GestureModule.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation GestureModule
 
@@ -24,7 +25,7 @@
   // ones during the same shake motion
   if (evt.timestamp == 0 || evt.timestamp - lastShakeTime > 1) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(evt.timestamp) forKey:@"timestamp"];
-    [self fireEvent:@"shake" withObject:event];
+    [self fireEvent:@"shake" withDict:event];
     lastShakeTime = evt.timestamp;
   }
   // TODO: This will still allow "fast shakes" to send two events initially, since evt.timestamp is 0 initially.
@@ -35,9 +36,8 @@
 
 - (void)rotateEvent:(NSNotification *)sender
 {
-  UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
-  NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(orientation) forKey:@"orientation"];
-  [self fireEvent:@"orientationchange" withObject:event];
+  NSDictionary *event = [NSDictionary dictionaryWithObject:[self orientation] forKey:@"orientation"];
+  [self fireEvent:@"orientationchange" withDict:event];
 }
 
 - (void)registerForShake
@@ -96,41 +96,24 @@
   }
 }
 
-MAKE_SYSTEM_PROP(PORTRAIT, UIDeviceOrientationPortrait);
-MAKE_SYSTEM_PROP(LANDSCAPE_LEFT, UIDeviceOrientationLandscapeLeft);
-MAKE_SYSTEM_PROP(LANDSCAPE_RIGHT, UIDeviceOrientationLandscapeRight);
-MAKE_SYSTEM_PROP(UPSIDE_PORTRAIT, UIDeviceOrientationPortraitUpsideDown);
-MAKE_SYSTEM_PROP(UNKNOWN, UIDeviceOrientationUnknown);
-MAKE_SYSTEM_PROP(FACE_UP, UIDeviceOrientationFaceUp);
-MAKE_SYSTEM_PROP(FACE_DOWN, UIDeviceOrientationFaceDown);
-
-- (NSNumber *)isLandscape:(id)args
+- (BOOL)landscape
 {
-  DEPRECATED_REPLACED(@"Gesture.isLandscape()", @"6.1.0", @"Gesture.landscape");
-  return [self landscape];
+  return [TiUtils isOrientationLandscape];
 }
+GETTER_IMPL(BOOL, landscape, Landscape);
 
-- (NSNumber *)isPortrait:(id)args
+- (BOOL)portrait
 {
-  DEPRECATED_REPLACED(@"Gesture.isPortrait()", @"6.1.0", @"Gesture.portrait");
-  return [self portrait];
+  return [TiUtils isOrientationPortait];
 }
-
-- (NSNumber *)landscape
-{
-  return NUMBOOL([TiUtils isOrientationLandscape]);
-}
-
-- (NSNumber *)portrait
-{
-  return NUMBOOL([TiUtils isOrientationPortait]);
-}
+GETTER_IMPL(BOOL, portrait, Portrait);
 
 - (NSNumber *)orientation
 {
   UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
   return NUMINT(orientation);
 }
+GETTER_IMPL(NSNumber *, orientation, Orientation);
 
 @end
 

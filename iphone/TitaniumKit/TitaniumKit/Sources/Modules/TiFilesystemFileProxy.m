@@ -362,7 +362,7 @@ FILENOOP(setHidden
   BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
   if (!exists)
     return nil;
-  return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:path] autorelease];
+  return [[[TiBlob alloc] initWithFile:path] autorelease];
 }
 
 - (NSNumber *)append:(id)args

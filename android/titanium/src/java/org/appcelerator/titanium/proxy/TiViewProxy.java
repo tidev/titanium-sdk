@@ -8,8 +8,6 @@ package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -43,8 +41,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -57,44 +53,50 @@ import android.view.ViewAnimationUtils;
 // clang-format off
 @Kroll.proxy(propertyAccessors = {
 	// background properties
-	"backgroundImage",
-	"backgroundRepeat",
-	"backgroundSelectedImage",
-	"backgroundFocusedImage",
-	"backgroundDisabledImage",
-	"backgroundColor",
-	"backgroundSelectedColor",
-	"backgroundFocusedColor",
-	"backgroundDisabledColor",
-	"backgroundPadding",
-	"backgroundGradient",
+	TiC.PROPERTY_BACKGROUND_IMAGE,
+	TiC.PROPERTY_BACKGROUND_REPEAT,
+	TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE,
+	TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE,
+	TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE,
+	TiC.PROPERTY_BACKGROUND_COLOR,
+	TiC.PROPERTY_BACKGROUND_SELECTED_COLOR,
+	TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR,
+	TiC.PROPERTY_BACKGROUND_DISABLED_COLOR,
+	TiC.PROPERTY_BACKGROUND_PADDING,
+	TiC.PROPERTY_BACKGROUND_GRADIENT,
 	// border properties
-	"borderColor", "borderRadius", "borderWidth",
+	TiC.PROPERTY_BORDER_COLOR,
+	TiC.PROPERTY_BORDER_RADIUS,
+	TiC.PROPERTY_BORDER_WIDTH,
 	// layout / dimension (size/width/height have custom accessors)
-	"left", "top", "right", "bottom", "layout", "zIndex",
+	TiC.PROPERTY_LEFT,
+	TiC.PROPERTY_TOP,
+	TiC.PROPERTY_RIGHT,
+	TiC.PROPERTY_BOTTOM,
+	TiC.PROPERTY_LAYOUT,
+	TiC.PROPERTY_ZINDEX,
 	// accessibility
 	TiC.PROPERTY_ACCESSIBILITY_HINT,
 	TiC.PROPERTY_ACCESSIBILITY_LABEL,
 	TiC.PROPERTY_ACCESSIBILITY_VALUE,
 	TiC.PROPERTY_ACCESSIBILITY_HIDDEN,
 	// others
-	"focusable",
-	"touchEnabled",
-	"visible",
-	"enabled",
-	"opacity",
-	"softKeyboardOnFocus",
-	"transform",
-	"elevation",
-	"touchTestId",
-	"translationX",
-	"translationY",
-	"translationZ",
-	"rotation",
-	"rotationX",
-	"rotationY",
-	"scaleX",
-	"scaleY",
+	TiC.PROPERTY_FOCUSABLE,
+	TiC.PROPERTY_TOUCH_ENABLED,
+	TiC.PROPERTY_VISIBLE,
+	TiC.PROPERTY_ENABLED,
+	TiC.PROPERTY_OPACITY,
+	TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS,
+	TiC.PROPERTY_TRANSFORM,
+	TiC.PROPERTY_ELEVATION,
+	TiC.PROPERTY_TRANSLATION_X,
+	TiC.PROPERTY_TRANSLATION_Y,
+	TiC.PROPERTY_TRANSLATION_Z,
+	TiC.PROPERTY_ROTATION,
+	TiC.PROPERTY_ROTATION_X,
+	TiC.PROPERTY_ROTATION_Y,
+	TiC.PROPERTY_SCALE_X,
+	TiC.PROPERTY_SCALE_Y,
 	TiC.PROPERTY_TOUCH_FEEDBACK,
 	TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
 	TiC.PROPERTY_TRANSITION_NAME,
@@ -488,14 +490,15 @@ public abstract class TiViewProxy extends KrollProxy
 			}
 
 			view = createView(activity);
+			if (view != null) {
+				if (isDecorView && baseActivity != null) {
+					baseActivity.setViewProxy(view.getProxy());
+				}
 
-			if (isDecorView && baseActivity != null) {
-				baseActivity.setViewProxy(view.getProxy());
+				realizeViews(view);
+				view.registerForTouch();
+				view.registerForKeyPress();
 			}
-
-			realizeViews(view);
-			view.registerForTouch();
-			view.registerForKeyPress();
 		}
 		return view;
 	}
@@ -1018,62 +1021,117 @@ public abstract class TiViewProxy extends KrollProxy
 		if (this.parent == null) {
 			return null;
 		}
-
 		return this.parent.get();
 	}
 
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public String getBackgroundDisabledColor()
-	// clang-format on
+	public String getBackgroundColor()
+	// clang - format on
 	{
-		// Try to get the background drawable if one is available.
-		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
-		// Guard for views without color state backgrounds.
-		if (backgroundDrawable == null) {
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
 			return null;
-		} else {
-			try {
-				// Get the backgroundDrawable background as a StateListDrawable.
-				StateListDrawable stateListDrawable = ((StateListDrawable) backgroundDrawable.getBackground());
-				// Get the reflection methods.
-				Method getStateDrawableIndexMethod =
-					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
-				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
-				// Get the disabled state's (as defined in TiUIHelper) index.
-				int index =
-					(int) getStateDrawableIndexMethod.invoke(stateListDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
-				// Get the drawable at the index.
-				Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
-				// Try to get the 0 index of the result.
-				if (drawable instanceof LayerDrawable) {
-					Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
-					// Cast it as a ColorDrawable.
-					if (drawableFromLayer instanceof ColorDrawable) {
-						// Transcript the color int to HexString.
-						String strColor =
-							String.format("#%08X", 0xFFFFFFFF & ((ColorDrawable) drawableFromLayer).getColor());
-						return strColor;
-					} else {
-						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
-									   + drawableFromLayer.getClass().toString());
-						return null;
-					}
-				} else {
-					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
-								   + drawable.getClass().toString());
-					return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		// If only backgroundColor is defined then no ColorStateList is created, we resort to only the color defined.
+		TiBackgroundDrawable tiBackgroundDrawable = view.getBackground();
+		if (tiBackgroundDrawable == null) {
+			View nativeView = view.getNativeView();
+			if (nativeView != null) {
+				Drawable drawable = nativeView.getBackground();
+				if (drawable instanceof ColorDrawable) {
+					return TiUIHelper.hexStringFrom(((ColorDrawable) drawable).getColor());
 				}
-			} catch (NoSuchMethodException e) {
-				Log.w(TAG, "Unable to get a method for reflection.");
-			} catch (IllegalAccessException e) {
-				Log.w(TAG, "Unable to access a method for reflection.");
-			} catch (InvocationTargetException e) {
-				Log.w(TAG, "Unable to invoke a method for reflection.");
 			}
 			return null;
 		}
+
+		// It shouldn't matter if we request the color for DEFAULT_STATE_1 or DEFAULT_STATE_2. They are the same.
+		return TiUIHelper.getBackgroundColorForState(tiBackgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getBackgroundSelectedColor()
+	// clang - format on
+	{
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
+		if (backgroundDrawable == null) {
+			return null;
+		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getBackgroundFocusedColor()
+	// clang - format on
+	{
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
+		if (backgroundDrawable == null) {
+			return null;
+		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getBackgroundDisabledColor()
+	// clang - format on
+	{
+		// Return originally assigned property value, if available.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR)) {
+			return TiConvert.toString(getProperty(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR));
+		}
+
+		// Fetch the view.
+		TiUIView view = getOrCreateView();
+		if (view == null) {
+			return null;
+		}
+
+		// Try to get the background drawable if one is available.
+		TiBackgroundDrawable backgroundDrawable = view.getBackground();
+		if (backgroundDrawable == null) {
+			return null;
+		}
+		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 	}
 
 	public void setParent(TiViewProxy parent)
@@ -1113,8 +1171,9 @@ public abstract class TiViewProxy extends KrollProxy
 	public TiViewProxy[] getChildren()
 	// clang-format on
 	{
-		if (children == null)
+		if (children == null) {
 			return new TiViewProxy[0];
+		}
 		return children.toArray(new TiViewProxy[children.size()]);
 	}
 

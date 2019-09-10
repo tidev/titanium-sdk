@@ -3,18 +3,26 @@ name: Titanium.UI.SearchBar
 summary: A specialized text field for entering search text.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/searchbar/searchbar_android.png" height="25" /></td>
-        <td><img src="images/searchbar/searchbar_ios.png" height="25" /></td>
-        <td><img src="images/searchbar/searchbar_windows.png" height="25" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/searchbar/searchbar_android.png" height="25" /></td>
+          <td><img src="images/searchbar/searchbar_ios.png" height="25" /></td>
+          <td><img src="images/searchbar/searchbar_windows.png" height="25" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows</th>
+        </tr>
+      </tfoot>
     </table>
 
     The `SearchBar` object is closely modeled on an iOS native search bar.
-    As such, not all features are supported on other platforms. For Android applications, 
+    As such, not all features are supported on other platforms. For Android applications,
     consider using a <Titanium.UI.Android.SearchView> object instead.
-    
+
     Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
     You can add a search bar to a table view by setting the table view's [search](Titanium.UI.TableView.search) property.
     A search bar can also be used without a table view.
@@ -28,10 +36,10 @@ description: |
 
     On Android, there are several issues with the current implementation:
 
-    * The cancel button does not work. It does not clear the search bar text or 
+    * The cancel button does not work. It does not clear the search bar text or
       close the onscreen keyboard.
 
-    * Calling the `blur` method on the search bar closes the onscreen keyboard, 
+    * Calling the `blur` method on the search bar closes the onscreen keyboard,
       but the search bar retains its focused appearance.
 
     * The search bar does not lose focus when the user clicks on a row in the search
@@ -43,7 +51,7 @@ description: |
     clearing of the search bar, depending on your desired behavior. For example, to clear
     the search bar and dismiss the onscreen keyboard when the user selects a row, you
     could add code like this to the `click` event handler on your table view:
-        
+
         myTableView.addEventListener('click', function(e) {
             if (Ti.Platform.name === 'android') {
                 // Clear search bar
@@ -53,10 +61,10 @@ description: |
                 mySearchBar.show();
             }
             // standard click event handling here
-            
-    **Note**: Due to native limitations, the SearchBar's positional properties may not work properly 
+
+    **Note**: Due to native limitations, the SearchBar's positional properties may not work properly
     when nested within a TableView or ListView (properties such as left, right, width and so on).
-    
+
 extends: Titanium.UI.View
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
@@ -76,7 +84,7 @@ methods:
         Sets the value of the [showCancel](Titanium.UI.SearchBar.showCancel) property.
 
         On iOS, this method can be used to specify animation properties when changing the
-        state of the cancel button. 
+        state of the cancel button.
 
             searchBar.setShowCancel(true, { animated: true });
 
@@ -84,7 +92,7 @@ methods:
       - name: showCancel
         summary: New value for [showCancel](Titanium.UI.SearchBar.showCancel).
         type: Boolean
-        
+
       - name: animated
         summary: |
             Dictionary of animation properties. Currently only a
@@ -108,7 +116,7 @@ events:
       - name: value
         summary: Value of the search bar.
         type: String
-      
+
   - name: cancel
     summary: Fired when the cancel button is pressed.
     properties:
@@ -141,7 +149,7 @@ events:
 properties:
 
   - name: autocapitalization
-    summary: Determines how text is capitalized during typing. 
+    summary: Determines how text is capitalized during typing.
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     platforms: [iphone, ipad]
@@ -156,8 +164,8 @@ properties:
   - name: barColor
     summary: Bar color of the search bar view, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
-        
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+
         On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
         On Windows, `barColor` specifies the color of the whole surrounding area of the search text field.
     type: String
@@ -255,7 +263,7 @@ properties:
     summary: Determines whether the cancel button is displayed.
     description: |
         On iOS, you can specify that showing and hiding the cancel button should be animated.
-        The change is not animated by default. To enable animation, call 
+        The change is not animated by default. To enable animation, call
         [setShowCancel](Titanium.UI.SearchBar.setShowCancel).
     type: Boolean
     default: false
@@ -273,14 +281,14 @@ properties:
     description: |
         On Android, the value cannot be set until after the search bar is created.
     type: String
-    
+
 examples:
 
   - title: Simple Search Bar
     example: |
-        
+
             var search = Titanium.UI.createSearchBar({
-            	barColor:'#000', 
+            	barColor:'#000',
             	showCancel:true,
             	height:43,
             	top:0,

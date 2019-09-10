@@ -96,7 +96,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			jsDebugger = new JSDebugger(deployData.getDebuggerPort(), application.getSDKVersion());
 		}
 
-		nativeInit(jsDebugger, DBG, deployData.isProfilerEnabled());
+		nativeInit(jsDebugger, DBG, false);
 
 		if (jsDebugger != null) {
 			jsDebugger.start();

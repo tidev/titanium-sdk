@@ -62,11 +62,32 @@ description: |
     the client and server.
 
     <table class="doc-table" summary="This table provides information about TLS versions.">
-    <caption><b>TLS versions by platform</b></caption>
-    <tr><th>Protocol</th><th>Android<th>iOS</th></tr>
-    <tr><th align="left">TLS 1.0</th><td>1.0+</td><td>1.0+</td></tr>
-    <tr><th align="left">TLS 1.1</th><td>4.1+</td><td>5.0+</td></tr>
-    <tr><th align="left">TLS 1.2</th><td>4.1+</td><td>5.0+</td></tr>
+      <caption><b>TLS versions by platform</b></caption>
+      <thead>
+        <tr>
+          <th>Protocol</th>
+          <th>Android</th>
+          <th>iOS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th align="left">TLS 1.0</th>
+          <td>1.0+</td>
+          <td>1.0+</td>
+        </tr>
+        <tr>
+          <th align="left">TLS 1.1</th>
+          <td>4.1+</td>
+          <td>5.0+</td>
+        </tr>
+        <tr>
+          <th align="left">TLS 1.2</th>
+          <td>4.1+</td>
+          <td>5.0+</td>
+        </tr>
+      </tbody>
+    </table>
 
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
     TLS 1.1 and TLS 1.0. By default, TLS 1.2 is attempted first.
@@ -77,8 +98,15 @@ description: |
     Setting the TLS version saves time from re-attempting connections with lower TLS versions and
     provides added security by denying attempts to use lower TLS versions.
 
-    Starting with Release 3.6.0, you can set the TLS version for the Android and iOS platforms.
-    Prior to Release 3.6.0, you can only set the TLS version for iOS.
+    You can set the TLS version for the Android and iOS platforms.
+    
+    #### Caching Data
+
+    You can also use the HTTP client API to cache image, response data or related. A convenient
+    way to do so is by setting the <Titanium.Network.HTTPClient.file> property to a path or target
+    file, which will be populated with the response data in a successful case (e.g. in the `onload`
+    callback). For more complex use cases, make sure to check [To.ImageCache](https://github.com/Topener/To.ImageCache/)
+    which also supports expire-handling and extended cache control.
 
     #### Android Platform Implementation Notes
 
@@ -326,7 +354,7 @@ properties:
     type: String
     default: Undefined
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
 
   - name: enableKeepAlive
     summary: Determines whether the client should attempt to keep a persistent connection.
@@ -336,14 +364,11 @@ properties:
     platforms: [iphone, ipad]
 
   - name: file
-    summary: Target local file to receive data.
+    summary: Target local file or file path to receive data.
     description: |
-        On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
-
-
-        On Android, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        This property can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
-    type: String
+    type: [String, Titanium.Filesystem.File]
     platforms: [android, iphone, ipad]
     since: {android: 3.4.0}
 
@@ -360,7 +385,7 @@ properties:
         Must be set before calling `open`.
 
         The `progress` property of the event will contain a value from 0.0-1.0 with the progress of
-        the request. On iOS and Android as of 3.5.0, if the progress can not be calculated,
+        the request. If the progress can not be calculated,
         the value will be [PROGRESS_UNKNOWN](Titanium.Network.PROGRESS_UNKNOWN).
     type: Callback<Object>
 
@@ -399,8 +424,7 @@ properties:
         Due to the asynchronous nature of the Titanium platform, the internal value of
         [readyState](Titanium.Network.HTTPClient.readyState) might be different from the state change
         for which the event was fired. To address this discrepancy, the function is now invoked with a
-        payload object of type <ReadyStatePayload>. This was introduced in version 3.4.2 of the SDK and is
-        supported on the iOS and android platforms.
+        payload object of type <ReadyStatePayload>. This is supported on the iOS and Android platforms.
 
   - name: onsendstream
     summary: Function to be called at regular intervals as the request data is being transmitted.
@@ -417,7 +441,7 @@ properties:
     type: String
     default: Undefined
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
 
   - name: readyState
     summary: The current ready state of this HTTP request.
@@ -482,6 +506,8 @@ properties:
 
   - name: timeout
     summary: Timeout in milliseconds when the connection should be aborted.
+    default: |
+        On iOS, the default is 15000 (15 seconds).
     type: Number
 
   - name: username
@@ -490,7 +516,7 @@ properties:
     type: String
     default: Undefined
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
 
   - name: validatesSecureCertificate
     summary: Determines how SSL certification validation is performed on connection.
@@ -625,7 +651,7 @@ methods:
         type: Object
     platforms: [android]
 
-since: 3.3.0
+since: "3.3.0"
 platforms: [iphone, ipad, android]
 
 ---
@@ -651,7 +677,7 @@ description: |
     If the connection delegate does not implement this method but implements `connection:willSendRequestForAuthenticationChallenge:`, the return
     value is assumed to be `true` and all challenges will be forwarded to the connection delegate.
 
-since: 3.3.0
+since: "3.3.0"
 platforms: [iphone, ipad]
 ---
 name: ReadyStatePayload

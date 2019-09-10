@@ -44,7 +44,17 @@
       }
     },
     {
-      "files": [ "common/Resources/ti.main.js" ],
+      "files": [ "common/Resources/**/*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
+      },
+      "rules": {
+        "node/no-unsupported-features/es-syntax": "off"
+      }
+    },
+    {
+      "files": [ "cli/lib/tasks/*.js" ],
       "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"

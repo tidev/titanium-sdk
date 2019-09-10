@@ -106,7 +106,7 @@ NSArray *moviePlayerKeys = nil;
   [movie addObserver:self forKeyPath:@"player.status" options:0 context:nil];
 
   // For naturalSize event
-  [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
+  [movie addObserver:self forKeyPath:@"player.currentItem.presentationSize" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:nil];
 
   // For complete event
   [nc addObserver:self selector:@selector(handlePlayerNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:[[movie player] currentItem]];
@@ -122,7 +122,7 @@ NSArray *moviePlayerKeys = nil;
   }
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
   [movie removeObserver:self forKeyPath:@"player.status"];
-  [movie removeObserver:self forKeyPath:@"videoBounds"];
+  [movie removeObserver:self forKeyPath:@"player.currentItem.presentationSize"];
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
@@ -432,7 +432,7 @@ NSArray *moviePlayerKeys = nil;
 
                                              if (error == nil) {
                                                UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
-                                               TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+                                               TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
                                                [event setObject:blob forKey:@"image"];
                                                [image release];
                                                [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];
@@ -702,9 +702,13 @@ NSArray *moviePlayerKeys = nil;
 
 - (id)naturalSize
 {
+  CGSize size = CGSizeZero;
+  if (movie.player.currentItem) {
+    size = movie.player.currentItem.presentationSize;
+  }
   return @{
-    @"width" : NUMFLOAT(movie ? [movie videoBounds].size.width : 0),
-    @"height" : NUMFLOAT(movie ? [movie videoBounds].size.height : 0),
+    @"width" : NUMFLOAT(size.width),
+    @"height" : NUMFLOAT(size.height)
   };
 }
 
@@ -915,14 +919,14 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-- (void)handleNaturalSizeAvailableNotification:(NSNotification *)note
+- (void)handleNaturalSizeAvailableNotification:(CGSize)size
 {
   if ([self _hasListeners:@"naturalsizeavailable"]) {
     [self fireEvent:@"naturalsizeavailable"
          withObject:@{
            @"naturalSize" : @{
-             @"width" : NUMFLOAT(movie.videoBounds.size.width),
-             @"height" : NUMFLOAT(movie.videoBounds.size.height)
+             @"width" : NUMFLOAT(size.width),
+             @"height" : NUMFLOAT(size.height)
            }
          }];
   }
@@ -992,8 +996,9 @@ NSArray *moviePlayerKeys = nil;
   if ([keyPath isEqualToString:@"player.status"]) {
     [self handleLoadStateChangeNotification:nil];
   }
-  if ([keyPath isEqualToString:@"videoBounds"]) {
-    [self handleNaturalSizeAvailableNotification:nil];
+  if ([keyPath isEqualToString:@"player.currentItem.presentationSize"]) {
+    CGSize size = [[change objectForKey:@"new"] CGSizeValue];
+    [self handleNaturalSizeAvailableNotification:size];
   }
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     if ([keyPath isEqualToString:@"player.timeControlStatus"]) {

@@ -1,27 +1,35 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiModule.h>
+@import JavaScriptCore;
+@import TitaniumKit.ObjcProxy;
 
-@interface AnalyticsModule : TiModule
+@protocol AnalyticsExports <JSExport>
 
-#pragma mark Public API's
+// Properties (and accessors)
+READONLY_PROPERTY(NSString *, lastEvent, LastEvent);
+PROPERTY(BOOL, optedOut, OptedOut);
 
-- (NSString *)lastEvent;
+// Methods
+JSExportAs(featureEvent,
+           -(NSInteger)featureEvent
+           : (NSString *)name withData
+           : (id)data);
+- (void)filterEvents:(NSArray *)events;
+JSExportAs(navEvent,
+           -(void)navEvent
+           : (NSString *)from to
+           : (NSString *)to withName
+           : (NSString *)name withData
+           : (NSDictionary *)data);
 
-- (void)navEvent:(id)args;
+@end
 
-- (NSInteger)featureEvent:(id)args;
-
-- (void)filterEvents:(id)args;
-
-- (void)setOptedOut:(id)optedOut;
-
-- (NSNumber *)optedOut;
+@interface AnalyticsModule : ObjcProxy <AnalyticsExports>
 
 #pragma mark Internal API's
 
