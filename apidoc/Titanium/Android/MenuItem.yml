@@ -135,7 +135,7 @@ properties:
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [MenuItemCompat.setContentDescription](https://developer.android.com/reference/android/support/v4/view/MenuItemCompat#setContentDescription(android.view.MenuItem,%20java.lang.CharSequence)) method.
     type: String
-    since: "8.2.0"
+    since: "8.3.0"
     default: null
 
   - name: accessibilityLabel
@@ -145,7 +145,7 @@ properties:
         <Titanium.Android.MenuItem.accessibilityValue> and <Titanium.Android.MenuItem.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [MenuItemCompat.setContentDescription](https://developer.android.com/reference/android/support/v4/view/MenuItemCompat#setContentDescription(android.view.MenuItem,%20java.lang.CharSequence)) method.
-    since: "8.2.0"
+    since: "8.3.0"
     type: String
     default: null
 
@@ -156,7 +156,7 @@ properties:
         <Titanium.Android.MenuItem.accessibilityLabel> and <Titanium.Android.MenuItem.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [MenuItemCompat.setContentDescription](https://developer.android.com/reference/android/support/v4/view/MenuItemCompat#setContentDescription(android.view.MenuItem,%20java.lang.CharSequence)) method.
-    since: "8.2.0"
+    since: "8.3.0"
     type: String
     default: null
 
