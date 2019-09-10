@@ -126,7 +126,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public abstract String getTabTitle(int index);
 
 	// region protected fields
-	protected static final String TAG = "TiUITabLayoutTabGroup";
+	protected final static String TAG = "TiUIAbstractTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE =
 		"Trying to customize an unknown layout, sticking to the default one";
 
@@ -237,7 +237,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		tabFragmentIDs.add(fragmentIdGenerator.getAndIncrement());
 
 		this.tabGroupPagerAdapter.notifyDataSetChanged();
-
 		addTabItemInController(tabProxy);
 	}
 
