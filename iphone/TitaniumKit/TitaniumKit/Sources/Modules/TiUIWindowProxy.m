@@ -269,6 +269,7 @@
 - (void)viewWillAppear:(BOOL)animated; // Called when the view is about to made visible. Default does nothing
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  // TO DO: Refactor navigation bar customisation iOS 13
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
     if (newColor == nil) {
@@ -436,7 +437,17 @@
     [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
   } else {
     UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
-    [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      ourNB.standardAppearance.backgroundImage = resizableImage;
+      ourNB.scrollEdgeAppearance.backgroundImage = resizableImage;
+    }
+#endif
+
+    [ourNB setBackgroundImage:resizableImage
+                forBarMetrics:UIBarMetricsDefault];
+
     //You can only set up the shadow image with a custom background image.
     id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
     theImage = [TiUtils toImage:shadowImageValue proxy:self];
