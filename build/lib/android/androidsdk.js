@@ -3,7 +3,7 @@
 const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
-const DEFAULT_API_LEVEL = 28; // FIXME: Use android's package.json compileSDKVersion value
+const DEFAULT_API_LEVEL = require(path.join(__dirname, '../../../android/package.json')).compileSDKVersion; // eslint-disable-line security/detect-non-literal-require
 
 /**
  * Given a hinted at location of Android SDK, find one.
