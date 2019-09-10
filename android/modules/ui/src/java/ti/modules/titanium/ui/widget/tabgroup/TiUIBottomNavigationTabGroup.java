@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
+import ti.modules.titanium.ui.TabProxy;
 
 /**
  * TabGroup implementation using BottomNavigationView as a controller.
@@ -46,6 +47,22 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+	}
+
+	// Overriding addTab method to provide a proper guard for trying to add more tabs than the limit
+	// for BottomNavigationView class.
+	@Override
+	public void addTab(TabProxy tabProxy)
+	{
+		if (this.mBottomNavigationView == null) {
+			return;
+		}
+		final int MAX_TABS = this.mBottomNavigationView.getMaxItemCount();
+		if (this.tabs.size() < MAX_TABS) {
+			super.addTab(tabProxy);
+		} else {
+			Log.w(TAG, "Bottom style TabGroup cannot have more than " + MAX_TABS + " tabs.");
+		}
 	}
 
 	@Override
