@@ -1001,7 +1001,7 @@
 {
   if ((![TiUtils isIPad]) && ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
     CGRect statusBarFrame = CGRectZero;
-    
+
     if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       statusBarFrame = UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame;
