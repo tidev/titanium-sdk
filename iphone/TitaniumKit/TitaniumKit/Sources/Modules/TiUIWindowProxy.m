@@ -271,17 +271,24 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
+    if (newColor == nil) {
+      //Get from TabGroup
+      newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
+    }
     if (controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll)) {
       UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
-      [appearance configureWithTransparentBackground];
-      if (newColor == nil) {
-        //Get from TabGroup
-        newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
-      }
-      if (newColor == nil) {
-        appearance.backgroundColor = self.view.backgroundColor;
+      if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+        [appearance configureWithTransparentBackground];
+        if (newColor == nil) {
+          appearance.backgroundColor = self.view.backgroundColor;
+        } else {
+          appearance.backgroundColor = newColor.color;
+        }
       } else {
-        appearance.backgroundColor = newColor.color;
+        [appearance configureWithDefaultBackground];
+        if (newColor != nil) {
+          appearance.backgroundColor = newColor.color;
+        }
       }
       controller.navigationController.navigationBar.standardAppearance = appearance;
       controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
