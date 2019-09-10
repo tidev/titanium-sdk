@@ -1,5 +1,4 @@
 /* eslint-env worker */
-/* global Ti */
 /* eslint no-unused-expressions: "off" */
 /* eslint no-new-func: "off" */
 'use strict';
