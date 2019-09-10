@@ -2,7 +2,7 @@
 name: Titanium.Android.Menu
 summary: The Titanium binding of an Android Options Menu.
 description: |
-    Starting with Release 3.3.0, the Menu and MenuItems APIs are used to create the action items
+    The Menu and MenuItems APIs are used to create the action items
     for the action bar. Action items can appear in either the action bar or the action bar's
     overflow menu.
 
@@ -25,10 +25,7 @@ description: |
 
     #### Menus on Tab Groups
 
-    Prior to Titanium 3.0, menu items could be added to the individual windows of a tab
-    group.
-
-    Starting in Titanium 3.0, menus must be added to tab groups using the tab group's
+    Menus must be added to tab groups using the tab group's
     activity. These changes were required to support the Android 3.0 action bar.
 
     The TabGroup activity is available using [TabGroup.getActivity](Titanium.UI.TabGroup.getActivity).
@@ -304,5 +301,5 @@ examples:
 
             // Ensure menu is displayed
             function doOpen(e) {
-                $.win.invalidateOptionsMenu();
+                $.win.activity.invalidateOptionsMenu();
             }

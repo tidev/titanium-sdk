@@ -42,7 +42,7 @@ methods:
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
     osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
@@ -67,12 +67,12 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.TextField.keyboardAppearance> instead.
+        notes: Use [Titanium.UI.TextField.keyboardAppearance](Titanium.UI.TextField.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
     type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    constants: [Titanium.UI.KEYBOARD_APPEARANCE_DARK, Titanium.UI.KEYBOARD_APPEARANCE_LIGHT, Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT]
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
 
@@ -205,7 +205,7 @@ properties:
     type: Number
     constants: Titanium.UI.AUTOLINK_*
     default: undefined
-    since: 3.0.0
+    since: "3.0.0"
     platforms: [android]
 
   - name: borderStyle
@@ -342,7 +342,7 @@ properties:
     constants: [Titanium.UI.INPUT_TYPE_*]
     platforms: [android]
     default: Empty array. If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
-    since: 5.2.0
+    since: "5.2.0"
 
   - name: keyboardToolbar
     summary: |
@@ -445,23 +445,23 @@ properties:
     summary: Sets the padding of this text field.
     type: ViewPadding
     platforms: [android, iphone, ipad]
-    since: 6.0.0
+    since: "6.0.0"
 
   - name: paddingLeft
     summary: Left padding of this text field.
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: 6.1.0
-        notes: Use <Titanium.UI.TextField.padding> for parity instead.
+        since: "6.1.0"
+        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
 
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: 6.1.0
-        notes: Use <Titanium.UI.TextField.padding> for parity instead.
+        since: "6.1.0"
+        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
 
   - name: passwordMask
     summary: Obscure the input text from the user.
@@ -555,7 +555,7 @@ properties:
     default: true
     platforms: [ipad]
     osver: {ios: {min: "9.0"}}
-    since: 5.0.0
+    since: "5.0.0"
 
   - name: textAlign
     summary: |

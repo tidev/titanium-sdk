@@ -245,7 +245,7 @@ GETTER_IMPL(NSString *, text, Text);
     KrollObject *o = [[[KrollObject alloc] initWithTarget:file context:context] autorelease];
     return [JSValue valueWithJSValueRef:JSObjectMake(contextRef, KrollObjectClassRef, o) inContext:objcJsContext];
   }
-  NSLog(@"[ERROR] Blob.file property requested but the Filesystem API was never requested.") return nil;
+  return nil;
 }
 GETTER_IMPL(JSValue *, file, File);
 

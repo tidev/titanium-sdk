@@ -40,6 +40,21 @@ methods:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
 
+  - name: systemImage
+    summary: |
+        Get image from SF Symbols provided by Apple.
+    description: |
+        More details on SF Symbols can be found on https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview.
+        One can download SF Symbols app from https://developer.apple.com/design/downloads/SF-Symbols.dmg and 
+        use it to lookup the inbuilt SF Symbol name.
+    parameters:
+      - name: name
+        summary: Name of SF Symbol.
+        type: String
+    returns:
+      - type: Titanium.Blob
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
 properties:
   - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     summary: |
@@ -99,7 +114,7 @@ properties:
   - name: ANIMATION_CURVE_EASE_IN
     deprecated:
         since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN> instead.
+        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_IN](Titanium.UI.ANIMATION_CURVE_EASE_IN) instead.
         removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
@@ -110,7 +125,7 @@ properties:
   - name: ANIMATION_CURVE_EASE_IN_OUT
     deprecated:
         since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT> instead.
+        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT](Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT) instead.
         removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
@@ -121,7 +136,7 @@ properties:
   - name: ANIMATION_CURVE_EASE_OUT
     deprecated:
         since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_OUT> instead.
+        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_OUT](Titanium.UI.ANIMATION_CURVE_EASE_OUT) instead.
         removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
@@ -132,7 +147,7 @@ properties:
   - name: ANIMATION_CURVE_LINEAR
     deprecated:
         since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_LINEAR> instead.
+        notes: Use [Titanium.UI.ANIMATION_CURVE_LINEAR](Titanium.UI.ANIMATION_CURVE_LINEAR) instead.
         removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds
@@ -145,7 +160,7 @@ properties:
         Use with <Attribute.type> to specify a font.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_FONT> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_FONT](Titanium.UI.ATTRIBUTE_FONT) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use a <Font> dictionary for <Attribute.value>.
@@ -160,7 +175,7 @@ properties:
         Use with <Attribute.type> to specify a font color.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR](Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
@@ -175,7 +190,7 @@ properties:
         Use with <Attribute.type> to specify a background color.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR](Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
@@ -190,7 +205,7 @@ properties:
         Use with <Attribute.type> to enable or disable ligatures.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_LIGATURE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_LIGATURE](Titanium.UI.ATTRIBUTE_LIGATURE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to `1` to enable ligatures, else `0` to disable.
@@ -206,7 +221,7 @@ properties:
         Use with <Attribute.value> to use a letterpress text effect.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE](Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
@@ -222,7 +237,7 @@ properties:
         Use with <Attribute.type> to specify kerning (space between characters).
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_KERN> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_KERN](Titanium.UI.ATTRIBUTE_KERN) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value specifying how many pixels to increase the character
@@ -238,7 +253,7 @@ properties:
         Use with <Attribute.type> to place a horizontal line through the text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE](Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
@@ -253,7 +268,7 @@ properties:
         Use with <Attribute.type> to place a horizontal line under the text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE](Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
@@ -268,7 +283,7 @@ properties:
         Use with <Attribute.type> to specify a color for the stroke text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_COLOR> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_STROKE_COLOR](Titanium.UI.ATTRIBUTE_STROKE_COLOR) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use a color name or hex value for the `value` property in the attributes dictionary.
@@ -283,7 +298,7 @@ properties:
         Use with <Attribute.type> to specify the width of the stroke text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_WIDTH> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_STROKE_WIDTH](Titanium.UI.ATTRIBUTE_STROKE_WIDTH) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value specifying the size of stroke width as a percentage of the
@@ -300,7 +315,7 @@ properties:
         Use with <Attribute.type> to display a shadow behind the text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_SHADOW> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_SHADOW](Titanium.UI.ATTRIBUTE_SHADOW) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a [Shadow](shadowDict) dictionary.
@@ -315,7 +330,7 @@ properties:
         Use with <Attribute.type> to control the direction of the text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a `Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_*` constant.
@@ -330,7 +345,7 @@ properties:
         Use with <Attribute.type> to apply a text effect.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_TEXT_EFFECT](Titanium.UI.ATTRIBUTE_TEXT_EFFECT) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to `Titainium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
@@ -346,7 +361,7 @@ properties:
         Use with <Attribute.type> to create a link.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_LINK> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a URL.
@@ -364,7 +379,7 @@ properties:
         Use with <Attribute.type> to apply a different baseline to the text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_BASELINE_OFFSET> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_BASELINE_OFFSET](Titanium.UI.ATTRIBUTE_BASELINE_OFFSET) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a number to specify how many pixels to raise or lower the text.
@@ -379,7 +394,7 @@ properties:
         Use with <Attribute.type> to change the color of the horizontal line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR](Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
@@ -394,7 +409,7 @@ properties:
         Use with <Attribute.type> to change the color of the horizontal line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR](Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
@@ -409,7 +424,7 @@ properties:
         Use with <Attribute.type> to skew the text.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_OBLIQUENESS> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_OBLIQUENESS](Titanium.UI.ATTRIBUTE_OBLIQUENESS) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value to specify how much to skew the text.
@@ -424,7 +439,7 @@ properties:
         Use with <Attribute.type> to stretch the text horizontally.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_EXPANSION> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_EXPANSION](Titanium.UI.ATTRIBUTE_EXPANSION) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value to specify how much to stretch the text.
@@ -439,7 +454,7 @@ properties:
         Use with <Attribute.value> to not draw a line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -456,7 +471,7 @@ properties:
         Use with <Attribute.value> to draw a single line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -473,7 +488,7 @@ properties:
         Use with <Attribute.value> to draw a thick line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -490,7 +505,7 @@ properties:
         Use with <Attribute.value> to draw a double line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -507,7 +522,7 @@ properties:
         Use with <Attribute.value> to draw a solid line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -524,7 +539,7 @@ properties:
         Use with <Attribute.value> to draw a dotted line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -541,7 +556,7 @@ properties:
         Use with <Attribute.value> to draw a dashed line.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -558,7 +573,7 @@ properties:
         Use with <Attribute.value> to draw an alternating line of dashes and dots.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -575,7 +590,7 @@ properties:
         Use with <Attribute.value> to draw an alternating line of dashes and two dots.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -592,7 +607,7 @@ properties:
         Use with <Attribute.value> to draw a line only underneath or through words.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD](Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
@@ -609,7 +624,7 @@ properties:
         Use with <Attribute.value> to use the embedded text direction.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
@@ -625,7 +640,7 @@ properties:
         Use with <Attribute.value> to override the text direction.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
@@ -643,7 +658,7 @@ properties:
         to determine which direction to use.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
@@ -659,7 +674,7 @@ properties:
         Use with <Attribute.value> to write text left to right.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
@@ -675,7 +690,7 @@ properties:
         Use with <Attribute.value> to write text right to left.
     deprecated:
         since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT> constant instead (without the iOS namespace).
+        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT) constant instead (without the iOS namespace).
         removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
@@ -689,7 +704,7 @@ properties:
   - name: AUTODETECT_ADDRESS
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
         removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
@@ -700,7 +715,7 @@ properties:
   - name: AUTODETECT_ALL
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
         removed: "6.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
@@ -710,7 +725,7 @@ properties:
   - name: AUTODETECT_CALENDAR
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+        notes: Use [Titanium.UI.AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR) instead.
         removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
@@ -721,7 +736,7 @@ properties:
   - name: AUTODETECT_LINK
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
         removed: "6.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
@@ -731,7 +746,7 @@ properties:
   - name: AUTODETECT_NONE
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
+        notes: Use [Titanium.UI.AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE) instead.
         removed: "6.0.0"
     summary: Disables converting strings into clickable links.
     type: Number
@@ -741,7 +756,7 @@ properties:
   - name: AUTODETECT_PHONE
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
         removed: "6.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
@@ -751,7 +766,7 @@ properties:
   - name: BLEND_MODE_CLEAR
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_CLEAR> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_CLEAR](Titanium.UI.BLEND_MODE_CLEAR) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -762,7 +777,7 @@ properties:
   - name: BLEND_MODE_COLOR
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_COLOR> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_COLOR](Titanium.UI.BLEND_MODE_COLOR) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -773,7 +788,7 @@ properties:
   - name: BLEND_MODE_COLOR_BURN
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_COLOR_BURN> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_COLOR_BURN](Titanium.UI.BLEND_MODE_COLOR_BURN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -784,7 +799,7 @@ properties:
   - name: BLEND_MODE_COLOR_DODGE
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_COLOR_DODGE> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_COLOR_DODGE](Titanium.UI.BLEND_MODE_COLOR_DODGE) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -795,7 +810,7 @@ properties:
   - name: BLEND_MODE_COPY
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_COPY> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_COPY](Titanium.UI.BLEND_MODE_COPY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -806,7 +821,7 @@ properties:
   - name: BLEND_MODE_DARKEN
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_DARKEN> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_DARKEN](Titanium.UI.BLEND_MODE_DARKEN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -817,7 +832,7 @@ properties:
   - name: BLEND_MODE_DESTINATION_ATOP
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_ATOP> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_ATOP](Titanium.UI.BLEND_MODE_DESTINATION_ATOP) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -828,7 +843,7 @@ properties:
   - name: BLEND_MODE_DESTINATION_IN
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_IN> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_IN](Titanium.UI.BLEND_MODE_DESTINATION_IN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -839,7 +854,7 @@ properties:
   - name: BLEND_MODE_DESTINATION_OUT
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_OUT> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_OUT](Titanium.UI.BLEND_MODE_DESTINATION_OUT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -850,7 +865,7 @@ properties:
   - name: BLEND_MODE_DESTINATION_OVER
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_OVER> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_OVER](Titanium.UI.BLEND_MODE_DESTINATION_OVER) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -861,7 +876,7 @@ properties:
   - name: BLEND_MODE_DIFFERENCE
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_DIFFERENCE> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_DIFFERENCE](Titanium.UI.BLEND_MODE_DIFFERENCE) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -872,7 +887,7 @@ properties:
   - name: BLEND_MODE_EXCLUSION
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_EXCLUSION> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_EXCLUSION](Titanium.UI.BLEND_MODE_EXCLUSION) instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -883,7 +898,7 @@ properties:
   - name: BLEND_MODE_HARD_LIGHT
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_HARD_LIGHT> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_HARD_LIGHT](Titanium.UI.BLEND_MODE_HARD_LIGHT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -894,7 +909,7 @@ properties:
   - name: BLEND_MODE_HUE
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_HUE> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_HUE](Titanium.UI.BLEND_MODE_HUE) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -905,7 +920,7 @@ properties:
   - name: BLEND_MODE_LIGHTEN
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_LIGHTEN> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_LIGHTEN](Titanium.UI.BLEND_MODE_LIGHTEN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -916,7 +931,7 @@ properties:
   - name: BLEND_MODE_LUMINOSITY
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_LUMINOSITY> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_LUMINOSITY](Titanium.UI.BLEND_MODE_LUMINOSITY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -927,7 +942,7 @@ properties:
   - name: BLEND_MODE_MULTIPLY
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_MULTIPLY> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_MULTIPLY](Titanium.UI.BLEND_MODE_MULTIPLY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -938,7 +953,7 @@ properties:
   - name: BLEND_MODE_NORMAL
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_NORMAL> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_NORMAL](Titanium.UI.BLEND_MODE_NORMAL) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -949,7 +964,7 @@ properties:
   - name: BLEND_MODE_OVERLAY
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_OVERLAY> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_OVERLAY](Titanium.UI.BLEND_MODE_OVERLAY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -960,7 +975,7 @@ properties:
   - name: BLEND_MODE_PLUS_DARKER
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_PLUS_DARKER> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_PLUS_DARKER](Titanium.UI.BLEND_MODE_PLUS_DARKER) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -971,7 +986,7 @@ properties:
   - name: BLEND_MODE_PLUS_LIGHTER
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_PLUS_LIGHTER> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_PLUS_LIGHTER](Titanium.UI.BLEND_MODE_PLUS_LIGHTER) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -982,7 +997,7 @@ properties:
   - name: BLEND_MODE_SATURATION
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_SATURATION> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_SATURATION](Titanium.UI.BLEND_MODE_SATURATION) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -993,7 +1008,7 @@ properties:
   - name: BLEND_MODE_SCREEN
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_SCREEN> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_SCREEN](Titanium.UI.BLEND_MODE_SCREEN) instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -1004,7 +1019,7 @@ properties:
   - name: BLEND_MODE_SOFT_LIGHT
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_SOFT_LIGHT> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_SOFT_LIGHT](Titanium.UI.BLEND_MODE_SOFT_LIGHT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -1015,7 +1030,7 @@ properties:
   - name: BLEND_MODE_SOURCE_ATOP
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_SOURCE_ATOP> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_ATOP](Titanium.UI.BLEND_MODE_SOURCE_ATOP) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -1026,7 +1041,7 @@ properties:
   - name: BLEND_MODE_SOURCE_IN
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_SOURCE_IN> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_IN](Titanium.UI.BLEND_MODE_SOURCE_IN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -1037,7 +1052,7 @@ properties:
   - name: BLEND_MODE_SOURCE_OUT
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_SOURCE_OUT> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_OUT](Titanium.UI.BLEND_MODE_SOURCE_OUT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -1048,7 +1063,7 @@ properties:
   - name: BLEND_MODE_XOR
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.UI.BLEND_MODE_XOR> instead.
+        notes: Use [Titanium.UI.BLEND_MODE_XOR](Titanium.UI.BLEND_MODE_XOR) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -1107,6 +1122,156 @@ properties:
     since: "6.0.0"
     osver: {ios: {min: "10.0"}}
 
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material with normal thickness.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a thin material.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material with normal thickness.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material that is thicker than normal.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of the system chrome.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of an ultra-thin material and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a thin material and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material with normal thickness and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material that is thicker than normal and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of the system chrome and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of the system chrome and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material that is thicker than normal and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a thin material and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material with normal thickness and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of an ultra-thin material and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+                    
   - name: AD_SIZE_PORTRAIT
     summary: |
         Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
@@ -1614,6 +1779,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED
     summary: User submitted a form.
@@ -1624,6 +1793,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD
     summary: User tapped the back or forward button.
@@ -1634,6 +1807,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_RELOAD
     summary: User tapped the reload button.
@@ -1644,6 +1821,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED
     summary: User resubmitted a form.
@@ -1654,6 +1835,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_OTHER
     summary: Some other action occurred.
@@ -1664,6 +1849,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: TABLEVIEW_INDEX_SEARCH
     summary: String that represents the magnifying glass on the table view index bar

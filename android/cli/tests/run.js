@@ -37,7 +37,7 @@ optimist
 		desc: 'disables colors'
 	});
 
-if (optimist.argv.hasOwnProperty('colors') && !optimist.argv.colors) {
+if (Object.prototype.hasOwnProperty.call(optimist.argv, 'colors') && !optimist.argv.colors) {
 	Base.useColors = false;
 	colors.mode = 'none';
 }

@@ -24,6 +24,7 @@ import org.appcelerator.titanium.TiApplication;
 public class TiMimeTypeHelper
 {
 	private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+	public static final String MIME_TYPE_OCTET_STREAM = DEFAULT_MIME_TYPE;
 	public static final String MIME_TYPE_JAVASCRIPT = "text/javascript";
 	public static final String MIME_TYPE_HTML = "text/html";
 	public static final HashMap<String, String> EXTRA_MIMETYPES = new HashMap<String, String>();
@@ -248,19 +249,27 @@ public class TiMimeTypeHelper
 
 	public static boolean isBinaryMimeType(String mimeType)
 	{
-		if (mimeType != null) {
+		boolean isBinary = false;
+		if ((mimeType != null) && !mimeType.isEmpty()) {
 			String parts[] = mimeType.split(";");
 			mimeType = parts[0];
 
-			if (mimeType.startsWith("application/") && !mimeType.endsWith("xml")) {
-				return true;
-			} else if (mimeType.startsWith("image/") && !mimeType.endsWith("xml")) {
-				return true;
-			} else if (mimeType.startsWith("audio/") || mimeType.startsWith("video/")) {
-				return true;
-			} else
-				return false;
+			if (mimeType.startsWith("application/")) {
+				if (!mimeType.endsWith("xml") && !mimeType.endsWith("json")) {
+					isBinary = true;
+				}
+			} else if (mimeType.startsWith("image/")) {
+				if (!mimeType.endsWith("xml")) {
+					isBinary = true;
+				}
+			} else if (mimeType.startsWith("audio/")) {
+				isBinary = true;
+			} else if (mimeType.startsWith("font/")) {
+				isBinary = true;
+			} else if (mimeType.startsWith("video/")) {
+				isBinary = true;
+			}
 		}
-		return false;
+		return isBinary;
 	}
 }

@@ -1,6 +1,0 @@
-framework module TitaniumKit {
-  umbrella header "TitaniumKit.h"
-
-  export *
-  module * { export * }
-}

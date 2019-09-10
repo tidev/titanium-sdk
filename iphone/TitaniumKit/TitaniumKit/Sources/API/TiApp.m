@@ -25,18 +25,17 @@
 
 TiApp *sharedApp;
 
-int TiDebugPort = 2525;
-
 NSString *TITANIUM_VERSION;
 
-extern void UIColorFlushCache();
+extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 #define TIV @"TiVerify"
 
-BOOL applicationInMemoryPanic = NO;
+BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
 
-TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+// TODO: Remove in SDK 9.0+
+TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
 @interface TiApp ()
 - (void)checkBackgroundServices;
@@ -44,11 +43,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 @end
 
 @implementation TiApp
-
-- (void)clearMemoryPanic
-{
-  applicationInMemoryPanic = NO;
-}
 
 @synthesize window, controller;
 @synthesize disableNetworkActivityIndicator;
@@ -290,7 +284,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
       splashScreenView = [[launchScreenViewController view] retain];
     } else {
       splashScreenView = [[UIImageView alloc] init];
-      [splashScreenView setBackgroundColor:[UIColor yellowColor]];
       [splashScreenView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
       [splashScreenView setContentMode:UIViewContentModeScaleToFill];
 
@@ -580,6 +573,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
+// This is required because iOS does not conform to it's own recommended Obj-C compiler rules (Strict prototypes).
+// Muting the warnings until the UIApplicationDelegate fixes this.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
   RELEASE_TO_NIL(localNotification);
@@ -615,6 +613,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                   responseInfo:nil // iOS 9+ only
                              completionHandler:completionHandler];
 }
+
+#pragma clang diagnostic pop
 
 #pragma mark Apple Watchkit handleWatchKitExtensionRequest
 
@@ -696,9 +696,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
-- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler
+- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler
 {
-  typedef void (^NotificationBlock)();
+  typedef void (^NotificationBlock)(void);
 
   NotificationBlock myNotificationBlock = ^void() {
     [[NSNotificationCenter defaultCenter] postNotificationName:_notificationName object:self userInfo:_notification];
@@ -777,7 +777,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key
 {
   if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
-    void (^completionHandler)();
+    void (^completionHandler)(void);
     completionHandler = [backgroundTransferCompletionHandlers objectForKey:key];
     [backgroundTransferCompletionHandlers removeObjectForKey:key];
     completionHandler();
@@ -996,7 +996,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [kjsBridge shutdown:condition];
 
   if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
-    [[TiLogServer defaultLogServer] start];
+    [[TiLogServer defaultLogServer] stop];
   }
 
   //This will shut down the modules.
@@ -1014,12 +1014,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [self tryToInvokeSelector:@selector(applicationDidReceiveMemoryWarning:)
               withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
-  applicationInMemoryPanic = YES;
   [Webcolor flushCache];
-
-  [self performSelector:@selector(clearMemoryPanic)
-             withObject:nil
-             afterDelay:0.0];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -1272,7 +1267,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)handleRemoteNotificationWithIdentifier:(NSString *)identifier
                                    andUserInfo:(NSDictionary *)userInfo
                                   responseInfo:(NSDictionary *)responseInfo
-                             completionHandler:(void (^)())completionHandler
+                             completionHandler:(void (^)(void))completionHandler
 {
   RELEASE_TO_NIL(remoteNotification);
   [self generateNotification:userInfo];

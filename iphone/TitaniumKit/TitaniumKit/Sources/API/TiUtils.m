@@ -31,7 +31,6 @@
 static NSDictionary *encodingMap = nil;
 static NSDictionary *typeMap = nil;
 static NSDictionary *sizeMap = nil;
-static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 @implementation TiUtils
 
@@ -1904,19 +1903,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
   return [self convertToHex:(unsigned char *)&result length:CC_MD5_DIGEST_LENGTH];
 }
 
-+ (NSString *)appIdentifier
-{
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  NSString *uid = [defaults stringForKey:kAppUUIDString];
-  if (uid == nil) {
-    uid = [TiUtils createUUID];
-    [defaults setObject:uid forKey:kAppUUIDString];
-    [defaults synchronize];
-  }
-
-  return uid;
-}
-
 // In pre-iOS 5, it looks like response headers were case-mangled.
 // (i.e. WWW-Authenticate became Www-Authenticate). So we have to take this
 // mangling into mind; headers such as FooBar-XYZ may also have been mangled
@@ -2131,6 +2117,12 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (id)stripInvalidJSONPayload:(id)jsonPayload
 {
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+  dateFormatter.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+  // ISO08601 formatting, same as Javascript stringified new Date()
+  dateFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
   if ([jsonPayload isKindOfClass:[NSDictionary class]]) {
     NSMutableDictionary *result = [NSMutableDictionary new];
     for (NSString *key in [jsonPayload allKeys]) {
@@ -2139,6 +2131,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
         value = [TiUtils stripInvalidJSONPayload:value];
       }
       if ([self isSupportedFragment:value]) {
+        if ([value isKindOfClass:[NSDate class]]) {
+          value = [dateFormatter stringFromDate:value];
+        }
         [result setObject:value forKey:key];
       } else {
         DebugLog(@"[WARN] Found invalid attribute \"%@\" that cannot be serialized, skipping it ...", key)
@@ -2152,6 +2147,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
         value = [TiUtils stripInvalidJSONPayload:value];
       }
       if ([self isSupportedFragment:value]) {
+        if ([value isKindOfClass:[NSDate class]]) {
+          value = [dateFormatter stringFromDate:value];
+        }
         [result addObject:value];
       } else {
         DebugLog(@"[WARN] Found invalid value \"%@\" that cannot be serialized, skipping it ...", value);
