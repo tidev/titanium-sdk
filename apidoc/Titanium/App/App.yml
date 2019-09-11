@@ -204,8 +204,8 @@ events:
   - name: close
     summary: Fired by the system when the application is about to be terminated.
     description: It is the last event that can be received before the application gets closed.
-    platforms: [iphone, ipad]
-    since: "1.5.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "8.3.0", iphone: "1.5.0", ipad: "1.5.0"}
 
   - name: memorywarning
     summary: Fired when the app receives a warning from the operating system about low memory availability.
