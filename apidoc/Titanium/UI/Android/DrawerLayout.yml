@@ -22,12 +22,6 @@ properties:
     type: Number
     permission: read-only
     since: "8.3.0"
-  - name: GRAVITY_BOTH
-    summary: |
-        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerGravity) to specify the gravity.
-    type: Number
-    permission: read-only
-    since: "8.3.0"
 
   - name: GRAVITY_LEFT
     summary: |
