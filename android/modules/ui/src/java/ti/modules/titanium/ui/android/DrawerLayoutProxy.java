@@ -31,8 +31,6 @@ public class DrawerLayoutProxy extends TiViewProxy
 	@Kroll.constant
 	public static final int GRAVITY_NONE = Gravity.NO_GRAVITY;
 	@Kroll.constant
-	public static final int GRAVITY_BOTH = Gravity.CENTER_HORIZONTAL;
-	@Kroll.constant
 	public static final int GRAVITY_LEFT = Gravity.LEFT;
 	@Kroll.constant
 	public static final int GRAVITY_RIGHT = Gravity.RIGHT;
