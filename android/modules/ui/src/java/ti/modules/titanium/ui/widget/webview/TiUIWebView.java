@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -52,8 +51,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-
-import static android.os.Looper.getMainLooper;
 
 @SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
