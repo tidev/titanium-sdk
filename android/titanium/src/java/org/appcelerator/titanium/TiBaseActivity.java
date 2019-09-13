@@ -1181,6 +1181,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		super.onConfigurationChanged(newConfig);
 
+		if (Build.VERSION.SDK_INT < 26) {
+			getResources().updateConfiguration(newConfig, getResources().getDisplayMetrics());
+		}
+
 		// Update ActionBar height and font size, if needed.
 		// Handler will only be null if activity was set up without a title bar.
 		if (this.actionBarStyleHandler != null) {
