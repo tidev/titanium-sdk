@@ -12,23 +12,22 @@ var should = require('./utilities/assertions');
 describe('Titanium.Network', function () {
 
 	// Constants
-	var NETWORK_TYPES = [ 'NETWORK_LAN', 'NETWORK_MOBILE', 'NETWORK_NONE', 'NETWORK_UNKNOWN', 'NETWORK_WIFI' ],
+	const NETWORK_TYPES = [ 'NETWORK_LAN', 'NETWORK_MOBILE', 'NETWORK_NONE', 'NETWORK_UNKNOWN', 'NETWORK_WIFI' ],
 		NOTIFICATION_TYPES = [ 'NOTIFICATION_TYPE_ALERT', 'NOTIFICATION_TYPE_BADGE', 'NOTIFICATION_TYPE_NEWSSTAND', 'NOTIFICATION_TYPE_SOUND' ],
-		TLS_VERSIONS = [ 'TLS_VERSION_1_0', 'TLS_VERSION_1_1', 'TLS_VERSION_1_2', 'TLS_VERSION_1_3' ],
-		i;
+		TLS_VERSIONS = [ 'TLS_VERSION_1_0', 'TLS_VERSION_1_1', 'TLS_VERSION_1_2', 'TLS_VERSION_1_3' ];
 	// TODO Test that each group has unique values!
-	for (i = 0; i < NETWORK_TYPES.length; i++) {
+	for (let i = 0; i < NETWORK_TYPES.length; i++) {
 		it(NETWORK_TYPES[i], function () { // eslint-disable-line no-loop-func
 			should(Ti.Network).have.constant(NETWORK_TYPES[i]).which.is.a.Number;
 		});
 	}
-	for (i = 0; i < NOTIFICATION_TYPES.length; i++) {
+	for (let i = 0; i < NOTIFICATION_TYPES.length; i++) {
 		// iOS-specific properties
 		it.ios(NOTIFICATION_TYPES[i], function () { // eslint-disable-line no-loop-func
 			should(Ti.Network).have.constant(NOTIFICATION_TYPES[i]).which.is.a.Number;
 		});
 	}
-	for (i = 0; i < TLS_VERSIONS.length; i++) {
+	for (let i = 0; i < TLS_VERSIONS.length; i++) {
 		// FIXME Fails on Android and iOS for some reason! They say they're undefined, not Number
 		// FIXME Windows fails to find the property up the prototype chain in utilities/assertions, line 33
 		it.allBroken(TLS_VERSIONS[i], function () { // eslint-disable-line no-loop-func
@@ -78,16 +77,14 @@ describe('Titanium.Network', function () {
 	// Methods
 	// These seem to "intermittently" be unefined on Windows!
 	it.windowsBroken('encodeURIComponent()', function () {
-		var text;
 		should(Ti.Network.encodeURIComponent).be.a.Function;
-		text = Ti.Network.encodeURIComponent('Look what I found! I like this:');
+		const text = Ti.Network.encodeURIComponent('Look what I found! I like this:');
 		text.should.eql('Look%20what%20I%20found!%20I%20like%20this%3A');
 	});
 
 	it.windowsBroken('decodeURIComponent()', function () {
-		var text;
 		should(Ti.Network.decodeURIComponent).be.a.Function;
-		text = Ti.Network.decodeURIComponent('Look%20what%20I%20found!%20I%20like%20this%3A');
+		const text = Ti.Network.decodeURIComponent('Look%20what%20I%20found!%20I%20like%20this%3A');
 		text.should.eql('Look what I found! I like this:');
 	});
 
