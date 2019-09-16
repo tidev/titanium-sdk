@@ -1273,6 +1273,9 @@ public class TiHTTPClient
 						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
 							public void progress(int progress)
 							{
+								if (contentLength <= 0) {
+									return;
+								}
 								KrollDict data = new KrollDict();
 								double currentProgress = ((double) progress / contentLength);
 								if (currentProgress > 1)
