@@ -21,7 +21,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const client = Ti.Network.createHTTPClient({
 			onload: e => {
 				const html = e.source.responseText;
-				if (html.includes('protocol_ssl3">Yes')) {
+				if (html.includes('protocol_tls1_3">Yes')) {
 					finish();
 				}
 			},
