@@ -81,7 +81,8 @@ JSExportAs(imageWithRoundedCorner,
 typedef enum {
   TiBlobTypeImage = 0,
   TiBlobTypeFile = 1,
-  TiBlobTypeData = 2
+  TiBlobTypeData = 2,
+  TiBlobTypeSystemImage = 3
 } TiBlobType;
 
 /**
@@ -95,6 +96,7 @@ typedef enum {
   UIImage *image;
   NSString *path;
   BOOL imageLoadAttempted;
+  NSString *systemImageName;
 }
 
 /**
@@ -124,6 +126,12 @@ typedef enum {
  @param image The image
  */
 - (id)initWithImage:(UIImage *)image;
+
+/**
+Initialize the blob with a system image.
+@param imageName The  system image name
+*/
+- (id)initWithSystemImage:(NSString *)imageName;
 
 /**
  Initialize the blob with data.
@@ -162,6 +170,12 @@ typedef enum {
  @return The blob type.
  */
 - (TiBlobType)type;
+
+/**
+ Returns the System Image Name .
+ @return The string or nil.
+ */
+- (NSString *)systemImageName;
 
 /**
  Returns the blob raw data.

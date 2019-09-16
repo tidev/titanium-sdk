@@ -394,8 +394,7 @@
     return nil;
   }
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
-  UIImage *image = [UIImage systemImageNamed:arg];
-  TiBlob *blob = [[TiBlob alloc] initWithImage:image];
+  TiBlob *blob = [[TiBlob alloc] initWithSystemImage:arg];
   return blob;
 }
 #endif
