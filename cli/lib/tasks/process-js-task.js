@@ -3,6 +3,7 @@ const { IncrementalFileTask } = require('appc-tasks');
 const crypto = require('crypto');
 const fs = require('fs-extra');
 const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
+const nodeify = require('nodeify');
 const path = require('path');
 const pLimit = require('p-limit');
 const { promisify } = require('util');
@@ -116,9 +117,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.jsFiles = this.data.jsFiles;
 		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
-		return Promise.all(Object.keys(this.jsFiles).map(relPath => {
-			return limit(() => this.processJsFile(this.jsFiles[relPath].src));
-		}));
+		return Promise.all(Array.from(this.inputFiles).map(filePath => limit(() => this.processJsFile(filePath))));
 	}
 
 	/**
@@ -153,16 +152,17 @@ class ProcessJsTask extends IncrementalFileTask {
 				return done();
 			}
 
-			this.transformAndCopy(source, from, to).then(() => {
-				this.data.contentHashes[from] = currentHash;
-				return done();
-			}).catch(e => {
-				// if we have a nicely formatted pointer to syntax error from babel, print it!
-				if (e.codeFrame) {
-					this.logger.error(e.codeFrame);
+			nodeify(this.transformAndCopy(source, from, to), (e) => {
+				if (e) {
+					// if we have a nicely formatted pointer to syntax error from babel, print it!
+					if (e.codeFrame) {
+						this.logger.error(e.codeFrame);
+					}
+					done(e);
 				}
 
-				done(e);
+				this.data.contentHashes[from] = currentHash;
+				return done();
 			});
 		});
 
