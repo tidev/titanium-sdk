@@ -313,6 +313,8 @@ properties:
 
         The recommended size for image files is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationshortcuticon)  
         for more information on shortcut icons.
+        
+        From SDK 8.2.1 and iOS 13+ you can use system image got from <Ti.UI.iOS.systemImage>.
 
     type: [Number,String,Titanium.Contacts.Person]
     constants: Titanium.UI.iOS.SHORTCUT_ICON_TYPE_*
