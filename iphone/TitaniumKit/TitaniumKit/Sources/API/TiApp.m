@@ -1376,7 +1376,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [event setObject:NULL_IF_NIL(notification.request.content.userInfo) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL(notification.request.content.categoryIdentifier) forKey:@"category"];
   [event setObject:NULL_IF_NIL(notification.request.content.threadIdentifier) forKey:@"threadIdentifier"];
-  [event setObject:NULL_IF_NIL(notification.request.identifier) forKey:@"identifier"];
+  [event setObject:NULL_IF_NIL(identifier) forKey:@"identifier"];
 
   // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
   // a sound in the APS dictionary, we can provide that one for parity
