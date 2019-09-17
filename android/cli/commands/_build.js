@@ -2731,6 +2731,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						const from = jsFiles[relPath];
 						const to = path.join(this.buildBinAssetsResourcesDir, relPath);
 						copyFile.call(this, from, to, next);
+						this.unmarkBuildDirFile(to);
 					};
 				}), done);
 

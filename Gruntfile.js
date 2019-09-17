@@ -59,11 +59,12 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('validate:docs', 'Validates the docs.', function () {
 		const done = this.async();
-		const fork = require('child_process').fork, // eslint-disable-line security/detect-child-process
+		const spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 			path = require('path'),
-			apidoc = path.join(__dirname, 'apidoc');
+			apidoc = path.join(__dirname, 'apidoc'),
+			cmd = process.platform === 'win32' ? 'tdoc-validate.cmd' : 'tdoc-validate';
 
-		const validate = fork(path.join(__dirname, 'node_modules', '.bin', 'tdoc-validate'), [ apidoc ], { silent: true });
+		const validate = spawn(path.join(__dirname, 'node_modules', '.bin', cmd), [ apidoc ], { silent: true });
 		let output = '';
 
 		validate.stderr.on('data', function (data) {
