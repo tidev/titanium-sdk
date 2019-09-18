@@ -18,4 +18,5 @@ commander
 	.command('xcode-test', 'Hacks the XCode project for iOS to copy in the unit test suite so it can be run under XCode\'s debugger')
 	.command('check-ios-toplevel', 'Ensures we don\'t check in prefilled values for version/hash/timestamp')
 	.command('xcode-project-build <projectDir> <targetBuildDir> <productName>', 'Runs the portion of the xcode project setup')
+	.command('format', 'check format of source files')
 	.parse(process.argv);
