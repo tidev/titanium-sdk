@@ -6789,10 +6789,12 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 
 		// xcodebuild requires a -destination when building for iOS Simulator and it needs a
 		// simulator that is compatible with the selected Xcode version, so just pick one
-		for (const sim of Object.values(this.iosInfo.simulators.ios)) {
-			if (sim.supportsXcode[xcodeId]) {
-				dest = `platform=iOS Simulator,id=${sim.udid},OS=${appc.version.format(sim.version, 2, 2)}`;
-				break;
+		for (const sims of Object.values(this.iosInfo.simulators.ios)) {
+			for (const sim of sims) {
+				if (sim.supportsXcode[xcodeId]) {
+					dest = `platform=iOS Simulator,id=${sim.udid},OS=${appc.version.format(sim.version, 2, 2)}`;
+					break;
+				}
 			}
 		}
 
