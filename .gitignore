@@ -43,3 +43,6 @@ junit.*.xml
 
 .vscode/
 /android/runtime/v8/src/native/V8Snapshots.h
+
+.nyc_output/
+coverage/
