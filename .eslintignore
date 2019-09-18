@@ -1,1 +1,12 @@
 node_modules
+# We don't want to lint the locale files with eslint
+**/locales/**/*.js
+
+android/runtime/v8/tools/bootstrap.js
+android/dev
+android/modules/ui/src/java/ti/modules/titanium/ui/widget/webview/*.js
+
+iphone/Resources/app.js
+
+# TODO: We probably do want to lint these eventually!
+templates/**
