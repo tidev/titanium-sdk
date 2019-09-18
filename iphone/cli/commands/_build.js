@@ -5800,7 +5800,18 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				},
 
 				function generateSemanticColors() {
-					const colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
+					let colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
+
+					if (!fs.existsSync(colorsFile)) {
+						// Fallback to root of Resources folder for Classic applications
+						colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
+					}
+
+					if (!fs.existsSync(colorsFile)) {
+						this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
+						return;
+					}
+
 					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
 					const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 
@@ -5823,9 +5834,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						} : null;
 					}
 
-					if (!fs.existsSync(colorsFile)) {
-						return;
-					}
 					const colors = fs.readJSONSync(colorsFile);
 
 					for (const [ color, colorValue ] of Object.entries(colors)) {
