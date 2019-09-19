@@ -2824,41 +2824,45 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 
 		this.logger.info('Encrypting javascript assets...');
-		try {
-			await Promise.all(
-				jsFilesToEncrypt.map(async file => {
-					const from = path.join(this.buildAssetsDir, file);
-					const to = path.join(this.buildBinAssetsResourcesDir, file);
 
-					this.logger.debug(__('Encrypting: %s', from.cyan));
-					await fs.ensureDir(path.dirname(to));
-					this.unmarkBuildDirFile(to);
-					return await cloak.encryptFile(from, to);
-				})
-			);
+		// NOTE: maintain 'build.android.titaniumprep' hook for remote encryption policy.
+		this.cli.createHook('build.android.titaniumprep', this, async next => {
+			try {
+				await Promise.all(
+					jsFilesToEncrypt.map(async file => {
+						const from = path.join(this.buildAssetsDir, file);
+						const to = path.join(this.buildBinAssetsResourcesDir, file);
 
-			this.logger.info('Writing encryption key...');
-			await cloak.setKey('android', this.abis, path.join(this.buildDir, 'libs'));
+						this.logger.debug(__('Encrypting: %s', from.cyan));
+						await fs.ensureDir(path.dirname(to));
+						this.unmarkBuildDirFile(to);
+						return await cloak.encryptFile(from, to);
+					})
+				);
 
-			// Generate 'AssetCryptImpl.java' from template.
-			const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
-			this.unmarkBuildDirFile(assetCryptDest);
-			await fs.writeFile(
-				assetCryptDest,
-				ejs.render(
-					await fs.readFile(path.join(this.templatesDir, 'AssetCryptImpl.java'), 'utf8'),
-					{
-						appid: this.appid,
-						assets: jsFilesToEncrypt,
-						salt: cloak.salt
-					}
-				)
-			);
+				this.logger.info('Writing encryption key...');
+				await cloak.setKey('android', this.abis, path.join(this.buildDir, 'libs'));
 
-			next();
-		} catch (e) {
-			next(new Error('Could not encrypt assets!\n' + e));
-		}
+				// Generate 'AssetCryptImpl.java' from template.
+				const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
+				this.unmarkBuildDirFile(assetCryptDest);
+				await fs.writeFile(
+					assetCryptDest,
+					ejs.render(
+						await fs.readFile(path.join(this.templatesDir, 'AssetCryptImpl.java'), 'utf8'),
+						{
+							appid: this.appid,
+							assets: jsFilesToEncrypt,
+							salt: cloak.salt
+						}
+					)
+				);
+
+				next();
+			} catch (e) {
+				next(new Error('Could not encrypt assets!\n' + e));
+			}
+		})(next, [ this.tiapp.guid, '' ], {}, next);
 	});
 };
 
