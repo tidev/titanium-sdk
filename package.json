@@ -96,7 +96,7 @@
     "@commitlint/config-conventional": "^8.1.0",
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^1.0.1",
-    "@seadub/danger-plugin-junit": "0.1.1",
+    "@seadub/danger-plugin-junit": "0.1.2",
     "clang-format": "1.2.3",
     "commander": "^3.0.1",
     "commitizen": "^4.0.3",
@@ -118,7 +118,7 @@
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "ssri": "^6.0.1",
+    "ssri": "^7.0.0",
     "titanium-docgen": "^0.2.0"
   },
   "repository": {
