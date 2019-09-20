@@ -1,0 +1,32 @@
+* 
+{{~!-- commit references --}}
+{{~#if references~}}
+  {{~#each references}} {{#if @root.linkReferences~}}
+    [{{this.issue}}](https://jira.appcelerator.org/browse/{{this.issue}})
+  {{~else}}
+    {{this.issue}}
+  {{~/if}}{{/each}} - 
+{{~/if}} {{#if subject}}
+  {{~subject}}
+{{~else}}
+  {{~header}}
+{{~/if}}
+
+{{~!-- commit link --}} {{#if @root.linkReferences~}}
+  ([{{shortHash}}](
+  {{~#if @root.repository}}
+    {{~#if @root.host}}
+      {{~@root.host}}/
+    {{~/if}}
+    {{~#if @root.owner}}
+      {{~@root.owner}}/
+    {{~/if}}
+    {{~@root.repository}}
+  {{~else}}
+    {{~@root.repoUrl}}
+  {{~/if}}/
+  {{~@root.commit}}/{{hash}}))
+{{~else}}
+  {{~shortHash}}
+{{~/if}}
+
