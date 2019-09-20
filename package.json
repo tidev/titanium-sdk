@@ -18,6 +18,8 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
+    "build:docs": "docgen apidoc",
+    "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
     "test": "npm run ios-sanity-check && grunt",
     "android": "./build/scons cleanbuild android",
     "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s --no-docs android && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s android",
