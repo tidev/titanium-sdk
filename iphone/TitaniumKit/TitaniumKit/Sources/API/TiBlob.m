@@ -132,11 +132,12 @@ GETTER_IMPL(NSUInteger, size, Size);
   if (self = [super init]) {
     image = [image_ retain];
     type = TiBlobTypeImage;
-    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (id)initWithSystemImage:(NSString *)imageName
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
@@ -144,15 +145,19 @@ GETTER_IMPL(NSUInteger, size, Size);
   }
 
   if (self = [super init]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     image = [[UIImage systemImageNamed:imageName] retain];
-#endif
     type = TiBlobTypeSystemImage;
     systemImageName = [imageName retain];
-    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
+
+- (NSString *)systemImageName
+{
+  return systemImageName;
+}
+#endif
 
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_
 {
@@ -177,11 +182,6 @@ GETTER_IMPL(NSUInteger, size, Size);
 - (TiBlobType)type
 {
   return type;
-}
-
-- (NSString *)systemImageName
-{
-  return systemImageName;
 }
 
 - (NSString *)mimeType
