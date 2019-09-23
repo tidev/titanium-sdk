@@ -169,14 +169,15 @@
 		3A5AD7291BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7281BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m */; };
 		3A811CD01C2C21E50023468C /* TiUIiOSBlurViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A811CCF1C2C21E50023468C /* TiUIiOSBlurViewProxy.m */; };
 		3A811CD31C2C21FE0023468C /* TiUIiOSBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A811CD21C2C21FE0023468C /* TiUIiOSBlurView.m */; };
+		3AA4EC262320352B00703A20 /* TiUIListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC1D2320352B00703A20 /* TiUIListView.m */; };
+		3AA4EC272320352B00703A20 /* TiUIListItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC212320352B00703A20 /* TiUIListItemProxy.m */; };
+		3AA4EC282320352B00703A20 /* TiUIListSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC232320352B00703A20 /* TiUIListSectionProxy.m */; };
+		3AA4EC292320352B00703A20 /* TiUIListItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC242320352B00703A20 /* TiUIListItem.m */; };
+		3AA4EC2A2320352B00703A20 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC252320352B00703A20 /* TiUIListViewProxy.m */; };
 		3AB9137C1BB60F070063A4AD /* TiPreviewingDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */; };
 		3AB913801BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137F1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m */; };
 		3ABA85AB1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3ABA85AA1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m */; };
-		502A68DA16EEAA7500661EF6 /* TiUIListItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D116EEAA7500661EF6 /* TiUIListItem.m */; };
-		502A68DD16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D316EEAA7500661EF6 /* TiUIListItemProxy.m */; };
-		502A68E016EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D516EEAA7500661EF6 /* TiUIListSectionProxy.m */; };
-		502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D716EEAA7500661EF6 /* TiUIListView.m */; };
-		502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
+		4A4D3A9022C0CE6A003D2DB7 /* TiUtils+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A4D3A8F22C0CE6A003D2DB7 /* TiUtils+Addons.m */; };
 		673144D6211DBAD7001BDBF2 /* TiUIApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 673144D5211DBAD7001BDBF2 /* TiUIApplication.m */; };
 		6CF8E95921CDA58800519245 /* TiUITabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CF8E95821CDA58800519245 /* TiUITabbedBarProxy.m */; };
 		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
@@ -619,23 +620,25 @@
 		3A811CCF1C2C21E50023468C /* TiUIiOSBlurViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurViewProxy.m; sourceTree = "<group>"; };
 		3A811CD11C2C21FE0023468C /* TiUIiOSBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSBlurView.h; sourceTree = "<group>"; };
 		3A811CD21C2C21FE0023468C /* TiUIiOSBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurView.m; sourceTree = "<group>"; };
+		3AA4EC1C2320352B00703A20 /* TiUIListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListView.h; sourceTree = "<group>"; };
+		3AA4EC1D2320352B00703A20 /* TiUIListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListView.m; sourceTree = "<group>"; };
+		3AA4EC1E2320352B00703A20 /* TiUIListItemProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListItemProxy.h; sourceTree = "<group>"; };
+		3AA4EC1F2320352B00703A20 /* TiUIListSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListSectionProxy.h; sourceTree = "<group>"; };
+		3AA4EC202320352B00703A20 /* TiUIListViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListViewProxy.h; sourceTree = "<group>"; };
+		3AA4EC212320352B00703A20 /* TiUIListItemProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListItemProxy.m; sourceTree = "<group>"; };
+		3AA4EC222320352B00703A20 /* TiUIListItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListItem.h; sourceTree = "<group>"; };
+		3AA4EC232320352B00703A20 /* TiUIListSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListSectionProxy.m; sourceTree = "<group>"; };
+		3AA4EC242320352B00703A20 /* TiUIListItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListItem.m; sourceTree = "<group>"; };
+		3AA4EC252320352B00703A20 /* TiUIListViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListViewProxy.m; sourceTree = "<group>"; };
 		3AB9137A1BB60F070063A4AD /* TiPreviewingDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiPreviewingDelegate.h; sourceTree = "<group>"; };
 		3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiPreviewingDelegate.m; sourceTree = "<group>"; };
 		3AB9137E1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSPreviewActionProxy.h; sourceTree = "<group>"; };
 		3AB9137F1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSPreviewActionProxy.m; sourceTree = "<group>"; };
 		3ABA85A91D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchQueryProxy.h; sourceTree = "<group>"; };
 		3ABA85AA1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchQueryProxy.m; sourceTree = "<group>"; };
+		4A4D3A8E22C0CE6A003D2DB7 /* TiUtils+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TiUtils+Addons.h"; sourceTree = "<group>"; };
+		4A4D3A8F22C0CE6A003D2DB7 /* TiUtils+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "TiUtils+Addons.m"; sourceTree = "<group>"; };
 		50115A9315D5DE0500122055 /* ThirdpartyNS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThirdpartyNS.h; path = ../Classes/ThirdpartyNS.h; sourceTree = SOURCE_ROOT; };
-		502A68D016EEAA7500661EF6 /* TiUIListItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListItem.h; sourceTree = "<group>"; };
-		502A68D116EEAA7500661EF6 /* TiUIListItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListItem.m; sourceTree = "<group>"; };
-		502A68D216EEAA7500661EF6 /* TiUIListItemProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListItemProxy.h; sourceTree = "<group>"; };
-		502A68D316EEAA7500661EF6 /* TiUIListItemProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListItemProxy.m; sourceTree = "<group>"; };
-		502A68D416EEAA7500661EF6 /* TiUIListSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListSectionProxy.h; sourceTree = "<group>"; };
-		502A68D516EEAA7500661EF6 /* TiUIListSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListSectionProxy.m; sourceTree = "<group>"; };
-		502A68D616EEAA7500661EF6 /* TiUIListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListView.h; sourceTree = "<group>"; };
-		502A68D716EEAA7500661EF6 /* TiUIListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListView.m; sourceTree = "<group>"; };
-		502A68D816EEAA7500661EF6 /* TiUIListViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIListViewProxy.h; sourceTree = "<group>"; };
-		502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListViewProxy.m; sourceTree = "<group>"; };
 		673144D4211DBAD7001BDBF2 /* TiUIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIApplication.h; path = ../Classes/TiUIApplication.h; sourceTree = "<group>"; };
 		673144D5211DBAD7001BDBF2 /* TiUIApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIApplication.m; path = ../Classes/TiUIApplication.m; sourceTree = "<group>"; };
 		6CF8E95721CDA58700519245 /* TiUITabbedBarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITabbedBarProxy.h; sourceTree = "<group>"; };
@@ -1062,13 +1065,9 @@
 				DB4E9B7020B2E9510064ADF9 /* Navigation Window */,
 				DB0D54921F3B491300E2B771 /* Toolbar */,
 				BBDD81351A2C71E5003CDA10 /* AttributedString */,
-				24CA8C65111165D40084E2DE /* Canvas */,
 				24ADC5081299F4730014DB75 /* Clipboard */,
-				24CA8C64111165B60084E2DE /* Email Dialog */,
 				24CA8C5A111165420084E2DE /* ImageView */,
 				24D06FDE11D020E600F615D8 /* iOS */,
-				502A68CF16EEAA4A00661EF6 /* ListView */,
-				DBB0FE8D20D9364E00B85333 /* Matrix 2D/3D */,
 				24CA8C5F111165720084E2DE /* Option Dialog */,
 				84DEE90F1815CE67000D7B78 /* RefreshControl */,
 				B4F97B6C111A418700E2F72C /* Scroll View */,
@@ -1080,10 +1079,8 @@
 				24CA8C63111165890084E2DE /* TableView & ListView */,
 				24CA8C62111165840084E2DE /* Tabgroup */,
 				24CA8C60111165780084E2DE /* Alert */,
-				24CA8C5F111165720084E2DE /* Option Dialog */,
 				24CA8C66111166550084E2DE /* Webview */,
 				24CA8C591111653B0084E2DE /* Widgets */,
-				24CA8C5B111165470084E2DE /* Window */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -1275,9 +1272,9 @@
 		24CA8C63111165890084E2DE /* TableView & ListView */ = {
 			isa = PBXGroup;
 			children = (
+				3AA4EC1B232034FE00703A20 /* ListView */,
 				84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */,
 				84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */,
-				502A68CF16EEAA4A00661EF6 /* ListView */,
 				DB769E00210F0D92004D9338 /* TableView */,
 			);
 			name = "TableView & ListView";
@@ -1718,6 +1715,23 @@
 			name = BlurView;
 			sourceTree = "<group>";
 		};
+		3AA4EC1B232034FE00703A20 /* ListView */ = {
+			isa = PBXGroup;
+			children = (
+				3AA4EC222320352B00703A20 /* TiUIListItem.h */,
+				3AA4EC242320352B00703A20 /* TiUIListItem.m */,
+				3AA4EC1E2320352B00703A20 /* TiUIListItemProxy.h */,
+				3AA4EC212320352B00703A20 /* TiUIListItemProxy.m */,
+				3AA4EC1F2320352B00703A20 /* TiUIListSectionProxy.h */,
+				3AA4EC232320352B00703A20 /* TiUIListSectionProxy.m */,
+				3AA4EC1C2320352B00703A20 /* TiUIListView.h */,
+				3AA4EC1D2320352B00703A20 /* TiUIListView.m */,
+				3AA4EC202320352B00703A20 /* TiUIListViewProxy.h */,
+				3AA4EC252320352B00703A20 /* TiUIListViewProxy.m */,
+			);
+			name = ListView;
+			sourceTree = "<group>";
+		};
 		3AB9137D1BB61EB00063A4AD /* PreviewActions */ = {
 			isa = PBXGroup;
 			children = (
@@ -1729,23 +1743,6 @@
 				3A5AD7281BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m */,
 			);
 			name = PreviewActions;
-			sourceTree = "<group>";
-		};
-		502A68CF16EEAA4A00661EF6 /* ListView */ = {
-			isa = PBXGroup;
-			children = (
-				502A68D016EEAA7500661EF6 /* TiUIListItem.h */,
-				502A68D116EEAA7500661EF6 /* TiUIListItem.m */,
-				502A68D216EEAA7500661EF6 /* TiUIListItemProxy.h */,
-				502A68D316EEAA7500661EF6 /* TiUIListItemProxy.m */,
-				502A68D416EEAA7500661EF6 /* TiUIListSectionProxy.h */,
-				502A68D516EEAA7500661EF6 /* TiUIListSectionProxy.m */,
-				502A68D616EEAA7500661EF6 /* TiUIListView.h */,
-				502A68D716EEAA7500661EF6 /* TiUIListView.m */,
-				502A68D816EEAA7500661EF6 /* TiUIListViewProxy.h */,
-				502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */,
-			);
-			name = ListView;
 			sourceTree = "<group>";
 		};
 		6CF8E95521CDA54200519245 /* TabbedBar */ = {
@@ -1983,10 +1980,12 @@
 		DBF30940210F36E10001F770 /* TitaniumKit Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */,
-				DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */,
 				DBF30945210F3B420001F770 /* TiApp+Addons.h */,
 				DBF30946210F3B420001F770 /* TiApp+Addons.m */,
+				4A4D3A8E22C0CE6A003D2DB7 /* TiUtils+Addons.h */,
+				4A4D3A8F22C0CE6A003D2DB7 /* TiUtils+Addons.m */,
+				DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */,
+				DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */,
 			);
 			name = "TitaniumKit Extensions";
 			sourceTree = "<group>";
@@ -2030,7 +2029,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 1020;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
 						ProvisioningStyle = Manual;
@@ -2050,13 +2049,14 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
 			compatibilityVersion = "Xcode 8.0";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				en,
+				ja,
+				fr,
+				Base,
+				de,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			productRefGroup = 19C28FACFE9D520D11CA2CBB /* Products */;
@@ -2173,6 +2173,7 @@
 				84DEE9171815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */,
 				159C599B1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m in Sources */,
 				24CA8B95111161FE0084E2DE /* TiUIProgressBarProxy.m in Sources */,
+				3AA4EC262320352B00703A20 /* TiUIListView.m in Sources */,
 				24CA8B96111161FE0084E2DE /* TiUIProgressBar.m in Sources */,
 				673144D6211DBAD7001BDBF2 /* TiUIApplication.m in Sources */,
 				24CA8B97111161FE0084E2DE /* TiUIOptionDialogProxy.m in Sources */,
@@ -2187,6 +2188,7 @@
 				24CA8BA5111161FE0084E2DE /* TiUICanvasViewProxy.m in Sources */,
 				24CA8BA6111161FE0084E2DE /* TiUICanvasView.m in Sources */,
 				3ABA85AB1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m in Sources */,
+				3AA4EC272320352B00703A20 /* TiUIListItemProxy.m in Sources */,
 				BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */,
 				24CA8BA7111161FE0084E2DE /* TiUIButtonProxy.m in Sources */,
 				24CA8BA8111161FE0084E2DE /* TiUIButtonBarProxy.m in Sources */,
@@ -2194,6 +2196,7 @@
 				1592CC3A1C496EFB00C3DB83 /* TiUIiOSRowAnimationStyleProxy.m in Sources */,
 				24CA8BAA111161FE0084E2DE /* TiUIButton.m in Sources */,
 				24CA8BAC111161FE0084E2DE /* TiUIAlertDialogProxy.m in Sources */,
+				4A4D3A9022C0CE6A003D2DB7 /* TiUtils+Addons.m in Sources */,
 				24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */,
 				24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */,
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
@@ -2205,6 +2208,7 @@
 				3AB9137C1BB60F070063A4AD /* TiPreviewingDelegate.m in Sources */,
 				1953DD631E0A5E6E00414348 /* TiAppiOSUserActivityProxy.m in Sources */,
 				84E00A9C17B646EE00B6DCE2 /* TiUIiOSNavigationWindowProxy.m in Sources */,
+				3AA4EC2A2320352B00703A20 /* TiUIListViewProxy.m in Sources */,
 				B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */,
 				24CA8BCD111161FE0084E2DE /* TiButtonUtil.m in Sources */,
 				3A0B567B1C0CD81C00709DA4 /* TiUIiOSLivePhotoViewProxy.m in Sources */,
@@ -2264,6 +2268,7 @@
 				3AB913801BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m in Sources */,
 				24813714115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 				2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
+				3AA4EC292320352B00703A20 /* TiUIListItem.m in Sources */,
 				24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
 				24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
 				24E50E1A1160666300AF54AF /* LauncherButton.m in Sources */,
@@ -2300,6 +2305,7 @@
 				84A00FF017FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
 				DA2B35C2134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
 				DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */,
+				3AA4EC282320352B00703A20 /* TiUIListSectionProxy.m in Sources */,
 				15CB44131C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m in Sources */,
 				3A0B567A1C0CD81C00709DA4 /* TiUIiOSLivePhotoView.m in Sources */,
 				DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */,
@@ -2334,11 +2340,6 @@
 				D93DAA5A16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA5F16CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D930111E16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
-				502A68DA16EEAA7500661EF6 /* TiUIListItem.m in Sources */,
-				502A68DD16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
-				502A68E016EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */,
-				502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */,
-				502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				84C3870217417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2367,6 +2368,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -2409,6 +2411,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
@@ -2454,11 +2457,13 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = NO;
@@ -2477,6 +2482,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = NO;
@@ -2513,11 +2519,13 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = NO;
@@ -2534,6 +2542,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = NO;

@@ -60,7 +60,7 @@ methods:
     platforms: [android, iphone, ipad]
     deprecated:
       since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
+      notes: Use [Titanium.Calendar.Calendar.getEventsBetweenDates](Titanium.Calendar.Calendar.getEventsBetweenDates) instead.
 
   - name: getEventsInMonth
     summary: Gets events that occur during a specified month.
@@ -77,7 +77,7 @@ methods:
     platforms: [android, iphone, ipad]
     deprecated:
       since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
+      notes: Use [Titanium.Calendar.Calendar.getEventsBetweenDates](Titanium.Calendar.Calendar.getEventsBetweenDates) instead.
 
   - name: getEventsInYear
     summary: Gets all events that occur during a specified year.
@@ -90,7 +90,7 @@ methods:
     platforms: [android, iphone, ipad]
     deprecated:
       since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
+      notes: Use [Titanium.Calendar.Calendar.getEventsBetweenDates](Titanium.Calendar.Calendar.getEventsBetweenDates) instead.
 
 properties:
   - name: hidden

@@ -3,6 +3,7 @@ const { IncrementalFileTask } = require('appc-tasks');
 const crypto = require('crypto');
 const fs = require('fs-extra');
 const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
+const nodeify = require('nodeify');
 const path = require('path');
 const pLimit = require('p-limit');
 const { promisify } = require('util');
@@ -43,6 +44,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.builder = options.builder;
 		this.platform = this.builder.cli.argv.platform;
+		this.forceCleanBuildPropertyName = this.platform === 'ios' ? 'forceCleanBuild' : 'forceRebuild';
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
@@ -101,6 +103,9 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * we also depend on some config values from the builder this is used to
 	 * fallback to a full task run if required.
 	 *
+	 * This will also dummy process the unchanged JS files again to properly
+	 * fire expected hooks and populate the builder with required data.
+	 *
 	 * @return {Promise}
 	 */
 	async loadResultAndSkip() {
@@ -110,7 +115,9 @@ class ProcessJsTask extends IncrementalFileTask {
 			return this.doFullTaskRun();
 		}
 
-		Object.keys(this.data.jsFiles).forEach(relPath => this.builder.unmarkBuildDirFile(this.data.jsFiles[relPath].dest));
+		this.jsFiles = this.data.jsFiles;
+		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
+		return Promise.all(Array.from(this.inputFiles).map(filePath => limit(() => this.processJsFile(filePath))));
 	}
 
 	/**
@@ -145,16 +152,17 @@ class ProcessJsTask extends IncrementalFileTask {
 				return done();
 			}
 
-			this.transformAndCopy(source, from, to).then(() => {
-				this.data.contentHashes[from] = currentHash;
-				return done();
-			}).catch(e => {
-				// if we have a nicely formatted pointer to syntax error from babel, print it!
-				if (e.codeFrame) {
-					this.logger.error(e.codeFrame);
+			nodeify(this.transformAndCopy(source, from, to), (e) => {
+				if (e) {
+					// if we have a nicely formatted pointer to syntax error from babel, print it!
+					if (e.codeFrame) {
+						this.logger.error(e.codeFrame);
+					}
+					done(e);
 				}
 
-				done(e);
+				this.data.contentHashes[from] = currentHash;
+				return done();
 			});
 		});
 
@@ -315,7 +323,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @return {Boolean} True if a full build is required, false if not.
 	 */
 	requiresFullBuild() {
-		if (this.builder.forceCleanBuild) {
+		if (this.builder[this.forceCleanBuildPropertyName]) {
 			this.logger.trace('Full build required, force clean build flag is set.');
 			return true;
 		}

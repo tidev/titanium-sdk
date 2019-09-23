@@ -162,7 +162,7 @@
 @property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_DARK;
 #endif
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;

@@ -90,7 +90,7 @@ methods:
     summary: Cancels all scheduled local notifications.
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
+        notes: Use [Titanium.App.iOS.UserNotificationCenter.removePendingNotifications](Titanium.App.iOS.UserNotificationCenter.removePendingNotifications) instead.
 
   - name: cancelLocalNotification
     summary: Cancels a local notification.
@@ -103,7 +103,7 @@ methods:
         type: [Number,String]
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
+        notes: Use [Titanium.App.iOS.UserNotificationCenter.removePendingNotifications](Titanium.App.iOS.UserNotificationCenter.removePendingNotifications) instead.
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
@@ -177,7 +177,7 @@ methods:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
+            Use [Titanium.WatchSession](Titanium.WatchSession) instead, which is supported on iOS 9 and later.
     summary: Marks the end of an `openParentApplication:reply` execution by a WatchKit extension.
     description: |
         This method must be called after your Titaium application has finished processing the `watchkitextensionrequest` event. Optional
@@ -486,6 +486,30 @@ properties:
     osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
+  - name: USER_INTERFACE_STYLE_UNSPECIFIED
+    summary: An unspecified interface style.
+    description: Used in the `userInterfaceStyle` property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
+
+  - name: USER_INTERFACE_STYLE_LIGHT
+    summary: A light interface style.
+    description: Used in the `userInterfaceStyle` property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
+
+  - name: USER_INTERFACE_STYLE_DARK
+    summary: A dark interface style.
+    description: Used in the `userInterfaceStyle` property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
+
   - name: UTTYPE_TEXT
     summary: |
         Uniform type identifier for all text types.
@@ -754,7 +778,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> instead.
+        notes: Use [Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings](Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings) instead.
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
@@ -799,6 +823,16 @@ properties:
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
+
+  - name: userInterfaceStyle
+    summary: The style associated with the user interface.
+    description: |
+        Use this property to determine whether your interface should be configured with a dark or light appearance.
+        The default value of this trait is set to the corresponding appearance setting on the user's device.
+    type: Array<String>
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
 
 events:
   - name: notification
@@ -1259,7 +1293,7 @@ events:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
+            Use [Titanium.WatchSession](Titanium.WatchSession) instead, which is supported on iOS 9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
         Add this event if your Titanium application if you are using a WatchKit extension. When your WatchKit extension uses the openParentApplication:reply
@@ -1359,6 +1393,11 @@ events:
         type: LaunchOptionsType
     osver: {ios: {min: "8.0"}}
     since: "6.0.0"
+
+  - name: traitcollectionchange
+    summary: Fired when the trait collection of the device changes, e.g. the user interface style.
+    platforms: [iphone, ipad]
+    since: "8.2.0"
 
 ---
 name: NotificationParams

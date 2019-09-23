@@ -450,11 +450,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
     @"Network",
     @"Stream",
     @"UI",
+    @"WatchSession",
     @"XML" ];
   for (NSString *name in legacyModuleNames) {
     // We must generate the block and copy it to put it into heap or else every instance of the block shares
     // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
-    JSValue * (^lazyLoad)() = ^() {
+    JSValue * (^lazyLoad)(void) = ^() {
       JSValue *result;
       TiModule *mod = [host moduleNamed:name context:self];
       if (mod != nil) {
@@ -485,7 +486,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   for (NSString *name in moduleNames) {
     // We must generate the block and copy it to put it into heap or else every instance of the block shares
     // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
-    JSValue * (^lazyLoad)() = ^() {
+    JSValue * (^lazyLoad)(void) = ^() {
       JSValue *result;
       Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", name]);
       if (moduleClass != nil) {
@@ -529,7 +530,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   if (preload != nil) {
     for (NSString *name in preload) {
       JSValue *moduleJSObject = titanium[name];
-      KrollObject *ti = (KrollObject *)JSObjectGetPrivate([moduleJSObject JSValueRef]);
+      KrollObject *ti = (KrollObject *)JSObjectGetPrivate(JSValueToObject(jsContext, moduleJSObject.JSValueRef, NULL));
       NSDictionary *values = preload[name];
       for (id key in values) {
         id target = values[key];

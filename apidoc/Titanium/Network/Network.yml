@@ -133,7 +133,7 @@ methods:
     deprecated:
         since: "1.7.0"
         removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
+        notes: Use the [Titanium.Network.change](Titanium.Network.change) event to monitor connectivity changes.
     summary: |
         Legacy method to add a connectivity listener to listen for network changes.
     parameters:
@@ -219,7 +219,7 @@ methods:
   - name: createTCPSocket
     deprecated:
         since: "1.7.0"
-        notes: Use <Titanium.Network.Socket.createTCP> instead.
+        notes: Use [Titanium.Network.Socket.createTCP](Titanium.Network.Socket.createTCP) instead.
     summary: |
         Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
     description: |
@@ -525,10 +525,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value specifying read-only mode for sockets.
     type: Number
     permission: read-only
@@ -538,10 +538,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value specifying read-write mode for sockets.
     type: Number
     permission: read-only
@@ -551,10 +551,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value representing a socket in the CLOSED state.
     type: Number
     permission: read-only
@@ -564,10 +564,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value representing a socket in the CONNECTED state.
     type: Number
     permission: read-only
@@ -577,10 +577,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value representing a socket in the ERROR state.
     type: Number
     permission: read-only
@@ -590,10 +590,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value representing a socket in the INITIALIZED state.
     type: Number
     permission: read-only
@@ -603,10 +603,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value representing a socket in the LISTENING state.
     type: Number
     permission: read-only
@@ -616,10 +616,10 @@ properties:
     deprecated:
         since: "1.7.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value specifying write-only mode for sockets.
     type: Number
     permission: read-only
@@ -647,6 +647,14 @@ properties:
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad]
     osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
+
+  - name: TLS_VERSION_1_3
+    summary: Constant value specifying TLS version 1.3 for SSL.
+    type: Number
+    permission: read-only
+    since: {android: "8.3.0", iphone: "8.3.0", ipad: "8.3.0"}
+    platforms: [android, iphone, ipad]
+    osver: {android: {min: "10.0"}, ios: {min: "12.2"}}
 
   - name: PROGRESS_UNKNOWN
     summary: Constant value specifying that the progress of a download can not be calculated.

@@ -927,7 +927,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (cli.argv['source-maps']) {
 		this.sourceMaps = true;
 		// if they haven't, respect the tiapp.xml value if set one way or the other
-	} else if (cli.tiapp.hasOwnProperty['source-maps']) { // they've explicitly set a value in tiapp.xml
+	} else if (Object.prototype.hasOwnProperty.call(cli.tiapp, 'source-maps')) { // they've explicitly set a value in tiapp.xml
 		this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
 	} else { // otherwise turn on by default for non-production builds
 		this.sourceMaps = this.deployType !== 'production';
@@ -1973,6 +1973,9 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 		this.logger.info(__('Profiler disabled'));
 	}
 
+	this.logger.info(__('Transpile javascript: %s', (this.transpile ? 'true' : 'false').cyan));
+	this.logger.info(__('Generate source maps: %s', (this.sourceMaps ? 'true' : 'false').cyan));
+
 	next();
 };
 
@@ -2081,22 +2084,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: JavaScript encryption flag changed'));
 		this.logger.info('  ' + __('Was: %s', manifest.encryptJS));
 		this.logger.info('  ' + __('Now: %s', this.encryptJS));
-		return true;
-	}
-
-	// if sourceMaps changed, then we need to re-process all of the JS files
-	if (this.sourceMaps !== manifest.sourceMaps) {
-		this.logger.info(__('Forcing rebuild: JavaScript sourceMaps flag changed'));
-		this.logger.info('  ' + __('Was: %s', manifest.sourceMaps));
-		this.logger.info('  ' + __('Now: %s', this.sourceMaps));
-		return true;
-	}
-
-	// if transpile changed, then we need to re-process all of the JS files
-	if (this.transpile !== manifest.transpile) {
-		this.logger.info(__('Forcing rebuild: JavaScript transpile flag changed'));
-		this.logger.info('  ' + __('Was: %s', manifest.transpile));
-		this.logger.info('  ' + __('Now: %s', this.transpile));
 		return true;
 	}
 
@@ -2302,7 +2289,6 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// make directories if they don't already exist
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
-		fs.emptyDirSync(this.buildIncrementalDir);
 		fs.emptyDirSync(dir);
 		this.unmarkBuildDirFiles(dir);
 	} else {
@@ -2736,6 +2722,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						const from = jsFiles[relPath];
 						const to = path.join(this.buildBinAssetsResourcesDir, relPath);
 						copyFile.call(this, from, to, next);
+						this.unmarkBuildDirFile(to);
 					};
 				}), done);
 
@@ -3897,7 +3884,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// Must be done last so app developer can override manifest settings such as <activity/>, <receiver/>, etc.
 	finalAndroidManifest.merge(tiappAndroidManifest);
 
-	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
+	if (this.realTargetSDK >= 24 && !Object.prototype.hasOwnProperty.call(finalAndroidManifest.application, 'resizeableActivity')) {
 		finalAndroidManifest.application.resizeableActivity = true;
 	}
 
@@ -4631,8 +4618,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', true),
 		encryptJS: this.encryptJS,
-		sourceMaps: this.sourceMaps,
-		transpile: this.transpile,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,
 		propertiesHash: this.propertiesHash,

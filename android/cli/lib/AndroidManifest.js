@@ -24,7 +24,7 @@ const appc = require('node-appc'),
 	},
 
 	tagAttrs = {
-		application: /^(allowTaskReparenting|allowBackup|allowClearUserData|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|roundIcon|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
+		application: /^(allowTaskReparenting|allowBackup|allowClearUserData|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|requestLegacyExternalStorage|roundIcon|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
 		activity: /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|colorMode|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|immersive|label|launchMode|lockTaskMode|maxRecents|maxAspectRatio|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/, // eslint-disable-line max-len
 		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
 		data: /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
@@ -513,12 +513,39 @@ function AndroidManifest(filename) {
 					case 'uses-feature':
 						this[tag] || (this[tag] = []);
 						src[tag].forEach(function (tagItem) {
-							// Check for already added features.
-							let duplicateItem = this[tag].find(function (nextItem) {
+							// If given "uses-feature" name has already been added, then fetch its object.
+							const duplicateItem = this[tag].find(function (nextItem) {
 								// Compare them directly or by name.
 								return (nextItem === tagItem) || (nextItem.name === tagItem.name);
 							});
-							if (!duplicateItem) {
+							if (duplicateItem === tagItem) {
+								// Given reference was already added. Do nothing.
+							} else if (duplicateItem) {
+								// This is a duplicate "uses-feature" element name. Merge its settings.
+								if (typeof tagItem['tools:replace'] === 'string') {
+									// This attribute provides an array of other attributes that must be replaced.
+									tagItem['tools:replace'].split(',').forEach(function (attributeName) {
+										attributeName = attributeName.replace(androidAttrPrefixRegExp, '');
+										if (attributeName !== 'name') {
+											const value = tagItem[attributeName];
+											if (typeof value === 'undefined') {
+												delete duplicateItem[attributeName];
+											} else {
+												duplicateItem[attributeName] = value;
+											}
+										}
+									});
+								} else if (duplicateItem.required === false) {
+									// Do a logical OR on the "required" attribute value.
+									// If the "required" attribute is not defined, then it is considered true.
+									if (typeof tagItem.required === 'undefined') {
+										delete duplicateItem.required;
+									} else if (tagItem.required) {
+										duplicateItem.required = tagItem.required;
+									}
+								}
+							} else {
+								// The given "uses-feature" name has not been added yet. Do so now.
 								this[tag].push(tagItem);
 							}
 						}, this);

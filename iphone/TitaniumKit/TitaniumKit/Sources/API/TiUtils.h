@@ -793,7 +793,7 @@ typedef enum {
  */
 + (NSString *)convertToHex:(unsigned char *)input length:(size_t)length;
 
-+ (NSString *)appIdentifier;
++ (NSString *)convertToHexFromData:(NSData *)data;
 
 + (NSString *)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders;
 

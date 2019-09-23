@@ -69,7 +69,7 @@ description: |
           <th>Android</th>
           <th>iOS</th>
         </tr>
-      <thead>
+      </thead>
       <tbody>
         <tr>
           <th align="left">TLS 1.0</th>
@@ -86,7 +86,12 @@ description: |
           <td>4.1+</td>
           <td>5.0+</td>
         </tr>
-      <tbody>
+        <tr>
+          <th align="left">TLS 1.3</th>
+          <td>10.0+</td>
+          <td>12.2+</td>
+        </tr>
+      </tbody>
     </table>
 
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
@@ -98,8 +103,7 @@ description: |
     Setting the TLS version saves time from re-attempting connections with lower TLS versions and
     provides added security by denying attempts to use lower TLS versions.
 
-    Starting with Release 3.6.0, you can set the TLS version for the Android and iOS platforms.
-    Prior to Release 3.6.0, you can only set the TLS version for iOS.
+    You can set the TLS version for the Android and iOS platforms.
     
     #### Caching Data
 
@@ -355,7 +359,7 @@ properties:
     type: String
     default: Undefined
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
 
   - name: enableKeepAlive
     summary: Determines whether the client should attempt to keep a persistent connection.
@@ -386,7 +390,7 @@ properties:
         Must be set before calling `open`.
 
         The `progress` property of the event will contain a value from 0.0-1.0 with the progress of
-        the request. On iOS and Android as of 3.5.0, if the progress can not be calculated,
+        the request. If the progress can not be calculated,
         the value will be [PROGRESS_UNKNOWN](Titanium.Network.PROGRESS_UNKNOWN).
     type: Callback<Object>
 
@@ -425,8 +429,7 @@ properties:
         Due to the asynchronous nature of the Titanium platform, the internal value of
         [readyState](Titanium.Network.HTTPClient.readyState) might be different from the state change
         for which the event was fired. To address this discrepancy, the function is now invoked with a
-        payload object of type <ReadyStatePayload>. This was introduced in version 3.4.2 of the SDK and is
-        supported on the iOS and android platforms.
+        payload object of type <ReadyStatePayload>. This is supported on the iOS and Android platforms.
 
   - name: onsendstream
     summary: Function to be called at regular intervals as the request data is being transmitted.
@@ -443,7 +446,7 @@ properties:
     type: String
     default: Undefined
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
 
   - name: readyState
     summary: The current ready state of this HTTP request.
@@ -518,7 +521,7 @@ properties:
     type: String
     default: Undefined
     platforms: [android, iphone, ipad]
-    since: 3.0.0
+    since: "3.0.0"
 
   - name: validatesSecureCertificate
     summary: Determines how SSL certification validation is performed on connection.
@@ -653,7 +656,7 @@ methods:
         type: Object
     platforms: [android]
 
-since: 3.3.0
+since: "3.3.0"
 platforms: [iphone, ipad, android]
 
 ---
@@ -679,7 +682,7 @@ description: |
     If the connection delegate does not implement this method but implements `connection:willSendRequestForAuthenticationChallenge:`, the return
     value is assumed to be `true` and all challenges will be forwarded to the connection delegate.
 
-since: 3.3.0
+since: "3.3.0"
 platforms: [iphone, ipad]
 ---
 name: ReadyStatePayload

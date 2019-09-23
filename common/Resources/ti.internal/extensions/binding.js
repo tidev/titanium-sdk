@@ -24,22 +24,26 @@ const redirects = new Map();
  * @param {string} path original require path/id
  * @returns {boolean}
  */
-function isCoreModuleId(path) {
-	return !path.includes('.') && !path.includes('/');
+function isHijackableModuleId(path) {
+	if (!path || path.length < 1) {
+		return false;
+	}
+	const firstChar = path.charAt(0);
+	return firstChar !== '.' && firstChar !== '/';
 }
 
 // Hack require to point to this as a core module "binding"
 const originalRequire = global.require;
 // This works for iOS as-is, and also intercepts the call on Android for ti.main.js (the first file executed)
 global.require = function (moduleId) {
-	if (isCoreModuleId(moduleId)) {
-		if (bindings.has(moduleId)) {
-			return bindings.get(moduleId);
-		}
-		if (redirects.has(moduleId)) {
-			moduleId = redirects.get(moduleId);
-		}
+
+	if (bindings.has(moduleId)) {
+		return bindings.get(moduleId);
 	}
+	if (redirects.has(moduleId)) {
+		moduleId = redirects.get(moduleId);
+	}
+
 	return originalRequire(moduleId);
 };
 
@@ -47,39 +51,65 @@ if (Ti.Platform.name === 'android') {
 	// ... but we still need to hack it when requiring from other files for Android
 	const originalModuleRequire = global.Module.prototype.require;
 	global.Module.prototype.require = function (path, context) {
-		if (isCoreModuleId(path)) {
-			if (bindings.has(path)) {
-				return bindings.get(path);
-			}
-			if (redirects.has(path)) {
-				path = redirects.get(path);
-			}
+
+		if (bindings.has(path)) {
+			return bindings.get(path);
 		}
+		if (redirects.has(path)) {
+			path = redirects.get(path);
+		}
+
 		return originalModuleRequire.call(this, path, context);
 	};
 }
 
 /**
- * Registers a binding from a short module id to the full under the hood filepath.
- * This allows for lazy instantiation of the module on-demand.
+ * Registers a binding from a short module id to an already loaded/constructed object/value to export for that core module id
  *
- * @param {string} coreModuleId the module id to "hijack"
- * @param {string} internalPath the full filepath to require under the hood.
+ * @param {string} moduleId the module id to "hijack"
+ * @param {*} binding an already constructured value/object to return
+ */
+export function register(moduleId, binding) {
+	if (!isHijackableModuleId(moduleId)) {
+		throw new Error(`Cannot register for relative/absolute file paths; no leading '.' or '/' allowed (was given ${moduleId})`);
+	}
+
+	if (redirects.has(moduleId)) {
+		Ti.API.warn(`Another binding has already registered for module id: '${moduleId}', it will be overwritten...`);
+		redirects.delete(moduleId);
+	} else if (bindings.has(moduleId)) {
+		Ti.API.warn(`Another binding has already registered for module id: '${moduleId}', it will be overwritten...`);
+	}
+
+	bindings.set(moduleId, binding);
+}
+
+/**
+ * Registers a binding from a short module id to the full under the hood filepath if given a string.
+ * This allows for lazy instantiation of the module on-demand
+ *
+ * @param {string} moduleId the module id to "hijack"
+ * @param {string} filepath the full filepath to require under the hood.
  *                              This should be an already resolved absolute path,
  *                              as otherwise the context of the call could change what gets loaded!
  */
-export function redirectCoreModuleIdToPath(coreModuleId, internalPath) {
-	redirects.set(coreModuleId, internalPath);
+export function redirect(moduleId, filepath) {
+	if (!isHijackableModuleId(moduleId)) {
+		throw new Error(`Cannot register for relative/absolute file paths; no leading '.' or '/' allowed (was given ${moduleId})`);
+	}
+
+	if (bindings.has(moduleId)) {
+		Ti.API.warn(`Another binding has already registered for module id: '${moduleId}', it will be overwritten...`);
+		bindings.delete(moduleId);
+	} else if (redirects.has(moduleId)) {
+		Ti.API.warn(`Another binding has already registered for module id: '${moduleId}', it will be overwritten...`);
+	}
+
+	redirects.set(moduleId, filepath);
 }
 
-// TODO: Allow two types of bindings: a "redirect" from a "core" module id to the actual underlying file (as we have here)
-// OR binding an object already loaded to a "core" module id
-
-/**
- * Registers a binding from a short module id to already loaded/constructed object to export for that core module id.
- * @param {string} coreModuleId the core module id to register under
- * @param {object} object the object to hook to respond to require requests for the module id
- */
-export function bindObjectToCoreModuleId(coreModuleId, object) {
-	bindings.set(coreModuleId, object);
-}
+const binding = {
+	register,
+	redirect
+};
+global.binding = binding;

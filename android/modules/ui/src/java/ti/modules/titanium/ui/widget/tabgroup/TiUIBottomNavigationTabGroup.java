@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -27,6 +28,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
+import ti.modules.titanium.ui.TabProxy;
 
 /**
  * TabGroup implementation using BottomNavigationView as a controller.
@@ -45,6 +47,22 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+	}
+
+	// Overriding addTab method to provide a proper guard for trying to add more tabs than the limit
+	// for BottomNavigationView class.
+	@Override
+	public void addTab(TabProxy tabProxy)
+	{
+		if (this.mBottomNavigationView == null) {
+			return;
+		}
+		final int MAX_TABS = this.mBottomNavigationView.getMaxItemCount();
+		if (this.tabs.size() < MAX_TABS) {
+			super.addTab(tabProxy);
+		} else {
+			Log.w(TAG, "Bottom style TabGroup cannot have more than " + MAX_TABS + " tabs.");
+		}
 	}
 
 	@Override
@@ -220,9 +238,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void selectTabItemInController(int position)
 	{
 		// Fire the UNSELECTED event from the currently selected tab.
-		if (currentlySelectedIndex != -1) {
-			if (getProxy() != null) {
-				tabs.get(currentlySelectedIndex).getProxy().fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size()) && (getProxy() != null)) {
+			TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();
+			if (tabProxy != null) {
+				tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
 			}
 		}
 		currentlySelectedIndex = position;
@@ -258,8 +277,17 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void updateTabTitle(int index)
 	{
-		this.mBottomNavigationView.getMenu().getItem(index).setTitle(
-			tabs.get(index).getProxy().getProperty(TiC.PROPERTY_TITLE).toString());
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		String title = TiConvert.toString(tabProxy.getProperty(TiC.PROPERTY_TITLE));
+		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
 	@Override
@@ -281,7 +309,16 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void updateTabIcon(int index)
 	{
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabs.get(index).getProxy().getProperty(TiC.PROPERTY_ICON));
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
 	}
 
@@ -306,11 +343,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
-		if (index != currentlySelectedIndex) {
-			if (getProxy() != null) {
-				tabs.get(currentlySelectedIndex).getProxy().fireEvent(TiC.EVENT_UNSELECTED, null, false);
-				currentlySelectedIndex = index;
+		if ((index != currentlySelectedIndex) && (getProxy() != null)) {
+			if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size())) {
+				TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();
+				if (tabProxy != null) {
+					tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+				}
 			}
+			currentlySelectedIndex = index;
 		}
 		// Make the ViewPager to select the proper page too.
 		selectTab(index);
