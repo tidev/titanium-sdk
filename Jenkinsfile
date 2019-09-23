@@ -171,6 +171,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 def cliUnitTests(nodeVersion, npmVersion) {
 	return {
 		node('git && osx') { // ToDo: refactor to try and run across mac, linux, and windows?
+			unstash 'cli-unit-tests'
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 				ensureNPM(npmVersion)
 				sh 'npm ci'
@@ -237,6 +238,7 @@ timestamps {
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
+					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**', name: 'cli-unit-tests'
 					// was it a failure?
 					if (npmTestResult != 0) {
 						error readFile('npm_test.log')
