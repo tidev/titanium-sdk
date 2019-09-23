@@ -267,7 +267,7 @@ static NSArray *tabGroupKeySequence;
   return [super preferredStatusBarStyle];
 }
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];

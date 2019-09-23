@@ -40,6 +40,21 @@ methods:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
 
+  - name: systemImage
+    summary: |
+        Get image from SF Symbols provided by Apple.
+    description: |
+        More details on SF Symbols can be found on https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview.
+        One can download SF Symbols app from https://developer.apple.com/design/downloads/SF-Symbols.dmg and 
+        use it to lookup the inbuilt SF Symbol name.
+    parameters:
+      - name: name
+        summary: Name of SF Symbol.
+        type: String
+    returns:
+      - type: Titanium.Blob
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
 properties:
   - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     summary: |
@@ -1107,6 +1122,156 @@ properties:
     since: "6.0.0"
     osver: {ios: {min: "10.0"}}
 
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material with normal thickness.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a thin material.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material with normal thickness.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material that is thicker than normal.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of the system chrome.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of an ultra-thin material and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a thin material and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material with normal thickness and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material that is thicker than normal and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of the system chrome and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of the system chrome and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material that is thicker than normal and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a thin material and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material with normal thickness and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of an ultra-thin material and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+                    
   - name: AD_SIZE_PORTRAIT
     summary: |
         Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
@@ -1614,6 +1779,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED
     summary: User submitted a form.
@@ -1624,6 +1793,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD
     summary: User tapped the back or forward button.
@@ -1634,6 +1807,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_RELOAD
     summary: User tapped the reload button.
@@ -1644,6 +1821,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED
     summary: User resubmitted a form.
@@ -1654,6 +1835,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_OTHER
     summary: Some other action occurred.
@@ -1664,6 +1849,10 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: TABLEVIEW_INDEX_SEARCH
     summary: String that represents the magnifying glass on the table view index bar

@@ -196,6 +196,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_0, TLS_VERSION_1_0);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_1, TLS_VERSION_1_1);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
+MAKE_SYSTEM_PROP(TLS_VERSION_1_3, TLS_VERSION_1_3);
 
 MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
@@ -286,11 +287,8 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   // called by TiApp
   if (pushNotificationSuccess != nil) {
-    NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<" withString:@""]
-        stringByReplacingOccurrencesOfString:@">"
-                                  withString:@""]
-        stringByReplacingOccurrencesOfString:@" "
-                                  withString:@""];
+    NSString *token = [TiUtils convertToHexFromData:deviceToken];
+
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:token forKey:@"deviceToken"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];

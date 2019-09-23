@@ -24,20 +24,28 @@ module.exports = function (grunt) {
 
 	// Project configuration.
 	grunt.initConfig({
-		appcJs: {
-			src: [
-				'dangerfile.js',
-				'Gruntfile.js',
-				'apidoc/**/*.js',
-				'build/**/*.js',
-				'cli/!(locales)/**/*.js',
-				'common/**/*.js',
-				'android/cli/!(locales)/**/*.js',
-				'android/modules/**/src/js/**/*.js',
-				'android/runtime/common/src/js/**/*.js',
-				'iphone/cli/!(locales)/**/*.js',
-				'tests/Resources/**/*test.js'
-			]
+		eslint: {
+			lintOnly: {
+				src: [
+					'dangerfile.js',
+					'Gruntfile.js',
+					'apidoc/**/*.js',
+					'build/**/*.js',
+					'cli/!(locales)/**/*.js',
+					'common/**/*.js',
+					'android/cli/!(locales)/**/*.js',
+					'android/modules/**/src/js/**/*.js',
+					'android/runtime/common/src/js/**/*.js',
+					'iphone/cli/!(locales)/**/*.js',
+					'tests/Resources/**/*test.js'
+				],
+			},
+			fix: {
+				src: '<%= eslint.lintOnly.src %>',
+				options: {
+					fix: true
+				}
+			}
 		},
 		clangFormat: {
 			android: { src: androidSrc },
@@ -51,11 +59,12 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('validate:docs', 'Validates the docs.', function () {
 		const done = this.async();
-		const fork = require('child_process').fork, // eslint-disable-line security/detect-child-process
+		const spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 			path = require('path'),
-			apidoc = path.join(__dirname, 'apidoc');
+			apidoc = path.join(__dirname, 'apidoc'),
+			cmd = process.platform === 'win32' ? 'tdoc-validate.cmd' : 'tdoc-validate';
 
-		const validate = fork(path.join(apidoc, 'validate'), [], { cwd: apidoc, silent: true });
+		const validate = spawn(path.join(__dirname, 'node_modules', '.bin', cmd), [ apidoc ], { silent: true });
 		let output = '';
 
 		validate.stderr.on('data', function (data) {
@@ -126,15 +135,15 @@ module.exports = function (grunt) {
 	grunt.registerMultiTask('checkFormat', 'Validates the source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
-	grunt.loadNpmTasks('grunt-appc-js');
+	grunt.loadNpmTasks('grunt-eslint');
 	grunt.loadNpmTasks('grunt-clang-format');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
-	// linting: run eslint against js, standard appc checks, check ios/android format via clang, run doc validation script
-	grunt.registerTask('lint', [ 'appcJs:src:lintOnly', 'checkFormat:ios', 'checkFormat:android', 'validate:docs' ]);
+	// linting: run eslint against js, check ios/android format via clang, run doc validation script
+	grunt.registerTask('lint', [ 'eslint:lintOnly', 'checkFormat:ios', 'checkFormat:android', 'validate:docs' ]);
 
 	// Tasks for formatting the source code according to our clang/eslint rules
-	grunt.registerTask('format:js', [ 'appcJs:src:lint:fix' ]);
+	grunt.registerTask('format:js', [ 'eslint:fix' ]);
 	grunt.registerTask('format:android', [ 'clangFormat:android' ]);
 	grunt.registerTask('format:ios', [ 'clangFormat:ios' ]);
 	grunt.registerTask('format', [ 'format:android', 'format:ios', 'format:js' ]);

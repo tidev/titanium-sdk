@@ -337,7 +337,7 @@ public class TiAnimationBuilder
 				// set backgroundColor on the child view and not TiBorderWrapperView itself
 				bgView = ((TiBorderWrapperView) view).getChildAt(0);
 			}
-			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper.wrap(view);
+			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper.wrap(bgView);
 			int currentBackgroundColor = bgWrap.getBackgroundColor();
 			ObjectAnimator bgAnimator =
 				ObjectAnimator.ofInt(bgView, "backgroundColor", currentBackgroundColor, backgroundColor);
