@@ -35,7 +35,7 @@
     "format:ios": "./build/scons format --ios --fix",
     "format:js": "npm run lint:js -- --fix",
     "test:android": "./build/scons clean android && ./build/scons build android && ./build/scons package -s --no-docs android && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s android",
-    "test:cli": "nyc --exclude **/cli/tests/test-*.js mocha **/cli/tests/test-*.js",
+    "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js --reporter=mocha-jenkins-reporter",
     "test:ios": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s --no-docs ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios"
   },
   "husky": {
@@ -121,6 +121,7 @@
     "husky": "^3.0.4",
     "lint-staged": "^9.2.5",
     "mocha": "^6.2.0",
+    "mocha-jenkins-reporter": "^0.4.2",
     "npm-run-all": "^4.1.5",
     "nyc": "^14.1.1",
     "rollup": "^1.20.3",
@@ -142,6 +143,15 @@
   },
   "engines": {
     "node": ">=8"
+  },
+  "nyc" : {
+    "exclude": [
+      "**/cli/tests/test-*.js"
+    ],
+    "reporter": [
+      "cobertura",
+      "text"
+    ]
   },
   "license": "Apache-2.0"
 }

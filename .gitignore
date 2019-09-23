@@ -21,6 +21,7 @@ retirejs.output.json
 
 /titanium-mobile-mocha-suite
 junit.*.xml
+junit_report.xml
 
 # intelliJ Android User-specific configurations
 /android/.idea/libraries/
