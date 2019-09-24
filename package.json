@@ -59,7 +59,7 @@
   "dependencies": {
     "adm-zip": "^0.4.11",
     "appc-aar-tools": "^1.1.5",
-    "appc-tasks": "^1.0.1",
+    "appc-tasks": "^1.0.2",
     "archiver": "^3.1.1",
     "async": "^2.6.1",
     "buffer-equal": "1.0.0",
@@ -78,6 +78,7 @@
     "node-appc": "^0.3.4",
     "node-titanium-sdk": "^3.2.1",
     "node-uuid": "1.4.8",
+    "nodeify": "^1.0.1",
     "p-limit": "^2.2.0",
     "pngjs": "^3.4.0",
     "request": "^2.87.0",
@@ -93,7 +94,7 @@
     "@commitlint/config-conventional": "^8.1.0",
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^1.0.1",
-    "@seadub/danger-plugin-junit": "0.1.1",
+    "@seadub/danger-plugin-junit": "0.1.2",
     "clang-format": "1.2.3",
     "commander": "^3.0.1",
     "commitizen": "^4.0.3",
@@ -115,8 +116,8 @@
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "ssri": "^6.0.1",
-    "titanium-docgen": "^0.1.5"
+    "ssri": "^7.0.0",
+    "titanium-docgen": "^0.2.0"
   },
   "repository": {
     "type": "git",

@@ -64,6 +64,8 @@ public class NetworkModule extends KrollModule
 	public static final int TLS_VERSION_1_1 = 2;
 	@Kroll.constant
 	public static final int TLS_VERSION_1_2 = 3;
+	@Kroll.constant
+	public static final int TLS_VERSION_1_3 = 4;
 
 	@Kroll.constant
 	public static final int PROGRESS_UNKNOWN = -1;
