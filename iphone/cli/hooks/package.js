@@ -214,7 +214,7 @@ exports.init = function (logger, config, cli) {
 		const keychains = builder.iosInfo.certs.keychains;
 		Object.keys(keychains).some(function (keychain) {
 			return (keychains[keychain].distribution || []).some(function (d) {
-				if (!d.invalid && d.name === builder.certDistributionName) {
+				if (!d.invalid && d.fullname === builder.certDistributionName) {
 					exportsOptions.signingCertificate = d.fullname;
 					return true;
 				}

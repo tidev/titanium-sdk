@@ -213,13 +213,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 - (void)setBackgroundColor:(id)color
 {
   TiRootViewController *controller = [[TiApp app] controller];
-  [controller setBackgroundColor:[Webcolor webColorNamed:color]];
+  [controller setBackgroundColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setTintColor:(id)color
 {
   UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
-  [controller setTintColor:[Webcolor webColorNamed:color]];
+  [controller setTintColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setBackgroundImage:(id)image
@@ -635,8 +635,10 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_EMAIL, UITextContentTypeEmailAddress);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_URL, UITextContentTypeURL);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
 
+#if IS_SDK_IOS_11
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
+#endif
 
 #if IS_SDK_IOS_12
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_NEW_PASSWORD, UITextContentTypeNewPassword);

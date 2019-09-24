@@ -2087,22 +2087,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	// if sourceMaps changed, then we need to re-process all of the JS files
-	if (this.sourceMaps !== manifest.sourceMaps) {
-		this.logger.info(__('Forcing rebuild: JavaScript sourceMaps flag changed'));
-		this.logger.info('  ' + __('Was: %s', manifest.sourceMaps));
-		this.logger.info('  ' + __('Now: %s', this.sourceMaps));
-		return true;
-	}
-
-	// if transpile changed, then we need to re-process all of the JS files
-	if (this.transpile !== manifest.transpile) {
-		this.logger.info(__('Forcing rebuild: JavaScript transpile flag changed'));
-		this.logger.info('  ' + __('Was: %s', manifest.transpile));
-		this.logger.info('  ' + __('Now: %s', this.transpile));
-		return true;
-	}
-
 	// check if the titanium sdk paths are different
 	if (this.platformPath !== manifest.platformPath) {
 		this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
@@ -2305,7 +2289,6 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// make directories if they don't already exist
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
-		fs.emptyDirSync(this.buildIncrementalDir);
 		fs.emptyDirSync(dir);
 		this.unmarkBuildDirFiles(dir);
 	} else {
@@ -2739,6 +2722,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						const from = jsFiles[relPath];
 						const to = path.join(this.buildBinAssetsResourcesDir, relPath);
 						copyFile.call(this, from, to, next);
+						this.unmarkBuildDirFile(to);
 					};
 				}), done);
 
@@ -4634,8 +4618,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', true),
 		encryptJS: this.encryptJS,
-		sourceMaps: this.sourceMaps,
-		transpile: this.transpile,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,
 		propertiesHash: this.propertiesHash,
