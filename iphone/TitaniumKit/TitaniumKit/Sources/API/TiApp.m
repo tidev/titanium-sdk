@@ -435,6 +435,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   id source = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
   if (source != nil) {
     [launchOptions setObject:source forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
   }
 
   if (appBooted) {
@@ -458,6 +460,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 
   if (sourceApplication != nil) {
     [launchOptions setObject:sourceApplication forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
   }
 
   if (appBooted) {
