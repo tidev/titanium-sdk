@@ -872,12 +872,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
                                  userInfo:nil];
   }
 
-  if (filename != nil && module != nil) {
-    // uri is optional but we point it to where we loaded it
-    [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
-    [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
-  }
-
   return module;
 }
 
