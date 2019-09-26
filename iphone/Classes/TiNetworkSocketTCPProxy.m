@@ -657,7 +657,8 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
   }
 }
 
-- (void)onSocketDidSecure:(AsyncSocket *)sock {
+- (void)onSocketDidSecure:(AsyncSocket *)sock
+{
   KrollWrapper *checkServerIdentityWrapper = [self valueForUndefinedKey:@"checkServerIdentity"];
   if (checkServerIdentityWrapper == nil) {
     return;
@@ -675,19 +676,20 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
   } else {
     commonName = (NSString *)SecCertificateCopySubjectSummary(certRef);
   }
-  NSDictionary *certObject = @{@"subject": @{@"CN": commonName}};
+  NSDictionary *certObject = @{ @"subject" : @{ @"CN" : commonName }};
   [commonName release];
-  JSValue *result = [checkServerIdentity callWithArguments:@[host, certObject]];
+  JSValue *result = [checkServerIdentity callWithArguments:@[ host, certObject ]];
   NSError *verifyError;
-  if (result.isNull) {
-    // null means hostname was successfully verified against cert
-    return;
-  }
-  else if (result.isObject) {
-    id resultObject = [result toObject];
-    verifyError = [NSError errorWithDomain:@"tls.checkServerIdentity" code:1001 userInfo:@{@"message": resultObject[@"message"] != nil ? resultObject[@"message"] : @"Could not validate server identity."}];
+  if (result.isBoolean) {
+    BOOL isValid = [result toBool];
+    if (isValid) {
+      return;
+    } else {
+      id resultObject = [result toObject];
+      verifyError = [NSError errorWithDomain:@"tls.checkServerIdentity" code:1001 userInfo:@{ @"message" : @"Could not validate server identity. Hostname/IP does not match certificates altnames." }];
+    }
   } else {
-    verifyError = [NSError errorWithDomain:@"tls.checkServerIdentity" code:1002 userInfo:@{@"message": @"Unexpected return value from \"checkServerIdentity\" option. Return an Error object on failure, or null on success."}];
+    verifyError = [NSError errorWithDomain:@"tls.checkServerIdentity" code:1002 userInfo:@{ @"message" : @"Unexpected return value from \"checkServerIdentity\" option. Return false on failure, or true on success." }];
   }
 
   internalState = SOCKET_ERROR;

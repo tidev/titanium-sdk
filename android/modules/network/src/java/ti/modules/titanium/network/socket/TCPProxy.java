@@ -274,29 +274,26 @@ public class TCPProxy extends KrollProxy implements TiStream
 					SSLSession sslSession = sslSocket.getSession();
 					KrollFunction checkServerIdentity = (KrollFunction) getProperty("checkServerIdentity");
 					if (checkServerIdentity != null) {
-						Log.d(TAG, "checkServerIdentity");
-						X500Principal peerPrincipal = (X500Principal)sslSession.getPeerPrincipal();
+						X500Principal peerPrincipal = (X500Principal) sslSession.getPeerPrincipal();
 						String canonicalName = peerPrincipal.getName(X500Principal.CANONICAL);
 						int separatorIndex = canonicalName.indexOf(",");
-						String commonName = canonicalName.substring(canonicalName.indexOf("cn=") + 3, separatorIndex != -1 ? separatorIndex : canonicalName.length());
+						String commonName =
+							canonicalName.substring(canonicalName.indexOf("cn=") + 3,
+													separatorIndex != -1 ? separatorIndex : canonicalName.length());
 						HashMap<String, Object> certObject = new HashMap();
 						HashMap<String, String> subjectMap = new HashMap();
 						subjectMap.put("CN", commonName);
 						certObject.put("subject", subjectMap);
 						Object result = checkServerIdentity.call(getKrollObject(), new Object[] { host, certObject });
-						if (result != null) {
-							String message = "";
-							if (result instanceof HashMap) {
-								message = "Hostname/IP does not match certificates altnames: " + ((HashMap) result).get("message");
-							} else {
-								message = "Unexpected return value from \"checkServerIdentity\" option. Return an Error object on failure, or null on success.";
-							}
-							throw new SSLHandshakeException(message);
+						boolean isValid = TiConvert.toBoolean(result, false);
+						if (!isValid) {
+							throw new SSLHandshakeException("Hostname/IP does not match certificates altnames.");
 						}
 					} else {
 						HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
 						if (!hostnameVerifier.verify(host, sslSession)) {
-							throw new SSLHandshakeException("Expected " + host + ", found " + sslSession.getPeerPrincipal());
+							throw new SSLHandshakeException("Expected " + host + ", found "
+															+ sslSession.getPeerPrincipal());
 						}
 					}
 				}
@@ -306,10 +303,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error",
 							buildErrorCallbackArgs("Unable to connect, unknown host <" + host + ">", 0));
-			} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException
-					| UnrecoverableKeyException | SSLHandshakeException e) {
+			} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | UnrecoverableKeyException
+					 | SSLHandshakeException e) {
 				e.printStackTrace();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, SSL/TLS error: " + e.getMessage(), 0));
+				updateState(SocketModule.ERROR, "error",
+							buildErrorCallbackArgs("Unable to connect, SSL/TLS error: " + e.getMessage(), 0));
 			} catch (IOException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));

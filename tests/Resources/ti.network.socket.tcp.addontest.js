@@ -60,10 +60,10 @@ describe('Titanium.Network.Socket.TCP', function () {
 			useTls: true,
 			checkServerIdentity(hostname, cert) {
 				if (hostname === cert.subject.CN) {
-					return null;
+					return true;
 				}
 
-				return new Error('Invalid certificate');
+				return false;
 			},
 			connected: () => {
 				Ti.Stream.pump(socket, (e) => {
@@ -99,13 +99,13 @@ describe('Titanium.Network.Socket.TCP', function () {
 			host: 'httpbin.org',
 			port: 443,
 			useTls: true,
-			checkServerIdentity(hostname, cert) {
-				return new Error('Invalid certificate');
+			checkServerIdentity() {
+				return false;
 			},
 			connected() {
 				done(new Error('Unexpected socket connection.'));
 			},
-			error: e => {
+			error: () => {
 				done();
 			}
 		});
