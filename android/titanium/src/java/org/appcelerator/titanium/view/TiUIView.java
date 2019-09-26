@@ -2050,7 +2050,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected void disableHWAcceleration()
 	{
 		if (borderView == null
-			|| (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN && !borderView.isHardwareAccelerated())) {
+			|| (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN && borderView.isAttachedToWindow()
+				&& !borderView.isHardwareAccelerated())) {
 			return;
 		}
 		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),

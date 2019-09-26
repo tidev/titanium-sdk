@@ -1066,7 +1066,13 @@ public class TiUIWebView extends TiUIView
 
 	public void stopLoading()
 	{
-		getWebView().stopLoading();
+		getWebView().getHandler().post(new Runnable() {
+			@Override
+			public void run()
+			{
+				getWebView().stopLoading();
+			}
+		});
 	}
 
 	public boolean shouldInjectBindingCode()
