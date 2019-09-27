@@ -382,6 +382,41 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 	}
 
+	private class CloseSocketThread extends Thread
+	{
+		private KrollFunction callback = null;
+
+		public CloseSocketThread(KrollFunction callback)
+		{
+			super("CloseSocketThread");
+
+			this.callback = callback;
+		}
+
+		public void run()
+		{
+			try {
+				if (clientSocket != null) {
+					clientSocket.close();
+					clientSocket = null;
+				}
+
+				if (serverSocket != null) {
+					serverSocket.close();
+					serverSocket = null;
+				}
+				if (callback != null) {
+					callback.callAsync(getKrollObject(), new Object[] {});
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				if (callback != null) {
+					callback.callAsync(getKrollObject(), new Object[] { e });
+				}
+			}
+		}
+	}
+
 	private KrollDict buildConnectedCallbackArgs()
 	{
 		KrollDict callbackArgs = new KrollDict();
@@ -519,7 +554,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public void close() throws IOException
+	public void close(Object args[]) throws IOException
 	{
 		if (state == SocketModule.CLOSED) {
 			return;
@@ -530,22 +565,60 @@ public class TCPProxy extends KrollProxy implements TiStream
 								  + "> state");
 		}
 
-		try {
-			state = 0; // set socket state to uninitialized to prevent use while closing
-			closeSocket();
-			state = SocketModule.CLOSED;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException("Error occured when closing socket");
+		if (clientSocket.isClosed()) {
+			Log.d(TAG, "clientSocket already closed");
 		}
+
+		state = 0; // set socket state to uninitialized to prevent use while closing
+
+		if (args.length == 1) {
+			Object maybeCallback = args[0];
+			KrollFunction callback = null;
+			if (maybeCallback instanceof KrollFunction) {
+				callback = (KrollFunction) maybeCallback;
+			}
+
+			new CloseSocketThread(callback).start();
+		} else {
+			final RunnableResult runnableResult = new RunnableResult();
+			Runnable runnable = new Runnable() {
+				@Override
+				public void run()
+				{
+					try {
+						closeSocket();
+					} catch (IOException e) {
+						runnableResult.exception = e;
+					}
+				}
+			};
+
+			try {
+				Thread thread = new Thread(runnable);
+				thread.start();
+				thread.join();
+				state = SocketModule.CLOSED;
+			} catch (Exception ex) {
+				runnableResult.exception = ex;
+			}
+
+			if (runnableResult.exception != null) {
+				runnableResult.exception.printStackTrace();
+				throw new IOException("Error occured when closing socket");
+			}
+		}
+	}
+
+	private final class RunnableResult
+	{
+		Exception exception;
 	}
 
 	@Override
 	public void release()
 	{
 		try {
-			close();
+			close(new Object[] {});
 		} catch (Exception e) {
 			// do nothing...
 		}
