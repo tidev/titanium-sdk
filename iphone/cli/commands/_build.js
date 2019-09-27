@@ -3825,6 +3825,24 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			this.logger.debug(__('Writing %s', dest.cyan));
 			fs.ensureDirSync(parent);
 			fs.writeFileSync(dest, contents);
+
+			// Xcode 11 requires the workspacedata file to exist or else it doesn't properly
+			// rebuild the app if the Xcode project changes
+			const xcworkspaceDir = path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace');
+			const xcworkspacedataFile = path.join(xcworkspaceDir, 'contents.xcworkspacedata');
+			if (!fs.existsSync(xcworkspacedataFile)) {
+				this.logger.debug(__('Writing %s', xcworkspacedataFile.cyan));
+				fs.mkdirpSync(xcworkspaceDir);
+				fs.writeFileSync(xcworkspacedataFile, [
+					'<?xml version="1.0" encoding="UTF-8"?>',
+					'<Workspace',
+					'   version = "1.0">',
+					'   <FileRef',
+					'    location = "self:">',
+					'   </FileRef>',
+					'</Workspace>'
+				].join('\n'), 'utf-8');
+			}
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
