@@ -42,16 +42,19 @@ uiModule.fetchSemanticColor = function fetchSemanticColor (colorName) {
 	} else {
 		if (!colorset) {
 			try {
-				colorset = require('/semantic.colors.json'); // eslint-disable-line import/no-absolute-path
+				const colorsetFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'semantic.colors.json');
+				if (colorsetFile.exists()) {
+					colorset = JSON.parse(colorsetFile.read().text);
+				}
 			} catch (error) {
-				console.error('Failed to require colors file at /semantic.colors.json');
+				console.error('Failed to load colors file \'semantic.colors.json\'');
 				return;
 			}
 		}
 		try {
 			return colorset[colorName][uiModule.semanticColorType].color || colorset[colorName][uiModule.semanticColorType];
 		} catch (error) {
-			console.log(`Failed to lookup color for ${colorName}`);
+			console.error(`Failed to lookup color for ${colorName}`);
 		}
 	}
 };
