@@ -35,6 +35,7 @@ exports.init = function (logger, config, cli) {
 			const startLogTxt = __('Start simulator log'),
 				endLogTxt = __('End simulator log'),
 				levels = logger.getLevels(),
+				trimRE = new RegExp('^.*' + builder.tiapp.name + '\\[[^\\]]+\\]\\s*', 'g'),
 				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 
 			function endLog() {
@@ -58,34 +59,12 @@ exports.init = function (logger, config, cli) {
 				})
 				.on('log-file', function (line) {
 					// Titanium app log messages
-					let skipLine = false;
-
 					if (!simStarted) {
-						if (line.indexOf('{') === 0) {
-							try {
-								const headers = JSON.parse(line);
-								if (headers.appId !== builder.tiapp.id) {
-									logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, builder.tiLogServerPort));
-									logger.error(__('Stop the running Titanium app, then rebuild this app'));
-									logger.error(__('-or-'));
-									logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
-									process.exit(1);
-								}
-							} catch (e) {
-								// squeltch
-							}
-							skipLine = true;
-						}
-
 						simStarted = true;
 						logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 					}
-
-					if (skipLine) {
-						return;
-					}
-
-					const m = line.match(logLevelRE);
+					line = line.replace(trimRE, '');
+					var m = line.match(logLevelRE);
 					if (m) {
 						lastLogger = m[2].toLowerCase();
 						line = m[4].trim();
