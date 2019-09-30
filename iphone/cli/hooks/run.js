@@ -1,3 +1,5 @@
+/* eslint-disable security/detect-non-literal-regexp */
+
 /*
  * run.js: Titanium iOS CLI run hook
  *
@@ -36,7 +38,7 @@ exports.init = function (logger, config, cli) {
 				endLogTxt = __('End simulator log'),
 				levels = logger.getLevels(),
 				trimRE = new RegExp('^.*' + builder.tiapp.name + '\\[[^\\]]+\\]\\s*', 'g'),
-				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i'); // eslint-disable-line security/detect-non-literal-regexp
+				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			function endLog() {
 				if (simStarted) {
