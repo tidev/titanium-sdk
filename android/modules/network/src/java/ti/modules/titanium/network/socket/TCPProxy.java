@@ -400,11 +400,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 					clientSocket.close();
 					clientSocket = null;
 				}
-
 				if (serverSocket != null) {
 					serverSocket.close();
 					serverSocket = null;
 				}
+				state = SocketModule.CLOSED;
 				if (callback != null) {
 					callback.callAsync(getKrollObject(), new Object[] {});
 				}
