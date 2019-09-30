@@ -55,7 +55,7 @@ exports.init = function (logger, config, cli) {
 					launchBundleId:     cli.argv['launch-bundle-id'],
 					launchWatchApp:     builder.hasWatchApp && cli.argv['launch-watch-app'],
 					launchWatchAppOnly: builder.hasWatchApp && cli.argv['launch-watch-app-only'],
-					logServerPort:      builder.tiLogServerPort,
+					logFilename:        builder.tiapp.guid + '.log',
 					watchHandleOrUDID:  builder.watchSimHandle,
 					watchAppName:       cli.argv['watch-app-name']
 				})

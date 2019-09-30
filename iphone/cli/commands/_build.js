@@ -2514,7 +2514,7 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
 	this.tiLogServerPort = 0;
 
-	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+	if (this.target !== 'device') {
 		// we don't allow the log server in production
 		return next();
 	}
