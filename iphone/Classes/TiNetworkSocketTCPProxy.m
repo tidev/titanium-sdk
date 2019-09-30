@@ -651,7 +651,9 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
   internalState = SOCKET_CONNECTED;
 
-  if (connected != nil) {
+  KrollWrapper *checkServerIdentityWrapper = [self valueForUndefinedKey:@"checkServerIdentity"];
+  BOOL useTls = [TiUtils boolValue:[self valueForUndefinedKey:@"useTls"] def:NO];
+  if (connected != nil && !(useTls && checkServerIdentityWrapper != nil)) {
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:self, @"socket", nil];
     [self _fireEventToListener:@"connected" withObject:event listener:connected thisObject:self];
   }
@@ -683,6 +685,8 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
   if (result.isBoolean) {
     BOOL isValid = [result toBool];
     if (isValid) {
+      NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:self, @"socket", nil];
+      [self _fireEventToListener:@"connected" withObject:event listener:connected thisObject:self];
       return;
     } else {
       id resultObject = [result toObject];
