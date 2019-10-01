@@ -18,6 +18,7 @@ import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
 import android.view.Gravity;
@@ -217,6 +218,13 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int OVER_SCROLL_NEVER = 2; //android.view.View.OVER_SCROLL_NEVER;
 
+	@Kroll.constant
+	public static final int MODE_NIGHT_NO = Configuration.UI_MODE_NIGHT_NO;
+	@Kroll.constant
+	public static final int MODE_NIGHT_YES = Configuration.UI_MODE_NIGHT_YES;
+	@Kroll.constant
+	public static final int MODE_NIGHT_UNDEFINED = Configuration.UI_MODE_NIGHT_UNDEFINED;
+
 	public AndroidModule()
 	{
 		super();
@@ -257,6 +265,17 @@ public class AndroidModule extends KrollModule
 				}
 			}
 		});
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getNightModeStatus()
+	// clang-format on
+	{
+		int status = TiApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode
+					 & Configuration.UI_MODE_NIGHT_MASK;
+		return status;
 	}
 
 	@Override
