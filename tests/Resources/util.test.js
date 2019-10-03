@@ -10,6 +10,7 @@
 /* eslint no-new-wrappers: "off" */
 
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
 
 let util;
 
@@ -364,25 +365,49 @@ describe('util', () => {
 				util.format('%o', obj).should.eql('{ foo: \'bar\' }');
 			});
 
+			// FIXME: JSC/iOS seems to have inconsistent ordering of properties
+			// First time around, it tends to go: arguments, caller, length, name, prototype.
+			// Android/V8 is consistent
+			// The property order is not consistent on iOS, which is kind of expected
+			// since internally Object.getOwnPropertyNames is used, which does not
+			// guarantee a specific order of returned property names.
+			// On Android the order seems to be consistent
 			it('with object', () => {
 				const obj = {
 					foo: 'bar',
 					foobar: 1,
 					func: function () {}
 				};
-				util.format('%o', obj).should.eql(
-					'{\n'
-					+ '  foo: \'bar\',\n'
-					+ '  foobar: 1,\n'
-					+ '  func: <ref *1> [Function: func] {\n'
-					+ '    [arguments]: null,\n'
-					+ '    [caller]: null,\n'
-					+ '    [length]: 0,\n'
-					+ '    [name]: \'func\',\n'
-					+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
-					+ '  }\n'
-					+ '}'
-				);
+				const result = util.format('%o', obj);
+				if (utilities.isAndroid()) { // Android/V8
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [length]: 0,\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [arguments]: null,\n'
+						+ '    [caller]: null,\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '}'
+					);
+				} else { // iOS/JSC
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [arguments]: null,\n'
+						+ '    [caller]: null,\n'
+						+ '    [length]: 0,\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '}'
+					);
+				}
 			});
 
 			it('with nested object', () => {
@@ -391,59 +416,104 @@ describe('util', () => {
 					foobar: 1,
 					func: [ { a: function () {} } ]
 				};
-				util.format('%o', nestedObj2).should.eql(
-					'{\n'
-					+ '  foo: \'bar\',\n'
-					+ '  foobar: 1,\n'
-					+ '  func: [\n'
-					+ '    {\n'
-					+ '      a: <ref *1> [Function: a] {\n'
-					+ '        [arguments]: null,\n'
-					+ '        [caller]: null,\n'
-					+ '        [length]: 0,\n'
-					+ '        [name]: \'a\',\n'
-					+ '        [prototype]: a { [constructor]: [Circular *1] }\n'
-					+ '      }\n'
-					+ '    },\n'
-					+ '    [length]: 1\n'
-					+ '  ]\n'
-					+ '}'
-				);
+				const result = util.format('%o', nestedObj2);
+				if (utilities.isAndroid()) { // Android/V8
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: [\n'
+						+ '    {\n'
+						+ '      a: <ref *1> [Function: a] {\n'
+						+ '        [length]: 0,\n'
+						+ '        [name]: \'a\',\n'
+						+ '        [arguments]: null,\n'
+						+ '        [caller]: null,\n'
+						+ '        [prototype]: a { [constructor]: [Circular *1] }\n'
+						+ '      }\n'
+						+ '    },\n'
+						+ '    [length]: 1\n'
+						+ '  ]\n'
+						+ '}'
+					);
+				} else { // iOS/JSC
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: [\n'
+						+ '    {\n'
+						+ '      a: <ref *1> [Function: a] {\n'
+						+ '        [arguments]: null,\n'
+						+ '        [caller]: null,\n'
+						+ '        [length]: 0,\n'
+						+ '        [name]: \'a\',\n'
+						+ '        [prototype]: a { [constructor]: [Circular *1] }\n'
+						+ '      }\n'
+						+ '    },\n'
+						+ '    [length]: 1\n'
+						+ '  ]\n'
+						+ '}'
+					);
+				}
 			});
 
-			// The property order is not consistent on iOS, which is kind of expected
-			// since internally Object.getOwnPropertyNames is used, which does not
-			// guarantee a specific order of returned property names.
-			// On Android the order seems to be consistent
-			it.iosBroken('with same object twice', () => {
+			it('with same object twice', () => {
 				const obj = {
 					foo: 'bar',
 					foobar: 1,
 					func: function () {}
 				};
-				util.format('%o %o', obj, obj).should.eql(
-					'{\n'
-					+ '  foo: \'bar\',\n'
-					+ '  foobar: 1,\n'
-					+ '  func: <ref *1> [Function: func] {\n'
-					+ '    [arguments]: null,\n'
-					+ '    [caller]: null,\n'
-					+ '    [length]: 0,\n'
-					+ '    [name]: \'func\',\n'
-					+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
-					+ '  }\n'
-					+ '} {\n'
-					+ '  foo: \'bar\',\n'
-					+ '  foobar: 1,\n'
-					+ '  func: <ref *1> [Function: func] {\n'
-					+ '    [arguments]: null,\n'
-					+ '    [caller]: null,\n'
-					+ '    [length]: 0,\n'
-					+ '    [name]: \'func\',\n'
-					+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
-					+ '  }\n'
-					+ '}'
-				);
+				const result = util.format('%o %o', obj, obj);
+				if (utilities.isAndroid()) { // Android/V8
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [length]: 0,\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [arguments]: null,\n'
+						+ '    [caller]: null,\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '} {\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [length]: 0,\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [arguments]: null,\n'
+						+ '    [caller]: null,\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '}'
+					);
+				} else { // iOS/JSC
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [arguments]: null,\n'
+						+ '    [caller]: null,\n'
+						+ '    [length]: 0,\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '} {\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [arguments]: null,\n'
+						+ '    [caller]: null,\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] },\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [length]: 0\n'
+						+ '  }\n'
+						+ '}'
+					);
+				}
 			});
 		});
 	});
