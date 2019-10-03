@@ -432,7 +432,12 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
+  id source = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
+  if (source != nil) {
+    [launchOptions setObject:source forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
@@ -453,7 +458,11 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
+  if (sourceApplication != nil) {
+    [launchOptions setObject:sourceApplication forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
