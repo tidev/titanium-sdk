@@ -168,6 +168,27 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	}
 }
 
+def cliUnitTests(nodeVersion, npmVersion) {
+	return {
+		node('git && osx') { // ToDo: refactor to try and run across mac, linux, and windows?
+			unstash 'cli-unit-tests'
+			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+				ensureNPM(npmVersion)
+				sh 'npm ci'
+				try {
+					sh 'npm run test:cli'
+				} finally {
+					if (fileExists('coverage/cobertura-coverage.xml')) {
+						step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
+					}
+					stash includes: 'junit.cli.report.xml', name: 'test-report-cli'
+					junit 'junit.cli.report.xml'
+				}
+			}
+		}
+	}
+}
+
 // Wrap in timestamper
 timestamps {
 	try {
@@ -217,6 +238,7 @@ timestamps {
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
+					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**', name: 'cli-unit-tests'
 					// was it a failure?
 					if (npmTestResult != 0) {
 						error readFile('npm_test.log')
@@ -296,6 +318,7 @@ timestamps {
 			parallel(
 				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch, testOnDevices),
 				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch, testOnDevices),
+				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: true
 			)
 		}
@@ -464,6 +487,9 @@ timestamps {
 						} catch (e) {}
 						try {
 							unstash 'test-report-android' // junit.android.report.xml
+						} catch (e) {}
+						try {
+							unstash 'test-report-cli' // junit.android.report.xml
 						} catch (e) {}
 						ensureNPM(npmVersion)
 						sh 'npm ci'
