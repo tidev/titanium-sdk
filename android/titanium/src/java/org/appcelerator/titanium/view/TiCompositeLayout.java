@@ -21,6 +21,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,6 +94,13 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 * Set to a negative value if child should fill the parent's remaining height instead.
 	 */
 	private int childFillHeight = -1;
+
+	/**
+	 * The last window insets object received by the onApplyWindowInsets() method.
+	 * This object is immutable. Will be null if not received yet or has been cleared.
+	 * Note: This references an Android 5.0 class. Do NOT access it in older Android OS versions.
+	 */
+	private WindowInsets previousInsets;
 
 	private WeakReference<TiViewProxy> proxy;
 
@@ -464,6 +472,13 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			return null;
 		}
 
+		// Do not propagate given insets to child views unless the insets have changed.
+		// This greatly improves performance if we have deeply nested views since each view will trigger a relayout.
+		if (insets.equals(this.previousInsets)) {
+			return insets;
+		}
+		this.previousInsets = insets;
+
 		// Apply insets to all child views and don't let them consume given insets.
 		// We must do this since a "composite" layout supports overlapping views.
 		final int childCount = getChildCount();
@@ -474,6 +489,49 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			}
 		}
 		return insets;
+	}
+
+	/**
+	 * Requests parent view (and the parent's parent) to redispatch system insets to all child views.
+	 * This method should be called when dynamically adding views that have setFitsSystemWindows() set to true.
+	 */
+	@Override
+	public void requestApplyInsets()
+	{
+		// The super class' method is only supported on Android 5.0 and higher.
+		if (Build.VERSION.SDK_INT < 20) {
+			return;
+		}
+
+		// Clear last stored insets and then request parent to redispatch system insets to all child views.
+		this.previousInsets = null;
+		super.requestApplyInsets();
+	}
+
+	/**
+	 * Requests parent view (and the parent's parent) to redispatch system insets to all child views.
+	 * This method should be called when dynamically adding views that have setFitsSystemWindows() set to true.
+	 */
+	@Override
+	public void requestFitSystemWindows()
+	{
+		// Clear last stored insets and then request parent to redispatch system insets to all child views.
+		if (Build.VERSION.SDK_INT >= 20) {
+			this.previousInsets = null;
+		}
+		super.requestFitSystemWindows();
+	}
+
+	/** Called when this view has been detached/removed from the activity window. */
+	@Override
+	protected void onDetachedFromWindow()
+	{
+		super.onDetachedFromWindow();
+
+		// Clear last stored insets received by the onApplyWindowInsets() method.
+		if (Build.VERSION.SDK_INT >= 20) {
+			this.previousInsets = null;
+		}
 	}
 
 	@Override
