@@ -133,6 +133,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public static long START_TIME_MS = 0;
+
 	public TiApplication()
 	{
 		Log.checkpoint(TAG, "checkpoint, app created.");
@@ -375,6 +377,23 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		deployData = new TiDeployData(this);
 
 		registerActivityLifecycleCallbacks(new TiApplicationLifecycle());
+
+		// Set up a listener to be invoked just before Titanium's JavaScript runtime gets terminated.
+		// Note: Runtime will be terminated once all Titanium activities have been destroyed.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				// Fire a Ti.App "close" event. Must be fired synchronously before termination.
+				KrollModule appModule = getModuleByName("App");
+				if (appModule != null) {
+					appModule.fireSyncEvent(TiC.EVENT_CLOSE, null);
+				}
+
+				// Cancel all Titanium timers.
+				cancelTimers();
+			}
+		});
 	}
 
 	@Override

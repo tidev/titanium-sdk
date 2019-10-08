@@ -299,8 +299,8 @@ function deepEqual(actual, expected, strictness, references) {
 	}
 
 	let comparison = COMPARE_TYPE.Object;
-	if (util.types.isRegexp(actual)) { // RegExp source and flags should match
-		if (!util.types.isRegexp(expected) || actual.flags !== expected.flags || actual.source !== expected.source) {
+	if (util.types.isRegExp(actual)) { // RegExp source and flags should match
+		if (!util.types.isRegExp(expected) || actual.flags !== expected.flags || actual.source !== expected.source) {
 			return false;
 		}
 		// continue on to check properties...
@@ -624,7 +624,7 @@ function checkError(actual, expected, message) {
 	// Error type - check type matches
 	// Error instance - compare properties
 	if (typeof expected === 'object') {
-		if (util.types.isRegexp(expected)) {
+		if (util.types.isRegExp(expected)) {
 			return expected.test(actual); // does the error match the RegExp expression? if so, pass
 		}
 
@@ -666,7 +666,7 @@ function checkError(actual, expected, message) {
 		}
 
 		// If `expected` is a subclass of Error but `actual` wasn't an instance of it (above), fail
-		if (Error.isPrototypeOf(expected)) {
+		if (Object.prototype.isPrototypeOf.call(Error, expected)) {
 			return false;
 		}
 

@@ -24,7 +24,7 @@ const appc = require('node-appc'),
 	},
 
 	tagAttrs = {
-		application: /^(allowTaskReparenting|allowBackup|allowClearUserData|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|roundIcon|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
+		application: /^(allowTaskReparenting|allowBackup|allowClearUserData|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|requestLegacyExternalStorage|roundIcon|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/, // eslint-disable-line max-len
 		activity: /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|colorMode|configChanges|density|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|immersive|label|launchMode|lockTaskMode|maxRecents|maxAspectRatio|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/, // eslint-disable-line max-len
 		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
 		data: /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
@@ -33,7 +33,7 @@ const appc = require('node-appc'),
 		'path-permission': /^(path|pathPrefix|pathPattern|permission|readPermissions|writePermissions)$/,
 		provider: /^(authorities|directBootAware|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
 		receiver: /^(directBootAware|enabled|exported|icon|label|name|permission|process)$/,
-		service: /^(description|directBootAware|enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
+		service: /^(description|directBootAware|enabled|exported|icon|isolatedProcess|label|name|permission|process|foregroundServiceType)$/,
 		'uses-library': /^(name|required)$/,
 		'uses-sdk': /^(maxSdkVersion|minSdkVersion|targetSdkVersion)$/
 	};

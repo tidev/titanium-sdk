@@ -381,6 +381,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeAd
 
 	if (!cls) {
 		LOGE(TAG, "Could not find source code provider class for module: %s", mName);
+		env->ReleaseStringUTFChars(moduleName, mName);
 		return;
 	}
 
@@ -388,10 +389,12 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeAd
 	env->DeleteLocalRef(cls);
 	if (!method) {
 		LOGE(TAG, "Could not find getSourceCode method in source code provider class for module: %s", mName);
+		env->ReleaseStringUTFChars(moduleName, mName);
 		return;
 	}
 
 	KrollBindings::addExternalCommonJsModule(mName, env->NewGlobalRef(sourceProvider), method);
+	env->ReleaseStringUTFChars(moduleName, mName);
 }
 
 // This method disposes of all native resources used by V8 when

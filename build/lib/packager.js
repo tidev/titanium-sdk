@@ -6,20 +6,15 @@ const os = require('os');
 const exec = promisify(require('child_process').exec);  // eslint-disable-line security/detect-child-process
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
-const rollup = require('rollup').rollup;
-const babel = require('rollup-plugin-babel');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
 const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
-const copyPackageAndDependencies = utils.copyPackageAndDependencies;
 const moduleCopier = require('./module-copier');
 
 const ROOT_DIR = path.join(__dirname, '../..');
+const TMP_DIR = path.join(ROOT_DIR, 'dist', 'tmp');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
-const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 const TITANIUM_PREP_LOCATIONS = [
 	'android/titanium_prep.linux32',
@@ -75,38 +70,6 @@ async function unzip(zipfile, dest) {
 	});
 }
 
-function determineBabelOptions() {
-	// Pull out android's V8 target (and transform into equivalent chrome version)
-	// eslint-disable-next-line security/detect-non-literal-require
-	const v8Version = require(path.join(ROOT_DIR, 'android/package.json')).v8.version;
-	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
-	const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
-	// Now pull out min IOS target
-	// eslint-disable-next-line security/detect-non-literal-require
-	const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
-	// TODO: filter to only targets relevant for platforms we're building?
-	const options = {
-		targets: {
-			chrome: chromeVersion,
-			ios: minIosVersion
-		},
-		useBuiltIns: 'entry',
-		// DO NOT include web polyfills!
-		exclude: [ 'web.dom.iterable', 'web.immediate', 'web.timers' ],
-		corejs: 2
-	};
-	// pull out windows target (if it exists)
-	if (fs.pathExistsSync(path.join(ROOT_DIR, 'windows/package.json'))) {
-		// eslint-disable-next-line security/detect-non-literal-require
-		const windowsSafariVersion = require(path.join(ROOT_DIR, 'windows/package.json')).safari;
-		options.targets.safari = windowsSafariVersion;
-	}
-	return {
-		presets: [ [ '@babel/env', options ] ],
-		exclude: 'node_modules/**'
-	};
-}
-
 class Packager {
 	/**
 	 * @param {String} outputDir path to place the temp files and zipfile
@@ -133,6 +96,7 @@ class Packager {
 		// Location where we build up the zip file contents
 		this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 		this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
+		this.commonResourcesDir = path.join(this.zipSDKDir, 'common', 'Resources');
 		this.skipZip = options.skipZip;
 		this.options = options;
 	}
@@ -150,8 +114,8 @@ class Packager {
 			this.generateManifestJSON(),
 			// copy misc dirs/files over
 			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
-			// transpile/bundle and copy common/ JS files
-			this.transpile(),
+			// copy over 'common' bundle optimized for each platform
+			this.copyCommonBundles(),
 			// grab down and unzip the native modules
 			this.includePackagedModules(),
 			// copy over support/
@@ -168,6 +132,15 @@ class Packager {
 
 		// zip up the full SDK
 		return this.zip();
+	}
+
+	/**
+	 * Copy 'common' bundles
+	 * @returns {Promise<void>}
+	 */
+	async copyCommonBundles() {
+		await fs.ensureDir(this.commonResourcesDir);
+		return fs.copy(path.join(TMP_DIR, 'common'), this.commonResourcesDir);
 	}
 
 	/**
@@ -245,50 +218,6 @@ class Packager {
 	 */
 	async copy(files) {
 		return copyFiles(this.srcDir, this.zipSDKDir, files);
-	}
-
-	async transpile() {
-		// Copy over common dir, @babel/polyfill, etc into some temp dir
-		// Then run rollup/babel on it, then just copy the resulting bundle to our real destination!
-		// The temporary location we'll assembled the transpiled bundle
-		const tmpBundleDir = path.join(this.zipSDKDir, 'common_temp');
-
-		console.log('Copying common SDK JS over');
-		await fs.copy(path.join(this.srcDir, 'common'), tmpBundleDir);
-
-		// copy over polyfill and its dependencies
-		console.log('Copying JS polyfills over');
-		const modulesDir = path.join(tmpBundleDir, 'Resources/node_modules');
-		// make sure our 'node_modules' directory exists
-		await fs.ensureDir(modulesDir);
-		copyPackageAndDependencies('@babel/polyfill', modulesDir);
-
-		console.log('Transpiling and bundling common SDK JS');
-		// the ultimate destinatio for our common SDK JS
-		const destDir = path.join(this.zipSDKDir, 'common');
-		// create a bundle
-		console.log('running rollup');
-		const babelOptions = determineBabelOptions();
-		const bundle = await rollup({
-			input: `${tmpBundleDir}/Resources/ti.main.js`,
-			plugins: [
-				resolve(),
-				commonjs(),
-				babel(babelOptions)
-			],
-			external: [ './app', 'com.appcelerator.aca' ]
-		});
-
-		// write the bundle to disk
-		console.log('Writing common SDK JS bundle to disk');
-		await bundle.write({ format: 'cjs', file: `${destDir}/Resources/ti.main.js` });
-
-		// We used to have to copy over ti.internal, but it is now bundled into ti.main.js
-		// if we ever have files there that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.
-
-		// Remove the temp dir we assembled the parts inside!
-		console.log('Removing temporary common SDK JS bundle directory');
-		await fs.remove(tmpBundleDir);
 	}
 
 	async hackTitaniumSDKModule() {
