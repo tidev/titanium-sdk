@@ -43,7 +43,7 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 					createTab('Tab 3') ]
 			});
 		navigationWindow.open();
-		navigationWindow.openTabGroup(tabGroup);
+		navigationWindow.openWindow(tabGroup);
 	});
 
 });

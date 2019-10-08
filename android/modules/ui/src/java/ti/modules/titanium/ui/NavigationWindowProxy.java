@@ -50,8 +50,8 @@ public class NavigationWindowProxy extends WindowProxy
 	{
 		// Keep first "root" window
 		for (int i = windows.size() - 1; i > 0; i--) {
-			WindowProxy window = ((WindowProxy) windows.get(i));
-			closeWindow(window, arg);
+			TiWindowProxy window = windows.get(i);
+			window.close(arg);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class NavigationWindowProxy extends WindowProxy
 	// clang-format on
 	{
 		popToRootWindow(arg);
-		closeWindow(((WindowProxy) windows.get(0)), arg); // close the root window
+		closeWindow(windows.get(0), arg); // close the root window
 		super.close(arg);
 	}
 
@@ -92,14 +92,20 @@ public class NavigationWindowProxy extends WindowProxy
 
 	// clang-format off
 	@Kroll.method
-	public void closeWindow(WindowProxy window, @Kroll.argument(optional = true) Object arg)
+	public void closeWindow(Object childToClose, @Kroll.argument(optional = true) Object arg)
 	// clang-format on
 	{
 		// TODO: If they try to close root window, yell at them:
 		// DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
-		windows.remove(window);
-		window.close(arg);
-		window.setNavigationWindow(null);
+
+		// Guard for types different from Window and TabGroup
+		if (!(childToClose instanceof TiWindowProxy)) {
+			return;
+		}
+
+		windows.remove(childToClose);
+		((TiWindowProxy) childToClose).close(arg);
+		((TiWindowProxy) childToClose).setNavigationWindow(null);
 	}
 
 	@Override
