@@ -69,7 +69,7 @@ description: |
           <th>Android</th>
           <th>iOS</th>
         </tr>
-      <thead>
+      </thead>
       <tbody>
         <tr>
           <th align="left">TLS 1.0</th>
@@ -86,7 +86,12 @@ description: |
           <td>4.1+</td>
           <td>5.0+</td>
         </tr>
-      <tbody>
+        <tr>
+          <th align="left">TLS 1.3</th>
+          <td>10.0+</td>
+          <td>12.2+</td>
+        </tr>
+      </tbody>
     </table>
 
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with

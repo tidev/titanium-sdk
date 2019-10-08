@@ -253,6 +253,12 @@
   [[self sliderView] setEnabled:[TiUtils boolValue:value]];
 }
 
+- (void)setTrackTintColor_:(id)value
+{
+  UIColor *newColor = [[TiUtils colorValue:value] _color];
+  [[self sliderView] setMaximumTrackTintColor:newColor];
+}
+
 - (CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
   CGFloat result = [[self sliderView] sizeThatFits:CGSizeZero].height;
