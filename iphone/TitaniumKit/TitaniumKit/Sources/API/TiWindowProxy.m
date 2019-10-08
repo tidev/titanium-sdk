@@ -553,12 +553,12 @@
       if (style != -1) {
         [theController setModalTransitionStyle:style];
       }
-      style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
-      if (style != -1) {
+      modalStyle = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
+      if (modalStyle != -1) {
         // modal transition style page curl must be done only in fullscreen
         // so only allow if not page curl
         if ([theController modalTransitionStyle] != UIModalTransitionStylePartialCurl) {
-          [theController setModalPresentationStyle:style];
+          [theController setModalPresentationStyle:modalStyle];
         }
       }
 
@@ -744,6 +744,11 @@
   if (isModal && closing) {
     [self windowDidClose];
   }
+}
+
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+{
+  return modalStyle;
 }
 
 - (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController

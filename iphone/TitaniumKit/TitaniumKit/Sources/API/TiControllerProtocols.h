@@ -42,6 +42,7 @@
 - (void)viewDidDisappear:(BOOL)animated;
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController;
 - (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController;
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller;
 
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container;
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
