@@ -28,6 +28,7 @@
   TiAnimation *closeAnimation;
   UIView *animatedOver;
   TiUIiOSTransitionAnimationProxy *transitionProxy;
+  UIModalPresentationStyle modalStyle;
 }
 
 @property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;

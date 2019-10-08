@@ -168,6 +168,15 @@
   [super viewDidDisappear:animated];
 }
 
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+{
+  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    UIModalPresentationStyle style = [(id<TiWindowProtocol>)_proxy adaptivePresentationStyleForPresentationController:controller];
+    return style;
+  }
+  return UIModalPresentationNone;
+}
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController
 {
