@@ -51,16 +51,16 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 				// We have a node with the same name. Merging as follows:
 				// Nodes with the same name get overwritten to maintain backwards compatiblity.
 				// Nodes with different name are appended to the parent node.
-				xml.forEachElement(node, function (nodeChild) {
+				_t.logger.debug(__('Merging XML node %s in file %s', String(n).cyan, dest.cyan));
+				xml.forEachElement(node, function (childNode) {
 					// We have node with the same name, remove the current one.
 					xml.forEachElement(nodes[node.tagName][n], function (alreadyAddedChild) {
-						if (alreadyAddedChild.getAttribute('name') === nodeChild.getAttribute('name')) {
+						if (alreadyAddedChild.getAttribute('name') === childNode.getAttribute('name')) {
 							alreadyAddedChild.parentNode.removeChild(alreadyAddedChild);
 						}
 					});
-					nodes[node.tagName][n].appendChild(nodeChild.cloneNode(true));
+					nodes[node.tagName][n].appendChild(childNode.cloneNode(true));
 				});
-				_t.logger.warn(__('Merging XML node %s in file %s', String(n).cyan, dest.cyan));
 				return;
 			}
 			nodes[node.tagName][n] = node;
