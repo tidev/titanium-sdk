@@ -2115,6 +2115,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)didDismissSearchController:(UISearchController *)searchController
 {
+  [self hideDimmingView];
   self.searchString = @"";
   [self buildResultsForSearchText];
 
