@@ -2073,6 +2073,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LEFT_DRAWER_LOCK_MODE = "leftDrawerLockMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LINES = "lines";
 
 	/**
@@ -2743,6 +2748,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RIGHT_DRAWER_LOCK_MODE = "rightDrawerLockMode";
 
 	/**
 	 * @module.api

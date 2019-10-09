@@ -91,6 +91,20 @@ properties:
     constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
     default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
 
+  - name: leftDrawerLockMode
+    summary: Get or set lock mode for the left drawer
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+    since: "8.3.0"
+
+  - name: rightDrawerLockMode
+    summary: Get or set lock mode for the right drawer
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+    since: "8.3.0"
+
   - name: toolbarEnabled
     summary: Determine whether to enable the toolbar.
     description: |

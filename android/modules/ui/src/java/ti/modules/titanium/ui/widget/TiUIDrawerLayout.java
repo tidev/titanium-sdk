@@ -418,6 +418,12 @@ public class TiUIDrawerLayout extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
 			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_DRAWER_LOCK_MODE)));
 		}
+		if (d.containsKey(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)), Gravity.START);
+		}
+		if (d.containsKey(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)), Gravity.END);
+		}
 		// If theme has default ActionBar ignore `toolbarEnabled` and `toolbar` properties
 		if (!this.themeHasActionBar) {
 			if (d.containsKey(TiC.PROPERTY_TOOLBAR_ENABLED)) {
@@ -537,7 +543,10 @@ public class TiUIDrawerLayout extends TiUIView
 
 		} else if (key.equals(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
 			layout.setDrawerLockMode(TiConvert.toInt(newValue));
-
+		} else if (key.equals(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+			layout.setDrawerLockMode(TiConvert.toInt(newValue), Gravity.START);
+		} else if (key.equals(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+			layout.setDrawerLockMode(TiConvert.toInt(newValue), Gravity.END);
 		} else if (key.equals(TiC.PROPERTY_DRAWER_INDICATOR_ENABLED)) {
 			if (drawerToggle != null) {
 				drawerToggle.setDrawerIndicatorEnabled((Boolean) newValue);

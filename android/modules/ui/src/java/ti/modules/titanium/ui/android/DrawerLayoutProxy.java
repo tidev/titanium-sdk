@@ -220,6 +220,48 @@ public class DrawerLayoutProxy extends TiViewProxy
 		setPropertyAndFire(TiC.PROPERTY_DRAWER_LOCK_MODE, arg);
 	}
 
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLeftDrawerLockMode()
+	// clang-format on
+	{
+		if (hasProperty(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+			return (Integer) getProperty(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE);
+		}
+		return LOCK_MODE_UNDEFINED;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setLeftDrawerLockMode(Object arg)
+	// clang-format on
+	{
+		setPropertyAndFire(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE, arg);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getRightDrawerLockMode()
+	// clang-format on
+	{
+		if (hasProperty(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+			return (Integer) getProperty(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE);
+		}
+		return LOCK_MODE_UNDEFINED;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setRightDrawerLockMode(Object arg)
+	// clang-format on
+	{
+		setPropertyAndFire(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE, arg);
+	}
+
 	@Kroll.method
 	public void interceptTouchEvent(TiViewProxy view, Boolean disallowIntercept)
 	{
