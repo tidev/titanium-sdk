@@ -247,6 +247,21 @@ methods:
         type: Callback<ContactsAuthorizationResponse>
 
 properties:
+  - name: includeNote
+    summary: A boolean value that indicates whether to fetch the notes stored in contacts or not.
+    description:  |
+        This  property need to be set before calling contacts APIs.
+        From iOS 13 or later if your app fetch note field from contact, the app must have to set key 'com.apple.developer.contacts.notes' to 'true' in entitelements section of tiapp.xml.
+        
+        <key>com.apple.developer.contacts.notes</key>
+        <true/>
+        
+        See more details at https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_contacts_notes and https://developer.apple.com/contact/request/contact-note-field.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    since: 8.2.1
+
   - name: CONTACTS_KIND_ORGANIZATION
     summary: Specifies that a contact is an organization.
     description:  |
