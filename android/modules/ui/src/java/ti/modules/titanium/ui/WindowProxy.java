@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -56,6 +57,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -168,6 +170,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
 		} else {
 			topActivity.startActivity(intent);
+			if (topActivity instanceof TiRootActivity) {
+				// A fade-in transition from root splash screen to first window looks better than a slide-up.
+				// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
+				topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+			}
 		}
 
 		if (options.containsKey(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE)) {
@@ -310,7 +317,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		// Handle barColor property.
 		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
 			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)));
-			activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(colorInt));
+			ActionBar actionBar = activity.getSupportActionBar();
+			// Guard for using a theme with actionBar disabled.
+			if (actionBar != null) {
+				actionBar.setBackgroundDrawable(new ColorDrawable(colorInt));
+			} else {
+				Log.w(TAG, "Trying to set a barColor on a Window with ActionBar disabled. Property will be ignored.");
+			}
 		}
 		activity.getActivityProxy().getDecorView().add(this);
 
