@@ -52,6 +52,7 @@ public class NavigationWindowProxy extends WindowProxy
 		for (int i = windows.size() - 1; i > 0; i--) {
 			TiWindowProxy window = windows.get(i);
 			window.close(arg);
+			windows.remove(window);
 		}
 	}
 
