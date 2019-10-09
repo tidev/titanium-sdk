@@ -6,50 +6,10 @@
  */
 package ti.modules.titanium.media;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.TiTempFileHelper;
-import org.appcelerator.titanium.ContextSpecific;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileProvider;
-import org.appcelerator.titanium.io.TiFile;
-import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiActivityResultHandler;
-import org.appcelerator.titanium.util.TiActivitySupport;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiIntentWrapper;
-import org.appcelerator.titanium.util.TiMimeTypeHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
-
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -68,6 +28,44 @@ import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.TiTempFileHelper;
+import org.appcelerator.titanium.ContextSpecific;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.io.TiFileProvider;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiActivityResultHandler;
+import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiIntentWrapper;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -384,6 +382,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
+		KrollFunction androidbackCallback = null;
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
@@ -401,6 +400,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
 			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ANDROID_BACK)) {
+			androidbackCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ANDROID_BACK);
 		}
 		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOSAVE)) {
 			saveToPhotoGallery = cameraOptions.getBoolean(PROP_AUTOSAVE);
@@ -441,6 +443,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraActivity.successCallback = successCallback;
 		TiCameraActivity.cancelCallback = cancelCallback;
 		TiCameraActivity.errorCallback = errorCallback;
+		TiCameraActivity.androidbackCallback = androidbackCallback;
 		TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
 		TiCameraActivity.autohide = autohide;
 		TiCameraActivity.overlayProxy = overLayProxy;

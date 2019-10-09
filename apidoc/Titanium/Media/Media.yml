@@ -8,10 +8,10 @@ description: |
     For examples of using the Media APIs, refer to the
     [Working with Media APIs guide](https://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
-    **Note**: Some third party Android camera apps may choose to ignore video recording quality 
-    settings. If you wish to specifically set the video quality, don't assume 
-    EXTRA_VIDEO_QUALITY intent will be respected by the camera app and use Titanium's built-in 
-    camera window which can be used to assign the "overlay" property when calling the 
+    **Note**: Some third party Android camera apps may choose to ignore video recording quality
+    settings. If you wish to specifically set the video quality, don't assume
+    EXTRA_VIDEO_QUALITY intent will be respected by the camera app and use Titanium's built-in
+    camera window which can be used to assign the "overlay" property when calling the
     showCamera() method.
 extends: Titanium.Module
 since: "0.1"
@@ -102,7 +102,7 @@ methods:
         files may be imported by saving them with the `.mov` extension.
 
         On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
-        
+
         On iOS the `NSPhotoLibraryAddUsageDescription` plist key is required in the tiapp.xml in order
         to use this API. Also make sure to check for the gallery permissions with <Titanium.Media.hasPhotoGalleryPermissions>
         and request the permissions with <Titanium.Media.requestPhotoGalleryPermissions> if not granted so far.
@@ -1914,6 +1914,15 @@ properties:
   - name: cancel
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
+  - name: androidback
+    summary: Function to call if the user presses the back button.
+    description: |
+        On Android, this property is considered only if `overlay` is also set. If the user presses
+        the back button on the phone this callback function will be called. The camera view stays
+        open and you will need to call `Ti.Media.hideCamera();` if you want to close it.
+    type: Callback<FailureResponse>
+    platforms: [android]
+    since: {android: "9.0.0"}
   - name: autohide
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean

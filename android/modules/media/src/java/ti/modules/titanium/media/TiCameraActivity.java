@@ -6,25 +6,10 @@
  */
 package ti.modules.titanium.media;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.List;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.io.TiFile;
-import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -32,9 +17,9 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.Size;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,7 +34,20 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.content.pm.PackageManager;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 
 @SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
@@ -81,7 +79,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public static MediaModule mediaContext;
 	public static KrollObject callbackContext;
-	public static KrollFunction successCallback, errorCallback, cancelCallback;
+	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
@@ -586,7 +584,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	/**
 	 * Computes the optimal preview size given the target display size and aspect ratio.
-	 * 
+	 *
 	 * @param supportPreviewSizes
 	 *            a list of preview sizes the camera supports
 	 * @param targetSize
@@ -630,9 +628,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	}
 
 	/**
-	 * Computes the optimal picture size given the preview size. 
+	 * Computes the optimal picture size given the preview size.
 	 * This returns the maximum resolution size.
-	 * 
+	 *
 	 * @param sizes
 	 *            a list of picture sizes the camera supports
 	 * @return the optimal size of the picture
@@ -945,12 +943,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onBackPressed()
 	{
-		if (cancelCallback != null) {
+		if (androidbackCallback != null) {
 			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, "User cancelled the request");
-			cancelCallback.callAsync(callbackContext, response);
+			response.putCodeAndMessage(-1, "User pressed androidback");
+			androidbackCallback.callAsync(callbackContext, response);
+		} else {
+			if (cancelCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(-1, "User cancelled the request");
+				cancelCallback.callAsync(callbackContext, response);
+			}
+			super.onBackPressed();
 		}
-		super.onBackPressed();
 	}
 
 	@Override
