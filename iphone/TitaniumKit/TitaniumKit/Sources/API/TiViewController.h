@@ -8,7 +8,7 @@
 #import "TiControllerProtocols.h"
 #import <UIKit/UIKit.h>
 
-@interface TiViewController : UIViewController {
+@interface TiViewController : UIViewController <UIAdaptivePresentationControllerDelegate> {
 
   TiViewProxy *_proxy;
   TiOrientationFlags _supportedOrientations;
