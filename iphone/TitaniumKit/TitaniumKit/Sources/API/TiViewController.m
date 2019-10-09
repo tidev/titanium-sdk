@@ -174,7 +174,15 @@
     UIModalPresentationStyle style = [(id<TiWindowProtocol>)_proxy adaptivePresentationStyleForPresentationController:controller];
     return style;
   }
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return UIModalPresentationAutomatic;
+  } else {
+    return UIModalPresentationNone;
+  }
+#else
   return UIModalPresentationNone;
+#endif
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
