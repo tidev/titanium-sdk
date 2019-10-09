@@ -27,7 +27,7 @@ TiApp *sharedApp;
 
 NSString *TITANIUM_VERSION;
 
-extern void UIColorFlushCache();
+extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 #define TIV @"TiVerify"
@@ -35,7 +35,7 @@ extern void UIColorFlushCache();
 BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
 
 // TODO: Remove in SDK 9.0+
-TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
 @interface TiApp ()
 - (void)checkBackgroundServices;
@@ -432,7 +432,12 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
+  id source = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
+  if (source != nil) {
+    [launchOptions setObject:source forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
@@ -453,7 +458,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
+  if (sourceApplication != nil) {
+    [launchOptions setObject:sourceApplication forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
@@ -573,6 +582,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
+// This is required because iOS does not conform to it's own recommended Obj-C compiler rules (Strict prototypes).
+// Muting the warnings until the UIApplicationDelegate fixes this.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
   RELEASE_TO_NIL(localNotification);
@@ -608,6 +622,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                   responseInfo:nil // iOS 9+ only
                              completionHandler:completionHandler];
 }
+
+#pragma clang diagnostic pop
 
 #pragma mark Apple Watchkit handleWatchKitExtensionRequest
 
@@ -689,9 +705,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
-- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler
+- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler
 {
-  typedef void (^NotificationBlock)();
+  typedef void (^NotificationBlock)(void);
 
   NotificationBlock myNotificationBlock = ^void() {
     [[NSNotificationCenter defaultCenter] postNotificationName:_notificationName object:self userInfo:_notification];
@@ -770,7 +786,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key
 {
   if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
-    void (^completionHandler)();
+    void (^completionHandler)(void);
     completionHandler = [backgroundTransferCompletionHandlers objectForKey:key];
     [backgroundTransferCompletionHandlers removeObjectForKey:key];
     completionHandler();
@@ -1260,7 +1276,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)handleRemoteNotificationWithIdentifier:(NSString *)identifier
                                    andUserInfo:(NSDictionary *)userInfo
                                   responseInfo:(NSDictionary *)responseInfo
-                             completionHandler:(void (^)())completionHandler
+                             completionHandler:(void (^)(void))completionHandler
 {
   RELEASE_TO_NIL(remoteNotification);
   [self generateNotification:userInfo];
@@ -1369,7 +1385,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [event setObject:NULL_IF_NIL(notification.request.content.userInfo) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL(notification.request.content.categoryIdentifier) forKey:@"category"];
   [event setObject:NULL_IF_NIL(notification.request.content.threadIdentifier) forKey:@"threadIdentifier"];
-  [event setObject:NULL_IF_NIL(notification.request.identifier) forKey:@"identifier"];
+  [event setObject:NULL_IF_NIL(identifier) forKey:@"identifier"];
 
   // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
   // a sound in the APS dictionary, we can provide that one for parity

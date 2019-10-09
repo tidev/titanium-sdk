@@ -15,7 +15,16 @@ var path = require('path');
 
 exports.cliVersion = '>=3.2';
 
-exports.init = function (logger, config, cli, appc) {
+/**
+ * Main entry point for our plugin which looks for the platform specific
+ * plugin to invoke.
+ *
+ * @param {Object} logger The logger instance.
+ * @param {Object} _config The hook config.
+ * @param {Object} cli The Titanium CLI instance.
+ * @param {Object} appc The Appcelerator CLI instance.
+ */
+exports.init = function (logger, _config, cli, appc) {
 	cli.on('create.post.module', function () {
 		var __ = appc.i18n(__dirname).__;
 

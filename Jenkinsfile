@@ -30,6 +30,31 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
+@NonCPS
+def hasAPIDocChanges() {
+	// https://javadoc.jenkins-ci.org/hudson/scm/ChangeLogSet.html
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.size(); j++) {
+            def entry = entries[j]
+			if (entry.msg.contains('[skip ci]')) {
+				echo "skipping commit: ${entry.msg}"
+				continue; // skip this commit
+			}
+			// echo "checking commit: ${entry.msg}"
+            def paths = entry.affectedPaths
+			for (int k = 0; k < paths.size(); k++) {
+				def path = paths[k]
+				if (path.startsWith('apidoc/')) {
+					return true
+				}
+			}
+        }
+    }
+	return false
+}
+
 def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	return {
 		def labels = 'git && osx'
@@ -143,6 +168,27 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	}
 }
 
+def cliUnitTests(nodeVersion, npmVersion) {
+	return {
+		node('git && osx') { // ToDo: refactor to try and run across mac, linux, and windows?
+			unstash 'cli-unit-tests'
+			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+				ensureNPM(npmVersion)
+				sh 'npm ci'
+				try {
+					sh 'npm run test:cli'
+				} finally {
+					if (fileExists('coverage/cobertura-coverage.xml')) {
+						step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
+					}
+					stash includes: 'junit.cli.report.xml', name: 'test-report-cli'
+					junit 'junit.cli.report.xml'
+				}
+			}
+		}
+	}
+}
+
 // Wrap in timestamper
 timestamps {
 	try {
@@ -192,9 +238,13 @@ timestamps {
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
+					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**', name: 'cli-unit-tests'
 					// was it a failure?
 					if (npmTestResult != 0) {
 						error readFile('npm_test.log')
+					} else if (env.BRANCH_NAME.equals('master') && hasAPIDocChanges()) {
+						// if we have a master branch build of SDK with updated apidocs, trigger a new doc site build
+						build job: 'docs/doctools/docs', wait: false
 					}
 				}
 
@@ -268,6 +318,7 @@ timestamps {
 			parallel(
 				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch, testOnDevices),
 				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch, testOnDevices),
+				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: true
 			)
 		}
@@ -436,6 +487,9 @@ timestamps {
 						} catch (e) {}
 						try {
 							unstash 'test-report-android' // junit.android.report.xml
+						} catch (e) {}
+						try {
+							unstash 'test-report-cli' // junit.android.report.xml
 						} catch (e) {}
 						ensureNPM(npmVersion)
 						sh 'npm ci'

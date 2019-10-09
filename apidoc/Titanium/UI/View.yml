@@ -1160,7 +1160,7 @@ properties:
         A radial gradient is interpolated between two circles, defined by `startPoint` and
         `startRadius` and `endPoint` and `endRadius` respectively.
 
-        The start and end points and radius values can be defined in device units, in the view's
+        The start points, end points and radius values can be defined in device units, in the view's
         coordinates, or as percentages of the view's size. Thus, if a view is 60 x 60, the center
         point of the view can be specified as:
 

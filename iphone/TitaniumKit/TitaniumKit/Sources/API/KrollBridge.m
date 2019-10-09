@@ -455,7 +455,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   for (NSString *name in legacyModuleNames) {
     // We must generate the block and copy it to put it into heap or else every instance of the block shares
     // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
-    JSValue * (^lazyLoad)() = ^() {
+    JSValue * (^lazyLoad)(void) = ^() {
       JSValue *result;
       TiModule *mod = [host moduleNamed:name context:self];
       if (mod != nil) {
@@ -486,7 +486,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   for (NSString *name in moduleNames) {
     // We must generate the block and copy it to put it into heap or else every instance of the block shares
     // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
-    JSValue * (^lazyLoad)() = ^() {
+    JSValue * (^lazyLoad)(void) = ^() {
       JSValue *result;
       Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", name]);
       if (moduleClass != nil) {
@@ -530,7 +530,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   if (preload != nil) {
     for (NSString *name in preload) {
       JSValue *moduleJSObject = titanium[name];
-      KrollObject *ti = (KrollObject *)JSObjectGetPrivate([moduleJSObject JSValueRef]);
+      KrollObject *ti = (KrollObject *)JSObjectGetPrivate(JSValueToObject(jsContext, moduleJSObject.JSValueRef, NULL));
       NSDictionary *values = preload[name];
       for (id key in values) {
         id target = values[key];
@@ -870,12 +870,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
     @throw [NSException exceptionWithName:@"org.appcelerator.kroll"
                                    reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object", filename]
                                  userInfo:nil];
-  }
-
-  if (filename != nil && module != nil) {
-    // uri is optional but we point it to where we loaded it
-    [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
-    [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
   }
 
   return module;
