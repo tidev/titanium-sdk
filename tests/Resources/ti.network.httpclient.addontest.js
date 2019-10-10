@@ -13,22 +13,29 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('progress event', function (finish) {
 		var progressVar = -1,
-			file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'SplashScreen.png'),
-			base64String = Ti.Utils.base64encode(file).toString(),
-			xhr = Ti.Network.createHTTPClient({
-				onsendstream: function (e) {
-					try {
-						should(e.progress).be.above(0);
-						should(e.progress).be.above(progressVar);
-						progressVar = e.progress;
-					} catch (error) {
-						finish(error);
-					}
-				},
-				onload: function () {
-					finish();
+			file,
+			base64String,
+			xhr;
+		if (Ti.Platform.osname === 'iphone') {
+			file = Ti.Filesystem.getAsset('SplashScreen.png');
+		} else {
+			file = Ti.Filesystem.getFile('SplashScreen.png');
+		}
+		base64String = Ti.Utils.base64encode(file).toString();
+		xhr = Ti.Network.createHTTPClient({
+			onsendstream: function (e) {
+				try {
+					should(e.progress).be.above(0);
+					should(e.progress).be.above(progressVar);
+					progressVar = e.progress;
+				} catch (error) {
+					finish(error);
 				}
-			});
+			},
+			onload: function () {
+				finish();
+			}
+		});
 		xhr.open('POST', 'https://httpbin.org/post');
 		xhr.send(base64String);
 	});
