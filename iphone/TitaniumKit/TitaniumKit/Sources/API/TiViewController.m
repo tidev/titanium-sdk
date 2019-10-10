@@ -14,7 +14,6 @@
 {
   if (self = [super init]) {
     _proxy = window;
-    self.presentationController.delegate = self;
     [self updateOrientations];
     [TiUtils configureController:self withObject:_proxy];
   }
@@ -166,23 +165,6 @@
     [(id<TiWindowProtocol>)_proxy viewDidDisappear:animated];
   }
   [super viewDidDisappear:animated];
-}
-
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-{
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-    UIModalPresentationStyle style = [(id<TiWindowProtocol>)_proxy adaptivePresentationStyleForPresentationController:controller];
-    return style;
-  }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return UIModalPresentationAutomatic;
-  } else {
-    return UIModalPresentationNone;
-  }
-#else
-  return UIModalPresentationNone;
-#endif
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
