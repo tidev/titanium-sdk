@@ -746,11 +746,6 @@
   }
 }
 
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-{
-  return modalStyle;
-}
-
 - (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController
 {
   if (isModal) {
