@@ -497,12 +497,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	{
 		super.focus();
 		if (tv != null) {
-			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
-				&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
-				TiUIHelper.showSoftKeyboard(tv, false);
-			} else {
-				TiUIHelper.showSoftKeyboard(tv, true);
-			}
+			final boolean editable = proxy.getProperties().optBoolean(TiC.PROPERTY_EDITABLE, false);
+			TiUIHelper.showSoftKeyboard(tv, editable);
 		}
 	}
 
