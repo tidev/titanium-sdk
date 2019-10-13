@@ -8,14 +8,12 @@ package ti.modules.titanium.codec;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteOrder;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-
 import ti.modules.titanium.BufferProxy;
 import ti.modules.titanium.TitaniumModule;
 
@@ -62,7 +60,7 @@ public class CodecModule extends KrollModule
 			throw new IllegalArgumentException("dest was not specified for encodeNumber");
 		}
 		if (!args.containsKey(TiC.PROPERTY_SOURCE)) {
-			throw new IllegalArgumentException("src was not specified for encodeNumber");
+			throw new IllegalArgumentException("source was not specified for encodeNumber");
 		}
 		if (!args.containsKey(TiC.PROPERTY_TYPE)) {
 			throw new IllegalArgumentException("type was not specified for encodeNumber");
@@ -123,10 +121,10 @@ public class CodecModule extends KrollModule
 	public Object decodeNumber(KrollDict args)
 	{
 		if (!args.containsKey(TiC.PROPERTY_SOURCE)) {
-			throw new IllegalArgumentException("src was not specified for encodeNumber");
+			throw new IllegalArgumentException("source was not specified for decodeNumber");
 		}
 		if (!args.containsKey(TiC.PROPERTY_TYPE)) {
-			throw new IllegalArgumentException("type was not specified for encodeNumber");
+			throw new IllegalArgumentException("type was not specified for decodeNumber");
 		}
 
 		BufferProxy buffer = (BufferProxy) args.get(TiC.PROPERTY_SOURCE);
@@ -185,7 +183,7 @@ public class CodecModule extends KrollModule
 			throw new IllegalArgumentException("dest was not specified for encodeString");
 		}
 		if (!args.containsKey(TiC.PROPERTY_SOURCE) || args.get(TiC.PROPERTY_SOURCE) == null) {
-			throw new IllegalArgumentException("src was not specified for encodeString");
+			throw new IllegalArgumentException("source was not specified for encodeString");
 		}
 
 		BufferProxy dest = (BufferProxy) args.get(TiC.PROPERTY_DEST);
@@ -227,7 +225,7 @@ public class CodecModule extends KrollModule
 	public String decodeString(KrollDict args)
 	{
 		if (!args.containsKey(TiC.PROPERTY_SOURCE) || args.get(TiC.PROPERTY_SOURCE) == null) {
-			throw new IllegalArgumentException("src was not specified for decodeString");
+			throw new IllegalArgumentException("source was not specified for decodeString");
 		}
 
 		BufferProxy src = (BufferProxy) args.get(TiC.PROPERTY_SOURCE);

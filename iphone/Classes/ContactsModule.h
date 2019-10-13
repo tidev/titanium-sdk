@@ -20,6 +20,7 @@
   @private
   BOOL reloadAddressBook;
   BOOL animated;
+  BOOL _includeNote;
   KrollCallback *cancelCallback;
   KrollCallback *selectedPersonCallback;
   KrollCallback *selectedPropertyCallback;

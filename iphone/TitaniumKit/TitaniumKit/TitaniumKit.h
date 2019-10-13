@@ -13,6 +13,9 @@ FOUNDATION_EXPORT double TitaniumKitVersionNumber;
 //! Project version string for TitaniumKit.
 FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 
+// TiBase.h needs to come first because of all the macro definitions
+#import <TitaniumKit/TiBase.h>
+
 #import <TitaniumKit/APIModule.h>
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/Mimetypes.h>
@@ -23,7 +26,6 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/Ti2DMatrix.h>
 #import <TitaniumKit/Ti3DMatrix.h>
 #import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiComplexValue.h>

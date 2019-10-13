@@ -62,6 +62,7 @@ static NSArray *contactKeysWithoutImage;
 {
   [super startup];
   contactStore = NULL;
+  _includeNote = YES;
 }
 
 //used for fetch predicates.
@@ -104,6 +105,11 @@ static NSArray *contactKeysWithoutImage;
 }
 
 #pragma mark Public API
+
+- (void)setIncludeNote:(id)arg
+{
+  _includeNote = [TiUtils boolValue:arg def:YES];
+}
 
 - (NSNumber *)hasContactsPermissions:(id)unused
 {
@@ -273,7 +279,11 @@ static NSArray *contactKeysWithoutImage;
   }
   NSError *error = nil;
   CNContact *contact = nil;
-  contact = [ourContactStore unifiedContactWithIdentifier:arg keysToFetch:[ContactsModule contactKeysWithImage] error:&error];
+  NSMutableArray *contactKeys = [NSMutableArray arrayWithArray:[ContactsModule contactKeysWithImage]];
+  if (!_includeNote) {
+    [contactKeys removeObject:CNContactNoteKey];
+  }
+  contact = [ourContactStore unifiedContactWithIdentifier:arg keysToFetch:contactKeys error:&error];
   if (error) {
     return nil;
   }
@@ -329,8 +339,12 @@ static NSArray *contactKeysWithoutImage;
   }
   NSError *error = nil;
   NSArray *contacts = nil;
+  NSMutableArray *contactKeys = [NSMutableArray arrayWithArray:[ContactsModule contactKeysWithImage]];
+  if (!_includeNote) {
+    [contactKeys removeObject:CNContactNoteKey];
+  }
   //returns empty array or nil if there's an error
-  contacts = [ourContactStore unifiedContactsMatchingPredicate:[CNContact predicateForContactsMatchingName:arg] keysToFetch:[ContactsModule contactKeysWithImage] error:&error];
+  contacts = [ourContactStore unifiedContactsMatchingPredicate:[CNContact predicateForContactsMatchingName:arg] keysToFetch:contactKeys error:&error];
   if (!contacts) {
     return nil;
   }
@@ -367,7 +381,11 @@ static NSArray *contactKeysWithoutImage;
   NSMutableArray *peopleRefs = nil;
   peopleRefs = [[NSMutableArray alloc] init];
   //this fetch request takes all information. Not advised to use this method if addressbook is huge. May result in performance issues.
-  CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:[ContactsModule contactKeysWithImage]];
+  NSMutableArray *array = [NSMutableArray arrayWithArray:[ContactsModule contactKeysWithImage]];
+  if (!_includeNote) {
+    [array removeObject:CNContactNoteKey];
+  }
+  CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:array];
   BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest
                                                               error:&error
                                                          usingBlock:^(CNContact *__nonnull contact, BOOL *__nonnull stop) {

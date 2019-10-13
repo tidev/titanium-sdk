@@ -2087,22 +2087,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	// if sourceMaps changed, then we need to re-process all of the JS files
-	if (this.sourceMaps !== manifest.sourceMaps) {
-		this.logger.info(__('Forcing rebuild: JavaScript sourceMaps flag changed'));
-		this.logger.info('  ' + __('Was: %s', manifest.sourceMaps));
-		this.logger.info('  ' + __('Now: %s', this.sourceMaps));
-		return true;
-	}
-
-	// if transpile changed, then we need to re-process all of the JS files
-	if (this.transpile !== manifest.transpile) {
-		this.logger.info(__('Forcing rebuild: JavaScript transpile flag changed'));
-		this.logger.info('  ' + __('Was: %s', manifest.transpile));
-		this.logger.info('  ' + __('Now: %s', this.transpile));
-		return true;
-	}
-
 	// check if the titanium sdk paths are different
 	if (this.platformPath !== manifest.platformPath) {
 		this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
@@ -2305,7 +2289,6 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 	// make directories if they don't already exist
 	let dir = this.buildAssetsDir;
 	if (this.forceRebuild) {
-		fs.emptyDirSync(this.buildIncrementalDir);
 		fs.emptyDirSync(dir);
 		this.unmarkBuildDirFiles(dir);
 	} else {
@@ -2592,14 +2575,23 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	const tasks = [
 		// First copy all of the Titanium SDK's core JS files shared by all platforms.
 		function (cb) {
-			const src = path.join(this.titaniumSdkPath, 'common', 'Resources');
-			warnDupeDrawableFolders.call(this, src);
-			_t.logger.debug(__('Copying %s', src.cyan));
-			copyDir.call(this, {
-				src: src,
-				dest: this.buildBinAssetsResourcesDir,
-				ignoreRootDirs: ti.allPlatformNames
-			}, cb);
+			// Check if a snapshot has been generated.
+			fs.stat(path.join(this.platformPath, 'native', 'include', 'V8Snapshots.h'), (error, stat) => {
+				// 'V8Snapshot.h' will always exists, check size to determin if a snapshot was generated.
+				if (error || stat.size <= 64) {
+					const src = path.join(this.titaniumSdkPath, 'common', 'Resources', 'android');
+					warnDupeDrawableFolders.call(this, src);
+					_t.logger.debug(__('Copying %s', src.cyan));
+					copyDir.call(this, {
+						src: src,
+						dest: this.buildBinAssetsResourcesDir,
+						ignoreRootDirs: ti.allPlatformNames
+					}, cb);
+					return;
+				}
+				// Do not copy 'common' bundle over, as it is included in our snapshot.
+				return cb();
+			});
 		},
 
 		// Next, copy all files in the project's Resources directory,
@@ -2739,6 +2731,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						const from = jsFiles[relPath];
 						const to = path.join(this.buildBinAssetsResourcesDir, relPath);
 						copyFile.call(this, from, to, next);
+						this.unmarkBuildDirFile(to);
 					};
 				}), done);
 
@@ -4634,8 +4627,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', true),
 		encryptJS: this.encryptJS,
-		sourceMaps: this.sourceMaps,
-		transpile: this.transpile,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,
 		propertiesHash: this.propertiesHash,

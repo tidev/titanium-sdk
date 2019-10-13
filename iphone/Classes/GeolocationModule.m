@@ -7,6 +7,8 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
+#import "TiUtils+Addons.h"
+#import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/TiApp.h>
 
@@ -50,7 +52,6 @@ extern NSString *const TI_APPLICATION_GUID;
     NSString *value = [TiUtils stringValue:[params objectForKey:key]];
     [url appendFormat:@"%@=%@&", key, [value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
   }
-
 }
 
 - (void)requestSuccess:(NSString *)data
@@ -303,10 +304,11 @@ extern NSString *const TI_APPLICATION_GUID;
 
     locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
 
+#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
     }
-
+#endif
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
 
@@ -590,19 +592,23 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
 
 - (BOOL)showBackgroundLocationIndicator
 {
+#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return showBackgroundLocationIndicator;
   }
+#endif
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Returning \"false\" ...");
   return NO;
 }
 
 - (void)setShowBackgroundLocationIndicator:(BOOL)value
 {
+#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     showBackgroundLocationIndicator = value;
     return;
   }
+#endif
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
 }
 

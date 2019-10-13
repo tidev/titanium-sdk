@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -42,16 +42,30 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)reportException:(NSException *)exception
 {
-  NSArray *stackTrace = [exception callStackSymbols];
-  NSString *message = [NSString stringWithFormat:
-                                    @"[ERROR] The application has crashed with an uncaught exception '%@'.\nReason:\n%@\nStack trace:\n\n%@\n",
-                                exception.name, exception.reason, [stackTrace componentsJoinedByString:@"\n"]];
-  NSLog(@"%@", message);
-  id<TiExceptionHandlerDelegate> currentDelegate = _delegate;
-  if (currentDelegate == nil) {
-    currentDelegate = self;
+  // attempt to generate a script error, which includes JS stack information
+  JSContext *context = [JSContext currentContext];
+  JSValue *jsError = [JSValue valueWithNewErrorFromMessage:[exception reason] inContext:context];
+  @try {
+    TiScriptError *error = [TiUtils scriptErrorValue:@{
+      @"message" : [exception reason],
+      @"sourceURL" : [[jsError valueForProperty:@"sourceURL"] toString],
+      @"line" : [[jsError valueForProperty:@"line"] toNumber],
+      @"column" : [[jsError valueForProperty:@"column"] toNumber],
+      @"stack" : [[jsError valueForProperty:@"stack"] toString],
+      @"nativeStack" : [exception callStackSymbols]
+    }];
+    [self reportScriptError:error];
+
+    // cant generate script error, fallback to default behaviour
+  } @catch (NSException *e) {
+    id<TiExceptionHandlerDelegate> currentDelegate = _delegate;
+    if (currentDelegate == nil) {
+      currentDelegate = self;
+    }
+    [currentDelegate handleUncaughtException:exception];
+    return;
   }
-  [currentDelegate handleUncaughtException:exception];
+  [prevUncaughtExceptionHandler handleUncaughtException:exception];
 }
 
 - (void)reportScriptError:(TiScriptError *)scriptError
@@ -67,7 +81,10 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)showScriptError:(TiScriptError *)error
 {
-  NSArray<NSString *> *exceptionStackTrace = [NSThread callStackSymbols];
+  NSArray<NSString *> *exceptionStackTrace = [error valueForKey:@"nativeStack"];
+  if (exceptionStackTrace == nil) {
+    exceptionStackTrace = [NSThread callStackSymbols];
+  }
 
   if (exceptionStackTrace == nil) {
     [[TiApp app] showModalError:[error description]];
@@ -126,6 +143,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 @synthesize column = _column;
 @synthesize dictionaryValue = _dictionaryValue;
 @synthesize backtrace = _backtrace;
+@synthesize nativeStack = _nativeStack;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo
 {
@@ -154,6 +172,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     if (_backtrace == nil) {
       _backtrace = [[[dictionary objectForKey:@"stack"] description] copy];
     }
+    _nativeStack = [[dictionary objectForKey:@"nativeStack"] copy];
     _dictionaryValue = [dictionary copy];
   }
   return self;
@@ -165,6 +184,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   RELEASE_TO_NIL(_sourceURL);
   RELEASE_TO_NIL(_backtrace);
   RELEASE_TO_NIL(_dictionaryValue);
+  RELEASE_TO_NIL(_nativeStack);
   [super dealloc];
 }
 
@@ -204,9 +224,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 //
 // thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/
 //
+static BOOL uncaughtException = NO;
 static void TiUncaughtExceptionHandler(NSException *exception)
 {
   static BOOL insideException = NO;
+
+  // prevent signal handler repeating exception
+  uncaughtException = YES;
 
   // prevent recursive exceptions
   if (insideException) {
@@ -216,6 +240,7 @@ static void TiUncaughtExceptionHandler(NSException *exception)
   insideException = YES;
 
   [[TiExceptionHandler defaultExceptionHandler] reportException:exception];
+  [[APSAnalytics sharedInstance] flush];
 
   insideException = NO;
   if (prevUncaughtExceptionHandler != NULL) {
@@ -231,6 +256,11 @@ static void TiUncaughtExceptionHandler(NSException *exception)
 
 static void TiSignalHandler(int code)
 {
+  // already caught exception, no need for signal exception
+  if (uncaughtException) {
+    signal(code, SIG_DFL);
+    return;
+  }
   NSException *exception = [NSException exceptionWithName:@"SIGNAL_ERROR" reason:[NSString stringWithFormat:@"signal error code: %d", code] userInfo:nil];
   [[TiExceptionHandler defaultExceptionHandler] reportException:exception];
   signal(code, SIG_DFL);

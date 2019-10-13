@@ -24,6 +24,8 @@ import android.app.Activity;
 		TiC.PROPERTY_SPLIT_TRACK,
 		"leftTrackImage",
 		"rightTrackImage",
+		TiC.PROPERTY_TINT_COLOR,
+		TiC.PROPERTY_TRACK_TINT_COLOR,
 		TiC.PROPERTY_VALUE
 })
 // clang-format on

@@ -46,6 +46,7 @@
 
 - (void)_configure
 {
+  forceModal = YES;
   [self replaceValue:nil forKey:@"orientationModes" notification:NO];
   [super _configure];
 }
@@ -255,14 +256,8 @@
   }
 
   int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
-  switch (theStyle) {
-  case UIStatusBarStyleDefault:
-  case UIStatusBarStyleLightContent:
-    barStyle = theStyle;
-    break;
-  default:
-    barStyle = UIStatusBarStyleDefault;
-  }
+
+  [self assignStatusBarStyle:theStyle];
 
   if (!isModal && (tab == nil)) {
     openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
@@ -282,14 +277,7 @@
 - (void)setStatusBarStyle:(id)style
 {
   int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
-  switch (theStyle) {
-  case UIStatusBarStyleDefault:
-  case UIStatusBarStyleLightContent:
-    barStyle = theStyle;
-    break;
-  default:
-    barStyle = UIStatusBarStyleDefault;
-  }
+  [self assignStatusBarStyle:theStyle];
   [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
   if (focussed) {
     TiThreadPerformOnMainThread(^{
@@ -505,6 +493,21 @@
   return [tab tabGroup];
 }
 
+- (void)assignStatusBarStyle:(int)style
+{
+  switch (style) {
+  case UIStatusBarStyleDefault:
+  case UIStatusBarStyleLightContent:
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  case UIStatusBarStyleDarkContent:
+#endif
+    barStyle = style;
+    break;
+  default:
+    barStyle = UIStatusBarStyleDefault;
+  }
+}
+
 - (NSNumber *)orientation
 {
   return NUMINT([UIApplication sharedApplication].statusBarOrientation);
@@ -558,6 +561,13 @@
           [theController setModalPresentationStyle:style];
         }
       }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+        forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
+        theController.modalInPresentation = forceModal;
+      }
+#endif
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] showModalController:theController animated:animated];
     } else {
@@ -733,6 +743,13 @@
 {
   if (isModal && closing) {
     [self windowDidClose];
+  }
+}
+
+- (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController
+{
+  if (isModal) {
+    [self windowWillClose];
   }
 }
 
