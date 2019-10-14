@@ -413,7 +413,7 @@ methods:
         On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
         read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
         to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
-        will change when a ["newintent"](Titanium.Android.Activity.newintent) event has been fired.
+        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
     platforms: [iphone, ipad]
     returns:
         type: launchOptions
