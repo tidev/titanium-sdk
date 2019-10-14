@@ -21,6 +21,10 @@
 @property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_LAYOUT_CHANGED;
 @property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_SCREEN_CHANGED;
 
+#ifdef DEBUG
+- (void)garbageCollectForDebugging:(id)args;
+#endif
+
 @end
 
 #endif
