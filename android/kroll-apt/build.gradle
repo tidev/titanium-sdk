@@ -10,16 +10,6 @@ apply plugin: 'java'
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
-sourceSets {
-	main {
-		java.srcDir 'src/java'
-		resources {
-			srcDir 'src/java'
-			excludes = ['**/*.java', '**/*.orig']
-		}
-	}
-}
-
 tasks.withType(JavaCompile) {
 	// Suppress compiler warning "bootstrap class path not set in conjunction with source" which happens when
 	// building with JDK newer than the Java version we're targeting. (Ex: Build with JDK 8, but target Java 7.)

@@ -1,6 +1,8 @@
 .externalNativeBuild/
 .gradle/
-#build/
-#*.iml
+.idea/
+build/
+*.iml
+
 /titanium/assets/Resources/ti.internal/build.properties
 /local.properties
