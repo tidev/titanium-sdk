@@ -9,6 +9,7 @@ program
 	.option('-a, --api-level [number]', 'Explicitly set the Android SDK API level used for building')
 	.option('-s, --android-sdk [path]', 'Explicitly set the path to the Android SDK used for building', process.env.ANDROID_SDK)
 	.option('-n, --android-ndk [path]', 'Explicitly set the path to the Android NDK used for building', process.env.ANDROID_NDK)
+	.option('-a, --all', 'Build a ti.main.js file for every target OS')
 	.parse(process.argv);
 
 const Builder = require('./lib/builder');
