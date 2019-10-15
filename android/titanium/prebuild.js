@@ -13,7 +13,6 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
 const glob = util.promisify(require('glob'));
-const libv8Services = require('./libv8-services');
 const moment = require('moment');
 const path = require('path');
 
@@ -152,9 +151,6 @@ async function generateSourceCode() {
 async function main() {
 	// Run the following operations in parallel.
 	return Promise.all([
-		// Make sure the V8 library has been downloaded/installed. It's needed to do the C/C++ compile.
-		libv8Services.updateLibrary(),
-
 		// Generate a "build.properties" file providing the Titanium SDK's version and other info.
 		generateBuildProperties(),
 

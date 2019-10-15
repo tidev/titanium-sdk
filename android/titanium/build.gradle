@@ -118,6 +118,21 @@ android {
 	}
 }
 
+// Download/Install V8 library (if not done already) before executing C/C++ makefile via "clean" or "build".
+def updateV8Library() {
+	exec {
+		executable = 'node'
+		workingDir = projectDir
+		args = ['-e', "require('./libv8-services').updateLibrary()"]
+	}
+}
+tasks.withType(com.android.build.gradle.tasks.ExternalNativeBuildTask) {
+	doFirst { updateV8Library() }
+}
+tasks.withType(com.android.build.gradle.tasks.ExternalNativeCleanTask) {
+	doFirst { updateV8Library() }
+}
+
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // This downloads the V8 library, generates C/C++ files, and generates some asset files.
 tasks.withType(JavaCompile) {
