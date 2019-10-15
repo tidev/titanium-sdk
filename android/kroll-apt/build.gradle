@@ -1,0 +1,48 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+apply plugin: 'java'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+sourceSets {
+	main {
+		java.srcDir 'src/java'
+		resources {
+			srcDir 'src/java'
+			excludes = ['**/*.java', '**/*.orig']
+		}
+	}
+}
+
+tasks.withType(JavaCompile) {
+	// Suppress compiler warning "bootstrap class path not set in conjunction with source" which happens when
+	// building with JDK newer than the Java version we're targeting. (Ex: Build with JDK 8, but target Java 7.)
+	// Note: Build tool wants a reference to runtime JAR of the same version we're targeting. Not going to happen.
+	options.compilerArgs << '-Xlint:-options'
+}
+
+// TODO: Might need to merge dependency JARs when using this annotation processor for module builds.
+/*
+jar {
+	manifest {
+		attributes 'Main-Class': 'org.appcelerator.kroll.annotations.generator.KrollBindingGenerator'
+	}
+	from {
+		configurations.runtimeClasspath.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	}
+}
+*/
+
+dependencies {
+	implementation 'com.googlecode.json-simple:json-simple:1.1'
+	implementation 'org.freemarker:freemarker:2.3.14'
+	implementation 'log4j:log4j:1.2.17'
+}

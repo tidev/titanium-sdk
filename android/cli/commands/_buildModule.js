@@ -18,7 +18,7 @@ const AdmZip = require('adm-zip'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	Builder = require('../lib/base-builder'),
+	Builder = require('node-titanium-sdk/lib/builder'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs-extra'),
@@ -320,7 +320,6 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 
 		'replaceBundledSupportLibraries',
 		'processResources',
-		'compileAidlFiles',
 		'compileModuleJavaSrc',
 		'generateRuntimeBindings',
 		'generateV8Bindings',
@@ -603,8 +602,6 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 			if (fs.existsSync(from)) {
 				if (fs.statSync(from).isDirectory()) {
 					merge(from, to);
-				} else if (path.extname(filename) === '.xml') {
-					this.writeXmlFile(from, to);
 				} else {
 					appc.fs.copyFileSync(from, to, { logger: this.logger.debug });
 				}
@@ -653,12 +650,8 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						const respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
 							const packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
-							if (!this.hasAndroidLibrary(packageName)) {
-								extraPackages.push(packageName);
-								resArchives.push(resArchivePathAndFilename);
-							} else {
-								this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', file, packageName));
-							}
+							extraPackages.push(packageName);
+							resArchives.push(resArchivePathAndFilename);
 						}
 					}, this);
 
@@ -858,54 +851,6 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 	appc.async.series(this, tasks, next);
 };
 
-AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
-	this.logger.log(__('Generating java files from the .aidl files'));
-
-	if (!this.androidCompileSDK.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidCompileSDK['api-level']));
-		return next();
-	}
-
-	const aidlRegExp = /\.aidl$/,
-		aidlFiles = (function scan(dir) {
-			let f = [];
-			fs.readdirSync(dir).forEach(function (name) {
-				const file = path.join(dir, name);
-				if (fs.existsSync(file)) {
-					if (fs.statSync(file).isDirectory()) {
-						f = f.concat(scan(file));
-					} else if (aidlRegExp.test(name)) {
-						f.push(file);
-					}
-				}
-			});
-			return f;
-		}(this.javaSrcDir));
-
-	if (!aidlFiles.length) {
-		this.logger.info(__('No aidl files to compile'));
-		return next();
-	}
-
-	appc.async.series(this, aidlFiles.map(function (file) {
-		return function (callback) {
-			this.logger.info(__('Compiling aidl file: %s', file));
-
-			const aidlHook = this.cli.createHook('build.android.aidl', this, function (exe, args, opts, done) {
-				this.logger.info('Running aidl: %s', (exe + ' "' + args.join('" "') + '"').cyan);
-				appc.subprocess.run(exe, args, opts, done);
-			});
-
-			aidlHook(
-				this.androidInfo.sdk.executables.aidl,
-				[ '-p' + this.androidCompileSDK.aidl, '-I' + this.javaSrcDir, file ],
-				{},
-				callback
-			);
-		};
-	}), next);
-};
-
 AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	this.logger.log(__('Compiling Module Java source files'));
 
@@ -953,6 +898,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 		}.bind(this));
 	});
 
+	// TODO: This puts binding JSON inside JAR. Write to "dist" folder instead. (Will break backward compatibility.)
 	javacHook(
 		this.jdkInfo.executables.javac,
 		[
@@ -1354,6 +1300,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	this.logger.info(__('Generating v8 bindings'));
 
+	// TODO: Get rid of "dependency.json" map and use gradle to handle dependencies instead.
 	const dependsMap = this.dependencyMap;
 	Array.prototype.push.apply(this.metaData, dependsMap.required);
 

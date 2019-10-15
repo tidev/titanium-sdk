@@ -390,7 +390,12 @@ class Packager {
 		// TODO: do in parallel?
 		for (const p of this.platforms) {
 			const Platform = require(`./${p}`); // eslint-disable-line security/detect-non-literal-require
-			await new Platform({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this);
+			await new Platform({
+				sdkVersion: this.version,
+				versionTag: this.versionTag,
+				gitHash: this.gitHash,
+				timestamp: this.timestamp
+			}).package(this);
 		}
 	}
 

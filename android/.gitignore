@@ -1,6 +1,6 @@
-bin
-gen
-*.pydevproject
-*.jpage
-.DS_Store
-.ant_targets
+.externalNativeBuild/
+.gradle/
+#build/
+#*.iml
+/titanium/assets/Resources/ti.internal/build.properties
+/local.properties

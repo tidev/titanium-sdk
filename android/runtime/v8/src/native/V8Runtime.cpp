@@ -182,13 +182,15 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 {
 	HandleScope scope(V8Runtime::v8_isolate);
 	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+
 	// Log reason and location of the error.
-	LOGD(TAG, *String::Utf8Value(V8Runtime::v8_isolate, msg->Get()));
+	String::Utf8Value utf8Message(V8Runtime::v8_isolate, msg->Get());
+	String::Utf8Value utf8ScriptName(V8Runtime::v8_isolate, msg->GetScriptResourceName());
+	LOGD(TAG, *utf8Message);
 	LOGD(TAG, "%s @ %d >>> %s",
-		*String::Utf8Value(V8Runtime::v8_isolate, msg->GetScriptResourceName()),
+		*utf8ScriptName,
 		msg->GetLineNumber(context).FromMaybe(-1),
-		*String::Utf8Value(V8Runtime::v8_isolate,
-		msg->GetSourceLine(context).FromMaybe(-1)));
+		msg->GetSourceLine(context));
 }
 
 } // namespace titanium

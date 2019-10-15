@@ -32,6 +32,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 
+@SuppressWarnings("unchecked")
 public class KrollBindingGenerator
 {
 	private static final String Kroll_DEFAULT = "org.appcelerator.kroll.annotations.Kroll.DEFAULT";
@@ -179,7 +180,6 @@ public class KrollBindingGenerator
 		return tree;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void mergeModules(Map<String, Object> source)
 	{
 		Set<String> newKeys = source.keySet();
@@ -215,12 +215,20 @@ public class KrollBindingGenerator
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	protected void loadBindings(String jsonPath) throws ParseException, IOException
+	public void loadBindingsFromJsonFile(String jsonPath) throws ParseException, IOException
 	{
-		FileReader reader = new FileReader(jsonPath);
-		Map<String, Object> properties = (Map<String, Object>) JSONValue.parseWithException(reader);
-		reader.close();
+		Map<Object, Object> properties = null;
+		try (FileReader reader = new FileReader(jsonPath)) {
+			properties = (Map<Object, Object>) JSONValue.parseWithException(reader);
+		}
+		loadBindingsFrom(properties);
+	}
+
+	public void loadBindingsFrom(Map<Object, Object> properties)
+	{
+		if (properties == null) {
+			return;
+		}
 
 		Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
 		Map<String, Object> modules = jsonUtils.getStringMap(properties, "modules");
@@ -229,7 +237,6 @@ public class KrollBindingGenerator
 		mergeModules(modules);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void loadTitaniumBindings() throws ParseException, IOException, URISyntaxException
 	{
 		// Load the binding JSON data from the titanium.jar relative to the kroll-apt.jar
@@ -245,14 +252,22 @@ public class KrollBindingGenerator
 		URL krollAptJarUrl = codeSource.getLocation();
 		String mobileAndroidDir = new File(krollAptJarUrl.toURI()).getParent();
 
-		JarFile titaniumJar = new JarFile(new File(mobileAndroidDir, "titanium.jar"));
-		ZipEntry jsonEntry = titaniumJar.getEntry("org/appcelerator/titanium/bindings/titanium.json");
-		InputStream jsonStream = titaniumJar.getInputStream(jsonEntry);
+		Map<String, Object> properties = null;
+		try (JarFile titaniumJar = new JarFile(new File(mobileAndroidDir, "titanium.jar"))) {
+			ZipEntry jsonEntry = titaniumJar.getEntry("org/appcelerator/titanium/bindings/titanium.json");
+			try (InputStream jsonStream = titaniumJar.getInputStream(jsonEntry)) {
+				properties = (Map<String, Object>) JSONValue.parseWithException(new InputStreamReader(jsonStream));
+			}
+		}
 
-		Map<String, Object> properties =
-			(Map<String, Object>) JSONValue.parseWithException(new InputStreamReader(jsonStream));
-		jsonStream.close();
-		titaniumJar.close();
+		loadTitaniumBindingsFrom(properties);
+	}
+
+	public void loadTitaniumBindingsFrom(Map<String, Object> properties)
+	{
+		if (properties == null) {
+			return;
+		}
 
 		tiProxies.putAll(jsonUtils.getStringMap(properties, "proxies"));
 		tiModules.putAll(jsonUtils.getStringMap(properties, "modules"));
@@ -269,6 +284,8 @@ public class KrollBindingGenerator
 
 	protected void generateBindings() throws ParseException, IOException
 	{
+		generateApiTree();
+
 		for (String proxyName : proxies.keySet()) {
 			Map<Object, Object> proxy = jsonUtils.getMap(proxies, proxyName);
 
@@ -460,14 +477,15 @@ public class KrollBindingGenerator
 
 		// First pass to generate the entire API tree
 		for (int i = 3; i < args.length; i++) {
-			generator.loadBindings(args[i]);
+			generator.loadBindingsFromJsonFile(args[i]);
 		}
 
+		// TODO: Get rid of the loadTitaniumBindings() file. We don't store JSON in Titanium JAR anymore.
+		//       Pass in "titanium.bindings.json" file and load via loadBindingsFromJsonFile() instead.
 		if (isModule) {
 			generator.loadTitaniumBindings();
 		}
 
-		generator.generateApiTree();
 		generator.generateBindings();
 	}
 }

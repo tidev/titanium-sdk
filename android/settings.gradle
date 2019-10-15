@@ -1,0 +1,4 @@
+rootProject.name = 'Titanium SDK'
+include ':app'
+include ':kroll-apt'
+include ':titanium'

@@ -29,6 +29,7 @@ public final class <%= classname %>Application extends TiApplication
 	private static final String TAG = "<%= classname %>Application";
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void onCreate()
 	{
 		super.onCreate();
@@ -78,29 +79,6 @@ public final class <%= classname %>Application extends TiApplication
 		KrollRuntime.init(this, runtime);
 
 		postOnCreate();
-
-<% appModules.forEach(function (module) { %>
-	<% if (module['on_app_create']) { %>
-		{
-			String className = "<%- module['class_name'] %>";
-			String methodName = "<%- module['on_app_create'] %>";
-			try {
-				Class moduleClass = Class.forName(className);
-				Method moduleMethod = moduleClass.getMethod(methodName, TiApplication.class);
-				moduleMethod.invoke(null, this);
-			} catch (Throwable ex) {
-				Log.e(TAG, "Error invoking: " + className + "." + methodName + "()");
-				if ((ex instanceof InvocationTargetException) && (ex.getCause() != null)) {
-					ex = ex.getCause();
-				}
-				if ((ex instanceof RuntimeException) == false) {
-					ex = new RuntimeException(ex);
-				}
-				throw (RuntimeException) ex;
-			}
-		}
-	<% } %>
-<% }); %>
 
 <% if (customModules.length) { %>
 		// Custom modules

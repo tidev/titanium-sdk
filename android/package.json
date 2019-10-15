@@ -11,10 +11,11 @@
 	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
+		"Chris Barber <cbarber@axway.com>",
 		"Chris Williams <cwilliams@axway.com>",
 		"Gary Mathews <gmathews@axway.com>",
 		"Josh Quick <jquick@axway.com>",
-		"Chris Barber <cbarber@axway.com>"
+		"Yordan Banev <ybanev@axway.com>"
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
 	"v8": {
@@ -26,7 +27,7 @@
 	"compileSDKVersion": "28",
 	"vendorDependencies": {
 		"android sdk": ">=23.x <=28.x",
-		"android build tools": ">=25.x <=28.x",
+		"android build tools": ">=28.0.3 <=29.x",
 		"android platform tools": "28.x",
 		"android tools": "<=26.x",
 		"android ndk": ">=r11c <=r17b",	

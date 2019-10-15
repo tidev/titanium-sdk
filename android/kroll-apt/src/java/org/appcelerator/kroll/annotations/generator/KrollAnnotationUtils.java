@@ -68,7 +68,7 @@ public class KrollAnnotationUtils
 	public void debugLog(Diagnostic.Kind debugType, String message)
 	{
 		Messager msg = env.getMessager();
-		msg.printMessage(Diagnostic.Kind.NOTE, message);
+		msg.printMessage(debugType, message);
 	}
 
 	public void logException(Exception exception)

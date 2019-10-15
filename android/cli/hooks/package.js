@@ -23,18 +23,20 @@ exports.init = function (logger, config, cli) {
 				return finished();
 			}
 
-			let dest = builder.apkFile;
-			if (!dest || !fs.existsSync(dest)) {
+			let sourceFilePath = builder.apkFile;
+			if (!sourceFilePath || !fs.existsSync(sourceFilePath)) {
 				logger.error(__('No APK file to deploy, skipping'));
 				return finished();
 			}
 
 			const outputDir = builder.outputDir;
-			if (outputDir && outputDir != path.dirname(dest)) { // eslint-disable-line eqeqeq
+			if (outputDir && outputDir !== path.dirname(sourceFilePath)) {
 				fs.ensureDirSync(outputDir);
-				dest = path.join(outputDir, path.basename(dest));
-				fs.existsSync(dest) && fs.unlinkSync(dest);
-				appc.fs.copyFileSync(builder.apkFile, dest, { logger: logger.debug });
+				const outputFilePath = path.join(outputDir, builder.tiapp.name + '.apk');
+				if (fs.existsSync(outputFilePath)) {
+					fs.unlinkSync(outputFilePath);
+				}
+				appc.fs.copyFileSync(sourceFilePath, outputFilePath, { logger: logger.debug });
 			}
 
 			logger.info(__('Packaging complete'));

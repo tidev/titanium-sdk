@@ -140,8 +140,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// Keep a reference to this application object. Accessible via static getInstance() method.
 		tiApp = this;
 
-		loadBuildProperties();
-
 		mainThreadId = Looper.getMainLooper().getThread().getId();
 
 		modules = new HashMap<String, WeakReference<KrollModule>>();
@@ -297,13 +295,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected void loadBuildProperties()
 	{
 		// Initialize build property member variables.
-		this.buildVersion = "1.0";
+		this.buildVersion = "1.0.0";
 		this.buildTimestamp = "N/A";
 		this.buildHash = "N/A";
 
 		// Attempt to read the "build.properties" file.
-		final String FILE_NAME = "org/appcelerator/titanium/build.properties";
-		try (InputStream stream = getClass().getClassLoader().getResourceAsStream(FILE_NAME)) {
+		try (InputStream stream = getAssets().open("Resources/ti.internal/build.properties")) {
 			if (stream != null) {
 				Properties properties = new Properties();
 				properties.load(stream);
@@ -341,6 +338,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
+
+		loadBuildProperties();
 
 		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {

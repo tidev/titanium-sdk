@@ -68,7 +68,7 @@ public class TiUILabel extends TiUIView
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
 				// Only allow label to exceed width of parent if single-line and ellipsize is disabled.
-				if (isSingleLine() && (ellipsize == null) && (minimumFontSizeInPixels < FONT_SIZE_EPSILON)
+				if (TiUILabel.this.isSingleLine() && (ellipsize == null) && (minimumFontSizeInPixels < FONT_SIZE_EPSILON)
 					&& (layoutParams != null) && (layoutParams.optionWidth == null) && !layoutParams.autoFillsWidth) {
 					widthMeasureSpec =
 						MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.UNSPECIFIED);
@@ -89,7 +89,7 @@ public class TiUILabel extends TiUIView
 				adjustTextFontSize(this);
 
 				// Apply ellipsis if enabled and if view has fixed height (ie: not sized to fit text).
-				if (!isSingleLine() && (viewHeightInLines <= 0) && (ellipsize != null) && (layoutParams != null)
+				if (!TiUILabel.this.isSingleLine() && (viewHeightInLines <= 0) && (ellipsize != null) && (layoutParams != null)
 					&& ((layoutParams.optionHeight != null) || layoutParams.autoFillsHeight)) {
 					// First, we must reset/re-measure the text based on the original max lines setting.
 					// Note: Calling onMeasure() updates the view's StaticLayout and its getLineCount().

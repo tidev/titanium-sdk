@@ -1,0 +1,223 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+android {
+	compileSdkVersion 29
+	defaultConfig {
+		minSdkVersion 19
+		targetSdkVersion 29
+		javaCompileOptions {
+			annotationProcessorOptions {
+				// Set up "kroll-apt" @Kroll annotation processor to generate C/C++ code bindings between V8/Java.
+				// Also have it produce a JSON file of all bindings to be used by module build system.
+				arguments = [
+					'kroll.outputJsonFilePath': "${projectDir}/../../dist/android/titanium.bindings.json".toString(),
+					'kroll.outputCppDirPath': "${projectDir}/../runtime/v8/generated".toString(),
+					'kroll.jsModuleName': 'titanium'
+				]
+			}
+		}
+		externalNativeBuild {
+			ndkBuild {
+				cppFlags '-std=c++11'
+				arguments.addAll([
+					'APP_STL:=c++_shared',
+					"TI_DIST_DIR=${projectDir}/../../dist".toString(),
+					"NDK_MODULE_PATH+=${projectDir}/../runtime/v8/src/ndk-modules".toString(),
+					"-j${Runtime.runtime.availableProcessors()}".toString()
+				])
+			}
+		}
+		ndk {
+			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'
+		}
+	}
+	buildTypes {
+		debug {
+			debuggable true
+			jniDebuggable true
+			externalNativeBuild {
+				ndkBuild {
+					arguments.add('TI_DEBUG=1')
+				}
+			}
+		}
+	}
+	externalNativeBuild {
+		ndkBuild {
+			path "${projectDir}/../runtime/v8/src/native/Android.mk"
+		}
+	}
+	sourceSets {
+		main {
+			manifest.srcFile 'AndroidManifest.xml'
+			assets.srcDirs = [
+				'assets',
+				"${projectDir}/../modules/ui/assets"
+			]
+			java.srcDirs = [
+				'src/java',
+				"${projectDir}/../modules/accelerometer/src/java",
+				"${projectDir}/../modules/analytics/src/java",
+				"${projectDir}/../modules/android/src/java",
+				"${projectDir}/../modules/app/src/java",
+				"${projectDir}/../modules/calendar/src/java",
+				"${projectDir}/../modules/contacts/src/java",
+				"${projectDir}/../modules/database/src/java",
+				"${projectDir}/../modules/filesystem/src/java",
+				"${projectDir}/../modules/geolocation/src/java",
+				"${projectDir}/../modules/gesture/src/java",
+				"${projectDir}/../modules/locale/src/java",
+				"${projectDir}/../modules/media/src/java",
+				"${projectDir}/../modules/network/src/java",
+				"${projectDir}/../modules/platform/src/java",
+				"${projectDir}/../modules/ui/src/java",
+				"${projectDir}/../modules/utils/src/java",
+				"${projectDir}/../modules/xml/src/java",
+				"${projectDir}/../runtime/common/src/java",
+				"${projectDir}/../runtime/v8/src/java"
+			]
+			jni.srcDirs = [
+				"${projectDir}/../runtime/v8/src/native",
+				"${projectDir}/../runtime/v8/src/native/modules",
+				"${projectDir}/../runtime/v8/generated"
+			]
+			jniLibs.srcDirs = [
+				'src/jniLibs'
+			]
+			res.srcDirs = [
+				'res',
+				"${projectDir}/../modules/ui/res"
+			]
+			// Adds non-source files as resources within JAR/DEX file. Available via getResourceAsStream() method.
+			// TODO: Remove this "resources" block once we moved these files to APK "assets".
+			resources {
+				srcDirs = [
+					'src/java',
+					"${projectDir}/../modules/ui/src/java"
+				]
+				excludes = [
+					'**/*.kt',
+					'**/*.java',
+					'**/*.orig'
+				]
+			}
+		}
+	}
+	// TODO: Add Java 8 support in the future.
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_7
+		targetCompatibility JavaVersion.VERSION_1_7
+	}
+}
+
+// Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
+// This downloads the V8 library, generates C/C++ files, and generates some asset files.
+tasks.withType(JavaCompile) {
+	doLast {
+		exec {
+			executable = 'node'
+			workingDir = projectDir
+			args = ['prebuild.js']
+		}
+	}
+}
+
+clean.doLast {
+	// Delete generated C/C++ files.
+	project.delete file("${projectDir}/../runtime/v8/generated")
+
+	// Delete the files copied to our distribution directory. This is what gets packaged/installed.
+	project.delete fileTree(dir: file("${projectDir}/../../dist/android"), include: '**/*', exclude: 'libv8/**/*')
+}
+
+dependencies {
+	// This reads our code's @Kroll annotations and generates code which interops between V8 and proxy classes.
+	annotationProcessor project(':kroll-apt')
+	compileOnly project(':kroll-apt')
+
+	// Google Support Library dependencies.
+	def supportLibVersion = '27.1.1'
+	implementation "com.android.support:animated-vector-drawable:${supportLibVersion}"
+	implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+	implementation "com.android.support:cardview-v7:${supportLibVersion}"
+	implementation "com.android.support:design:${supportLibVersion}"
+	implementation "com.android.support:exifinterface:${supportLibVersion}"
+	implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
+	implementation "com.android.support:support-compat:${supportLibVersion}"
+	implementation "com.android.support:support-core-ui:${supportLibVersion}"
+	implementation "com.android.support:support-core-utils:${supportLibVersion}"
+	implementation "com.android.support:support-fragment:${supportLibVersion}"
+	implementation "com.android.support:support-media-compat:${supportLibVersion}"
+	implementation "com.android.support:support-vector-drawable:${supportLibVersion}"
+	implementation "com.android.support:transition:${supportLibVersion}"
+	compileOnly "com.android.support:support-annotations:${supportLibVersion}"
+
+	// TODO: When we switch to AndroidX, we must change this to 'androidx.multidex:multidex:2.0.1'.
+	implementation 'com.android.support:multidex:1.0.3'
+
+	// The Google Play Services libraries are only used by Titanium's geolocation feature.
+	// We link to them dynamically at runtime. So, they can be safely excluded when on the app side.
+	def playServicesLibVersion = '11.0.4'
+	implementation "com.google.android.gms:play-services-base:${playServicesLibVersion}"
+	implementation "com.google.android.gms:play-services-location:${playServicesLibVersion}"
+
+	// Reference all local JAR file dependencies.
+	implementation fileTree(dir: 'lib', include: ['*.jar'])
+	implementation fileTree(dir: "${projectDir}/../modules/ui/lib", include: ['*.jar'])
+	implementation fileTree(dir: "${projectDir}/../modules/xml/lib", include: ['*.jar'])
+	implementation fileTree(dir: "${projectDir}/../runtime/v8/lib", include: ['*.jar'])
+}
+
+// This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.
+// It generates a maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
+// The below will only work if you do a release build via "gradlew :titanium:assembleRelease" first.
+publishing {
+	publications {
+		titaniumPublication(MavenPublication) {
+			// Use the same version string set in "tiapp.xml" file's <sdk-version/> tag.
+			def versionString = '1.0.0'
+			if (System.env.TITANIUM_SDK_VERSION_TAG != null) {
+				versionString = System.env.TITANIUM_SDK_VERSION_TAG
+			}
+
+			// Set up maven repo info.
+			groupId 'org.appcelerator'
+			artifactId 'titanium'
+			version versionString
+			artifact file("${buildDir}/outputs/aar/titanium-release.aar")
+
+			// Generates the "*.pom" XML file containing all of Titanium's above dependencies,
+			// but excluding Google Play Services dependencies which is optional.
+			pom.withXml {
+				def dependenciesNode = asNode().appendNode('dependencies')
+				def list = new ArrayList<Dependency>()
+				list.addAll(configurations.api.allDependencies)
+				list.addAll(configurations.implementation.allDependencies)
+				list.each {
+					if ((it.group != null) && (it.name != null)) {
+						if (it.group != 'com.google.android.gms') {
+							def childNode = dependenciesNode.appendNode('dependency')
+							childNode.appendNode('groupId', it.group)
+							childNode.appendNode('artifactId', it.name)
+							childNode.appendNode('version', it.version)
+						}
+					}
+				}
+			}
+		}
+	}
+	repositories {
+		maven {
+			// The maven directory tree produced above will be outputted to the following local directory.
+			url "${buildDir}/outputs/m2repository"
+		}
+	}
+}

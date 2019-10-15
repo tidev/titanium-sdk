@@ -6,8 +6,9 @@
  */
 package org.appcelerator.kroll.annotations.generator;
 
+import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
+import java.io.FileWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -38,11 +38,16 @@ import org.json.simple.JSONValue;
 
 @SupportedAnnotationTypes({ KrollJSONGenerator.Kroll_proxy, KrollJSONGenerator.Kroll_module })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
-@SupportedOptions({ KrollJSONGenerator.PROPERTY_JSON_PACKAGE, KrollJSONGenerator.PROPERTY_JSON_FILE })
+@SupportedOptions({
+	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_PACKAGE_NAME,
+	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_FILE_NAME,
+	KrollJSONGenerator.OPTION_OUTPUT_JSON_FILE_PATH,
+	KrollJSONGenerator.OPTION_CPP_DIR_PATH,
+	KrollJSONGenerator.OPTION_JS_MODULE_NAME
+})
 @SuppressWarnings("unchecked")
 public class KrollJSONGenerator extends AbstractProcessor
 {
-
 	protected static final String TAG = "KrollBindingGen";
 
 	// define these here so we can avoid the titanium dependency chicken/egg problem
@@ -73,36 +78,54 @@ public class KrollJSONGenerator extends AbstractProcessor
 	protected static final String DEFAULT_NAME = "__default_name__";
 	protected static final String Kroll_DEFAULT = Kroll_annotation + ".DEFAULT";
 
-	protected static final String PROPERTY_JSON_PACKAGE = "kroll.jsonPackage";
-	protected static final String PROPERTY_JSON_FILE = "kroll.jsonFile";
-	protected static final String PROPERTY_PROJECT_DIR = "kroll.projectDir";
-	protected static final String DEFAULT_JSON_PACKAGE = "org.appcelerator.titanium.gen";
-	protected static final String DEFAULT_JSON_FILE = "bindings.json";
+	// Annotation processor option key names.
+	protected static final String OPTION_OUTPUT_JAR_JSON_PACKAGE_NAME = "kroll.outputJarJsonPackageName";
+	protected static final String OPTION_OUTPUT_JAR_JSON_FILE_NAME = "kroll.outputJarJsonFileName";
+	protected static final String OPTION_OUTPUT_JSON_FILE_PATH = "kroll.outputJsonFilePath";
+	protected static final String OPTION_CPP_DIR_PATH = "kroll.outputCppDirPath";
+	protected static final String OPTION_JS_MODULE_NAME = "kroll.jsModuleName";
 
 	// we make these generic because they may be initialized by JSON
 	protected Map<Object, Object> properties = new HashMap<Object, Object>();
 	protected Map<Object, Object> proxyProperties = new HashMap<Object, Object>();
 	protected KrollAnnotationUtils utils;
 	protected JSONUtils jsonUtils;
-	protected String jsonPackage, jsonFile;
-
+	protected String jarJsonPackageName;
+	protected String jarJsonFileName;
+	protected String jsonFilePath;
 	protected boolean initialized = false;
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
 	{
-		if (!initialized) {
+		// Initialize this annotation processor if not done already.
+		if (!this.initialized) {
 			initialize();
-			initialized = true;
+			this.initialized = true;
 		}
 
+		// Handle the next step in the annotation reading process.
 		if (!roundEnv.processingOver()) {
+			// Process the given annotations.
 			for (Element element : roundEnv.getRootElements()) {
 				processKrollProxy(element);
 			}
-
 		} else {
+			// We're done reading all annotations.
+			// Finish processing all read proxy symbols.
+			Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
+			if (proxies != null) {
+				for (String proxyName : proxies.keySet()) {
+					Map<String, Object> proxy = jsonUtils.getStringMap(proxies, proxyName);
+					generateFullAPIName(jsonUtils.getStringMap(proxy, "proxyAttrs"));
+				}
+			}
+
+			// Write the JSON file(s).
 			generateJSON();
+
+			// Generate C++ files if configured.
+			generateCppFiles();
 		}
 
 		return true;
@@ -130,36 +153,48 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 	protected void initialize()
 	{
-		utils = new KrollAnnotationUtils(processingEnv);
-		jsonUtils = new JSONUtils(utils);
-
+		// Initialize JSON utilities.
+		this.utils = new KrollAnnotationUtils(processingEnv);
+		this.jsonUtils = new JSONUtils(this.utils);
 		debug("Running Kroll binding generator.");
 
-		String jsonPackage = processingEnv.getOptions().get(PROPERTY_JSON_PACKAGE);
-		this.jsonPackage = jsonPackage != null ? jsonPackage : DEFAULT_JSON_PACKAGE;
+		// Fetch annotation processing environment variables.
+		String stringValue = processingEnv.getOptions().get(OPTION_OUTPUT_JAR_JSON_PACKAGE_NAME);
+		if ((stringValue != null) && !stringValue.isEmpty()) {
+			this.jarJsonPackageName = stringValue;
+		}
+		stringValue = processingEnv.getOptions().get(OPTION_OUTPUT_JAR_JSON_FILE_NAME);
+		if ((stringValue != null) && !stringValue.isEmpty()) {
+			this.jarJsonFileName = stringValue;
+		}
+		stringValue = processingEnv.getOptions().get(OPTION_OUTPUT_JSON_FILE_PATH);
+		if ((stringValue != null) && !stringValue.isEmpty()) {
+			this.jsonFilePath = stringValue;
+		}
 
-		String jsonFile = processingEnv.getOptions().get(PROPERTY_JSON_FILE);
-		this.jsonFile = jsonFile != null ? jsonFile : DEFAULT_JSON_FILE;
+		// If we're set up to generate a JSON file within a JAR,
+		// then attempt to read our previously generated JSON file if it exists.
+		if ((this.jarJsonPackageName != null) && (this.jarJsonFileName != null)) {
+			try {
+				FileObject bindingsFile = processingEnv.getFiler().getResource(
+					StandardLocation.SOURCE_OUTPUT, this.jarJsonPackageName, this.jarJsonFileName);
 
-		try {
-			FileObject bindingsFile =
-				processingEnv.getFiler().getResource(StandardLocation.SOURCE_OUTPUT, this.jsonPackage, this.jsonFile);
+				// using the FileObject API fails to read the file, we'll use the pure file API
+				String jsonPath = bindingsFile.toUri().toString();
+				if (System.getProperty("os.name").contains("Windows")) {
+					// the file URI in windows needs to be massaged (remove file:\)
+					jsonPath = jsonPath.substring(6);
+				}
+				if (jsonPath.startsWith("file:/")) {
+					jsonPath = jsonPath.substring(5);
+				}
 
-			// using the FileObject API fails to read the file, we'll use the pure file API
-			String jsonPath = bindingsFile.toUri().toString();
-			if (System.getProperty("os.name").contains("Windows")) {
-				// the file URI in windows needs to be massaged (remove file:\)
-				jsonPath = jsonPath.substring(6);
+				properties = (Map<Object, Object>) JSONValue.parseWithException(new FileReader(jsonPath));
+				debug("Succesfully loaded existing binding data: " + jsonPath);
+			} catch (Exception e) {
+				// file doesn't exist, we'll just create it later
+				debug("No binding data found, creating new data file: %s/%s", this.jarJsonPackageName, this.jarJsonFileName);
 			}
-			if (jsonPath.startsWith("file:/")) {
-				jsonPath = jsonPath.substring(5);
-			}
-
-			properties = (Map<Object, Object>) JSONValue.parseWithException(new FileReader(jsonPath));
-			debug("Succesfully loaded existing binding data: " + jsonPath);
-		} catch (Exception e) {
-			// file doesn't exist, we'll just create it later
-			debug("No binding data found, creating new data file: %s/%s", this.jsonPackage, this.jsonFile);
 		}
 	}
 
@@ -702,22 +737,66 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 	protected void generateJSON()
 	{
-		try {
-			Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
-			for (String proxyName : proxies.keySet()) {
-				Map<String, Object> proxy = jsonUtils.getStringMap(proxies, proxyName);
-				generateFullAPIName(jsonUtils.getStringMap(proxy, "proxyAttrs"));
+		// Generate a JSON string from the "properties" dictionary.
+		String jsonString = JSONValue.toJSONString(this.properties);
+
+		// Write a JSON file to the Java project we just read the annotations from.
+		// This will cause the JSON file to be bundled into the project's JAR file.
+		if ((this.jarJsonPackageName != null) && (this.jarJsonFileName != null)) {
+			try {
+				FileObject file = processingEnv.getFiler().createResource(
+					StandardLocation.SOURCE_OUTPUT, this.jarJsonPackageName, this.jarJsonFileName);
+				debug("Generating JSON: %s", file.toUri());
+				Writer writer = file.openWriter();
+				writer.write(jsonString);
+				writer.close();
+			} catch (Exception e) {
+				debug("Exception trying to generate JSON: %s/%s, %s", this.jarJsonPackageName, this.jarJsonFileName, e.getMessage());
 			}
+		}
 
-			FileObject file =
-				processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, jsonPackage, jsonFile);
-			debug("Generating JSON: %s", file.toUri());
-			Writer writer = file.openWriter();
+		// Write a JSON file to the given file system path.
+		if (this.jsonFilePath != null) {
+			FileWriter writer = null;
+			try {
+				File filePath = new File(this.jsonFilePath);
+				filePath.getParentFile().mkdirs();
+				writer = new FileWriter(filePath);
+				writer.write(jsonString);
+			} catch (Exception e) {
+				debug("Exception trying to generate JSON file: %s, %s", this.jsonFilePath, e.getMessage());
+			} finally {
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch (Exception e) {
+					}
+				}
+			}
+		}
+	}
 
-			writer.write(JSONValue.toJSONString(properties));
-			writer.close();
-		} catch (IOException e) {
-			debug("Exception trying to generate JSON: %s/%s, %s", jsonPackage, jsonFile, e.getMessage());
+	private void generateCppFiles()
+	{
+		// Fetch the directory path that we'll write the C++ files too.
+		String directoryPath = this.processingEnv.getOptions().get(OPTION_CPP_DIR_PATH);
+		if ((directoryPath == null) || directoryPath.isEmpty()) {
+			return;
+		}
+
+		// Fetch the JavaScript module name the C++ files are binding to.
+		String jsModuleName = this.processingEnv.getOptions().get(OPTION_JS_MODULE_NAME);
+		if ((jsModuleName == null) || jsModuleName.isEmpty()) {
+			return;
+		}
+
+		// Generate the C++ files.
+		try {
+			KrollBindingGenerator generator = new KrollBindingGenerator(directoryPath, jsModuleName);
+			generator.loadBindingsFrom(this.properties);
+			generator.generateBindings();
+		} catch (Exception ex) {
+			debug("Failed to generate C++ files: ", ex.getMessage());
 		}
 	}
 }

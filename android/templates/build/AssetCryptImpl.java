@@ -18,6 +18,7 @@ import org.appcelerator.titanium.TiApplication;
 import android.os.Debug;
 import android.util.Base64;
 
+@SuppressWarnings("unchecked")
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
 	private static class Range
