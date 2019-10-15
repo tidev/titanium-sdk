@@ -11,6 +11,7 @@
 #import "TiLayoutQueue.h"
 #import "TiSharedConfig.h"
 #import "TiUtils.h"
+#import "TiViewController.h"
 
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {
@@ -824,6 +825,10 @@
     }
   }
   [self dismissKeyboard];
+  if ([theController isKindOfClass:[TiViewController class]]) {
+    TiViewController *controller = (TiViewController *)theController;
+    controller.presentationController.delegate = controller;
+  }
   [topVC presentViewController:theController animated:trulyAnimated completion:nil];
 }
 

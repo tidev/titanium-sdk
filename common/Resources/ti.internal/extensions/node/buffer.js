@@ -864,6 +864,14 @@ class Buffer {
 	}
 
 	/**
+	 * Provides a conversion method for interacting with Ti APIs taht require a Ti.Buffer
+	 * @returns {Ti.Buffer} the underlying Ti.Buffer backing this Buffer instance
+	 */
+	toTiBuffer() {
+		return this._tiBuffer;
+	}
+
+	/**
 	 * Creates and returns an iterator for buf values (bytes)
 	 * @returns {Iterator}
 	 */
