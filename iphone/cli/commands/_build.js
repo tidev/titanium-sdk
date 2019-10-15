@@ -6802,11 +6802,15 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 					break;
 				}
 			}
+			if (dest) {
+				break;
+			}
 		}
 
 		if (!dest) {
 			// couldn't find a simulator!
 			// this shouldn't happen, but just in case, fall back to the selected simulator
+			this.logger.debug(`Couldn't find a simulator compatible with Xcode ${this.xcodeEnv.version}, falling back to selected simulator`);
 			dest = `platform=iOS Simulator,id=${this.simHandle.udid},OS=${appc.version.format(this.simHandle.version, 2, 2)}`;
 		}
 
