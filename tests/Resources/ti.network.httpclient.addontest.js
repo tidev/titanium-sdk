@@ -13,8 +13,8 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('progress event', function (finish) {
 		var progressVar = -1,
-			blob = Ti.UI.createImageView({ image: 'SplashScreen.png' }).toBlob(),
-			base64String = Ti.Utils.base64encode(blob).toString(),
+			file = Titanium.Filesystem.getFile('test.txt'),
+			base64String = Ti.Utils.base64encode(file).toString(),
 			xhr = Ti.Network.createHTTPClient({
 				onsendstream: function (e) {
 					try {
