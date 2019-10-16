@@ -1541,6 +1541,15 @@
   return UIApplicationOpenSettingsURLString;
 }
 
+#ifdef DEBUG
+JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef ctx);
+
+- (void)garbageCollectForDebugging:(id)args
+{
+  JSSynchronousGarbageCollectForDebugging(self.pageContext.krollContext.context);
+}
+#endif
+
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED, @"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED, @"accessibilityscreenchanged");
 
