@@ -294,7 +294,11 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions?
 					dir('build') {
 						timeout(15) {
-							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+							if (includeWindows) {
+								sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK} --all"
+							} else {
+								sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+							}
 						} // timeout
 						ansiColor('xterm') {
 							timeout(15) {
