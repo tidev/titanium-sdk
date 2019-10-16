@@ -18,15 +18,30 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "build:docs": "docgen apidoc",
-    "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
-    "test": "npm run ios-sanity-check && grunt",
     "android": "./build/scons cleanbuild android",
-    "android-test": "./build/scons clean android && ./build/scons build android && ./build/scons package -s --no-docs android && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s android",
+    "build:android": "./build/scons build android",
+    "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
+    "build:docs": "docgen apidoc",
+    "build:ios": "./build/scons build ios",
+    "clean": "./build/scons clean",
+    "clean:android": "npm run clean -- android",
+    "clean:ios": "npm run clean -- ios",
+    "commit": "git-cz",
+    "format": "npm-run-all --parallel format:**",
+    "format:android": "npm run lint:android -- --fix",
+    "format:ios": "npm run lint:ios -- --fix",
+    "format:js": "npm run lint:js -- --fix",
     "ios": "./build/scons cleanbuild ios",
     "ios-sanity-check": "./build/scons check-ios-toplevel",
-    "ios-test": "./build/scons clean ios && ./build/scons build ios && ./build/scons package -s --no-docs ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios",
-    "commit": "git-cz"
+    "lint": "npm-run-all --parallel lint:**",
+    "lint:android": "clang-format-lint $npm_package_config_format_android",
+    "lint:docs": "tdoc-validate ./apidoc",
+    "lint:ios": "clang-format-lint $npm_package_config_format_ios",
+    "lint:js": "eslint .",
+    "test": "npm run ios-sanity-check && npm run lint",
+    "test:android": "npm run clean:android && npm run build:android && ./build/scons package -s --no-docs android && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s android",
+    "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js --reporter=mocha-jenkins-reporter",
+    "test:ios": "npm run clean:ios && npm run build:ios && ./build/scons package -s --no-docs ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios"
   },
   "husky": {
     "hooks": {
@@ -56,6 +71,10 @@
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    },
+    "format": {
+      "android": "android/!(dev|templates)/**/*.java",
+      "ios": "iphone/Classes/*.{m,h} iphone/Classes/Layout/*.{m,h} iphone/TitaniumKit/TitaniumKit/*.h iphone/TitaniumKit/TitaniumKit/Sources/**/*.{m,h}"
     }
   },
   "dependencies": {
@@ -66,12 +85,12 @@
     "async": "^2.6.1",
     "buffer-equal": "1.0.0",
     "clean-css": "4.2.1",
-    "colors": "^1.3.3",
+    "colors": "^1.4.0",
     "css-parse": "2.0.0",
-    "ejs": "^2.6.1",
+    "ejs": "^2.6.2",
     "fields": "0.1.24",
     "fs-extra": "^8.0.1",
-    "ioslib": "^1.7.13",
+    "ioslib": "^1.7.14",
     "klaw-sync": "^6.0.0",
     "liveview": "^1.5.0",
     "lodash.defaultsdeep": "^4.6.1",
@@ -92,33 +111,36 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.1.0",
-    "@commitlint/config-conventional": "^8.1.0",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "@seadub/clang-format-lint": "0.0.2",
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^1.0.1",
     "@seadub/danger-plugin-junit": "0.1.2",
+    "chai": "^4.2.0",
     "clang-format": "1.2.3",
     "commander": "^3.0.1",
     "commitizen": "^4.0.3",
+    "conventional-changelog-cli": "^2.0.25",
     "core-js": "^2.6.5",
     "cz-conventional-changelog": "^3.0.2",
-    "danger": "^9.1.8",
+    "danger": "^9.2.1",
+    "dateformat": "^3.0.3",
     "eslint": "^6.2.2",
     "eslint-config-axway": "^4.3.0",
     "eslint-plugin-mocha": "^6.1.0",
     "glob": "^7.1.4",
-    "grunt": "^1.0.4",
-    "grunt-clang-format": "^1.1.0",
-    "grunt-cli": "^1.3.2",
-    "grunt-contrib-clean": "^2.0.0",
-    "grunt-eslint": "^22.0.0",
-    "husky": "^3.0.4",
-    "lint-staged": "^9.2.5",
-    "rollup": "^1.20.3",
+    "husky": "^3.0.8",
+    "lint-staged": "^9.4.2",
+    "mocha": "^6.2.0",
+    "mocha-jenkins-reporter": "^0.4.2",
+    "npm-run-all": "^4.1.5",
+    "nyc": "^14.1.1",
+    "rollup": "^1.23.1",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "ssri": "^7.0.0",
+    "ssri": "^7.0.1",
     "titanium-docgen": "^0.2.0"
   },
   "repository": {
@@ -133,6 +155,15 @@
   },
   "engines": {
     "node": ">=8"
+  },
+  "nyc": {
+    "exclude": [
+      "**/cli/tests/test-*.js"
+    ],
+    "reporter": [
+      "cobertura",
+      "text"
+    ]
   },
   "license": "Apache-2.0"
 }

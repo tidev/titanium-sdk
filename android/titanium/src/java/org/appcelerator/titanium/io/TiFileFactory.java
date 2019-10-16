@@ -1,12 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.io;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -34,6 +36,10 @@ public class TiFileFactory
 	private static final String CONTENT_URL_PREFIX = CONTENT_URL_SCHEME + "://";
 	private static final String FILE_URL_SCHEME = ContentResolver.SCHEME_FILE;
 	private static final String FILE_URL_PREFIX = FILE_URL_SCHEME + "://";
+	// strip file:// prefix off the special URL we need to handle like app:
+	private static final String ANDROID_ASSET_RESOURCES =
+		TiC.URL_ANDROID_ASSET_RESOURCES.substring(FILE_URL_PREFIX.length());
+	private static final String TI_URL_SCHEME = "ti";
 	private static HashSet<String> localSchemeSet;
 
 	static
@@ -71,87 +77,94 @@ public class TiFileFactory
 	 */
 	public static TiBaseFile createTitaniumFile(String[] parts, boolean stream)
 	{
-		TiBaseFile file = null;
-
-		String initial = parts[0];
-		Log.d(TAG, "getting initial from parts: " + initial, Log.DEBUG_MODE);
-
-		if (initial.startsWith(TiC.URL_APP_PREFIX)) {
-			// This is an "app://" URL.
-			String path = initial.substring(TiC.URL_APP_PREFIX.length());
-			path = formPath(path, parts);
-			path = trimFront(path, '/');
-			file = new TiResourceFile(path);
-		} else if (initial.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
-			// This is a "file:///android_asset/Resources/" URL.
-			String path = initial.substring(TiC.URL_ANDROID_ASSET_RESOURCES.length());
-			path = formPath(path, parts);
-			path = trimFront(path, '/');
-			file = new TiResourceFile(path);
-		} else if (initial.startsWith(APPDATA_URL_PREFIX)) {
-			// This is an "appdata://" URL.
-			String path = initial.substring(APPDATA_URL_PREFIX.length());
-			path = formPath(path, parts);
-			File f = new File(getDataDirectory(false), path);
-			file = new TiFile(f, APPDATA_URL_PREFIX + path, stream);
-		} else if (initial.startsWith(APPDATA_PRIVATE_URL_PREFIX)) {
-			// This is an "appdata-private://" URL.
-			String path = initial.substring(APPDATA_PRIVATE_URL_PREFIX.length());
-			path = formPath(path, parts);
-			File f = new File(getDataDirectory(true), path);
-			file = new TiFile(f, APPDATA_PRIVATE_URL_PREFIX + path, stream);
-		} else if (initial.startsWith(FILE_URL_PREFIX)) {
-			// This is a "file://" URL.
-			String path = initial.substring(FILE_URL_PREFIX.length());
-			path = formPath(path, parts);
-			file = new TiFile(new File(path), FILE_URL_PREFIX + path, stream);
-		} else if (initial.startsWith(CONTENT_URL_PREFIX)) {
-			// This is a "content://" URL.
-			String path = initial.substring(CONTENT_URL_PREFIX.length());
-			path = formPath(path, parts);
-			file = new TitaniumBlob(CONTENT_URL_PREFIX + path);
-		} else if (initial.startsWith(ANDROID_RESOURCE_URL_PREFIX)) {
-			// This is an "android.resource://" URL.
-			String path = initial.substring(ANDROID_RESOURCE_URL_PREFIX.length());
-			path = formPath(path, parts);
-			file = new TitaniumBlob(ANDROID_RESOURCE_URL_PREFIX + path);
-		} else if (initial.startsWith("/")) {
-			String path = "";
-			path = formPath(path, insertBefore(path, parts));
-			file = new TiFile(new File(path), FILE_URL_PREFIX + path, stream);
+		String possibleURI = joinPathSegments(parts);
+		String scheme = null;
+		String path = null;
+		int colonIndex = possibleURI.indexOf(':');
+		if (colonIndex != -1) {
+			// probably a URI
+			try {
+				URI uri = new URI(possibleURI);
+				scheme = uri.getScheme().toLowerCase();
+				path = uri.getSchemeSpecificPart();
+			} catch (URISyntaxException use) {
+				// not a valid one!
+				// TODO: Maybe we can encode each segment in joinPathSegments to help avoid this?
+				// hack to grab scheme and path ourselves
+				scheme = possibleURI.substring(0, colonIndex);
+				path = possibleURI.substring(colonIndex + 1);
+			}
+			// if there was a "//" after the scheme, strip it to get path
+			if (path.startsWith("//")) {
+				path = path.substring(2);
+			}
 		} else {
-			String path = "";
-			path = formPath(path, insertBefore(path, parts));
-			File f = new File(getDataDirectory(true), path);
-			file = new TiFile(f, APPDATA_PRIVATE_URL_PREFIX + path, stream);
-		}
-
-		return file;
-	}
-
-	private static String[] insertBefore(String path, String[] parts)
-	{
-		String[] p = new String[parts.length + 1];
-		p[0] = path;
-		for (int i = 0; i < parts.length; i++) {
-			p[i + 1] = parts[i];
-		}
-		return p;
-	}
-
-	private static String formPath(String path, String parts[])
-	{
-		if (!path.endsWith("/") && path.length() > 0 && parts.length > 1) {
-			path += "/";
-		}
-		for (int c = 1; c < parts.length; c++) {
-			String part = parts[c];
-			path += part;
-			if (c + 1 < parts.length && !part.endsWith("/")) {
-				path += "/";
+			// no ':', so no scheme! make the whole thing the path.
+			path = possibleURI;
+			if (path.startsWith("/")) { // absolute path, so assume file:
+				scheme = FILE_URL_SCHEME;
+			} else { // relative looking path, so assume appdata-private:
+				scheme = APPDATA_PRIVATE_URL_SCHEME;
 			}
 		}
-		return path;
+
+		if (TiC.URL_APP_SCHEME.equals(scheme)) {
+			return new TiResourceFile(trimFront(path, '/'));
+		}
+
+		if (APPDATA_PRIVATE_URL_SCHEME.equals(scheme)) {
+			File f = new File(getDataDirectory(true), path);
+			return new TiFile(f, possibleURI, stream);
+		}
+
+		if (APPDATA_URL_SCHEME.equals(scheme)) {
+			File f = new File(getDataDirectory(false), path);
+			return new TiFile(f, possibleURI, stream);
+		}
+
+		if (CONTENT_URL_SCHEME.equals(scheme) || ANDROID_RESOURCE_URL_SCHEME.equals(scheme)) {
+			return new TitaniumBlob(possibleURI); // TODO: Forward along the actual URI instance?
+		}
+
+		if (FILE_URL_SCHEME.equals(scheme)) {
+			// check for fake "file:///android_asset/Resources/" URL, treat like app:
+			if (path.startsWith(ANDROID_ASSET_RESOURCES)) {
+				// Strip this fake base path
+				path = path.substring(ANDROID_ASSET_RESOURCES.length());
+				return new TiResourceFile(trimFront(path, '/')); // remove leading '/' characters
+			}
+
+			// Normal file
+			return new TiFile(new File(path), possibleURI, stream);
+		}
+
+		if (TI_URL_SCHEME.equals(scheme)) { // treat like appdata-private
+			// TODO: Do we need to trim leading '/'?
+			File f = new File(getDataDirectory(true), path);
+			return new TiFile(f, possibleURI, stream);
+		}
+
+		// TODO: Throw an exception? Ideally this shouldn't ever happen, but could if an unhandled scheme URI came in here
+		// i.e. http:, ftp:, https:, mailto:, etc.
+		return null;
+	}
+
+	private static String joinPathSegments(String parts[])
+	{
+		if (parts.length == 1) {
+			return parts[0]; // common base case
+		}
+
+		StringBuilder path = new StringBuilder();
+		for (int c = 0; c < parts.length; c++) {
+			String part = parts[c];
+			path.append(part);
+			// for all but last segment, insert file separator if not already there
+			if (c + 1 < parts.length && !part.endsWith("/")) {
+				path.append("/");
+			}
+		}
+		return path.toString();
 	}
 
 	/**

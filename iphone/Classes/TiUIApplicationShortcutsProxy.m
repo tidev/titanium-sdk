@@ -212,7 +212,7 @@
     return [UIApplicationShortcutIcon iconWithTemplateImageName:[self urlInAssetCatalog:value]];
   }
 
-#ifdef IS_SDK_IOS_13
+#if IS_SDK_IOS_13
   if ([value isKindOfClass:[TiBlob class]] && [TiUtils isIOSVersionOrGreater:@"13.0"]) {
     TiBlob *blob = (TiBlob *)value;
     if (blob.type == TiBlobTypeSystemImage) {

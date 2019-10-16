@@ -6790,9 +6790,29 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (this.simHandle) {
+		let dest;
+		const xcodeId = this.xcodeEnv.version + ':' + this.xcodeEnv.build;
+
+		// xcodebuild requires a -destination when building for iOS Simulator and it needs a
+		// simulator that is compatible with the selected Xcode version, so just pick one
+		for (const sims of Object.values(this.iosInfo.simulators.ios)) {
+			for (const sim of sims) {
+				if (sim.supportsXcode[xcodeId]) {
+					dest = `platform=iOS Simulator,id=${sim.udid},OS=${appc.version.format(sim.version, 2, 2)}`;
+					break;
+				}
+			}
+		}
+
+		if (!dest) {
+			// couldn't find a simulator!
+			// this shouldn't happen, but just in case, fall back to the selected simulator
+			dest = `platform=iOS Simulator,id=${this.simHandle.udid},OS=${appc.version.format(this.simHandle.version, 2, 2)}`;
+		}
+
 		// when building for the simulator, we need to specify a destination and a scheme (above)
 		// so that it can compile all targets (phone and watch targets) for the simulator
-		args.push('-destination', 'platform=iOS Simulator,id=' + this.simHandle.udid + ',OS=' + appc.version.format(this.simHandle.version, 2, 2));
+		args.push('-destination', dest);
 		args.push('ONLY_ACTIVE_ARCH=1');
 	}
 
