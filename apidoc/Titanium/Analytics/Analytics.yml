@@ -102,6 +102,8 @@ methods:
     summary: |
         Sends a navigation event for this application session. 
         **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "8.3.0"
     parameters:
 
       - name: from
