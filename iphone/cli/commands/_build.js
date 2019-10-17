@@ -2514,7 +2514,7 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
 	this.tiLogServerPort = 0;
 
-	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+	if (this.target !== 'device') {
 		// we don't allow the log server in production
 		return next();
 	}
@@ -3090,6 +3090,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
+		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
@@ -4595,6 +4596,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		this,
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
+	);
+	copyAndReplaceFile.call(
+		this,
+		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),
+		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata')
 	);
 
 	if (this.enableLaunchScreenStoryboard && this.defaultLaunchScreenStoryboard) {
