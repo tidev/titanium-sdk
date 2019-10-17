@@ -181,7 +181,12 @@ function iOSBuilder() {
 	this.defaultLaunchScreenStoryboard = true;
 	this.defaultBackgroundColor = null;
 
-	// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+	// sim builds will auto-select an xcodebuild destination regardless of the actual simulator
+	// selected and since all modern iOS simulator devices are 64-bit only, that means that the
+	// ONLY_ACTIVE_ARCH flag only build a 64-bit only app
+	//
+	// if the selected sim is 32-bit (iPhone 5 and older, iPad 4th gen or older), then the app
+	// won't run, so we need to track the ONLY_ACTIVE_ARCH flag and disable it for 32-bit sims
 	this.simOnlyActiveArch = null;
 }
 
