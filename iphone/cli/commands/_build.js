@@ -180,6 +180,9 @@ function iOSBuilder() {
 	this.enableLaunchScreenStoryboard = true;
 	this.defaultLaunchScreenStoryboard = true;
 	this.defaultBackgroundColor = null;
+
+	// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+	this.simOnlyActiveArch = null;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -2052,6 +2055,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					this.watchSimHandle = watchSimHandle;
 					this.xcodeEnv = selectedXcode;
 
+					// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+					const m = this.simHandle.model.match(/^(iPad|iPhone)([\d]+)/);
+					this.simOnlyActiveArch = !!(m && (m[1] === 'iPad' && parseInt(m[2]) >= 4) || (m[1] === 'iPhone' && parseInt(m[2]) >= 6));
+
 					if (!this.iosSdkVersion) {
 						const sdks = selectedXcode.sdks.sort();
 						this.iosSdkVersion = sdks[sdks.length - 1];
@@ -2401,7 +2408,8 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'];
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
-	this.currentBuildManifest.showErrorController          = this.showErrorController;
+	this.currentBuildManifest.simOnlyActiveArch  = this.simOnlyActiveArch;
+	this.currentBuildManifest.showErrorController = this.showErrorController;
 
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
@@ -2837,6 +2845,13 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: showErrorController flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.showErrorController));
 			this.logger.info('  ' + __('Now: %s', this.showErrorController));
+			return true;
+		}
+
+		if (this.simOnlyActiveArch !== manifest.simOnlyActiveArch) {
+			this.logger.info(__('Forcing rebuild: simOnlyActiveArch flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.simOnlyActiveArch));
+			this.logger.info('  ' + __('Now: %s', this.simOnlyActiveArch));
 			return true;
 		}
 
@@ -3998,133 +4013,136 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	delete plist.UILaunchImageFile;
 
 	const i18nLaunchScreens = {};
-	ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (p) {
-		i18nLaunchScreens[path.basename(p)] = 1;
-	});
 
-	[ {
-		orientation: 'Portrait',
-		'minimum-system-version': '12.0',
-		name: 'Default-Portrait',
-		subtype: '2688h',
-		scale: [ '3x' ],
-		size: '{414, 896}'
-	},
-	{
-		orientation: 'Landscape',
-		'minimum-system-version': '12.0',
-		name: 'Default-Landscape',
-		subtype: '2688h',
-		scale: [ '3x' ],
-		size: '{414, 896}'
-	},
-	{
-		orientation: 'Portrait',
-		'minimum-system-version': '12.0',
-		name: 'Default-Portrait',
-		subtype: '1792h',
-		scale: [ '2x' ],
-		size: '{414, 896}'
-	},
-	{
-		orientation: 'Landscape',
-		'minimum-system-version': '12.0',
-		name: 'Default-Landscape',
-		subtype: '1792h',
-		scale: [ '2x' ],
-		size: '{414, 896}'
-	},
-	{
-		orientation: 'Portrait',
-		'minimum-system-version': '11.0',
-		name: 'Default-Portrait',
-		subtype: '2436h',
-		scale: [ '3x' ],
-		size: '{375, 812}'
-	},
-	{
-		orientation: 'Landscape',
-		'minimum-system-version': '11.0',
-		name: 'Default-Landscape',
-		subtype: '2436h',
-		scale: [ '3x' ],
-		size: '{375, 812}'
-	},
-	{
-		orientation: 'Portrait',
-		'minimum-system-version': '8.0',
-		name: 'Default-Portrait',
-		subtype: '736h',
-		scale: [ '3x' ],
-		size: '{414, 736}'
-	},
-	{
-		orientation: 'Landscape',
-		'minimum-system-version': '8.0',
-		name: 'Default-Landscape',
-		subtype: '736h',
-		scale: [ '3x' ],
-		size: '{414, 736}'
-	},
-	{
-		orientation: 'Portrait',
-		'minimum-system-version': '8.0',
-		name: 'Default',
-		subtype: '667h',
-		scale: [ '2x' ],
-		size: '{375, 667}'
-	},
-	{
-		orientation: 'Portrait',
-		'minimum-system-version': '7.0',
-		name: 'Default',
-		scale: [ '2x', '1x' ],
-		size: '{320, 480}'
-	},
-	{
-		orientation: 'Portrait',
-		'minimum-system-version': '7.0',
-		name: 'Default',
-		subtype: '568h',
-		scale: [ '2x' ],
-		size: '{320, 568}'
-	},
-	{
-		orientation: 'Portrait',
-		idiom: 'ipad',
-		'minimum-system-version': '7.0',
-		name: 'Default-Portrait',
-		scale: [ '2x', '1x' ],
-		size: '{768, 1024}'
-	},
-	{
-		orientation: 'Landscape',
-		idiom: 'ipad',
-		'minimum-system-version': '7.0',
-		name: 'Default-Landscape',
-		scale: [ '2x', '1x' ],
-		size: '{768, 1024}'
-	} ].forEach(function (asset) {
-		asset.scale.some(function (scale) {
-			let key;
-			const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
-				filename = basefilename + (scale !== '1x' ? '@' + scale : '') + '.png';
+	if (appc.version.lt(this.xcodeEnv.version, '11.0.0')) {
+		ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (p) {
+			i18nLaunchScreens[path.basename(p)] = 1;
+		});
 
-			// if we have a launch image and if we're doing iPhone only, don't include iPad launch images
-			if (i18nLaunchScreens[filename] && (this.deviceFamily !== 'iphone' || asset.idiom === 'iphone')) {
-				key = 'UILaunchImages' + (asset.idiom === 'ipad' ? '~ipad' : '');
-				Array.isArray(plist[key]) || (plist[key] = []);
-				plist[key].push({
-					UILaunchImageName: basefilename,
-					UILaunchImageOrientation: asset.orientation,
-					UILaunchImageSize: asset.size,
-					UILaunchImageMinimumOSVersion: asset['minimum-system-version']
-				});
-				return true;
-			}
-			return false;
+		[ {
+			orientation: 'Portrait',
+			'minimum-system-version': '12.0',
+			name: 'Default-Portrait',
+			subtype: '2688h',
+			scale: [ '3x' ],
+			size: '{414, 896}'
+		},
+		{
+			orientation: 'Landscape',
+			'minimum-system-version': '12.0',
+			name: 'Default-Landscape',
+			subtype: '2688h',
+			scale: [ '3x' ],
+			size: '{414, 896}'
+		},
+		{
+			orientation: 'Portrait',
+			'minimum-system-version': '12.0',
+			name: 'Default-Portrait',
+			subtype: '1792h',
+			scale: [ '2x' ],
+			size: '{414, 896}'
+		},
+		{
+			orientation: 'Landscape',
+			'minimum-system-version': '12.0',
+			name: 'Default-Landscape',
+			subtype: '1792h',
+			scale: [ '2x' ],
+			size: '{414, 896}'
+		},
+		{
+			orientation: 'Portrait',
+			'minimum-system-version': '11.0',
+			name: 'Default-Portrait',
+			subtype: '2436h',
+			scale: [ '3x' ],
+			size: '{375, 812}'
+		},
+		{
+			orientation: 'Landscape',
+			'minimum-system-version': '11.0',
+			name: 'Default-Landscape',
+			subtype: '2436h',
+			scale: [ '3x' ],
+			size: '{375, 812}'
+		},
+		{
+			orientation: 'Portrait',
+			'minimum-system-version': '8.0',
+			name: 'Default-Portrait',
+			subtype: '736h',
+			scale: [ '3x' ],
+			size: '{414, 736}'
+		},
+		{
+			orientation: 'Landscape',
+			'minimum-system-version': '8.0',
+			name: 'Default-Landscape',
+			subtype: '736h',
+			scale: [ '3x' ],
+			size: '{414, 736}'
+		},
+		{
+			orientation: 'Portrait',
+			'minimum-system-version': '8.0',
+			name: 'Default',
+			subtype: '667h',
+			scale: [ '2x' ],
+			size: '{375, 667}'
+		},
+		{
+			orientation: 'Portrait',
+			'minimum-system-version': '7.0',
+			name: 'Default',
+			scale: [ '2x', '1x' ],
+			size: '{320, 480}'
+		},
+		{
+			orientation: 'Portrait',
+			'minimum-system-version': '7.0',
+			name: 'Default',
+			subtype: '568h',
+			scale: [ '2x' ],
+			size: '{320, 568}'
+		},
+		{
+			orientation: 'Portrait',
+			idiom: 'ipad',
+			'minimum-system-version': '7.0',
+			name: 'Default-Portrait',
+			scale: [ '2x', '1x' ],
+			size: '{768, 1024}'
+		},
+		{
+			orientation: 'Landscape',
+			idiom: 'ipad',
+			'minimum-system-version': '7.0',
+			name: 'Default-Landscape',
+			scale: [ '2x', '1x' ],
+			size: '{768, 1024}'
+		} ].forEach(function (asset) {
+			asset.scale.some(function (scale) {
+				let key;
+				const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
+					filename = basefilename + (scale !== '1x' ? '@' + scale : '') + '.png';
+
+				// if we have a launch image and if we're doing iPhone only, don't include iPad launch images
+				if (i18nLaunchScreens[filename] && (this.deviceFamily !== 'iphone' || asset.idiom === 'iphone')) {
+					key = 'UILaunchImages' + (asset.idiom === 'ipad' ? '~ipad' : '');
+					Array.isArray(plist[key]) || (plist[key] = []);
+					plist[key].push({
+						UILaunchImageName: basefilename,
+						UILaunchImageOrientation: asset.orientation,
+						UILaunchImageSize: asset.size,
+						UILaunchImageMinimumOSVersion: asset['minimum-system-version']
+					});
+					return true;
+				}
+				return false;
+			}, this);
 		}, this);
-	}, this);
+	}
 
 	if (this.enableLaunchScreenStoryboard) {
 		plist.UILaunchStoryboardName = 'LaunchScreen';
@@ -4251,7 +4269,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		this.logger.warn(__('Removing custom Info.plist "CFBundleIconFiles" since we now use an asset catalog for app icons.'));
 		delete plist.CFBundleIconFiles;
 	}
-	if (!Object.keys(i18nLaunchScreens).length) {
+	if (appc.version.lt(this.xcodeEnv.version, '11.0.0') && !Object.keys(i18nLaunchScreens).length) {
 		// no i18n launch images, so nuke the launch image related keys
 		if (plist.UILaunchImages) {
 			this.logger.warn(__('Removing custom Info.plist "UILaunchImages" since we now use an asset catalog for launch images.'));
@@ -5011,20 +5029,22 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		walk(path.join(module.modulePath, 'Resources', 'ios'),    this.xcodeAppDir);
 	}, this);
 
-	this.logger.info(__('Analyzing localized launch images'));
-	ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (launchImage) {
-		const parts = launchImage.split('/'),
-			file = parts.pop(),
-			lang = parts.pop(),
-			relPath = path.join(lang + '.lproj', file);
+	if (appc.version.lt(this.xcodeEnv.version, '11.0.0')) {
+		this.logger.info(__('Analyzing localized launch images'));
+		ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (launchImage) {
+			const parts = launchImage.split('/'),
+				file = parts.pop(),
+				lang = parts.pop(),
+				relPath = path.join(lang + '.lproj', file);
 
-		launchImages[relPath] = {
-			i18n: lang,
-			src: launchImage,
-			dest: path.join(this.xcodeAppDir, relPath),
-			srcStat: fs.statSync(launchImage)
-		};
-	}, this);
+			launchImages[relPath] = {
+				i18n: lang,
+				src: launchImage,
+				dest: path.join(this.xcodeAppDir, relPath),
+				srcStat: fs.statSync(launchImage)
+			};
+		}, this);
+	}
 
 	// detect ambiguous modules
 	this.modules.forEach(function (module) {
@@ -5609,6 +5629,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				},
 
 				function createLaunchImageSet() {
+					if (appc.version.gte(this.xcodeEnv.version, '11.0.0')) {
+						this.logger.info(__('Skipping launch image set since it\'s deprecated in Xcode 11'));
+						return;
+					}
+
 					this.logger.info(__('Creating launch image set'));
 
 					const launchImageDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchImage.launchimage'),
@@ -6797,7 +6822,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		// simulator that is compatible with the selected Xcode version, so just pick one
 		for (const sims of Object.values(this.iosInfo.simulators.ios)) {
 			for (const sim of sims) {
-				if (sim.supportsXcode[xcodeId]) {
+				if (sim.supportsXcode[xcodeId] && this.simHandle.family === sim.family) {
 					dest = `platform=iOS Simulator,id=${sim.udid},OS=${appc.version.format(sim.version, 2, 2)}`;
 					break;
 				}
@@ -6817,7 +6842,11 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		// when building for the simulator, we need to specify a destination and a scheme (above)
 		// so that it can compile all targets (phone and watch targets) for the simulator
 		args.push('-destination', dest);
-		args.push('ONLY_ACTIVE_ARCH=1');
+
+		// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+		if (this.simOnlyActiveArch) {
+			args.push('ONLY_ACTIVE_ARCH=1');
+		}
 	}
 
 	xcodebuildHook(
