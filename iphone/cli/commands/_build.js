@@ -4012,140 +4012,140 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	delete plist.UILaunchImageFile;
 
 	const i18nLaunchScreens = {};
+	ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (p) {
+		i18nLaunchScreens[path.basename(p)] = 1;
+	});
 
-	if (appc.version.lt(this.xcodeEnv.version, '11.0.0')) {
-		ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (p) {
-			i18nLaunchScreens[path.basename(p)] = 1;
-		});
+	[ {
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '11.0',
+		name: 'Default-Portrait',
+		subtype: '2436h',
+		scale: [ '3x' ],
+		size: '{375, 812}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '11.0',
+		name: 'Default-Landscape',
+		subtype: '2436h',
+		scale: [ '3x' ],
+		size: '{375, 812}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '8.0',
+		name: 'Default-Portrait',
+		subtype: '736h',
+		scale: [ '3x' ],
+		size: '{414, 736}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '8.0',
+		name: 'Default-Landscape',
+		subtype: '736h',
+		scale: [ '3x' ],
+		size: '{414, 736}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '8.0',
+		name: 'Default',
+		subtype: '667h',
+		scale: [ '2x' ],
+		size: '{375, 667}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '7.0',
+		name: 'Default',
+		scale: [ '2x', '1x' ],
+		size: '{320, 480}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '7.0',
+		name: 'Default',
+		subtype: '568h',
+		scale: [ '2x' ],
+		size: '{320, 568}'
+	},
+	{
+		orientation: 'Portrait',
+		idiom: 'ipad',
+		'minimum-system-version': '7.0',
+		name: 'Default-Portrait',
+		scale: [ '2x', '1x' ],
+		size: '{768, 1024}'
+	},
+	{
+		orientation: 'Landscape',
+		idiom: 'ipad',
+		'minimum-system-version': '7.0',
+		name: 'Default-Landscape',
+		scale: [ '2x', '1x' ],
+		size: '{768, 1024}'
+	} ].forEach(function (asset) {
+		asset.scale.some(function (scale) {
+			let key;
+			const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
+				filename = basefilename + (scale !== '1x' ? '@' + scale : '') + '.png';
 
-		[ {
-			orientation: 'Portrait',
-			'minimum-system-version': '12.0',
-			name: 'Default-Portrait',
-			subtype: '2688h',
-			scale: [ '3x' ],
-			size: '{414, 896}'
-		},
-		{
-			orientation: 'Landscape',
-			'minimum-system-version': '12.0',
-			name: 'Default-Landscape',
-			subtype: '2688h',
-			scale: [ '3x' ],
-			size: '{414, 896}'
-		},
-		{
-			orientation: 'Portrait',
-			'minimum-system-version': '12.0',
-			name: 'Default-Portrait',
-			subtype: '1792h',
-			scale: [ '2x' ],
-			size: '{414, 896}'
-		},
-		{
-			orientation: 'Landscape',
-			'minimum-system-version': '12.0',
-			name: 'Default-Landscape',
-			subtype: '1792h',
-			scale: [ '2x' ],
-			size: '{414, 896}'
-		},
-		{
-			orientation: 'Portrait',
-			'minimum-system-version': '11.0',
-			name: 'Default-Portrait',
-			subtype: '2436h',
-			scale: [ '3x' ],
-			size: '{375, 812}'
-		},
-		{
-			orientation: 'Landscape',
-			'minimum-system-version': '11.0',
-			name: 'Default-Landscape',
-			subtype: '2436h',
-			scale: [ '3x' ],
-			size: '{375, 812}'
-		},
-		{
-			orientation: 'Portrait',
-			'minimum-system-version': '8.0',
-			name: 'Default-Portrait',
-			subtype: '736h',
-			scale: [ '3x' ],
-			size: '{414, 736}'
-		},
-		{
-			orientation: 'Landscape',
-			'minimum-system-version': '8.0',
-			name: 'Default-Landscape',
-			subtype: '736h',
-			scale: [ '3x' ],
-			size: '{414, 736}'
-		},
-		{
-			orientation: 'Portrait',
-			'minimum-system-version': '8.0',
-			name: 'Default',
-			subtype: '667h',
-			scale: [ '2x' ],
-			size: '{375, 667}'
-		},
-		{
-			orientation: 'Portrait',
-			'minimum-system-version': '7.0',
-			name: 'Default',
-			scale: [ '2x', '1x' ],
-			size: '{320, 480}'
-		},
-		{
-			orientation: 'Portrait',
-			'minimum-system-version': '7.0',
-			name: 'Default',
-			subtype: '568h',
-			scale: [ '2x' ],
-			size: '{320, 568}'
-		},
-		{
-			orientation: 'Portrait',
-			idiom: 'ipad',
-			'minimum-system-version': '7.0',
-			name: 'Default-Portrait',
-			scale: [ '2x', '1x' ],
-			size: '{768, 1024}'
-		},
-		{
-			orientation: 'Landscape',
-			idiom: 'ipad',
-			'minimum-system-version': '7.0',
-			name: 'Default-Landscape',
-			scale: [ '2x', '1x' ],
-			size: '{768, 1024}'
-		} ].forEach(function (asset) {
-			asset.scale.some(function (scale) {
-				let key;
-				const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
-					filename = basefilename + (scale !== '1x' ? '@' + scale : '') + '.png';
-
-				// if we have a launch image and if we're doing iPhone only, don't include iPad launch images
-				if (i18nLaunchScreens[filename] && (this.deviceFamily !== 'iphone' || asset.idiom === 'iphone')) {
-					key = 'UILaunchImages' + (asset.idiom === 'ipad' ? '~ipad' : '');
-					Array.isArray(plist[key]) || (plist[key] = []);
-					plist[key].push({
-						UILaunchImageName: basefilename,
-						UILaunchImageOrientation: asset.orientation,
-						UILaunchImageSize: asset.size,
-						UILaunchImageMinimumOSVersion: asset['minimum-system-version']
-					});
-					return true;
-				}
-				return false;
-			}, this);
+			// if we have a launch image and if we're doing iPhone only, don't include iPad launch images
+			if (i18nLaunchScreens[filename] && (this.deviceFamily !== 'iphone' || asset.idiom === 'iphone')) {
+				key = 'UILaunchImages' + (asset.idiom === 'ipad' ? '~ipad' : '');
+				Array.isArray(plist[key]) || (plist[key] = []);
+				plist[key].push({
+					UILaunchImageName: basefilename,
+					UILaunchImageOrientation: asset.orientation,
+					UILaunchImageSize: asset.size,
+					UILaunchImageMinimumOSVersion: asset['minimum-system-version']
+				});
+				return true;
+			}
+			return false;
 		}, this);
-	}
+	}, this);
 
 	if (this.enableLaunchScreenStoryboard) {
 		plist.UILaunchStoryboardName = 'LaunchScreen';
 	} else {
+		if (appc.version.gte(this.xcodeEnv.version, '11.0.0')) {
+			this.logger.warn(__('Launch images are deprecated by Xcode 11 and you will need to adopt a storyboard-based launch screen'));
+		}
 		delete plist.UILaunchStoryboardName;
 	}
 
@@ -4268,7 +4268,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		this.logger.warn(__('Removing custom Info.plist "CFBundleIconFiles" since we now use an asset catalog for app icons.'));
 		delete plist.CFBundleIconFiles;
 	}
-	if (appc.version.lt(this.xcodeEnv.version, '11.0.0') && !Object.keys(i18nLaunchScreens).length) {
+	if (!Object.keys(i18nLaunchScreens).length) {
 		// no i18n launch images, so nuke the launch image related keys
 		if (plist.UILaunchImages) {
 			this.logger.warn(__('Removing custom Info.plist "UILaunchImages" since we now use an asset catalog for launch images.'));
@@ -5023,22 +5023,20 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		walk(path.join(module.modulePath, 'Resources', 'ios'),    this.xcodeAppDir);
 	}, this);
 
-	if (appc.version.lt(this.xcodeEnv.version, '11.0.0')) {
-		this.logger.info(__('Analyzing localized launch images'));
-		ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (launchImage) {
-			const parts = launchImage.split('/'),
-				file = parts.pop(),
-				lang = parts.pop(),
-				relPath = path.join(lang + '.lproj', file);
+	this.logger.info(__('Analyzing localized launch images'));
+	ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(function (launchImage) {
+		const parts = launchImage.split('/'),
+			file = parts.pop(),
+			lang = parts.pop(),
+			relPath = path.join(lang + '.lproj', file);
 
-			launchImages[relPath] = {
-				i18n: lang,
-				src: launchImage,
-				dest: path.join(this.xcodeAppDir, relPath),
-				srcStat: fs.statSync(launchImage)
-			};
-		}, this);
-	}
+		launchImages[relPath] = {
+			i18n: lang,
+			src: launchImage,
+			dest: path.join(this.xcodeAppDir, relPath),
+			srcStat: fs.statSync(launchImage)
+		};
+	}, this);
 
 	// detect ambiguous modules
 	this.modules.forEach(function (module) {
@@ -5623,11 +5621,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				},
 
 				function createLaunchImageSet() {
-					if (appc.version.gte(this.xcodeEnv.version, '11.0.0')) {
-						this.logger.info(__('Skipping launch image set since it\'s deprecated in Xcode 11'));
-						return;
-					}
-
 					this.logger.info(__('Creating launch image set'));
 
 					const launchImageDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchImage.launchimage'),
