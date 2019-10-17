@@ -18,8 +18,8 @@ describe('Titanium.Network.HTTPClient', function () {
 			xhr = Ti.Network.createHTTPClient({
 				onsendstream: function (e) {
 					try {
-						expect(e.progress).be.above(0);
-						expect(e.progress).be.aboveOrEqual(progressVar);
+						should(e.progress).be.above(0);
+						should(e.progress).be.aboveOrEqual(progressVar);
 						progressVar = e.progress;
 					} catch (error) {
 						finish(error);
