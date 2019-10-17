@@ -804,16 +804,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       if (separatorRange.location == NSNotFound || separatorRange.location == 0 || separatorRange.location == ([cookie length] - 1)) {
         continue;
       }
-      NSRange keyRange = NSMakeRange(0, separatorRange.location);
-      NSString *name = [cookie substringWithRange:keyRange];
+      NSString *cookieName = [cookie substringToIndex:separatorRange.location];
       NSString *cookieValue = [cookie substringFromIndex:separatorRange.location + separatorRange.length];
 
       // Get the cookie in shared storage with that name
       NSHTTPCookie *localCookie = nil;
       for (NSHTTPCookie *httpCookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:self.webView.URL]) {
-        NSString *cookieName = httpCookie.name;
-        NSString *secondComponent = name;
-        if ([cookieName isEqualToString:secondComponent]) {
+        if ([httpCookie.name isEqualToString:cookieName]) {
           localCookie = httpCookie;
           break;
         }
