@@ -19,7 +19,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				onsendstream: function (e) {
 					try {
 						should(e.progress).be.above(0);
-						should(e.progress).be.above(progressVar);
+						should(e.progress).to.be.at.least(progressVar);
 						progressVar = e.progress;
 					} catch (error) {
 						finish(error);
@@ -30,7 +30,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				}
 			});
 		xhr.open('POST', 'https://httpbin.org/post');
-		xhr.send({ data: base64String });
+		xhr.send(base64String);
 	});
 
 });
