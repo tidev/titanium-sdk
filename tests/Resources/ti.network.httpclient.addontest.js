@@ -30,7 +30,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				}
 			});
 		xhr.open('POST', 'https://httpbin.org/post');
-		xhr.send(base64String);
+		xhr.send({ data: base64String });
 	});
 
 });
