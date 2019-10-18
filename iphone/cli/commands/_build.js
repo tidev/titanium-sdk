@@ -6027,7 +6027,16 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					});
 					task.run()
 						.then(() => {
-							this.tiSymbols = task.data.tiSymbols;
+							if (this.useWebpack) {
+								// Merge Ti symbols from Webpack with the ones from legacy js processing
+								Object.keys(task.data.tiSymbols).forEach(file => {
+									const existingSymbols = this.tiSymbols[file] || [];
+									const additionalSymbols = task.data.tiSymbols[file];
+									this.tiSymbols[file] = Array.from(new Set(existingSymbols.concat(additionalSymbols)));
+								});
+							} else {
+								this.tiSymbols = task.data.tiSymbols;
+							}
 
 							return next(); // eslint-disable-line promise/no-callback-in-promise
 						})
