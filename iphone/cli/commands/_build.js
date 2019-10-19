@@ -2514,7 +2514,7 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
 	this.tiLogServerPort = 0;
 
-	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+	if (this.target !== 'device') {
 		// we don't allow the log server in production
 		return next();
 	}
@@ -3090,6 +3090,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
+		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
@@ -4595,6 +4596,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		this,
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
+	);
+	copyAndReplaceFile.call(
+		this,
+		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),
+		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata')
 	);
 
 	if (this.enableLaunchScreenStoryboard && this.defaultLaunchScreenStoryboard) {
@@ -6784,9 +6790,29 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (this.simHandle) {
+		let dest;
+		const xcodeId = this.xcodeEnv.version + ':' + this.xcodeEnv.build;
+
+		// xcodebuild requires a -destination when building for iOS Simulator and it needs a
+		// simulator that is compatible with the selected Xcode version, so just pick one
+		for (const sims of Object.values(this.iosInfo.simulators.ios)) {
+			for (const sim of sims) {
+				if (sim.supportsXcode[xcodeId]) {
+					dest = `platform=iOS Simulator,id=${sim.udid},OS=${appc.version.format(sim.version, 2, 2)}`;
+					break;
+				}
+			}
+		}
+
+		if (!dest) {
+			// couldn't find a simulator!
+			// this shouldn't happen, but just in case, fall back to the selected simulator
+			dest = `platform=iOS Simulator,id=${this.simHandle.udid},OS=${appc.version.format(this.simHandle.version, 2, 2)}`;
+		}
+
 		// when building for the simulator, we need to specify a destination and a scheme (above)
 		// so that it can compile all targets (phone and watch targets) for the simulator
-		args.push('-destination', 'platform=iOS Simulator,id=' + this.simHandle.udid + ',OS=' + appc.version.format(this.simHandle.version, 2, 2));
+		args.push('-destination', dest);
 		args.push('ONLY_ACTIVE_ARCH=1');
 	}
 
