@@ -417,11 +417,24 @@ public class TiHTTPClient
 		@Override
 		public void write(int b) throws IOException
 		{
-			//Donot write if request is aborted
+			//Do not write if request is aborted
 			if (!aborted) {
 				super.write(b);
 				transferred++;
 				fireProgress();
+			}
+		}
+
+		// Send the last progress callback when the
+		// writing is done.
+		@Override
+		public void close() throws IOException
+		{
+			super.close();
+
+			if (!aborted && (transferred > 0)) {
+				lastTransferred = transferred;
+				listener.progress(transferred);
 			}
 		}
 	}
@@ -1317,6 +1330,7 @@ public class TiHTTPClient
 						} else {
 							handleURLEncodedData(form);
 						}
+						printWriter.close();
 					}
 
 					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
@@ -1493,10 +1507,9 @@ public class TiHTTPClient
 			printWriter.flush();
 		}
 
-		public void completeSendingMultipart() throws IOException
+		public void completeSendingMultipart()
 		{
 			printWriter.append("--" + boundary + "--").append(LINE_FEED);
-			printWriter.close();
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException
