@@ -39,7 +39,7 @@ Persistent<Object> V8Runtime::moduleObject;
 Persistent<Function> V8Runtime::runModuleFunction;
 
 jobject V8Runtime::javaInstance;
-Platform* V8Runtime::platform = nullptr;
+std::unique_ptr<v8::Platform> V8Runtime::platform;
 Isolate* V8Runtime::v8_isolate = nullptr;
 bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
@@ -209,7 +209,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// TODO Enable this when we use snapshots?
 		//V8::InitializeExternalStartupData(argv[0]);
 		V8Runtime::platform = platform::NewDefaultPlatform();
-		V8::InitializePlatform(V8Runtime::platform);
+		V8::InitializePlatform(V8Runtime::platform.get());
 		V8::Initialize();
 		V8Runtime::initialized = true;
 	}

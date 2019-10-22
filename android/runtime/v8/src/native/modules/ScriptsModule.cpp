@@ -126,13 +126,13 @@ void WrappedScript::CreateContext(const FunctionCallbackInfo<Value>& args)
 	// Allow current context access to newly created context's objects.
 	context->SetSecurityToken(securityToken);
 
-	// TODO Do we need to esnure the same context object is wrapped and returned?
+	// TODO Do we need to ensure the same context object is wrapped and returned?
 	new WrappedContext(isolate, context); // wrap the context's global prototype...
 
 	// If a sandbox is provided initial the new context's global with it.
 	if (args.Length() > 0) {
 		Local<Object> sandbox = args[0].As<Object>();
-		Local<Array> keys = sandbox->GetPropertyNames();
+		Local<Array> keys = sandbox->GetPropertyNames(context).ToLocalChecked();
 
 		for (uint32_t i = 0; i < keys->Length(); i++) {
 			Local<String> key = keys->Get(Integer::New(isolate, i)).As<String>();

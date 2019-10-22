@@ -90,7 +90,13 @@ Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTempl
 
 void V8Util::objectExtend(Local<Object> dest, Local<Object> src)
 {
-	Local<Array> names = src->GetOwnPropertyNames();
+	V8Util::objectExtend(Isolate::GetCurrent(), dest, src);
+}
+
+void V8Util::objectExtend(Isolate* isolate, Local<Object> dest, Local<Object> src)
+{
+	Local<Context> context = isolate->GetCurrentContext();
+	Local<Array> names = src->GetOwnPropertyNames(context).ToLocalChecked();
 	int length = names->Length();
 
 	for (int i = 0; i < length; ++i) {
