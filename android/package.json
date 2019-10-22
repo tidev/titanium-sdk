@@ -20,7 +20,7 @@
 	"v8": {
 		"version": "7.4.288.28",
 		"mode": "release",
-		"checksum": "43c5677e30c23fe76148388b0c2f10a339853b00f4f8f773f7950b96e7e8013ce6606c750034fdc306953a3dee775aeb6aadb550ec0e81072bbd079a42a0f295"
+		"checksum": "d5afbb0010d8f2444c30a3d0be32a68b1d9444fbf2199180f9aa3ab69f10504a41a25a8a5f905d7a9889f9b4c74a16cfa825535215c1391fb39205e691ca7851"
 	},
 	"minSDKVersion": "19",
 	"compileSDKVersion": "29",
