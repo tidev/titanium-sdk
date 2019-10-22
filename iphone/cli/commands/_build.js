@@ -181,10 +181,6 @@ function iOSBuilder() {
 	this.defaultLaunchScreenStoryboard = true;
 	this.defaultBackgroundColor = null;
 
-	// sim builds will auto-select an xcodebuild destination regardless of the actual simulator
-	// selected and since all modern iOS simulator devices are 64-bit only, that means that the
-	// ONLY_ACTIVE_ARCH flag only build a 64-bit only app
-	//
 	// if the selected sim is 32-bit (iPhone 5 and older, iPad 4th gen or older), then the app
 	// won't run, so we need to track the ONLY_ACTIVE_ARCH flag and disable it for 32-bit sims
 	this.simOnlyActiveArch = null;
@@ -6813,35 +6809,9 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (this.simHandle) {
-		let dest;
-		const xcodeId = this.xcodeEnv.version + ':' + this.xcodeEnv.build;
+		args.push('-destination', 'generic/platform=iOS Simulator');
 
-		// xcodebuild requires a -destination when building for iOS Simulator and it needs a
-		// simulator that is compatible with the selected Xcode version, so just pick one
-		for (const sims of Object.values(this.iosInfo.simulators.ios)) {
-			for (const sim of sims) {
-				if (sim.supportsXcode[xcodeId] && this.simHandle.family === sim.family) {
-					dest = `platform=iOS Simulator,id=${sim.udid},OS=${appc.version.format(sim.version, 2, 2)}`;
-					break;
-				}
-			}
-			if (dest) {
-				break;
-			}
-		}
-
-		if (!dest) {
-			// couldn't find a simulator!
-			// this shouldn't happen, but just in case, fall back to the selected simulator
-			this.logger.debug(`Couldn't find a simulator compatible with Xcode ${this.xcodeEnv.version}, falling back to selected simulator`);
-			dest = `platform=iOS Simulator,id=${this.simHandle.udid},OS=${appc.version.format(this.simHandle.version, 2, 2)}`;
-		}
-
-		// when building for the simulator, we need to specify a destination and a scheme (above)
-		// so that it can compile all targets (phone and watch targets) for the simulator
-		args.push('-destination', dest);
-
-		// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+		// only build active architecture, which is 64-bit, if simulator is not 32-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
 		if (this.simOnlyActiveArch) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
