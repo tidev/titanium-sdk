@@ -10,7 +10,6 @@ const commonjs = require('rollup-plugin-commonjs');
 
 const git = require('./git');
 const utils = require('./utils');
-const copyPackageAndDependencies = utils.copyPackageAndDependencies;
 const Packager = require('./packager');
 
 const ROOT_DIR = path.join(__dirname, '..', '..');
@@ -39,8 +38,8 @@ function determineBabelOptions(babelOptions) {
 		...babelOptions,
 		useBuiltIns: 'entry',
 		// DO NOT include web polyfills!
-		exclude: [ 'web.dom.iterable', 'web.immediate', 'web.timers' ],
-		corejs: 2
+		exclude: [ 'web.dom-collections.iterator', 'web.dom-collections.for-each', 'web.immediate', 'web.timers' ],
+		corejs: 3
 	};
 
 	return {
@@ -112,13 +111,6 @@ class Builder {
 
 		console.log(`Creating temporary 'common' directory...`); // eslint-disable-line quotes
 		await fs.copy(path.join(ROOT_DIR, 'common'), TMP_COMMON_PLAFORM_DIR);
-
-		// copy over polyfill and its dependencies
-		console.log('Copying polyfills...');
-		const modulesDir = path.join(TMP_COMMON_PLAFORM_DIR, 'Resources/node_modules');
-		// make sure our 'node_modules' directory exists
-		await fs.ensureDir(modulesDir);
-		copyPackageAndDependencies('@babel/polyfill', modulesDir);
 
 		// create a bundle
 		console.log('Transpile and run rollup...');

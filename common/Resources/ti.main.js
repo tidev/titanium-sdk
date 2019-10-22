@@ -23,7 +23,9 @@ try {
 }
 
 // Load JS language polyfills
-import '@babel/polyfill';
+import 'core-js/stable';
+// Load polyfill for async/await usage
+import 'regenerator-runtime/runtime';
 // import all of our polyfills/extensions
 import './ti.internal/extensions';
 
