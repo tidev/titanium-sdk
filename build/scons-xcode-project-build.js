@@ -50,9 +50,8 @@ async function generateBundle(outputDir) {
 	const ios = new IOS({ });
 
 	await builder.transpile('ios', ios.babelOptions, path.join(outputDir, 'ti.main.js'));
-
 }
-// FIXME: Combine common code here and in packager.js!
+
 async function main(tmpBundleDir) {
 	await fs.emptyDir(tmpBundleDir);
 	await generateBundle(appDir); // run rollup/babel to generate single bundled ti.main.js in app
