@@ -37,8 +37,6 @@ function determineBabelOptions(babelOptions) {
 	const options = {
 		...babelOptions,
 		useBuiltIns: 'entry',
-		// DO NOT include web polyfills!
-		exclude: [ 'web.dom-collections.iterator', 'web.dom-collections.for-each', 'web.immediate', 'web.timers' ],
 		corejs: 3
 	};
 
