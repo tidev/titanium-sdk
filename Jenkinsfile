@@ -30,11 +30,36 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
+@NonCPS
+def hasAPIDocChanges() {
+	// https://javadoc.jenkins-ci.org/hudson/scm/ChangeLogSet.html
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.size(); j++) {
+            def entry = entries[j]
+			if (entry.msg.contains('[skip ci]')) {
+				echo "skipping commit: ${entry.msg}"
+				continue; // skip this commit
+			}
+			// echo "checking commit: ${entry.msg}"
+            def paths = entry.affectedPaths
+			for (int k = 0; k < paths.size(); k++) {
+				def path = paths[k]
+				if (path.startsWith('apidoc/')) {
+					return true
+				}
+			}
+        }
+    }
+	return false
+}
+
 def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
-			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
+			labels = 'git && osx && xcode-11' // Use xcode-11 to make use of ios 13 APIs
 		} else {
 			// run main branch tests on devices, use node with devices connected
 			if (testOnDevices) {
@@ -143,10 +168,31 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	}
 }
 
+def cliUnitTests(nodeVersion, npmVersion) {
+	return {
+		node('git && osx') { // ToDo: refactor to try and run across mac, linux, and windows?
+			unstash 'cli-unit-tests'
+			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+				ensureNPM(npmVersion)
+				sh 'npm ci'
+				try {
+					sh 'npm run test:cli'
+				} finally {
+					if (fileExists('coverage/cobertura-coverage.xml')) {
+						step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
+					}
+					stash includes: 'junit.cli.report.xml', name: 'test-report-cli'
+					junit 'junit.cli.report.xml'
+				}
+			}
+		}
+	}
+}
+
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-10') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-11') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -192,9 +238,13 @@ timestamps {
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
+					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**', name: 'cli-unit-tests'
 					// was it a failure?
 					if (npmTestResult != 0) {
 						error readFile('npm_test.log')
+					} else if (env.BRANCH_NAME.equals('master') && hasAPIDocChanges()) {
+						// if we have a master branch build of SDK with updated apidocs, trigger a new doc site build
+						build job: 'docs/doctools/docs', wait: false
 					}
 				}
 
@@ -244,7 +294,11 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions?
 					dir('build') {
 						timeout(15) {
-							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+							if (includeWindows) {
+								sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK} --all"
+							} else {
+								sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+							}
 						} // timeout
 						ansiColor('xterm') {
 							timeout(15) {
@@ -268,6 +322,7 @@ timestamps {
 			parallel(
 				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch, testOnDevices),
 				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch, testOnDevices),
+				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: true
 			)
 		}
@@ -436,6 +491,9 @@ timestamps {
 						} catch (e) {}
 						try {
 							unstash 'test-report-android' // junit.android.report.xml
+						} catch (e) {}
+						try {
+							unstash 'test-report-cli' // junit.android.report.xml
 						} catch (e) {}
 						ensureNPM(npmVersion)
 						sh 'npm ci'

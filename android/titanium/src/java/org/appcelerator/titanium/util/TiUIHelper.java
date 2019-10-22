@@ -1116,20 +1116,14 @@ public class TiUIHelper
 	 */
 	public static void showSoftKeyboard(View view, boolean show)
 	{
-		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-
+		final InputMethodManager imm =
+			(InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 		if (imm != null) {
-			boolean useForce =
-				(Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-			String model = APSAnalyticsMeta.getModel();
-			if (model.toLowerCase().startsWith("droid")) {
-				useForce = true;
-			}
+			view.requestFocus();
 			if (show) {
-				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
+				imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
 			} else {
-				imm.hideSoftInputFromWindow(view.getWindowToken(),
-											useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
+				imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
 		}
 	}

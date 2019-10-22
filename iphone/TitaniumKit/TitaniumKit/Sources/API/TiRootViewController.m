@@ -11,6 +11,7 @@
 #import "TiLayoutQueue.h"
 #import "TiSharedConfig.h"
 #import "TiUtils.h"
+#import "TiViewController.h"
 
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {
@@ -149,6 +150,10 @@
       return UIStatusBarStyleDefault;
     } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"] || [theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
       return UIStatusBarStyleLightContent;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    } else if ([theString isEqualToString:@"UIStatusBarStyleDarkContent"]) {
+      return UIStatusBarStyleDarkContent;
+#endif
     }
   }
   return UIStatusBarStyleDefault;
@@ -820,6 +825,10 @@
     }
   }
   [self dismissKeyboard];
+  if ([theController isKindOfClass:[TiViewController class]]) {
+    TiViewController *controller = (TiViewController *)theController;
+    controller.presentationController.delegate = controller;
+  }
   [topVC presentViewController:theController animated:trulyAnimated completion:nil];
 }
 
@@ -1415,6 +1424,9 @@
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
 {
   [self resetTransformAndForceLayout:YES];
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged];
+
   [super traitCollectionDidChange:previousTraitCollection];
 }
 

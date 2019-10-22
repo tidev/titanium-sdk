@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
@@ -17,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -141,6 +143,102 @@ public class MenuItemProxy extends KrollProxy
 	// clang-format on
 	{
 		return item.isVisible();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityLabel()
+	// clang-format on
+	{
+		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_LABEL);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityHint()
+	// clang-format on
+	{
+		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_HINT);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityValue()
+	// clang-format on
+	{
+		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_VALUE);
+	}
+
+	private void updateContentDescription()
+	{
+		String contentDescription = composeContentDescription();
+		MenuItemCompat.setContentDescription(item, contentDescription);
+	}
+
+	public void setContentDescription(KrollDict d)
+	{
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_ACCESSIBILITY_LABEL)) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_LABEL, d.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_LABEL);
+		}
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT)) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_HINT, d.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_HINT);
+		}
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE)) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_VALUE, d.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_VALUE);
+		}
+		updateContentDescription();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setAccessibilityLabel(String label)
+	// clang-format on
+	{
+		if (label != null && label.length() != 0) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_LABEL, label);
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_LABEL);
+		}
+		updateContentDescription();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setAccessibilityHint(String hint)
+	// clang-format on
+	{
+		if (hint != null && hint.length() != 0) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_HINT, hint);
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_HINT);
+		}
+		updateContentDescription();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setAccessibilityValue(String value)
+	// clang-format on
+	{
+		if (value != null && value.length() != 0) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_VALUE, value);
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_VALUE);
+		}
+
+		updateContentDescription();
 	}
 
 	// clang-format off
