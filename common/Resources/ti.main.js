@@ -23,7 +23,7 @@ try {
 }
 
 // Load JS language polyfills
-import 'core-js/stable';
+import 'core-js/es';
 // Load polyfill for async/await usage
 import 'regenerator-runtime/runtime';
 // import all of our polyfills/extensions
