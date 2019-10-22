@@ -102,8 +102,8 @@ class Builder {
 		this.program.gitHash = hash || 'n/a';
 	}
 
-	async transpile(platform, babelOptions) {
-		// Copy over common dir, @babel/polyfill, etc into some temp dir
+	async transpile(platform, babelOptions, outFile) {
+		// Copy over common dir, into some temp dir
 		// Then run rollup/babel on it, then just copy the resulting bundle to our real destination!
 		// The temporary location we'll assembled the transpiled bundle
 		const TMP_COMMON_DIR = path.join(TMP_DIR, '_common');
@@ -124,8 +124,12 @@ class Builder {
 			external: [ './app', 'com.appcelerator.aca' ]
 		});
 
-		console.log(`Writing 'common' bundle...`); // eslint-disable-line quotes
-		await bundle.write({ format: 'cjs', file: path.join(TMP_DIR, 'common', platform, 'ti.main.js') });
+		if (!outFile) {
+			outFile = path.join(TMP_DIR, 'common', platform, 'ti.main.js');
+		}
+
+		console.log(`Writing 'common' bundle to ${outFile} ...`); // eslint-disable-line quotes
+		await bundle.write({ format: 'cjs', file: outFile });
 
 		// We used to have to copy over ti.internal, but it is now bundled into ti.main.js
 		// if we ever have files there that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.
