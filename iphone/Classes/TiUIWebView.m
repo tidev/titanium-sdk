@@ -276,7 +276,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   NSString *baseURL = options[@"baseURL"];
   NSString *mimeType = options[@"mimeType"];
 
-  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL URLWithString:baseURL] : [NSURL fileURLWithPath:baseURL];
+  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL fileURLWithPath:baseURL] : [NSURL URLWithString:baseURL];
 
   [[self webView] loadData:[content dataUsingEncoding:NSUTF8StringEncoding]
                    MIMEType:mimeType
