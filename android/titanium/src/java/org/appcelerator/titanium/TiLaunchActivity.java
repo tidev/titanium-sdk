@@ -114,9 +114,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		// set start time
-		TiApplication.START_TIME_MS = SystemClock.uptimeMillis();
-
 		TiApplication tiApp = getTiApp();
 
 		// If this is a TiJSActivity derived class created via "tiapp.xml" <activity/> tags,

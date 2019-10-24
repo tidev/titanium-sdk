@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
@@ -137,6 +138,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public TiApplication()
 	{
+		START_TIME_MS = SystemClock.uptimeMillis();
+
 		Log.checkpoint(TAG, "checkpoint, app created.");
 
 		// Keep a reference to this application object. Accessible via static getInstance() method.
