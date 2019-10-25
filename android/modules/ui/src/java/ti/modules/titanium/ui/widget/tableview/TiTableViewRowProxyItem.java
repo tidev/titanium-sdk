@@ -32,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.ViewCompat;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -50,6 +51,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private Drawable hasChildDrawable, hasCheckDrawable;
 	private ImageView leftImage;
 	private ImageView rightImage;
+	private LayoutParams rightImageDefaultLayout;
 	private TiCompositeLayout content;
 	private ArrayList<TiUIView> views;
 	private TiDimension height = null;
@@ -71,7 +73,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		this.rightImage = new ImageView(activity);
 		rightImage.setVisibility(GONE);
-		addView(rightImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		final int size =
+			(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18, getResources().getDisplayMetrics());
+		this.rightImageDefaultLayout = new LayoutParams(size, size);
+		addView(rightImage, this.rightImageDefaultLayout);
 	}
 
 	protected TableViewRowProxy getRowProxy()
@@ -380,6 +385,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 					hasCheckDrawable = getHasCheckDrawable();
 				}
 				rightImage.setImageDrawable(hasCheckDrawable);
+				rightImage.setLayoutParams(this.rightImageDefaultLayout);
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
 			}
@@ -390,6 +396,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 					hasChildDrawable = getHasChildDrawable();
 				}
 				rightImage.setImageDrawable(hasChildDrawable);
+				rightImage.setLayoutParams(this.rightImageDefaultLayout);
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
 			}
@@ -400,6 +407,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			Drawable d = loadDrawable(url);
 			if (d != null) {
 				rightImage.setImageDrawable(d);
+				rightImage.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
 			}
