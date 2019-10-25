@@ -90,7 +90,7 @@
     "ejs": "^2.6.2",
     "fields": "0.1.24",
     "fs-extra": "^8.0.1",
-    "ioslib": "^1.7.17",
+    "ioslib": "^1.7.18",
     "klaw-sync": "^6.0.0",
     "liveview": "^1.5.0",
     "lodash.defaultsdeep": "^4.6.1",
