@@ -266,6 +266,58 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
  * Method:    nativeRunModule
  * Signature: (Ljava/lang/String;Ljava/lang/String;)V
  */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModuleBytes
+	(JNIEnv *env, jobject self, jbyteArray source, jstring filename, jobject activityProxy)
+{
+	HandleScope scope(V8Runtime::v8_isolate);
+	titanium::JNIScope jniScope(env);
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+
+	if (V8Runtime::moduleObject.IsEmpty()) {
+		Local<Object> module;
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> moduleValue;
+			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			if (!maybeModule.ToLocal(&moduleValue)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			module = moduleValue.As<Object>();
+			V8Runtime::moduleObject.Reset(V8Runtime::v8_isolate, module);
+		}
+
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> runModule;
+			MaybeLocal<Value> maybeRunModule = module->Get(context, STRING_NEW(V8Runtime::v8_isolate, "runModule"));
+			if (!maybeRunModule.ToLocal(&runModule)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			V8Runtime::runModuleFunction.Reset(V8Runtime::v8_isolate, runModule.As<Function>());
+		}
+	}
+
+	Local<Value> jsSource = TypeConverter::javaBytesToJsString(V8Runtime::v8_isolate, env, source);
+	Local<Value> jsFilename = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, filename);
+	Local<Value> jsActivity = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, activityProxy);
+
+	Local<Value> args[] = { jsSource, jsFilename, jsActivity };
+	TryCatch tryCatch(V8Runtime::v8_isolate);
+	V8Runtime::RunModuleFunction()->Call(context, V8Runtime::ModuleObject(), 3, args);
+
+	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
+		V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
+	}
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    nativeRunModule
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModule
 	(JNIEnv *env, jobject self, jstring source, jstring filename, jobject activityProxy)
 {

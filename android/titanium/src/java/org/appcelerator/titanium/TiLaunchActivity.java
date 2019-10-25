@@ -98,7 +98,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		try {
 			String fullUrl = resolveUrl(this.url);
 			if (KrollAssetHelper.assetExists(fullUrl)) {
-				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
+				KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(fullUrl), fullUrl,
+														  activityProxy);
 
 				// launch script does not exist, must be using snapshot
 				// execute startup method baked in snapshot
@@ -113,9 +114,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		// set start time
-		TiApplication.START_TIME_MS = SystemClock.uptimeMillis();
-
 		TiApplication tiApp = getTiApp();
 
 		// If this is a TiJSActivity derived class created via "tiapp.xml" <activity/> tags,

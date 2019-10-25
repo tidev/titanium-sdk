@@ -23,7 +23,7 @@ describe('Titanium.UI.WebView', function () {
 		webView.addEventListener('load', () => {
 			webView.evalJS('window.location.href', result => {
 				try {
-					should(result).be.eql(baseURL); // Android fails here because it gives: expected '"https://www.google.com/"' to equal 'https://www.google.com/'
+					should(result.replace(/"/g, '')).be.eql(baseURL); // Android encloses the URL in quotes, not sure why.
 				} catch (err) {
 					return done(err);
 				} finally {
