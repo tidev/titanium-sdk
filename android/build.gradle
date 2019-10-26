@@ -20,6 +20,7 @@ allprojects {
 		google()
 		jcenter()
 	}
+	project.apply from: "${rootDir}/templates/build/ti.constants.gradle"
 }
 
 task clean(type: Delete) {

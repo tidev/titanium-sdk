@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="<%- appid %>" android:versionCode="1" android:versionName="1">
+<manifest
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	package="<%- packageName %>"
+	android:versionCode="1">
 
-	<application android:icon="@drawable/appicon"
-		android:label="<%- tiapp.name %>" android:name="<%- classname %>Application"
+	<application
+		android:icon="<%- appIcon %>"
+		android:label="<%- appLabel %>"
+		android:name="<%- classname %>Application"
 		android:usesCleartextTraffic="true"
-		android:theme="@style/Theme.AppCompat<% if (tiapp.fullscreen || tiapp['statusbar-hidden'] || tiapp['navbar-hidden']) { %>.NoTitleBar<% if (tiapp.fullscreen || tiapp['statusbar-hidden']) { %>.Fullscreen<% } %><% } %>">
+		android:theme="<%- appTheme %>">
 
-		<activity android:name=".<%- classname %>Activity"
-			android:configChanges="<%- allActivityConfigChanges %>"
+		<activity
+			android:name=".<%- classname %>Activity"
+			android:configChanges="${tiActivityConfigChanges}"
 			android:label="@string/app_name"
 			android:theme="@style/Theme.Titanium"
 			android:alwaysRetainTaskState="true">
@@ -17,5 +22,10 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+
+<% if (appChildXmlLines) { for (let nextLine of appChildXmlLines) { %>
+		<%- nextLine %>
+<% } } %>
+
 	</application>
 </manifest>

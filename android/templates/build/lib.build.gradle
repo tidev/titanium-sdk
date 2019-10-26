@@ -6,6 +6,7 @@ android {
 	defaultConfig {
 		minSdkVersion <%- minSdkVersion %>
 		targetSdkVersion <%- targetSdkVersion %>
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		aaptOptions {
 			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
 			// So, we must redefine ignore string with underscore pattern removed to support this too.

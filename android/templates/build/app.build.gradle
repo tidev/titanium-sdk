@@ -14,6 +14,8 @@ android {
 		minSdkVersion <%- minSdkVersion %>
 		targetSdkVersion <%- targetSdkVersion %>
 		versionName '<%- versionName %>'
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
 		multiDexEnabled true
 		aaptOptions {
 			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
@@ -80,7 +82,7 @@ android {
 tasks.lint.enabled = false
 
 dependencies {
-	implementation 'com.android.support:appcompat-v7:27.1.1'
+	implementation "com.android.support:appcompat-v7:${project.ext.tiSupportLibVersion}"
 	implementation fileTree(dir: "${rootDir}/lib", include: ['*.aar', '*.jar'])
 	implementation fileTree(dir: "${projectDir}/src/main", include: ['*.aar', '*.jar'])
 <% if (libFilePaths && (libFilePaths.length > 0)) { %>

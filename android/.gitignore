@@ -2,6 +2,7 @@
 .gradle/
 .idea/
 build/
+!/templates/build/
 *.iml
 
 /titanium/assets/Resources/ti.internal/build.properties

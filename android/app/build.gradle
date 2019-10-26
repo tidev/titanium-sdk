@@ -15,6 +15,8 @@ android {
 		targetSdkVersion 28
 		versionCode 1
 		versionName "1.0"
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
 	}
 	lintOptions {
 		checkReleaseBuilds false
@@ -27,6 +29,5 @@ dependencies {
 //		exclude group: 'com.google.android.gms'
 	}
 
-	def supportLibVersion = '27.1.1'
-	implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+	implementation "com.android.support:appcompat-v7:${project.ext.tiSupportLibVersion}"
 }

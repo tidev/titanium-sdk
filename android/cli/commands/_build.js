@@ -17,7 +17,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	AdmZip = require('adm-zip'),
 	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
-	AndroidManifest = require('../lib/AndroidManifest'),
+	AndroidManifest = require('../lib/android-manifest'),
 	appc = require('node-appc'),
 	async = require('async'),
 	Builder = require('node-titanium-sdk/lib/builder'),
@@ -1055,24 +1055,38 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	let tiappAndroidManifest;
+	// If "tiapp.xml" contains "AndroidManifest.xml" info, then load/store it to "this.customAndroidManifest" field.
 	try {
-		tiappAndroidManifest = this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest()).parse(cli.tiapp.android.manifest);
+		if (cli.tiapp.android && cli.tiapp.android.manifest) {
+			this.customAndroidManifest = AndroidManifest.fromXmlString(cli.tiapp.android.manifest);
+		}
 	} catch (ex) {
-		logger.error(__('Malformed <manifest> definition in the <android> section of the tiapp.xml') + '\n');
+		logger.error(__n('Malformed <manifest> definition in the <android> section of the tiapp.xml'));
 		process.exit(1);
 	}
 
-	const customAndroidManifestFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'AndroidManifest.xml');
+	// If project has "./platform/android/AndroidManifest.xml" file, then load/store it to "this.customAndroidManifest" field.
+	const externalAndroidManifestFilePath = path.join(cli.argv['project-dir'], 'platform', 'android', 'AndroidManifest.xml');
 	try {
-		this.customAndroidManifest = fs.existsSync(customAndroidManifestFile) && (new AndroidManifest(customAndroidManifestFile));
+		if (fs.existsSync(externalAndroidManifestFilePath)) {
+			const externalAndroidManifest = AndroidManifest.fromFilePathSync(externalAndroidManifestFilePath);
+			if (externalAndroidManifest) {
+				if (this.customAndroidManifest) {
+					// External manifest file's settings will overwrite "tiapp.xml" manifest settings.
+					this.customAndroidManifest.copyFromAndroidManifest(externalAndroidManifest);
+				} else {
+					// The "tiapp.xml" did not contain any manifest settings. So, keep external manifest settings as-is.
+					this.customAndroidManifest = externalAndroidManifest;
+				}
+			}
+		}
 	} catch (ex) {
-		logger.error(__('Malformed custom AndroidManifest.xml file: %s', customAndroidManifestFile) + '\n');
+		logger.error(__n('Malformed custom AndroidManifest.xml file: %s', externalAndroidManifestFilePath));
 		process.exit(1);
 	}
 
 	// validate the sdk levels
-	const usesSDK = (tiappAndroidManifest && tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
+	const usesSDK = this.customAndroidManifest ? this.customAndroidManifest.getUsesSdk() : null;
 
 	this.minSDK = this.minSupportedApiLevel;
 	this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
@@ -1492,10 +1506,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// make sure we have an icon
-	if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.icon) {
-		cli.tiapp.icon = this.tiappAndroidManifest.application.icon.replace(/^@drawable\//, '') + '.png';
-	} else if (this.customAndroidManifest && this.customAndroidManifest.application && this.customAndroidManifest.application.icon) {
-		cli.tiapp.icon = this.customAndroidManifest.application.icon.replace(/^@drawable\//, '') + '.png';
+	if (this.customAndroidManifest) {
+		const appIconValue = this.customAndroidManifest.getAppAttribute('android:icon');
+		if (appIconValue) {
+			cli.tiapp.icon = appIconValue.replace(/^@drawable\//, '') + '.png';
+		}
 	}
 	if (!cli.tiapp.icon || ![ 'Resources', 'Resources/android' ].some(function (p) {
 		return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
@@ -1591,65 +1606,79 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 };
 
 AndroidBuilder.prototype.run = async function run(logger, config, cli, finished) {
-	// Call the base builder's run() method.
-	Builder.prototype.run.apply(this, arguments);
+	try {
+		// Call the base builder's run() method.
+		Builder.prototype.run.apply(this, arguments);
 
-	// Notify plugins that we're about to begin.
-	await new Promise((resolve) => {
-		cli.emit('build.pre.construct', this, resolve);
-	});
+		// Notify plugins that we're about to begin.
+		await new Promise((resolve) => {
+			cli.emit('build.pre.construct', this, resolve);
+		});
 
-	// Post build anlytics.
-	await this.doAnalytics();
+		// Post build anlytics.
+		await this.doAnalytics();
 
-	// Initialize build system. Checks if we need to do a clean or incremental build.
-	await this.initialize();
-	await this.loginfo();
-	await this.computeHashes();
-	await this.readBuildManifest();
-	await this.checkIfNeedToRecompile();
+		// Initialize build system. Checks if we need to do a clean or incremental build.
+		await this.initialize();
+		await this.loginfo();
+		await this.computeHashes();
+		await this.readBuildManifest();
+		await this.checkIfNeedToRecompile();
 
-	// Notify plugins that we're prepping to compile.
-	await new Promise((resolve) => {
-		cli.emit('build.pre.compile', this, resolve);
-	});
+		// Notify plugins that we're prepping to compile.
+		await new Promise((resolve) => {
+			cli.emit('build.pre.compile', this, resolve);
+		});
 
-	// Make sure we have an "app.js" script. Will exit with a build failure if not found.
-	// Note: This used to be validated by the validate() method, but Alloy plugin
-	//       generates the "app.js" script via the "build.pre.compile" hook event above.
-	ti.validateAppJsExists(this.projectDir, logger, 'android');
+		// Make sure we have an "app.js" script. Will exit with a build failure if not found.
+		// Note: This used to be validated by the validate() method, but Alloy plugin
+		//       generates the "app.js" script via the "build.pre.compile" hook event above.
+		ti.validateAppJsExists(this.projectDir, logger, 'android');
 
-	// Generate all gradle files, gradle app project, and gradle library projects (if needed).
-	await this.processLibraries();
-	await this.generateRootProjectFiles();
-	await this.generateAppProject();
+		// Generate all gradle files, gradle app project, and gradle library projects (if needed).
+		await this.processLibraries();
+		await this.generateRootProjectFiles();
+		await this.generateAppProject();
 
-	// Build the app.
-	await new Promise((resolve) => {
-		cli.emit('build.pre.build', this, resolve);
-	});
-	await this.buildAppProject();
-	await new Promise((resolve) => {
-		cli.emit('build.post.build', this, resolve);
-	});
+		// Build the app.
+		await new Promise((resolve) => {
+			cli.emit('build.pre.build', this, resolve);
+		});
+		await this.buildAppProject();
+		await new Promise((resolve) => {
+			cli.emit('build.post.build', this, resolve);
+		});
 
-	// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
-	await this.writeBuildManifest();
+		// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
+		await this.writeBuildManifest();
 
-	// Log how long the build took.
-	if (!this.buildOnly && this.target === 'simulator') {
-		const delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
-		logger.info(__('Finished building the application in %s', delta.cyan));
+		// Log how long the build took.
+		if (!this.buildOnly && this.target === 'simulator') {
+			const delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
+			logger.info(__('Finished building the application in %s', delta.cyan));
+		}
+
+		// Notify plugins that the build is done.
+		await new Promise((resolve) => {
+			cli.emit('build.post.compile', this, resolve);
+		});
+		await new Promise((resolve) => {
+			cli.emit('build.finalize', this, resolve);
+		});
+	} catch (err) {
+		// Failed to build app. Print the error message and stack trace (if possible), then exit out.
+		// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
+		if (err instanceof Error) {
+			this.logger.error(err.stack || err.message);
+		} else if ((typeof err === 'string') && (err.length > 0)) {
+			this.logger.error(err);
+		} else {
+			this.logger.error('Build failed. Reason: Unknown');
+		}
+		process.exit(1);
 	}
 
-	// Notify plugins that the build is done.
-	await new Promise((resolve) => {
-		cli.emit('build.post.compile', this, resolve);
-	});
-	await new Promise((resolve) => {
-		cli.emit('build.finalize', this, resolve);
-	});
-
+	// We're done. Invoke optional callback if provided.
 	if (finished) {
 		finished();
 	}
@@ -1747,7 +1776,6 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 	this.buildTiIncrementalDir      = path.join(this.buildDir, 'ti-incremental');
 	this.buildAppDir                = path.join(this.buildDir, 'app');
 	this.buildAppMainDir            = path.join(this.buildAppDir, 'src', 'main');
-	this.buildAndroidManifestFile   = path.join(this.buildAppMainDir, 'AndroidManifest.xml');
 	this.buildAppMainAssetsDir      = path.join(this.buildAppMainDir, 'assets');
 	this.buildAppMainAssetsResourcesDir = path.join(this.buildAppMainAssetsDir, 'Resources');
 	this.buildGenAppIdDir           = path.join(this.buildAppMainDir, 'java', this.appid.split('.').join(path.sep));
@@ -2041,13 +2069,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.config.get('android.mergeCustomAndroidManifest', true) !== manifest.mergeCustomAndroidManifest) {
-		this.logger.info(__('Forcing rebuild: mergeCustomAndroidManifest config has changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.mergeCustomAndroidManifest));
-		this.logger.info('  ' + __('Now: %s', this.config.get('android.mergeCustomAndroidManifest', true)));
-		return true;
-	}
-
 	return false;
 };
 
@@ -2132,18 +2153,49 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 		});
 	}
 
-	// Generate a simple "AndroidManifest.xml" file for the library project.
-	// TODO: We should generate this file from "timodule.xml" and "./platform/android/AndroidManifest.xml".
-	//       Currently, generateAndroidManifest() is merging all module manifests into app's manifest,
-	//       which doesn't follow Google's documented library merging rules. (Was our only option before gradle.)
-	await fs.writeFile(
-		path.join(projectSrcMainDirPath, 'AndroidManifest.xml'),
-		`<?xml version="1.0" encoding="utf-8"?>\n<manifest package="${moduleInfo.manifest.moduleid}"/>\n`);
+	// If module has "AndroidManifest.xml" file under its "./platform/android" directory,
+	// then copy it to library project's "debug" and "release" subdirectories.
+	// This makes them extend main "AndroidManifest.xml" under "./src/main" which is taken from "timodule.xml".
+	const sourceManifestFilePath = path.join(sourcePlaformAndroidDirPath, 'AndroidManifest.xml');
+	if (await fs.exists(sourceManifestFilePath)) {
+		// Create the "debug" and "release" subdirectories.
+		const debugDirPath = path.join(projectDirPath, 'src', 'debug');
+		const releaseDirPath = path.join(projectDirPath, 'src', 'release');
+		await fs.ensureDir(debugDirPath);
+		await fs.ensureDir(releaseDirPath);
+
+		// Load "AndroidManifest.xml", replace ${tiapp.properties['key']} variables, and save to above directories.
+		const manifest = await AndroidManifest.fromFilePath(sourceManifestFilePath);
+		manifest.setPackageName(moduleInfo.manifest.moduleid);
+		manifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
+		await manifest.writeToFilePath(path.join(debugDirPath, 'AndroidManifest.xml'));
+		await manifest.writeToFilePath(path.join(releaseDirPath, 'AndroidManifest.xml'));
+	}
+
+	// Create main "AndroidManifest.xml" file under library project's "./src/main".
+	// If manifest settings exist in "timodule.xml", then merge it into main manifest.
+	const mainManifest = await AndroidManifest.fromXmlString('<manifest/>');
+	const tiModuleXmlFilePath = path.join(moduleInfo.modulePath, 'timodule.xml');
+	try {
+		if (await fs.exists(tiModuleXmlFilePath)) {
+			const tiModuleInfo = new tiappxml(tiModuleXmlFilePath);
+			if (tiModuleInfo && tiModuleInfo.android && tiModuleInfo.android.manifest) {
+				const tiModuleManifest = AndroidManifest.fromXmlString(tiModuleInfo.android.manifest);
+				tiModuleManifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
+				mainManifest.copyFromAndroidManifest(tiModuleManifest);
+			}
+		}
+	} catch (ex) {
+		this.logger.error(`Unable to load Android <manifest/> content from: ${tiModuleXmlFilePath}`);
+		throw ex;
+	}
+	mainManifest.setPackageName(moduleInfo.manifest.moduleid);
+	await mainManifest.writeToFilePath(path.join(projectSrcMainDirPath, 'AndroidManifest.xml'));
 
 	// Generate a "build.gradle" file for this project from the SDK's "lib.build.gradle" EJS template.
 	// Note: Google does not support setting "maxSdkVersion" via gradle script.
-	let buildGradleContent = (await fs.readFile(path.join(this.templatesDir, 'lib.build.gradle'))).toString();
-	buildGradleContent = ejs.render(buildGradleContent, {
+	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'lib.build.gradle'));
+	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		compileSdkVersion: this.targetSDK,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK
@@ -2229,6 +2281,13 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	await fs.copyFile(
 		path.join(this.templatesDir, 'root.build.gradle'),
 		path.join(this.buildDir, 'build.gradle'));
+
+	// Copy our Titanium template's gradle constants file.
+	// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
+	const tiConstantsGradleFileName = 'ti.constants.gradle';
+	await fs.copyFile(
+		path.join(this.templatesDir, tiConstantsGradleFileName),
+		path.join(this.buildDir, tiConstantsGradleFileName));
 
 	// Create a "settings.gradle" file providing all of the gradle projects configured.
 	// By default, these project names must match the subdirectory names.
@@ -2316,18 +2375,21 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		this.copyResources(resolve);
 	});
 
-	// Generate an "index.json" file referencing every JavaScript file bundled into the app.
-	// This is used by the require() function to find the required-in JS files.
-	await this.generateRequireIndex();
+	// We can do the following in parallel.
+	await Promise.all([
+		// Generate an "index.json" file referencing every JavaScript file bundled into the app.
+		// This is used by the require() function to find the required-in JS files.
+		this.generateRequireIndex(),
 
-	// Generate "*.java" source files for application.
-	await this.generateJavaFiles();
+		// Generate "*.java" source files for application.
+		this.generateJavaFiles(),
 
-	// Generate a "res/values" XML file from a Titanium i18n file, if it exists.
-	await this.generateI18N();
+		// Generate a "res/values" XML file from a Titanium i18n file, if it exists.
+		this.generateI18N(),
 
-	// Generate a "res/values" styles XML file if a custom theme was assigned in app's "AndroidManifest.xml".
-	await this.generateTheme();
+		// Generate a "res/values" styles XML file if a custom theme was assigned in app's "AndroidManifest.xml".
+		this.generateTheme()
+	]);
 
 	// Generate an "AndroidManifest.xml" for the app and copy in any custom manifest settings from "tiapp.xml".
 	await this.generateAndroidManifest();
@@ -2388,8 +2450,8 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 
 	// Generate a "build.gradle" file for this project from the SDK's "app.build.gradle" EJS template.
 	// Note: Google does not support setting "maxSdkVersion" via gradle script.
-	let buildGradleContent = (await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'))).toString();
-	buildGradleContent = ejs.render(buildGradleContent, {
+	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
+	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		applicationId: this.appid,
 		compileSdkVersion: this.targetSDK,
 		minSdkVersion: this.minSDK,
@@ -2422,6 +2484,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		htmlJsFiles = this.htmlJsFiles = {},
 		symlinkFiles = process.platform !== 'win32' && this.config.get('android.symlinkResources', true),
 		_t = this;
+
+	this.logger.info('Copying resource files');
 
 	function copyDir(opts, callback) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
@@ -2966,6 +3030,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 };
 
 AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIndex() {
+	this.logger.info('Generating import/require index file');
+
 	const filePathDictionary = {};
 	const normalizedAssetsDir = this.buildAppMainAssetsDir.replace(/\\/g, '/');
 	const destFile = path.join(normalizedAssetsDir, 'index.json');
@@ -3023,6 +3089,8 @@ AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindi
 };
 
 AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() {
+	this.logger.info('Generating Java files');
+
 	const copyTemplate = (src, dest, ejsParams) => {
 		this.logger.debug(__('Copying template %s => %s', src.cyan, dest.cyan));
 		fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), ejsParams));
@@ -3049,12 +3117,12 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 					if (fileContent) {
 						javaBindings = JSON.parse(fileContent);
 					} else {
-						this.logger.error(__('Failed to read module "%s" file "%s"', module.id, jsonFilePath) + '\n');
+						this.logger.error(__n('Failed to read module "%s" file "%s"', module.id, jsonFilePath));
 					}
 				}
 			} catch (ex) {
-				this.logger.error(__(
-					'Error accessing module "%s" file "%s". Reason: %s', module.id, jsonFilePath, ex.message) + '\n');
+				this.logger.error(__n(
+					'Error accessing module "%s" file "%s". Reason: %s', module.id, jsonFilePath, ex.message));
 			}
 		}
 		if (!javaBindings) {
@@ -3065,7 +3133,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 					javaBindings = this.getNativeModuleBindings(jarFilePath);
 				}
 			} catch (ex) {
-				this.logger.error(__('The module "%s" has an invalid jar file: %s', module.id, jarFilePath) + '\n');
+				this.logger.error(__n('The module "%s" has an invalid jar file: %s', module.id, jarFilePath));
 			}
 		}
 		if (!javaBindings || !javaBindings.modules || !javaBindings.proxies) {
@@ -3268,9 +3336,9 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	// - The custom theme applied to the <application/> element in "AndroidManifest.xml".
 	// - The above fullsceen enabled basic theme if custom theme was not applied.
 	let customizableParentThemeName = basicParentThemeName;
-	if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
-		let appTheme = this.tiappAndroidManifest.application.theme;
-		if (appTheme.startsWith('@style/') && (appTheme !== '@style/Theme.Titanium.Translucent')) {
+	if (this.customAndroidManifest) {
+		let appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
+		if (appTheme && appTheme.startsWith('@style/') && (appTheme !== '@style/Theme.Titanium.Translucent')) {
 			customizableParentThemeName = appTheme.replace('@style/', '');
 		}
 	}
@@ -3293,288 +3361,291 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	await fs.writeFile(xmlFilePath, xmlLines.join('\n'));
 };
 
-function serviceParser(serviceNode) {
-	// add service attributes
-	const resultService = {};
-	appc.xml.forEachAttr(serviceNode, function (attr) {
-		resultService[attr.localName] = attr.value;
-	});
-	appc.xml.forEachElement(serviceNode, function (node) {
-		if (!resultService[node.tagName]) {
-			resultService[node.tagName] = [];
-		}
-		// create intent-filter instance
-		const intentFilter = {};
-		const action = [];
-		intentFilter['action'] = action;
-		// add atrributes from parent
-		appc.xml.forEachElement(node, function (intentFilterAaction) {
-			intentFilter['action'].push(appc.xml.getAttr(intentFilterAaction, 'android:name'));
-		});
-		// add intent filter object to array
-		resultService[node.tagName].push(intentFilter);
-	});
-	return resultService;
-}
-
-AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroidManifest() {
-	const calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ],
-		cameraPermissions = [ 'android.permission.CAMERA' ],
-		contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ],
-		contactsReadPermissions = [ 'android.permission.READ_CONTACTS' ],
-		geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ],
-		vibratePermissions = [ 'android.permission.VIBRATE' ],
-		wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ],
-
-		permissions = {
-			'android.permission.INTERNET': 1,
-			'android.permission.ACCESS_WIFI_STATE': 1,
-			'android.permission.ACCESS_NETWORK_STATE': 1,
-			'android.permission.WRITE_EXTERNAL_STORAGE': 1
-		},
-
-		tiNamespacePermissions = {
-			geolocation: geoPermissions
-		},
-
-		tiMethodPermissions = {
-			// old calendar
-			'Android.Calendar.getAllAlerts': calendarPermissions,
-			'Android.Calendar.getAllCalendars': calendarPermissions,
-			'Android.Calendar.getCalendarById': calendarPermissions,
-			'Android.Calendar.getSelectableCalendars': calendarPermissions,
-
-			// new calendar
-			'Calendar.getAllAlerts': calendarPermissions,
-			'Calendar.getAllCalendars': calendarPermissions,
-			'Calendar.getCalendarById': calendarPermissions,
-			'Calendar.getSelectableCalendars': calendarPermissions,
-
-			'Contacts.createPerson': contactsPermissions,
-			'Contacts.removePerson': contactsPermissions,
-			'Contacts.getAllContacts': contactsReadPermissions,
-			'Contacts.showContactPicker': contactsReadPermissions,
-			'Contacts.showContacts': contactsReadPermissions,
-			'Contacts.getPersonByID': contactsReadPermissions,
-			'Contacts.getPeopleWithName': contactsReadPermissions,
-			'Contacts.getAllPeople': contactsReadPermissions,
-			'Contacts.getAllGroups': contactsReadPermissions,
-			'Contacts.getGroupByID': contactsReadPermissions,
-
-			'Media.Android.setSystemWallpaper': wallpaperPermissions,
-			'Media.showCamera': cameraPermissions,
-			'Media.vibrate': vibratePermissions,
-		},
-
-		googleAPIs = [
-			// Example: 'Map.createView'
-		],
-
-		enableGoogleAPIWarning = this.target === 'emulator' && this.emulator && !this.emulator.googleApis,
-
-		customAndroidManifest = this.customAndroidManifest,
-		tiappAndroidManifest = this.tiappAndroidManifest;
-
-	// Create a string of all known <activity/> attribute "android:configChanges" values for the target API Level.
-	// This variable will be referenced by name by an EJS "AndroidManifest.xml" template.
-	// Ex: <activity android:name="MyActivity" android:configChanges="<%- allActivityConfigChanges %>" />
-	this.allActivityConfigChanges
-		= 'fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation'
-		+ '|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode';
-	if (this.realTargetSDK >= 24) {
-		this.allActivityConfigChanges += '|density';
+AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAndroidPermissions() {
+	// Do not continue if permission injection has been disabled in "tiapp.xml".
+	if (this.tiapp['override-permissions']) {
+		return [];
 	}
 
-	// Function used to EJS render Titanium's main "AndroidManfiest.xml" template and "timodule.xml" templates.
-	const ejsRenderManifest = (str) => {
-		// first we replace all legacy variable placeholders with EJS style placeholders
-		str = str.replace(/(\$\{tiapp\.properties\[['"]([^'"]+)['"]\]\})/g, function (s, m1, m2) {
-			// if the property is the "id", we want to force our scrubbed "appid"
-			if (m2 === 'id') {
-				m2 = 'appid';
-			} else {
-				m2 = 'tiapp.' + m2;
-			}
-			return '<%- ' + m2 + ' %>';
-		});
-		// then process the string as an EJS template
-		return ejs.render(str, this);
+	// Define Android <uses-permission/> names needed by our core Titanium APIs.
+	const calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ];
+	const cameraPermissions = [ 'android.permission.CAMERA' ];
+	const contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ];
+	const contactsReadPermissions = [ 'android.permission.READ_CONTACTS' ];
+	const geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ];
+	const vibratePermissions = [ 'android.permission.VIBRATE' ];
+	const wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ];
+
+	// Define namespaces that need permissions when accessed in JavaScript.
+	const tiNamespacePermissions = {
+		geolocation: geoPermissions
 	};
 
-	// Fetch main Titanium "AndroidManifest.xml" template's settings, resolving all template variables via EJS.
-	const finalAndroidManifest = (new AndroidManifest()).parse(ejsRenderManifest(
-		fs.readFileSync(path.join(this.templatesDir, 'AndroidManifest.xml')).toString()));
+	// Define methods that need permissions when invoked in JavaScript.
+	const tiMethodPermissions = {
+		'Calendar.getAllAlerts': calendarPermissions,
+		'Calendar.getAllCalendars': calendarPermissions,
+		'Calendar.getCalendarById': calendarPermissions,
+		'Calendar.getSelectableCalendars': calendarPermissions,
 
-	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
-	if (!this.config.get('android.mergeCustomAndroidManifest', true) && this.customAndroidManifest) {
-		await new Promise((resolve) => {
-			const writeHook = this.cli.createHook('build.android.writeAndroidManifest', this, (file, xml, done) => {
-				this.logger.info(__('Writing unmerged custom AndroidManifest.xml'));
-				fs.writeFile(file, xml.toString('xml'), done);
-			});
-			writeHook(this.buildAndroidManifestFile, customAndroidManifest, resolve);
-		});
-		return;
+		'Contacts.createPerson': contactsPermissions,
+		'Contacts.removePerson': contactsPermissions,
+		'Contacts.getAllContacts': contactsReadPermissions,
+		'Contacts.showContactPicker': contactsReadPermissions,
+		'Contacts.showContacts': contactsReadPermissions,
+		'Contacts.getPersonByID': contactsReadPermissions,
+		'Contacts.getPeopleWithName': contactsReadPermissions,
+		'Contacts.getAllPeople': contactsReadPermissions,
+		'Contacts.getAllGroups': contactsReadPermissions,
+		'Contacts.getGroupByID': contactsReadPermissions,
+
+		'Media.Android.setSystemWallpaper': wallpaperPermissions,
+		'Media.showCamera': cameraPermissions,
+		'Media.vibrate': vibratePermissions,
+	};
+
+	// Add Titanium's default permissions.
+	// Note: You would normally define needed permissions in AAR library's manifest file,
+	//       but we want "tiapp.xml" property "override-permissions" to be able to override this behavior.
+	const neededPermissionDictionary = {
+		'android.permission.INTERNET': true,
+		'android.permission.ACCESS_WIFI_STATE': true,
+		'android.permission.ACCESS_NETWORK_STATE': true,
+		'android.permission.WRITE_EXTERNAL_STORAGE': true
+	};
+
+	// Make sure Titanium symbols variable "tiSymbols" is valid.
+	if (!this.tiSymbols) {
+		this.tiSymbols = {};
 	}
 
-	finalAndroidManifest.__attr__['android:versionName'] = this.tiapp.version || '1';
+	// Traverse all accessed namespaces/methods in JavaScript.
+	// Add any Android permissions needed if matching the above mappings.
+	const accessedSymbols = {};
+	for (const file in this.tiSymbols) {
+		// Fetch all symbols from the next JavaScript file.
+		const symbolArray = this.tiSymbols[file];
+		if (!symbolArray) {
+			continue;
+		}
 
-	if (this.deployType !== 'production') {
-		// enable mock location if in development or test mode
-		geoPermissions.push('android.permission.ACCESS_MOCK_LOCATION');
-	}
-
-	// Add permissions for each titanium namespace/method found.
-	const tmp = {};
-	Object.keys(this.tiSymbols).forEach(function (file) {
-		this.tiSymbols[file].forEach(function (symbol) {
-			if (tmp[symbol]) {
-				return;
+		// Traverse all of JavaScript symbols.
+		for (const symbol of symbolArray) {
+			// Do not continue if we've already evaluated this symbol before.
+			if (!symbol || accessedSymbols[symbol]) {
+				continue;
 			}
-			tmp[symbol] = 1;
+			accessedSymbols[symbol] = true;
 
-			const namespaceParts = symbol.split('.').slice(0, -1); // strip last part which should be the method or property
+			// If symbol is a namespace, then check if it needs permission.
+			// Note: Check each namespace component separately, split via periods.
+			const namespaceParts = symbol.split('.').slice(0, -1);
 			for (;namespaceParts.length > 0; namespaceParts.pop()) {
 				const namespace = namespaceParts.join('.');
-				if (namespace) {
-					if (tiNamespacePermissions[namespace]) {
-						tiNamespacePermissions[namespace].forEach(function (perm) {
-							permissions[perm] = 1;
-						});
+				if (namespace && tiNamespacePermissions[namespace]) {
+					for (const permission of tiNamespacePermissions) {
+						neededPermissionDictionary[permission] = true;
 					}
 				}
 			}
 
+			// If symbol is a method, then check if it needs permission.
 			if (tiMethodPermissions[symbol]) {
-				tiMethodPermissions[symbol].forEach(function (perm) {
-					permissions[perm] = 1;
-				});
-			}
-
-			if (enableGoogleAPIWarning && googleAPIs.indexOf(symbol) !== -1) {
-				const fn = 'Titanium.' + symbol + '()';
-				if (this.emulator.googleApis === null) {
-					this.logger.warn(__('Detected %s call which requires Google APIs, however the selected emulator %s may or may not support Google APIs', fn.cyan, ('"' + this.emulator.name + '"').cyan));
-					this.logger.warn(__('If the emulator does not support Google APIs, the %s call will fail', fn.cyan));
-				} else {
-					this.logger.warn(__('Detected %s call which requires Google APIs, but the selected emulator %s does not support Google APIs', fn.cyan, ('"' + this.emulator.name + '"').cyan));
-					this.logger.warn(__('Expect the %s call to fail', fn.cyan));
+				for (const permission of tiMethodPermissions[symbol]) {
+					neededPermissionDictionary[permission] = true;
 				}
-				this.logger.warn(__('You should use, or create, an Android emulator that does support Google APIs'));
-			}
-		}, this);
-	}, this);
-
-	// scan "AndroidManifest.xml" activities
-	if (tiappAndroidManifest && tiappAndroidManifest.application) {
-		// Log a warning if Activity "launchMode" is set. May make app behave in a manner Titanium does not expect.
-		// Note: Allow it since some developers want "singleTask" support and know how to deal with its repercussions.
-		for (const activity in tiappAndroidManifest.application.activity) {
-			const parameters = tiappAndroidManifest.application.activity[activity];
-			if (parameters['launchMode']) {
-				this.logger.warn(__('Setting "%s" is not recommended for activity "%s"', 'android:launchMode'.red, activity.cyan));
 			}
 		}
 	}
 
-	// gather activities
-	const tiappActivities = this.tiapp.android && this.tiapp.android.activities;
-	tiappActivities && Object.keys(tiappActivities).forEach(function (filename) {
-		const activity = tiappActivities[filename];
-		if (activity.url) {
-			const a = {
-				name: this.appid + '.' + activity.classname
-			};
-			Object.keys(activity).forEach(function (key) {
-				if (!/^(name|url|options|classname|android:name)$/.test(key)) {
-					a[key.replace(/^android:/, '')] = activity[key];
-				}
-			});
-			finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
-			finalAndroidManifest.application.activity[a.name] = a;
-		}
-	}, this);
+	// Return an array of Android <uses-permission/> names needed.
+	return Object.keys(neededPermissionDictionary);
+};
 
-	// gather services
-	const tiappServices = this.tiapp.android && this.tiapp.android.services;
-	tiappServices && Object.keys(tiappServices).forEach(function (filename) {
-		const service = tiappServices[filename];
-		if (service.url) {
-			let s = {};
-			if (service.type === 'quicksettings') {
-				const serviceName = this.appid + '.' + service.classname;
-				const icon = '@drawable/' + (service.icon || this.tiapp.icon).replace(/((\.9)?\.(png|jpg))$/, '');
-				const label = service.label || this.tiapp.name;
-				const serviceXML = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'QuickService.xml')).toString(), {
-					serviceName: serviceName,
-					icon: icon,
-					label: label
+AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroidManifest() {
+	this.logger.info(__('Generating main "AndroidManifest.xml" files'));
+
+	// Make sure app project's "./src/main" directory exists.
+	await fs.ensureDir(this.buildAppMainDir);
+
+	// We no longer support setting the following option to false anymore. Log a warning if not set to merge.
+	// Note: Gradle handles the manifest merge between libraries and app project. Must use its features to manage it.
+	if (!this.config.get('android.mergeCustomAndroidManifest', true)) {
+		const message
+			= 'Titanium CLI option "android.mergeCustomAndroidManifest" is no longer supported. '
+			+ 'Use Google\'s "AndroidManifest.xml" feature "tools:remove" to remove XML elements instead.';
+		this.logger.warn(__n(message));
+	}
+
+	// Choose app theme to be used by all activities depending on following "tiapp.xml" settings.
+	let appThemeName = '@style/Theme.AppCompat';
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
+		if (this.tiapp['navbar-hidden']) {
+			appThemeName += '.NoTitleBar';
+		} else {
+			appThemeName += '.Fullscreen';
+		}
+	}
+
+	// Generate all XML lines to be added as children within the manifest's <application/> block.
+	const appChildXmlLines = [];
+	if (this.tiapp.android) {
+		// Fetch all "ti:app/android/activities" defined in "tiapp.xml" file.
+		// These are our own custom JSActivity settings and are outside of the <manifest/> block.
+		const tiappActivities = this.tiapp.android.activities || {};
+		for (const jsFileName in tiappActivities) {
+			// Get the next JSActivity.
+			const tiActivityInfo = tiappActivities[jsFileName];
+			if (!tiActivityInfo || !tiActivityInfo.url || !tiActivityInfo.classname) {
+				continue;
+			}
+
+			// Add its <activity/> XML string to array.
+			const xmlDoc = (new DOMParser()).parseFromString('<activity/>', 'text/xml');
+			for (const propertyName in tiActivityInfo) {
+				if (propertyName.startsWith('android:')) {
+					const propertyValue = tiActivityInfo[propertyName];
+					xmlDoc.documentElement.setAttribute(propertyName, propertyValue ? propertyValue.toString() : '');
+				}
+			}
+			xmlDoc.documentElement.setAttribute('android:name', `${this.appid}.${tiActivityInfo.classname}`);
+			appChildXmlLines.push(xmlDoc.documentElement.toString());
+		}
+
+		// Fetch all "ti:app/android/services" defined in "tiapp.xml" file.
+		// These are our own custom JSService settings and are outside of the <manifest/> block.
+		const tiappServices = this.tiapp.android.services || {};
+		for (const jsFileName in tiappServices) {
+			// Get the next JSService.
+			const tiServiceInfo = tiappServices[jsFileName];
+			if (!tiServiceInfo || !tiServiceInfo.url || !tiServiceInfo.classname) {
+				continue;
+			}
+
+			// Add its <service/> and <intent-filter/> XML string(s) to array.
+			const serviceName = `${this.appid}.${tiServiceInfo.classname}`;
+			if (tiServiceInfo.type === 'quicksettings') {
+				// QuickSettings service is generated via EJS template.
+				let xmlContent = await fs.readFile(path.join(this.templatesDir, 'QuickService.xml'));
+				xmlContent = ejs.render(xmlContent.toString(), {
+					icon: '@drawable/' + (tiServiceInfo.icon || this.tiapp.icon).replace(/((\.9)?\.(png|jpg))$/, ''),
+					label: tiServiceInfo.label || this.tiapp.name,
+					serviceName: serviceName
 				});
-				const doc = new DOMParser().parseFromString(serviceXML, 'text/xml');
-				s = serviceParser(doc.firstChild);
+				const xmlDoc = (new DOMParser()).parseFromString(xmlContent, 'text/xml');
+				const xmlString = xmlDoc.documentElement.toString().replace(/xmlns:android=""/g, '');
+				const xmlLines = xmlString.split('\n');
+				appChildXmlLines.push(...xmlLines); // Spread operator "..." turns an array into multiple arguments.
 			} else {
-				s.name = this.appid + '.' + service.classname;
-				Object.keys(service).forEach(function (key) {
-					if (!/^(type|name|url|options|classname|android:name)$/.test(key)) {
-						s[key.replace(/^android:/, '')] = service[key];
+				// This is a simple service. Add its 1 XML line to the array.
+				const xmlDoc = (new DOMParser()).parseFromString('<service/>', 'text/xml');
+				for (const propertyName in tiServiceInfo) {
+					if (propertyName.startsWith('android:')) {
+						const propertyValue = tiServiceInfo[propertyName];
+						xmlDoc.documentElement.setAttribute(propertyName, propertyValue ? propertyValue.toString() : '');
 					}
-				});
-			}
-			finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
-			finalAndroidManifest.application.service[s.name] = s;
-		}
-	}, this);
-
-	// set the app icon
-	finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
-
-	// Merge in "AndroidManifest.xml" settings embedded within all "timodule.xml" files.
-	this.modules.forEach(function (module) {
-		const moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
-		if (fs.existsSync(moduleXmlFile)) {
-			const moduleXml = new tiappxml(moduleXmlFile);
-			if (moduleXml.android && moduleXml.android.manifest) {
-				const am = new AndroidManifest();
-				am.parse(ejsRenderManifest(moduleXml.android.manifest));
-				// we don't want modules to override the <supports-screens> or <uses-sdk> tags
-				delete am.__attr__;
-				delete am['supports-screens'];
-				delete am['uses-sdk'];
-				finalAndroidManifest.merge(am);
+				}
+				xmlDoc.documentElement.setAttribute('android:name', serviceName);
+				appChildXmlLines.push(xmlDoc.documentElement.toString());
 			}
 		}
-	}, this);
-
-	// Merge in the custom android manifest file.
-	finalAndroidManifest.merge(customAndroidManifest);
-
-	// Merge in the "tiapp.xml" file's android manifest settings.
-	// Must be done last so app developer can override manifest settings such as <activity/>, <receiver/>, etc.
-	finalAndroidManifest.merge(tiappAndroidManifest);
-
-	if (this.realTargetSDK >= 24 && !Object.prototype.hasOwnProperty.call(finalAndroidManifest.application, 'resizeableActivity')) {
-		finalAndroidManifest.application.resizeableActivity = true;
 	}
 
-	// add permissions
-	if (!this.tiapp['override-permissions']) {
-		Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
-		Object.keys(permissions).forEach(function (perm) {
-			finalAndroidManifest['uses-permission'].indexOf(perm) === -1 && finalAndroidManifest['uses-permission'].push(perm);
-		});
-	}
+	// Generate the app's main manifest from EJS template.
+	let mainManifestContent = await fs.readFile(path.join(this.templatesDir, 'AndroidManifest.xml'));
+	mainManifestContent = ejs.render(mainManifestContent.toString(), {
+		appChildXmlLines: appChildXmlLines,
+		appIcon: '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, ''),
+		appLabel: this.tiapp.name,
+		appTheme: appThemeName,
+		classname: this.classname,
+		packageName: this.appid
+	});
+	const mainManifest = AndroidManifest.fromXmlString(mainManifestContent);
 
-	// if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
-	if (await fs.exists(this.buildAndroidManifestFile)) {
-		await fs.unlink(this.buildAndroidManifestFile);
-	}
+	// Add <uses-permission/> needed by Titanium. Will add permissions based on JS APIs used such as geolocation.
+	mainManifest.addUsesPermissions(this.fetchNeededAndroidPermissions());
 
+	// Write the main "AndroidManifest.xml" file providing Titanium's default app manifest settings.
+	const mainManifestFilePath = path.join(this.buildAppMainDir, 'AndroidManifest.xml');
 	await new Promise((resolve) => {
 		const writeHook = this.cli.createHook('build.android.writeAndroidManifest', this, (file, xml, done) => {
-			fs.writeFile(file, xml.toString('xml'), done);
+			done();
 		});
-		writeHook(this.buildAndroidManifestFile, finalAndroidManifest, resolve);
+		writeHook(mainManifestFilePath, null, resolve);
 	});
+	await mainManifest.writeToFilePath(mainManifestFilePath);
+
+	// Set up secondary manifest object which will store custom manifest settings provided by Titanium app developer.
+	// This will be written to app project's "debug" and "release" directories.
+	const secondaryManifest = new AndroidManifest();
+
+	// Copy all CommonJS module "AndroidManifest.xml" settings to secondary manifest object first.
+	for (const module of this.modules) {
+		// Skip native modules. Their manifest files will be handled by gradle build system.
+		if (module.native) {
+			continue;
+		}
+
+		// Copy manifest settings from "timodule.xml" if provided.
+		const tiModuleXmlFilePath = path.join(module.modulePath, 'timodule.xml');
+		try {
+			if (await fs.exists(tiModuleXmlFilePath)) {
+				const tiModuleInfo = new tiappxml(tiModuleXmlFilePath);
+				if (tiModuleInfo && tiModuleInfo.android && tiModuleInfo.android.manifest) {
+					const tiModuleManifest = AndroidManifest.fromXmlString(tiModuleInfo.android.manifest);
+					secondaryManifest.copyFromAndroidManifest(tiModuleManifest);
+				}
+			}
+		} catch (ex) {
+			this.logger.error(`Unable to load Android <manifest/> content from: ${tiModuleXmlFilePath}`);
+			throw ex;
+		}
+
+		// Copy module's "./platform/android/AndroidManifest.xml" file if it exists.
+		const externalXmlFilePath = path.join(module.modulePath, 'platform', 'android', 'AndroidManifest.xml');
+		try {
+			if (await fs.exists(externalXmlFilePath)) {
+				const externalManifest = await AndroidManifest.fromFilePath(externalXmlFilePath);
+				secondaryManifest.copyFromAndroidManifest(externalManifest);
+			}
+		} catch (ex) {
+			this.logger.error(`Unable to load file: ${externalXmlFilePath}`);
+			throw ex;
+		}
+	}
+	secondaryManifest.removeUsesSdk();  // Don't let modules define <uses-sdk/> elements.
+
+	// Copy the manifest settings loaded from "tiapp.xml" and Titanium project's "./platform/android" directory.
+	// Since this is copied last, it will overwrite all XML settings made by modules up above.
+	// Note: The "customAndroidManifest" field is expected to be loaded/assigned in build.validate() method.
+	if (this.customAndroidManifest) {
+		secondaryManifest.copyFromAndroidManifest(this.customAndroidManifest);
+	}
+
+	// Write secondary "AndroidManifest.xml" if not empty.
+	if (!secondaryManifest.isEmpty()) {
+		// Make sure package name is set in <manifest/> so that ".ClassName" references in XML can be resolved.
+		secondaryManifest.setPackageName(this.appid);
+
+		// Replace ${tiapp.properties['key']} placeholders in manifest.
+		secondaryManifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
+
+		// Apply "tools:replace" attributes to <manifest/>, <application/>, and <activity/> attributes set by app.
+		// Avoids Google build errors if app's attributes conflict with attributes set by libraries.
+		// Note: Old Titanium build system (before gradle) didn't error out. So, this is for backward compatibility.
+		secondaryManifest.applyToolsReplace();
+
+		// Create the "debug" and "release" subdirectories.
+		const debugDirPath = path.join(this.buildAppDir, 'src', 'debug');
+		const releaseDirPath = path.join(this.buildAppDir, 'src', 'release');
+		await fs.ensureDir(debugDirPath);
+		await fs.ensureDir(releaseDirPath);
+
+		// Save manifest to above subdirectories.
+		await secondaryManifest.writeToFilePath(path.join(debugDirPath, 'AndroidManifest.xml'));
+		await secondaryManifest.writeToFilePath(path.join(releaseDirPath, 'AndroidManifest.xml'));
+	}
 };
 
 AndroidBuilder.prototype.buildAppProject = async function buildAppProject() {
@@ -3634,7 +3705,6 @@ AndroidBuilder.prototype.writeBuildManifest = async function writeBuildManifest(
 			fullscreen: this.tiapp.fullscreen,
 			navbarHidden: this.tiapp['navbar-hidden'],
 			skipJSMinification: !!this.cli.argv['skip-js-minify'],
-			mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', true),
 			encryptJS: this.encryptJS,
 			sourceMaps: this.sourceMaps,
 			transpile: this.transpile,

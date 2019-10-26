@@ -1,4 +1,4 @@
-rootProject.name = 'Titanium SDK'
+rootProject.name = 'TitaniumSDK'
 include ':app'
 include ':kroll-apt'
 include ':titanium'
