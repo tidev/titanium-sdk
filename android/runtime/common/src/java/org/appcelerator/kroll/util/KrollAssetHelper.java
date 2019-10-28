@@ -165,6 +165,9 @@ public class KrollAssetHelper
 
 	public static byte[] readAssetBytes(String path)
 	{
+		if (KrollAssetCache.has(path)) {
+			return KrollAssetCache.get(path);
+		}
 		try {
 			if (assetCrypt != null) {
 				InputStream in = assetCrypt.openAsset(path);

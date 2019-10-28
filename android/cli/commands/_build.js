@@ -1776,6 +1776,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'copyResources',
 		'generateRequireIndex',
 		'processTiSymbols',
+		'generateAssetCache',
 		'copyModuleResources',
 		'removeOldFiles',
 		'copyGradleTemplate',
@@ -2867,9 +2868,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 };
 
 AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
-	var index = {},
-		binAssetsDir = this.buildBinAssetsDir.replace(/\\/g, '/'),
-		destFile = path.join(binAssetsDir, 'index.json');
+	const binAssetsDir = this.buildBinAssetsDir.replace(/\\/g, '/'),
+		destFile = path.join(binAssetsDir, 'index.json'),
+		requireIndex = this.requireIndex = {};
 
 	(function walk(dir) {
 		fs.readdirSync(dir).forEach(function (filename) {
@@ -2878,20 +2879,20 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
 				} else if (/\.js(on)?$/.test(filename)) {
-					index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', '')] = 1;
+					requireIndex[file.replace(/\\/g, '/').replace(binAssetsDir + '/', '')] = 1;
 				}
 			}
 		});
 	}(this.buildBinAssetsResourcesDir));
 
 	this.jsFilesToEncrypt.forEach(function (file) {
-		index['Resources/' + file.replace(/\\/g, '/')] = 1;
+		requireIndex['Resources/' + file.replace(/\\/g, '/')] = 1;
 	});
 
-	delete index['Resources/_app_props_.json'];
+	delete requireIndex['Resources/_app_props_.json'];
 
 	fs.existsSync(destFile) && fs.unlinkSync(destFile);
-	fs.writeFile(destFile, JSON.stringify(index), callback);
+	fs.writeFile(destFile, JSON.stringify(requireIndex), callback);
 };
 
 AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
@@ -3155,6 +3156,24 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 	}
 
 	next();
+};
+
+AndroidBuilder.prototype.generateAssetCache = function generateAssetCache(next) {
+	const cacheFile = path.join(this.buildBinAssetsDir, 'cache.json');
+	const cacheAssets = [ 'Resources/app.js' ];
+	const assets = Object.keys(this.requireIndex);
+
+	// Cache Alloy assets.
+	if (assets.includes('Resources/alloy.js')) {
+		for (let asset of assets) {
+			if (asset.startsWith('Resources/alloy')) {
+				cacheAssets.push(asset);
+			}
+		}
+	}
+
+	// Write asset cache.
+	fs.writeFile(cacheFile, JSON.stringify(cacheAssets), next);
 };
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
