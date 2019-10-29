@@ -786,6 +786,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * @return						map of property names and values that contain information
 	 * 								pulled from the specified location
 	 */
+	@SuppressWarnings("NewApi")
 	private KrollDict buildLocationEvent(Location location, LocationProvider locationProvider)
 	{
 		KrollDict coordinates = new KrollDict();
@@ -793,7 +794,11 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
 		coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
 		coordinates.put(TiC.PROPERTY_ACCURACY, location.getAccuracy());
-		coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, location.getVerticalAccuracyMeters());
+		} else {
+			coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null);
+		}
 		coordinates.put(TiC.PROPERTY_HEADING, location.getBearing());
 		coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
 		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
