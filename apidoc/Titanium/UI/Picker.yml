@@ -47,7 +47,7 @@ description: |
 extends: Titanium.UI.View
 excludes:
     properties: [
-        anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,children
+        anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,children,
         backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,backgroundRepeat,
         backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex]
     methods: [remove, removeAllChildren, replaceAt]
