@@ -39,6 +39,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_DISPOSE = 101;
 	private static final int MSG_RUN_MODULE = 102;
 	private static final int MSG_EVAL_STRING = 103;
+	private static final int MSG_RUN_MODULE_BYTES = 104;
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
 
@@ -63,7 +64,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	protected Handler handler;
 
-	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
+	public static final int MSG_LAST_ID = MSG_RUN_MODULE_BYTES + 100;
 
 	public static final Object UNDEFINED = new Object() {
 		public String toString()
@@ -205,6 +206,19 @@ public abstract class KrollRuntime implements Handler.Callback
 		internalDispose();
 	}
 
+	public void runModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy)
+	{
+		if (isRuntimeThread()) {
+			doRunModuleBytes(source, filename, activityProxy);
+
+		} else {
+			Message message = handler.obtainMessage(MSG_RUN_MODULE_BYTES, activityProxy);
+			message.getData().putByteArray(PROPERTY_SOURCE, source);
+			message.getData().putString(PROPERTY_FILENAME, filename);
+			message.sendToTarget();
+		}
+	}
+
 	public void runModule(String source, String filename, KrollProxySupport activityProxy)
 	{
 		if (isRuntimeThread()) {
@@ -295,6 +309,15 @@ public abstract class KrollRuntime implements Handler.Callback
 				String filename = msg.getData().getString(PROPERTY_FILENAME);
 
 				doEvalString(source, filename);
+				return true;
+			}
+
+			case MSG_RUN_MODULE_BYTES: {
+				byte[] source = msg.getData().getByteArray(PROPERTY_SOURCE);
+				String filename = msg.getData().getString(PROPERTY_FILENAME);
+				KrollProxySupport activityProxy = (KrollProxySupport) msg.obj;
+
+				doRunModuleBytes(source, filename, activityProxy);
 				return true;
 			}
 		}
@@ -545,6 +568,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public abstract void doDispose();
+	public abstract void doRunModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy);
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
 	public abstract Object doEvalString(String source, String filename);
 
