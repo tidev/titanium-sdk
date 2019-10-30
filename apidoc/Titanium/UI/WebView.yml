@@ -451,6 +451,11 @@ events:
         constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone]
 
+      - name: isMainFrame
+        summary: Indicate if the event was generated from the main page or an iframe.
+        type: Boolean
+        platforms: [ipad, iphone]
+
   - name: error
     summary: Fired when the web view cannot load the content.
     description: |
