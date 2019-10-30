@@ -985,7 +985,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[self proxy] fireEvent:@"beforeload"
                  withObject:@{
                    @"url" : navigationAction.request.URL.absoluteString,
-                   @"navigationType" : @(navigationAction.navigationType)
+                   @"navigationType" : @(navigationAction.navigationType),
+                   @"isMainFrame" : NUMBOOL(navigationAction.targetFrame.isMainFrame),
                  }];
   }
 }
