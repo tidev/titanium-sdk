@@ -5,15 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <dlfcn.h>
-#include <map>
 #include <cstring>
-#include <vector>
-#include <v8.h>
-#include <jni.h>
 
-#include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "JNIUtil.h"
 #include "JSException.h"
 #include "Proxy.h"
 #include "ProxyFactory.h"
@@ -58,7 +52,8 @@ void KrollBindings::initNatives(Local<Object> exports, Local<Context> context)
 	HandleScope scope(isolate);
 	for (int i = 0; natives[i].name; ++i) {
 		if (natives[i].source == kroll_native) continue;
-		Local<String> name = String::NewFromUtf8(isolate, natives[i].name);
+		// FIXME: I don't think the name/source strings should ever be "empty" here, but should we do better error handling for it? If it ever is, it'll crash like this...
+		Local<String> name = String::NewFromUtf8(isolate, natives[i].name, v8::NewStringType::kNormal).ToLocalChecked();
 		Local<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(isolate, natives[i].source, natives[i].source_length);
 		exports->Set(context, name, source);
 	}

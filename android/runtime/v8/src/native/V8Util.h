@@ -23,7 +23,7 @@
 	v8::String::NewFromUtf8(isolate, string_literal "", v8::NewStringType::kNormal).ToLocalChecked()
 
 #define DEFINE_CONSTANT(isolate, target, name, value) \
-	(target)->Set(NEW_SYMBOL(isolate, name), \
+	(target)->Set(NEW_SYMBOL(isolate, name),          \
 		value, static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete))
 
 #define DEFINE_INT_CONSTANT(isolate, target, name, value) \
@@ -35,8 +35,8 @@
 #define DEFINE_STRING_CONSTANT(isolate, target, name, value) \
 	DEFINE_CONSTANT(isolate, target, name, STRING_NEW(isolate, value))
 
-#define DEFINE_TEMPLATE(isolate, target, name, tmpl) \
-	target->Set(NEW_SYMBOL(isolate, name), tmpl->GetFunction())
+#define DEFINE_TEMPLATE(isolate, target, name, tmpl)               \
+	target->Set(context, NEW_SYMBOL(isolate, name), tmpl->GetFunction(context).ToLocalChecked())
 
 #define DEFINE_METHOD(isolate, target, name, callback) \
 	DEFINE_TEMPLATE(isolate, target, name, v8::FunctionTemplate::New(isolate, callback))
@@ -91,7 +91,7 @@ inline v8::Local<v8::FunctionTemplate> NewFunctionTemplate(v8::Isolate* isolate,
 inline void SetMethod(v8::Local<v8::Context> context, v8::Isolate* isolate, v8::Local<v8::Object> that, const char* name, v8::FunctionCallback callback) {
 	v8::Local<v8::Function> function = NewFunctionTemplate(isolate, callback)->GetFunction(context).ToLocalChecked();
 	v8::Local<v8::String> name_string = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked();
-	that->Set(name_string, function);
+	that->Set(context, name_string, function);
 	function->SetName(name_string); // NODE_SET_METHOD() compatibility.
 }
 

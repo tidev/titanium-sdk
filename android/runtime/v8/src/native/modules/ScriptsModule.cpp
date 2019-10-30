@@ -118,7 +118,8 @@ void WrappedScript::CreateContext(const FunctionCallbackInfo<Value>& args)
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
 
-	Local<Value> securityToken = isolate->GetCurrentContext()->GetSecurityToken();
+	Local<Context> originalContext = isolate->GetCurrentContext();
+	Local<Value> securityToken = originalContext->GetSecurityToken();
 
 	Local<Context> context = Context::New(isolate, NULL, WrappedContext::global_template.Get(isolate));
 	Local<Object> global = context->Global();
@@ -132,15 +133,15 @@ void WrappedScript::CreateContext(const FunctionCallbackInfo<Value>& args)
 	// If a sandbox is provided initial the new context's global with it.
 	if (args.Length() > 0) {
 		Local<Object> sandbox = args[0].As<Object>();
-		Local<Array> keys = sandbox->GetPropertyNames(context).ToLocalChecked();
+		Local<Array> keys = sandbox->GetPropertyNames(originalContext).ToLocalChecked();
 
 		for (uint32_t i = 0; i < keys->Length(); i++) {
-			Local<String> key = keys->Get(Integer::New(isolate, i)).As<String>();
-			Local<Value> value = sandbox->Get(key);
+			Local<String> key = keys->Get(originalContext, i).ToLocalChecked().As<String>();
+			Local<Value> value = sandbox->Get(originalContext, key).ToLocalChecked();
 			if (value == sandbox) {
 				value = global;
 			}
-			global->Set(key, value);
+			global->Set(context, key, value);
 		}
 	}
 

@@ -7,11 +7,8 @@
 #include <cstring>
 #include <sstream>
 
-#include <v8.h>
-
 #include "V8Util.h"
 #include "JNIUtil.h"
-#include "AndroidUtil.h"
 #include "TypeConverter.h"
 
 namespace titanium {
@@ -79,7 +76,14 @@ Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTempl
 	TryCatch tryCatch(isolate);
 	Local<Value> nativeObject;
 	Local<Object> instance;
-	MaybeLocal<Object> maybeInstance = t.Get(isolate)->GetFunction()->NewInstance(context, argc, argv);
+	Local<Function> function;
+	MaybeLocal<Function> maybeFunction = t.Get(isolate)->GetFunction(context);
+	if (!maybeFunction.ToLocal(&function)) {
+		V8Util::fatalException(isolate, tryCatch);
+		return scope.Escape(Undefined(isolate));
+	}
+
+	MaybeLocal<Object> maybeInstance = function->NewInstance(context, argc, argv);
 	delete[] argv;
 	if (!maybeInstance.ToLocal(&instance)) {
 		V8Util::fatalException(isolate, tryCatch);
@@ -100,9 +104,9 @@ void V8Util::objectExtend(Isolate* isolate, Local<Object> dest, Local<Object> sr
 	int length = names->Length();
 
 	for (int i = 0; i < length; ++i) {
-		Local<Value> name = names->Get(i);
-		Local<Value> value = src->Get(name);
-		dest->Set(name, value);
+		Local<Value> name = names->Get(context, i).ToLocalChecked();
+		Local<Value> value = src->Get(context, name).ToLocalChecked();
+		dest->Set(context, name, value);
 	}
 }
 
@@ -185,7 +189,7 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		if (!frames.IsEmpty()) {
 			std::string stackString = V8Util::stackTraceString(isolate, frames);
 			if (!stackString.empty()) {
-				jsStack = String::NewFromUtf8(isolate, stackString.c_str()).As<Value>();
+				jsStack = String::NewFromUtf8(isolate, stackString.c_str(), v8::NewStringType::kNormal).ToLocalChecked().As<Value>();
 			}
 		}
 	}
@@ -286,7 +290,7 @@ bool V8Util::isNaN(Isolate* isolate, Local<Value> value)
 
 	Local<Value> args[] = { value };
 	MaybeLocal<Value> result = isNaNFunction.Get(isolate)->Call(context, global, 1, args);
-	return result.FromMaybe(False(isolate).As<Value>())->BooleanValue(context).FromMaybe(false);
+	return result.FromMaybe(False(isolate).As<Value>())->BooleanValue(isolate);
 }
 
 void V8Util::dispose()

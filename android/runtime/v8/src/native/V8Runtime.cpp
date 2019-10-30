@@ -165,8 +165,8 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	// Set the __dirname and __filename for the app.js.
 	// For other files, it will be injected via the `NativeModule` JavaScript class
-	global->Set(NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
-	global->Set(NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
+	global->Set(context, NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
+	global->Set(context, NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
 
 	Local<Function> mainFunction = result.As<Function>();
 	Local<Value> args[] = { kroll };

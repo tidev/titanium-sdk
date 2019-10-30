@@ -10,8 +10,6 @@
 
 #include "${packageName}.${proxyClassName}.h"
 
-#include "AndroidUtil.h"
-#include "JNIUtil.h"
 #include "JSException.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
