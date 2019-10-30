@@ -2173,7 +2173,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 * We combine these to create the single Android property contentDescription.
 	 * (e.g., View.setContentDescription(...));
 	 */
-	public String composeContentDescription(KrollDict properties)
+	public static String composeContentDescription(KrollDict properties)
 	{
 		if (properties == null) {
 			return null;
