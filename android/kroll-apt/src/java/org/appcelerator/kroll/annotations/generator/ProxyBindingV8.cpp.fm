@@ -12,7 +12,6 @@
 
 #include "JSException.h"
 #include "TypeConverter.h"
-#include "V8Util.h"
 
 <#if isModule>
 

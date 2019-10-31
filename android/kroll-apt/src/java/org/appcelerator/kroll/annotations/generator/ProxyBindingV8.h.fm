@@ -8,8 +8,6 @@
 /** This is generated, do not edit by hand. **/
 <#import "ProxyBinding.fm" as Proxy>
 
-#include <jni.h>
-
 #include "Proxy.h"
 
 <@Proxy.openNamespace/>
