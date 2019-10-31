@@ -188,7 +188,7 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 		*String::Utf8Value(V8Runtime::v8_isolate, msg->GetScriptResourceName()),
 		msg->GetLineNumber(context).FromMaybe(-1),
 		*String::Utf8Value(V8Runtime::v8_isolate,
-		msg->GetSourceLine(context).FromMaybe(-1)));
+		msg->GetSourceLine(context).ToLocalChecked()));
 }
 
 } // namespace titanium

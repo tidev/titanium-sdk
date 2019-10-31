@@ -92,7 +92,7 @@ void WrappedScript::Initialize(Local<Object> target, Local<Context> context)
 		V8Util::fatalException(isolate, tryCatch);
 		return;
 	}
-	target->Set(symbol, localFunction);
+	target->Set(context, symbol, localFunction);
 }
 
 void WrappedScript::New(const FunctionCallbackInfo<Value>& args)
@@ -133,11 +133,11 @@ void WrappedScript::CreateContext(const FunctionCallbackInfo<Value>& args)
 	// If a sandbox is provided initial the new context's global with it.
 	if (args.Length() > 0) {
 		Local<Object> sandbox = args[0].As<Object>();
-		Local<Array> keys = sandbox->GetPropertyNames(originalContext).ToLocalChecked();
+		Local<Array> keys = sandbox->GetPropertyNames(context).ToLocalChecked();
 
 		for (uint32_t i = 0; i < keys->Length(); i++) {
-			Local<String> key = keys->Get(originalContext, i).ToLocalChecked().As<String>();
-			Local<Value> value = sandbox->Get(originalContext, key).ToLocalChecked();
+			Local<String> key = keys->Get(context, i).ToLocalChecked().As<String>();
+			Local<Value> value = sandbox->Get(context, key).ToLocalChecked();
 			if (value == sandbox) {
 				value = global;
 			}
