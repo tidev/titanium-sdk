@@ -79,10 +79,18 @@
   NSString *resolvedPath = [self pathFromComponents:[args subarrayWithRange:NSMakeRange(1, [args count] - 1)]];
   NSArray *payload = [NSArray arrayWithObjects:resolvedPath, [NSNumber numberWithInt:mode], nil];
 
-  KrollContext *context = GetKrollContext([[JSContext currentContext] JSGlobalContextRef]);
+  JSContext *jsContext = [JSContext currentContext];
+  JSGlobalContextRef globalContext = [jsContext JSGlobalContextRef];
+  KrollContext *context = GetKrollContext(globalContext);
   KrollBridge *ourBridge = (KrollBridge *)[context delegate];
-  id file = [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:ourBridge args:payload] autorelease];
-  return [self NativeToJSValue:file];
+  @try {
+    id file = [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:ourBridge args:payload] autorelease];
+    return [self NativeToJSValue:file];
+  } @catch (NSException *exception) {
+    JSValue *jsException = [self NativeToJSValue:exception];
+    [jsContext setException:jsException];
+    return nil;
+  }
 }
 
 - (TiStreamMode)MODE_APPEND
