@@ -1121,9 +1121,9 @@ public class TiUIHelper
 		if (imm != null) {
 			view.requestFocus();
 			if (show) {
-				imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+				imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
 			} else {
-				imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+				imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 			}
 		}
 	}
