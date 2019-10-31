@@ -71,7 +71,7 @@ public class TiJSService extends TiBaseService
 		}
 
 		proxy.fireEvent(TiC.EVENT_RESUME, new KrollDict());
-		KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, proxy);
+		KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(fullUrl), fullUrl, proxy);
 		proxy.fireEvent(TiC.EVENT_PAUSE, new KrollDict());
 		proxy.fireEvent(TiC.EVENT_STOP, new KrollDict()); // this basic JS Service class only runs once.
 	}

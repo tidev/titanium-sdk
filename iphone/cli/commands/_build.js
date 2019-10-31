@@ -180,6 +180,10 @@ function iOSBuilder() {
 	this.enableLaunchScreenStoryboard = true;
 	this.defaultLaunchScreenStoryboard = true;
 	this.defaultBackgroundColor = null;
+
+	// if the selected sim is 32-bit (iPhone 5 and older, iPad 4th gen or older), then the app
+	// won't run, so we need to track the ONLY_ACTIVE_ARCH flag and disable it for 32-bit sims
+	this.simOnlyActiveArch = null;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -2052,6 +2056,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					this.watchSimHandle = watchSimHandle;
 					this.xcodeEnv = selectedXcode;
 
+					// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+					const m = this.simHandle.model.match(/^(iPad|iPhone)([\d]+)/);
+					this.simOnlyActiveArch = !!(m && (m[1] === 'iPad' && parseInt(m[2]) >= 4) || (m[1] === 'iPhone' && parseInt(m[2]) >= 6));
+
 					if (!this.iosSdkVersion) {
 						const sdks = selectedXcode.sdks.sort();
 						this.iosSdkVersion = sdks[sdks.length - 1];
@@ -2401,7 +2409,8 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'];
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
-	this.currentBuildManifest.showErrorController          = this.showErrorController;
+	this.currentBuildManifest.simOnlyActiveArch  = this.simOnlyActiveArch;
+	this.currentBuildManifest.showErrorController = this.showErrorController;
 
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
@@ -2837,6 +2846,13 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: showErrorController flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.showErrorController));
 			this.logger.info('  ' + __('Now: %s', this.showErrorController));
+			return true;
+		}
+
+		if (this.simOnlyActiveArch !== manifest.simOnlyActiveArch) {
+			this.logger.info(__('Forcing rebuild: simOnlyActiveArch flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.simOnlyActiveArch));
+			this.logger.info('  ' + __('Now: %s', this.simOnlyActiveArch));
 			return true;
 		}
 
@@ -4129,6 +4145,9 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	if (this.enableLaunchScreenStoryboard) {
 		plist.UILaunchStoryboardName = 'LaunchScreen';
 	} else {
+		if (appc.version.gte(this.xcodeEnv.version, '11.0.0')) {
+			this.logger.warn(__('Launch images are deprecated by Xcode 11 and you will need to adopt a storyboard-based launch screen'));
+		}
 		delete plist.UILaunchStoryboardName;
 	}
 
@@ -6790,30 +6809,12 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (this.simHandle) {
-		let dest;
-		const xcodeId = this.xcodeEnv.version + ':' + this.xcodeEnv.build;
+		args.push('-destination', 'generic/platform=iOS Simulator');
 
-		// xcodebuild requires a -destination when building for iOS Simulator and it needs a
-		// simulator that is compatible with the selected Xcode version, so just pick one
-		for (const sims of Object.values(this.iosInfo.simulators.ios)) {
-			for (const sim of sims) {
-				if (sim.supportsXcode[xcodeId]) {
-					dest = `platform=iOS Simulator,id=${sim.udid},OS=${appc.version.format(sim.version, 2, 2)}`;
-					break;
-				}
-			}
+		// only build active architecture, which is 64-bit, if simulator is not 32-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+		if (this.simOnlyActiveArch) {
+			args.push('ONLY_ACTIVE_ARCH=1');
 		}
-
-		if (!dest) {
-			// couldn't find a simulator!
-			// this shouldn't happen, but just in case, fall back to the selected simulator
-			dest = `platform=iOS Simulator,id=${this.simHandle.udid},OS=${appc.version.format(this.simHandle.version, 2, 2)}`;
-		}
-
-		// when building for the simulator, we need to specify a destination and a scheme (above)
-		// so that it can compile all targets (phone and watch targets) for the simulator
-		args.push('-destination', dest);
-		args.push('ONLY_ACTIVE_ARCH=1');
 	}
 
 	xcodebuildHook(
