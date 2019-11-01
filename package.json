@@ -119,7 +119,7 @@
     "@seadub/danger-plugin-junit": "0.1.2",
     "chai": "^4.2.0",
     "clang-format": "1.2.3",
-    "commander": "^3.0.1",
+    "commander": "^4.0.0",
     "commitizen": "^4.0.3",
     "conventional-changelog-cli": "^2.0.25",
     "core-js": "^2.6.5",
