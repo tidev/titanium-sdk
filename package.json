@@ -132,7 +132,7 @@
     "@seadub/danger-plugin-eslint": "^1.0.1",
     "@seadub/danger-plugin-junit": "0.1.2",
     "chai": "^4.2.0",
-    "clang-format": "1.2.3",
+    "clang-format": "1.3.0",
     "commander": "^4.0.1",
     "commitizen": "^4.0.3",
     "conventional-changelog-cli": "^2.0.31",
