@@ -35,4 +35,18 @@ describe('Titanium.UI.WebView', function () {
 		win.add(webView);
 		win.open();
 	});
+
+	it('basic authentication should work properly', (done) => {
+		const win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://jigsaw.w3.org/HTTP/Basic/'
+		});
+		webView.setBasicAuthentication('guest', 'guest');
+		webView.addEventListener('load', () => {
+			win.close();
+			done();
+		});
+		win.add(webView);
+		win.open();
+	});
 });
