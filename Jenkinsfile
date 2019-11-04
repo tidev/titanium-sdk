@@ -299,6 +299,7 @@ timestamps {
 							} else {
 								sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 							}
+							recordIssues(tools: [clang(), java()])
 						} // timeout
 						ansiColor('xterm') {
 							timeout(15) {
