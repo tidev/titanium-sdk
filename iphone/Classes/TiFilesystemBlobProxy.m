@@ -161,8 +161,7 @@ FILENOOP(setHidden
 
 - (TiBlob *)read:(id)args
 {
-  NSString *mimetype = [Mimetypes mimeTypeForExtension:[self name]];
-  return [[[TiBlob alloc] initWithData:data mimetype:mimetype] autorelease];
+  return [[[TiBlob alloc] initWithData:data andPath:[self nativePath]] autorelease];
 }
 
 - (TiStreamProxy *)open:(id)args
