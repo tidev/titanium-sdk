@@ -1188,7 +1188,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 * @param backgroundColor The background color of the view.
 	 * @param rippleColor The ripple color.
 	 */
-	private void applyTouchFeedback(Integer backgroundColor, Drawable backgroundDrawable, @Nullable Integer rippleColor)
+	private void applyTouchFeedback(@Nullable Integer backgroundColor, @Nullable Drawable backgroundDrawable,
+									@Nullable Integer rippleColor)
 	{
 		if (rippleColor == null) {
 			Context context = proxy.getActivity();
