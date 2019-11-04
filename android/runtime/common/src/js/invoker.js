@@ -51,7 +51,7 @@ function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 		var api;
 
 		// Create a module wrapper only if it hasn't been wrapped already.
-		if (apiNamespace.hasOwnProperty(name)) {
+		if (Object.prototype.hasOwnProperty.call(apiNamespace, name)) {
 			api = apiNamespace[name];
 
 		} else {

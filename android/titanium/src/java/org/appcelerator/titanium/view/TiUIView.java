@@ -7,8 +7,6 @@
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +86,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
 	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
-	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
 
 	// When distinguishing twofingertap and pinch events, minimum motion (in pixels)
@@ -147,8 +144,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	// so this holds a reference to the view which is used for touching,
 	// i.e., the view passed to registerForTouch.
 	private WeakReference<View> touchView = null;
-
-	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	private boolean zIndexChanged = false;
 	private TiBorderWrapperView borderView;
@@ -883,8 +878,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					byte bgAlpha = bgColor != null ? (byte) (bgColor >> 24) : (byte) 0xFF;
-					if (bgAlpha != 0xFF) {
+					if ((bgColor != null) && (Color.alpha(bgColor) < 255)) {
 						disableHWAcceleration();
 					}
 				}
@@ -1461,14 +1455,14 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
+					final float FLOAT_EPSILON = Math.ulp(1.0f);
 					float radius = 0;
 					TiDimension radiusDim =
 						TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER
-						&& (LOWER_THAN_JELLYBEAN || (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
+					if ((radius >= FLOAT_EPSILON) && (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW)) {
 						disableHWAcceleration();
 					}
 					borderView.setRadius(radius);
@@ -1493,9 +1487,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 				TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
 				if (width != null) {
-					if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-						disableHWAcceleration();
-					}
 					borderView.setBorderWidth((float) width.getPixels(borderView));
 				}
 
@@ -1505,8 +1496,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			byte bgAlpha = bgColor != null ? (byte) (bgColor >> 24) : (byte) 0xFF;
-			if (bgAlpha != 0xFF) {
+			if ((bgColor != null) && (Color.alpha(bgColor) < 255)) {
 				disableHWAcceleration();
 			}
 		}
@@ -1520,13 +1510,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				borderView.setBorderWidth(1);
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
+			final float FLOAT_EPSILON = Math.ulp(1.0f);
 			float radius = 0;
 			TiDimension radiusDim = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER
-				&& (LOWER_THAN_JELLYBEAN || (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
+			if ((radius > FLOAT_EPSILON) && (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW)) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
@@ -2056,36 +2046,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected void disableHWAcceleration()
 	{
-		if (borderView == null
-			|| (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN && !borderView.isHardwareAccelerated())) {
-			return;
-		}
-		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),
-			  Log.DEBUG_MODE);
-		if (mSetLayerTypeMethod == null) {
-			try {
-				Class<? extends View> c = borderView.getClass();
-				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
-			} catch (SecurityException e) {
-				Log.e(TAG, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e,
-					  Log.DEBUG_MODE);
-			} catch (NoSuchMethodException e) {
-				Log.e(TAG, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e,
-					  Log.DEBUG_MODE);
-			}
-		}
-
-		if (mSetLayerTypeMethod == null) {
-			return;
-		}
-		try {
-			mSetLayerTypeMethod.invoke(borderView, LAYER_TYPE_SOFTWARE, null);
-		} catch (IllegalArgumentException e) {
-			Log.e(TAG, e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			Log.e(TAG, e.getMessage(), e);
+		if (this.borderView != null) {
+			this.borderView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 	}
 

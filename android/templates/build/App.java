@@ -12,6 +12,7 @@ import org.appcelerator.kroll.common.KrollSourceCodeProvider;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.util.KrollAssetCache;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
@@ -31,14 +32,17 @@ public final class <%= classname %>Application extends TiApplication
 	@Override
 	public void onCreate()
 	{
+<% if (encryptJS) { %>
+		KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
+<% } %>
+
+		// Load cache as soon as possible.
+		KrollAssetCache.init(this);
+
 		super.onCreate();
 
 		appInfo = new <%= classname %>AppInfo(this);
 		postAppInfo();
-
-<% if (encryptJS) { %>
-		KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
-<% } %>
 
 		V8Runtime runtime = new V8Runtime();
 
