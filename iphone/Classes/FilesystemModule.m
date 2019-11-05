@@ -186,7 +186,7 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
 
 - (TiFile *)getFileProxy:(NSString *)path
 {
-  if ([path hasPrefix:[self resourcesDirectory]] && ([path hasSuffix:@".html"] || [path hasSuffix:@".js"] || [path hasSuffix:@".css"] || [path hasSuffix:@".json"])) {
+  if ([path hasPrefix:[self resourcesDirectory]] && ([path hasSuffix:@".js"] || [path hasSuffix:@".json"])) {
     NSURL *url = [NSURL fileURLWithPath:path];
     NSData *data = [TiUtils loadAppResource:url];
     if (data != nil) {
