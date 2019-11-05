@@ -1119,7 +1119,9 @@ public class TiUIHelper
 		final InputMethodManager imm =
 			(InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 		if (imm != null) {
-			view.requestFocus();
+			if (!view.hasFocus()) {
+				view.requestFocus();
+			}
 			if (show) {
 				imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
 			} else {
