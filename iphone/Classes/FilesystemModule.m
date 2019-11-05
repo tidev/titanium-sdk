@@ -77,12 +77,21 @@
 
   // allow variadic file components to be passed
   NSString *resolvedPath = [self pathFromComponents:[args subarrayWithRange:NSMakeRange(1, [args count] - 1)]];
-  NSArray *payload = [NSArray arrayWithObjects:resolvedPath, [NSNumber numberWithInt:mode], nil];
-
-  KrollContext *context = GetKrollContext([[JSContext currentContext] JSGlobalContextRef]);
-  KrollBridge *ourBridge = (KrollBridge *)[context delegate];
-  id file = [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:ourBridge args:payload] autorelease];
-  return [self NativeToJSValue:file];
+  @try {
+    // Let's re-use code! we're effectively calling: getFile(path).open(mode);
+    TiFile *fileProxy = [self getFileProxy:resolvedPath];
+    if (fileProxy != nil) {
+      NSArray *payload = @[ [NSNumber numberWithInt:mode] ];
+      TiStreamProxy *streamProxy = [fileProxy open:payload];
+      if (streamProxy != nil) {
+        return [self NativeToJSValue:streamProxy];
+      }
+    }
+  } @catch (NSException *exception) {
+    JSValue *jsException = [self NativeToJSValue:exception];
+    [[JSContext currentContext] setException:jsException];
+  }
+  return nil;
 }
 
 - (TiStreamMode)MODE_APPEND
@@ -171,16 +180,21 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
 {
   NSArray *args = [JSContext currentArguments];
   NSString *newpath = [self pathFromComponents:args];
+  TiFile *fileProxy = [self getFileProxy:newpath];
+  return [self NativeToJSValue:fileProxy];
+}
 
-  if ([newpath hasPrefix:[self resourcesDirectory]] && ([newpath hasSuffix:@".html"] || [newpath hasSuffix:@".js"] || [newpath hasSuffix:@".css"] || [newpath hasSuffix:@".json"])) {
-    NSURL *url = [NSURL fileURLWithPath:newpath];
+- (TiFile *)getFileProxy:(NSString *)path
+{
+  if ([path hasPrefix:[self resourcesDirectory]] && ([path hasSuffix:@".js"] || [path hasSuffix:@".json"])) {
+    NSURL *url = [NSURL fileURLWithPath:path];
     NSData *data = [TiUtils loadAppResource:url];
     if (data != nil) {
-      return [self NativeToJSValue:[[[TiFilesystemBlobProxy alloc] initWithURL:url data:data] autorelease]];
+      return [[[TiFilesystemBlobProxy alloc] initWithURL:url data:data] autorelease];
     }
   }
 
-  return [self NativeToJSValue:[[[TiFilesystemFileProxy alloc] initWithFile:newpath] autorelease]];
+  return [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];
 }
 
 - (TiBlob *)getAsset

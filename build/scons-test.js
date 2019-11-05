@@ -9,6 +9,7 @@ program
 	.option('-s, --skip-sdk-install', 'Skip the SDK installation step')
 	.option('-b, --branch [branch]', 'Which branch of the test suite to use', 'master')
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
+	.option('-D, --deploy-type <type>', 'Override the deploy type used to build the project', /^(development|test)$/)
 	.parse(process.argv);
 
 async function main(program) {
