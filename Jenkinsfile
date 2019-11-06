@@ -104,7 +104,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 							try {
 								if ('ios'.equals(os)) {
 									timeout(20) {
-										sh "node test.js -b ../../${zipName} -p ${os}"
+										sh "node test.js -D test -b ../../${zipName} -p ${os}"
 									}
 								} else {
 									timeout(30) {
@@ -113,7 +113,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 											sh "node test.js -T device -C all -b ../../${zipName} -p ${os}"
 										// run PR tests on emulator
 										} else {
-											sh "node test.js -T emulator -C android-28-playstore-x86 -b ../../${zipName} -p ${os}"
+											sh "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p ${os}"
 										}
 									}
 								}

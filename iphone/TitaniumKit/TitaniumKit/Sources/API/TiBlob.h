@@ -150,6 +150,13 @@ Initialize the blob with a system image.
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_;
 
 /**
+ Initialize the blob with data. Used for encrypted files/assets.
+ @param data_ The raw data.
+ @param path_ The path to the file.
+ */
+- (id)initWithData:(NSData *)data_ andPath:(NSString *)path_;
+
+/**
  Initialize the blob with contents of a file.
  @param path The path to the file.
  */
