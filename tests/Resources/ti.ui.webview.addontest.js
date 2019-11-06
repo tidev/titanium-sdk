@@ -10,6 +10,9 @@
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.WebView', function () {
+	this.slow(3000);
+	this.timeout(30000);
+
 	it('baseURL should be accessible via window.location', (done) => {
 		const win = Ti.UI.createWindow();
 		const baseURL = 'https://www.google.com/';
