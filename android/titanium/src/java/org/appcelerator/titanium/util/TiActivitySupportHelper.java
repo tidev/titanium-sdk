@@ -9,16 +9,16 @@ package org.appcelerator.titanium.util;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
-import android.os.Bundle;
 import android.os.Build;
+import android.os.Bundle;
 
 /**
  * An implementation of {@link TiActivitySupport} interface.

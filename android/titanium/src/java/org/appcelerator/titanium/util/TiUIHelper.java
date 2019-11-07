@@ -42,8 +42,6 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.graphics.drawable.PaintDrawable;
-import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -66,6 +64,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -73,6 +72,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.support.v7.app.AlertDialog;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -1152,8 +1152,7 @@ public class TiUIHelper
 				Handler handler = new Handler(Looper.getMainLooper());
 				handler.post(runnable);
 			}
-		})
-			.execute();
+		}).execute();
 	}
 
 	/**

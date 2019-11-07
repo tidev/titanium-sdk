@@ -6,10 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import android.graphics.drawable.Drawable;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.TabLayout;
-import android.view.MenuItem;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -22,8 +20,10 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import android.graphics.drawable.Drawable;
+import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.TabLayout;
+import android.view.MenuItem;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 

@@ -14,12 +14,12 @@ import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.inputmethod.EditorInfo;
 
 /**
  * EditText derived class used by Titanium's "Ti.UI.TextField" and "Ti.UI.TextArea" types.

@@ -6,29 +6,29 @@
  */
 package ti.modules.titanium.android.notificationmanager;
 
+import java.util.HashMap;
+
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 
-import ti.modules.titanium.android.AndroidModule;
-
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.pm.PackageManager;
-import android.Manifest;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.NotificationManagerCompat;
 
-import java.util.HashMap;
+import ti.modules.titanium.android.AndroidModule;
 
 @Kroll.module(parentModule = AndroidModule.class)
 public class NotificationManagerModule extends KrollModule

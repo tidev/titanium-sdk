@@ -11,9 +11,10 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
+
 import ti.modules.titanium.ui.TiDialogProxy;
 import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
-import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {

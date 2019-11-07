@@ -12,13 +12,13 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 
-import ti.modules.titanium.android.AndroidModule;
-
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
+
+import ti.modules.titanium.android.AndroidModule;
 
 @TargetApi(26)
 @Kroll.proxy

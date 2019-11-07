@@ -9,14 +9,13 @@ package ti.modules.titanium.ui.widget.tableview;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiRHelper;
 
-import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -26,6 +25,8 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.ViewGroup;
+
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 
 @SuppressWarnings("deprecation")
 public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.Callback

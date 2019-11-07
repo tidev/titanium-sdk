@@ -14,8 +14,9 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.picker.TiUISpinnerRow;
 import android.app.Activity;
+
+import ti.modules.titanium.ui.widget.picker.TiUISpinnerRow;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class PickerRowProxy extends TiViewProxy

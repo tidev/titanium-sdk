@@ -14,10 +14,10 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiApplication.ActivityTransitionListener;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -30,7 +30,6 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
@@ -38,6 +37,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.text.Html;
+
+import ti.modules.titanium.filesystem.FileProxy;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,

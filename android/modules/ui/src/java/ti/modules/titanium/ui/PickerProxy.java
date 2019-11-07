@@ -21,6 +21,16 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
+import android.os.Build;
+import android.util.Log;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
+
 import ti.modules.titanium.ui.PickerColumnProxy.PickerColumnListener;
 import ti.modules.titanium.ui.widget.picker.TiDatePickerDialog;
 import ti.modules.titanium.ui.widget.picker.TiTimePickerDialog;
@@ -32,15 +42,6 @@ import ti.modules.titanium.ui.widget.picker.TiUISpinner;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinnerNumberPicker;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
-import android.content.DialogInterface;
-import android.os.Build;
-import android.util.Log;
-import android.widget.DatePicker;
-import android.widget.TimePicker;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {

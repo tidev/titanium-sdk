@@ -22,12 +22,13 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
+import android.view.View;
+
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import ti.modules.titanium.ui.widget.listview.TiListViewTemplate.DataItem;
-import android.app.Activity;
-import android.view.View;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {})
 public class ListSectionProxy extends ViewProxy

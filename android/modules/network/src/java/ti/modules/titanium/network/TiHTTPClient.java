@@ -49,7 +49,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.TiTempFileHelper;
@@ -67,8 +66,14 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.json.JSONObject;
 
+import android.net.Uri;
+import android.os.Build;
+import android.util.Base64;
+import android.util.Base64OutputStream;
+
 import ti.modules.titanium.network.httpurlconnection.ContentBody;
 import ti.modules.titanium.network.httpurlconnection.Entity;
+import ti.modules.titanium.network.httpurlconnection.FileBody;
 import ti.modules.titanium.network.httpurlconnection.FileEntity;
 import ti.modules.titanium.network.httpurlconnection.HttpUrlConnectionUtils;
 import ti.modules.titanium.network.httpurlconnection.JsonBody;
@@ -76,13 +81,9 @@ import ti.modules.titanium.network.httpurlconnection.NameValuePair;
 import ti.modules.titanium.network.httpurlconnection.NullHostNameVerifier;
 import ti.modules.titanium.network.httpurlconnection.StringBody;
 import ti.modules.titanium.network.httpurlconnection.StringEntity;
-import ti.modules.titanium.network.httpurlconnection.FileBody;
 import ti.modules.titanium.network.httpurlconnection.UrlEncodedFormEntity;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
-import android.net.Uri;
-import android.os.Build;
-import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {

@@ -7,6 +7,7 @@
 package ti.modules.titanium.android.notificationmanager;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -14,23 +15,21 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiColorHelper;
-
-import ti.modules.titanium.android.AndroidModule;
-import ti.modules.titanium.android.PendingIntentProxy;
-import ti.modules.titanium.android.RemoteViewsProxy;
 
 import android.app.Notification;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
-import android.os.Build;
 
-import java.util.HashMap;
+import ti.modules.titanium.android.AndroidModule;
+import ti.modules.titanium.android.PendingIntentProxy;
+import ti.modules.titanium.android.RemoteViewsProxy;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(creatableInModule = AndroidModule.class,

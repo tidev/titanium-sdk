@@ -21,8 +21,6 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.PickerColumnProxy;
-import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -35,6 +33,9 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import ti.modules.titanium.ui.PickerColumnProxy;
+import ti.modules.titanium.ui.PickerProxy;
 
 public class TiUINativePicker extends TiUIPicker
 {

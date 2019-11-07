@@ -17,16 +17,16 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.ClipData;
-import android.graphics.Bitmap;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;

@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 import org.appcelerator.kroll.common.Log;
 
 /**

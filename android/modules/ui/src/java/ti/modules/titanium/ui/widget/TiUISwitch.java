@@ -18,13 +18,14 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.android.AndroidModule;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ToggleButton;
+
+import ti.modules.titanium.ui.android.AndroidModule;
 
 public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 {

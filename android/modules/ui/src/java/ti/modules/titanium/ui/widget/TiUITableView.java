@@ -18,6 +18,15 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewParent;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
@@ -28,14 +37,6 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemLongClickedListener;
-import android.app.Activity;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewParent;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 
 public class TiUITableView
 	extends TiUIView implements OnItemClickedListener, OnItemLongClickedListener, OnLifecycleEvent

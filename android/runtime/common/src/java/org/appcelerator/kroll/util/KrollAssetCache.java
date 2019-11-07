@@ -8,11 +8,11 @@ package org.appcelerator.kroll.util;
 
 import java.util.HashMap;
 
+import org.json.JSONArray;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import org.json.JSONArray;
 
 public class KrollAssetCache
 {

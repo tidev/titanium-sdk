@@ -6,6 +6,15 @@
  */
 package org.appcelerator.titanium.io;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
+
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -17,13 +26,6 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
 /**
  * Titanium ContentProvider used to provide access to this app's sandboxed files to another app.

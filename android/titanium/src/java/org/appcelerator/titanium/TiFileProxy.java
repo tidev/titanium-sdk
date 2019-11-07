@@ -15,8 +15,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import android.content.Context;
-import android.content.ContextWrapper;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -27,8 +25,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.util.TiUrl;
 
-import ti.modules.titanium.stream.FileStreamProxy;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.net.Uri;
+
+import ti.modules.titanium.stream.FileStreamProxy;
 
 @Kroll.proxy
 public class TiFileProxy extends KrollProxy

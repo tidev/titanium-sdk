@@ -6,14 +6,14 @@
  */
 package org.appcelerator.titanium;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.common.Log;
+
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
 import com.appcelerator.aps.APSAnalytics;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.KrollModule;
 
 public class TiApplicationLifecycle implements Application.ActivityLifecycleCallbacks
 {

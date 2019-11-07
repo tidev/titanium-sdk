@@ -9,13 +9,13 @@ package ti.modules.titanium.ui.widget.listview;
 
 import android.content.Context;
 import android.os.Build;
-import android.widget.ListView;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ListView;
 
 /**
  * ListView which allows "NestedScrollingChild" views to be scrolled within this view

@@ -1,17 +1,5 @@
 package ti.modules.titanium.ui.widget;
 
-import android.app.Activity;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.os.Build;
-import android.os.Message;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowManager;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
@@ -24,6 +12,18 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiToolbarStyleHandler;
 import org.appcelerator.titanium.view.TiUIView;
+
+import android.app.Activity;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Build;
+import android.os.Message;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowManager;
 
 public class TiToolbar extends TiUIView
 {

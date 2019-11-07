@@ -21,12 +21,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.LabelProxy;
-import ti.modules.titanium.ui.TableViewProxy;
-import ti.modules.titanium.ui.TableViewRowProxy;
-import ti.modules.titanium.ui.widget.TiUILabel;
-import ti.modules.titanium.ui.widget.TiUITableView;
-import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -35,6 +29,13 @@ import android.support.v4.view.ViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
+
+import ti.modules.titanium.ui.LabelProxy;
+import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.TableViewRowProxy;
+import ti.modules.titanium.ui.widget.TiUILabel;
+import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 {

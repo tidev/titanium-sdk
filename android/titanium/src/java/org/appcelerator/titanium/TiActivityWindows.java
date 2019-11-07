@@ -6,8 +6,9 @@
  */
 package org.appcelerator.titanium;
 
-import android.os.Bundle;
 import java.util.HashMap;
+
+import android.os.Bundle;
 
 /**
  * A registry for TiBaseActivity<->Window creation logic.

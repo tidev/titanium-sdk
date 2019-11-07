@@ -28,7 +28,6 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
-import ti.modules.titanium.ui.widget.TiView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -57,6 +56,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+
+import ti.modules.titanium.ui.widget.TiView;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,

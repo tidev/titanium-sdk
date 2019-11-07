@@ -6,15 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
-import android.app.Activity;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.webkit.ValueCallback;
-import android.webkit.WebView;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +27,13 @@ import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+
+import android.app.Activity;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.webkit.ValueCallback;
+import android.webkit.WebView;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 // clang-format off

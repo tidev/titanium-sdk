@@ -6,10 +6,12 @@
  */
 package ti.modules.titanium.ui;
 
-import android.app.Activity;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
+
+import android.app.Activity;
+
 import ti.modules.titanium.ui.widget.TiUIMaskedImage;
 
 // clang-format off

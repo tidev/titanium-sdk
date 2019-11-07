@@ -6,14 +6,17 @@
  */
 package ti.modules.titanium.ui;
 
-import android.graphics.Color;
 import java.util.HashSet;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
+
+import android.graphics.Color;
+
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,

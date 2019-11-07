@@ -6,15 +6,6 @@
  */
 package ti.modules.titanium.calendar;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollException;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiConvert;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -23,6 +14,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollException;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 
 @Kroll.proxy
 public class RecurrenceRuleProxy extends KrollProxy

@@ -7,6 +7,8 @@
 
 package org.appcelerator.titanium.view;
 
+import java.util.ArrayList;
+
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
@@ -14,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
-import java.util.ArrayList;
 
 /** Tracks safe-area inset changes for a given activity. */
 public class TiActivitySafeAreaMonitor

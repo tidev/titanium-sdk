@@ -27,19 +27,19 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import ti.modules.titanium.ui.android.AndroidModule;
-import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
-import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
-import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Message;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+
+import ti.modules.titanium.ui.android.AndroidModule;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,

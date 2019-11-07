@@ -6,17 +6,19 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiUIView;
+
+import android.app.Activity;
 
 import ti.modules.titanium.ui.widget.TiUIScrollView;
-import android.app.Activity;
-import java.util.HashMap;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {

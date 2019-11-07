@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_ACTION;
+import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_NEW_LINE;
+
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -19,9 +22,6 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
-
-import ti.modules.titanium.ui.AttributedStringProxy;
-import ti.modules.titanium.ui.UIModule;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -46,14 +46,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_ACTION;
-import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_NEW_LINE;
+import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {

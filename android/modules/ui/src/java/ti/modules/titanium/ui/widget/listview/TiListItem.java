@@ -16,10 +16,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.UIModule;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+
+import ti.modules.titanium.ui.UIModule;
 
 public class TiListItem extends TiUIView
 {

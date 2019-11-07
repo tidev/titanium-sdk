@@ -6,12 +6,13 @@
  */
 package org.appcelerator.titanium.util;
 
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 
 public class TiFileHelper2
 {

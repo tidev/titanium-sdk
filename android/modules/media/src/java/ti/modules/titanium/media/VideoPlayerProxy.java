@@ -24,7 +24,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.media.TiThumbnailRetriever.ThumbnailResponseHandler;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -33,6 +32,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.webkit.URLUtil;
+
+import ti.modules.titanium.media.TiThumbnailRetriever.ThumbnailResponseHandler;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = MediaModule.class,

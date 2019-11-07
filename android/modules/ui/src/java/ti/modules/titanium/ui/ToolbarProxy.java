@@ -1,12 +1,14 @@
 package ti.modules.titanium.ui;
 
-import android.app.Activity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.view.TiUIView;
+
+import android.app.Activity;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiToolbar;
 // clang-format off

@@ -28,7 +28,8 @@ import java.lang.annotation.Target;
  * @author Marshall Culpepper
  */
 @Documented
-public @interface Kroll {
+public @interface Kroll
+{
 	public static final String DEFAULT_NAME = "__default_name__";
 	public static final class DEFAULT
 	{
@@ -49,7 +50,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.PARAMETER)
-	public static @interface argument {
+	public static @interface argument
+	{
 		/**
 		 * The argument's name used in error messages and source code generation.<br>
 		 * @default The argument's name from Java source
@@ -78,7 +80,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
-	public static @interface constant {
+	public static @interface constant
+	{
 		/**
 		 * The name that this constant is bound to.<br>
 		 * @default The name in Java source.
@@ -104,7 +107,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD, ElementType.FIELD })
-	public static @interface inject {
+	public static @interface inject
+	{
 		/**
 		 * <b>Warning</b>: This is reserved for future use, and not implemented yet
 		 * The name of an object to inject.
@@ -136,7 +140,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public static @interface method {
+	public static @interface method
+	{
 		/**
 		 * The method's name in the API.<br>
 		 * @default The method's name in Java source.
@@ -182,7 +187,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
-	public static @interface module {
+	public static @interface module
+	{
 		/**
 		 * <p>The name of this module in the API.
 		 * If this module has a {@link module#parentModule parent module}, this name will be relative to the parent.
@@ -242,7 +248,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
-	public static @interface property {
+	public static @interface property
+	{
 		/**
 		 * Whether or not this property has "get" or read access
 		 */
@@ -272,7 +279,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public static @interface getProperty {
+	public static @interface getProperty
+	{
 		/**
 		 * The name of this property in the API.
 		 * @default The method name stripped of "get", and lower-camel-cased or the method name itself.
@@ -302,7 +310,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public static @interface setProperty {
+	public static @interface setProperty
+	{
 		/**
 		 * The name of this property in the API.<br>
 		 * @default The method name stripped of "set", and lower-camel-cased or the method name itself.
@@ -340,7 +349,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
-	public static @interface proxy {
+	public static @interface proxy
+	{
 		/**
 		 * The name of this proxy. Used in debugging, toString(), and {@link proxy#creatableInModule()}.<br>
 		 * @default The name of the proxy class with the "Proxy" suffix removed.
@@ -401,7 +411,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD, ElementType.TYPE })
-	public static @interface topLevel {
+	public static @interface topLevel
+	{
 		/**
 		 * An array of top level names to expose this {@link method} or {@link module} as.<br>
 		 * @default The method name or module name
@@ -431,7 +442,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.TYPE })
-	public static @interface dynamicApis {
+	public static @interface dynamicApis
+	{
 		String[] properties() default DEFAULT_NAME;
 		String[] methods() default DEFAULT_NAME;
 	}
@@ -456,7 +468,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD })
-	public static @interface onAppCreate {
+	public static @interface onAppCreate
+	{
 	}
 
 	/**
@@ -468,6 +481,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD })
-	public static @interface interceptor {
+	public static @interface interceptor
+	{
 	}
-	}
+}

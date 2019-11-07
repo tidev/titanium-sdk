@@ -6,6 +6,23 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.view.TiInsetsProvider;
+import org.appcelerator.titanium.view.TiUIView;
+
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
@@ -26,23 +43,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.view.TiInsetsProvider;
-import org.appcelerator.titanium.view.TiUIView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -257,10 +257,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		int[] textColors = { tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
 								 ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString())
 								 : this.textColorInt,
-							 tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
-								 ? TiColorHelper.parseColor(
-									   tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString())
-								 : this.textColorInt };
+							 tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR) ? TiColorHelper.parseColor(
+								 tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString())
+																							 : this.textColorInt };
 		ColorStateList stateListDrawable = new ColorStateList(textColorStates, textColors);
 		return stateListDrawable;
 	}

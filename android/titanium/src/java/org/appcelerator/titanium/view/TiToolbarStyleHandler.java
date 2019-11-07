@@ -7,13 +7,15 @@
 
 package org.appcelerator.titanium.view;
 
+import java.lang.reflect.Field;
+
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.util.TiRHelper;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.support.v7.widget.Toolbar;
-import java.lang.reflect.Field;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiRHelper;
 
 /**
  * Updates a toolbar's height and font size when the orientation changes.

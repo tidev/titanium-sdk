@@ -6,12 +6,12 @@
  */
 package org.appcelerator.titanium.util;
 
-import android.content.Context;
-import android.content.res.Configuration;
+import java.util.Locale;
 
 import org.appcelerator.titanium.TiApplication;
 
-import java.util.Locale;
+import android.content.Context;
+import android.content.res.Configuration;
 
 public class TiLocaleManager
 {

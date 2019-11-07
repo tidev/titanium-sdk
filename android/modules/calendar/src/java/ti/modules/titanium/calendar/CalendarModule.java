@@ -9,7 +9,6 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
-import android.provider.CalendarContract;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -20,6 +19,7 @@ import org.appcelerator.titanium.TiC;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Build;
+import android.provider.CalendarContract;
 
 @Kroll.module
 public class CalendarModule extends KrollModule

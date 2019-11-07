@@ -10,8 +10,6 @@ package ti.modules.titanium.ui.widget.picker;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import kankan.wheel.widget.WheelView;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -21,10 +19,12 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Typeface;
+
+import kankan.wheel.widget.WheelView;
 import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import ti.modules.titanium.ui.PickerRowProxy;
-import android.graphics.Typeface;
 
 public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
 {

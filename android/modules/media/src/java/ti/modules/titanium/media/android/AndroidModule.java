@@ -19,7 +19,6 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
-import ti.modules.titanium.media.MediaModule;
 import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -27,6 +26,8 @@ import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
+
+import ti.modules.titanium.media.MediaModule;
 
 @Kroll.module(parentModule = MediaModule.class)
 public class AndroidModule extends KrollModule

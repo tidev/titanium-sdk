@@ -8,19 +8,18 @@ package org.appcelerator.kroll.runtime.v8;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.Framedata;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
 
 public final class JSDebugger
 {

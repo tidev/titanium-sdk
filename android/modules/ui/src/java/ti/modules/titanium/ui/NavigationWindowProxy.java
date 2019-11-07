@@ -6,12 +6,12 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class NavigationWindowProxy extends WindowProxy

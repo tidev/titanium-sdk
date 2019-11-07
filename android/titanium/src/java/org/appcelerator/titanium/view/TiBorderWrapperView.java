@@ -6,11 +6,10 @@
  */
 package org.appcelerator.titanium.view;
 
-import com.nineoldandroids.view.ViewHelper;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
@@ -19,9 +18,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.view.ViewOutlineProvider;
-import android.graphics.Outline;
+import android.widget.FrameLayout;
+
+import com.nineoldandroids.view.ViewHelper;
 
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border

@@ -11,8 +11,9 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUICardView;
 import android.app.Activity;
+
+import ti.modules.titanium.ui.widget.TiUICardView;
 // clang-format off
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {

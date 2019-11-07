@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import kankan.wheel.widget.WheelView;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -26,6 +24,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.widget.LinearLayout;
+
+import kankan.wheel.widget.WheelView;
 
 public class TiUITimeSpinner extends TiUIView implements WheelView.OnItemSelectedListener
 {

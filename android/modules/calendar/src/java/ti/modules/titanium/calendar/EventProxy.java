@@ -9,7 +9,6 @@ package ti.modules.titanium.calendar;
 import java.util.ArrayList;
 import java.util.Date;
 
-import android.provider.CalendarContract;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -24,6 +23,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
 

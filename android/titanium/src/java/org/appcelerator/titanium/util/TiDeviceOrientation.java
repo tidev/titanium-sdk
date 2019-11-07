@@ -6,13 +6,14 @@
  */
 package org.appcelerator.titanium.util;
 
+import org.appcelerator.titanium.TiApplication;
+
 import android.content.Context;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
-import org.appcelerator.titanium.TiApplication;
 
 /**
  * Enum type indicating if a device is portrait-upright, landscape-left, landscape-right, etc.

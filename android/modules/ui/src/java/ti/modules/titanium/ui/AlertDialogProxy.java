@@ -13,8 +13,9 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIDialog;
 import android.app.Activity;
+
+import ti.modules.titanium.ui.widget.TiUIDialog;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,

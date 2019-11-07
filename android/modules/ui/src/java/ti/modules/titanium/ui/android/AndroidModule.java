@@ -13,17 +13,18 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
-import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.support.v4.view.GravityCompat;
 import android.text.util.Linkify;
 import android.view.Gravity;
-import android.support.v4.view.GravityCompat;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
+
+import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
+import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 // clang-format off
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)

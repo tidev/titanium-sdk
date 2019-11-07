@@ -14,11 +14,11 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -34,9 +34,9 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -48,8 +48,8 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -801,7 +801,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 						}
 						imageFile = saveToPhotoGallery ? MediaModule.createGalleryImageFile(extension)
 													   : MediaModule.createExternalStorageFile(
-															 extension, Environment.DIRECTORY_PICTURES, false);
+														   extension, Environment.DIRECTORY_PICTURES, false);
 					}
 					long compareLength = (validFileCreated) ? imageFile.length() : 0;
 

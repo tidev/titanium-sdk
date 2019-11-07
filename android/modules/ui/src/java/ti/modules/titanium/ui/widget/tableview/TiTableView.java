@@ -23,13 +23,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.TableViewProxy;
-import ti.modules.titanium.ui.TableViewRowProxy;
-import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.widget.listview.TiNestedListView;
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
-import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -45,6 +38,14 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+
+import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.TableViewRowProxy;
+import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
+import ti.modules.titanium.ui.widget.listview.TiNestedListView;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 
 public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeListener
 {

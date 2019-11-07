@@ -9,8 +9,8 @@ package org.appcelerator.titanium;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollRuntime;
-import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.proxy.ServiceProxy;
 
 import android.app.Service;
 import android.content.Intent;

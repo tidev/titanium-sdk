@@ -11,10 +11,11 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.TabProxy;
 import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
+
+import ti.modules.titanium.ui.TabProxy;
 
 public class TiUITab extends TiUIView
 {

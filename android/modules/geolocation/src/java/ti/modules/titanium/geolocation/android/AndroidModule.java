@@ -18,11 +18,12 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.geolocation.GeolocationModule;
-import ti.modules.titanium.geolocation.TiLocation;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Message;
+
+import ti.modules.titanium.geolocation.GeolocationModule;
+import ti.modules.titanium.geolocation.TiLocation;
 
 /**
  * AndroidModule exposes all Android specific methods and properties relating to geolocation behavior

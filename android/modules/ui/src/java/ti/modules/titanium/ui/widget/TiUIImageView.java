@@ -36,19 +36,20 @@ import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.filesystem.FileProxy;
-import ti.modules.titanium.ui.ImageViewProxy;
-import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Bundle;
 import android.view.View;
 import android.view.ViewParent;
+
+import ti.modules.titanium.filesystem.FileProxy;
+import ti.modules.titanium.ui.ImageViewProxy;
+import ti.modules.titanium.ui.ScrollViewProxy;
 
 public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler.Callback
 {
@@ -235,7 +236,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 			if (imageref.equals(imgsrc)
 				|| imageref.equals(
-					   TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
+					TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
 				int hash = imageref.hashCode();
 				Bitmap bitmap = imageref.getBitmap(true);
 				if (bitmap != null) {

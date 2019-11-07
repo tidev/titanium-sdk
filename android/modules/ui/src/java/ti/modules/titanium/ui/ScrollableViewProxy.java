@@ -20,9 +20,10 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
 import android.os.Message;
+
+import ti.modules.titanium.ui.widget.TiUIScrollableView;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {

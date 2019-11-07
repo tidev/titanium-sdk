@@ -10,11 +10,14 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -29,8 +32,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
-import android.graphics.PorterDuff.Mode;
-import org.appcelerator.titanium.util.TiColorHelper;
 
 public class TiImageView extends ViewGroup implements Handler.Callback, OnClickListener
 {

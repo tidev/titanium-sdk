@@ -7,8 +7,8 @@
 
 package org.appcelerator.titanium.io;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Wraps an input stream, passing the calls through from this wrapper to the wrapped stream.

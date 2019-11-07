@@ -6,14 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.content.res.Configuration;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.support.design.widget.TabLayout;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -22,6 +14,14 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+
+import android.content.res.Configuration;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.support.design.widget.TabLayout;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 

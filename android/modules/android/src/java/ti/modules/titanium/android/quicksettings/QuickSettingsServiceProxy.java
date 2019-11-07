@@ -1,12 +1,5 @@
 package ti.modules.titanium.android.quicksettings;
 
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.graphics.drawable.Icon;
-import android.service.quicksettings.TileService;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -16,6 +9,13 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.view.TiDrawableReference;
+
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.graphics.drawable.Icon;
+import android.service.quicksettings.TileService;
 
 @TargetApi(24)
 @Kroll.proxy

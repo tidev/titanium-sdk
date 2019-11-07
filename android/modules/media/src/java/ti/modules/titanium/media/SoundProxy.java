@@ -15,8 +15,9 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
+
+import ti.modules.titanium.filesystem.FileProxy;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = { TiC.PROPERTY_VOLUME })
 public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent,

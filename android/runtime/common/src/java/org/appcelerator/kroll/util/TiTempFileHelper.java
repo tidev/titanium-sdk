@@ -19,10 +19,10 @@ import org.appcelerator.kroll.common.Log;
 
 import android.Manifest;
 import android.app.Application;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
-import android.content.Context;
 
 /**
  * This class helps create and delete temporary files in the app's external cache directory.

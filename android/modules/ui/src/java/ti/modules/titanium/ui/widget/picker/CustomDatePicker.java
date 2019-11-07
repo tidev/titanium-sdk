@@ -1,12 +1,12 @@
 package ti.modules.titanium.ui.widget.picker;
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.DatePicker;
-
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
+
+import android.content.Context;
+import android.util.AttributeSet;
+import android.widget.DatePicker;
 
 public class CustomDatePicker extends DatePicker
 {

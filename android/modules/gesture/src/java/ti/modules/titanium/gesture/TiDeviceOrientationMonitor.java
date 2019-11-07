@@ -6,6 +6,12 @@
  */
 package ti.modules.titanium.gesture;
 
+import java.util.List;
+
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
@@ -18,10 +24,6 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.view.OrientationEventListener;
 import android.view.Surface;
-import java.util.List;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiDeviceOrientation;
-import org.appcelerator.titanium.TiApplication;
 
 /**
  * Monitors the current orientation of the device via its sensors (accelerometer, gyroscope, etc.).

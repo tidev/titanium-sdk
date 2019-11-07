@@ -11,9 +11,10 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
-import ti.modules.titanium.ui.UIModule;
 import android.content.Context;
 import android.text.ClipboardManager;
+
+import ti.modules.titanium.ui.UIModule;
 
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)

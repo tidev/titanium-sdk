@@ -9,12 +9,12 @@ package org.appcelerator.titanium;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollEventCallback;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiActivitySupport;

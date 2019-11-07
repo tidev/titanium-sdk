@@ -10,8 +10,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 import android.app.Activity;
+
+import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class DatePickerProxy extends TiViewProxy

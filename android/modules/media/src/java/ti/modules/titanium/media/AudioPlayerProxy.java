@@ -16,8 +16,9 @@ import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
+
+import ti.modules.titanium.filesystem.FileProxy;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = { TiC.PROPERTY_VOLUME })
 public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, OnWindowFocusChangedEvent

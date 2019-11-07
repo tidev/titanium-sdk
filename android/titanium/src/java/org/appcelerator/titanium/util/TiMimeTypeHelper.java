@@ -10,6 +10,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.io.TiFileProvider;
+
 import android.content.ContentResolver;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.BitmapFactory;
@@ -17,9 +20,6 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.webkit.MimeTypeMap;
-
-import org.appcelerator.titanium.io.TiFileProvider;
-import org.appcelerator.titanium.TiApplication;
 
 public class TiMimeTypeHelper
 {

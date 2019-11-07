@@ -16,10 +16,10 @@ import java.io.OutputStream;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;

@@ -10,11 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
@@ -24,6 +19,12 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
 import ti.modules.titanium.stream.FileStreamProxy;
 

@@ -19,25 +19,26 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Selection;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.Spannable.Factory;
+import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
+import android.text.TextPaint;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
-import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
+
+import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
 
 public class TiUILabel extends TiUIView
 {

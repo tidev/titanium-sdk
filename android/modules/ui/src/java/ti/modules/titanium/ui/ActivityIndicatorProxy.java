@@ -12,9 +12,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 import android.app.Activity;
 import android.os.Message;
+
+import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,

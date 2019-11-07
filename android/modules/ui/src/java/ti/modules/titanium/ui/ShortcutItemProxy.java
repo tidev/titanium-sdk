@@ -6,6 +6,10 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -21,10 +25,6 @@ import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class ShortcutItemProxy extends KrollProxy

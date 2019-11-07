@@ -6,9 +6,9 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.lang.Math;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -20,9 +20,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
-
-import ti.modules.titanium.ui.ScrollableViewProxy;
-import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -36,12 +33,15 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
+
+import ti.modules.titanium.ui.ScrollableViewProxy;
+import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 
 @SuppressLint("NewApi")
 public class TiUIScrollableView extends TiUIView

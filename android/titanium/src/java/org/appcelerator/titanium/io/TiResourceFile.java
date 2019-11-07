@@ -16,13 +16,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.crypto.CipherInputStream;
+
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper2;
-
-import javax.crypto.CipherInputStream;
 
 public class TiResourceFile extends TiBaseFile
 {

@@ -6,6 +6,22 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiUIView;
+import org.xmlpull.v1.XmlPullParser;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
@@ -22,20 +38,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
-import java.util.HashMap;
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
-import org.appcelerator.titanium.view.TiUIView;
-import org.xmlpull.v1.XmlPullParser;
+
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.ScrollViewProxy;
 

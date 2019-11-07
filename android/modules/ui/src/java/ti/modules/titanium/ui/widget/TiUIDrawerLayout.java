@@ -6,14 +6,12 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import ti.modules.titanium.ui.ToolbarProxy;
-import ti.modules.titanium.ui.android.DrawerLayoutProxy;
-import ti.modules.titanium.ui.WindowProxy;
+import java.lang.reflect.Field;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -24,8 +22,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v4.widget.ViewDragHelper;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,7 +34,9 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import java.lang.reflect.Field;
+import ti.modules.titanium.ui.ToolbarProxy;
+import ti.modules.titanium.ui.WindowProxy;
+import ti.modules.titanium.ui.android.DrawerLayoutProxy;
 
 public class TiUIDrawerLayout extends TiUIView
 {

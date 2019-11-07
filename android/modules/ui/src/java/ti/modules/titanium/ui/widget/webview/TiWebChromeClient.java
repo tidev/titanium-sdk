@@ -24,7 +24,6 @@ import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import ti.modules.titanium.ui.WebViewProxy;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -44,6 +43,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+
+import ti.modules.titanium.ui.WebViewProxy;
 
 @SuppressWarnings("deprecation")
 public class TiWebChromeClient extends WebChromeClient

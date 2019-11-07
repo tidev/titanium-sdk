@@ -148,8 +148,7 @@ public class StreamModule extends KrollModule
 				fResultsCallback.callAsync(getKrollObject(), TiStreamHelper.buildRWCallbackArgs(
 																 fsourceStream, fbuffer.getLength(), code, error));
 			}
-		})
-			.start();
+		}).start();
 
 		return null; // TODO KrollProxy.UNDEFINED;
 	}
@@ -261,8 +260,7 @@ public class StreamModule extends KrollModule
 					getKrollObject(),
 					buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten, code, error));
 			}
-		})
-			.start();
+		}).start();
 
 		return 0;
 	}
@@ -343,8 +341,8 @@ public class StreamModule extends KrollModule
 				{
 					pumpSync(finputStream, fHandler, fmaxChunkSize);
 				}
-			}) {}
-				.start();
+			}) {
+			}.start();
 		}
 	}
 

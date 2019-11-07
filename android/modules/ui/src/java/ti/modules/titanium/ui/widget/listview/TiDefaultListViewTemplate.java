@@ -15,9 +15,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.app.Activity;
+
 import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.LabelProxy;
-import android.app.Activity;
 
 public class TiDefaultListViewTemplate extends TiListViewTemplate
 {

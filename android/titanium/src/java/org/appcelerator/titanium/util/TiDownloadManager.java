@@ -19,17 +19,17 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
-import org.appcelerator.titanium.io.TiInputStreamWrapper;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.io.TiInputStreamWrapper;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that

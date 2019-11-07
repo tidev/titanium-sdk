@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.tableview;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.ui.TableViewRowProxy;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
@@ -17,6 +16,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ListView;
+
+import ti.modules.titanium.ui.TableViewRowProxy;
 
 public class TiTableViewSelector extends Drawable
 {

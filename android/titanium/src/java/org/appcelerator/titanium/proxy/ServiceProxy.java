@@ -6,6 +6,9 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -13,21 +16,18 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseService;
 import org.appcelerator.titanium.TiBaseService.TiServiceBinder;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.ServiceConnection;
-import android.Manifest;
 import android.os.Build;
 import android.os.IBinder;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 @Kroll.proxy
 /**

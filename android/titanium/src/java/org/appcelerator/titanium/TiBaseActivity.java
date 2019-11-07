@@ -20,13 +20,13 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
+import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
+import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
-import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
-import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
-import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
-import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -49,7 +49,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -66,6 +65,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -73,9 +73,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.ViewGroup.LayoutParams;
 
 /**
  * The base class for all non tab Titanium activities. To learn more about Activities, see the

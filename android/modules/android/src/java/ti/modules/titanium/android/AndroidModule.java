@@ -10,10 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.content.pm.PackageManager;
-import android.content.pm.ServiceInfo;
-import android.os.Build;
-import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
@@ -35,16 +31,20 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
-import android.view.MenuItem;
+import android.os.Build;
 import android.os.PowerManager;
+import android.service.quicksettings.Tile;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 
 @SuppressWarnings("deprecation")
 @Kroll.module

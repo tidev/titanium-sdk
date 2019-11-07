@@ -6,15 +6,16 @@
  */
 package ti.modules.titanium.media;
 
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
-import org.appcelerator.titanium.util.TiFileHelper;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import org.appcelerator.titanium.util.TiFileHelper;
+
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 
 public class TiAudioRecorder
 {

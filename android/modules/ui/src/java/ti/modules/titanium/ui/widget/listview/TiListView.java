@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.util.TypedValue;
-import android.view.MotionEvent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -31,14 +29,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.RefreshControlProxy;
-import ti.modules.titanium.ui.SearchBarProxy;
-import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.android.SearchViewProxy;
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
-import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
-import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -46,8 +36,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -57,6 +49,15 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import ti.modules.titanium.ui.RefreshControlProxy;
+import ti.modules.titanium.ui.SearchBarProxy;
+import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.android.SearchViewProxy;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
+import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener
 {

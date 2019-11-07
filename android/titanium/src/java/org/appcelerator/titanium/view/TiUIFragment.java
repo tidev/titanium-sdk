@@ -1,5 +1,7 @@
 package org.appcelerator.titanium.view;
 
+import java.util.ArrayList;
+
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -14,8 +16,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.ArrayList;
 
 public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 {

@@ -19,8 +19,9 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.xml.DocumentProxy;
 import android.os.Build;
+
+import ti.modules.titanium.xml.DocumentProxy;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = NetworkModule.class,

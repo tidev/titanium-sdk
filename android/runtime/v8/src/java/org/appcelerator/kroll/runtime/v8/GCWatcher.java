@@ -6,9 +6,9 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-import org.appcelerator.kroll.KrollRuntime;
-
 import java.lang.ref.WeakReference;
+
+import org.appcelerator.kroll.KrollRuntime;
 
 /**
  * Detect JVM garbage collections to initiate V8 garbage collections.

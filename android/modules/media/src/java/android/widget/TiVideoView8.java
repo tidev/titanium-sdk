@@ -34,8 +34,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import ti.modules.titanium.media.MediaModule;
-import ti.modules.titanium.media.TiPlaybackListener;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -56,6 +54,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.MediaController.MediaPlayerControl;
+
+import ti.modules.titanium.media.MediaModule;
+import ti.modules.titanium.media.TiPlaybackListener;
 
 /**
  * Displays a video file. The VideoView class

@@ -21,15 +21,15 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.AttributedStringProxy;
-
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.support.v7.widget.AppCompatButton;
+
+import ti.modules.titanium.ui.AttributedStringProxy;
 
 public class TiUIButton extends TiUIView
 {

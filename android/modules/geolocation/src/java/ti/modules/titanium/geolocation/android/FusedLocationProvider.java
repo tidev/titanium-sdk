@@ -6,8 +6,11 @@
  */
 package ti.modules.titanium.geolocation.android;
 
-import ti.modules.titanium.geolocation.GeolocationModule;
-import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,11 +32,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
-
-import java.util.ArrayList;
-import java.util.Iterator;
+import ti.modules.titanium.geolocation.GeolocationModule;
+import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
 
 /**
  * FusedLoactionProvider is used to expose the Google Play Services location API.

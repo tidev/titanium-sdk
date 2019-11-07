@@ -24,13 +24,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
-import ti.modules.titanium.geolocation.android.AndroidModule;
-import ti.modules.titanium.geolocation.android.FusedLocationProvider;
-import ti.modules.titanium.geolocation.android.LocationProviderProxy;
-import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
-import ti.modules.titanium.geolocation.android.LocationRuleProxy;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -41,6 +34,13 @@ import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+
+import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
+import ti.modules.titanium.geolocation.android.AndroidModule;
+import ti.modules.titanium.geolocation.android.FusedLocationProvider;
+import ti.modules.titanium.geolocation.android.LocationProviderProxy;
+import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
+import ti.modules.titanium.geolocation.android.LocationRuleProxy;
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior

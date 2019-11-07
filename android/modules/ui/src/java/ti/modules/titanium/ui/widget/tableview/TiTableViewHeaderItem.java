@@ -10,7 +10,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -20,6 +19,8 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 
 public class TiTableViewHeaderItem extends TiBaseTableViewItem
 {

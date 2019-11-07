@@ -6,9 +6,10 @@
  */
 package org.appcelerator.titanium;
 
+import org.appcelerator.kroll.common.Log;
+
 import android.content.Intent;
 import android.os.Bundle;
-import org.appcelerator.kroll.common.Log;
 
 /** The activity that is shown when opening a Titanium "Ti.UI.Window" in JavaScript. */
 public class TiActivity extends TiBaseActivity

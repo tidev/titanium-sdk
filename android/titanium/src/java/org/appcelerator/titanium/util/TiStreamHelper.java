@@ -251,8 +251,7 @@ public class TiStreamHelper
 
 				resultsCallback.callAsync(krollObject, buildRWCallbackArgs(sourceStream, bytesRead, code, error));
 			}
-		})
-			.start();
+		}).start();
 	}
 
 	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length)
@@ -290,8 +289,7 @@ public class TiStreamHelper
 
 				resultsCallback.callAsync(krollObject, buildRWCallbackArgs(outputStream, bytesWritten, code, error));
 			}
-		})
-			.start();
+		}).start();
 	}
 
 	public static KrollDict buildRWCallbackArgs(TiStream sourceStream, int bytesProcessed, int code, String error)

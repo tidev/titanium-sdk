@@ -6,15 +6,15 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-
-import ti.modules.titanium.media.TiVideoActivity;
-import ti.modules.titanium.ui.WebViewProxy;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -36,8 +36,8 @@ import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClientClassicExt;
 
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
+import ti.modules.titanium.media.TiVideoActivity;
+import ti.modules.titanium.ui.WebViewProxy;
 
 public class TiWebViewClient extends WebViewClientClassicExt
 {

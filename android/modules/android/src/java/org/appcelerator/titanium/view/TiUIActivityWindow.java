@@ -8,8 +8,9 @@ package org.appcelerator.titanium.view;
 
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 
-import ti.modules.titanium.android.TiJSActivity;
 import android.view.View;
+
+import ti.modules.titanium.android.TiJSActivity;
 
 public class TiUIActivityWindow extends TiUIView
 {

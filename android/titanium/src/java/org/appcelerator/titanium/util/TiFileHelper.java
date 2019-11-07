@@ -31,8 +31,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.ContentResolver;
 import android.content.Context;

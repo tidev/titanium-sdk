@@ -13,8 +13,9 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import android.app.Activity;
+
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
