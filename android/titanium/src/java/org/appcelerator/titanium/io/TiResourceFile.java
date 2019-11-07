@@ -18,12 +18,11 @@ import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
-import android.content.Context;
+import javax.crypto.CipherInputStream;
 
 public class TiResourceFile extends TiBaseFile
 {
@@ -193,6 +192,19 @@ public class TiResourceFile extends TiBaseFile
 		InputStream is = null;
 		try {
 			is = getInputStream();
+
+			// CipherInputStream.available() always returns 0
+			// Iterate through stream to obtain true size.
+			if (is instanceof CipherInputStream) {
+				long size = 0;
+				long read = 0;
+				byte[] buffer = new byte[1024];
+				while ((read = is.read(buffer)) != -1) {
+					size += read;
+				}
+				return size;
+			}
+
 			return is.available();
 		} catch (IOException e) {
 			Log.w(TAG, "Error while trying to determine file size: " + e.getMessage(), e);
