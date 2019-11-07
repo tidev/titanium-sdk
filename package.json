@@ -129,7 +129,7 @@
     "danger": "^9.2.8",
     "dateformat": "^3.0.3",
     "eslint": "^6.5.1",
-    "eslint-config-axway": "^4.3.0",
+    "eslint-config-axway": "^4.5.0",
     "eslint-plugin-mocha": "^6.1.0",
     "glob": "^7.1.5",
     "husky": "^3.1.0",
