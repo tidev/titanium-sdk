@@ -10,6 +10,9 @@
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.WebView', function () {
+	this.slow(3000);
+	this.timeout(30000);
+
 	it('baseURL should be accessible via window.location', (done) => {
 		const win = Ti.UI.createWindow();
 		const baseURL = 'https://www.google.com/';
@@ -31,6 +34,20 @@ describe('Titanium.UI.WebView', function () {
 				}
 				done();
 			});
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	it('basic authentication should work properly', (done) => {
+		const win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://jigsaw.w3.org/HTTP/Basic/'
+		});
+		webView.setBasicAuthentication('guest', 'guest');
+		webView.addEventListener('load', () => {
+			win.close();
+			done();
 		});
 		win.add(webView);
 		win.open();
