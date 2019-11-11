@@ -54,12 +54,12 @@ public class ListItemProxy extends TiViewProxy
 		if (event.equals(TiC.EVENT_CLICK) && data instanceof HashMap) {
 			KrollDict eventData = new KrollDict((HashMap) data);
 			TiViewProxy source = (TiViewProxy) eventData.get(TiC.EVENT_PROPERTY_SOURCE);
-
-			// FIXME: We should not need to create a placeholder proxy for each item. ListView needs refactoring to remedy this.
-			source = (TiViewProxy) KrollProxy.createProxy(source.getClass(), source.getKrollObject(), new Object[0],
-														  source.getCreationUrl().url);
-			eventData.put(TiC.EVENT_PROPERTY_SOURCE, source);
 			if (source != null && !source.equals(this) && listProxy != null) {
+
+				// FIXME: We should not need to create a placeholder proxy for each item. ListView needs refactoring to remedy this.
+				source = (TiViewProxy) KrollProxy.createProxy(source.getClass(), source.getKrollObject(), new Object[0],
+															  source.getCreationUrl().url);
+				eventData.put(TiC.EVENT_PROPERTY_SOURCE, source);
 
 				// append bind properties
 				if (eventData.containsKey(TiC.PROPERTY_BIND_ID) && eventData.containsKey(TiC.PROPERTY_ITEM_INDEX)
