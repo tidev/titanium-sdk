@@ -98,10 +98,8 @@
     selectedIndex = -1;
     [self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
   } else {
-    // TO DO: TIMOB-27480. Once apple fixes it, revert the changes.
-    [self segmentedControl].momentary = YES;
     [[self segmentedControl] setSelectedSegmentIndex:selectedIndex];
-    [self segmentedControl].momentary = NO;
+    [segmentedControl setNeedsLayout];
   }
 }
 

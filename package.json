@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "8.3.0",
+  "version": "9.0.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
@@ -41,7 +41,9 @@
     "test": "npm run ios-sanity-check && npm run lint",
     "test:android": "npm run clean:android && npm run build:android && ./build/scons package -s --no-docs android && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s android",
     "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js --reporter=mocha-jenkins-reporter",
-    "test:ios": "npm run clean:ios && npm run build:ios && ./build/scons package -s --no-docs ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios"
+    "test:ios": "npm run test:iphone",
+    "test:iphone": "npm run clean:ios && npm run build:ios && ./build/scons package -s --no-docs ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios -F iphone",
+    "test:ipad": "npm run clean:ios && npm run build:ios && ./build/scons package -s --no-docs ios && ./build/scons install -s && ti sdk select $npm_package_version && ./build/scons test -s ios -F ipad"
   },
   "husky": {
     "hooks": {
@@ -122,25 +124,25 @@
     "commander": "^3.0.1",
     "commitizen": "^4.0.3",
     "conventional-changelog-cli": "^2.0.25",
-    "core-js": "^2.6.5",
+    "core-js": "^3.3.2",
     "cz-conventional-changelog": "^3.0.2",
-    "danger": "^9.2.1",
+    "danger": "^9.2.4",
     "dateformat": "^3.0.3",
     "eslint": "^6.2.2",
     "eslint-config-axway": "^4.3.0",
     "eslint-plugin-mocha": "^6.1.0",
-    "glob": "^7.1.4",
-    "husky": "^3.0.8",
+    "glob": "^7.1.5",
+    "husky": "^3.0.9",
     "lint-staged": "^9.4.2",
     "mocha": "^6.2.0",
     "mocha-jenkins-reporter": "^0.4.2",
     "npm-run-all": "^4.1.5",
     "nyc": "^14.1.1",
-    "rollup": "^1.23.1",
+    "rollup": "^1.26.3",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "ssri": "^7.0.1",
+    "ssri": "^7.1.0",
     "titanium-docgen": "^0.2.0"
   },
   "repository": {
