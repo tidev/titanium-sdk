@@ -55,6 +55,7 @@ public class TiUIScrollView extends TiUIView
 
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
+	private int type;
 
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -110,7 +111,7 @@ public class TiUIScrollView extends TiUIView
 
 		/**
 		 * Sets the height of this view's parent, excluding its top/bottom padding.
-		 * @param width The parent view's height, excluding padding.
+		 * @param height The parent view's height, excluding padding.
 		 */
 		public void setParentContentHeight(int height)
 		{
@@ -254,7 +255,14 @@ public class TiUIScrollView extends TiUIView
 		{
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
-				contentWidth = maxWidth; // measuredWidth;
+				// If we don't have a specific contentWidth and the scroll type is 'vertical'
+				// match the layout's width to the ScrollView's width to avoid messing up
+				// children's positions to the visible part of the component.
+				if (type == TYPE_VERTICAL) {
+					contentWidth = this.parentContentWidth;
+				} else {
+					contentWidth = maxWidth; // measuredWidth;
+				}
 			}
 
 			// Returns the content's width when it's greater than the scrollview's width
@@ -270,7 +278,14 @@ public class TiUIScrollView extends TiUIView
 		{
 			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
 			if (contentHeight == AUTO) {
-				contentHeight = maxHeight; // measuredHeight;
+				// If we don't have a specific contentHeight and the scroll type is 'horizontal'
+				// match the layout's width to the ScrollView's width to avoid messing up
+				// children's positions to the visible part of the component.
+				if (type == TYPE_HORIZONTAL) {
+					contentHeight = this.parentContentHeight;
+				} else {
+					contentHeight = maxHeight; // measuredHeight;
+				}
 			}
 
 			// Returns the content's height when it's greater than the scrollview's height
@@ -839,7 +854,7 @@ public class TiUIScrollView extends TiUIView
 			setContentOffset(offset);
 		}
 
-		int type = TYPE_VERTICAL;
+		type = TYPE_VERTICAL;
 		boolean deduced = false;
 
 		if (d.containsKey(TiC.PROPERTY_WIDTH) && d.containsKey(TiC.PROPERTY_CONTENT_WIDTH)) {
