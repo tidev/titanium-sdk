@@ -276,7 +276,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   NSString *baseURL = options[@"baseURL"];
   NSString *mimeType = options[@"mimeType"];
 
-  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL URLWithString:baseURL] : [NSURL fileURLWithPath:baseURL];
+  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL fileURLWithPath:baseURL] : [NSURL URLWithString:baseURL];
 
   [[self webView] loadData:[content dataUsingEncoding:NSUTF8StringEncoding]
                    MIMEType:mimeType
@@ -800,17 +800,17 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     NSArray<NSString *> *cookies = [message.body componentsSeparatedByString:@"; "];
     for (NSString *cookie in cookies) {
       // Get this cookie's name and value
-      NSArray<NSString *> *components = [cookie componentsSeparatedByString:@"="];
-      if (components.count < 2) {
+      NSRange separatorRange = [cookie rangeOfString:@"="];
+      if (separatorRange.location == NSNotFound || separatorRange.location == 0 || separatorRange.location == ([cookie length] - 1)) {
         continue;
       }
+      NSString *cookieName = [cookie substringToIndex:separatorRange.location];
+      NSString *cookieValue = [cookie substringFromIndex:separatorRange.location + separatorRange.length];
 
       // Get the cookie in shared storage with that name
       NSHTTPCookie *localCookie = nil;
       for (NSHTTPCookie *httpCookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:self.webView.URL]) {
-        NSString *cookieName = httpCookie.name;
-        NSString *secondComponent = components[0];
-        if ([cookieName isEqualToString:secondComponent]) {
+        if ([httpCookie.name isEqualToString:cookieName]) {
           localCookie = httpCookie;
           break;
         }
@@ -819,7 +819,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       //If there is a cookie with a stale value, update it now.
       if (localCookie != nil) {
         NSMutableDictionary *cookieProperties = [localCookie.properties mutableCopy];
-        cookieProperties[NSHTTPCookieValue] = components[1];
+        cookieProperties[NSHTTPCookieValue] = cookieValue;
         NSHTTPCookie *updatedCookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:updatedCookie];
       } else {

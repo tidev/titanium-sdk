@@ -7,8 +7,6 @@
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +37,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -49,6 +46,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -87,7 +85,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
 	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
-	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
 
 	// When distinguishing twofingertap and pinch events, minimum motion (in pixels)
@@ -146,8 +143,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	// so this holds a reference to the view which is used for touching,
 	// i.e., the view passed to registerForTouch.
 	private WeakReference<View> touchView = null;
-
-	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	private boolean zIndexChanged = false;
 	private TiBorderWrapperView borderView;
@@ -896,8 +891,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					byte bgAlpha = bgColor != null ? (byte) (bgColor >> 24) : (byte) 0xFF;
-					if (bgAlpha != 0xFF) {
+					if ((bgColor != null) && (Color.alpha(bgColor) < 255)) {
 						disableHWAcceleration();
 					}
 				}
@@ -1075,8 +1069,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_LABEL)
-			|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
-			applyAccessibilityProperties();
+			|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE)) {
+			applyContentDescription(d);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyAccessibilityHidden(d.get(TiC.PROPERTY_ACCESSIBILITY_HIDDEN));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ELEVATION) && !nativeViewNull) {
@@ -1454,14 +1452,14 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
+					final float FLOAT_EPSILON = Math.ulp(1.0f);
 					float radius = 0;
 					TiDimension radiusDim =
 						TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER
-						&& (LOWER_THAN_JELLYBEAN || (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
+					if ((radius >= FLOAT_EPSILON) && (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW)) {
 						disableHWAcceleration();
 					}
 					borderView.setRadius(radius);
@@ -1486,9 +1484,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 				TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
 				if (width != null) {
-					if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-						disableHWAcceleration();
-					}
 					borderView.setBorderWidth((float) width.getPixels(borderView));
 				}
 
@@ -1498,8 +1493,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			byte bgAlpha = bgColor != null ? (byte) (bgColor >> 24) : (byte) 0xFF;
-			if (bgAlpha != 0xFF) {
+			if ((bgColor != null) && (Color.alpha(bgColor) < 255)) {
 				disableHWAcceleration();
 			}
 		}
@@ -1513,13 +1507,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				borderView.setBorderWidth(1);
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
+			final float FLOAT_EPSILON = Math.ulp(1.0f);
 			float radius = 0;
 			TiDimension radiusDim = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER
-				&& (LOWER_THAN_JELLYBEAN || (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
+			if ((radius > FLOAT_EPSILON) && (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW)) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
@@ -2049,37 +2043,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected void disableHWAcceleration()
 	{
-		if (borderView == null
-			|| (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN && borderView.isAttachedToWindow()
-				&& !borderView.isHardwareAccelerated())) {
-			return;
-		}
-		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),
-			  Log.DEBUG_MODE);
-		if (mSetLayerTypeMethod == null) {
-			try {
-				Class<? extends View> c = borderView.getClass();
-				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
-			} catch (SecurityException e) {
-				Log.e(TAG, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e,
-					  Log.DEBUG_MODE);
-			} catch (NoSuchMethodException e) {
-				Log.e(TAG, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e,
-					  Log.DEBUG_MODE);
-			}
-		}
-
-		if (mSetLayerTypeMethod == null) {
-			return;
-		}
-		try {
-			mSetLayerTypeMethod.invoke(borderView, LAYER_TYPE_SOFTWARE, null);
-		} catch (IllegalArgumentException e) {
-			Log.e(TAG, e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			Log.e(TAG, e.getMessage(), e);
+		if (this.borderView != null) {
+			this.borderView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 	}
 
@@ -2150,7 +2115,18 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (proxy == null || nativeView == null) {
 			return;
 		}
-		String contentDescription = getProxy().composeContentDescription();
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			nativeView.setContentDescription(contentDescription);
+		}
+	}
+
+	private void applyContentDescription(KrollDict properties)
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription(properties);
 		if (contentDescription != null) {
 			nativeView.setContentDescription(contentDescription);
 		}
@@ -2186,5 +2162,64 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
+	}
+
+	/**
+	 * Our view proxy supports three properties to match iOS regarding
+	 * the text that is read aloud (or otherwise communicated) by the
+	 * assistive technology: accessibilityLabel, accessibilityHint
+	 * and accessibilityValue.
+	 *
+	 * We combine these to create the single Android property contentDescription.
+	 * (e.g., View.setContentDescription(...));
+	 */
+	public static String composeContentDescription(KrollDict properties)
+	{
+		if (properties == null) {
+			return null;
+		}
+
+		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
+		StringBuilder buffer = new StringBuilder();
+		String label = properties.optString(TiC.PROPERTY_ACCESSIBILITY_LABEL, "");
+		String hint = properties.optString(TiC.PROPERTY_ACCESSIBILITY_HINT, "");
+		String value = properties.optString(TiC.PROPERTY_ACCESSIBILITY_VALUE, "");
+
+		if (!TextUtils.isEmpty(label)) {
+			buffer.append(label);
+			if (!label.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		if (!TextUtils.isEmpty(value)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(value);
+			if (!value.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		if (!TextUtils.isEmpty(hint)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(hint);
+			if (!hint.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		return buffer.toString();
+	}
+
+	public String composeContentDescription()
+	{
+		if (proxy == null) {
+			return null;
+		}
+		return composeContentDescription(proxy.getProperties());
 	}
 }

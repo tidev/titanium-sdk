@@ -398,8 +398,8 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 									if (activityProxy == null) {
 										return;
 									}
-									String scriptSource = KrollAssetHelper.readAsset(scriptUrl);
-									KrollRuntime.getInstance().runModule(scriptSource, scriptUrl, activityProxy);
+									byte[] scriptSource = KrollAssetHelper.readAssetBytes(scriptUrl);
+									KrollRuntime.getInstance().runModuleBytes(scriptSource, scriptUrl, activityProxy);
 								}
 							};
 							if (this.wasRuntimeStarted) {

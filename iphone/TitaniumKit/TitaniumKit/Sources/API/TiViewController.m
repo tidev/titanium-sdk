@@ -14,7 +14,6 @@
 {
   if (self = [super init]) {
     _proxy = window;
-    self.presentationController.delegate = self;
     [self updateOrientations];
     [TiUtils configureController:self withObject:_proxy];
   }

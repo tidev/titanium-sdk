@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
@@ -137,12 +138,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public TiApplication()
 	{
+		START_TIME_MS = SystemClock.uptimeMillis();
+
 		Log.checkpoint(TAG, "checkpoint, app created.");
 
 		// Keep a reference to this application object. Accessible via static getInstance() method.
 		tiApp = this;
-
-		loadBuildProperties();
 
 		mainThreadId = Looper.getMainLooper().getThread().getId();
 
@@ -304,8 +305,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		this.buildHash = "N/A";
 
 		// Attempt to read the "build.properties" file.
-		final String FILE_NAME = "org/appcelerator/titanium/build.properties";
-		try (InputStream stream = getClass().getClassLoader().getResourceAsStream(FILE_NAME)) {
+		try (InputStream stream = KrollAssetHelper.openAsset("Resources/ti.internal/build.properties")) {
 			if (stream != null) {
 				Properties properties = new Properties();
 				properties.load(stream);
@@ -456,6 +456,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postOnCreate()
 	{
+		loadBuildProperties();
+
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		if (runtime != null) {
 			Log.i(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
@@ -818,7 +820,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		runtime.initRuntime();
 
 		// manually re-launch app
-		runtime.doRunModule(KrollAssetHelper.readAsset(appPath), appPath, rootActivity.getActivityProxy());
+		runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath, rootActivity.getActivityProxy());
 	}
 
 	@Override

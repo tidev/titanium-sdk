@@ -1,0 +1,11 @@
+{{#if communityContributions~}}
+## Community Credits
+
+{{#each communityContributions}}
+* {{this.name}}
+  {{#each commits}}
+    {{> commit root=@root}}
+  {{/each}}
+
+{{/each}}
+{{~/if}}
