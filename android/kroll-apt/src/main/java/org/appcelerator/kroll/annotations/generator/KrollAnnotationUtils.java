@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -67,8 +66,26 @@ public class KrollAnnotationUtils
 
 	public void debugLog(Diagnostic.Kind debugType, String message)
 	{
-		Messager msg = env.getMessager();
-		msg.printMessage(debugType, message);
+		// Make sure message is set to a valid string.
+		if (message == null) {
+			message = "";
+		}
+
+		// Special handling for error/warning messages.
+		boolean isError = false;
+		if (debugType == Diagnostic.Kind.ERROR) {
+			message = "Error: " + message;
+			isError = true;
+		} else if ((debugType == Diagnostic.Kind.WARNING) || (debugType == Diagnostic.Kind.MANDATORY_WARNING)) {
+			message = "Warning: " + message;
+		}
+
+		// Log the message.
+		if (isError) {
+			System.err.println(message);
+		} else {
+			System.out.println(message);
+		}
 	}
 
 	public void logException(Exception exception)

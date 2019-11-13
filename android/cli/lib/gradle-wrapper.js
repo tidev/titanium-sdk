@@ -78,6 +78,17 @@ class GradleWrapper {
 	}
 
 	/**
+	 * Builds a debug version of the project.
+	 * @param {String} [subprojectName]
+	 * Optional name of the gradle subproject to build, such as 'app'. Will build all of its dependency projects too.
+	 * Can be null/undefined, in which case all subprojects will be built.
+	 */
+	async assembleDebug(subprojectName) {
+		subprojectName = isNonEmptyString(subprojectName) ? `:${subprojectName}:` : '';
+		return this.run(`${subprojectName}assembleDebug --console plain --warning-mode all`);
+	}
+
+	/**
 	 * Builds a release version of the project.
 	 * @param {String} [subprojectName]
 	 * Optional name of the gradle subproject to build, such as 'app'. Will build all of its dependency projects too.
@@ -89,14 +100,21 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Builds a debug version of the project.
+	 * Executes the gradle script's "publishing" task for the project.
+	 *
+	 * Typically used to create a maven repository directory tree for the last built library project
+	 * containing its AAR library and a "*.pom" XML file defining that library's dependencies.
+	 *
+	 * This method is expected to be called after calling assembleRelease().
 	 * @param {String} [subprojectName]
-	 * Optional name of the gradle subproject to build, such as 'app'. Will build all of its dependency projects too.
-	 * Can be null/undefined, in which case all subprojects will be built.
+	 * Optional name of the gradle subproject to publish.
+	 *
+	 * Can be null/undefined, in which case all subprojects will be published if they have a "publishing"
+	 * block in their "build.gradle" file.
 	 */
-	async assembleDebug(subprojectName) {
+	async publish(subprojectName) {
 		subprojectName = isNonEmptyString(subprojectName) ? `:${subprojectName}:` : '';
-		return this.run(`${subprojectName}assembleDebug --console plain --warning-mode all`);
+		return this.run(`${subprojectName}publish --console plain`);
 	}
 
 	/**

@@ -2174,7 +2174,7 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 
 	// Create main "AndroidManifest.xml" file under library project's "./src/main".
 	// If manifest settings exist in "timodule.xml", then merge it into main manifest.
-	const mainManifest = await AndroidManifest.fromXmlString('<manifest/>');
+	const mainManifest = AndroidManifest.fromXmlString('<manifest/>');
 	const tiModuleXmlFilePath = path.join(moduleInfo.modulePath, 'timodule.xml');
 	try {
 		if (await fs.exists(tiModuleXmlFilePath)) {
@@ -2681,7 +2681,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					default:
-						// normal file, just copy it into the build/android/bin/assets directory
+						// normal file, just copy it to the app project's "assets" directory
 						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
 							copyFile.call(_t, from, to, cb);
 						})(from, to, next);
@@ -2771,14 +2771,43 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 
 		// Create a task which copies "assets" file tree from all modules.
+		// Note: Android native module asset handling is inconsistent with commonjs modules and iOS native modules where
+		//       we're not copying assets to "modules/moduleId" directory. Continue doing this for backward compatibility.
 		const sourceAssetsDirPath = path.join(module.modulePath, 'assets');
 		if (fs.existsSync(sourceAssetsDirPath) && fs.statSync(sourceAssetsDirPath).isDirectory()) {
-			const destinationDirPath = path.join(this.buildAppMainAssetsResourcesDir, 'modules', module.id);
+			let destinationDirPath = this.buildAppMainAssetsResourcesDir;
+			if (!module.native) {
+				destinationDirPath = path.join(destinationDirPath, 'modules', module.id.toLowerCase());
+			}
 			tasks.push(function (cb) {
 				_t.logger.debug(__('Copying %s', sourceAssetsDirPath.cyan));
 				copyDir.call(this, {
 					src: sourceAssetsDirPath,
 					dest: destinationDirPath
+				}, cb);
+			});
+		}
+
+		// Create a task which copies "Resources" file tree from all modules to APK "assets/Resources".
+		const sourceResourcesDirPath = path.join(module.modulePath, 'Resources');
+		if (fs.existsSync(sourceResourcesDirPath) && fs.statSync(sourceResourcesDirPath).isDirectory()) {
+			tasks.push(function (cb) {
+				_t.logger.debug(__('Copying %s', sourceResourcesDirPath.cyan));
+				copyDir.call(this, {
+					src: sourceResourcesDirPath,
+					dest: path.join(this.buildAppMainAssetsResourcesDir)
+				}, cb);
+			});
+		}
+
+		// Create a task which copies "Resources/android" file tree from all modules to APK "assets/Resources".
+		const sourceResourcesAndroidDirPath = path.join(module.modulePath, 'Resources', 'android');
+		if (fs.existsSync(sourceResourcesAndroidDirPath) && fs.statSync(sourceResourcesAndroidDirPath).isDirectory()) {
+			tasks.push(function (cb) {
+				_t.logger.debug(__('Copying %s', sourceResourcesAndroidDirPath.cyan));
+				copyDir.call(this, {
+					src: sourceResourcesAndroidDirPath,
+					dest: path.join(this.buildAppMainAssetsResourcesDir)
 				}, cb);
 			});
 		}

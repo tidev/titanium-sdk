@@ -1,0 +1,210 @@
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+repositories {
+	maven {
+		// Path to the Titanium SDK's "m2repository" containing the "titanium.aar" library.
+		url '<%- tiMavenUrl %>'
+	}
+}
+
+// Path to proxy binding JSON file created by "kroll-apt" annotation processor and used to do C/C++ code generation.
+def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName.toLowerCase() %>.json".toString()
+
+android {
+	compileSdkVersion <%- compileSdkVersion %>
+	defaultConfig {
+		minSdkVersion <%- minSdkVersion %>
+		targetSdkVersion <%- compileSdkVersion %>
+		versionName '<%- moduleVersion %>'
+
+		// Add the following constants to gradle generated "BuildConfig" Java class under module's namespace.
+		buildConfigField('String', 'TI_MODULE_AUTHOR', <%- '"\\"' + moduleAuthor.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+		buildConfigField('String', 'TI_MODULE_COPYRIGHT', <%- '"\\"' + moduleCopyright.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+		buildConfigField('String', 'TI_MODULE_DESCRIPTION', <%- '"\\"' + moduleDescription.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+		buildConfigField('String', 'TI_MODULE_ID', '"<%- moduleId %>"')
+		buildConfigField('String', 'TI_MODULE_LICENSE', <%- '"\\"' + moduleLicense.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+ 		buildConfigField('String', 'TI_MODULE_NAME', '"<%- moduleName %>"')
+		buildConfigField('String', 'TI_MODULE_VERSION', '"<%- moduleVersion %>"')
+
+		// Have the following ${placeholders} replaced in the module's "AndroidManifest.xml" file.
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		manifestPlaceholders.put('localApplicationId', '${applicationId}') // Legacy placeholder Google no longer supports.
+		manifestPlaceholders.put('tiapp.properties["id"]', '${applicationId}')
+		manifestPlaceholders.put("tiapp.properties['id']", '${applicationId}')
+
+		aaptOptions {
+			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
+			// So, we must redefine ignore string with underscore pattern removed to support this too.
+			ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+		}
+		javaCompileOptions {
+			annotationProcessorOptions {
+				// Set up "kroll-apt" @Kroll annotation processor to generate C/C++ code bindings between V8/Java.
+				// Also have it produce a JSON file of all bindings which is also used to find onAppCreate() method.
+				arguments = [
+					'kroll.outputJsonFilePath': tiModuleBindingsJsonPath,
+					'kroll.outputCppDirPath': "${buildDir}/ti-generated/jni".toString(),
+					'kroll.jsModuleName': '<%- moduleId %>',
+					'kroll.tiBindingsJsonFilePath': '<%- tiBindingsJsonPath %>'
+				]
+			}
+		}
+		externalNativeBuild {
+			ndkBuild {
+				cppFlags '-std=c++11'
+				arguments.addAll([
+					'APP_STL:=c++_shared',
+					"-j${Runtime.runtime.availableProcessors()}".toString()
+				])
+			}
+		}
+		ndk {
+			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'
+		}
+	}
+	externalNativeBuild {
+		ndkBuild {
+			path "${projectDir}/src/main/jni/Android.mk"
+		}
+	}
+	sourceSets {
+		main {
+			// Android Java code generation templates.
+			aidl.srcDirs = [
+				"${projectDir}/../../platform/android/aidl"
+			]
+			// These files are added to APK "assets" folder.
+			assets.srcDirs = [
+				"${projectDir}/../../platform/android/assets",
+				"${projectDir}/../../platform/android/bin/assets"  // Legacy path used by encrypted-db module.
+			]
+			// Java source code directories.
+			java.srcDirs = [
+				'src/main/java',
+				"${projectDir}/../../src",
+				"${buildDir}/ti-generated/java"
+			]
+			// C/C++ source code directories.
+			jni.srcDirs = [
+				"${projectDir}/../../jni",
+				"${projectDir}/src/main/jni",
+				"${buildDir}/ti-generated/jni"
+			]
+			// C/C++ "*.so" dependency library paths. These libraries will be added to the app.
+			jniLibs.srcDirs = [
+				"${projectDir}/../../platform/android/jniLibs",
+				"${projectDir}/../../libs"  // Legacy path used by encrypted-db module.
+			]
+			// RenderScript "*.rs" files go here.
+			renderscript.srcDirs = [
+				"${projectDir}/../../platform/android/rs"
+			]
+			// The APK "res" files such as drawables, strings/values XML, etc.
+			res.srcDirs = [
+				"${projectDir}/../../platform/android/res"
+			]
+			// These files are added as JAR resources. Can be accessed in java via Class.getResourceAsStream() method.
+			resources {
+				srcDirs = [
+					"${projectDir}/../../assets",
+					"${projectDir}/../../platform/android/resources"
+				]
+				excludes = [
+					'**/*.js',
+					'README'
+				]
+			}
+		}
+	}
+	// TODO: Add Java 8 support in the future.
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_7
+		targetCompatibility JavaVersion.VERSION_1_7
+	}
+	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
+	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
+	packagingOptions {
+		exclude '/lib/**/libc++_shared.so'
+		exclude '/lib/**/libkroll-v8.so'
+	}
+}
+
+tasks.withType(JavaCompile) {
+	// Log all Java linting errors/warnings.
+	options.compilerArgs << "-Xlint:all"
+
+	// Execute our "generate-cpp-files.js" script after Java compile to finish generating C++ files.
+	// Depends on the JSON file produced by our "kroll-apt" Java annotation processor.
+	// TODO: Our annnotation processor should do ALL of the proxy code generation. Don't piece-meal it.
+	doLast {
+		exec {
+			environment 'TI_MODULE_BINDINGS_JSON_FILE', tiModuleBindingsJsonPath
+			environment 'TI_MODULE_GENERATED_JNI_DIR', "${projectDir}/build/ti-generated/jni"
+			environment 'TI_MODULE_GENERATED_JS_DIR', "${projectDir}/build/ti-generated/js"
+			environment 'TI_MODULE_ID', '<%- moduleId %>'
+			environment 'TI_MODULE_NAMESPACE', '<%- moduleId.toLowerCase() %>'
+			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir %>'
+			executable = 'node'
+			workingDir = projectDir
+			args = ['generate-cpp-files.js']
+		}
+	}
+}
+
+dependencies {
+	// This reads the code's @Kroll annotations and generates code which interops between V8 and proxy classes.
+	def krollAptJarPath = '<%- krollAptJarPath.replace(/\\/g, '\\\\') %>'
+	annotationProcessor files(krollAptJarPath)
+	compileOnly files(krollAptJarPath)
+
+	// Reference this module's local AAR/JAR file dependencies.
+	implementation fileTree(dir: "${projectDir}/../../lib", include: ['*.aar', '*.jar'])
+
+	// Reference the main Titanium library.
+	implementation 'org.appcelerator:titanium:<%- tiSdkVersion %>'
+}
+
+// This block is used when we run "gradlew :module:publish" at the command line.
+// Creates maven "m2repository" directory tree containing built AAR and a "*.pom" XML file providing its dependencies.
+publishing {
+	publications {
+		titaniumPublication(MavenPublication) {
+			// Set up maven repo info.
+			groupId '<%- moduleMavenGroupId %>'
+			artifactId '<%- moduleMavenArtifactId %>'
+			version '<%- moduleVersion %>'
+			artifact file("${buildDir}/outputs/aar/${project.name}-release.aar")
+
+			// Generates the "*.pom" XML file containing all of Titanium's above dependencies.
+			pom.withXml {
+				def dependenciesNode = asNode().appendNode('dependencies')
+				def list = new ArrayList<Dependency>()
+				list.addAll(configurations.api.allDependencies)
+				list.addAll(configurations.implementation.allDependencies)
+				list.each {
+					if ((it.group != null) && (it.name != null)) {
+						def childNode = dependenciesNode.appendNode('dependency')
+						childNode.appendNode('groupId', it.group)
+						childNode.appendNode('artifactId', it.name)
+						childNode.appendNode('version', it.version)
+					}
+				}
+			}
+		}
+	}
+	repositories {
+		maven {
+			// The maven directory tree produced above will be outputted to the following local directory.
+			url "${buildDir}/outputs/m2repository"
+		}
+	}
+}
+
+// Load the module developer's optional "build.gradle" file from "<moduel>/android" directory.
+// This gradle file is expected to provide the module's "dependencies".
+def moduleBuildGradlePath = "${projectDir}/../../build.gradle"
+if (file(moduleBuildGradlePath).exists()) {
+	apply from: moduleBuildGradlePath
+}

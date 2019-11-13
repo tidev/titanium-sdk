@@ -13,17 +13,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.CodeSource;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -62,6 +60,9 @@ public class KrollBindingGenerator
 
 	protected void initTemplates()
 	{
+		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.ERROR);
+
 		fmConfig = new Configuration();
 		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
 		fmConfig.setClassForTemplateLoading(getClass(), "");
@@ -217,6 +218,10 @@ public class KrollBindingGenerator
 
 	public void loadBindingsFromJsonFile(String jsonPath) throws ParseException, IOException
 	{
+		if ((jsonPath == null) || jsonPath.isEmpty()) {
+			return;
+		}
+
 		Map<Object, Object> properties = null;
 		try (FileReader reader = new FileReader(jsonPath)) {
 			properties = (Map<Object, Object>) JSONValue.parseWithException(reader);
@@ -237,33 +242,20 @@ public class KrollBindingGenerator
 		mergeModules(modules);
 	}
 
-	protected void loadTitaniumBindings() throws ParseException, IOException, URISyntaxException
+	public void loadTitaniumBindingsFromJsonFile(String jsonPath) throws ParseException, IOException
 	{
-		// Load the binding JSON data from the titanium.jar relative to the kroll-apt.jar
-		// where this class is defined in the MobileSDK
-
-		// According to JavaDoc, getCodeSource() is the only possible "null" part of this chain
-		CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
-		if (codeSource == null) {
-			System.err.println("Error: No code source found on the ClassLoader's protection domain");
-			System.exit(1);
+		if ((jsonPath == null) || jsonPath.isEmpty()) {
+			return;
 		}
 
-		URL krollAptJarUrl = codeSource.getLocation();
-		String mobileAndroidDir = new File(krollAptJarUrl.toURI()).getParent();
-
-		Map<String, Object> properties = null;
-		try (JarFile titaniumJar = new JarFile(new File(mobileAndroidDir, "titanium.jar"))) {
-			ZipEntry jsonEntry = titaniumJar.getEntry("org/appcelerator/titanium/bindings/titanium.json");
-			try (InputStream jsonStream = titaniumJar.getInputStream(jsonEntry)) {
-				properties = (Map<String, Object>) JSONValue.parseWithException(new InputStreamReader(jsonStream));
-			}
+		Map<Object, Object> properties = null;
+		try (FileReader reader = new FileReader(jsonPath)) {
+			properties = (Map<Object, Object>) JSONValue.parseWithException(reader);
 		}
-
 		loadTitaniumBindingsFrom(properties);
 	}
 
-	public void loadTitaniumBindingsFrom(Map<String, Object> properties)
+	public void loadTitaniumBindingsFrom(Map<Object, Object> properties)
 	{
 		if (properties == null) {
 			return;
@@ -459,33 +451,5 @@ public class KrollBindingGenerator
 				}
 			}
 		}
-	}
-
-	public static void main(String[] args) throws Exception
-	{
-		if (args.length < 4) {
-			System.err.println(
-				"Usage: KrollBindingGenerator <outdir> <isModule> <modulePackage> <binding.json> [<binding.json> ...]");
-			System.exit(1);
-		}
-
-		String outDir = args[0];
-		boolean isModule = "true".equalsIgnoreCase(args[1]);
-		String packageName = args[2];
-
-		KrollBindingGenerator generator = new KrollBindingGenerator(outDir, packageName);
-
-		// First pass to generate the entire API tree
-		for (int i = 3; i < args.length; i++) {
-			generator.loadBindingsFromJsonFile(args[i]);
-		}
-
-		// TODO: Get rid of the loadTitaniumBindings() file. We don't store JSON in Titanium JAR anymore.
-		//       Pass in "titanium.bindings.json" file and load via loadBindingsFromJsonFile() instead.
-		if (isModule) {
-			generator.loadTitaniumBindings();
-		}
-
-		generator.generateBindings();
 	}
 }

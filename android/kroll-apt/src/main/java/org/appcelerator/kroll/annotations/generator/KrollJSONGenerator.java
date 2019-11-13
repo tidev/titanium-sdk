@@ -43,7 +43,8 @@ import org.json.simple.JSONValue;
 	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_FILE_NAME,
 	KrollJSONGenerator.OPTION_OUTPUT_JSON_FILE_PATH,
 	KrollJSONGenerator.OPTION_CPP_DIR_PATH,
-	KrollJSONGenerator.OPTION_JS_MODULE_NAME
+	KrollJSONGenerator.OPTION_JS_MODULE_NAME,
+	KrollJSONGenerator.OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME
 })
 @SuppressWarnings("unchecked")
 public class KrollJSONGenerator extends AbstractProcessor
@@ -84,6 +85,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 	protected static final String OPTION_OUTPUT_JSON_FILE_PATH = "kroll.outputJsonFilePath";
 	protected static final String OPTION_CPP_DIR_PATH = "kroll.outputCppDirPath";
 	protected static final String OPTION_JS_MODULE_NAME = "kroll.jsModuleName";
+	protected static final String OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME = "kroll.tiBindingsJsonFilePath";
 
 	// we make these generic because they may be initialized by JSON
 	protected Map<Object, Object> properties = new HashMap<Object, Object>();
@@ -790,10 +792,17 @@ public class KrollJSONGenerator extends AbstractProcessor
 			return;
 		}
 
+		// Fetch optional "titanium.bindings.json" file path providing the core Titanium API bindings.
+		// Only needed when generating C++ files for modules. Provides base class info.
+		String tiBindingsJsonFilePath = this.processingEnv.getOptions().get(OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME);
+
 		// Generate the C++ files.
 		try {
 			KrollBindingGenerator generator = new KrollBindingGenerator(directoryPath, jsModuleName);
 			generator.loadBindingsFrom(this.properties);
+			if (tiBindingsJsonFilePath != null) {
+				generator.loadTitaniumBindingsFromJsonFile(tiBindingsJsonFilePath);
+			}
 			generator.generateBindings();
 		} catch (Exception ex) {
 			debug("Failed to generate C++ files: ", ex.getMessage());

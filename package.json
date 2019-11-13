@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "8.3.0",
+  "version": "9.0.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
@@ -59,6 +59,7 @@
   "dependencies": {
     "adm-zip": "^0.4.11",
     "appc-tasks": "^1.0.1",
+    "archiver": "^3.0.3",
     "async": "^2.6.1",
     "buffer-equal": "1.0.0",
     "clean-css": "4.2.1",

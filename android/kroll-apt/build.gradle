@@ -17,8 +17,8 @@ tasks.withType(JavaCompile) {
 	options.compilerArgs << '-Xlint:-options'
 }
 
-// TODO: Might need to merge dependency JARs when using this annotation processor for module builds.
-/*
+// Bundle the below library dependencies within this project's built JAR.
+// Needed when building modules via "_buildModule.js" which only references the "kroll-apt.jar".
 jar {
 	manifest {
 		attributes 'Main-Class': 'org.appcelerator.kroll.annotations.generator.KrollBindingGenerator'
@@ -29,7 +29,6 @@ jar {
 		}
 	}
 }
-*/
 
 dependencies {
 	implementation 'com.googlecode.json-simple:json-simple:1.1'

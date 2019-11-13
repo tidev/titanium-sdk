@@ -289,9 +289,9 @@ class AndroidManifest {
 			if (typeof placeholderName !== 'string') {
 				continue;
 			}
-			const placeholderValue = placeholders[placeholderName];
-			if (!placeholderValue) {
-				continue;
+			let placeholderValue = placeholders[placeholderName];
+			if ((placeholderValue === null) || (typeof placeholderValue === 'undefined')) {
+				placeholderValue = '';
 			}
 
 			// Replace all placeholders having given name.

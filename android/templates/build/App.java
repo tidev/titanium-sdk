@@ -45,7 +45,11 @@ public final class <%= classname %>Application extends TiApplication
 
 <% customModules.forEach(function (module) { %>
 		{
+		<% if ((typeof module.manifest.minsdk === 'string') && (parseInt(module.manifest.minsdk.split('.')) >= 9)) { %>
+			String className = "<%- module.manifest.moduleid %>.TiModuleBootstrap";
+		<% } else { %>
 			String className = "<%- module.manifest.moduleid %>.<%- module.apiName %>Bootstrap";
+		<% } %>
 			try {
 				runtime.addExternalModule(
 						"<%- module.manifest.moduleid %>",
@@ -107,8 +111,10 @@ public final class <%= classname %>Application extends TiApplication
 
 		moduleInfo = new KrollModuleInfo(
 			"<%- module.manifest.name %>", "<%- module.manifest.moduleid %>", "<%- module.manifest.guid %>", "<%- module.manifest.version %>",
-			"<%- module.manifest.description %>", "<%- module.manifest.author %>", "<%- module.manifest.license %>",
-			"<%- module.manifest.copyright %>");
+			"<%- (module.manifest.description || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>",
+			"<%- (module.manifest.author || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>",
+			"<%- (module.manifest.license || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>",
+			"<%- (module.manifest.copyright || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>");
 
 		<% if (module.manifest.licensekey) { %>
 		moduleInfo.setLicenseKey("<%- module.manifest.licensekey %>");

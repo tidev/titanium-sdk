@@ -83,6 +83,10 @@ class Android {
 		// Copy the Android "package.json" file. Replace its "__VERSION__" with given version.
 		await copyAndModifyFile(TITANIUM_ANDROID_PATH, ZIP_ANDROID_PATH, 'package.json', { __VERSION__: this.sdkVersion });
 
+		// Copy Titanium's API/proxy bindings JSON file to the destination.
+		// This is needed to do native module builds. Provides core APIs to help generate module proxy bindings.
+		await copyFile(DIST_ANDROID_PATH, ZIP_ANDROID_PATH, 'titanium.bindings.json');
+
 		// Copy the Andoid "cli" and "templates" folders.
 		await copyFiles(TITANIUM_ANDROID_PATH, ZIP_ANDROID_PATH, [ 'cli', 'templates' ]);
 
