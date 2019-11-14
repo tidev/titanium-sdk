@@ -32,16 +32,14 @@ public final class <%= classname %>Application extends TiApplication
 	@Override
 	public void onCreate()
 	{
+		appInfo = new <%= classname %>AppInfo(this);
 <% if (encryptJS) { %>
 		KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
 <% } %>
-
 		// Load cache as soon as possible.
 		KrollAssetCache.init(this);
 
 		super.onCreate();
-
-		appInfo = new <%= classname %>AppInfo(this);
 		postAppInfo();
 
 		V8Runtime runtime = new V8Runtime();
