@@ -20,11 +20,11 @@ android {
 		versionName '<%- moduleVersion %>'
 
 		// Add the following constants to gradle generated "BuildConfig" Java class under module's namespace.
-		buildConfigField('String', 'TI_MODULE_AUTHOR', <%- '"\\"' + moduleAuthor.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
-		buildConfigField('String', 'TI_MODULE_COPYRIGHT', <%- '"\\"' + moduleCopyright.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
-		buildConfigField('String', 'TI_MODULE_DESCRIPTION', <%- '"\\"' + moduleDescription.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+		buildConfigField('String', 'TI_MODULE_AUTHOR', <%- '"\\"' + (moduleAuthor || '').replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+		buildConfigField('String', 'TI_MODULE_COPYRIGHT', <%- '"\\"' + (moduleCopyright || '').replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+		buildConfigField('String', 'TI_MODULE_DESCRIPTION', <%- '"\\"' + (moduleDescription || '').replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
 		buildConfigField('String', 'TI_MODULE_ID', '"<%- moduleId %>"')
-		buildConfigField('String', 'TI_MODULE_LICENSE', <%- '"\\"' + moduleLicense.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
+		buildConfigField('String', 'TI_MODULE_LICENSE', <%- '"\\"' + (moduleLicense || '').replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
  		buildConfigField('String', 'TI_MODULE_NAME', '"<%- moduleName %>"')
 		buildConfigField('String', 'TI_MODULE_VERSION', '"<%- moduleVersion %>"')
 

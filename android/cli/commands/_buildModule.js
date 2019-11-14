@@ -71,7 +71,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 	let isMinSdkUpdateRequired = false;
 	const minSupportedSdkVersionMajorNumber = 9;
 	const minSupportedSdkVersionString = '9.0.0';
-	if (!this.manifest.minsdk || (parseInt(this.manifest.minsdk.split('.')) < minSupportedSdkVersionMajorNumber)) {
+	if (!this.manifest.minsdk || (parseInt(this.manifest.minsdk.split('.')[0]) < minSupportedSdkVersionMajorNumber)) {
 		isMinSdkUpdateRequired = true;
 	}
 

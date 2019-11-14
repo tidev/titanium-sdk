@@ -1792,10 +1792,6 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 	// files
 	this.buildManifestFile          = path.join(this.buildDir, 'build-manifest.json');
 
-	// libraries
-	this.titaniumVerifyLibrary      = path.join(this.platformPath, 'lib', 'titanium-verify.jar');
-	this.titaniumCloakLibrary       = path.join(this.platformPath, 'lib', 'ti.cloak.jar');
-
 	const buildTypeName = (this.allowDebugging) ? 'debug' : 'release';
 	this.apkFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'apk', buildTypeName, `app-${buildTypeName}.apk`);
 
@@ -2980,7 +2976,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				await Promise.all(
 					jsFilesToEncrypt.map(async file => {
 						const from = path.join(this.buildAssetsDir, file);
-						const to = path.join(this.buildBinAssetsResourcesDir, file);
+						const to = path.join(this.buildAppMainAssetsResourcesDir, file);
 
 						this.logger.debug(__('Encrypting: %s', from.cyan));
 						await fs.ensureDir(path.dirname(to));
@@ -2990,7 +2986,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				);
 
 				this.logger.info('Writing encryption key...');
-				await cloak.setKey('android', this.abis, path.join(this.buildDir, 'libs'));
+				await cloak.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
 
 				// Generate 'AssetCryptImpl.java' from template.
 				const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');

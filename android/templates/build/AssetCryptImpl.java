@@ -24,14 +24,19 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 	private static final String TAG = "AssetCryptImpl";
 
 	private static byte[] salt = {
-		<% for (let i = 0; i < salt.length - 1; i++){ - % > <% -'(byte)' + salt.readUInt8(i) + ', ' - %> < % } - %>
-		<% -'(byte)' + salt.readUInt8(salt.length - 1) %>
+		<% for (let i = 0; i < salt.length - 1; i++){ -%>
+<%- '(byte)' + salt.readUInt8(i) + ', ' -%>
+<% } -%>
+<%- '(byte)' + salt.readUInt8(salt.length - 1) %>
 	};
 
 	private static final Collection<String> assets =
-		new ArrayList<String>(Arrays.asList(<% for (let i = 0; i < assets.length - 1; i++) {
-			- % > "Resources/<%- assets[i] %>", < %
-		} - %> "Resources/<%- assets[assets.length - 1] %>"));
+		new ArrayList<String>(Arrays.asList(
+<% for (let i = 0; i < assets.length - 1; i++) { -%>
+			"Resources/<%- assets[i] %>",
+<% } -%>
+			"Resources/<%- assets[assets.length - 1] %>"
+		));
 
 	public AssetCryptImpl()
 	{
@@ -71,8 +76,7 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		}
 		try {
 			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(ti.cloak.Binding.getKey(salt), "AES"),
-						new IvParameterSpec(salt));
+			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(ti.cloak.Binding.getKey(salt), "AES"), new IvParameterSpec(salt));
 			return new CipherInputStream(KrollAssetHelper.getAssetManager().open(path), cipher);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not decrypt '" + path + "'");
