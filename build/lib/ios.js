@@ -27,6 +27,17 @@ class IOS {
 		this.timestamp = options.timestamp;
 	}
 
+	babelOptions() {
+		// eslint-disable-next-line security/detect-non-literal-require
+		const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
+
+		return {
+			targets: {
+				ios: minIosVersion
+			}
+		};
+	}
+
 	async clean() {
 		return fs.remove(path.join(IOS_ROOT, 'TitaniumKit/build'));
 	}
@@ -140,7 +151,7 @@ class IOS {
 		// TODO: Use copyAndModifyFile?
 		const contents = await fs.readFile(path.join(ROOT_DIR, 'support/iphone/main.m'), 'utf8');
 		const newContents = contents.replace(/(__.+?__)/g, function (match, key) {
-			const s = subs.hasOwnProperty(key) ? subs[key] : key;
+			const s = Object.prototype.hasOwnProperty.call(subs, key) ? subs[key] : key;
 			return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
 		});
 		return fs.writeFile(dest, newContents);

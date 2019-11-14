@@ -19,9 +19,9 @@ public class TiJSQuickSettingsService extends TileService
 		//create a proxy for this service
 		proxy = new QuickSettingsServiceProxy(this);
 		//get the source to be run
-		String source = KrollAssetHelper.readAsset(url);
+		byte[] source = KrollAssetHelper.readAssetBytes(url);
 		//run the module
-		KrollRuntime.getInstance().runModule(source, url, proxy);
+		KrollRuntime.getInstance().runModuleBytes(source, url, proxy);
 	}
 
 	//Called when the user clicks on this tile.

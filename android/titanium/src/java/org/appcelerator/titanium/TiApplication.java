@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
@@ -133,8 +134,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public static long START_TIME_MS = 0;
+
 	public TiApplication()
 	{
+		START_TIME_MS = SystemClock.uptimeMillis();
+
 		Log.checkpoint(TAG, "checkpoint, app created.");
 
 		// Keep a reference to this application object. Accessible via static getInstance() method.
@@ -374,6 +379,23 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		deployData = new TiDeployData(this);
 
 		registerActivityLifecycleCallbacks(new TiApplicationLifecycle());
+
+		// Set up a listener to be invoked just before Titanium's JavaScript runtime gets terminated.
+		// Note: Runtime will be terminated once all Titanium activities have been destroyed.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				// Fire a Ti.App "close" event. Must be fired synchronously before termination.
+				KrollModule appModule = getModuleByName("App");
+				if (appModule != null) {
+					appModule.fireSyncEvent(TiC.EVENT_CLOSE, null);
+				}
+
+				// Cancel all Titanium timers.
+				cancelTimers();
+			}
+		});
 	}
 
 	@Override
@@ -798,7 +820,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		runtime.initRuntime();
 
 		// manually re-launch app
-		runtime.doRunModule(KrollAssetHelper.readAsset(appPath), appPath, rootActivity.getActivityProxy());
+		runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath, rootActivity.getActivityProxy());
 	}
 
 	@Override

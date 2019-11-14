@@ -14,9 +14,11 @@ const libv8Services = require('../../../android/titanium/libv8-services');
 // Determine if we're running on a Windows machine.
 const isWindows = (process.platform === 'win32');
 
+const ROOT_DIR = path.join(__dirname, '..', '..', '..');
 const TITANIUM_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'android');
 const DIST_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'dist', 'android');
 const GRADLEW_FILE_PATH = path.join(TITANIUM_ANDROID_PATH, isWindows ? 'gradlew.bat' : 'gradlew');
+const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 class Android {
 	/**
@@ -34,6 +36,18 @@ class Android {
 		this.sdkVersion = options.sdkVersion;
 		this.versionTag = options.versionTag;
 		this.gitHash = options.gitHash;
+	}
+
+	babelOptions() {
+		const v8Version = require(path.join(ROOT_DIR, 'android', 'package.json')).v8.version; // eslint-disable-line security/detect-non-literal-require
+		const v8VersionGroup = v8Version.match(V8_STRING_VERSION_REGEXP);
+		const version = parseInt(v8VersionGroup[1] + v8VersionGroup[2]);
+
+		return {
+			targets: {
+				chrome: version
+			}
+		};
 	}
 
 	async clean() {

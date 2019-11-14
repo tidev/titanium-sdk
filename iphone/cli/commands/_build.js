@@ -180,6 +180,10 @@ function iOSBuilder() {
 	this.enableLaunchScreenStoryboard = true;
 	this.defaultLaunchScreenStoryboard = true;
 	this.defaultBackgroundColor = null;
+
+	// if the selected sim is 32-bit (iPhone 5 and older, iPad 4th gen or older), then the app
+	// won't run, so we need to track the ONLY_ACTIVE_ARCH flag and disable it for 32-bit sims
+	this.simOnlyActiveArch = null;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -223,7 +227,7 @@ iOSBuilder.prototype.findCertificates = function findCertificates(name, type) {
 			for (const scope of types) {
 				if (scopes[scope]) {
 					for (const cert of scopes[scope]) {
-						if (cert.name === name) {
+						if (cert.name === name || cert.fullname === name) {
 							certs.push(cert);
 						}
 					}
@@ -680,12 +684,15 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperName(order) {
 	const cli = this.cli,
 		iosInfo = this.iosInfo,
-		developerCertLookup = {};
+		developerCertLookup = [];
 
 	Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
 		(iosInfo.certs.keychains[keychain].developer || []).forEach(function (d) {
 			if (!d.invalid) {
-				developerCertLookup[d.name.toLowerCase()] = d.name;
+				developerCertLookup.push({
+					name: d.name,
+					fullname: d.fullname
+				});
 			}
 		});
 	});
@@ -705,7 +712,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 					if (!d.invalid) {
 						Array.isArray(developerCerts[keychain]) || (developerCerts[keychain] = []);
 						developerCerts[keychain].push(d);
-						maxDevCertLen = Math.max(d.name.length, maxDevCertLen);
+						maxDevCertLen = Math.max(d.fullname.length, maxDevCertLen);
 					}
 				});
 			});
@@ -713,7 +720,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 			// sort the certs
 			Object.keys(developerCerts).forEach(function (keychain) {
 				developerCerts[keychain] = developerCerts[keychain].sort(function (a, b) {
-					return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+					return a.fullname.toLowerCase().localeCompare(b.fullname.toLowerCase());
 				});
 			});
 
@@ -725,7 +732,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 						var expires = moment(opt.after),
 							day = expires.format('D'),
 							hour = expires.format('h');
-						return '  ' + num + appc.string.rpad(opt.name, maxDevCertLen + 1).cyan
+						return '  ' + num + appc.string.rpad(opt.fullname, maxDevCertLen + 1).cyan
 							+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
 							+ (day.length === 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
 							+ (hour.length === 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
@@ -733,8 +740,8 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 					}
 				},
 				margin: '',
-				optionLabel: 'name',
-				optionValue: 'name',
+				optionLabel: 'fullname',
+				optionValue: 'fullname',
 				numbered: true,
 				relistOnError: true,
 				complete: true,
@@ -751,9 +758,16 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 				return callback(null, value);
 			}
 			if (value) {
-				const v = developerCertLookup[value.toLowerCase()];
-				if (v) {
-					return callback(null, v);
+				// value can either be a fullname (Apple Development: Joe Bloggs (TEAMID)) or just name (Joe Bloggs (TEAMID)). We want to use fullname, so if we were provided
+				// a name try to map it back to the correct format.
+				const v = developerCertLookup.filter(cert => cert.name.toLowerCase() === value.toLowerCase() || cert.fullname.toLowerCase() === value.toLowerCase());
+
+				if (v.length === 1) {
+					return callback(null, v[0].fullname);
+				}
+
+				if (v.length > 1) {
+					return callback(new Error(__('Unable to determine correct certificate from supplied value')));
 				}
 			}
 			callback(new Error(__('Invalid developer certificate "%s"', value)));
@@ -771,12 +785,15 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 iOSBuilder.prototype.configOptionDistributionName = function configOptionDistributionName(order) {
 	const cli = this.cli,
 		iosInfo = this.iosInfo,
-		distributionCertLookup = {};
+		distributionCertLookup = [];
 
 	Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
 		(iosInfo.certs.keychains[keychain].distribution || []).forEach(function (d) {
 			if (!d.invalid) {
-				distributionCertLookup[d.name.toLowerCase()] = d.name;
+				distributionCertLookup.push({
+					name: d.name,
+					fullname: d.fullname
+				});
 			}
 		});
 	});
@@ -796,7 +813,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 					if (!d.invalid) {
 						Array.isArray(distributionCerts[keychain]) || (distributionCerts[keychain] = []);
 						distributionCerts[keychain].push(d);
-						maxDistCertLen = Math.max(d.name.length, maxDistCertLen);
+						maxDistCertLen = Math.max(d.fullname.length, maxDistCertLen);
 					}
 				});
 			});
@@ -804,7 +821,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 			// sort the certs
 			Object.keys(distributionCerts).forEach(function (keychain) {
 				distributionCerts[keychain] = distributionCerts[keychain].sort(function (a, b) {
-					return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+					return a.fullname.toLowerCase().localeCompare(b.fullname.toLowerCase());
 				});
 			});
 
@@ -816,7 +833,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 						var expires = moment(opt.after),
 							day = expires.format('D'),
 							hour = expires.format('h');
-						return '  ' + num + appc.string.rpad(opt.name, maxDistCertLen + 1).cyan
+						return '  ' + num + appc.string.rpad(opt.fullname, maxDistCertLen + 1).cyan
 							+ (opt.after ? (' (' + __('expires %s', expires.format('MMM') + ' '
 							+ (day.length === 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
 							+ (hour.length === 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
@@ -824,8 +841,8 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 					}
 				},
 				margin: '',
-				optionLabel: 'name',
-				optionValue: 'name',
+				optionLabel: 'fullname',
+				optionValue: 'fullname',
 				numbered: true,
 				relistOnError: true,
 				complete: true,
@@ -841,9 +858,16 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 				return callback(null, value);
 			}
 			if (value) {
-				const v = distributionCertLookup[value.toLowerCase()];
-				if (v) {
-					return callback(null, v);
+				// value can either be a fullname (Apple Distribution: Joe Bloggs (TEAMID)) or just name (Joe Bloggs (TEAMID)). We want to use fullname, so if we were provided
+				// a name try to map it back to the correct format.
+				const v = distributionCertLookup.filter(cert => cert.name.toLowerCase() === value.toLowerCase() || cert.fullname.toLowerCase() === value.toLowerCase());
+
+				if (v.length === 1) {
+					return callback(null, v[0].fullname);
+				}
+
+				if (v.length > 1) {
+					return callback(new Error(__('Unable to determine correct certificate from supplied value')));
 				}
 			}
 			callback(new Error(__('Invalid distribution certificate "%s"', value)));
@@ -2032,6 +2056,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					this.watchSimHandle = watchSimHandle;
 					this.xcodeEnv = selectedXcode;
 
+					// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+					const m = this.simHandle.model.match(/^(iPad|iPhone)([\d]+)/);
+					this.simOnlyActiveArch = !!(m && (m[1] === 'iPad' && parseInt(m[2]) >= 4) || (m[1] === 'iPhone' && parseInt(m[2]) >= 6));
+
 					if (!this.iosSdkVersion) {
 						const sdks = selectedXcode.sdks.sort();
 						this.iosSdkVersion = sdks[sdks.length - 1];
@@ -2381,7 +2409,8 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'];
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
-	this.currentBuildManifest.showErrorController          = this.showErrorController;
+	this.currentBuildManifest.simOnlyActiveArch  = this.simOnlyActiveArch;
+	this.currentBuildManifest.showErrorController = this.showErrorController;
 
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
@@ -2494,7 +2523,7 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
 	this.tiLogServerPort = 0;
 
-	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+	if (this.target !== 'device') {
 		// we don't allow the log server in production
 		return next();
 	}
@@ -2679,6 +2708,13 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			}
 		}
 
+		if (this.certDeveloperName !== manifest.developerName) {
+			this.logger.info(__('Forcing rebuild: developerName changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.developerName));
+			this.logger.info('  ' + __('Now: %s', this.certDeveloperName));
+			return true;
+		}
+
 		return false;
 	}.call(this);
 
@@ -2810,6 +2846,13 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: showErrorController flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.showErrorController));
 			this.logger.info('  ' + __('Now: %s', this.showErrorController));
+			return true;
+		}
+
+		if (this.simOnlyActiveArch !== manifest.simOnlyActiveArch) {
+			this.logger.info(__('Forcing rebuild: simOnlyActiveArch flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.simOnlyActiveArch));
+			this.logger.info('  ' + __('Now: %s', this.simOnlyActiveArch));
 			return true;
 		}
 
@@ -3063,6 +3106,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
+		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
@@ -3096,7 +3140,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Distribution"';
+		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDistributionName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 
 		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
@@ -3122,10 +3166,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	} else if (this.target === 'device') {
-		// sign the application using a signing identity that contains the phrase "iPhone Developer"
-		// as long as there's a valid development signing identity (identity certificate and private key)
-		// build and deployment should succeed.
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer"';
+		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDeveloperName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
@@ -4104,6 +4145,9 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	if (this.enableLaunchScreenStoryboard) {
 		plist.UILaunchStoryboardName = 'LaunchScreen';
 	} else {
+		if (appc.version.gte(this.xcodeEnv.version, '11.0.0')) {
+			this.logger.warn(__('Launch images are deprecated by Xcode 11 and you will need to adopt a storyboard-based launch screen'));
+		}
 		delete plist.UILaunchStoryboardName;
 	}
 
@@ -4572,6 +4616,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
+	copyAndReplaceFile.call(
+		this,
+		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),
+		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata')
+	);
 
 	if (this.enableLaunchScreenStoryboard && this.defaultLaunchScreenStoryboard) {
 		this.logger.info(__('Installing default %s', 'LaunchScreen.storyboard'.cyan));
@@ -4954,7 +5003,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	this.logger.info(__('Analyzing Resources directory'));
-	walk(path.join(this.titaniumSdkPath, 'common', 'Resources'), this.xcodeAppDir);
+	walk(path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir);
@@ -5719,7 +5768,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					this.logger.info(__('Creating assets image set'));
 					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
 						imageSets = {},
-						imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
+						imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 					Object.keys(imageAssets).forEach(function (file) {
 						const imageName = imageAssets[file].name,
@@ -5744,13 +5793,21 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								};
 							}
 
-							imageSets[imageSetRelPath].images.push({
-								idiom: !match[3] ? 'universal' : match[3].replace('~', ''),
+							const imageSet = {
+								idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
 								filename: imageName + '.' + imageExt,
-								scale: !match[2] ? '1x' : match[2].replace('@', '')
-							});
-						}
+								scale: !match[3] ? '1x' : match[3].replace('@', '')
+							};
 
+							if (match[2]) {
+								imageSet.appearances = [ {
+									appearance: 'luminosity',
+									value: 'dark'
+								} ];
+							}
+
+							imageSets[imageSetRelPath].images.push(imageSet);
+						}
 						resourcesToCopy[file] = imageAssets[file];
 						resourcesToCopy[file].isImage = true;
 					}, this);
@@ -5765,6 +5822,124 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							}
 						});
 					}, this);
+				},
+
+				function generateSemanticColors() {
+					let colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
+
+					if (!fs.existsSync(colorsFile)) {
+						// Fallback to root of Resources folder for Classic applications
+						colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
+					}
+
+					if (!fs.existsSync(colorsFile)) {
+						this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
+						return;
+					}
+
+					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
+					const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+
+					function hexToRgb(hex) {
+						let alpha = 1;
+						let color = hex;
+						if (hex.color) {
+							alpha = hex.alpha / 100; // convert from 0-100 range to 0-1 range
+							color = hex.color;
+						}
+						// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+						color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+
+						var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+						return result ? {
+							r: parseInt(result[1], 16),
+							g: parseInt(result[2], 16),
+							b: parseInt(result[3], 16),
+							alpha: alpha.toFixed(3)
+						} : null;
+					}
+
+					const colors = fs.readJSONSync(colorsFile);
+
+					for (const [ color, colorValue ] of Object.entries(colors)) {
+						const colorDir = path.join(assetCatalog, `${color}.colorset`);
+
+						if (!colorValue.light) {
+							this.logger.warn(`Skipping ${color} as it does not include a light value`);
+							continue;
+						}
+
+						if (!colorValue.dark) {
+							this.logger.warn(`Skipping ${color} as it does not include a dark value`);
+							continue;
+						}
+
+						const defaultRGB = hexToRgb(colorValue.default || colorValue.light);
+						const lightRGB = hexToRgb(colorValue.light);
+						const darkRGB = hexToRgb(colorValue.dark);
+
+						const colorSource = {
+							info: {
+								version: 1,
+								author: 'xcode'
+							},
+							colors: []
+						};
+
+						// Default
+						colorSource.colors.push({
+							idiom: 'universal',
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${defaultRGB.r}`,
+									green: `${defaultRGB.g}`,
+									blue: `${defaultRGB.b}`,
+									alpha: `${defaultRGB.alpha}`
+								}
+							}
+						});
+
+						// Light
+						colorSource.colors.push({
+							idiom: 'universal',
+							appearances: [ {
+								appearance: 'luminosity',
+								value: 'light'
+							} ],
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${lightRGB.r}`,
+									green: `${lightRGB.g}`,
+									blue: `${lightRGB.b}`,
+									alpha: `${lightRGB.alpha}`
+								}
+							}
+						});
+
+						// Dark
+						colorSource.colors.push({
+							idiom: 'universal',
+							appearances: [ {
+								appearance: 'luminosity',
+								value: 'dark'
+							} ],
+							color: {
+								'color-space': 'srgb',
+								components: {
+									red: `${darkRGB.r}`,
+									green: `${darkRGB.g}`,
+									blue: `${darkRGB.b}`,
+									alpha: `${darkRGB.alpha}`
+								}
+							}
+						});
+
+						fs.ensureDirSync(colorDir);
+						fs.writeJsonSync(path.join(colorDir, 'Contents.json'), colorSource);
+						this.unmarkBuildDirFile(path.join(colorDir, 'Contents.json'));
+					}
 				},
 
 				function copyResources() {
@@ -5826,7 +6001,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			series(this, [
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
-					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
+					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios');
 					const task = new ProcessJsTask({
 						inputFiles: Object.keys(jsFiles).map(relPath => jsFiles[relPath].src),
 						incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
@@ -6370,7 +6545,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		}, this);
 
 		// remove invalid architectures from TitaniumKit.framework for App Store distributions
-		if (this.target === 'dist-appstore') {
+		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
 			this.logger.info(__('Removing invalid architectures from TitaniumKit.framework'));
 
 			const titaniumKitPath = path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework', 'TitaniumKit');
@@ -6634,10 +6809,12 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (this.simHandle) {
-		// when building for the simulator, we need to specify a destination and a scheme (above)
-		// so that it can compile all targets (phone and watch targets) for the simulator
-		args.push('-destination', 'platform=iOS Simulator,id=' + this.simHandle.udid + ',OS=' + appc.version.format(this.simHandle.version, 2, 2));
-		args.push('ONLY_ACTIVE_ARCH=1');
+		args.push('-destination', 'generic/platform=iOS Simulator');
+
+		// only build active architecture, which is 64-bit, if simulator is not 32-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+		if (this.simOnlyActiveArch) {
+			args.push('ONLY_ACTIVE_ARCH=1');
+		}
 	}
 
 	xcodebuildHook(

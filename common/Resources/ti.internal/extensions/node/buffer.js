@@ -14,6 +14,18 @@
  * a Uint8Array in any of our APIs that take a Ti.Buffer and eventually deprecating/removing Ti.Buffer.
  */
 
+import {
+	customInspectSymbol,
+	getOwnNonIndexProperties,
+	isBuffer,
+	isInsideNodeModules,
+	propertyFilter
+} from './internal/util';
+
+import { inspect as utilInspect } from './internal/util/inspect';
+
+const { ALL_PROPERTIES, ONLY_ENUMERABLE } = propertyFilter;
+
 // https://nodejs.org/api/buffer.html#buffer_buffers_and_character_encodings
 const TI_CODEC_MAP = new Map();
 TI_CODEC_MAP.set('utf-8', Ti.Codec.CHARSET_UTF8);
@@ -49,19 +61,54 @@ const uint8DoubleArray = new Uint8Array(doubleArray.buffer);
 const floatArray = new Float32Array(1);
 const uint8FloatArray = new Uint8Array(floatArray.buffer);
 
+let INSPECT_MAX_BYTES = 50;
+
 class Buffer {
-	constructor(tiBuffer, start, length) {
-		this._tiBuffer = tiBuffer;
+	/**
+	 * Constructs a new buffer.
+	 *
+	 * Primarily used internally in this module together with `newBuffer` to
+	 * create a new Buffer instance wrapping a Ti.Buffer.
+	 *
+	 * Also supports the deprecated Buffer() constructors which are safe
+	 * to use outside of this module.
+	 *
+	 * @param {integer[]|Buffer|integer|string|Ti.Buffer} arg
+	 * @param {string|integer} encodingOrOffset
+	 * @param {integer} length
+	 */
+	constructor(arg, encodingOrOffset, length) {
+		if (typeof arg !== 'object' || arg.apiName !== 'Ti.Buffer') {
+			showFlaggedDeprecation();
+
+			if (typeof arg === 'number') {
+				if (typeof encodingOrOffset === 'string') {
+					throw new TypeError(`The "string" argument must be of type "string". Received type ${typeof arg}`);
+				}
+				return Buffer.alloc(arg);
+			}
+			return Buffer.from(arg, encodingOrOffset, length);
+		}
+
+		const tiBuffer = arg;
+		let start = encodingOrOffset;
 		if (start === undefined) {
 			start = 0;
 		}
-		this.byteOffset = start;
 		if (length === undefined) {
-			this.length = tiBuffer.length - this.byteOffset;
-		} else {
-			this.length = length;
+			length = tiBuffer.length - start;
 		}
-		this._isBuffer = true;
+		Object.defineProperties(this, {
+			byteOffset: {
+				value: start
+			},
+			length: {
+				value: length
+			},
+			_tiBuffer: {
+				value: tiBuffer
+			}
+		});
 		// FIXME: Support .buffer property that holds an ArrayBuffer!
 	}
 
@@ -817,6 +864,14 @@ class Buffer {
 	}
 
 	/**
+	 * Provides a conversion method for interacting with Ti APIs taht require a Ti.Buffer
+	 * @returns {Ti.Buffer} the underlying Ti.Buffer backing this Buffer instance
+	 */
+	toTiBuffer() {
+		return this._tiBuffer;
+	}
+
+	/**
 	 * Creates and returns an iterator for buf values (bytes)
 	 * @returns {Iterator}
 	 */
@@ -1329,13 +1384,6 @@ class Buffer {
 			}
 			return newBuffer(Ti.createBuffer({ value: value, type: getTiCodecCharset(encoding) }));
 		} else if (valueType === 'object') {
-			if (Array.isArray(value)) {
-				const tiBuffer = Ti.createBuffer({ length: value.length });
-				for (let i = 0; i < value.length; i++) {
-					tiBuffer[i] = value[i] & 0xFF; // mask to one byte
-				}
-				return newBuffer(tiBuffer);
-			}
 			if (Buffer.isBuffer(value)) {
 				const length = value.length;
 				const buffer = Buffer.allocUnsafe(length);
@@ -1346,6 +1394,19 @@ class Buffer {
 
 				value.copy(buffer, 0, 0, length);
 				return buffer;
+			}
+			if (Array.isArray(value) || value instanceof Uint8Array) {
+				const length = value.length;
+				if (length === 0) {
+					return Buffer.allocUnsafe(0);
+				}
+
+				const tiBuffer = Ti.createBuffer({ length });
+				for (let i = 0; i < length; i++) {
+					tiBuffer[i] = value[i] & 0xFF; // mask to one byte
+				}
+
+				return newBuffer(tiBuffer);
 			}
 			if (value.apiName && value.apiName === 'Ti.Buffer') {
 				return newBuffer(value);
@@ -1370,9 +1431,45 @@ class Buffer {
 	 * @returns {boolean}
 	 */
 	static isBuffer(obj) {
-		return obj !== null && obj !== undefined && obj._isBuffer === true;
+		return obj !== null && obj !== undefined && obj[isBuffer] === true;
+	}
+
+	// Override how buffers are presented by util.inspect().
+	[customInspectSymbol](recurseTimes, ctx) {
+		const max = INSPECT_MAX_BYTES;
+		const actualMax = Math.min(max, this.length);
+		const remaining = this.length - max;
+		let str = this.slice(0, actualMax).toString('hex').replace(/(.{2})/g, '$1 ').trim();
+		if (remaining > 0) {
+			str += ` ... ${remaining} more byte${remaining > 1 ? 's' : ''}`;
+		}
+		// Inspect special properties as well, if possible.
+		if (ctx) {
+			let extras = false;
+			const filter = ctx.showHidden ? ALL_PROPERTIES : ONLY_ENUMERABLE;
+			const obj = getOwnNonIndexProperties(this, filter).reduce((obj, key) => {
+				extras = true;
+				obj[key] = this[key];
+				return obj;
+			}, Object.create(null));
+			if (extras) {
+				if (this.length !== 0) {
+					str += ', ';
+				}
+				// '[Object: null prototype] {'.length === 26
+				// This is guarded with a test.
+				str += utilInspect(obj, {
+					...ctx,
+					breakLength: Infinity,
+					compact: true
+				}).slice(27, -2);
+			}
+		}
+		return `<${this.constructor.name} ${str}>`;
 	}
 }
+
+Buffer.prototype.inspect = Buffer.prototype[customInspectSymbol];
 
 Buffer.poolSize = 8192;
 
@@ -1508,6 +1605,8 @@ const arrayIndexHandler = {
 			if (Number.isSafeInteger(num)) {
 				return getAdjustedIndex(target, num);
 			}
+		} else if (propKey === isBuffer) {
+			return true;
 		}
 		return Reflect.get(target, propKey, receiver);
 	},
@@ -1554,7 +1653,7 @@ function setAdjustedIndex(buf, index, value) {
  * @returns {Buffer} wrapped inside a Proxy
  */
 function newBuffer(...args) {
-	return new Proxy(new Buffer(...args), arrayIndexHandler);  // eslint-disable-line security/detect-new-buffer
+	return new Proxy(new Buffer(...args), arrayIndexHandler); // eslint-disable-line security/detect-new-buffer
 }
 
 /**
@@ -1581,4 +1680,26 @@ function checkValue(value, min, max) {
 	if (value < min || value > max) {
 		throw new RangeError(`The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`);
 	}
+}
+
+let bufferWarningAlreadyEmitted = false;
+let nodeModulesCheckCounter = 0;
+const bufferWarning = 'Buffer() is deprecated due to security and usability '
+											+ 'issues. Please use the Buffer.alloc(), '
+											+ 'Buffer.allocUnsafe(), or Buffer.from() methods instead.';
+
+function showFlaggedDeprecation() {
+	if (bufferWarningAlreadyEmitted
+			|| ++nodeModulesCheckCounter > 10000
+			|| isInsideNodeModules()) {
+		// We don't emit a warning, because we either:
+		// - Already did so, or
+		// - Already checked too many times whether a call is coming
+		//   from node_modules and want to stop slowing down things, or
+		// - The code is inside `node_modules`.
+		return;
+	}
+
+	process.emitWarning(bufferWarning, 'DeprecationWarning', 'DEP0005');
+	bufferWarningAlreadyEmitted = true;
 }

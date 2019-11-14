@@ -8,24 +8,31 @@ package com.titanium.test;
 
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
+import org.appcelerator.kroll.util.KrollAssetCache;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
 
-public final class TitaniumTestApplication extends TiApplication {
-    private static final String TAG = "TitaniumTestApplication";
+public final class TitaniumTestApplication extends TiApplication
+{
+	private static final String TAG = "TitaniumTestApplication";
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+	@Override
+	public void onCreate()
+	{
+		super.onCreate();
 
-        appInfo = new TitaniumTestAppInfo(this);
+		// Load cache as soon as possible.
+		KrollAssetCache.init(this);
 
-        V8Runtime runtime = new V8Runtime();
-        KrollRuntime.init(this, runtime);
-        postOnCreate();
-    }
+		appInfo = new TitaniumTestAppInfo(this);
 
-    @Override
-    public void verifyCustomModules(TiRootActivity rootActivity) {
-    }
+		V8Runtime runtime = new V8Runtime();
+		KrollRuntime.init(this, runtime);
+		postOnCreate();
+	}
+
+	@Override
+	public void verifyCustomModules(TiRootActivity rootActivity)
+	{
+	}
 }

@@ -167,6 +167,22 @@
   [super viewDidDisappear:animated];
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController
+{
+  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    [(id<TiWindowProtocol>)_proxy presentationControllerWillDismiss:presentationController];
+  }
+}
+
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
+{
+  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    [(id<TiWindowProtocol>)_proxy presentationControllerDidDismiss:presentationController];
+  }
+}
+#endif
+
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
   if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

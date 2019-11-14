@@ -99,6 +99,7 @@
     [self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
   } else {
     [[self segmentedControl] setSelectedSegmentIndex:selectedIndex];
+    [segmentedControl setNeedsLayout];
   }
 }
 

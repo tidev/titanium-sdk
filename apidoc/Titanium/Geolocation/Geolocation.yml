@@ -869,6 +869,7 @@ properties:
   - name: altitudeAccuracy
     summary:  Vertical accuracy of the location update, in meters.
     type: Number
+    osver: { android: { min: "8.0.0" } }
 
   - name: heading
     summary: |
