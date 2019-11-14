@@ -258,7 +258,7 @@ public class TiUIScrollView extends TiUIView
 				// If we don't have a specific contentWidth and the scroll type is 'vertical'
 				// match the layout's width to the ScrollView's width to avoid messing up
 				// children's positions to the visible part of the component.
-				if (type == TYPE_VERTICAL) {
+				if (type == TYPE_VERTICAL && maxWidth > this.parentContentWidth) {
 					contentWidth = this.parentContentWidth;
 				} else {
 					contentWidth = maxWidth; // measuredWidth;
@@ -281,7 +281,7 @@ public class TiUIScrollView extends TiUIView
 				// If we don't have a specific contentHeight and the scroll type is 'horizontal'
 				// match the layout's width to the ScrollView's width to avoid messing up
 				// children's positions to the visible part of the component.
-				if (type == TYPE_HORIZONTAL) {
+				if (type == TYPE_HORIZONTAL && maxHeight > this.parentContentHeight) {
 					contentHeight = this.parentContentHeight;
 				} else {
 					contentHeight = maxHeight; // measuredHeight;
