@@ -3019,10 +3019,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIndex() {
 	this.logger.info('Generating import/require index file');
 
+	// Fetch relative paths to all of the app's *.js and *.json files.
 	const filePathDictionary = {};
 	const normalizedAssetsDir = this.buildAppMainAssetsDir.replace(/\\/g, '/');
-	const destFile = path.join(normalizedAssetsDir, 'index.json');
-
 	(function walk(dir) {
 		fs.readdirSync(dir).forEach(function (fileName) {
 			const filePath = path.join(dir, fileName);
@@ -3039,17 +3038,33 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 			}
 		});
 	}(this.buildAppMainAssetsResourcesDir));
-
 	for (const filePath of this.jsFilesToEncrypt) {
 		filePathDictionary['Resources/' + filePath.replace(/\\/g, '/')] = 1;
 	}
-
 	delete filePathDictionary['Resources/_app_props_.json'];
 
-	if (await fs.exists(destFile)) {
-		await fs.unlink(destFile);
+	// Create the "index.json" file. This is used by our require/import function to load these files.
+	const indexJsonFilePath = path.join(normalizedAssetsDir, 'index.json');
+	if (await fs.exists(indexJsonFilePath)) {
+		await fs.unlink(indexJsonFilePath);
 	}
-	await fs.writeFile(destFile, JSON.stringify(filePathDictionary));
+	await fs.writeFile(indexJsonFilePath, JSON.stringify(filePathDictionary));
+
+	// Fetch JavaScript files that should be pre-loaded by the app before required/imported in.
+	// Always pre-load "app.js" and Alloy generated *.js files. Allows for faster app startup time.
+	const cacheAssets = [ 'Resources/app.js' ];
+	const assets = Object.keys(filePathDictionary);
+	if (assets.includes('Resources/alloy.js')) {
+		for (let asset of assets) {
+			if (asset.startsWith('Resources/alloy')) {
+				cacheAssets.push(asset);
+			}
+		}
+	}
+
+	// Create the "cache.json" file.
+	const cacheJsonFilePath = path.join(this.buildAppMainAssetsDir, 'cache.json');
+	await fs.writeFile(cacheJsonFilePath, JSON.stringify(cacheAssets));
 };
 
 AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
