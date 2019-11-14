@@ -827,7 +827,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			// launch script does not exist, must be using snapshot
 			// execute startup method baked in snapshot
 		} else {
-			runtime.doRunModule("global.startSnapshot(global)", appPath, rootActivity.getActivityProxy());
+			runtime.doRunModule("global._startSnapshot(global)", appPath, rootActivity.getActivityProxy());
 		}
 	}
 
