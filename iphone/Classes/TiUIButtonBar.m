@@ -157,7 +157,7 @@
 }
 
 #if IS_SDK_IOS_13
-- (void)setSelectedSegmentColor_:(id)value
+- (void)setSelectedButtonColor_:(id)value
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return;
