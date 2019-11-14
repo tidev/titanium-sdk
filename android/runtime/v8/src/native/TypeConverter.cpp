@@ -4,7 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <cstring>
+#include <sstream>
 #include <limits>
+
 #include <jni.h>
 #include <stdio.h>
 #include <v8.h>
@@ -156,6 +159,30 @@ Local<Value> TypeConverter::javaStringToJsString(Isolate* isolate, JNIEnv *env, 
 	// FIXME Propagate MaybeLocal to caller?
 	Local<String> jsString = String::NewFromTwoByte(isolate, nativeString, NewStringType::kNormal, nativeStringLength).ToLocalChecked();
 	env->ReleaseStringChars(javaString, nativeString);
+
+	return jsString;
+}
+
+Local<Value> TypeConverter::javaBytesToJsString(Isolate* isolate, jbyteArray javaBytes)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return String::Empty(isolate);
+	}
+	return TypeConverter::javaBytesToJsString(isolate, env, javaBytes);
+}
+
+Local<Value> TypeConverter::javaBytesToJsString(Isolate* isolate, JNIEnv *env, jbyteArray javaBytes)
+{
+	if (!javaBytes) {
+		return Null(isolate);
+	}
+
+	jboolean isCopy;
+	jsize nativeBytesLength = env->GetArrayLength(javaBytes);
+	char* nativeBytes = reinterpret_cast<char*>(env->GetByteArrayElements(javaBytes, &isCopy));
+	Local<String> jsString = v8::String::NewFromUtf8(V8Runtime::v8_isolate, nativeBytes, v8::NewStringType::kNormal, nativeBytesLength).ToLocalChecked();
+	env->ReleaseByteArrayElements(javaBytes, reinterpret_cast<jbyte*>(nativeBytes), JNI_ABORT);
 
 	return jsString;
 }
@@ -1022,6 +1049,9 @@ Local<Value> TypeConverter::javaObjectToJsValue(Isolate* isolate, JNIEnv *env, j
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::booleanArrayClass)) {
 		return javaArrayToJsArray(isolate, (jbooleanArray) javaObject);
 
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::throwableClass)) {
+		return javaThrowableToJSError(isolate, (jthrowable) javaObject);
+
 	} else if (env->IsSameObject(JNIUtil::undefinedObject, javaObject)) {
 		return Undefined(isolate);
 	}
@@ -1163,4 +1193,78 @@ Local<Array> TypeConverter::javaShortArrayToJsNumberArray(Isolate* isolate, JNIE
 	}
 	env->ReleaseShortArrayElements(javaShortArray, arrayElements, JNI_ABORT);
 	return jsArray;
+}
+
+Local<Object> TypeConverter::javaThrowableToJSError(Isolate* isolate, jthrowable javaException)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return Local<Object>();
+	}
+	return TypeConverter::javaThrowableToJSError(isolate, env, javaException);
+}
+
+Local<Object> TypeConverter::javaThrowableToJSError(v8::Isolate* isolate, JNIEnv *env, jthrowable javaException)
+{
+	// Grab the top-level error message
+	jstring javaMessage = (jstring) env->CallObjectMethod(javaException, JNIUtil::throwableGetMessageMethod);
+	Local<Value> message;
+	if (!javaMessage) {
+		message = STRING_NEW(isolate, "Unknown Java Exception occurred");
+	} else {
+		message = TypeConverter::javaStringToJsString(isolate, env, javaMessage);
+		env->DeleteLocalRef(javaMessage);
+	}
+
+	// Create a JS Error holding this message
+	// We use .As<String> here because we know that the return value of TypeConverter::javaStringToJsString
+	// must be a String. Only other variant is Null when the javaMessage is null, which we already checked for above.
+	// We use .As<Object> on Error because an Error is an Object.
+	Local<Object> error = Exception::Error(message.As<String>()).As<Object>();
+
+	// Now loop through the java stack and generate a JS String from the result and assign to Local<String> stack
+	std::stringstream stackStream;
+	jobjectArray frames = (jobjectArray) env->CallObjectMethod(javaException, JNIUtil::throwableGetStackTraceMethod);
+	jsize frames_length = env->GetArrayLength(frames);
+	for (int i = 0; i < (frames_length > MAX_STACK ? MAX_STACK : frames_length); i++) {
+		jobject frame = env->GetObjectArrayElement(frames, i);
+		jstring javaStack = (jstring) env->CallObjectMethod(frame, JNIUtil::stackTraceElementToStringMethod);
+
+		const char* stackPtr = env->GetStringUTFChars(javaStack, NULL);
+		stackStream << std::endl << "    " << stackPtr;
+
+		env->ReleaseStringUTFChars(javaStack, stackPtr);
+		env->DeleteLocalRef(javaStack);
+	}
+	stackStream << std::endl;
+
+	Local<Context> context = isolate->GetCurrentContext();
+
+	// Now explicitly assign our properly generated stacktrace
+	Local<String> javaStack = String::NewFromUtf8(isolate, stackStream.str().c_str());
+	error->Set(context, STRING_NEW(isolate, "nativeStack"), javaStack);
+
+	// If we're using our custom error interface we can ask for a map of additional properties ot set on the JS Error
+	if (env->IsInstanceOf(javaException, JNIUtil::jsErrorClass)) {
+		jobject customProps = (jobject) env->CallObjectMethod(javaException, JNIUtil::getJSPropertiesMethod);
+		if (customProps) {
+			// Grab the custom properties
+			Local<Object> props = TypeConverter::javaHashMapToJsValue(isolate, env, customProps);
+			env->DeleteLocalRef(customProps);
+
+			// Copy properties over to the JS Error!
+			Local<Array> objectKeys = props->GetOwnPropertyNames(context).ToLocalChecked();
+			int numKeys = objectKeys->Length();
+			for (int i = 0; i < numKeys; i++) {
+				// FIXME: Handle when empty!
+				Local<Value> jsObjectPropertyKey = objectKeys->Get(context, (uint32_t) i).ToLocalChecked();
+				Local<String> keyName = jsObjectPropertyKey.As<String>();
+
+				Local<Value> jsObjectPropertyValue = props->Get(context, jsObjectPropertyKey).ToLocalChecked();
+				error->Set(context, keyName, jsObjectPropertyValue);
+			}
+		}
+	}
+
+	return error;
 }

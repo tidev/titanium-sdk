@@ -3,12 +3,20 @@ name: Titanium.UI.TextArea
 summary: A multiline text field that supports editing and scrolling.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/textarea/textarea_android.png" height="50" /></td>
-        <td><img src="images/textarea/textarea_ios.png" height="50" /></td>
-        <td><img src="images/textarea/textarea_wp.png" height="50" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/textarea/textarea_android.png" height="50" /></td>
+          <td><img src="images/textarea/textarea_ios.png" height="50" /></td>
+          <td><img src="images/textarea/textarea_wp.png" height="50" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
@@ -61,7 +69,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.TextArea.keyboardAppearance> instead.
+        notes: Use [Titanium.UI.TextArea.keyboardAppearance](Titanium.UI.TextArea.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.

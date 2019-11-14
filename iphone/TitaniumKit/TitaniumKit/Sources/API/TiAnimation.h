@@ -83,6 +83,8 @@
   NSNumber *transition;
   TiViewProxy *view;
   TiViewProxy *animatedViewProxy;
+  NSNumber *dampingRatio;
+  NSNumber *springVelocity;
 
   // this is a temporary function passed in
   ListenerEntry *callback;
@@ -133,6 +135,8 @@
 @property (nonatomic, retain, readwrite) TiProxy *transform;
 @property (nonatomic, retain, readwrite) NSNumber *transition;
 @property (nonatomic, retain, readwrite) TiProxy *view;
+@property (nonatomic, retain, readwrite) NSNumber *dampingRatio;
+@property (nonatomic, retain, readwrite) NSNumber *springVelocity;
 
 + (TiAnimation *)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn;
 

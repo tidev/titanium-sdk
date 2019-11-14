@@ -126,6 +126,13 @@
                                                  name:kTiApplicationLaunchedFromURL
                                                object:nil];
   }
+
+  if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeTraitCollection:)
+                                                 name:kTiTraitCollectionChanged
+                                               object:nil];
+  }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -179,19 +186,30 @@
   if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
   }
+  if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+  }
 }
 
 #pragma mark Public
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)userInterfaceStyle
+{
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+#endif
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self fireEvent:@"traitcollectionchange"];
+}
 
 - (void)didReceiveApplicationShortcutNotification:(NSNotification *)info
 {
   NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
     @"title" : [[info userInfo] valueForKey:@"title"],
-#ifdef USE_TI_UIAPPLICATIONSHORTCUTS
-    @"identifier" : [[info userInfo] valueForKey:@"type"]
-#else
     @"itemtype" : [[info userInfo] valueForKey:@"type"]
-#endif
   }];
 
   if ([[info userInfo] valueForKey:@"subtitle"] != nil) {
@@ -424,7 +442,7 @@
           break;
         }
         }
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
         // Handle additional iOS 12+ enums
         if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
           switch ([TiUtils intValue:thisTypeRequested]) {
@@ -588,7 +606,7 @@
     UNNotificationSetting carPlaySetting = [(UNNotificationSettings *)notificationSettings carPlaySetting];
 
     if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
       UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
       BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
 
@@ -805,7 +823,7 @@
       [content setCategoryIdentifier:[TiUtils stringValue:category]];
     }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
     // Add iOS 12+ API's to enable threading and notification groups
     if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
       // Set the string the notification adds to the category’s summary format string.
@@ -1172,7 +1190,7 @@
   return NUMINT(0);
 }
 
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 - (NSNumber *)USER_NOTIFICATION_TYPE_CRITICAL_ALERT
 {
   if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
@@ -1270,6 +1288,35 @@
 
   return NUMINT(0);
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleUnspecified);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_LIGHT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleLight);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_DARK
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleDark);
+  }
+
+  return NUMINT(0);
+}
+#endif
 
 #pragma mark UTI Text Type Constants
 
@@ -1504,7 +1551,7 @@ MAKE_SYSTEM_PROP(FETCH_FAILED, UIBackgroundFetchResultFailed);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED, UNAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED, UNAuthorizationStatusAuthorized);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED, UNAuthorizationStatusNotDetermined);
-#if IS_XCODE_10
+#if IS_SDK_IOS_12
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_PROVISIONAL, UNAuthorizationStatusProvisional);
 #endif
 

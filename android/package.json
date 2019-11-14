@@ -18,17 +18,18 @@
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
 	"v8": {
-		"version": "7.0.276.42",
-		"mode": "release"
+		"version": "7.3.492.26",
+		"mode": "release",
+		"checksum": "7798aae19b2efff53b1f18d53345291ab16a574e0524350eed3db6d45757bc476a158303b8df6c5f359439f9184818d61eba6bd820cec404e268ab0796cc7c5a"
 	},
 	"minSDKVersion": "19",
-	"compileSDKVersion": "28",
+	"compileSDKVersion": "29",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=28.x",
-		"android build tools": ">=25.x <=28.x",
-		"android platform tools": "28.x",
+		"android sdk": ">=23.x <=29.x",
+		"android build tools": ">=25.x <=29.x",
+		"android platform tools": "29.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r11c <=r17b",	
+		"android ndk": ">=r11c <=r20",	
 		"java": ">=1.8.x"
 	},
 	"repository": {

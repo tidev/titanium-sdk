@@ -59,14 +59,12 @@ Module.runModule = function (source, filename, activityOrService) {
 	if (isService) {
 		module = new Module(id, null, {
 			currentService: activityOrService,
-			currentActivity: null,
-			currentWindow: null
+			currentActivity: null
 		});
 	} else {
 		module = new Module(id, null, {
 			currentService: null,
-			currentActivity: activityOrService,
-			currentWindow: activityOrService ? activityOrService.window : null
+			currentActivity: activityOrService
 		});
 	}
 
@@ -97,6 +95,7 @@ Module.prototype.load = function (filename, source) {
 
 	this.filename = filename;
 	this.path = path.dirname(filename);
+	this.paths = this.nodeModulesPaths(this.path);
 
 	if (!source) {
 		source = assets.readAsset('Resources' + filename);
@@ -281,7 +280,7 @@ Module.prototype.require = function (request, context) {
 
 		// Allow looking through node_modules
 		// 3. LOAD_NODE_MODULES(X, dirname(Y))
-		loaded = this.loadNodeModules(request, this.path, context);
+		loaded = this.loadNodeModules(request, this.paths, context);
 		if (loaded) {
 			return loaded.exports;
 		}
@@ -351,18 +350,15 @@ Module.prototype.loadCoreModule = function (id, context) {
 /**
  * Attempts to load a node module by id from the starting path
  * @param  {String} moduleId       The path of the module to load.
- * @param  {String} startDir       The starting directory
+ * @param  {String[]} dirs       paths to search
  * @param  {Object} context        context object
  * @return {Object}                The module's exports, if loaded. null if not.
  */
-Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
+Module.prototype.loadNodeModules = function (moduleId, dirs, context) {
 	var mod, // the loaded module
-		dirs = [],
 		i,
 		dir;
 
-	// 1. let DIRS=NODE_MODULES_PATHS(START)
-	dirs = this.nodeModulesPaths(startDir);
 	// 2. for each DIR in DIRS:
 	for (i = 0; i < dirs.length; i++) {
 		dir = dirs[i];
@@ -537,7 +533,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
 			// b. let M = X + (json main field)
 			var m = path.resolve(id, object.exports.main);
 			// c. LOAD_AS_FILE(M)
-			return this.loadAsFile(m, context);
+			return this.loadAsFileOrDirectory(m, context);
 		}
 	}
 

@@ -56,6 +56,7 @@ jclass JNIUtil::krollAssetHelperClass = NULL;
 jclass JNIUtil::krollLoggingClass = NULL;
 jclass JNIUtil::krollDictClass = NULL;
 jclass JNIUtil::referenceTableClass = NULL;
+jclass JNIUtil::jsErrorClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::arrayListInitMethod = NULL;
@@ -115,6 +116,8 @@ jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
 jmethodID JNIUtil::krollLoggingLogWithDefaultLoggerMethod = NULL;
 
 jmethodID JNIUtil::krollRuntimeDispatchExceptionMethod = NULL;
+
+jmethodID JNIUtil::getJSPropertiesMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -337,7 +340,9 @@ void JNIUtil::initCache()
 	krollExceptionClass = findClass("org/appcelerator/kroll/KrollException");
 	krollDictClass = findClass("org/appcelerator/kroll/KrollDict");
 	referenceTableClass = findClass("org/appcelerator/kroll/runtime/v8/ReferenceTable");
+	jsErrorClass = findClass("org/appcelerator/kroll/JSError");
 
+	getJSPropertiesMethod = getMethodID(jsErrorClass, "getJSProperties", "()Ljava/util/HashMap;", false);
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
 	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false);
 	arrayListAddMethod = getMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z", false);
@@ -404,7 +409,7 @@ void JNIUtil::initCache()
 		"([[Ljava/lang/Object;)V", false);
 
 	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",true);
-	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
+	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAssetBytes", "(Ljava/lang/String;)[B", true);
 
 	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);
 

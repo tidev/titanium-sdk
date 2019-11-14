@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
@@ -19,7 +19,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -46,6 +47,22 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+	}
+
+	// Overriding addTab method to provide a proper guard for trying to add more tabs than the limit
+	// for BottomNavigationView class.
+	@Override
+	public void addTab(TabProxy tabProxy)
+	{
+		if (this.mBottomNavigationView == null) {
+			return;
+		}
+		final int MAX_TABS = this.mBottomNavigationView.getMaxItemCount();
+		if (this.tabs.size() < MAX_TABS) {
+			super.addTab(tabProxy);
+		} else {
+			Log.w(TAG, "Bottom style TabGroup cannot have more than " + MAX_TABS + " tabs.");
+		}
 	}
 
 	@Override
@@ -80,14 +97,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			}
 		};
 		this.mBottomNavigationView.setFitsSystemWindows(true);
-
-		// Set the colorPrimary as backgroundColor by default if do not have the backgroundColor set.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			this.mBottomNavigationView.setBackgroundColor(
-				TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
-		} else {
-			this.mBottomNavigationView.setBackgroundColor(this.colorPrimaryInt);
-		}
 
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
@@ -141,7 +150,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	}
 
 	@Override
-	public void addTabItemInController(TabProxy tabProxy)
+	public void addTabItemInController(TiViewProxy tabProxy)
 	{
 		// Guard for the limit of tabs in the BottomNavigationView.
 		if (this.mMenuItemsArray.size() == 5) {
@@ -152,57 +161,30 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		MenuItem menuItem = this.mBottomNavigationView.getMenu().add(null);
 		// Set the click listener.
 		menuItem.setOnMenuItemClickListener(this);
-		// Set the title.
-		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE)) {
-			menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
-		}
-		// Set the icon.
-		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
-			Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
-			menuItem.setIcon(drawable);
-		}
 		// Add the MenuItem to the menu of BottomNavigationView.
 		this.mMenuItemsArray.add(menuItem);
-		// TabLayout automatically select the first tab that is added to it,
-		// but BottomNavigationView does not do that, so we manually trigger it.
-		// That's necessary to match the behavior across styles.
-		if (this.mMenuItemsArray.size() == 1) {
-			((TabGroupProxy) getProxy()).onTabSelected(tabProxy);
-			currentlySelectedIndex = 0;
-			selectTab(currentlySelectedIndex);
-		}
-		// Set the drawables.
-		setDrawables();
+		// Get the MenuItem index
+		int index = this.mMenuItemsArray.size() - 1;
+		updateDrawablesAfterNewItem(index);
 		// Handle shift mode.
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
+		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
 			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
 				disableShiftMode();
 			}
 		}
 	}
 
-	/**
-	 * This method resets the custom drawables for every item in BottomNavigationView because
-	 * it rebuilds its menu on every addition of a new item in it.
-	 *
-	 */
-	private void setDrawables()
+	private void updateDrawablesAfterNewItem(int index)
 	{
-		try {
-			ArrayList<TabProxy> tabs = ((TabGroupProxy) proxy).getTabList();
-			BottomNavigationMenuView bottomMenuView =
-				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
-			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
-			for (int i = 0; i < this.mMenuItemsArray.size(); i++) {
-				TabProxy tabProxy = tabs.get(i);
-				Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-				bottomMenuView.getChildAt(i).setBackground(backgroundDrawable);
-				// Set the TextView textColor.
-				((BottomNavigationItemView) bottomMenuView.getChildAt(i))
-					.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
-			}
-		} catch (Exception e) {
-			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+		// Set the title.
+		updateTabTitle(index);
+		// Set the icon.
+		updateTabIcon(index);
+		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
+			// Set the title text color.
+			updateTabTitleColor(i);
+			// Set the background drawable.
+			updateTabBackgroundDrawable(i);
 		}
 	}
 
@@ -242,8 +224,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		this.mBottomNavigationView.getMenu().clear();
 		this.mMenuItemsArray.clear();
-		for (TabProxy tabProxy : ((TabGroupProxy) proxy).getTabList()) {
-			addTabItemInController(tabProxy);
+		for (TiUITab tabView : tabs) {
+			addTabItemInController(tabView.getProxy());
 		}
 	}
 
@@ -256,10 +238,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void selectTabItemInController(int position)
 	{
 		// Fire the UNSELECTED event from the currently selected tab.
-		((TabGroupProxy) getProxy())
-			.getTabList()
-			.get(currentlySelectedIndex)
-			.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size()) && (getProxy() != null)) {
+			TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();
+			if (tabProxy != null) {
+				tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+			}
+		}
 		currentlySelectedIndex = position;
 		// The ViewPager has changed current page from swiping.
 		// Or any other interaction with it that can cause page change.
@@ -269,15 +253,83 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		((TabGroupProxy) getProxy()).onTabSelected(position);
 	}
 
-	/**
-	 * Set the background drawable for BottomNavigationView.
-	 *
-	 * @param drawable the new background drawable.
-	 */
 	@Override
-	public void setBackgroundDrawable(Drawable drawable)
+	public void setBackgroundColor(int colorInt)
 	{
-		this.mBottomNavigationView.setBackground(drawable);
+		this.mBottomNavigationView.setBackgroundColor(colorInt);
+	}
+
+	@Override
+	public void updateTabBackgroundDrawable(int index)
+	{
+		try {
+			BottomNavigationMenuView bottomMenuView =
+				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
+			TiViewProxy tabProxy = tabs.get(index).getProxy();
+			Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+			bottomMenuView.getChildAt(index).setBackground(backgroundDrawable);
+		} catch (Exception e) {
+			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+		}
+	}
+
+	@Override
+	public void updateTabTitle(int index)
+	{
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		String title = TiConvert.toString(tabProxy.getProperty(TiC.PROPERTY_TITLE));
+		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
+	}
+
+	@Override
+	public void updateTabTitleColor(int index)
+	{
+		try {
+			BottomNavigationMenuView bottomMenuView =
+				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
+			TiViewProxy tabProxy = tabs.get(index).getProxy();
+			// Set the TextView textColor.
+			((BottomNavigationItemView) bottomMenuView.getChildAt(index))
+				.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+		} catch (Exception e) {
+			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+		}
+	}
+
+	@Override
+	public void updateTabIcon(int index)
+	{
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
+		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
+	}
+
+	@Override
+	public String getTabTitle(int index)
+	{
+		// Validate index.
+		if (index < 0 || index > tabs.size() - 1) {
+			return null;
+		}
+		return this.mBottomNavigationView.getMenu().getItem(index).getTitle().toString();
 	}
 
 	/**
@@ -291,11 +343,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
-		if (index != currentlySelectedIndex) {
-			((TabGroupProxy) getProxy())
-				.getTabList()
-				.get(currentlySelectedIndex)
-				.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+		if ((index != currentlySelectedIndex) && (getProxy() != null)) {
+			if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size())) {
+				TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();
+				if (tabProxy != null) {
+					tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+				}
+			}
 			currentlySelectedIndex = index;
 		}
 		// Make the ViewPager to select the proper page too.

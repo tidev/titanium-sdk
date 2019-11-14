@@ -101,7 +101,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 - (NSArray *)keySequence
 {
   if (tableKeySequence == nil) {
-    tableKeySequence = [[NSArray arrayWithObjects:@"style", @"search", @"data", @"backgroundColor", nil] retain];
+    tableKeySequence = [[NSArray arrayWithObjects:@"style", @"showSearchBarInNavBar", @"search", @"data", @"backgroundColor", nil] retain];
   }
   return tableKeySequence;
 }
@@ -168,6 +168,27 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   for (TiUITableViewSectionProxy *thisSection in sections) {
     NSInteger rowCount = [thisSection rowCount];
     if (rowCount + current > index) {
+      NSMutableArray *searchIndex = ((TiUITableView *)self.view).searchResultIndexes;
+      if (searchIndex.count > 0) {
+        // Search screen is not dismissed
+        NSMutableIndexSet *searchedRow;
+        __block NSInteger rowPosition = 0;
+        for (int i = 0; i < section; i++) {
+          searchedRow = searchIndex[i];
+          rowPosition += searchedRow.count;
+        }
+
+        searchedRow = searchIndex[section];
+
+        [searchedRow enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *_Nonnull stop) {
+          if (idx == row) {
+            *stop = true;
+          }
+          rowPosition++;
+        }];
+        // If search is on, we show only one section
+        return [NSIndexPath indexPathForRow:rowPosition - 1 inSection:0];
+      }
       return [NSIndexPath indexPathForRow:row inSection:section];
     }
     section++;
@@ -322,6 +343,12 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 - (void)scrollToIndex:(id)args
 {
   ENSURE_UI_THREAD(scrollToIndex, args);
+
+  if (!((TiUITableView *)[self view]).shouldDelayScrolling) {
+    [self performSelector:_cmd withObject:args afterDelay:.1];
+    ((TiUITableView *)[self view]).shouldDelayScrolling = YES;
+    return;
+  }
 
   NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
   NSDictionary *options = [args count] > 1 ? [args objectAtIndex:1] : nil;

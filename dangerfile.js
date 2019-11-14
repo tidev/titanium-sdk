@@ -49,6 +49,51 @@ async function checkNPMTestOutput() {
 	}
 }
 
+// Check that the commit messages adhere to our conventions!
+async function checkCommitMessages() {
+	const load = require('@commitlint/load');
+	const { rules, parserPreset } = await load();
+	const lint = require('@commitlint/lint');
+	const allWarnings = await Promise.all(danger.git.commits.map(async commit => {
+		const report = await lint(commit.message, rules, parserPreset ? { parserOpts: parserPreset.parserOpts } : {});
+		// Bunch warnings/errors together for same commit!
+		const errorCount = report.errors.length;
+		const warningCount = report.warnings.length;
+		if ((errorCount + warningCount) === 0) {
+			return [];
+		}
+
+		let msg = `Commit ${danger.utils.href(commit.url, commit.sha)} has a message "${commit.message}" giving `;
+		if (errorCount > 0) {
+			msg += `${errorCount} errors`;
+			if (warningCount > 0) {
+				msg += ' and ';
+			}
+		}
+		if (warningCount > 0) {
+			msg += `${warningCount} warnings`;
+		}
+		msg += ':\n- ';
+		if (errorCount > 0) {
+			msg += report.errors.map(e => e.message).join('\n- ');
+		}
+		if (warningCount > 0) {
+			msg += report.warnings.map(w => w.message).join('\n- ');
+		}
+
+		return [ msg ];
+	}));
+	const flattened = [].concat(...allWarnings);
+	flattened.forEach(w => warn(w)); // propagate warnings/errors about commit conventions
+	if (flattened.length > 0) {
+		// at least one bad commit message, better to squash this one
+		message(':rotating_light: This PR has one or more commits with warnings/errors for commit messages not matching our configuration. You may want to squash merge this PR and edit the message to match our conventions, or ask the original developer to modify their history.');
+	} else {
+		// all commits are good, should be good to rebase this one
+		message(':fist: The commits in this PR match our conventions! Feel free to Rebase and Merge this PR when ready.');
+	}
+}
+
 // Check that we have a JIRA Link in the body
 async function checkJIRA() {
 	const body = github.pr.body;
@@ -64,35 +109,33 @@ async function checkJIRA() {
 // Check that if we modify the Android or iOS SDK, we also update the tests
 // Also, assign labels based on changes to different dir paths
 async function checkChangedFileLocations() {
-	const modified = danger.git.modified_files.concat(danger.git.created_files);
-	const modifiedAndroidFiles = modified.filter(p => p.startsWith('android/') && p.endsWith('.java'));
-	const modifiedIOSFiles = modified.filter(p => {
-		return p.startsWith('iphone/') && (p.endsWith('.h') || p.endsWith('.m'));
-	});
+	const android = danger.git.fileMatch('android/**/*.java');
+	const ios = danger.git.fileMatch('iphone/**/*.h', 'iphone/**/*.m');
+	const topTiModule = danger.git.fileMatch('iphone/TitaniumKit/**/TopTiModule.m');
 
 	// Auto-assign android/ios labels
-	if (modifiedAndroidFiles.length > 0) {
+	if (android.edited) {
 		labelsToAdd.add(Label.ANDROID);
 	}
-	if (modifiedIOSFiles.length > 0) {
+	if (ios.edited) {
 		labelsToAdd.add(Label.IOS);
 	}
 	// Check if apidoc was modified and apply 'docs' label?
-	const modifiedApiDocs = modified.filter(p => p.startsWith('apidoc/'));
-	if (modifiedApiDocs.length > 0) {
+	const docs = danger.git.fileMatch('apidoc/**');
+	if (docs.edited) {
 		labelsToAdd.add(Label.DOCS);
 	}
 	// Mark hasAppChanges if 'common' dir is changed too!
-	const modifiedCommonJSAPI = modified.filter(p => p.startsWith('common/'));
+	const common = danger.git.fileMatch('common/**');
+	// TODO: Should we add ios/android/windows labels if common dir is changed?
+	const hasAppChanges = android.edited || ios.edited || common.edited;
 
 	// Check if any tests were changed/added
-	const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length + modifiedCommonJSAPI.length) > 0;
-	const testChanges = modified.filter(p => p.startsWith('tests/') && p.endsWith('.js'));
-	const hasTestChanges = testChanges.length > 0;
+	const tests = danger.git.fileMatch('tests/**/*.js');
 	const hasNoTestsLabel = existingLabelNames.has(Label.NO_TESTS);
 	// If we changed android/iOS source, but didn't change tests and didn't use the 'no tests' label
 	// fail the PR
-	if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
+	if (hasAppChanges && !tests.edited && !hasNoTestsLabel) {
 		labelsToAdd.add(Label.NEEDS_TESTS);
 		const testDocLink = github.utils.fileLinks([ 'README.md#unit-tests' ]);
 		fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${testDocLink} for docs on unit testing.`); // eslint-disable-line max-len
@@ -100,6 +143,11 @@ async function checkChangedFileLocations() {
 		// If it has the "needs tests" label, remove it
 		labelsToRemove.add(Label.NEEDS_TESTS);
 	}
+
+	if (topTiModule.edited) {
+		warn('It looks like you have modified the TopTiModule.m file. Are you sure you meant to do that?');
+	}
+
 }
 
 // Does the PR have merge conflicts?
@@ -141,7 +189,7 @@ async function addMissingLabels() {
 	if (filteredLabels.length === 0) {
 		return;
 	}
-	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
+	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, issue_number: github.pr.number, labels: filteredLabels });
 }
 
 async function requestReviews() {
@@ -175,7 +223,7 @@ async function requestReviews() {
 	const filtered = teamsToReview.filter(t => !teamSlugs.includes(t));
 	if (filtered.length > 0) {
 		debug(`Assigning PR reviews to teams: ${filtered}`);
-		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: filtered });
+		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, pull_number: github.pr.number, team_reviewers: filtered });
 	}
 }
 
@@ -193,21 +241,34 @@ async function checkPRisApproved() {
 	if (good.length > 0 && blockers.length === 0) {
 		labelsToAdd.add(Label.IN_QE_TESTING);
 	}
+	// TODO: Can we also check JIRA ticket and move it to In QE Testing?
 }
+
+// TODO: Can we check comments from a QE team member with "FR Passed"?
 
 // Auto assign milestone based on version in package.json
 async function updateMilestone() {
-	if (github.pr.milestone) {
+	const expected_milestone = packageJSON.version;
+	// If there's a milestone assigned to the PR and it doesn't match up with expected version, emit warning
+	if (github.pr.milestone && github.pr.milestone.title !== expected_milestone) {
+		// Typically this is because:
+		// - The milestone got out of date once we did some branch/version bumping
+		// - The milestone was set wrong
+		// - The milestone is for a future version on a maintenance branch (i.e. 8.1.1 on 8_1_X branch where we haven't released 8.1.0 yet)
+		warn(`This PR has milestone set to ${github.pr.milestone.title}, but the version defined in package.json is ${packageJSON.version}
+Please either:
+- Update the milestone on the PR
+- Update the version in package.json
+- Hold the PR to be merged later after a release and version bump on this branch`);
 		return;
 	}
-	const expected_milestone = packageJSON.version;
 	const milestones = await github.api.issues.listMilestonesForRepo({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
 	const milestone_match = milestones.data.find(m => m.title === expected_milestone);
 	if (!milestone_match) {
 		debug('Unable to find a Github milestone matching the version in package.json');
 		return;
 	}
-	await github.api.issues.update({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, milestone: milestone_match.number });
+	await github.api.issues.update({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, issue_number: github.pr.number, milestone: milestone_match.number });
 }
 
 /**
@@ -244,6 +305,7 @@ async function main() {
 	// Specifically, anything that collects what labels to add or remove has to be done first before...
 	await Promise.all([
 		checkNPMTestOutput(),
+		checkCommitMessages(),
 		checkStats(github.pr),
 		checkJIRA(),
 		linkToSDK(),

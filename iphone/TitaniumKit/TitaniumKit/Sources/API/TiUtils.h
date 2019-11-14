@@ -577,6 +577,8 @@ typedef enum {
 
 + (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds;
 
++ (NSString *)composeAccessibilityIdentifier:(id)object;
+
 + (CGRect)viewPositionRect:(UIView *)view;
 
 + (BOOL)barTranslucencyForColor:(TiColor *)color;
@@ -791,7 +793,7 @@ typedef enum {
  */
 + (NSString *)convertToHex:(unsigned char *)input length:(size_t)length;
 
-+ (NSString *)appIdentifier;
++ (NSString *)convertToHexFromData:(NSData *)data;
 
 + (NSString *)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders;
 

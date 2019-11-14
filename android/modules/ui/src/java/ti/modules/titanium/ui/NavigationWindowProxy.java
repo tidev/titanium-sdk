@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class NavigationWindowProxy extends WindowProxy
 {
 	private static final String TAG = "NavigationWindowProxy";
 
-	private List<WindowProxy> windows = new ArrayList<>();
+	private List<TiWindowProxy> windows = new ArrayList<>();
 
 	public NavigationWindowProxy()
 	{
@@ -33,8 +34,10 @@ public class NavigationWindowProxy extends WindowProxy
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
 		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
 			opened = true;
-			WindowProxy window = (WindowProxy) getProperties().get(TiC.PROPERTY_WINDOW);
-			openWindow(window, arg);
+			Object rootView = getProperties().get(TiC.PROPERTY_WINDOW);
+			if (rootView instanceof WindowProxy || rootView instanceof TabGroupProxy) {
+				openWindow(rootView, arg);
+			}
 			return;
 		}
 		super.open(arg);
@@ -47,8 +50,9 @@ public class NavigationWindowProxy extends WindowProxy
 	{
 		// Keep first "root" window
 		for (int i = windows.size() - 1; i > 0; i--) {
-			WindowProxy window = windows.get(i);
-			closeWindow(window, arg);
+			TiWindowProxy window = windows.get(i);
+			window.close(arg);
+			windows.remove(window);
 		}
 	}
 
@@ -65,32 +69,57 @@ public class NavigationWindowProxy extends WindowProxy
 
 	// clang-format off
 	@Kroll.method
-	public void openWindow(WindowProxy window, @Kroll.argument(optional = true) Object arg)
+	public void openWindow(Object childToOpen, @Kroll.argument(optional = true) Object arg)
 	// clang-format on
 	{
 		if (!opened) {
 			open(null);
 		}
-		window.setNavigationWindow(this);
-		windows.add(window);
-		window.open(arg);
+
+		// Guard for types different from Window and TabGroup
+		if (!(childToOpen instanceof TiWindowProxy)) {
+			return;
+		}
+		windows.add(((TiWindowProxy) childToOpen));
+		((TiWindowProxy) childToOpen).setNavigationWindow(this);
+		if (childToOpen instanceof WindowProxy) {
+			((WindowProxy) childToOpen).open(arg);
+		} else if (childToOpen instanceof TabGroupProxy) {
+			// tabgroup.js deals with passing the tabs from the creation dictionary to the native setTabs method.
+			// In this case we need to do it manually since the JS "open()" does not get called.
+			((TabGroupProxy) childToOpen).callPropertySync(TiC.PROPERTY_OPEN, new Object[] { arg });
+		}
 	}
 
 	// clang-format off
 	@Kroll.method
-	public void closeWindow(WindowProxy window, @Kroll.argument(optional = true) Object arg)
+	public void closeWindow(Object childToClose, @Kroll.argument(optional = true) Object arg)
 	// clang-format on
 	{
 		// TODO: If they try to close root window, yell at them:
 		// DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
-		windows.remove(window);
-		window.close(arg);
-		window.setNavigationWindow(null);
+
+		// Guard for types different from Window and TabGroup
+		if (!(childToClose instanceof TiWindowProxy)) {
+			return;
+		}
+
+		windows.remove(childToClose);
+		((TiWindowProxy) childToClose).close(arg);
+		((TiWindowProxy) childToClose).setNavigationWindow(null);
 	}
 
 	@Override
 	public String getApiName()
 	{
 		return "Ti.UI.NavigationWindow";
+	}
+
+	public TiWindowProxy getRootTiWindowProxy()
+	{
+		if (!windows.isEmpty()) {
+			return windows.get(0);
+		}
+		return null;
 	}
 }

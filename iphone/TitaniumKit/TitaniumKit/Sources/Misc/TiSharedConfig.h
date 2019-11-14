@@ -110,6 +110,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) UIColor *defaultBackgroundColor;
 
 /**
+ Indicates whether or not TiLogServer is currently enabled.
+ */
+@property (nonatomic, assign) BOOL logServerEnabled;
+
+/**
  Indicates whether debug is enabled or not.
  */
 

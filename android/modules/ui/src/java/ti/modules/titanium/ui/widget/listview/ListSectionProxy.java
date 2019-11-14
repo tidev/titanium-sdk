@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -665,8 +666,10 @@ public class ListSectionProxy extends ViewProxy
 			DataItem dataItem = template.getDataItem(binding);
 			ViewItem viewItem = views.get(binding);
 			TiUIView view = viewItem.getView();
+			KrollProxy viewProxy = null;
 			//update extra event data for views
 			if (view != null) {
+				viewProxy = view.getProxy();
 				appendExtraEventData(view, itemIndex, sectionIndex, binding, itemId);
 			}
 			//if binding is contain in data given to us, process that data, otherwise
@@ -689,7 +692,7 @@ public class ListSectionProxy extends ViewProxy
 		}
 
 		//process listItem properties
-		if (cellContent.getViewItem().getView() != null) {
+		if (cellContent.getViewItem() != null) {
 			KrollDict listItemDiff = cellContent.getViewItem().generateDiffProperties(listItemProperties);
 			if (!listItemDiff.isEmpty()) {
 				listItem.processProperties(listItemDiff);

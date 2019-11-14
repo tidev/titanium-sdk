@@ -5,12 +5,20 @@ summary: |
     in a vertically-scrolling view.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/listview/listview_android.png" height="200" style="border: 1px solid black;"/></td>
-        <td><img src="images/listview/listview_ios.png" height="200" style="border: 1px solid black;"/></td>
-        <td><img src="images/listview/listview_wp.png" height="200" style="border: 1px solid black;"/></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/listview/listview_android.png" height="200" /></td>
+          <td><img src="images/listview/listview_ios.png" height="200" /></td>
+          <td><img src="images/listview/listview_wp.png" height="200" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
@@ -91,7 +99,7 @@ description: |
     `TableViewSection` is implicitly created and added to the `TableView`.
 
     A `ListItem` object is not created in the same method as a `TableViewRow`.
-    A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
+    A `ListItem` is created by passing an array of `ListDataItem` objects to the `ListSection`.
 
     You cannot add views to a `ListItem` using the `add` method, which could be done with a
     `TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
@@ -261,6 +269,21 @@ events:
             clicked.
         type: Boolean
         platforms: [iphone, ipad]
+
+  - name: itemsselected
+    summary: |
+      Fired when user stops two-pan gesture interaction for selecting multiple items. 
+      It is used with <Titanium.UI.ListView.allowsMultipleSelectionInteraction>.
+    properties:
+      - name: selectedItems
+        summary: List of items selected by user.
+        type: Array<SelectedItem>
+
+      - name: startingItem
+        summary: First item selected when user started interaction.
+        type: SelectedItem
+    platforms: [iphone, ipad]
+    since: 8.2.0
 
   - name: delete
     summary: Fired when a list row is deleted by the user.
@@ -529,9 +552,9 @@ events:
 
   - name: rowAction
     deprecated:
-        since: 5.0.0
-        removed: 5.0.0
-        notes: Use <Titanium.UI.ListView.editaction> instead.
+        since: "5.0.0"
+        removed: "5.0.0"
+        notes: Use [Titanium.UI.ListView.editaction](Titanium.UI.ListView.editaction) instead.
     summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
@@ -727,6 +750,19 @@ properties:
     type: Boolean
     default: false
     since: "7.0.0"
+    platforms: [iphone, ipad]
+
+  - name: allowsMultipleSelectionInteraction
+    summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
+    description: |
+        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
+        you must also set <Titanium.UI.ListView.allowsMultipleSelectionDuringEditing> to true.
+        Once user interaction stops the <Titanium.UI.ListView.itemsselected> event is fired.
+    type: Boolean
+    default: false
+    since: 8.2.0
     platforms: [iphone, ipad]
 
   - name: lazyLoadingEnabled
@@ -987,7 +1023,7 @@ properties:
     summary: The insets for list view separators (applies to all cells).
     deprecated:
         since: "5.2.0"
-        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
+        notes: Use [Titanium.UI.ListView.listSeparatorInsets](Titanium.UI.ListView.listSeparatorInsets) instead.
     description: |
         Cell separators do not extend all the way to the edge of the list view.
         This property sets the default inset for all cells in the table.
@@ -1001,9 +1037,9 @@ properties:
     summary: Separator style constant.
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
-    since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"}
+    since: {android: "8.1.0", iphone: "3.2.0", ipad: "3.2.0"}
 
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
 
   - name: style
     summary: Style of the list view.
@@ -1017,7 +1053,7 @@ properties:
   - name: tableSeparatorInsets
     deprecated:
         since: "5.4.0"
-        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
+        notes: Use [Titanium.UI.ListView.listSeparatorInsets](Titanium.UI.ListView.listSeparatorInsets) instead.
     summary: The insets for the table view header and footer.
     description: |
         Cell separators do not extend all the way to the edge of the list view. Set this to a
@@ -1085,6 +1121,19 @@ properties:
     default: true
     since: 6.2.0
     platforms: [iphone, ipad]
+    availability: creation
+
+  - name: showSearchBarInNavBar
+    summary: A Boolean indicating whether search bar will be in navigation bar.
+    description: |
+          If you want to show the search bar in navigation bar, set this property `true` during creation. 
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
+          searchbar when scrolling.
+    type: Boolean
+    default: false
+    since: 8.1.0
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: resultsBackgroundColor
@@ -1315,7 +1364,7 @@ examples:
         Creates a list with three sections, each with two rows.
         Adds two sections to the table before and one after it is rendered.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            var win = Ti.UI.createWindow({backgroundColor: 'gray'});
             var listView = Ti.UI.createListView();
             var sections = [];
 
@@ -1843,3 +1892,21 @@ properties:
   - name: itemId
     summary: The item ID bound to the list item that generated the event.
     type: String
+
+---
+name: SelectedItem
+summary: The arguments for the <Titanium.UI.ListView.itemsselected> event.
+since: 8.2.0
+platforms: [iphone, ipad]
+properties:
+  - name: section
+    summary: List section if the item is contained in a list section.
+    type: Titanium.UI.ListSection
+
+  - name: sectionIndex
+    summary: Section index.
+    type: Number
+
+  - name: itemIndex
+    summary: Item index.
+    type: Number

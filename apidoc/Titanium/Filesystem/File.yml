@@ -127,7 +127,7 @@ methods:
     parameters:
       - name: recursive
         summary: |
-          Only available on iOS. Toggles whether to recursively create the directory structure (like mkdir -p).
+          Toggles whether to recursively create the directory structure (like mkdir -p).
           Pass `false` to avoid recursively creating the directory.
           Defaults to true on SDK 7.3.0+, defaults to false on older SDK versions.
         type: Boolean
@@ -155,7 +155,7 @@ methods:
         type: Number
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.Filesystem.File.createdAt> instead.
+        notes: Use [createdAt](Titanium.Filesystem.File.createdAt) instead.
 
   - name: createdAt
     summary: Returns the creation Date for the file identified by this file object.
@@ -206,12 +206,12 @@ methods:
     description: |
         Prior to Titanium SDK 7.0.0, on iOS this method returned the path of the parent
         directory as a String. Since Titanium SDK 7.0.0, this method has been deprecated
-        in favor of the <Titanium.Filesystem.File.parent> property and will return
-        a <Titanium.Filesystem.File> reference in the future as well.
+        in favor of the [parent](Titanium.Filesystem.File.parent) property and will return
+        a [File](Titanium.Filesystem.File) reference in the future as well.
     deprecated:
         since: "7.0.0"
         notes: |
-            Use the <Titanium.Filesystem.File.parent> property to receive a `File`
+            Use the [Titanium.Filesystem.File.parent](Titanium.Filesystem.File.parent) property to receive a `File`
             reference instead. If you wish to receive the path, use the `nativePath`
             property of that reference instead.
     returns:
@@ -246,7 +246,7 @@ methods:
         type: Number
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.Filesystem.File.modifiedAt> instead.
+        notes: Use [Titanium.Filesystem.File.modifiedAt](Titanium.Filesystem.File.modifiedAt) instead.
   - name: modifiedAt
     summary: Returns the last modification Date for the file identified by this file object.
     description: |
@@ -446,7 +446,7 @@ properties:
   - name: writeable
     deprecated:
         since: "1.8.1"
-        notes: Use <Titanium.Filesystem.File.writable> instead.
+        notes: Use [Titanium.Filesystem.File.writable](Titanium.Filesystem.File.writable) instead.
         removed: "6.0.0"
     summary: |
         `true` if the file identified by this object is writable.

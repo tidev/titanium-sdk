@@ -3,12 +3,20 @@ name: Titanium.UI.Slider
 summary: A slider component with a draggable thumb.
 description: |
     <table id="platformComparison">
-      <tr>
-        <td><img src="images/slider/slider_android.png" height="25" /></td>
-        <td><img src="images/slider/slider_ios.png" height="25" /></td>
-        <td><img src="images/slider/slider_wp.png" height="25" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
+      <tbody>
+        <tr>
+          <td><img src="images/slider/slider_android.png" height="25" /></td>
+          <td><img src="images/slider/slider_ios.png" height="25" /></td>
+          <td><img src="images/slider/slider_wp.png" height="25" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Android</th>
+          <th>iOS</th>
+          <th>Windows Phone</th>
+        </tr>
+      </tfoot>
     </table>
 
     A slider lets the user select from a range of values by dragging the slider thumb.
@@ -382,6 +390,18 @@ properties:
         Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
     platforms: [android, iphone, ipad]
+
+  - name: tintColor
+    summary: The color shown for the portion of the progress bar that is filled.
+    since: {iphone: "3.1.3", ipad: "3.1.3", android: "8.3.0"}
+    osver: {android: {min: "5.0"}}
+
+  - name: trackTintColor
+    summary: The color shown for the portion of the progress bar that is not filled.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: {iphone: "8.3.0", ipad: "8.3.0", android: "8.3.0"}
+    osver: {android: {min: "5.0"}}
 
   - name: value
     summary: Current value of the slider.

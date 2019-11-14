@@ -638,9 +638,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     if (rememberedProxy == self) {
       [pageKrollObject protectJsobject];
+      [pageKrollObject removeGarbageCollectionSafeguard];
       return;
     }
-    [pageKrollObject noteKeylessKrollObject:[rememberedProxy krollObjectForBridge:(KrollBridge *)pageContext]];
+    KrollObject *krollObject = [rememberedProxy krollObjectForBridge:(KrollBridge *)pageContext];
+    [pageKrollObject noteKeylessKrollObject:krollObject];
+    [krollObject removeGarbageCollectionSafeguard];
     return;
   }
   if (bridgeCount < 1) {
@@ -652,13 +655,16 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     if (rememberedProxy == self) {
       KrollObject *thisObject = [thisBridge krollObjectForProxy:self];
       [thisObject protectJsobject];
+      [thisObject removeGarbageCollectionSafeguard];
       continue;
     }
 
     if (![thisBridge usesProxy:rememberedProxy]) {
       continue;
     }
-    [[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:[thisBridge krollObjectForProxy:rememberedProxy]];
+    KrollObject *krollObject = [thisBridge krollObjectForProxy:rememberedProxy];
+    [[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:krollObject];
+    [krollObject removeGarbageCollectionSafeguard];
   }
 }
 
@@ -889,16 +895,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   if (![self _hasListeners:type]) {
     return;
   }
-  TiBindingEvent ourEvent;
-  ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-  if (report || (code != 0)) {
-    TiBindingEventSetErrorCode(ourEvent, code);
-  }
-  if (message != nil) {
-    TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-  }
-  TiBindingEventSetBubbles(ourEvent, propagate);
-  TiBindingEventFire(ourEvent);
+
+  TiThreadPerformOnMainThread(^{
+    TiBindingEvent ourEvent;
+    ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+    if (report || (code != 0)) {
+      TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil) {
+      TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
+  },
+      NSThread.isMainThread);
 }
 
 //Temporary method until source is removed, for our subclasses.
@@ -908,17 +918,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
 
-  TiBindingEvent ourEvent;
+  TiThreadPerformOnMainThread(^{
+    TiBindingEvent ourEvent;
 
-  ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-  if (report || (code != 0)) {
-    TiBindingEventSetErrorCode(ourEvent, code);
-  }
-  if (message != nil) {
-    TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-  }
-  TiBindingEventSetBubbles(ourEvent, propagate);
-  TiBindingEventFire(ourEvent);
+    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+    if (report || (code != 0)) {
+      TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil) {
+      TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
+  },
+      NSThread.isMainThread);
 }
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues

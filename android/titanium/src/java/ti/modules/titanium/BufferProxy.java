@@ -306,10 +306,12 @@ public class BufferProxy extends KrollProxy
 		BufferProxy clone = new BufferProxy(copyOfRange(buffer, offset, offset + length));
 		// Copy over byteOrder and type properties
 		clone.setProperty(TiC.PROPERTY_BYTE_ORDER, this.getProperty(TiC.PROPERTY_BYTE_ORDER));
-		clone.setProperty(TiC.PROPERTY_TYPE, this.getProperty(TiC.PROPERTY_TYPE));
+		if (this.hasProperty(TiC.PROPERTY_TYPE)) {
+			clone.setProperty(TiC.PROPERTY_TYPE, this.getProperty(TiC.PROPERTY_TYPE));
+		}
 		// Copy value if cloning with no args
 		// TODO How would we handle this with a partial clone?
-		if (args.length == 0) {
+		if (args.length == 0 && this.hasProperty(TiC.PROPERTY_VALUE)) {
 			clone.setProperty(TiC.PROPERTY_VALUE, this.getProperty(TiC.PROPERTY_VALUE));
 		}
 		return clone;

@@ -72,11 +72,38 @@ description: |
     event followed by the `resumed` event, returning the app to the normal state.
 
     <table class="doc-table" summary="This table gives the order of events fired when the app is in normal state.">
-    <caption><b>Lifecycle events fired during different interruptions</b></caption>
-    <tr><th colspan="2">Type of Interruption<th colspan="2">Going into Background<th colspan="2">Coming into  Foreground</tr>
-    <tr><th colspan="2" align="left">Alert-Based/Fast App Switching<td align="center">pause</td><td align="center"></td><td align="center"> </td><td align="center">resumed</td></tr>
-    <tr><th colspan="2" align="left">Sleep/Wake Button<td align="center">pause</td><td align="center">paused</td><td align="center">resume</td><td align="center">resumed</td></tr>
-    <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
+      <caption><b>Lifecycle events fired during different interruptions</b></caption>
+      <thead>
+        <tr>
+          <th colspan="2">Type of Interruption</th>
+          <th colspan="2">Going into Background</th>
+          <th colspan="2">Coming into  Foreground</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th colspan="2" align="left">Alert-Based/Fast App Switching</th>
+          <td align="center">pause</td>
+          <td align="center"></td>
+          <td align="center"> </td>
+          <td align="center">resumed</td>
+        </tr>
+        <tr>
+          <th colspan="2" align="left">Sleep/Wake Button</th>
+          <td align="center">pause</td>
+          <td align="center">paused</td>
+          <td align="center">resume</td>
+          <td align="center">resumed</td>
+        </tr>
+        <tr>
+          <th colspan="2" align="left">Home Button (backgrounding)</th>
+          <td align="center">pause</td>
+          <td align="center">paused</td>
+          <td align="center">resume</td>
+          <td align="center">resumed</td>
+        </tr>
+      </tbody>
+    </table>
 
     ***Blur and Focus Events***
 
@@ -177,8 +204,8 @@ events:
   - name: close
     summary: Fired by the system when the application is about to be terminated.
     description: It is the last event that can be received before the application gets closed.
-    platforms: [iphone, ipad]
-    since: "1.5.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "8.3.0", iphone: "1.5.0", ipad: "1.5.0"}
 
   - name: memorywarning
     summary: Fired when the app receives a warning from the operating system about low memory availability.
@@ -200,7 +227,8 @@ events:
         Note that calls to functions that modify the UI during this event may be partially executed,
         **up to** the UI call before the suspension. See [paused](Titanium.App.paused) event. If this happens, the remainder of the code will
         be executed after the application is resumed, but before the `resume` event is triggered.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
 
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
@@ -214,8 +242,8 @@ events:
         [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622997-applicationdidenterbackground?language=objc)
         for the exact behavior that triggers this event.
 
-    platforms: [iphone, ipad]
-    since: '2.1.0'
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "2.1.0", ipad: "2.1.0"}
 
   - name: proximity
     summary: Fired when the proximity sensor changes state.
@@ -280,7 +308,8 @@ events:
         See the `applicationWillEnterForeground` section of the official Apple documentation about
         [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623076-applicationwillenterforeground)
         for the exact behavior that triggers this event.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
 
   - name: resumed
     summary: Fired when the application returns to the foreground.
@@ -296,7 +325,8 @@ events:
         Note: This event will not be fired for URL's in iOS 10+ that are handled by the <Modules.SafariDialog>
         or <Titanium.UI.WebView>, because Apple does not call the `applicationDidBecomeActive` for
         URL-handling anymore. Instead, use the `handleurl` event in <Titanium.App.iOS>.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
 
   - name: started
     summary: Fired after the "app.js" or "alloy.js" gets executed during application startup.
@@ -346,7 +376,7 @@ events:
         type: String
     platforms: [iphone, ipad, android]
     since: '7.5.0'
-    
+
   - name: userinteraction
     summary: Called whenever an interaction with the window occurred. To be used together with the <Titanium.App.trackUserInteraction> property.
     description: |
@@ -383,7 +413,7 @@ methods:
         On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
         read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
         to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
-        will change when a ["newintent"](Titanium.Android.Activity.newintent) event has been fired.
+        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
     platforms: [iphone, ipad]
     returns:
         type: launchOptions

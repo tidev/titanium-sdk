@@ -512,7 +512,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.androidMkTemplateFile = path.join(this.moduleGenTemplateDir, 'Android.mk.ejs');
 	this.applicationMkTemplateFile = path.join(this.moduleGenTemplateDir, 'Application.mk.ejs');
 	this.commonJsSourceTemplateFile = path.join(this.moduleGenTemplateDir, 'CommonJsSourceProvider.java.ejs');
-	this.assetCryptImplTemplateFile = path.join(this.moduleGenTemplateDir, 'AssetCryptImpl.java.ejs');
+	this.assetCryptImplTemplateFile = path.join(this.platformPath, 'templates', 'build', 'AssetCryptImpl.java');
 
 	this.moduleJarName = this.manifest.name + '.jar';
 	this.moduleJarFile = path.join(this.distDir, this.moduleJarName);
@@ -1425,97 +1425,11 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 */
 AndroidModuleBuilder.prototype.compileJS = function (next) {
-
-	if (!this.jsFilesToEncrypt.length) {
-		// nothing to encrypt, continue
-		return next();
-	}
-
-	this.logger.log(__('Encrypting JS files in assets/ dir'));
-
-	let titaniumPrep = 'titanium_prep';
-	if (process.platform === 'darwin') {
-		titaniumPrep += '.macos';
-	} else if (process.platform === 'win32') {
-		titaniumPrep += '.win32.exe';
-	} else if (process.platform === 'linux') {
-		titaniumPrep += '.linux' + (process.arch === 'x64' ? '64' : '32');
-	}
-
-	// Packing compiled JavaScript files
-	const titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
-			this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(1).join('" "') + '"').cyan));
-			appc.subprocess.run(exe, args, opts, function (code, out, err) {
-
-				if (code) {
-					return done({
-						code: code,
-						msg: err.trim()
-					});
-				}
-
-				fs.existsSync(this.buildGenAssetJavaFile) && fs.unlinkSync(this.buildGenAssetJavaFile);
-
-				// write the encrypted JS bytes to the generated Java file
-				fs.writeFileSync(
-					this.buildGenAssetJavaFile,
-					ejs.render(fs.readFileSync(this.assetCryptImplTemplateFile).toString(), {
-						appid: this.manifest.moduleid,
-						encryptedAssets: out
-					})
-				);
-
-				fs.writeFileSync(
-					path.join(this.buildGenJavaDir, 'CommonJsSourceProvider.java'),
-					ejs.render(fs.readFileSync(this.commonJsSourceTemplateFile).toString(), { moduleid: this.manifest.moduleid })
-				);
-
-				done();
-			}.bind(this));
-		}.bind(this)),
-		args = [ this.manifest.guid, this.manifest.moduleid, this.buildGenJsDir ].concat(this.jsFilesToEncrypt),
-		opts = {
-			env: appc.util.mix({}, process.env, {
-				// we force the JAVA_HOME so that titaniumprep doesn't complain
-				JAVA_HOME: this.jdkInfo.home
-			})
-		},
-		fatal = function fatal(err) {
-			this.logger.error(__('Failed to encrypt JavaScript files'));
-			err.msg.split('\n').forEach(this.logger.error);
-			this.logger.log();
-			process.exit(1);
-		}.bind(this);
-
-	titaniumPrepHook(
-		path.join(this.platformPath, titaniumPrep),
-		args.slice(0),
-		opts,
-		function (err) {
-			if (!err) {
-				return next();
-			}
-
-			if (process.platform !== 'win32') {
-				fatal(err);
-			}
-
-			// windows 64-bit failed, try again using 32-bit
-			this.logger.debug(__('32-bit titanium prep failed, trying again using 64-bit'));
-			titaniumPrep = 'titanium_prep.win64.exe';
-			titaniumPrepHook(
-				path.join(this.platformPath, titaniumPrep),
-				args,
-				opts,
-				function (err) {
-					if (err) {
-						fatal(err);
-					}
-					next();
-				}
-			);
-		}.bind(this)
+	fs.writeFileSync(
+		path.join(this.buildGenJavaDir, this.moduleIdSubDir, 'CommonJsSourceProvider.java'),
+		ejs.render(fs.readFileSync(this.commonJsSourceTemplateFile).toString(), { moduleid: this.manifest.moduleid })
 	);
+	return next();
 };
 
 /*
@@ -1945,6 +1859,11 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 						if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
 							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
 						}
+					}.bind(this));
+				}
+				if (fs.existsSync(this.buildGenJsDir)) {
+					this.dirWalker(this.buildGenJsDir, function (file) {
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.buildGenJsDir, file)) });
 					}.bind(this));
 				}
 

@@ -38,7 +38,6 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			setGravity(Gravity.CENTER_VERTICAL);
 
 			textView = new TextView(context);
-			textView.setId(101);
 			textView.setFocusable(false);
 			textView.setFocusableInTouchMode(false);
 			RelativeLayout.LayoutParams params =

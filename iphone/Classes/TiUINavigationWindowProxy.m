@@ -213,12 +213,15 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
 #endif
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
+  }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    navController.view.backgroundColor = theWindow.view.backgroundColor;
   }
 }
 
@@ -269,17 +272,28 @@
 
 - (void)pushOnUIThread:(NSArray *)args
 {
-  if (transitionIsAnimating || transitionWithGesture) {
+  if (transitionIsAnimating || transitionWithGesture || !navController) {
     [self performSelector:_cmd withObject:args afterDelay:0.1];
     return;
   }
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
   }
-  TiWindowProxy *window = [args objectAtIndex:0];
-  BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
 
-  [navController pushViewController:[window hostingController] animated:animated];
+  @try {
+    TiWindowProxy *window = [args objectAtIndex:0];
+    BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+
+    // Prevent UIKit  crashes when trying to push a window while it's already in the nav stack (e.g. on really slow devices)
+    if ([[[self rootController].navigationController viewControllers] containsObject:window.hostingController]) {
+      NSLog(@"[WARN] Trying to push a view controller that is already in the navigation window controller stack. Skipping open …");
+      return;
+    }
+
+    [navController pushViewController:[window hostingController] animated:animated];
+  } @catch (NSException *ex) {
+    NSLog(@"[ERROR] %@", ex.description);
+  }
 }
 
 - (void)popOnUIThread:(NSArray *)args
@@ -375,7 +389,7 @@
   [super viewDidDisappear:animated];
 }
 
-#if IS_XCODE_9
+#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   UIViewController *topVC = [navController topViewController];

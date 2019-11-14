@@ -3,10 +3,9 @@
 const appc = require('node-appc'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	DOMParser = require('xmldom').DOMParser,
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
 	util = require('util'),
-	wrench = require('wrench'),
 	i18nLib = appc.i18n(__dirname),
 	__ = i18nLib.__,
 	xml = appc.xml;
@@ -49,7 +48,20 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 		if (n) {
 			nodes[node.tagName] || (nodes[node.tagName] = {});
 			if (nodes[node.tagName][n] && n !== 'app_name') {
-				_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
+				// We have a node with the same name. Merging as follows:
+				// Nodes with the same name get overwritten to maintain backwards compatiblity.
+				// Nodes with different name are appended to the parent node.
+				_t.logger.debug(__('Merging XML node %s in file %s', String(n).cyan, dest.cyan));
+				xml.forEachElement(node, function (childNode) {
+					// We have node with the same name, remove the current one.
+					xml.forEachElement(nodes[node.tagName][n], function (alreadyAddedChild) {
+						if (alreadyAddedChild.getAttribute('name') === childNode.getAttribute('name')) {
+							alreadyAddedChild.parentNode.removeChild(alreadyAddedChild);
+						}
+					});
+					nodes[node.tagName][n].appendChild(childNode.cloneNode(true));
+				});
+				return;
 			}
 			nodes[node.tagName][n] = node;
 		}
@@ -63,9 +75,7 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 			this.logger.warn(__('Please check for possible duplicate resources.'));
 			fs.unlinkSync(dest);
 		} else {
-			if (!fs.existsSync(destDir)) {
-				wrench.mkdirSyncRecursive(destDir);
-			}
+			fs.ensureDirSync(destDir);
 			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
 		}
 		fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + srcDoc.toString());
@@ -110,7 +120,7 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 	});
 
 	root.appendChild(dom.createTextNode('\n'));
-	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+	fs.ensureDirSync(destDir);
 	destExists && fs.unlinkSync(dest);
 	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };

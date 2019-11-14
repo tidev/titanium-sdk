@@ -21,6 +21,9 @@
 
 - (void)dealloc
 {
+  // Allow JavascriptCore to release module proxy.
+  [self forgetSelf];
+
   // Have to jump through a hoop here to keep the dealloc block from
   // retaining 'self' by creating a __block access ref. Note that
   // this is only safe as long as the block until completion is YES.
@@ -114,6 +117,9 @@
     [self registerForNotifications];
   },
       NO);
+
+  // Prevent JavascriptCore from releasing module proxy.
+  [self rememberSelf];
 }
 
 - (void)_configure

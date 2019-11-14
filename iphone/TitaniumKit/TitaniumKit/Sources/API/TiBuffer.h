@@ -1,13 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiBlob.h"
 #import "TiProxy.h"
 #import <Foundation/Foundation.h>
+
+@class TiBlob; // forward declare
 
 // TODO: Support array-style access of bytes
 /**
@@ -49,7 +50,7 @@
 
 /**
  Provides access to the data byte order.
- 
+
  The byte order values are: 1 - little-endian, 2 - big-endian.
  */
 @property (nonatomic, retain) NSNumber *byteOrder;

@@ -104,13 +104,6 @@
 - (BOOL)updateWithDict:(NSDictionary *)fontDict inherits:(WebFont *)inheritedFont;
 
 /**
- Indicates if the style specified by the string is a valid value for textStyle
- @param theStyle The String to check
- @return _YES_ is it is a valid value for textStyle, _NO_ otherwise
- */
-- (BOOL)isValidTextStyle:(NSString *)theStyle;
-
-/**
  Returns the default text font.
  @return The default font.
  */

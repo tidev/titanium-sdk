@@ -95,7 +95,7 @@ methods:
         type: Number
     deprecated:
         since: "5.0.0"
-        notes: Use <Titanium.Contacts.getGroupByIdentifier> instead.
+        notes: Use [Titanium.Contacts.getGroupByIdentifier](Titanium.Contacts.getGroupByIdentifier) instead.
 
   - name: getGroupByIdentifier
     summary: Gets the group with the specified identifier. 
@@ -130,7 +130,7 @@ methods:
         type: Number
     deprecated:
         since: "5.0.0"
-        notes: Use <Titanium.Contacts.getPersonByIdentifier> instead.
+        notes: Use [Titanium.Contacts.getPersonByIdentifier](Titanium.Contacts.getPersonByIdentifier) instead.
         
   - name: getPersonByIdentifier
     summary: Gets the person with the specified identifier.
@@ -216,8 +216,8 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
-        This method requests `Manifest.permission.READ_CONTACTS` on Android. If you require other permissions, you can also
-        use <Titanium.Android.requestPermissions>.
+        This method requests `Manifest.permission.READ_CONTACTS` and `Manifest.permission.WRITE_CONTACTS` on Android.
+        If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
 
         In iOS 6, Apple introduced the Info.plist key `NSContactsUsageDescription` that is used to display an
         own description while authorizing contacts permissions. In iOS 10, this key is mandatory and the application
@@ -233,7 +233,7 @@ methods:
   - name: requestAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Contacts.requestContactsPermissions> instead.
+        notes: Use [Titanium.Contacts.requestContactsPermissions](Titanium.Contacts.requestContactsPermissions) instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |
@@ -247,6 +247,21 @@ methods:
         type: Callback<ContactsAuthorizationResponse>
 
 properties:
+  - name: includeNote
+    summary: A boolean value that indicates whether to fetch the notes stored in contacts or not.
+    description:  |
+        This  property need to be set before calling contacts APIs.
+        From iOS 13 or later if your app fetch note field from contact, the app must have to set key 'com.apple.developer.contacts.notes' to 'true' in entitelements section of tiapp.xml.
+        
+        <key>com.apple.developer.contacts.notes</key>
+        <true/>
+        
+        See more details at https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_contacts_notes and https://developer.apple.com/contact/request/contact-note-field.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    since: 8.2.1
+
   - name: CONTACTS_KIND_ORGANIZATION
     summary: Specifies that a contact is an organization.
     description:  |
