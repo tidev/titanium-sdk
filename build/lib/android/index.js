@@ -31,8 +31,8 @@ class Android {
 	 * @constructor
 	 */
 	constructor (options) {
-		this.androidSDK = options.androidSdk;
-		this.androidNDK = options.androidNdk;
+		this.androidSdk = options.androidSdk;
+		this.androidNdk = options.androidNdk;
 		this.sdkVersion = options.sdkVersion;
 		this.versionTag = options.versionTag;
 		this.gitHash = options.gitHash;
