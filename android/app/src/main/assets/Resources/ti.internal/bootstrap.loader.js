@@ -119,7 +119,7 @@ exports.loadAsync = function (finished) {
 			while (bootstrapIndex < bootstrapScripts.length) {
 				// Load the next bootstrap.
 				fileName = bootstrapScripts[bootstrapIndex];
-				bootstrap = require(fileName);
+				bootstrap = require(fileName); // eslint-disable-line security/detect-non-literal-require
 
 				// Invoke the bootstrap's execute() method if it has one. (This is optional.)
 				// We must wait for the given callback to be invoked before loading the next script.

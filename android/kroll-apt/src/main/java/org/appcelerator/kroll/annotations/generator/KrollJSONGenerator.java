@@ -38,6 +38,8 @@ import org.json.simple.JSONValue;
 
 @SupportedAnnotationTypes({ KrollJSONGenerator.Kroll_proxy, KrollJSONGenerator.Kroll_module })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SuppressWarnings("unchecked")
+// clang-format off
 @SupportedOptions({
 	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_PACKAGE_NAME,
 	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_FILE_NAME,
@@ -46,7 +48,7 @@ import org.json.simple.JSONValue;
 	KrollJSONGenerator.OPTION_JS_MODULE_NAME,
 	KrollJSONGenerator.OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME
 })
-@SuppressWarnings("unchecked")
+// clang-format on
 public class KrollJSONGenerator extends AbstractProcessor
 {
 	protected static final String TAG = "KrollBindingGen";
@@ -195,7 +197,8 @@ public class KrollJSONGenerator extends AbstractProcessor
 				debug("Succesfully loaded existing binding data: " + jsonPath);
 			} catch (Exception e) {
 				// file doesn't exist, we'll just create it later
-				debug("No binding data found, creating new data file: %s/%s", this.jarJsonPackageName, this.jarJsonFileName);
+				debug("No binding data found, creating new data file: %s/%s", this.jarJsonPackageName,
+					  this.jarJsonFileName);
 			}
 		}
 	}
@@ -753,7 +756,8 @@ public class KrollJSONGenerator extends AbstractProcessor
 				writer.write(jsonString);
 				writer.close();
 			} catch (Exception e) {
-				debug("Exception trying to generate JSON: %s/%s, %s", this.jarJsonPackageName, this.jarJsonFileName, e.getMessage());
+				debug("Exception trying to generate JSON: %s/%s, %s", this.jarJsonPackageName, this.jarJsonFileName,
+					  e.getMessage());
 			}
 		}
 

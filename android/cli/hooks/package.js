@@ -30,7 +30,12 @@ exports.init = function (logger, config, cli) {
 			}
 
 			const outputDir = builder.outputDir;
-			if (outputDir && outputDir !== path.dirname(sourceFilePath)) {
+			if (!outputDir) {
+				logger.error(__('Packaging output directory path cannot be empty.'));
+				return finished();
+			}
+
+			if (outputDir !== path.dirname(sourceFilePath)) {
 				fs.ensureDirSync(outputDir);
 				const outputFilePath = path.join(outputDir, builder.tiapp.name + '.apk');
 				if (fs.existsSync(outputFilePath)) {
@@ -40,7 +45,7 @@ exports.init = function (logger, config, cli) {
 			}
 
 			logger.info(__('Packaging complete'));
-			logger.info(__('Package location: %s', dest.cyan));
+			logger.info(__('Package location: %s', outputDir.cyan));
 
 			finished();
 		}

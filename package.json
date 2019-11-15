@@ -75,7 +75,7 @@
       "path": "./node_modules/cz-conventional-changelog"
     },
     "format": {
-      "android": "android/!(dev|templates)/**/*.java",
+      "android": "android/!(app|templates)/**/*.java",
       "ios": "iphone/Classes/*.{m,h} iphone/Classes/Layout/*.{m,h} iphone/TitaniumKit/TitaniumKit/*.h iphone/TitaniumKit/TitaniumKit/Sources/**/*.{m,h}"
     }
   },
