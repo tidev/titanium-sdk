@@ -3630,6 +3630,20 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		// Replace ${tiapp.properties['key']} placeholders in manifest.
 		secondaryManifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
 
+		// Do not allow developers to override the "configChanges" attribute on "TiBaseActivity" derived activities.
+		// Most devs don't set this right, causing UI to disappear when a config change occurs for a missing setting.
+		const tiActivityNames = [
+			`.${this.classname}Activity`,
+			`${this.appid}.${this.classname}Activity`,
+			'org.appcelerator.titanium.TiActivity',
+			'org.appcelerator.titanium.TiTranslucentActivity',
+			'org.appcelerator.titanium.TiCameraActivity',
+			'org.appcelerator.titanium.TiVideoActivity'
+		];
+		for (const activityName of tiActivityNames) {
+			secondaryManifest.removeActivityAttribute(activityName, 'android:configChanges');
+		}
+
 		// Apply "tools:replace" attributes to <manifest/>, <application/>, and <activity/> attributes set by app.
 		// Avoids Google build errors if app's attributes conflict with attributes set by libraries.
 		// Note: Old Titanium build system (before gradle) didn't error out. So, this is for backward compatibility.

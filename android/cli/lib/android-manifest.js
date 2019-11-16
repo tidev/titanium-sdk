@@ -265,6 +265,23 @@ class AndroidManifest {
 	}
 
 	/**
+	 * Removes the given attribute from the an <activity/> by its name in the manifest.
+	 * @param {String} activityName Name of the <activity/>. Can null/undefined.
+	 * @param {String} attributeName Name of attribute to be removed such as "android:label". Can be null/undefined.
+	 */
+	removeActivityAttribute(activityName, attributeName) {
+		if (!this.isEmpty() && (typeof activityName === 'string') && (typeof attributeName === 'string')) {
+			const appElement = getFirstChildElementByTagName(this._xmlDomDocument.documentElement, 'application');
+			if (appElement) {
+				const activityElement = getFirstChildElementByTagAndAndroidName(appElement, 'activity', activityName);
+				if (activityElement) {
+					activityElement.removeAttribute(attributeName);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Replaces all "${name}" placeholders in manifest's XML matching the given dictionary
 	 * of placeholder name/value pairs.
 	 * @param {{name: {String}, value: {String}}} placeholders

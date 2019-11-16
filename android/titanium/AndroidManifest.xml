@@ -3,18 +3,18 @@
 	<application>
 		<activity
 			android:name="org.appcelerator.titanium.TiActivity"
-			android:configChanges="fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode|density"/>
+			android:configChanges="${tiActivityConfigChanges}"/>
 		<activity
 			android:name="org.appcelerator.titanium.TiTranslucentActivity"
-			android:configChanges="fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode|density"
+			android:configChanges="${tiActivityConfigChanges}"
 			android:theme="@style/Theme.Titanium.Translucent"/>
 		<activity
 			android:name="ti.modules.titanium.media.TiCameraActivity"
-			android:configChanges="fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode|density"
+			android:configChanges="${tiActivityConfigChanges}"
 			android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen"/>
 		<activity
 			android:name="ti.modules.titanium.media.TiVideoActivity"
-			android:configChanges="fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode|density"
+			android:configChanges="${tiActivityConfigChanges}"
 			android:theme="@style/Theme.AppCompat.Fullscreen"/>
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
 
