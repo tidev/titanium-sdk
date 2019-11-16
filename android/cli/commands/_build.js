@@ -1772,25 +1772,25 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 	// Typically set to local "file://" URLs referencing installed Titanium module.
 	this.mavenRepositoryUrls = [];
 
-	// directories
-	this.buildAssetsDir             = path.join(this.buildDir, 'ti-assets');
-	this.buildTiIncrementalDir      = path.join(this.buildDir, 'ti-incremental');
-	this.buildAppDir                = path.join(this.buildDir, 'app');
-	this.buildAppMainDir            = path.join(this.buildAppDir, 'src', 'main');
-	this.buildAppMainAssetsDir      = path.join(this.buildAppMainDir, 'assets');
+	// Set up directory paths.
+	this.buildAssetsDir                 = path.join(this.buildDir, 'assets');
+	this.buildTiIncrementalDir          = path.join(this.buildDir, 'ti-incremental');
+	this.buildAppDir                    = path.join(this.buildDir, 'app');
+	this.buildAppMainDir                = path.join(this.buildAppDir, 'src', 'main');
+	this.buildAppMainAssetsDir          = path.join(this.buildAppMainDir, 'assets');
 	this.buildAppMainAssetsResourcesDir = path.join(this.buildAppMainAssetsDir, 'Resources');
-	this.buildGenAppIdDir           = path.join(this.buildAppMainDir, 'java', this.appid.split('.').join(path.sep));
-	this.buildAppMainResDir         = path.join(this.buildAppMainDir, 'res');
-	this.buildAppMainResDrawableDir = path.join(this.buildAppMainResDir, 'drawable');
+	this.buildGenAppIdDir               = path.join(this.buildAppMainDir, 'java', this.appid.split('.').join(path.sep));
+	this.buildAppMainResDir             = path.join(this.buildAppMainDir, 'res');
+	this.buildAppMainResDrawableDir     = path.join(this.buildAppMainResDir, 'drawable');
+	this.templatesDir                   = path.join(this.platformPath, 'templates', 'build');
 
 	// The "appc-cli-titanium" module reads this builder's "buildBinAssetsDir" variable when "tiapp.xml"
 	// property "appc-sourcecode-encryption-policy" is set to "remote" or "embed".
-	this.buildBinAssetsDir          = this.buildAppMainAssetsDir;
+	this.buildBinAssetsDir = this.buildAppMainAssetsDir;
 
-	this.templatesDir               = path.join(this.platformPath, 'templates', 'build');
-
-	// files
-	this.buildManifestFile          = path.join(this.buildDir, 'build-manifest.json');
+	// Path to file storing some Titanium build settings.
+	// Used to determine if next build can be an incremental build or must be a clean/rebuild.
+	this.buildManifestFile = path.join(this.buildDir, 'build-manifest.json');
 
 	const buildTypeName = (this.allowDebugging) ? 'debug' : 'release';
 	this.apkFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'apk', buildTypeName, `app-${buildTypeName}.apk`);
@@ -2297,7 +2297,8 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 	await fs.emptyDir(this.buildAppMainDir);
 	await fs.ensureDir(this.buildAppMainAssetsResourcesDir);
 
-	// Make sure "ti-assets" directory exists. We output transpiled/polyfilled JS files here via copyResources() method.
+	// Make sure Titanium's "assets" directory exists. (This is not an APK "assets" directory.)
+	// We output transpiled/polyfilled JS files here via copyResources() method.
 	// Note: Do NOT delete this folder. We do our own incremental build handling on it.
 	await fs.ensureDir(this.buildAssetsDir);
 
