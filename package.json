@@ -153,10 +153,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": "8.x || 10.x"
+    "node": "10.x || 12.x"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10.13"
   },
   "nyc": {
     "exclude": [
