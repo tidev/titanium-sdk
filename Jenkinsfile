@@ -116,7 +116,7 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 							try {
 								timeout(30) {
 									// Forcibly remove value for specific build tools version to use (set by module builds)
-									sh 'ti config android.buildTools.selectedVersion --remove'
+									sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 									// run main branch tests on devices
 									if (testOnDevices) {
 										sh "node test.js -T device -C all -b ../../${zipName} -p android"
