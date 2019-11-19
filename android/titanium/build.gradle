@@ -198,10 +198,12 @@ dependencies {
 publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
-			// Use the same version string set in "tiapp.xml" file's <sdk-version/> tag.
+			// Use the base version string (such as "9.0.0") without the ".RC" or ".GA" appended to it.
+			// Note: Ideally, we should use the full "versionTag" string, but our Jenkins build system
+			//       currently appends the ".RC" or ".GA" part after the "node scons package" process.
 			def versionString = '1.0.0'
-			if (System.env.TITANIUM_SDK_VERSION_TAG != null) {
-				versionString = System.env.TITANIUM_SDK_VERSION_TAG
+			if (System.env.TITANIUM_SDK_BUILD_VERSION != null) {
+				versionString = System.env.TITANIUM_SDK_BUILD_VERSION
 			}
 
 			// Set up maven repo info.

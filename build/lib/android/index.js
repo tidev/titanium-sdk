@@ -161,7 +161,7 @@ async function gradlew(argsString) {
 			if (exitCode === 0) {
 				resolve();
 			} else {
-				reject();
+				reject(`"gradlew" tool returned exit code: ${exitCode}`);
 			}
 		});
 	});
