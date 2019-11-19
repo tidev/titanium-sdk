@@ -320,26 +320,29 @@ timestamps {
 					basename = "dist/mobilesdk-${vtag}"
 					echo "BASENAME:        ${basename}"
 
-					// TODO parallelize the iOS/Android/Mobileweb/Windows portions?
-					dir('build') {
+					// TODO parallelize the iOS/Android/Windows portions?
+					ansiColor('xterm') {
 						timeout(15) {
+							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 							if (includeWindows) {
-								sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK} --all"
-							} else {
-								sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+								buildCommand += ' --all'
 							}
+							sh buildCommand
 							recordIssues(tools: [clang(), java()])
 						} // timeout
-						ansiColor('xterm') {
-							timeout(15) {
-								if (includeWindows) {
-									sh "node scons.js package --version-tag ${vtag} --all"
-								} else {
-									sh "node scons.js package android ios --version-tag ${vtag}"
-								}
-							} // timeout
-						} // ansiColor
-					} // dir
+						timeout(15) {
+							def packageCommand = "npm run package -- --version-tag ${vtag}"
+							if (includeWindows) {
+								// on mainline builds, include windows sdk, build for all 3 host OSes
+								packageCommand += '--all'
+							} else {
+								// On PRs, just build android and ios for macOS
+								packageCommand += ' android ios'
+							}
+							sh packageCommand
+						} // timeout
+					} // ansiColor
+
 					archiveArtifacts artifacts: "${basename}-*.zip"
 					stash includes: 'dist/parity.html', name: 'parity'
 					stash includes: 'tests/', name: 'override-tests'
