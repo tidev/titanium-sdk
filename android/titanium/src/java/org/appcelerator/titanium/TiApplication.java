@@ -820,7 +820,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		runtime.initRuntime();
 
 		// manually re-launch app
-		runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath, rootActivity.getActivityProxy());
+		if (KrollAssetHelper.assetExists(appPath)) {
+			runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath,
+									 rootActivity.getActivityProxy());
+
+			// launch script does not exist, must be using snapshot
+			// execute startup method baked in snapshot
+		} else {
+			runtime.doRunModule("global._startSnapshot(global)", appPath, rootActivity.getActivityProxy());
+		}
 	}
 
 	@Override
