@@ -1205,7 +1205,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: {iphone: "8.0.0", ipad: "8.0.0"}
-        removed: {iphone: "9.0.0", ipad: "9.0.0"}
+        removed: "9.0.0"
 
   - name: country
     summary: Country name.
@@ -1223,7 +1223,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: {android: "8.0.0", iphone: "8.0.0", ipad: "8.0.0"}
-        removed: {android: "9.0.0", iphone: "9.0.0", ipad: "9.0.0"}
+        removed: "9.0.0"
 
   - name: longitude
     summary: Longitude of the geocoded point.
@@ -1241,7 +1241,7 @@ properties:
     platforms: [android]
     deprecated:
         since: {android: "8.0.0"}
-        removed: {android: "9.0.0"}
+        removed: "9.0.0"
 
   - name: address
     summary: Full address.
