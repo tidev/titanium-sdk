@@ -118,22 +118,22 @@ class Android {
 		// This is needed to compile the C/C++ code generated for modules and hyperloop.
 		const ZIP_HEADER_INCLUDE_PATH = path.join(ZIP_ANDROID_PATH, 'native', 'include');
 		await fs.mkdirs(ZIP_HEADER_INCLUDE_PATH);
-		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime/v8/src/native'), ZIP_HEADER_INCLUDE_PATH);
-		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime/v8/generated'), ZIP_HEADER_INCLUDE_PATH);
+		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime', 'v8', 'src', 'native'), ZIP_HEADER_INCLUDE_PATH);
+		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime', 'v8', 'generated'), ZIP_HEADER_INCLUDE_PATH);
 		const v8Props = require(path.join(TITANIUM_ANDROID_PATH, 'package.json')).v8; // eslint-disable-line security/detect-non-literal-require
 		const LIBV8_INCLUDE_PATH = path.join(DIST_ANDROID_PATH, 'libv8', v8Props.version, v8Props.mode, 'include');
 		await globCopy('**/*.h', LIBV8_INCLUDE_PATH, ZIP_HEADER_INCLUDE_PATH);
 
 		// Copy our C/C++ "*.so" libraries to the destination.
-		const TITANIUM_NATIVE_LIBS_PATH = path.join(TITANIUM_ANDROID_PATH, 'runtime', 'v8', 'libs');
+		const TITANIUM_NATIVE_LIBS_PATH = path.join(TITANIUM_ANDROID_PATH, 'titanium', 'build', 'outputs', 'jniLibs');
 		const ZIP_NATIVE_LIBS_PATH = path.join(ZIP_ANDROID_PATH, 'native', 'libs');
 		await fs.mkdirs(ZIP_NATIVE_LIBS_PATH);
 		await fs.copy(TITANIUM_NATIVE_LIBS_PATH, ZIP_NATIVE_LIBS_PATH, {
-			filter: (filename) => {
-				if (fs.statSync(filename).isDirectory()) {
+			filter: async (filePath) => {
+				if ((await fs.stat(filePath)).isDirectory()) {
 					// Copy all subdirectories.
 					return true;
-				} else if (filename.toLowerCase().endsWith('.so')) {
+				} else if (filePath.toLowerCase().endsWith('.so')) {
 					// Copy all "*.so" files.
 					return true;
 				}

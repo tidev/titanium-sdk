@@ -237,3 +237,17 @@ publishing {
 		}
 	}
 }
+publish.doLast {
+	// After above publishing step, extract C/C++ "*.so" libraries from AAR to "./build/outputs/jniLibs" directory.
+	def jniLibsOutputDir = "${buildDir}/outputs/jniLibs"
+	project.delete jniLibsOutputDir
+	copy {
+		from zipTree("${buildDir}/outputs/aar/titanium-release.aar")
+		into jniLibsOutputDir
+		include 'jni/**/*'
+		includeEmptyDirs false
+		eachFile {
+			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1));
+		}
+	}
+}
