@@ -690,8 +690,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			// TIMOB-27572: Samsung devices require a location provider to be registered
 			// in order to obtain last known location.
 			if (latestKnownLocation == null) {
-				numLocationListeners++;
-				enableLocationProviders(simpleLocationProviders);
+				if (numLocationListeners == 0) {
+					numLocationListeners++;
+					enableLocationProviders(simpleLocationProviders);
+				}
 				currentPositionCallback.add(callback);
 				return;
 			}
