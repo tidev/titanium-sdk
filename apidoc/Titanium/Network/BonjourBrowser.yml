@@ -29,6 +29,7 @@ events:
     properties:
       - name: services
         summary: An array of BonjourService objects corresponding to currently available services.  If you cache this value, including using it as table data, be aware that it could become out of date at any time due to the asynchronous nature of Bonjour service discovery.
+        type: Array
     since: '3.0.0'
 
 properties:
