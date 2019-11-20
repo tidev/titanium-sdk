@@ -238,50 +238,44 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		switch (state) {
 			case LocationProviderProxy.STATE_DISABLED:
 				message += " is disabled";
-				Log.i(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_ENABLED:
 				message += " is enabled";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-
 				break;
 
 			case LocationProviderProxy.STATE_OUT_OF_SERVICE:
 				message += " is out of service";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_UNAVAILABLE:
 				message += " is unavailable";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_AVAILABLE:
 				message += " is available";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-
 				break;
 
 			case LocationProviderProxy.STATE_UNKNOWN:
 				message += " is in a unknown state [" + state + "]";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			default:
 				message += " is in a unknown state [" + state + "]";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
+		}
+		Log.d(TAG, message, Log.DEBUG_MODE);
+
+		if (state != LocationProviderProxy.STATE_ENABLED && state != LocationProviderProxy.STATE_AVAILABLE) {
+			fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
+
+			// Execute current position callbacks.
+			if (currentPositionCallback.size() > 0) {
+				for (KrollFunction callback : currentPositionCallback) {
+					callback.call(this.getKrollObject(), new Object[] { buildLocationErrorEvent(state, message) });
+				}
+				currentPositionCallback.clear();
+			}
 		}
 	}
 
