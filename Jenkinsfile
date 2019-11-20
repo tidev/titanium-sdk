@@ -13,7 +13,7 @@ def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 // target branch of test suite to test with
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
-def testOnDevices = isMainlineBranch // run tests on devices
+def testOnDevices = true //isMainlineBranch // run tests on devices
 
 // Variables we can change
 def nodeVersion = '10.17.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
@@ -126,9 +126,13 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 	}
 }
 
-def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
+def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 	return {
-		node('git && osx && xcode-11') { // Use xcode-11 to make use of ios 13 APIs
+		def labels = 'git && osx && xcode-11' // Use xcode-11 to make use of ios 13 APIs
+		if (testOnDevices) {
+			labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
+		}
+		node(labels) {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -139,7 +143,11 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
 						timeout(20) {
-							sh label: 'Run Test Suite', script: "npm run test:integration -- ios -F ${deviceFamily}"
+							if (testOnDevices && deviceFamily == 'iphone') {
+								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
+							} else { // run PR tests on simulator
+								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
+							}
 						}
 					} catch (e) {
 						gatherIOSCrashReports('mocha') // app name is mocha
@@ -306,8 +314,8 @@ timestamps {
 		stage('Test') {
 			parallel(
 				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion),
+				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
+				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: true
 			)
