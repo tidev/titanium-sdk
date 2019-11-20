@@ -79,6 +79,7 @@ events:
     properties:
       - name: index
         summary: Index of the image frame being displayed.
+        type: Number
 
   - name: load
     summary: |
@@ -121,6 +122,8 @@ events:
 
       - name: image
         summary: URL of the image that failed to load.
+        type: String
+        optional: true
 
   - name: pause
     summary: Fired when the animation pauses.
