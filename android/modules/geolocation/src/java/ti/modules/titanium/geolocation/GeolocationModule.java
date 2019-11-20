@@ -119,7 +119,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private static final double SIMPLE_LOCATION_PASSIVE_DISTANCE = 0.0;
 	private static final double SIMPLE_LOCATION_PASSIVE_TIME = 0;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE = 10.0;
-	private static final double SIMPLE_LOCATION_NETWORK_TIME = 10000;
+	private static final double SIMPLE_LOCATION_NETWORK_TIME = 3000;
 	private static final double SIMPLE_LOCATION_GPS_DISTANCE = 3.0;
 	private static final double SIMPLE_LOCATION_GPS_TIME = 3000;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
@@ -136,6 +136,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
+	private ArrayList<KrollFunction> currentPositionCallback = new ArrayList<>();
 
 	private FusedLocationProvider fusedLocationProvider;
 
@@ -200,6 +201,18 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public void onLocationChanged(Location location)
 	{
 		lastLocation = location;
+
+		// Execute current position callbacks.
+		if (currentPositionCallback.size() > 0) {
+			for (KrollFunction callback : currentPositionCallback) {
+				callback.call(this.getKrollObject(),
+							  new Object[] { buildLocationEvent(
+								  lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider())) });
+			}
+			currentPositionCallback.clear();
+		}
+
+		// Fire 'location' event listeners.
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION,
 					  buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
@@ -670,6 +683,18 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		}
 		if (callback != null) {
 			Location latestKnownLocation = tiLocation.getLastKnownLocation();
+			if (latestKnownLocation == null) {
+				latestKnownLocation = lastLocation;
+			}
+
+			// TIMOB-27572: Samsung devices require a location provider to be registered
+			// in order to obtain last known location.
+			if (latestKnownLocation == null) {
+				numLocationListeners++;
+				enableLocationProviders(simpleLocationProviders);
+				currentPositionCallback.add(callback);
+				return;
+			}
 
 			if (latestKnownLocation != null) {
 				callback.call(
