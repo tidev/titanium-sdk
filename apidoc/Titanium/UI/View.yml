@@ -1419,6 +1419,15 @@ properties:
     platforms: [iphone, ipad]
     since: 7.3.0
 
+  - name: id
+    summary: View's identifier.
+    description: |
+        The `id` property of the Ti.UI.View represents the view's identifier. The identificator string does
+        not have to be unique. You can use this property with <Titanium.UI.View.getViewById> method.
+    type: String
+    accessors: false
+    optional: true
+
   - name: left
     summary: View's left position, in platform-specific units.
     description: |
