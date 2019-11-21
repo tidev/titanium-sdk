@@ -409,7 +409,7 @@ void JNIUtil::initCache()
 		"([[Ljava/lang/Object;)V", false);
 
 	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",true);
-	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
+	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAssetBytes", "(Ljava/lang/String;)[B", true);
 
 	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);
 

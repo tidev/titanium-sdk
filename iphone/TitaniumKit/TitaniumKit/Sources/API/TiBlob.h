@@ -81,7 +81,8 @@ JSExportAs(imageWithRoundedCorner,
 typedef enum {
   TiBlobTypeImage = 0,
   TiBlobTypeFile = 1,
-  TiBlobTypeData = 2
+  TiBlobTypeData = 2,
+  TiBlobTypeSystemImage = 3
 } TiBlobType;
 
 /**
@@ -95,6 +96,7 @@ typedef enum {
   UIImage *image;
   NSString *path;
   BOOL imageLoadAttempted;
+  NSString *systemImageName;
 }
 
 /**
@@ -125,12 +127,34 @@ typedef enum {
  */
 - (id)initWithImage:(UIImage *)image;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+/**
+Initialize the blob with a system image.
+@param imageName The  system image name
+*/
+- (id)initWithSystemImage:(NSString *)imageName;
+
+/**
+ Returns the System Image Name .
+ @return The string or nil.
+ */
+- (NSString *)systemImageName;
+
+#endif
+
 /**
  Initialize the blob with data.
  @param data_ The raw data.
  @param mimetype_ The data mime type.
  */
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_;
+
+/**
+ Initialize the blob with data. Used for encrypted files/assets.
+ @param data_ The raw data.
+ @param path_ The path to the file.
+ */
+- (id)initWithData:(NSData *)data_ andPath:(NSString *)path_;
 
 /**
  Initialize the blob with contents of a file.

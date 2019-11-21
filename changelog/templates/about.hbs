@@ -1,0 +1,19 @@
+## About this release
+
+{{#if isPatch~}}
+Titanium SDK {{version}} is a patch release of the SDK, addressing high-priority issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release ({{eosBranch}}) is no longer supported. End of support for this version will be {{eosDate}} or until the next patch release. Note: major and minor releases continue to be supported according to their nominal lifetime.
+{{~else if isMajor~}}
+Titanium SDK {{version}} is a major release of the SDK, addressing high-priority issues from previous releases.
+
+As of this release, Titanium SDK {{eosBranch}} will not be supported one calendar year ({{eosDate}}) from {{version}}'s release date.
+{{~else~}}
+Titanium SDK {{version}} is a minor release of the SDK, addressing high-priority issues from previous releases.
+
+As of this release, Titanium SDK {{eosBranch}} will not receive updates more than six months after the release of {{version}} ({{eosDate}}). Any needed fixes will be in {{patchBranch}} or later supported releases within the {{majorBranch}} branch.
+{{~/if}}
+
+See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_deprecation_policy.html) and [Nominal Lifetimes](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_product_lifecycle.html#AxwayAppceleratorProductLifecycle-NominalLifetimes) documents for details.
+
+:warning: With the release of Titanium SDK 9.0.0, we will no longer support Node.js 8.X. Node 10.2.0 will be the new minimum supported version with SDK 9.0.0.
