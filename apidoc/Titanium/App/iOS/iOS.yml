@@ -909,10 +909,6 @@ events:
         summary: Application badge value.
         type: Number
 
-      - name: category
-        summary: Identifier of the category of the interactive notification.
-        type: String
-
       - name: date
         summary: Date and time when the notification was configured to fire.
         type: Date
