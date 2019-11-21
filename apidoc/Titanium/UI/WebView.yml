@@ -532,6 +532,7 @@ events:
         summary: The URL of the web document that is stopped.
     deprecated:
         since: "6.1.0"
+        removed: "9.0.0"
         notes: Use the  cross-platform `blacklisturl` event instead.
 
   - name: blacklisturl
