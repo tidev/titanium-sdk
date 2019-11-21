@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -9,19 +9,15 @@
 #ifdef USE_TI_NETWORK
 
 #import "TiNetworkBonjourServiceProxy.h"
+#import "TiNetworkSocketTCPProxy.h"
 #import <arpa/inet.h>
 #import <netdb.h>
 #import <netinet/in.h>
 #import <sys/socket.h>
 
-const NSString *nameKey = @"name";
-const NSString *typeKey = @"type";
-const NSString *domainKey = @"domain";
-const NSString *socketKey = @"socket";
-
 @implementation TiNetworkBonjourServiceProxy
 
-@synthesize socket;
+@synthesize pageContext; // TODO: Remove once we've migrated TiNetworkSocketTCPProxy to obj-c API
 
 #pragma mark Public
 
@@ -29,19 +25,7 @@ const NSString *socketKey = @"socket";
 {
   if (self = [super init]) {
     local = YES;
-    connectCondition = [[NSCondition alloc] init];
-
-    domains = [[NSMutableArray alloc] init];
-    domainBrowser = [[NSNetServiceBrowser alloc] init];
-
-    [domainBrowser removeFromRunLoop:[NSRunLoop currentRunLoop]
-                             forMode:NSDefaultRunLoopMode];
-    [domainBrowser scheduleInRunLoop:[NSRunLoop mainRunLoop]
-                             forMode:NSDefaultRunLoopMode];
-
-    searchError = nil;
-    searching = NO;
-    searchCondition = [[NSCondition alloc] init];
+    domain_ = @"local.";
   }
 
   return self;
@@ -50,16 +34,13 @@ const NSString *socketKey = @"socket";
 - (id)initWithContext:(id<TiEvaluator>)context_ service:(NSNetService *)service_ local:(bool)local_
 {
   if (self = [super _initWithPageContext:context_]) {
+    pageContext = (id)context_; // do not retain // TODO: Remove once we've migrated TiNetworkSocketTCPProxy to obj-c API
     // NOTE: We need to resolve the service to make sure that it's available before opening this socket,
     // and make sure it's available over IPv4.
     socket = nil;
 
     service = [service_ retain];
     local = local_;
-    connectCondition = [[NSCondition alloc] init];
-
-    [service removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    [service scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
     [service setDelegate:self];
   }
@@ -71,23 +52,25 @@ const NSString *socketKey = @"socket";
 {
   [self stop:nil];
 
-  if (socket != nil && [[socket isValid] boolValue]) {
+  // Can only close if not already closed or in error state
+  if (socket != nil && ([[socket state] intValue] & (SOCKET_CONNECTED | SOCKET_LISTENING | SOCKET_INITIALIZED))) {
     [socket close:nil];
   }
 
   RELEASE_TO_NIL(service);
   RELEASE_TO_NIL(socket);
-  RELEASE_TO_NIL(connectCondition);
-  RELEASE_TO_NIL(domains);
-  RELEASE_TO_NIL(domainBrowser);
-  RELEASE_TO_NIL(searchCondition);
+  RELEASE_TO_NIL(name_);
+  RELEASE_TO_NIL(type_);
+  RELEASE_TO_NIL(domain_);
+
+  pageContext = nil;
 
   [super _destroy];
 }
 
 - (NSString *)apiName
 {
-  return @"Ti.Network.BounjourService";
+  return @"Ti.Network.BonjourService";
 }
 
 - (BOOL)isEqual:(id)obj
@@ -135,57 +118,81 @@ const NSString *socketKey = @"socket";
   return @"";
 }
 
+- (void)setName:(NSString *)name
+{
+  if (service == nil) {
+    // hold on to name until we publish
+    name_ = [name retain];
+  }
+}
+
 - (NSString *)name
 {
-  return [service name];
+  if (service != nil) {
+    return [service name];
+  }
+  return name_;
+}
+READWRITE_IMPL(NSString *, name, Name);
+
+- (void)setType:(NSString *)type
+{
+  if (service == nil) {
+    // hold on to type until we publish
+    type_ = [type retain];
+  }
 }
 
 - (NSString *)type
 {
-  return [service type];
+  if (service != nil) {
+    return [service type];
+  }
+  return type_;
+}
+READWRITE_IMPL(NSString *, type, Type);
+
+- (void)setDomain:(NSString *)domain
+{
+  if (service == nil) {
+    // hold on to domain until we publish
+    domain_ = [domain retain];
+  }
 }
 
 - (NSString *)domain
 {
-  return [service domain];
+  if (service != nil) {
+    return [service domain];
+  }
+  return domain_;
+}
+READWRITE_IMPL(NSString *, domain, Domain);
+
+- (JSValue *)socket
+{
+  return [self NativeToJSValue:socket];
+}
+GETTER_IMPL(JSValue *, socket, Socket);
+
+- (void)setIsLocal:(BOOL)isLocal
+{
+  local = isLocal;
 }
 
-- (NSNumber *)isLocal
+- (BOOL)isLocal
 {
-  return [NSNumber numberWithBool:local];
+  return local;
 }
+READWRITE_IMPL(BOOL, isLocal, IsLocal);
 
 - (NSNetService *)service
 {
   return service;
 }
 
-- (void)publish:(id)arg
+- (void)publish:(JSValue *)socketProxy withCallback:(JSValue *)callback
 {
-  RELEASE_TO_NIL(error);
-  RELEASE_TO_NIL(service);
-  RELEASE_TO_NIL(socket);
-
-  ENSURE_SINGLE_ARG(arg, TiNetworkTCPSocketProxy);
-
-  NSString *name = [self valueForUndefinedKey:@"name"];
-  NSString *type = [self valueForUndefinedKey:@"type"];
-  NSString *domain = [self valueForUndefinedKey:@"domain"];
-  socket = [arg retain];
-
-  if (domain == nil) {
-    domain = @"local.";
-  }
-
-  service = [[NSNetService alloc] initWithDomain:domain
-                                            type:type
-                                            name:name
-                                            port:[[socket port] intValue]];
-
-  [service removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-  [service scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-  [service setDelegate:self];
-
   if (!local) {
     [self throwException:@"Attempt to republish discovered Bonjour service"
                subreason:nil
@@ -196,30 +203,37 @@ const NSString *socketKey = @"socket";
                subreason:nil
                 location:CODELOCATION];
   }
+
+  // TODO: Allow a second optional callback function argument? That would allow for more typical async usage rather than having to add event listeners
+  RELEASE_TO_NIL(socket);
+  TiNetworkSocketTCPProxy *tcpSocketProxy = [self JSValueToNative:socketProxy];
+  socket = [tcpSocketProxy retain];
   if (!socket) {
     [self throwException:@"Attempt to publish service with no associated socket"
                subreason:nil
                 location:CODELOCATION];
   }
 
-  RELEASE_TO_NIL(error);
+  if (domain_ == nil) {
+    domain_ = @"local.";
+  }
 
+  RELEASE_TO_NIL(service);
+  id port = [socket valueForUndefinedKey:@"port"];
+  service = [[NSNetService alloc] initWithDomain:domain_
+                                            type:type_
+                                            name:name_
+                                            port:[port intValue]];
+  [service setDelegate:self];
+
+  if (callback != nil) {
+    publishCallback = [callback retain];
+  }
   [service publish];
-
-  if (!published && !error) {
-    [connectCondition lock];
-    [connectCondition wait];
-    [connectCondition unlock];
-  }
-
-  if (error) {
-    [self throwException:[@"Failed to publish: " stringByAppendingString:error]
-               subreason:nil
-                location:CODELOCATION];
-  }
+  // TODO: release name_, domain_ and type_ to nil now?
 }
 
-- (void)resolve:(id)args
+- (void)resolve:(NSTimeInterval)timeout withCallback:(JSValue *)callback
 {
   if (published) {
     [self throwException:@"Attempt to resolve published Bonjour service"
@@ -232,55 +246,38 @@ const NSString *socketKey = @"socket";
                 location:CODELOCATION];
   }
 
-  RELEASE_TO_NIL(error);
+  if (isnan(timeout)) {
+    // FIXME: If isnan, first argument *may* have been the callback function!
+    NSArray *args = [JSContext currentArguments];
+    if ([args count] > 0) {
+      JSValue *firstArg = args[0];
+      if ([firstArg isObject]) {
+        callback = firstArg;
+      }
+    }
+    timeout = 120.0;
+  } else if (timeout < 0) {
+    timeout = 120.0;
+  }
 
-  NSTimeInterval timeout = 120.0;
-  if ([args count] != 0 && !IS_NULL_OR_NIL([args objectAtIndex:0])) {
-    ENSURE_CLASS([args objectAtIndex:0], [NSNumber class])
-    timeout = [[args objectAtIndex:0] doubleValue];
+  if (callback != nil) {
+    resolveCallback = [callback retain];
   }
 
   [service resolveWithTimeout:timeout];
-
-  if (!socket && !error) {
-    [connectCondition lock];
-    [connectCondition wait];
-    [connectCondition unlock];
-  }
-
-  if (error) {
-    [self throwException:[@"Did not resolve: " stringByAppendingString:error]
-               subreason:nil
-                location:CODELOCATION];
-  }
 }
 
-- (void)stop:(id)arg
+- (void)stop:(JSValue *)callback
 {
-  [service stop];
-
-  if (published) {
-    [connectCondition lock];
-    [connectCondition wait];
-    [connectCondition unlock];
+  if (callback != nil) {
+    stopCallback = [callback retain];
   }
+  [service stop];
 }
 
 #pragma mark Private
 
-- (void)synthesizeService
-{
-}
-
-- (void)setError:(NSString *)error_
-{
-  if (error != error_) {
-    [error release];
-    error = [error_ retain];
-  }
-}
-
-- (void)setSocket:(TiNetworkTCPSocketProxy *)socket_
+- (void)setSocket:(TiNetworkSocketTCPProxy *)socket_
 {
   if (socket != socket_) {
     [socket release];
@@ -294,27 +291,60 @@ const NSString *socketKey = @"socket";
 
 - (void)netService:(NSNetService *)service_ didNotPublish:(NSDictionary *)errorDict
 {
-  [self setError:[TiNetworkBonjourServiceProxy stringForErrorCode:[[errorDict valueForKey:NSNetServicesErrorCode] intValue]]];
-
-  [connectCondition lock];
-  [connectCondition signal];
-  [connectCondition unlock];
+  // Fire event to notify of error publishing!
+  int code = [[errorDict valueForKey:NSNetServicesErrorCode] intValue];
+  NSString *message = [TiNetworkBonjourServiceProxy stringForErrorCode:code];
+  NSDictionary *error = @{
+    @"code" : [NSNumber numberWithInteger:code],
+    @"message" : message,
+    @"success" : @NO
+  };
+  [self fireEvent:@"publish" withDict:error];
+  if (publishCallback != nil) {
+    // Create a real Error object!
+    JSValue *errorObj = [self createError:message subreason:nil location:CODELOCATION inContext:[publishCallback context]];
+    errorObj[@"code"] = code;
+    [publishCallback callWithArguments:@[ errorObj, @NO ]];
+    RELEASE_TO_NIL(publishCallback);
+  }
 }
 
 - (void)netServiceDidPublish:(NSNetService *)service_
 {
   published = YES;
-
-  [connectCondition lock];
-  [connectCondition signal];
-  [connectCondition unlock];
+  // Fire event to notify of success publishing!
+  [self fireEvent:@"publish"
+         withDict:@{
+           @"code" : @0,
+           @"message" : [NSNull null],
+           @"success" : @YES
+         }];
+  if (publishCallback != nil) {
+    [publishCallback callWithArguments:@[ [NSNull null], @YES ]];
+    RELEASE_TO_NIL(publishCallback);
+  }
 }
 
 #pragma mark Resolution
 
 - (void)netService:(NSNetService *)service_ didNotResolve:(NSDictionary *)errorDict
 {
-  [self setError:[TiNetworkBonjourServiceProxy stringForErrorCode:[[errorDict valueForKey:NSNetServicesErrorCode] intValue]]];
+  // Fire event to notify of error resolving!
+  NSNetServicesError code = [errorDict valueForKey:NSNetServicesErrorCode];
+  NSString *message = [TiNetworkBonjourServiceProxy stringForErrorCode:code];
+  [self fireEvent:@"resolve"
+         withDict:@{
+           @"code" : [NSNumber numberWithInteger:code],
+           @"message" : message,
+           @"success" : @NO
+         }];
+  if (resolveCallback != nil) {
+    // Create a real Error object!
+    JSValue *errorObj = [self createError:message subreason:nil location:CODELOCATION inContext:[resolveCallback context]];
+    errorObj[@"code"] = code;
+    [resolveCallback callWithArguments:@[ errorObj, @NO ]];
+    RELEASE_TO_NIL(resolveCallback);
+  }
 }
 
 - (void)netServiceDidResolveAddress:(NSNetService *)service_
@@ -325,16 +355,24 @@ const NSString *socketKey = @"socket";
   while (addressData = [addressEnum nextObject]) {
     const struct sockaddr *address = [addressData bytes];
     if (address->sa_family == AF_INET) {
-      [self setSocket:[[[TiNetworkTCPSocketProxy alloc] _initWithPageContext:[self pageContext]
-                                                                        args:[NSArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                                                                                        NUMINTEGER([service port]), @"port",
-                                                                                                                    [service hostName], @"hostName",
-                                                                                                                    [NSNumber numberWithInt:READ_WRITE_MODE], @"mode", nil]]]
-                          autorelease]];
-
-      [connectCondition lock];
-      [connectCondition signal];
-      [connectCondition unlock];
+      [self setSocket:[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:pageContext
+                                                                       args:@[
+                                                                         @{
+                                                                           @"port" : NUMINTEGER([service port]),
+                                                                           @"host" : [service hostName]
+                                                                         }
+                                                                       ]]];
+      // Fire event to notify of success resolving!
+      [self fireEvent:@"resolve"
+             withDict:@{
+               @"code" : @0,
+               @"message" : [NSNull null],
+               @"success" : @YES
+             }];
+      if (resolveCallback != nil) {
+        [resolveCallback callWithArguments:@[ [NSNull null], @YES ]];
+        RELEASE_TO_NIL(resolveCallback);
+      }
       break;
     }
   }
@@ -345,118 +383,17 @@ const NSString *socketKey = @"socket";
 - (void)netServiceDidStop:(NSNetService *)service_
 {
   published = NO;
-
-  [connectCondition lock];
-  [connectCondition signal];
-  [connectCondition unlock];
-}
-
-#pragma mark Bonjour
-
-- (void)searchDomains:(id)unused
-{
-  RELEASE_TO_NIL(searchError);
-  [domainBrowser searchForBrowsableDomains];
-
-  if (!searching && !searchError) {
-    [searchCondition lock];
-    [searchCondition wait];
-    [searchCondition unlock];
+  // Fire event to notify success stopping!
+  [self fireEvent:@"stop"
+         withDict:@{
+           @"code" : @0,
+           @"message" : [NSNull null],
+           @"success" : @YES
+         }];
+  if (stopCallback != nil) {
+    [stopCallback callWithArguments:@[ [NSNull null], @YES ]];
+    RELEASE_TO_NIL(stopCallback);
   }
-
-  if (searchError) {
-    [self throwException:[@"Failed to search: " stringByAppendingString:searchError]
-               subreason:nil
-                location:CODELOCATION];
-  }
-}
-
-- (void)stopDomainSearch:(id)unused
-{
-  [domainBrowser stop];
-
-  if (searching) {
-    [searchCondition lock];
-    [searchCondition wait];
-    [searchCondition unlock];
-  }
-
-  [domains removeAllObjects];
-}
-
-- (NSNumber *)isSearching:(id)unused
-{
-  return [NSNumber numberWithBool:searching];
-}
-
-#pragma mark Private
-
-- (void)setSearchError:(NSString *)error_
-{
-  if (searchError != error_) {
-    [searchError release];
-    searchError = [error_ retain];
-  }
-}
-
-#pragma mark Delegate methods (NSNetServiceBrowser)
-
-#pragma mark Domain management
-
-- (void)fireDomainUpdateEvent
-{
-  NSDictionary *eventObject = [NSDictionary dictionaryWithObject:
-                                                [[domains copy] autorelease]
-                                                          forKey:@"domains"];
-  [self fireEvent:@"updatedDomains" withObject:eventObject]; //TODO: Deprecate old event.
-  [self fireEvent:@"updateddomains" withObject:eventObject];
-}
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindDomain:(NSString *)domain moreComing:(BOOL)more
-{
-  [domains addObject:domain];
-
-  if (!more) {
-    [self fireDomainUpdateEvent];
-  }
-}
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)browser didRemoveDomain:(NSString *)domain moreComing:(BOOL)more
-{
-  [domains removeObject:domain];
-
-  if (!more) {
-    [self fireDomainUpdateEvent];
-  }
-}
-
-#pragma mark Search management
-
-- (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)browser
-{
-  searching = YES;
-
-  [searchCondition lock];
-  [searchCondition signal];
-  [searchCondition unlock];
-}
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary *)errorDict
-{
-  [self setSearchError:[TiNetworkBonjourServiceProxy stringForErrorCode:[[errorDict objectForKey:NSNetServicesErrorCode] intValue]]];
-
-  [searchCondition lock];
-  [searchCondition signal];
-  [searchCondition unlock];
-}
-
-- (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)browser
-{
-  searching = NO;
-
-  [searchCondition lock];
-  [searchCondition signal];
-  [searchCondition unlock];
 }
 
 @end

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -8,48 +8,62 @@
  */
 #ifdef USE_TI_NETWORK
 
-#import "TiNetworkTCPSocketProxy.h"
-#import <Foundation/Foundation.h>
-#import <Foundation/NSNetServices.h>
-#import <TitaniumKit/TiProxy.h>
+@import JavaScriptCore;
+@import Foundation;
+@import Foundation.NSNetServices;
+@import TitaniumKit.ObjcProxy;
+
+@class TiNetworkSocketTCPProxy; // forward declare
+
+@protocol TiNetworkBonjourServiceProxyExports <JSExport>
+// Properties (and accessors)
+PROPERTY(NSString *, domain, Domain);
+PROPERTY(BOOL, isLocal, IsLocal);
+PROPERTY(NSString *, name, Name);
+PROPERTY(JSValue *, socket, Socket);
+PROPERTY(NSString *, type, Type);
+
+// Methods
+// FIXME: socketProxy can be TiNetworkSocketTCPProxy* once that proxy is moved to obj-c api
+JSExportAs(publish,
+           -(void)publish
+           : (JSValue *)socketProxy withCallback
+           : (JSValue *)callback);
+JSExportAs(resolve,
+           -(void)resolve
+           : (NSTimeInterval)timeout withCallback
+           : (JSValue *)callback);
+- (void)stop:(JSValue *)callback;
+
+@end
 
 // NSNetService Delegate
-@interface TiNetworkBonjourServiceProxy : TiProxy <NSNetServiceDelegate> {
-  TiNetworkTCPSocketProxy *socket;
+@interface TiNetworkBonjourServiceProxy : ObjcProxy <TiNetworkBonjourServiceProxyExports, NSNetServiceDelegate> {
+  @private
+  TiNetworkSocketTCPProxy *socket;
   NSNetService *service;
-
   BOOL local;
   BOOL published;
-  NSString *error;
-  NSCondition *connectCondition;
 
-  NSNetServiceBrowser *domainBrowser;
-  NSMutableArray *domains;
+  // Temporarily hold onto name/type/domain for manually created services until we publish
+  NSString *name_;
+  NSString *domain_;
+  NSString *type_;
 
-  NSString *searchError;
-  BOOL searching;
-  NSCondition *searchCondition;
+  id<TiEvaluator> pageContext; // TODO: Remove once we've migrated TiNetworkSocketTCPProxy to obj-c API
+  JSValue *publishCallback;
+  JSValue *resolveCallback;
+  JSValue *stopCallback;
 }
 
 - (NSNetService *)service;
 
 - (id)initWithContext:(id<TiEvaluator>)context_ service:(NSNetService *)service_ local:(bool)local_;
 
-- (void)publish:(id)arg;
-- (void)resolve:(id)args;
-- (void)stop:(id)arg;
-
-@property (readonly) TiNetworkTCPSocketProxy *socket;
-@property (readonly, nonatomic) NSString *name;
-@property (readonly, nonatomic) NSString *type;
-@property (readonly, nonatomic) NSString *domain;
-@property (readonly, nonatomic, getter=isLocal) NSNumber *local;
+@property (readonly, nonatomic) id<TiEvaluator> pageContext; // TODO: Remove once we've migrated TiNetworkSocketTCPProxy to obj-c API
 
 #pragma mark internal
 
-- (void)searchDomains:(id)unused;
-- (void)stopDomainSearch:(id)unused;
-- (NSNumber *)isSearching:(id)unused;
 + (NSString *)stringForErrorCode:(NSNetServicesError)code;
 
 @end
