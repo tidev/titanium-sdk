@@ -648,6 +648,14 @@ properties:
     platforms: [android, iphone, ipad]
     osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
 
+  - name: TLS_VERSION_1_3
+    summary: Constant value specifying TLS version 1.3 for SSL.
+    type: Number
+    permission: read-only
+    since: {android: "8.3.0", iphone: "8.3.0", ipad: "8.3.0"}
+    platforms: [android, iphone, ipad]
+    osver: {android: {min: "10.0"}, ios: {min: "12.2"}}
+
   - name: PROGRESS_UNKNOWN
     summary: Constant value specifying that the progress of a download can not be calculated.
     type: Number

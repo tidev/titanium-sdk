@@ -1086,11 +1086,12 @@ READWRITE_IMPL(BOOL, showCalibration, ShowCalibration);
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
+  NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+
   if ([self _hasListeners:@"location"]) {
-    [self fireEvent:@"location" withObject:nil errorCode:[error code] message:[TiUtils messageFromError:error]];
+    [self fireEvent:@"location" withDict:event];
   }
 
-  NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
   BOOL recheck = [self fireSingleShotLocationIfNeeded:event stopIfNeeded:NO];
   recheck = recheck || [self fireSingleShotHeadingIfNeeded:event stopIfNeeded:NO];
 

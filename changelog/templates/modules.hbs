@@ -1,0 +1,10 @@
+{{#if modules~}}
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+{{#each modules}}
+| {{this.name}} | {{this.android}} | {{this.ios}} |
+{{/each}}
+{{~/if}}
+

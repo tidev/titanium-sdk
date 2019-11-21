@@ -22,5 +22,14 @@
     <orderEntry type="module" module-name="kroll-apt" />
     <orderEntry type="module" module-name="appcompat" />
     <orderEntry type="module" module-name="cardview" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/WebViewClient.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
