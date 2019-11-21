@@ -2832,7 +2832,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				await Promise.all(
 					jsFilesToEncrypt.map(async file => {
 						const from = path.join(this.buildAssetsDir, file);
-						const to = path.join(this.buildBinAssetsResourcesDir, file);
+						const to = path.join(this.buildBinAssetsResourcesDir, file + '.bin');
 
 						this.logger.debug(__('Encrypting: %s', from.cyan));
 						await fs.ensureDir(path.dirname(to));

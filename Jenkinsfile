@@ -20,7 +20,7 @@ def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, 
 def testOnDevices = isMainlineBranch // run tests on devices
 
 // Variables we can change
-def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '10.17.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
 def npmVersion = 'latest' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 // Variables which we assign and share between nodes
@@ -115,6 +115,8 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 						dir('scripts') {
 							try {
 								timeout(30) {
+									// Forcibly remove value for specific build tools version to use (set by module builds)
+									sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 									// run main branch tests on devices
 									if (testOnDevices) {
 										sh "node test.js -T device -C all -b ../../${zipName} -p android"
