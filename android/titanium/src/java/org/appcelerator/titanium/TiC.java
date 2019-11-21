@@ -2442,11 +2442,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_STOP_BLACKLISTED_URL = "onStopBlacklistedUrl"; // Deprecated in 6.1.0
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 
 	/**
