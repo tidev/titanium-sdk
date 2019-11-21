@@ -234,18 +234,37 @@ async function createLocalPropertiesFile(sdkPath, ndkPath) {
 	}
 
 	// Set up an array of Android NDK directory paths to do an existence check on.
+	const ndkSideBySidePath = path.join(sdkPath, 'ndk');
 	let ndkTestPaths = [
 		ndkPath,                            // Prefer given argument's path 1st if provided and it exists.
 		process.env.ANDROID_NDK,            // Titanium's preferred environment variable for setting the path.
-		path.join(sdkPath, 'ndk-bundle')    // Google installs the NDK under the Android SDK directory by default.
+		ndkSideBySidePath,                  // Google installs multiple NDK versions under Android SDK folder as of 2019.
+		path.join(sdkPath, 'ndk-bundle')    // Google installed only one NDK version under Android SDK before 2019.
 	];
 
 	// Use the 1st existing NDK path configured in the array above.
 	ndkPath = null;
 	for (const nextPath of ndkTestPaths) {
 		if (nextPath && (await fs.exists(nextPath))) {
-			ndkPath = nextPath;
-			break;
+			if (nextPath === ndkSideBySidePath) {
+				// We've found an NDK side-by-side directory which contains folders with version names.
+				// Fetch all folders, sort them by version string, and choose the newest versioned folder.
+				const fileNames = await fs.readdir(nextPath);
+				fileNames.sort(versionStringSortComparer);
+				for (let index = fileNames.length - 1; index >= 0; index--) {
+					const ndkVersionPath = path.join(nextPath, fileNames[index]);
+					if ((await fs.stat(ndkVersionPath)).isDirectory()) {
+						ndkPath = ndkVersionPath;
+						break;
+					}
+				}
+			} else {
+				// NDK directory path exists. Select it.
+				ndkPath = nextPath;
+			}
+			if (ndkPath) {
+				break;
+			}
 		}
 	}
 	if (!ndkPath) {
@@ -265,6 +284,53 @@ async function createLocalPropertiesFile(sdkPath, ndkPath) {
 		+ 'sdk.dir=' + sdkPath.replace(/\\/g, '\\\\') + '\n'
 		+ 'ndk.dir=' + ndkPath.replace(/\\/g, '\\\\') + '\n';
 	fs.writeFile(filePath, fileContentString);
+}
+
+function versionStringSortComparer(element1, element2) {
+	// Check if the references match. (This is an optimization.)
+	// eslint-disable-next-line eqeqeq
+	if (element1 == element2) {
+		return 0;
+	}
+
+	// Compare element types. String types are always greater than non-string types.
+	const isElement1String = (typeof element1 === 'string');
+	const isElement2String = (typeof element2 === 'string');
+	if (isElement1String && !isElement2String) {
+		return 1;
+	} else if (!isElement1String && isElement2String) {
+		return -1;
+	} else if (!isElement1String && !isElement2String) {
+		return 0;
+	}
+
+	// Split version strings into components. Example: '1.2.3' -> ['1', '2', '3']
+	// If there is version component lenght mismatch, then pad the rest with zeros.
+	const version1Components = element1.split('.');
+	const version2Components = element2.split('.');
+	const componentLengthDelta = version1Components.length - version2Components.length;
+	if (componentLengthDelta > 0) {
+		version2Components.push(...Array(componentLengthDelta).fill('0'));
+	} else if (componentLengthDelta < 0) {
+		version1Components.push(...Array(-componentLengthDelta).fill('0'));
+	}
+
+	// Compare the 2 given version strings by their numeric components.
+	for (let index = 0; index < version1Components.length; index++) {
+		let value1 = Number.parseInt(version1Components[index], 10);
+		if (Number.isNaN(value1)) {
+			value1 = 0;
+		}
+		let value2 = Number.parseInt(version2Components[index], 10);
+		if (Number.isNaN(value2)) {
+			value2 = 0;
+		}
+		const valueDelta = value1 - value2;
+		if (valueDelta !== 0) {
+			return valueDelta;
+		}
+	}
+	return 0;
 }
 
 module.exports = Android;
