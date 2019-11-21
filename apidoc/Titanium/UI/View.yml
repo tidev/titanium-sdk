@@ -2017,6 +2017,7 @@ properties:
     summary: Determines whether to enable a circular reveal animation.
     type: Boolean
     default: false
+    optional: true
     osver: {android: {min: 5.0}}
 
 ---
