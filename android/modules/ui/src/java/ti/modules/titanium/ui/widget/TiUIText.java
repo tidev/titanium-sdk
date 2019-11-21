@@ -6,23 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.HashMap;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
-import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiUIView;
-
-import ti.modules.titanium.ui.AttributedStringProxy;
-import ti.modules.titanium.ui.UIModule;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -39,21 +22,37 @@ import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.LinkMovementMethod;
-import android.text.method.NumberKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_ACTION;
-import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_NEW_LINE;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiUIView;
+
+import java.util.HashMap;
+import java.util.Locale;
+
+import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
+
+import static ti.modules.titanium.ui.UIModule.INPUT_TYPE_CLASS_NUMBER;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
@@ -671,6 +670,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setInputType(InputType.TYPE_NULL);
 
 		} else {
+			tv.setCursorVisible(true);
+
 			if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
 
 				disableChangeEvent = false;
@@ -707,24 +708,18 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 			int typeModifiers = autocorrect | autoCapValue;
 			int textTypeAndClass = typeModifiers;
-
-			if (type != KEYBOARD_DECIMAL_PAD) {
-				textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
-			}
-
-			tv.setCursorVisible(true);
+			boolean customKeyListener = false;
 			switch (type) {
 				case KEYBOARD_DEFAULT:
 				case KEYBOARD_ASCII:
 					// Don't need a key listener, inputType handles that.
 					break;
 				case KEYBOARD_NUMBERS_PUNCTUATION:
-					textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
-					tv.setKeyListener(new NumberKeyListener() {
+					tv.setKeyListener(new DigitsKeyListener(Locale.getDefault(), true, true) {
 						@Override
 						public int getInputType()
 						{
-							return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT;
+							return InputType.TYPE_CLASS_TEXT;
 						}
 
 						@Override
@@ -736,6 +731,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 												'<', '>', ',', '?', '/', ':', ';', '\'', '"', '~' };
 						}
 					});
+					customKeyListener = true;
 					break;
 				case KEYBOARD_URL:
 					Log.d(TAG, "Setting keyboard type URL-3", Log.DEBUG_MODE);
@@ -743,14 +739,23 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 					break;
 				case KEYBOARD_DECIMAL_PAD:
-					textTypeAndClass = (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+					tv.setKeyListener(new DigitsKeyListener(Locale.getDefault(), true, true) {
+						@Override
+						public int getInputType()
+						{
+							return INPUT_TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+								| InputType.TYPE_NUMBER_FLAG_SIGNED;
+						}
+					});
+					customKeyListener = true;
+					break;
 				case KEYBOARD_NUMBER_PAD:
-					tv.setKeyListener(DigitsKeyListener.getInstance(true, true));
-					textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
+					customKeyListener = true;
+					tv.setKeyListener(DigitsKeyListener.getInstance(true, false));
 					break;
 				case KEYBOARD_PHONE_PAD:
+					customKeyListener = true;
 					tv.setKeyListener(DialerKeyListener.getInstance());
-					textTypeAndClass |= InputType.TYPE_CLASS_PHONE;
 					break;
 				case KEYBOARD_EMAIL_ADDRESS:
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
@@ -799,7 +804,9 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				}
 
 			} else {
-				tv.setInputType(textTypeAndClass);
+				if (!customKeyListener) {
+					tv.setInputType(textTypeAndClass);
+				}
 				if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 					tv.setTransformationMethod(null);
 				}
