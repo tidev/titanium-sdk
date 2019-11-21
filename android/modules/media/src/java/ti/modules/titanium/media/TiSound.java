@@ -371,6 +371,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 				mp.setOnBufferingUpdateListener(null);
 				mp.setOnInfoListener(null);
 
+				mp.reset();
 				mp.release();
 				mp = null;
 				Log.d(TAG, "Native resources released.", Log.DEBUG_MODE);

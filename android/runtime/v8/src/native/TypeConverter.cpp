@@ -163,6 +163,30 @@ Local<Value> TypeConverter::javaStringToJsString(Isolate* isolate, JNIEnv *env, 
 	return jsString;
 }
 
+Local<Value> TypeConverter::javaBytesToJsString(Isolate* isolate, jbyteArray javaBytes)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return String::Empty(isolate);
+	}
+	return TypeConverter::javaBytesToJsString(isolate, env, javaBytes);
+}
+
+Local<Value> TypeConverter::javaBytesToJsString(Isolate* isolate, JNIEnv *env, jbyteArray javaBytes)
+{
+	if (!javaBytes) {
+		return Null(isolate);
+	}
+
+	jboolean isCopy;
+	jsize nativeBytesLength = env->GetArrayLength(javaBytes);
+	char* nativeBytes = reinterpret_cast<char*>(env->GetByteArrayElements(javaBytes, &isCopy));
+	Local<String> jsString = v8::String::NewFromUtf8(V8Runtime::v8_isolate, nativeBytes, v8::NewStringType::kNormal, nativeBytesLength).ToLocalChecked();
+	env->ReleaseByteArrayElements(javaBytes, reinterpret_cast<jbyte*>(nativeBytes), JNI_ABORT);
+
+	return jsString;
+}
+
 jobject TypeConverter::jsDateToJavaDate(Local<Date> jsDate)
 {
 	JNIEnv *env = JNIScope::getEnv();

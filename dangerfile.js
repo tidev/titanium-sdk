@@ -189,7 +189,7 @@ async function addMissingLabels() {
 	if (filteredLabels.length === 0) {
 		return;
 	}
-	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
+	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, issue_number: github.pr.number, labels: filteredLabels });
 }
 
 async function requestReviews() {
@@ -223,7 +223,7 @@ async function requestReviews() {
 	const filtered = teamsToReview.filter(t => !teamSlugs.includes(t));
 	if (filtered.length > 0) {
 		debug(`Assigning PR reviews to teams: ${filtered}`);
-		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: filtered });
+		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, pull_number: github.pr.number, team_reviewers: filtered });
 	}
 }
 

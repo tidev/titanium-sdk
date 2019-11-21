@@ -3,6 +3,7 @@ const { IncrementalFileTask } = require('appc-tasks');
 const crypto = require('crypto');
 const fs = require('fs-extra');
 const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
+const nodeify = require('nodeify');
 const path = require('path');
 const pLimit = require('p-limit');
 const { promisify } = require('util');
@@ -43,12 +44,16 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.builder = options.builder;
 		this.platform = this.builder.cli.argv.platform;
+		this.forceCleanBuildPropertyName = this.platform === 'ios' ? 'forceCleanBuild' : 'forceRebuild';
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
 		this.defaultAnalyzeOptions = options.defaultAnalyzeOptions;
 
 		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
+
+		this.fileContentsMap = new Map();
+
 		this.resetTaskData();
 
 		this.createHooks();
@@ -115,9 +120,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.jsFiles = this.data.jsFiles;
 		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
-		return Promise.all(Object.keys(this.jsFiles).map(relPath => {
-			return limit(() => this.processJsFile(this.jsFiles[relPath].src));
-		}));
+		return Promise.all(Array.from(this.inputFiles).map(filePath => limit(() => this.processJsFile(filePath))));
 	}
 
 	/**
@@ -152,18 +155,31 @@ class ProcessJsTask extends IncrementalFileTask {
 				return done();
 			}
 
-			this.transformAndCopy(source, from, to).then(() => {
-				this.data.contentHashes[from] = currentHash;
-				return done();
-			}).catch(e => {
-				// if we have a nicely formatted pointer to syntax error from babel, print it!
-				if (e.codeFrame) {
-					this.logger.error(e.codeFrame);
+			nodeify(this.transformAndCopy(source, from, to), (e) => {
+				if (e) {
+					// if we have a nicely formatted pointer to syntax error from babel, print it!
+					if (e.codeFrame) {
+						this.logger.error(e.codeFrame);
+					}
+					done(e);
 				}
 
-				done(e);
+				this.data.contentHashes[from] = currentHash;
+				return done();
 			});
 		});
+
+		// Windows hyperloop requires that a build.windows.analyzeJsFile runs before compileJsFile
+		// so patch the compileJsFile hook to run that hook first and then fire the compileJsFile
+		// TODO: remove this in 9.0.0 TIMOB-27601
+		if (this.platform === 'windows') {
+			let origCompileJsHook = compileJsFileHook;
+
+			compileJsFileHook = this.builder.cli.createHook(`build.${this.platform}.analyzeJsFile`, this.builder, (from, to, cb) => {
+				const r = this.fileContentsMap.get(from);
+				origCompileJsHook(r, from, to, cb);
+			});
+		}
 
 		this.copyResourceHook = promisify(this.builder.cli.createHook(`build.${this.platform}.copyResource`, this.builder, (from, to, done) => {
 			const originalContents = fs.readFileSync(from).toString();
@@ -173,8 +189,15 @@ class ProcessJsTask extends IncrementalFileTask {
 				contents: originalContents,
 				symbols: []
 			};
+			if (this.platform === 'windows') {
+				// We can't pass the contents through the analyzeJsFile hook so store them in a map
+				// which we can then pull the contents from
+				this.fileContentsMap.set(from, r);
+				compileJsFileHook(from, to, done);
+			} else {
+				compileJsFileHook(r, from, to, done);
 
-			compileJsFileHook(r, from, to, done);
+			}
 		}));
 	}
 
@@ -322,7 +345,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @return {Boolean} True if a full build is required, false if not.
 	 */
 	requiresFullBuild() {
-		if (this.builder.forceCleanBuild) {
+		if (this.builder[this.forceCleanBuildPropertyName]) {
 			this.logger.trace('Full build required, force clean build flag is set.');
 			return true;
 		}

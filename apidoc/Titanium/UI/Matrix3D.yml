@@ -183,3 +183,16 @@ examples:
               label.animate(a1);
             });
             win.open();
+
+---
+name: Matrix3DCreationDict
+summary: Simple object passed to <Titanium.UI.createMatrix3D> to initialize a matrix.
+description: |
+    The matrix is initialized with the specified transforms.
+properties:
+  - name: scale
+    summary: |
+        Scale the matrix by the specified scaling factor.
+    type: Number
+    optional: true
+    default: 1

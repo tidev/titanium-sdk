@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2019 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -9,6 +9,7 @@
 package <%- moduleid %>;
 
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 
 public class CommonJsSourceProvider implements KrollSourceCodeProvider
 {
@@ -23,7 +24,6 @@ public class CommonJsSourceProvider implements KrollSourceCodeProvider
 			module = "<%- moduleid %>";
 		}
 
-		AssetCryptImpl source = new AssetCryptImpl();
-		return source.readAsset(module + ".js");
+		return KrollAssetHelper.readAsset("Resources/" + module + ".js");
 	}
 }

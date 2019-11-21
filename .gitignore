@@ -21,6 +21,7 @@ retirejs.output.json
 
 /titanium-mobile-mocha-suite
 junit.*.xml
+junit_report.xml
 
 # intelliJ Android User-specific configurations
 /android/.idea/libraries/
@@ -43,3 +44,6 @@ junit.*.xml
 
 .vscode/
 /android/runtime/v8/src/native/V8Snapshots.h
+
+.nyc_output/
+coverage/

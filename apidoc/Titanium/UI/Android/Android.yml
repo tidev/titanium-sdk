@@ -644,7 +644,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to disable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is not loaded, and any
+        Content that requires a plugin, is not loaded, and any
         alternative content is displayed instead.
     type: Number
     permission: read-only
@@ -653,7 +653,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to enable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is always loaded, whether or not a plugin is
+        Content that requires a plugin,, is always loaded, whether or not a plugin is
         available for the content.
     type: Number
     permission: read-only
@@ -661,7 +661,7 @@ properties:
   - name: WEBVIEW_PLUGINS_ON_DEMAND
     summary: Display a placeholder and only load plugins when user selects it.
     description: |
-        Content that requires a plugin, such as Flash Player, is replaced by a placeholder. When
+        Content that requires a plugin, is replaced by a placeholder. When 
         the user clicks on the placeholder, the plugin is loaded and the content is displayed.
 
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to load plugins on demand.

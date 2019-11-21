@@ -163,7 +163,7 @@ const OS = {
 	freemem: () => Ti.Platform.availableMemory,
 	getPriority: () => 0, // fake it
 	homedir: () => Ti.Filesystem.applicationDataDirectory, // fake it
-	hostname: () => Ti.Platform.address || '', // fake it
+	hostname: () => Ti.Platform.address, // fake it
 	loadavg: () => [ 0, 0, 0 ], // fake it
 	networkInterfaces: () => {}, // FIXME: What do we do here? We might be able to piece some of this together using Ti.Platform.netmask, Ti.Platform.address
 	platform: () => process.platform,
@@ -206,6 +206,12 @@ if (isIOS) {
 	// Now a giant hack for looking up CPU info for OS.cpus() on iOS
 	// https://www.theiphonewiki.com/wiki/List_of_iPhones
 	const AppleMap = {
+		// iPhone 11 Pro Max
+		'iPhone12,5': [ 'Apple A13 Bionic @ 2.66 GHz', 2660 ],
+		// iPhone 11 Pro
+		'iPhone12,3': [ 'Apple A13 Bionic @ 2.66 GHz', 2660 ],
+		// iPhone 11
+		'iPhone12,1': [ 'Apple A13 Bionic @ 2.66 GHz', 2660 ],
 		// iPhone XR
 		'iPhone11,8': [ 'Apple A12 Bionic @ 2.49 GHz', 2490 ],
 		// iPhone XS Max
@@ -337,7 +343,7 @@ if (isIOS) {
 	 */
 	const cpuModelAndSpeed = (model) => {
 		const trimmed = model.replace(' (Simulator)', '').trim();
-		return AppleMap[trimmed];
+		return AppleMap[trimmed] || [ 'Unknown', 0 ];
 	};
 	// override cpus impl
 	OS.cpus = () => {

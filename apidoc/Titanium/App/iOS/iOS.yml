@@ -486,6 +486,30 @@ properties:
     osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
+  - name: USER_INTERFACE_STYLE_UNSPECIFIED
+    summary: An unspecified interface style.
+    description: Used in the `userInterfaceStyle` property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
+
+  - name: USER_INTERFACE_STYLE_LIGHT
+    summary: A light interface style.
+    description: Used in the `userInterfaceStyle` property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
+
+  - name: USER_INTERFACE_STYLE_DARK
+    summary: A dark interface style.
+    description: Used in the `userInterfaceStyle` property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
+
   - name: UTTYPE_TEXT
     summary: |
         Uniform type identifier for all text types.
@@ -799,6 +823,16 @@ properties:
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
+
+  - name: userInterfaceStyle
+    summary: The style associated with the user interface.
+    description: |
+        Use this property to determine whether your interface should be configured with a dark or light appearance.
+        The default value of this trait is set to the corresponding appearance setting on the user's device.
+    type: Array<String>
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "8.2.0"
 
 events:
   - name: notification
@@ -1359,6 +1393,11 @@ events:
         type: LaunchOptionsType
     osver: {ios: {min: "8.0"}}
     since: "6.0.0"
+
+  - name: traitcollectionchange
+    summary: Fired when the trait collection of the device changes, e.g. the user interface style.
+    platforms: [iphone, ipad]
+    since: "8.2.0"
 
 ---
 name: NotificationParams
