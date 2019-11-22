@@ -206,7 +206,7 @@
     // FIXME: looks like we need to handle bubble logic/etc. See other fireEvent impl
     for (JSManagedValue *storedCallback in listenersForType) {
       JSValue *function = [storedCallback value];
-      [function callWithArguments:@[ dict ]];
+      [self _fireEventToListener:name withObject:dict listener:function];
     }
   }
   @finally {
