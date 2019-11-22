@@ -17,6 +17,8 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
@@ -46,6 +48,7 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -715,22 +718,39 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 					// Don't need a key listener, inputType handles that.
 					break;
 				case KEYBOARD_NUMBERS_PUNCTUATION:
-					tv.setKeyListener(new DigitsKeyListener(Locale.getDefault(), true, true) {
-						@Override
-						public int getInputType()
-						{
-							return InputType.TYPE_CLASS_TEXT;
-						}
+					final char[] numbersAndPunctuationChars =
+						new char[] { '0', '1', '2',  '3', '4', '5', '6', '7', '8', '9', '.',  '-', '+', '_', '*',
+									 '-', '!', '@',  '#', '$', '%', '^', '&', '*', '(', ')',  '=', '{', '}', '[',
+									 ']', '|', '\\', '<', '>', ',', '?', '/', ':', ';', '\'', '"', '~' };
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+						tv.setKeyListener(new DigitsKeyListener(Locale.getDefault(), true, true) {
+							@Override
+							protected char[] getAcceptedChars()
+							{
+								return numbersAndPunctuationChars;
+							}
 
-						@Override
-						protected char[] getAcceptedChars()
-						{
-							return new char[] { '0', '1', '2', '3', '4', '5', '6', '7',  '8', '9', '.',
-												'-', '+', '_', '*', '-', '!', '@', '#',  '$', '%', '^',
-												'&', '*', '(', ')', '=', '{', '}', '[',  ']', '|', '\\',
-												'<', '>', ',', '?', '/', ':', ';', '\'', '"', '~' };
-						}
-					});
+							@Override
+							public int getInputType()
+							{
+								return InputType.TYPE_CLASS_TEXT;
+							}
+						});
+					} else {
+						tv.setKeyListener(new DigitsKeyListener() {
+							@Override
+							protected char[] getAcceptedChars()
+							{
+								return numbersAndPunctuationChars;
+							}
+
+							@Override
+							public int getInputType()
+							{
+								return InputType.TYPE_CLASS_TEXT;
+							}
+						});
+					}
 					customKeyListener = true;
 					break;
 				case KEYBOARD_URL:
@@ -739,14 +759,139 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 					break;
 				case KEYBOARD_DECIMAL_PAD:
-					tv.setKeyListener(new DigitsKeyListener(Locale.getDefault(), true, true) {
-						@Override
-						public int getInputType()
-						{
-							return INPUT_TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
-								| InputType.TYPE_NUMBER_FLAG_SIGNED;
-						}
-					});
+					// Overriding the inputType in order to match the shown keyboard on iOS (only numpad)
+					final int decimalInputType = INPUT_TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+												 | InputType.TYPE_NUMBER_FLAG_SIGNED;
+
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+						tv.setKeyListener(new DigitsKeyListener(Locale.getDefault(), true, true) {
+							@Override
+							public int getInputType()
+							{
+								return decimalInputType;
+							}
+						});
+					} else {
+						// For API levels lower than 26 we override the filter method of the DigitsKeyListener too
+						final DecimalFormatSymbols DFS = DecimalFormatSymbols.getInstance();
+						final char localizedDecimalSeparator = DFS.getDecimalSeparator();
+						tv.setKeyListener(new DigitsKeyListener(true, true) {
+							@Override
+							public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
+													   int dstart, int dend)
+							{
+								// Adjust the filter method to strip the text from unnecessary sign or decimal symbols
+								CharSequence out = super.filter(source, start, end, dest, dstart, dend);
+
+								if (out != null) {
+									source = out;
+									start = 0;
+									end = out.length();
+								}
+
+								int sign = -1;
+								int decimal = -1;
+								int dlen = dest.length();
+
+								/*
+								 * Find out if the existing text has a sign or decimal point characters.
+								 */
+
+								for (int i = 0; i < dstart; i++) {
+									char c = dest.charAt(i);
+
+									if (isSignChar(c)) {
+										sign = i;
+									} else if (c == localizedDecimalSeparator) {
+										decimal = i;
+									}
+								}
+								for (int i = dend; i < dlen; i++) {
+									char c = dest.charAt(i);
+
+									if (isSignChar(c)) {
+										return ""; // Nothing can be inserted in front of a sign character.
+									} else if (c == localizedDecimalSeparator) {
+										decimal = i;
+									}
+								}
+
+								/*
+								 * If it does, we must strip them out from the source.
+								 * In addition, a sign character must be the very first character,
+								 * and nothing can be inserted before an existing sign character.
+								 * Go in reverse order so the offsets are stable.
+								 */
+
+								SpannableStringBuilder stripped = null;
+
+								for (int i = end - 1; i >= start; i--) {
+									char c = source.charAt(i);
+									boolean strip = false;
+
+									if (isSignChar(c)) {
+										if (i != start || dstart != 0) {
+											strip = true;
+										} else if (sign >= 0) {
+											strip = true;
+										} else {
+											sign = i;
+										}
+									} else if (c == localizedDecimalSeparator) {
+										if (decimal >= 0) {
+											strip = true;
+										} else {
+											decimal = i;
+										}
+									}
+
+									if (strip) {
+										if (end == start + 1) {
+											return ""; // Only one character, and it was stripped.
+										}
+
+										if (stripped == null) {
+											stripped = new SpannableStringBuilder(source, start, end);
+										}
+
+										stripped.delete(i - start, i + 1 - start);
+									}
+								}
+
+								if (stripped != null) {
+									return stripped;
+								} else if (out != null) {
+									return out;
+								} else {
+									return null;
+								}
+							}
+
+							@Override
+							public int getInputType()
+							{
+								return decimalInputType;
+							}
+
+							@Override
+							protected char[] getAcceptedChars()
+							{
+								return new char[] { '0',
+													'1',
+													'2',
+													'3',
+													'4',
+													'5',
+													'6',
+													'7',
+													'8',
+													'9',
+													'+',
+													DFS.getDecimalSeparator(),
+													DFS.getMinusSign() };
+							}
+						});
+					}
 					customKeyListener = true;
 					break;
 				case KEYBOARD_NUMBER_PAD:
@@ -820,6 +965,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		disableChangeEvent = false;
+	}
+
+	private boolean isSignChar(char value)
+	{
+		return value == '-' || value == '+';
 	}
 
 	public void setSelection(int start, int end)
