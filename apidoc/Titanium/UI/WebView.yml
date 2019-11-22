@@ -455,6 +455,7 @@ events:
         summary: Indicate if the event was generated from the main page or an iframe.
         type: Boolean
         platforms: [ipad, iphone]
+        since: "9.0.0"
 
   - name: error
     summary: Fired when the web view cannot load the content.
