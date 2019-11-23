@@ -9,7 +9,6 @@ const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
 const copyAndModifyFile = utils.copyAndModifyFile;
 const globCopy = utils.globCopy;
-const libv8Services = require('../../../android/titanium/libv8-services');
 
 // Determine if we're running on a Windows machine.
 const isWindows = (process.platform === 'win32');
@@ -61,12 +60,6 @@ class Android {
 	async build() {
 		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
 		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
-
-		// Generate a V8 snapshot of our "ti.main.js" script.
-		// TODO: Move snapshot code to "titanium_mobile/android/prebuild.js" so "app" test project can use it.
-		await libv8Services.updateLibrary();
-		const snapshot = require('./snapshot');
-		await snapshot.build().catch(error => console.warn('Failed to generate snapshots: ' + error));
 
 		// Build the "titanium" library project only.
 		process.env.TITANIUM_SDK_BUILD_VERSION = this.sdkVersion;

@@ -21,6 +21,14 @@ android {
 	lintOptions {
 		checkReleaseBuilds false
 	}
+	sourceSets {
+		main {
+			assets.srcDirs = [
+				'src/main/assets',
+				"${projectDir}/../titanium/build/outputs/ti-assets"
+			]
+		}
+	}
 }
 
 dependencies {

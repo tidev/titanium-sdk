@@ -124,7 +124,7 @@ def updateV8Library() {
 	exec {
 		executable = 'node'
 		workingDir = projectDir
-		args = ['-e', "require('./libv8-services').updateLibrary()"]
+		args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
 	}
 }
 tasks.withType(com.android.build.gradle.tasks.ExternalNativeBuildTask) {
@@ -134,9 +134,27 @@ tasks.withType(com.android.build.gradle.tasks.ExternalNativeCleanTask) {
 	doFirst { updateV8Library() }
 }
 
+// Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
+// takes a V8 snapshot of rolled-up files, and then generates a C++ header file of that snapshot to be compiled-in.
+// Note: This supports incremental builds. Only executes when JS files change or snapshot output file is missing.
+task snapshotTiCommonFiles() {
+	inputs.dir "${projectDir}/../../common/Resources"
+	inputs.file "${projectDir}/../../build/lib/builder.js"
+	inputs.file "${projectDir}/../../build/lib/android/index.js"
+	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
+	doLast {
+		exec {
+			executable = 'node'
+			workingDir = projectDir
+			args = ['-e', "require('./libv8-services').createSnapshotThenExit()"]
+		}
+	}
+}
+
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // This downloads the V8 library, generates C/C++ files, and generates some asset files.
 tasks.withType(JavaCompile) {
+	dependsOn snapshotTiCommonFiles
 	doLast {
 		exec {
 			executable = 'node'
