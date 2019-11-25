@@ -137,9 +137,6 @@ class Android {
 		// Copy our Java annotation processor library to destination.
 		// This generates C/C++ interop code between JavaScript and the Java APIs which have these annotations.
 		await copyFile(path.join(TITANIUM_ANDROID_PATH, 'kroll-apt', 'build', 'libs'), ZIP_ANDROID_PATH, 'kroll-apt.jar');
-
-		// Discard local changes on the generated "V8Snapshots.h" file.
-		return git.discardLocalChange(TITANIUM_ANDROID_PATH, 'runtime/v8/src/native/V8Snapshots.h');
 	}
 }
 

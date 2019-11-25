@@ -93,7 +93,7 @@ async function createSnapshot() {
 	// We can only create a V8 snapshot on Mac. For all other platforms, generate an empty snapshot file.
 	// Note: This is because we've only built the "mksnapshot" command line tool for Mac.
 	if (process.platform !== 'darwin') {
-		console.warn('V8 snapshot generation is only supported on macOS, skipping...');
+		console.info('V8 snapshot generation is only supported on macOS, skipping...');
 		await fs.writeFile(v8SnapshotHeaderFilePath, '// V8 snapshots only supported on macOS.');
 		return;
 	}
@@ -129,39 +129,61 @@ async function createSnapshot() {
 	await fs.writeFile(startupOutputFilePath, outputContent);
 
 	// Generates a "blob.bin" snapshot binary file of our "ti.main.js" for the given "target" architecture.
-	async function generateBlob(target) {
+	// Note: Google's "mksnapshot" command line tool does not support double quoted paths for arguments.
+	//       This means spaces are not supported in paths. So, use relative paths to avoid this limitation.
+	async function generateSnapshotBlob(target) {
 		console.warn(`Generating snapshot blob for ${target}...`);
 		const targetDirPath = path.resolve(v8LibsDirPath, target);
-		const blobBinFilePath = path.join(targetDirPath, 'blob.bin');
 		const makeSnapshotFilePath = path.join(targetDirPath, 'mksnapshot');
 		const argsArray = [
-			`--startup_blob=${blobBinFilePath}`,
-			startupOutputFilePath,
+			'--startup_blob=blob.bin',
+			path.relative(targetDirPath, startupOutputFilePath),
 			'--print-all-exceptions'
 		];
 		await fs.chmod(makeSnapshotFilePath, 0o755);
-		await execFile(makeSnapshotFilePath, argsArray);
+		await execFile(makeSnapshotFilePath, argsArray, { cwd: targetDirPath });
 	}
 
-	// Generate a snapshot for each architecture and fetch its binary/blob.
-	const blobs = {};
-	await Promise.all(targetArchitectures.map(target => generateBlob(target)));
-	await Promise.all(targetArchitectures.map(async target => {
-		const blobBinFilePath = path.join(path.resolve(v8LibsDirPath, target), 'blob.bin');
-		if (await fs.exists(blobBinFilePath)) {
-			blobs[target] = Buffer.from(await fs.readFile(blobBinFilePath, 'binary'), 'binary');
-		}
-	}));
+	// Generate a C++ header file containing byte arrays of V8 snapshots for the above "startup.js".
+	let wasSuccessful = false;
+	try {
+		// Generate a snapshot for each architecture and fetch its binary/blob.
+		const blobs = {};
+		await Promise.all(targetArchitectures.map(target => generateSnapshotBlob(target)));
+		await Promise.all(targetArchitectures.map(async target => {
+			const blobFilePath = path.join(path.resolve(v8LibsDirPath, target), 'blob.bin');
+			if (!await fs.exists(blobFilePath)) {
+				return Promise.reject(`Failed to generate ${target} snapshot at location: ${blobFilePath}`);
+			}
+			const blobBuffer = Buffer.from(await fs.readFile(blobFilePath, 'binary'), 'binary');
+			if (!blobBuffer || (blobBuffer.length <= 0)) {
+				return Promise.reject(`The generated ${target} snapshot file is empty: ${blobFilePath}`);
+			}
+			blobs[target] = blobBuffer;
+		}));
 
-	// Generate a C++ header file containing byte arrays of all snapshots made above.
-	console.log(`Generating V8Snapshots.h for ${Object.keys(blobs).join(', ')}...`);
-	const snapshotEjsFilePath = path.join(__dirname, '..', 'runtime', 'v8', 'tools', 'V8Snapshots.h.ejs');
-	const fileContent = await ejsRenderFile(snapshotEjsFilePath, blobs, {});
-	await fs.writeFile(v8SnapshotHeaderFilePath, fileContent);
+		// Generate a C++ header file containing byte arrays of all snapshots made above.
+		console.log(`Generating V8Snapshots.h for ${Object.keys(blobs).join(', ')}...`);
+		const snapshotEjsFilePath = path.join(__dirname, '..', 'runtime', 'v8', 'tools', 'V8Snapshots.h.ejs');
+		const fileContent = await ejsRenderFile(snapshotEjsFilePath, blobs, {});
+		await fs.writeFile(v8SnapshotHeaderFilePath, fileContent);
+		wasSuccessful = true;
+	} catch (err) {
+		console.error(err);
+	}
 
-	// Delete the rolled-up "ti.main.js" from our output directory since we've successfully created the snapshot.
-	// Prevents Titanium SDK's "app" test project from using it and so it will use the snapshot instead.
-	await fs.unlink(rollupOutputFilePath);
+	// Handle snapshot result.
+	if (wasSuccessful) {
+		// Delete rolled-up "ti.main.js" from our output directory since we've successfully created all snapshots.
+		// Prevents Titanium SDK's "app" test project from using it, which forces it to use snapshot instead.
+		await fs.unlink(rollupOutputFilePath);
+	} else {
+		// Failed to generate at least 1 snapshot. Fall-back to loading "ti.main.js" instead.
+		// Note: Can happen on macOS Catalina which doesn't support running x86 "mksnapshot" command line tool.
+		// TODO: Allow partial architecture support for snapshots. Should not be all or nothing.
+		console.error('Unable to generate all V8 snapshots. Dropping snapshot support.');
+		await fs.writeFile(v8SnapshotHeaderFilePath, '// Failed to build V8 snapshots. See build log.');
+	}
 }
 
 /**
