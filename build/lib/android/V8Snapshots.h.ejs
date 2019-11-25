@@ -1,3 +1,4 @@
+<% if (blobs && blobs.length > 0) { -%>
 #ifndef V8_SNAPSHOT_H
 #define V8_SNAPSHOT_H
 
@@ -12,13 +13,16 @@ static const unsigned char snapshot_data[] = {
 <% } -%>
 <%- blob.readUInt8(blob.length - 1) %>
 };
+
+static const int snapshot_size = sizeof(snapshot_data);
+static v8::StartupData snapshot = { (const char*) snapshot_data, snapshot_size };
 #endif
 <% } -%>
 <% if (blobs.x86) DEFINE_SNAPSHOT('i386', blobs.x86) -%>
 <% if (blobs.arm) DEFINE_SNAPSHOT('arm', blobs.arm) -%>
 <% if (blobs.arm64) DEFINE_SNAPSHOT('aarch64', blobs.arm64) -%>
 
-static const int snapshot_size = sizeof(snapshot_data);
-static v8::StartupData snapshot = { (const char*) snapshot_data, snapshot_size };
-
 #endif
+<% } else { -%>
+// GENERATED AT BUILD TIME
+<% } -%>
