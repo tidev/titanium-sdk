@@ -14,9 +14,9 @@ static const unsigned char snapshot_data[] = {
 };
 #endif
 <% } -%>
-<% DEFINE_SNAPSHOT('i386', x86) -%>
-<% DEFINE_SNAPSHOT('arm', arm) -%>
-<% DEFINE_SNAPSHOT('aarch64', arm64) -%>
+<% if (blobs.x86) DEFINE_SNAPSHOT('i386', blobs.x86) -%>
+<% if (blobs.arm) DEFINE_SNAPSHOT('arm', blobs.arm) -%>
+<% if (blobs.arm64) DEFINE_SNAPSHOT('aarch64', blobs.arm64) -%>
 
 static const int snapshot_size = sizeof(snapshot_data);
 static v8::StartupData snapshot = { (const char*) snapshot_data, snapshot_size };
