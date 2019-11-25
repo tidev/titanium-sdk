@@ -27,6 +27,7 @@
     "clean:android": "npm run clean -- android",
     "clean:ios": "npm run clean -- ios",
     "commit": "git-cz",
+    "deprecations": "./build/scons deprecations",
     "format": "npm-run-all --parallel format:**",
     "format:android": "npm run lint:android -- --fix",
     "format:ios": "npm run lint:ios -- --fix",
