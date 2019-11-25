@@ -19,4 +19,5 @@ commander
 	.command('check-ios-toplevel', 'Ensures we don\'t check in prefilled values for version/hash/timestamp')
 	.command('xcode-project-build <projectDir> <targetBuildDir> <productName>', 'Runs the portion of the xcode project setup')
 	.command('deprecations', 'Checks the apidocs for deprecated but unremoved types/properties/methods')
+	.command('removals <minVersion>', 'Checks the apidocs for deprecated and removed types/properties/methods older than a given version')
 	.parse(process.argv);
