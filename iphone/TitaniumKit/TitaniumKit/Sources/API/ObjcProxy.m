@@ -16,10 +16,17 @@
 + (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
 {
   NSString *exceptionName = @"org.appcelerator";
-  NSDictionary *details = @{
-    kTiExceptionSubreason : subreason,
-    kTiExceptionLocation : location
-  };
+  NSDictionary *details;
+  if (subreason != nil) {
+    details = @{
+      kTiExceptionSubreason : subreason,
+      kTiExceptionLocation : location
+    };
+  } else {
+    details = @{
+      kTiExceptionLocation : location
+    };
+  }
   NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
   JSGlobalContextRef jsContext = [context JSGlobalContextRef];
   JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
@@ -29,10 +36,17 @@
 - (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
 {
   NSString *exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];
-  NSDictionary *details = @{
-    kTiExceptionSubreason : subreason,
-    kTiExceptionLocation : location
-  };
+  NSDictionary *details;
+  if (subreason != nil) {
+    details = @{
+      kTiExceptionSubreason : subreason,
+      kTiExceptionLocation : location
+    };
+  } else {
+    details = @{
+      kTiExceptionLocation : location
+    };
+  }
   NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
   JSGlobalContextRef jsContext = [context JSGlobalContextRef];
   JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
