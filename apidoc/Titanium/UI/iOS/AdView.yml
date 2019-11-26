@@ -4,6 +4,10 @@ summary: The AdView is a view for display Apple iAds.
 description: The Ad view is created by the <Titanium.UI.iOS.createAdView> method or **`<AdView>`** Alloy element.
 extends: Titanium.UI.View
 since: "1.4"
+deprecated:
+  since: "5.5.0"
+  removed: "7.0.0"
+  notes: iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.
 platforms: [iphone, ipad]
 excludes:
     events: [longclick]
