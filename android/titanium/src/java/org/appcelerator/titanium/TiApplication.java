@@ -771,7 +771,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public static void launch()
 	{
-		final TiRootActivity rootActivity = (TiRootActivity) TiApplication.getAppRootOrCurrentActivity();
+		final TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity == null) {
+			return;
+		}
 
 		// Fetch a path to the main script that was last loaded.
 		String appPath = rootActivity.getUrl();
