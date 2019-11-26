@@ -67,7 +67,7 @@ properties:
         It is recommended to set this property to colorize the whole popover instead of only
         its content view.
     availability: creation
-    since: 5.2.0
+    since: "5.2.0"
     default: undefined (behaves as transparent)
 
   - name: contentView
@@ -95,13 +95,14 @@ properties:
             </Alloy
 
     type: Titanium.UI.View
-    since: 3.2.0
+    since: "3.2.0"
 
   - name: height
     summary: Height of the popover.
     deprecated:
         since: "3.4.2"
         notes: This property is deprecated. Set the height on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
+        removed: "9.0.0"
     type: [Number, String]
 
   - name: leftNavButton
@@ -109,6 +110,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: This property is no longer supported.
+        removed: "3.4.2"
     description: |
         Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -137,6 +139,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: This property is no longer supported.
+        removed: "3.4.2"
     description: |
         Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -158,6 +161,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: This property is no longer supported.
+        removed: "3.4.2"
     description: |
         Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
@@ -167,6 +171,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: This property is deprecated. Set the width on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
+        removed: "9.0.0"
     type: [Number, String]
 
 examples:
