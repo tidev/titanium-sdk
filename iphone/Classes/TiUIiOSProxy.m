@@ -136,7 +136,7 @@
     UIView *view = [[[UIApplication sharedApplication] keyWindow] viewWithTag:TI_STATUSBAR_TAG];
     if (!view) {
       view = [[UIView alloc] initWithFrame:frame];
-      view.tag = 11101;
+      view.tag = TI_STATUSBAR_TAG;
       [[[UIApplication sharedApplication] keyWindow] addSubview:view];
     }
     view.frame = frame;
