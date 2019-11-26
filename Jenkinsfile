@@ -108,6 +108,8 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 			try {
 				def zipName = setupTestSuite(testSuiteBranch)
 				// Now run the unit test suite
+				// FIXME: Use "npm run test:android -- -b ../../${zipName}" (and additional args based on device/emulator)
+				// We'd need some way to expose the gathering of crash reports/killing app via adb-all.sh in test suite repo!
 				dir('titanium-mobile-mocha-suite') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						ensureNPM(npmVersion)
@@ -171,6 +173,8 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
 			try {
 				def zipName = setupTestSuite(testSuiteBranch)
 				// Now run the unit test suite
+				// FIXME: Use "npm run test:${deviceFamily} -- -D test -b ../../${zipName}"
+				// we'd need to not clone the suite and copy tests in "setupTestSuite"
 				dir('titanium-mobile-mocha-suite') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						ensureNPM(npmVersion)
@@ -334,7 +338,7 @@ timestamps {
 							def packageCommand = "npm run package -- --version-tag ${vtag}"
 							if (includeWindows) {
 								// on mainline builds, include windows sdk, build for all 3 host OSes
-								packageCommand += '--all'
+								packageCommand += ' --all'
 							} else {
 								// On PRs, just build android and ios for macOS
 								packageCommand += ' android ios'
