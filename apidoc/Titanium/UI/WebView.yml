@@ -486,6 +486,8 @@ events:
         platforms: [iphone, ipad, android]
         deprecated:
             since: "3.1.0"
+            removed: "9.0.0"
+            notes: Removed on ios in 8.0.0. Removed on android in 9.0.0.
       - name: errorCode
         summary: A constant or underlying platform specific error code. Use code instead.
         type: Number
@@ -493,6 +495,8 @@ events:
         platforms: [iphone, ipad, android]
         deprecated:
             since: "3.1.0"
+            removed: "9.0.0"
+            notes: Removed on ios in 8.0.0. Removed on android in 9.0.0.
 
   - name: load
     summary: Fired when the web view content is loaded.
