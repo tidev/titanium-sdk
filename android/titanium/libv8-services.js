@@ -132,7 +132,7 @@ async function createSnapshot() {
 	// Note: Google's "mksnapshot" command line tool does not support double quoted paths for arguments.
 	//       This means spaces are not supported in paths. So, use relative paths to avoid this limitation.
 	async function generateSnapshotBlob(target) {
-		console.warn(`Generating snapshot blob for ${target}...`);
+		console.log(`Generating snapshot blob for ${target}...`);
 		const targetDirPath = path.resolve(v8LibsDirPath, target);
 		const makeSnapshotFilePath = path.join(targetDirPath, 'mksnapshot');
 		const argsArray = [
