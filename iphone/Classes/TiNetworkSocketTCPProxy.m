@@ -169,7 +169,6 @@ static NSString *ARG_KEY = @"arg";
       NSString *message = [TiUtils messageFromError:err];
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:[err code] message:message];
       [event setObject:self forKey:@"socket"];
-      [event setObject:NUMINTEGER([err code]) forKey:@"errorCode"];
       [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
     }
 
@@ -719,7 +718,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     if (error != nil) {
       NSString *message = [TiUtils messageFromError:err];
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:[err code] message:message];
-      [event setObject:NUMINTEGER([err code]) forKey:@"errorCode"];
       [event setObject:self forKey:@"socket"];
       [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
     }
