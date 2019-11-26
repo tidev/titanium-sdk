@@ -38,6 +38,8 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.Build;
+import android.os.Handler;
+import android.provider.Contacts;
 import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
@@ -777,5 +779,46 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public String getApiName()
 	{
 		return "Ti.UI.Picker";
+	}
+
+	@Kroll.getProperty
+	public Date getMinDate()
+	{
+		return returnMinMaxDate(TiC.PROPERTY_MIN_DATE);
+	}
+
+	@Kroll.getProperty
+	public Date getMaxDate()
+	{
+		return returnMinMaxDate(TiC.PROPERTY_MAX_DATE);
+	}
+
+	private Date returnMinMaxDate(String dateType)
+	{
+		if (type == UIModule.PICKER_TYPE_DATE) {
+			DatePicker datePicker = ((DatePicker) this.getOrCreateView().getNativeView());
+			if (datePicker != null) {
+				return new Date(dateType.equals(TiC.PROPERTY_MIN_DATE) ? datePicker.getMinDate()
+																	   : datePicker.getMaxDate());
+			}
+		}
+		return null;
+	}
+
+	@Kroll.getProperty
+	public Date getValue()
+	{
+		if (type == UIModule.PICKER_TYPE_DATE) {
+			DatePicker datePicker = ((DatePicker) this.getOrCreateView().getNativeView());
+			if (datePicker != null) {
+				int year = datePicker.getYear();
+				int month = datePicker.getMonth();
+				int day = datePicker.getDayOfMonth();
+				Calendar calendar = Calendar.getInstance();
+				calendar.set(year, month, day);
+				return calendar.getTime();
+			}
+		}
+		return null;
 	}
 }

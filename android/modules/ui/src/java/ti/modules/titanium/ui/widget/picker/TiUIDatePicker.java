@@ -81,29 +81,21 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 			valueExistsInProxy = true;
 		}
 		if (d.containsKey(TiC.PROPERTY_MIN_DATE)) {
-			Calendar minDateCalendar = Calendar.getInstance();
-			minDateCalendar.setTime((Date) d.get(TiC.PROPERTY_MIN_DATE));
-			minDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
-			minDateCalendar.set(Calendar.MINUTE, 0);
-			minDateCalendar.set(Calendar.SECOND, 0);
-			minDateCalendar.set(Calendar.MILLISECOND, 0);
-
-			this.minDate = minDateCalendar.getTime();
-			picker.setMinDate(minDateCalendar.getTimeInMillis());
+			this.minDate = TiConvert.toDate(d.get(TiC.PROPERTY_MIN_DATE));
+			// Guard for invalid value
+			if (this.minDate != null) {
+				picker.setMinDate(this.minDate.getTime());
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
 			setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
 		}
-		if (d.containsKey(TiC.PROPERTY_MAX_DATE)) {
-			Calendar maxDateCalendar = Calendar.getInstance();
-			maxDateCalendar.setTime((Date) d.get(TiC.PROPERTY_MAX_DATE));
-			maxDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
-			maxDateCalendar.set(Calendar.MINUTE, 0);
-			maxDateCalendar.set(Calendar.SECOND, 0);
-			maxDateCalendar.set(Calendar.MILLISECOND, 0);
-
-			this.maxDate = maxDateCalendar.getTime();
-			picker.setMaxDate(maxDateCalendar.getTimeInMillis());
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_MAX_DATE)) {
+			this.maxDate = TiConvert.toDate(d.get(TiC.PROPERTY_MAX_DATE));
+			// Guard for invalid value
+			if (this.maxDate != null) {
+				picker.setMaxDate(this.maxDate.getTime());
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_MINUTE_INTERVAL)) {
 			int mi = d.getInt(TiC.PROPERTY_MINUTE_INTERVAL);
@@ -140,9 +132,17 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		if (key.equals(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
 			setCalendarView(TiConvert.toBoolean(newValue));
 		} else if (TiC.PROPERTY_MIN_DATE.equals(key)) {
-			((DatePicker) getNativeView()).setMinDate(TiConvert.toDate(newValue).getTime());
+			this.minDate = TiConvert.toDate(newValue);
+			// Guard for invalid value
+			if (this.minDate != null) {
+				((DatePicker) getNativeView()).setMinDate(this.minDate.getTime());
+			}
 		} else if (TiC.PROPERTY_MAX_DATE.equals(key)) {
-			((DatePicker) getNativeView()).setMaxDate(TiConvert.toDate(newValue).getTime());
+			this.maxDate = TiConvert.toDate(newValue);
+			// Guard for invalid value
+			if (this.maxDate != null) {
+				((DatePicker) getNativeView()).setMaxDate(this.maxDate.getTime());
+			}
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
