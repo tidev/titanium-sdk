@@ -236,8 +236,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(v8::Isolate* isolate)
 	</@Proxy.listPropertyAccessors>
 
 	<#if interceptor??>
-	instanceTemplate->SetNamedPropertyHandler(${className}::interceptor);
-	// instanceTemplate->SetHandler(NamedPropertyHandlerConfiguration(${className}::interceptor, 0, 0, 0, 0, Local<Value>(), PropertyHandlerFlags::kOnlyInterceptStrings));
+	instanceTemplate->SetHandler(NamedPropertyHandlerConfiguration(reinterpret_cast<GenericNamedPropertyGetterCallback>(${className}::interceptor), nullptr, nullptr, nullptr, nullptr, Local<Value>(), PropertyHandlerFlags::kOnlyInterceptStrings));
 	</#if>
 	return scope.Escape(t);
 }

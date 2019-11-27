@@ -111,7 +111,7 @@ jstring TypeConverter::jsStringToJavaString(Isolate* isolate, Local<String> jsSt
 
 jstring TypeConverter::jsStringToJavaString(JNIEnv *env, Local<String> jsString)
 {
-	String::Value string(jsString);
+	String::Value string(V8Runtime::v8_isolate, jsString);
 	return env->NewString(reinterpret_cast<const jchar*>(*string), string.length());
 }
 
@@ -224,7 +224,7 @@ Local<Date> TypeConverter::javaDateToJsDate(Isolate* isolate, JNIEnv *env, jobje
 
 Local<Date> TypeConverter::javaLongToJsDate(Isolate* isolate, jlong javaLong)
 {
-	return Date::New(isolate, (double) javaLong).As<Date>(); // perversely, the date constructor returns Local<value> so we need to cast it
+	return Date::New(isolate->GetCurrentContext(), (double) javaLong).ToLocalChecked().As<Date>(); // perversely, the date constructor returns Local<value> so we need to cast it
 }
 
 jobject TypeConverter::jsObjectToJavaFunction(Isolate* isolate, Local<Object> jsObject)

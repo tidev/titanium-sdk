@@ -14,7 +14,7 @@
 	v8::HandleScope scope(context.GetIsolate());
 
 #define IMMUTABLE_STRING_LITERAL_FROM_ARRAY(isolate, string_literal, length) \
-	v8::String::NewExternalOneByte(isolate, new v8::ExternalOneByteStringResourceImpl(string_literal, length)).ToLocalChecked()
+	v8::String::NewExternalOneByte(isolate, new ExternalOneByteStringResourceImpl(string_literal, length)).ToLocalChecked()
 
 #define NEW_SYMBOL(isolate, string_literal) \
 	v8::String::NewFromUtf8(isolate, string_literal "", v8::NewStringType::kInternalized).ToLocalChecked()
@@ -134,6 +134,23 @@ class Utf8Value {
 	size_t length_;
 	char* str_;
 	char str_st_[1024];
+};
+
+class ExternalOneByteStringResourceImpl : public v8::String::ExternalOneByteStringResource {
+	public:
+	ExternalOneByteStringResourceImpl(const char* data, size_t length) : data_(data), length_(length) {}
+
+	const char* data() const override {
+		return data_;
+	}
+
+	size_t length() const override {
+		return length_;
+	}
+
+	private:
+	const char* data_;
+	size_t length_;
 };
 
 class V8Util {

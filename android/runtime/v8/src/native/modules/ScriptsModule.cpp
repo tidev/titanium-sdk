@@ -236,7 +236,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	const int display_error_index = args.Length() - 1;
 	bool display_error = false;
 	if (args.Length() > display_error_index && args[display_error_index]->IsBoolean()
-		&& args[display_error_index]->BooleanValue(currentContext).FromMaybe(false) == true) {
+		&& args[display_error_index]->BooleanValue(isolate) == true) {
 		display_error = true;
 	}
 
