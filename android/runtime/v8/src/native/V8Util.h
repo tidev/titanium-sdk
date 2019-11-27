@@ -14,7 +14,7 @@
 	v8::HandleScope scope(context.GetIsolate());
 
 #define IMMUTABLE_STRING_LITERAL_FROM_ARRAY(isolate, string_literal, length) \
-	v8::String::NewExternalOneByte(isolate, new ExternalOneByteStringResourceImpl(string_literal, length)).ToLocalChecked()
+	v8::String::NewExternalOneByte(isolate, new titanium::ExternalOneByteStringResourceImpl(string_literal, length)).ToLocalChecked()
 
 #define NEW_SYMBOL(isolate, string_literal) \
 	v8::String::NewFromUtf8(isolate, string_literal "", v8::NewStringType::kInternalized).ToLocalChecked()
