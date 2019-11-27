@@ -92,6 +92,43 @@ function guessPreviousBranch(version) {
 	// ideally it should be like "v1.2.3", but we're doing like '8_1_1_GA' so far
 }
 
+function urlToVersion(url) {
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
+}
+
+function gatherModules() {
+	const modulesJSON = fs.readJSONSync(path.join(__dirname, '../support/module/packaged/modules.json'));
+	const modules = new Map();
+	// Android
+	Object.entries(modulesJSON.android).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		modules.set(moduleId, { name: moduleId, android: version, ios: 'n/a' });
+	});
+	// iOS
+	Object.entries(modulesJSON.ios).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		if (modules.has(moduleId)) {
+			const androidVersion = modules.get(moduleId).android;
+			modules.set(moduleId, { name: moduleId, android: androidVersion, ios: version });
+		} else {
+			modules.set(moduleId, { name: moduleId, android: 'n/a', ios: version });
+		}
+	});
+	// CommonJS
+	Object.entries(modulesJSON.commonjs).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		modules.set(moduleId, { name: moduleId, android: version, ios: version });
+	});
+	// Hyperloop
+	const hyperloopVersion = urlToVersion(modulesJSON.hyperloop.hyperloop.url);
+	modules.set('hyperloop', { name: 'hyperloop', android: hyperloopVersion, ios: hyperloopVersion });
+
+	return modules;
+}
+
 /**
  * Gather up the community contributions to thank them specifically
  */
@@ -273,7 +310,9 @@ module.exports = {
 			}
 			context.eosDate = dateFormat(eosDate, 'yyyy-mm-dd', true);
 
-			// TODO: Gather up the modules shipped with this version and toss into a variable we can put into the changelog?
+			// Gather up the modules shipped with this version and toss into a variable we can put into the changelog
+			const modules = gatherModules();
+			context.modules = Array.from(modules.values());
 
 			return context;
 		},
@@ -283,6 +322,7 @@ module.exports = {
 		partials: {
 			about: fs.readFileSync(path.join(__dirname, 'templates/about.hbs'), 'utf8'),
 			credits: fs.readFileSync(path.join(__dirname, 'templates/credits.hbs'), 'utf8'),
+			modules: fs.readFileSync(path.join(__dirname, 'templates/modules.hbs'), 'utf8'),
 		},
 		groupBy: 'type',
 		commitGroupsSort: 'title', // FIXME: Sort so features comes before bug fixes, then perf improvements? Can we bake in community credits?
