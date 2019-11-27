@@ -132,12 +132,13 @@
 
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
 #if IS_SDK_IOS_13
-    CGRect frame = [[[[[UIApplication sharedApplication] keyWindow] windowScene] statusBarManager] statusBarFrame];
-    UIView *view = [[[UIApplication sharedApplication] keyWindow] viewWithTag:TI_STATUSBAR_TAG];
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
     if (!view) {
       view = [[UIView alloc] initWithFrame:frame];
       view.tag = TI_STATUSBAR_TAG;
-      [[[UIApplication sharedApplication] keyWindow] addSubview:view];
+      [keyWindow addSubview:view];
     }
     view.frame = frame;
     view.backgroundColor = [[TiUtils colorValue:value] _color];
