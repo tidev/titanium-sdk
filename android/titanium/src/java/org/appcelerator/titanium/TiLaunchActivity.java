@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 
 /**
  * Titanium launch activities have a single TiContext and launch an associated
@@ -94,12 +95,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 	protected void loadScript()
 	{
-		try {
-			String fullUrl = resolveUrl(this.url);
-			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
-		} finally {
-			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
-		}
+		TiApplication.launch();
 	}
 
 	@Override
@@ -181,6 +177,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (!hasLoadedScript) {
 			hasLoadedScript = true;
 			loadScript();
+			Log.d(TAG, "Launched in " + (SystemClock.uptimeMillis() - TiApplication.START_TIME_MS) + " ms");
 		}
 		super.onResume();
 	}

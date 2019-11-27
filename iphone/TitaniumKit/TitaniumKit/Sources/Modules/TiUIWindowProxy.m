@@ -455,11 +455,23 @@
     if (theImage != nil) {
       UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
       ourNB.shadowImage = resizableImage;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+        ourNB.standardAppearance.shadowImage = resizableImage;
+        ourNB.scrollEdgeAppearance.shadowImage = resizableImage;
+      }
+#endif
     } else {
       BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
       if (clipValue) {
         //Set an empty Image.
         ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+        if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+          ourNB.standardAppearance.shadowColor = nil;
+          ourNB.scrollEdgeAppearance.shadowColor = nil;
+        }
+#endif
       } else {
         ourNB.shadowImage = nil;
       }

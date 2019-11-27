@@ -169,6 +169,17 @@ GETTER_IMPL(NSUInteger, size, Size);
   return self;
 }
 
+- (id)initWithData:(NSData *)data_ andPath:(NSString *)path_
+{
+  if (self = [super init]) {
+    data = [data_ retain];
+    type = TiBlobTypeData;
+    path = [path_ retain];
+    mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
+  }
+  return self;
+}
+
 - (id)initWithFile:(NSString *)path_
 {
   if (self = [super init]) {

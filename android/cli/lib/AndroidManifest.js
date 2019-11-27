@@ -33,7 +33,7 @@ const appc = require('node-appc'),
 		'path-permission': /^(path|pathPrefix|pathPattern|permission|readPermissions|writePermissions)$/,
 		provider: /^(authorities|directBootAware|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
 		receiver: /^(directBootAware|enabled|exported|icon|label|name|permission|process)$/,
-		service: /^(description|directBootAware|enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
+		service: /^(description|directBootAware|enabled|exported|icon|isolatedProcess|label|name|permission|process|foregroundServiceType)$/,
 		'uses-library': /^(name|required)$/,
 		'uses-sdk': /^(maxSdkVersion|minSdkVersion|targetSdkVersion)$/
 	};

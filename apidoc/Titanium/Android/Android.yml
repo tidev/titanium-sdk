@@ -5,11 +5,11 @@ description: |
     The Android module allows the application to manage various Android components.
 
     #### Drawer Layout
-    
+
     The drawer-layout components acts as a top-level container for window content that allows
     for interactive "drawer" views to be pulled out from one or both vertical edges of the window.
-    It is represented by a `centerView` and optional `leftView` and `rightView` components that 
-    can be swiped in and out with additional configuration and transitions. Learn more about 
+    It is represented by a `centerView` and optional `leftView` and `rightView` components that
+    can be swiped in and out with additional configuration and transitions. Learn more about
     drawer-layouts in it's dedicated <Titanium.UI.Android.DrawerLayout> docs.
 
     #### Action Bar
@@ -108,10 +108,10 @@ description: |
     Starting from Android 6.0 (API level 23), users need to grant certain permissions to apps while the
     app is running. You can read it more [here](https://developer.android.com/training/permissions/requesting.html).
 
-    In Titanium SDK, to support this, we have the <Titanium.Android.requestPermissions> method. It is used to 
+    In Titanium SDK, to support this, we have the <Titanium.Android.requestPermissions> method. It is used to
     request any permission you may need. An example of using it is shown below:
 
-        var permissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE' ];
+        var permissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE', 'android.permission.WRITE_EXTERNAL_STORAGE' ];
         Ti.Android.requestPermissions(permissions, function (e) {
             if (e.success) {
                 Ti.API.info('SUCCESS');
@@ -225,14 +225,14 @@ methods:
         summary: |
             The permission to check for access. This can be any of the constants listed here
             with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
-            For example, `android.permission.WRITE_CONTACTS`. 
+            For example, `android.permission.WRITE_CONTACTS`.
 
             Since Titanium 6.1.0, the method will also accept `Array<String>`
         type: [String, Array<String>]
     returns:
-        type: Boolean 
+        type: Boolean
     since: "5.4.0"
-    
+
   - name: requestPermissions
     summary: Request for permission access.
     parameters:
@@ -240,7 +240,7 @@ methods:
         summary: |
             The permission(s) to request for access. This can be any of the constants listed here
             with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
-            Normal protection permissions are automatically enabled if they are included in the manifest. An example of a 
+            Normal protection permissions are automatically enabled if they are included in the manifest. An example of a
             dangerous protection permission would be `android.permission.WRITE_CONTACTS`.
             The requested permission(s) MUST also be included in the Android Manifest.
 
@@ -1816,6 +1816,69 @@ properties:
     type: Number
     permission: read-only
 
+  - name: FOREGROUND_SERVICE_TYPE_MANIFEST
+    summary: |
+        A special value indicates to use all types set in manifest file.
+    description: |
+        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MANIFEST).
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_NONE
+    summary: |
+        The default foreground service type if not been set in manifest file.
+    description: |
+        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_NONE).
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+    summary: |
+        Constant corresponding to mediaPlayback in the R.attr.foregroundServiceType attribute. Music, video, news or other media playback.
+    description: |
+        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK).
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_PHONE_CALL
+    summary: |
+        Constant corresponding to phoneCall in the R.attr.foregroundServiceType attribute. Ongoing phone call or video conference.
+    description: |
+        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_PHONE_CALL).
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_LOCATION
+    summary: |
+        Constant corresponding to location in the R.attr.foregroundServiceType attribute. GPS, map, navigation location update.
+    description: |
+        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_LOCATION).
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+    summary: |
+        Constant corresponding to connectedDevice in the R.attr.foregroundServiceType attribute. Auto, bluetooth, TV or other devices connection, monitoring and interaction.
+    description: |
+        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE).
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+    summary: |
+        Constant corresponding to mediaProjection in the R.attr.foregroundServiceType attribute. Managing a media projection session, e.g for screen recording or taking screenshots.
+    description: |
+        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION).
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
   - name: FLAG_AUTO_CANCEL
     summary: Cancel the notification when it is clicked by the user.
     description: |
@@ -2386,7 +2449,7 @@ properties:
     default: Titanium.Android.START_REDELIVER_INTENT
     constants: Titanium.Android.START_*
 
----    
+---
 name: RequestPermissionAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse

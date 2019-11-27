@@ -11,7 +11,10 @@ const copyFiles = utils.copyFiles;
 const copyAndModifyFile = utils.copyAndModifyFile;
 const globCopy = utils.globCopy;
 
+const ROOT_DIR = path.join(__dirname, '..', '..', '..');
+
 const ANDROID_BUILD_XML = path.join(__dirname, '../../../android/build.xml');
+const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 class Android {
 	/**
@@ -38,6 +41,18 @@ class Android {
 			'google.apis': this.sdk.getGoogleApisDir(),
 			'kroll.v8.build.x86': 1,
 			'android.ndk': this.androidNDK
+		};
+	}
+
+	babelOptions() {
+		const v8Version = require(path.join(ROOT_DIR, 'android', 'package.json')).v8.version; // eslint-disable-line security/detect-non-literal-require
+		const v8VersionGroup = v8Version.match(V8_STRING_VERSION_REGEXP);
+		const version = parseInt(v8VersionGroup[1] + v8VersionGroup[2]);
+
+		return {
+			targets: {
+				chrome: version
+			}
 		};
 	}
 
@@ -108,9 +123,6 @@ class Android {
 
 		// Copy android/modules/*/lib/*.jar
 		await this.copyModuleLibraries(path.join(ANDROID_ROOT, 'modules'), ANDROID_DEST);
-
-		// Discard local changes on the generated V8Snapshots.h
-		await git.discardLocalChange(ANDROID_ROOT, 'runtime/v8/src/native/V8Snapshots.h');
 
 		// Copy over module resources
 		const filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium-(.+)?.(jar|res.zip|respackage))?$'); // eslint-disable-line security/detect-non-literal-regexp

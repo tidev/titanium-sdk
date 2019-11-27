@@ -2818,6 +2818,7 @@
     return;
   }
 
+  [self hideDimmingView];
   animateHide = YES;
   [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
   // Since we clear the searchbar, the search string and indexes can be cleared as well.

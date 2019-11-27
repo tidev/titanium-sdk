@@ -3,13 +3,18 @@
 const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
+const rollup = require('rollup').rollup;
+const babel = require('rollup-plugin-babel');
+const resolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
 
 const git = require('./git');
 const utils = require('./utils');
 const Packager = require('./packager');
 
-const ROOT_DIR = path.join(__dirname, '../..');
+const ROOT_DIR = path.join(__dirname, '..', '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
+const TMP_DIR = path.join(DIST_DIR, 'tmp');
 
 // platforms/OS mappings
 const ALL_OSES = [ 'win32', 'linux', 'osx' ];
@@ -26,6 +31,19 @@ function thisOS() {
 		osName = 'osx';
 	}
 	return osName;
+}
+
+function determineBabelOptions(babelOptions) {
+	const options = {
+		...babelOptions,
+		useBuiltIns: 'entry',
+		corejs: 3
+	};
+
+	return {
+		presets: [ [ '@babel/env', options ] ],
+		exclude: 'node_modules/**'
+	};
 }
 
 class Builder {
@@ -82,13 +100,51 @@ class Builder {
 		this.program.gitHash = hash || 'n/a';
 	}
 
+	async transpile(platform, babelOptions, outFile) {
+		// Copy over common dir, into some temp dir
+		// Then run rollup/babel on it, then just copy the resulting bundle to our real destination!
+		// The temporary location we'll assembled the transpiled bundle
+		const TMP_COMMON_DIR = path.join(TMP_DIR, '_common');
+		const TMP_COMMON_PLAFORM_DIR = path.join(TMP_DIR, '_common', platform);
+
+		console.log(`Creating temporary 'common' directory...`); // eslint-disable-line quotes
+		await fs.copy(path.join(ROOT_DIR, 'common'), TMP_COMMON_PLAFORM_DIR);
+
+		// create a bundle
+		console.log('Transpile and run rollup...');
+		const bundle = await rollup({
+			input: `${TMP_COMMON_PLAFORM_DIR}/Resources/ti.main.js`,
+			plugins: [
+				resolve(),
+				commonjs(),
+				babel(determineBabelOptions(babelOptions))
+			],
+			external: [ './app', 'com.appcelerator.aca' ]
+		});
+
+		if (!outFile) {
+			outFile = path.join(TMP_DIR, 'common', platform, 'ti.main.js');
+		}
+
+		console.log(`Writing 'common' bundle to ${outFile} ...`); // eslint-disable-line quotes
+		await bundle.write({ format: 'cjs', file: outFile });
+
+		// We used to have to copy over ti.internal, but it is now bundled into ti.main.js
+		// if we ever have files there that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.
+
+		console.log(`Removing temporary 'common' directory...`); // eslint-disable-line quotes
+		await fs.remove(TMP_COMMON_DIR);
+	}
+
 	async build() {
 		await this.ensureGitHash();
 		console.log('Building MobileSDK version %s, githash %s', this.program.sdkVersion, this.program.gitHash);
+
 		// TODO: build platforms in parallel
 		for (const item of this.platforms) {
 			const Platform = require(`./${item}`); // eslint-disable-line security/detect-non-literal-require
 			const platform = new Platform(this.program);
+			await this.transpile(item, platform.babelOptions());
 			await platform.build();
 		}
 	}

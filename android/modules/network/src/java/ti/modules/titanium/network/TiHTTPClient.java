@@ -417,11 +417,24 @@ public class TiHTTPClient
 		@Override
 		public void write(int b) throws IOException
 		{
-			//Donot write if request is aborted
+			//Do not write if request is aborted
 			if (!aborted) {
 				super.write(b);
 				transferred++;
 				fireProgress();
+			}
+		}
+
+		// Send the last progress callback when the
+		// writing is done.
+		@Override
+		public void close() throws IOException
+		{
+			super.close();
+
+			if (!aborted && (transferred > 0)) {
+				lastTransferred = transferred;
+				listener.progress(transferred);
 			}
 		}
 	}
@@ -1103,7 +1116,6 @@ public class TiHTTPClient
 		aborted = false;
 
 		// TODO consider using task manager
-		int totalLength = 0;
 		needMultipart = false;
 
 		if (userData != null) {
@@ -1139,12 +1151,11 @@ public class TiHTTPClient
 						}
 
 						if (value instanceof TiBaseFile || value instanceof TiBlob || value instanceof HashMap) {
-							totalLength += addTitaniumFileAsPostData(key, value);
+							addTitaniumFileAsPostData(key, value);
 
 						} else {
 							String str = TiConvert.toString(value);
 							addPostData(key, str);
-							totalLength += str.length();
 						}
 
 					} else if (isGet) {
@@ -1175,8 +1186,7 @@ public class TiHTTPClient
 		Log.d(TAG, "Instantiating http request with method='" + method + "' and this url:", Log.DEBUG_MODE);
 		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
-		clientThread =
-			new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
+		clientThread = new Thread(new ClientRunnable(), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
 
@@ -1185,16 +1195,14 @@ public class TiHTTPClient
 
 	private class ClientRunnable implements Runnable
 	{
-		private final int totalLength;
 		private int contentLength;
 		private PrintWriter printWriter;
 		private OutputStream outputStream;
 		private String boundary;
 		private static final String LINE_FEED = "\r\n";
 
-		public ClientRunnable(int totalLength)
+		public ClientRunnable()
 		{
-			this.totalLength = totalLength;
 			this.contentLength = 0;
 		}
 
@@ -1278,8 +1286,11 @@ public class TiHTTPClient
 						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
 							public void progress(int progress)
 							{
+								if (contentLength <= 0) {
+									return;
+								}
 								KrollDict data = new KrollDict();
-								double currentProgress = ((double) progress / totalLength);
+								double currentProgress = ((double) progress / contentLength);
 								if (currentProgress > 1)
 									currentProgress = 1;
 								data.put("progress", currentProgress);
@@ -1319,6 +1330,7 @@ public class TiHTTPClient
 						} else {
 							handleURLEncodedData(form);
 						}
+						printWriter.close();
 					}
 
 					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
@@ -1495,10 +1507,9 @@ public class TiHTTPClient
 			printWriter.flush();
 		}
 
-		public void completeSendingMultipart() throws IOException
+		public void completeSendingMultipart()
 		{
 			printWriter.append("--" + boundary + "--").append(LINE_FEED);
-			printWriter.close();
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException

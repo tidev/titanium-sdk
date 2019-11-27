@@ -27,6 +27,17 @@ class IOS {
 		this.timestamp = options.timestamp;
 	}
 
+	babelOptions() {
+		// eslint-disable-next-line security/detect-non-literal-require
+		const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
+
+		return {
+			targets: {
+				ios: minIosVersion
+			}
+		};
+	}
+
 	async clean() {
 		return fs.remove(path.join(IOS_ROOT, 'TitaniumKit/build'));
 	}
