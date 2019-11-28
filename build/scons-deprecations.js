@@ -9,6 +9,9 @@ const promisify = require('util').promisify;
 const semver = require('semver');
 const chalk = require('chalk');
 
+// TODO: Extract common code for parsing and visiting all yml apidocs
+// The code between this and removals is nearly identical
+
 /**
  * @param {object} thing type, property or method from docs
  * @param {string} thingPath full API path of the object we're checking
@@ -23,12 +26,39 @@ async function checkDeprecatedButNotRemoved(thing, thingPath) {
 	return null;
 }
 
+/**
+ * @param {object} m method definition from yml apidocs
+ * @param {string} methodOwner namespace of method parent
+ * @returns {Promise<null|object>}
+ */
 async function checkMethod(m, methodOwner) {
 	return checkDeprecatedButNotRemoved(m, `${methodOwner}#${m.name}()`);
 }
 
+/**
+ * @param {object} p property definition from yml apidocs
+ * @param {string} propertyOwner namespace of property parent
+ * @returns {Promise<null|object>}
+ */
 async function checkProperty(p, propertyOwner) {
 	return checkDeprecatedButNotRemoved(p, `${propertyOwner}.${p.name}`);
+}
+
+/**
+ * @param {object} e event definition from yml apidocs
+ * @param {string} eventOwner namespace of event parent
+ * @returns {Promise<object[]>}
+ */
+async function checkEvent(e, eventOwner) {
+	const results = [];
+	const namespace = `${eventOwner}.${e.name}`; // TODO: Use lightning bolt to denote events?
+	const typePossible = await checkDeprecatedButNotRemoved(e, namespace);
+	if (typePossible) {
+		results.push(typePossible);
+	}
+	const properties = await Promise.all((e.properties || []).map(p => checkProperty(p, namespace)));
+	results.push(...properties.filter(p => p));
+	return results;
 }
 
 /**
@@ -41,12 +71,18 @@ async function checkType(t) {
 	if (typePossible) {
 		unremovedDeprecations.push(typePossible);
 	}
+	// gives us object[]
 	const methods = await Promise.all((t.methods || []).map(m => checkMethod(m, t.name)));
 	unremovedDeprecations.push(...methods.filter(m => m));
+	// gives us object[]
 	const properties = await Promise.all((t.properties || []).map(p => checkProperty(p, t.name)));
 	unremovedDeprecations.push(...properties.filter(p => p));
-	// console.info(unremovedDeprecations);
-	return unremovedDeprecations;
+	// gives us an array of arrays
+	const events = await Promise.all((t.events || []).map(e => checkEvent(e, t.name)));
+	// flatten to single object[]
+	const flattenedEvents = [].concat(...events);
+	unremovedDeprecations.push(...flattenedEvents);
+	return unremovedDeprecations.filter(e => e && e.length !== 0);
 }
 
 /**
