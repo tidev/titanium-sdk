@@ -141,7 +141,7 @@
     "cz-conventional-changelog": "^3.0.2",
     "danger": "^9.2.9",
     "dateformat": "^3.0.3",
-    "eslint": "^6.5.1",
+    "eslint": "^6.7.2",
     "eslint-config-axway": "^4.5.0",
     "eslint-plugin-mocha": "^6.1.0",
     "glob": "^7.1.5",
