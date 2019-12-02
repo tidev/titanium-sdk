@@ -137,7 +137,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 /**
  Returns singleton instance of TiApp application object.
  */
-+ (TiApp *)app;
++ (TiApp *)app NS_SWIFT_NAME(sharedApp());
 
 /**
  * Returns a read-only dictionary from tiapp.xml properties

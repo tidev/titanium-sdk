@@ -388,6 +388,7 @@ events:
     properties:
       - name: sourceType
         summary: New `sourceType` value.
+        type: Number
         constants: Titanium.Media.VIDEO_SOURCE_TYPE_*
     since: '3.0.0'
 
