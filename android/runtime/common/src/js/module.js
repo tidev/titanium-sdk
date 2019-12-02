@@ -562,8 +562,8 @@ Module.prototype._runScript = function (source, filename) {
 	var self = this,
 		url = 'app://' + filename;
 
-	function require(path) {
-		return self.require(path);
+	function require(path, context) {
+		return self.require(path, context);
 	}
 	require.main = Module.main;
 
