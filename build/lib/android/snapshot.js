@@ -66,7 +66,7 @@ async function generateBlob(target) {
 	console.warn(`Generating snapshot blob for ${target}...`);
 
 	// Generate snapshot
-	return promisify(exec)(MKSNAPSHOT_PATH, args);
+	return promisify(exec)(MKSNAPSHOT_PATH, args).catch(e => console.warn(`Could not generate blob for ${target}: ${e.message}`));
 }
 
 /**
@@ -89,7 +89,7 @@ async function generateHeader() {
 	console.log(`Generating V8Snapshots.h for ${Object.keys(blobs).join(', ')}...`);
 
 	// Generate 'V8Snapshots.h' from template
-	const output = await promisify(ejs.renderFile)(path.join(__dirname, 'V8Snapshots.h.ejs'), blobs, {});
+	const output = await promisify(ejs.renderFile)(path.join(__dirname, 'V8Snapshots.h.ejs'), { blobs }, {});
 	return fs.writeFile(path.join(ANDROID_DIR, 'runtime', 'v8', 'src', 'native', 'V8Snapshots.h'), output);
 }
 
