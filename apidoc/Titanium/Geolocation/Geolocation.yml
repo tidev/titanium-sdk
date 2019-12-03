@@ -307,6 +307,7 @@ events:
     properties:
       - name: code
         summary: If `success` is `false`, the error code is available.
+        type: Number
         platforms: [android, iphone, ipad]
 
       - name: success

@@ -16,21 +16,37 @@ see the LICENSE file for specific details.
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/appcelerator/titanium_mobile.svg)](https://greenkeeper.io/)
 
-1. [Features](#features)
-2. [Hyperloop](#hyperloop)
-3. [Alloy](#alloy)
-4. [Getting Help](#getting-help)
-    * [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
-    * [Developer Community](#developer-community)
-    * [Video Tutorials](#video-tutorials)
-    * [Slack](#slack)
-    * [Twitter](#twitter)
-    * [Blog](#blog)
-    * [Commercial Support, Licensing](#commercial-support-licensing)
-5. [Contributing](#contributing)
-6. [Building Locally](#building-locally)
-    * [Unit Tests](#unit-tests)
-7. [Legal Stuff](#legal-stuff)
+- [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Hyperloop](#hyperloop)
+    - [Features](#features-1)
+      - [Cross-Platform Reuse](#cross-platform-reuse)
+      - [Direct API Access](#direct-api-access)
+      - [JavaScript Everywhere](#javascript-everywhere)
+      - [3rd-Party Libraries](#3rd-party-libraries)
+      - [Custom Animations](#custom-animations)
+      - [Run Native](#run-native)
+    - [Example](#example)
+    - [Getting Started](#getting-started)
+  - [Alloy](#alloy)
+    - [Example](#example-1)
+  - [Getting Help](#getting-help)
+    - [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
+    - [Developer Community](#developer-community)
+    - [Video Tutorials](#video-tutorials)
+    - [Slack](#slack)
+    - [Twitter](#twitter)
+    - [Blog](#blog)
+    - [Commercial Support, Licensing](#commercial-support-licensing)
+  - [Contributing](#contributing)
+  - [Building Locally](#building-locally)
+    - [Unit tests](#unit-tests)
+      - [How it works](#how-it-works)
+      - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
+        - [Adding a new test suite](#adding-a-new-test-suite)
+        - [Editing an existing test suite](#editing-an-existing-test-suite)
+        - [Merging the modified tests back to the common suite](#merging-the-modified-tests-back-to-the-common-suite)
+  - [Legal Stuff](#legal-stuff)
 
 ## Features
 
@@ -209,9 +225,8 @@ Previously Titanium used scons and python scripts to build the SDK.
 If you'd like to build the SDK locally, we've replaced scons with some Node.JS scripts. Typical usage would be:
 
 ```bash
-npm install
-cd build
-node scons.js cleanbuild --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk
+npm ci
+npm run cleanbuild
 ```
 
 The build and package commands will default to all target platforms on your host OS unless explicitly specified. (i.e. Android, iOS on macOS; Windows and Android on Windows). It will compile, package and install the locally-built SDK for you
@@ -222,20 +237,20 @@ The build command will look for Android NDK and SDK using $ANDROID_NDK and $ANDR
 You can use the `-h` flag to display the full list of comands and options.
 
 ```bash
-npm install
-cd build
-node scons.js cleanbuild [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
+npm ci
+npm run cleanbuild -- [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
 ```
 
 ### Unit tests
 
 We have a [common unit test suite](https://github.com/appcelerator/titanium-mobile-mocha-suite) intended to run across all supported platforms.
 
-To invoke the tests, you must create a local build of the sdk via the steps above and have an sdk zip in your `dist` directory. Then you'd run:
+We have npm scripts set up to run a full clean, build, package, symlinked install, `ti sdk select` the built sdk, and then run the unit test suite:
 
 ```bash
-cd build
-node scons.js test [platform]
+npm run test:android
+npm run test:iphone
+npm run test:ipad
 ```
 
 #### How it works
@@ -250,13 +265,9 @@ The `tests` folder acts as an override folder for the common suite. Any files li
 
 ##### Adding a new test suite
 
-In practical terms that means if we need to add new test files, you'd place the new file under `tests/Resources`, and then copy the `titanium-mobile-mocha-suite/Resources/app.js` to `tests/Resources/app.js` and editing the copy to require the new file(s).
+We also have a mechanism in our test suite to auto load any files under `tests/Resources` with the suffix `.addontest.js`. So adding new tests, is simply a matter of creating a file named something like `tests/Resources/ti.namespace.addontest.j
 
-For example, if we want to test a new `Ti.Foo` namespace, we'd create a new test file at `tests/Resources/ti.foo.test.js`. We'd then copy `titanium-mobile-mocha-suite/Resources/app.js` to `tests/Resources/app.js` and add the line:
 
-```javascript
-require('./ti.foo.test')
-```
 
 ##### Editing an existing test suite
 
