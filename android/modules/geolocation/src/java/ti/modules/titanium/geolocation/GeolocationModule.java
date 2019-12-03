@@ -204,12 +204,14 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 		// Execute current position callbacks.
 		if (currentPositionCallback.size() > 0) {
-			for (KrollFunction callback : currentPositionCallback) {
+			ArrayList<KrollFunction> currentPositionCallbackClone =
+				(ArrayList<KrollFunction>) currentPositionCallback.clone();
+			currentPositionCallback.clear();
+			for (KrollFunction callback : currentPositionCallbackClone) {
 				callback.call(this.getKrollObject(),
 							  new Object[] { buildLocationEvent(
 								  lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider())) });
 			}
-			currentPositionCallback.clear();
 		}
 
 		// Fire 'location' event listeners.
@@ -257,12 +259,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				break;
 
 			case LocationProviderProxy.STATE_UNKNOWN:
-				message += " is in a unknown state [" + state + "]";
-				break;
-
 			default:
 				message += " is in a unknown state [" + state + "]";
-				break;
 		}
 		Log.d(TAG, message, Log.DEBUG_MODE);
 
@@ -271,10 +269,12 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 			// Execute current position callbacks.
 			if (currentPositionCallback.size() > 0) {
-				for (KrollFunction callback : currentPositionCallback) {
+				ArrayList<KrollFunction> currentPositionCallbackClone =
+					(ArrayList<KrollFunction>) currentPositionCallback.clone();
+				currentPositionCallback.clear();
+				for (KrollFunction callback : currentPositionCallbackClone) {
 					callback.call(this.getKrollObject(), new Object[] { buildLocationErrorEvent(state, message) });
 				}
-				currentPositionCallback.clear();
 			}
 		}
 	}
