@@ -95,20 +95,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 	protected void loadScript()
 	{
-		try {
-			String fullUrl = resolveUrl(this.url);
-			if (KrollAssetHelper.assetExists(fullUrl)) {
-				KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(fullUrl), fullUrl,
-														  activityProxy);
-
-				// launch script does not exist, must be using snapshot
-				// execute startup method baked in snapshot
-			} else {
-				KrollRuntime.getInstance().runModule("global._startSnapshot(global)", fullUrl, activityProxy);
-			}
-		} finally {
-			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
-		}
+		TiApplication.launch();
 	}
 
 	@Override
