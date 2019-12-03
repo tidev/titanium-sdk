@@ -6017,7 +6017,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							resourcesDir: this.xcodeAppDir,
 							logger: this.logger,
 							targets: {
-								ios: this.minSupportedIosSdk
+								ios: this.minIosVersion
 							}
 						}
 					});
