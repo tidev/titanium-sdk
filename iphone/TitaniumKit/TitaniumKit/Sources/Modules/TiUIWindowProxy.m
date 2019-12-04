@@ -270,30 +270,28 @@
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   // TO DO: Refactor navigation bar customisation iOS 13
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if ([self shouldUseNavBarApperance]) {
     TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
     if (newColor == nil) {
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
-    if (controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll)) {
-      UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
-      if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-        [appearance configureWithTransparentBackground];
-        if (newColor == nil) {
-          appearance.backgroundColor = self.view.backgroundColor;
-        } else {
-          appearance.backgroundColor = newColor.color;
-        }
+    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
+    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+      [appearance configureWithTransparentBackground];
+      if (newColor == nil) {
+        appearance.backgroundColor = self.view.backgroundColor;
       } else {
-        [appearance configureWithDefaultBackground];
-        if (newColor != nil) {
-          appearance.backgroundColor = newColor.color;
-        }
+        appearance.backgroundColor = newColor.color;
       }
-      controller.navigationController.navigationBar.standardAppearance = appearance;
-      controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
-      controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
+    } else {
+      [appearance configureWithDefaultBackground];
+      if (newColor != nil) {
+        appearance.backgroundColor = newColor.color;
+      }
     }
+    controller.navigationController.navigationBar.standardAppearance = appearance;
+    controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+    controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
   }
 #endif
   shouldUpdateNavBar = YES;
@@ -404,7 +402,7 @@
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
     if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      if ([self shouldUseNavBarApperance]) {
         navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
         navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
       }
@@ -412,13 +410,18 @@
       navigationBar.largeTitleTextAttributes = theAttributes;
     }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    if ([self shouldUseNavBarApperance]) {
       navigationBar.standardAppearance.titleTextAttributes = theAttributes;
       navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
     }
 #endif
     navigationBar.titleTextAttributes = theAttributes;
   }
+}
+
+- (BOOL)shouldUseNavBarApperance
+{
+  return ([TiUtils isIOSVersionOrGreater:@"13.0"] && (controller != nil) && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll));
 }
 
 - (void)updateBarImage
@@ -439,12 +442,11 @@
     UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    if ([self shouldUseNavBarApperance]) {
       ourNB.standardAppearance.backgroundImage = resizableImage;
       ourNB.scrollEdgeAppearance.backgroundImage = resizableImage;
     }
 #endif
-
     [ourNB setBackgroundImage:resizableImage
                 forBarMetrics:UIBarMetricsDefault];
 
@@ -456,7 +458,7 @@
       UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
       ourNB.shadowImage = resizableImage;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      if ([self shouldUseNavBarApperance]) {
         ourNB.standardAppearance.shadowImage = resizableImage;
         ourNB.scrollEdgeAppearance.shadowImage = resizableImage;
       }
@@ -467,7 +469,7 @@
         //Set an empty Image.
         ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-        if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+        if ([self shouldUseNavBarApperance]) {
           ourNB.standardAppearance.shadowColor = nil;
           ourNB.scrollEdgeAppearance.shadowColor = nil;
         }

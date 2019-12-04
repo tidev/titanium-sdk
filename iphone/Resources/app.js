@@ -6,8 +6,21 @@
  * to trigger a log that is displayed in the Xcode console.
  */
 
+
 var win = Ti.UI.createWindow({
-    backgroundColor: '#fff'
+    backgroundColor: 'green',
+    translucent:  true,
+   barColor: 'transparent',
+    extendEdges: [
+        Ti.UI.EXTEND_EDGE_TOP
+    ],
+    barImage: 'transparent.png',
+    hideShadow: true
+});
+
+var navWindow = Ti.UI.createNavigationWindow({
+//   barColor: '#182426',
+    window: win
 });
 
 var btn = Ti.UI.createButton({
@@ -19,4 +32,4 @@ btn.addEventListener('click', function() {
 });
 
 win.add(btn);
-win.open();
+navWindow.open();
