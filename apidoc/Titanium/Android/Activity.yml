@@ -386,7 +386,7 @@ properties:
     summary: |
         Callback function called when the Android activity is created.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onCreateOptionsMenu
     summary: |
@@ -398,19 +398,19 @@ properties:
          See also: 
          [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
-    type: Callback<Object>
+    type: Callback<OptionsMenuCallbackObject>
 
   - name: onDestroy
     summary: |
         Callback function called when the Android activity is destroyed.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onPause
     summary: |
         Callback function called when the Android activity is paused.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onPrepareOptionsMenu
     summary:  |
@@ -422,31 +422,31 @@ properties:
          See also: 
          [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
-    type: Callback<Object>
+    type: Callback<OptionsMenuCallbackObject>
 
   - name: onRestart
     summary: |
         Callback function called when the Android activity is restarted.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onResume
     summary: |
         Callback function called when the Android activity is resumed.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onStart
     summary: |
         Callback function called when the Android activity is started.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onStop
     summary: |
         Callback function called when the Android activity is stopped.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: requestedOrientation
     summary: Specifies a specific orientation for this activity.
@@ -503,3 +503,27 @@ properties:
         Intent that can contain data returned to the caller. Data can be attached to
         the intent as "extras").
     type: Titanium.Android.Intent
+
+---
+name: ActivityLifecycleCallbackObject
+summary: |
+    Simple object passed to the <Titanium.Android.Activity> callbacks for
+    onCreate, onDestroy, onPause, onResume, onStart, onStop, onRestart.
+
+    Additional properties may be set on the Object.
+properties:
+  - name: source
+    summary: The Activity firing the callback.
+    type: Titanium.Android.Activity
+
+---
+name: OptionsMenuCallbackObject
+summary: |
+    Simple object passed to the <Titanium.Android.Activity> callbacks for
+    onPrepareOptionsMenu and onCreateOptionsMenu.
+
+    Additional properties may be set on the Object.
+properties:
+  - name: menu
+    summary: The relevant Menu.
+    type: Titanium.Android.Menu
