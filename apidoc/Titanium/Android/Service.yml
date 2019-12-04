@@ -273,6 +273,7 @@ events:
             For example, if you have an interval-based Service running every 10 seconds, iteration
             3 would occur at about 30 seconds after you start the instance (assuming your service
             code runs quickly).
+        type: Number
 
   - name: resume
     summary: |
@@ -289,6 +290,7 @@ events:
             For example, if you have an interval-based Service running every 10 seconds, iteration
             3 would occur at about 30 seconds after you start the instance (assuming your service
             code runs quickly).
+        type: Number
 
   - name: start
     summary: Fired when the bound service instance starts.

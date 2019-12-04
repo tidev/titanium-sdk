@@ -126,6 +126,7 @@ events:
         summary: |
             Dictionary with properties `width` and `height` of the size of the thumb.
             Available with custom thumb image.
+        type: Dictionary
         platforms: [android]
 
       - name: thumbOffset

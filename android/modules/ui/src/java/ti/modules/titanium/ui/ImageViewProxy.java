@@ -41,7 +41,7 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	@Override
-	public TiBlob toImage()
+	protected TiBlob handleToImage()
 	{
 		return this.toBlob();
 	}
