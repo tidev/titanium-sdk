@@ -1696,6 +1696,7 @@ properties:
         Returns the authorization status for the camera.
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Media.cameraAuthorization](Titanium.Media.cameraAuthorization) instead.
     type: Number
     constants: Titanium.Media.CAMERA_AUTHORIZATION_*
