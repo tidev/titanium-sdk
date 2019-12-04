@@ -992,19 +992,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			case KeyEvent.KEYCODE_BACK: {
 
 				if (event.getAction() == KeyEvent.ACTION_UP) {
-					String backEvent = "android:back";
 					KrollProxy proxy = null;
-					//android:back could be fired from a tabGroup window (activityProxy)
+					//androidback could be fired from a tabGroup window (activityProxy)
 					//or hw window (window).This event is added specifically to the activity
 					//proxy of a tab group in window.js
-					if (activityProxy.hasListeners(backEvent)) {
+					if (activityProxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 						proxy = activityProxy;
-					} else if (window.hasListeners(backEvent)) {
+					} else if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 						proxy = window;
 					}
 
 					if (proxy != null) {
-						proxy.fireEvent(backEvent, null);
+						proxy.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 						handled = true;
 					}
 				}
@@ -1014,13 +1013,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_CAMERA, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:camera")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:camera", null);
 					}
 					handled = true;
 				}
@@ -1034,13 +1026,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:focus")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:focus", null);
-					}
-					handled = true;
-				}
 
 				break;
 			}
@@ -1048,13 +1033,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_SEARCH, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:search")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:search", null);
 					}
 					handled = true;
 				}
@@ -1068,13 +1046,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:volup")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:volup", null);
-					}
-					handled = true;
-				}
 
 				break;
 			}
@@ -1082,13 +1053,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:voldown")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:voldown", null);
 					}
 					handled = true;
 				}
