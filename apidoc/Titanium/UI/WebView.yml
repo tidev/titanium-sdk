@@ -443,6 +443,7 @@ events:
         This event does not fire when navigating remote web pages.
     properties:
       - name: url
+        type: String
         summary: URL of the web document being loaded.
 
       - name: navigationType
@@ -503,6 +504,7 @@ events:
     summary: Fired when the web view content is loaded.
     properties:
       - name: url
+        type: String
         summary: URL of the web document.
 
   - name: onLoadResource
@@ -536,6 +538,7 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
+        type: String
     deprecated:
         since: "6.1.0"
         notes: Use the  cross-platform `blacklisturl` event instead.
@@ -547,6 +550,7 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
+        type: String
 
   - name: message
     summary: Fired when a script message is received from a webpage.
