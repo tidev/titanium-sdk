@@ -473,12 +473,14 @@ events:
   - name: linechange
     deprecated:
         since: "3.4.2"
+        removed: "3.5.1"
         notes: Titanium no longer fires this event. Use the [Titanium.Media.routechange](Titanium.Media.routechange) event instead.
     summary: Fired when an audio line type change is detected.
     platforms: [iphone, ipad]
   - name: recordinginput
     deprecated:
         since: "3.4.2"
+        removed: "3.5.1"
         notes: Titanium no longer fires this event. Use the [Titanium.Media.canRecord](Titanium.Media.canRecord) property to check if an input hardware is available.
     summary: Fired when the availablity of recording input changes.
     properties:
@@ -764,6 +766,7 @@ properties:
   - name: AUDIO_SESSION_MODE_SOLO_AMBIENT
     deprecated:
         since: "3.4.2"
+        removed: "6.0.0"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
     summary: Session mode for long-duration sounds such as rain, car engine noise, and so on.
     description: |
@@ -875,6 +878,7 @@ properties:
   - name: AUDIO_SPEAKER
     deprecated:
         since: "3.4.2"
+        removed: "3.6.0"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
     summary: Line-type constant for speaker output.
     type: Number
