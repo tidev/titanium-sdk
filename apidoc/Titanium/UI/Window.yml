@@ -559,6 +559,7 @@ events:
   - name: android:back
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) instead.
     platforms: [android]
     summary: Fired when the Back button is released.
@@ -570,6 +571,7 @@ events:
   - name: android:camera
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) instead.
     summary: Fired when the Camera button is released.
     description: |
@@ -581,6 +583,7 @@ events:
   - name: android:focus
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
@@ -592,6 +595,7 @@ events:
   - name: android:search
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) instead.
     summary: Fired when the Search button is released.
     description: |
@@ -603,6 +607,7 @@ events:
   - name: android:voldown
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) instead.
     summary: Fired when the volume down button is released.
     description: |
@@ -614,6 +619,7 @@ events:
   - name: android:volup
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) instead.
     summary: Fired when the volume up button is released.
     description: |
