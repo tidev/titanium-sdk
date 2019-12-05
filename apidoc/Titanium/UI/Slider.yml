@@ -406,4 +406,4 @@ properties:
 
   - name: value
     summary: Current value of the slider.
-    type: String
+    type: Number
