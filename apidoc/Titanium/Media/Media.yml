@@ -1614,7 +1614,7 @@ properties:
 
         Must be set while the audio session is inactive (no sounds are playing, no listeners
         for audio properties on the Media module, but the iPod may be active).
-    type: Number
+    type: String
     constants: Titanium.Media.AUDIO_SESSION_CATEGORY*
     platforms: [iphone, ipad]
     since: "3.4.2"
