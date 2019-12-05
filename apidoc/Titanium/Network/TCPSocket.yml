@@ -33,8 +33,10 @@ events:
     properties:
       - name: from
         summary: the reference for the socket that data was retrieved from
+        type: Number
       - name: data
         summary: a blob representing the data read, can be interpreted via toString
+        type: Titanium.Blob
   - name: readError
     summary: an error occured when reading
     properties:
