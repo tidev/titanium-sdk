@@ -118,6 +118,7 @@
     "p-limit": "^2.2.0",
     "pngjs": "^3.4.0",
     "request": "^2.87.0",
+    "request-promise-native": "^1.0.8",
     "semver": "^6.3.0",
     "sprintf": "0.1.5",
     "temp": "0.9.0",
