@@ -165,13 +165,13 @@ bootstrap.defineLazyBinding(Titanium, 'API');
 // in a circular reference loop.
 Object.defineProperty(Titanium.TiView.prototype, 'toJSON', {
 	value: function () {
-		var keys = Object.keys(this);
-		var keyCount = keys.length;
-		var serialized = {};
+		const keys = Object.keys(this);
+		const keyCount = keys.length;
+		const serialized = {};
 
-		for (var i = 0; i < keyCount; i++) {
-			var k = keys[i];
-			if (k === 'parent') {
+		for (let i = 0; i < keyCount; i++) {
+			const k = keys[i];
+			if (k === 'parent' || k.charAt(0) === '_') {
 				continue;
 			}
 			serialized[k] = this[k];
@@ -184,13 +184,13 @@ Object.defineProperty(Titanium.TiView.prototype, 'toJSON', {
 
 Object.defineProperty(Titanium.UI.NavigationWindow.prototype, 'toJSON', {
 	value: function () {
-		var keys = Object.keys(this);
-		var keyCount = keys.length;
-		var serialized = {};
+		const keys = Object.keys(this);
+		const keyCount = keys.length;
+		const serialized = {};
 
-		for (var i = 0; i < keyCount; i++) {
-			var k = keys[i];
-			if (k === 'parent' || k === 'window') {
+		for (let i = 0; i < keyCount; i++) {
+			const k = keys[i];
+			if (k === 'parent' || k === 'window' || k.charAt(0) === '_') {
 				continue;
 			}
 			serialized[k] = this[k];
@@ -203,13 +203,13 @@ Object.defineProperty(Titanium.UI.NavigationWindow.prototype, 'toJSON', {
 
 Object.defineProperty(Titanium.Activity.prototype, 'toJSON', {
 	value: function () {
-		var keys = Object.keys(this);
-		var keyCount = keys.length;
-		var serialized = {};
+		const keys = Object.keys(this);
+		const keyCount = keys.length;
+		const serialized = {};
 
-		for (var i = 0; i < keyCount; i++) {
-			var k = keys[i];
-			if (k === 'activity' || k === 'window' || k === 'intent') {
+		for (let i = 0; i < keyCount; i++) {
+			const k = keys[i];
+			if (k === 'window' || k === 'intent' || k.charAt(0) === '_') {
 				continue;
 			}
 			serialized[k] = this[k];
