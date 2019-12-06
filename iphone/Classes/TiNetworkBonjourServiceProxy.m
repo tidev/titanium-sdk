@@ -122,6 +122,7 @@
 {
   if (service == nil) {
     // hold on to name until we publish
+    RELEASE_TO_NIL(name_);
     name_ = [name retain];
   }
 }
@@ -139,6 +140,7 @@ READWRITE_IMPL(NSString *, name, Name);
 {
   if (service == nil) {
     // hold on to type until we publish
+    RELEASE_TO_NIL(type_);
     type_ = [type retain];
   }
 }
@@ -156,6 +158,7 @@ READWRITE_IMPL(NSString *, type, Type);
 {
   if (service == nil) {
     // hold on to domain until we publish
+    RELEASE_TO_NIL(domain_);
     domain_ = [domain retain];
   }
 }
@@ -205,9 +208,7 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
   }
 
   // TODO: Allow a second optional callback function argument? That would allow for more typical async usage rather than having to add event listeners
-  RELEASE_TO_NIL(socket);
-  TiNetworkSocketTCPProxy *tcpSocketProxy = [self JSValueToNative:socketProxy];
-  socket = [tcpSocketProxy retain];
+  [self setSocketInternal:[self JSValueToNative:socketProxy]];
   if (!socket) {
     [self throwException:@"Attempt to publish service with no associated socket"
                subreason:nil
@@ -277,12 +278,10 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
 
 #pragma mark Private
 
-- (void)setSocket:(TiNetworkSocketTCPProxy *)socket_
+- (void)setSocketInternal:(TiNetworkSocketTCPProxy *)socket_
 {
-  if (socket != socket_) {
-    [socket release];
-    socket = [socket_ retain];
-  }
+  RELEASE_TO_NIL(socket);
+  socket = [socket_ retain];
 }
 
 #pragma mark Delegate methods
@@ -292,10 +291,10 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
 - (void)netService:(NSNetService *)service_ didNotPublish:(NSDictionary *)errorDict
 {
   // Fire event to notify of error publishing!
-  int code = [[errorDict valueForKey:NSNetServicesErrorCode] intValue];
+  NSNetServicesError code = [[errorDict valueForKey:NSNetServicesErrorCode] integerValue];
   NSString *message = [TiNetworkBonjourServiceProxy stringForErrorCode:code];
   NSDictionary *error = @{
-    @"code" : [NSNumber numberWithInteger:code],
+    @"code" : NUMINTEGER(code),
     @"message" : message,
     @"success" : @NO
   };
@@ -303,7 +302,7 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
   if (publishCallback != nil) {
     // Create a real Error object!
     JSValue *errorObj = [self createError:message subreason:nil location:CODELOCATION inContext:[publishCallback context]];
-    errorObj[@"code"] = code;
+    errorObj[@"code"] = NUMINTEGER(code);
     [publishCallback callWithArguments:@[ errorObj, @NO ]];
     RELEASE_TO_NIL(publishCallback);
   }
@@ -330,18 +329,18 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
 - (void)netService:(NSNetService *)service_ didNotResolve:(NSDictionary *)errorDict
 {
   // Fire event to notify of error resolving!
-  NSNetServicesError code = [errorDict valueForKey:NSNetServicesErrorCode];
+  NSNetServicesError code = [[errorDict valueForKey:NSNetServicesErrorCode] integerValue];
   NSString *message = [TiNetworkBonjourServiceProxy stringForErrorCode:code];
   [self fireEvent:@"resolve"
          withDict:@{
-           @"code" : [NSNumber numberWithInteger:code],
+           @"code" : NUMINTEGER(code),
            @"message" : message,
            @"success" : @NO
          }];
   if (resolveCallback != nil) {
     // Create a real Error object!
     JSValue *errorObj = [self createError:message subreason:nil location:CODELOCATION inContext:[resolveCallback context]];
-    errorObj[@"code"] = code;
+    errorObj[@"code"] = NUMINTEGER(code);
     [resolveCallback callWithArguments:@[ errorObj, @NO ]];
     RELEASE_TO_NIL(resolveCallback);
   }
@@ -355,13 +354,13 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
   while (addressData = [addressEnum nextObject]) {
     const struct sockaddr *address = [addressData bytes];
     if (address->sa_family == AF_INET) {
-      [self setSocket:[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:pageContext
-                                                                       args:@[
-                                                                         @{
-                                                                           @"port" : NUMINTEGER([service port]),
-                                                                           @"host" : [service hostName]
-                                                                         }
-                                                                       ]]];
+      [self setSocketInternal:[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:pageContext
+                                                                               args:@[
+                                                                                 @{
+                                                                                   @"port" : NUMINTEGER([service port]),
+                                                                                   @"host" : [service hostName]
+                                                                                 }
+                                                                               ]]];
       // Fire event to notify of success resolving!
       [self fireEvent:@"resolve"
              withDict:@{
