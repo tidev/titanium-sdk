@@ -639,15 +639,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#ifdef USE_TI_MEDIAREQUESTAUDIOPERMISSIONS
-- (void)requestAudioPermissions:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"6.1.0", @"Media.requestAudioRecorderPermissions");
-  [self requestAudioRecorderPermissions:args];
-}
-#endif
-
-#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUDIOPERMISSIONS)
+#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS)
 - (void)requestAudioRecorderPermissions:(id)args
 {
   ENSURE_SINGLE_ARG(args, KrollCallback);
