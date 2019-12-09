@@ -248,18 +248,6 @@ static NSArray *contactKeysWithoutImage;
   [[TiApp app] showModalController:contactPicker animated:animated];
 }
 
-- (TiContactsPerson *)getPersonByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getPersonByID\" method has been removed for iOS 9 and greater.");
-  return nil;
-}
-
-- (TiContactsGroup *)getGroupByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getGroupByID\" method has been removed for iOS 9 and greater.");
-  return nil;
-}
-
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg
 {
   if (![NSThread isMainThread]) {
