@@ -109,23 +109,24 @@
       }
     }];
   } else {
-    TiThreadPerformOnMainThread(^{
-      if (args == nil || [args count] == 0) {
-        [[UIApplication sharedApplication] cancelAllLocalNotifications];
-        return;
-      }
-
-      for (UILocalNotification *scheduledNotification in UIApplication.sharedApplication.scheduledLocalNotifications) {
-        for (id notification in args) {
-          ENSURE_TYPE(notification, NSDictionary);
-
-          if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]]) {
-            [UIApplication.sharedApplication cancelLocalNotification:scheduledNotification];
-            break;
+    TiThreadPerformOnMainThread(
+        ^{
+          if (args == nil || [args count] == 0) {
+            [[UIApplication sharedApplication] cancelAllLocalNotifications];
+            return;
           }
-        }
-      }
-    },
+
+          for (UILocalNotification *scheduledNotification in UIApplication.sharedApplication.scheduledLocalNotifications) {
+            for (id notification in args) {
+              ENSURE_TYPE(notification, NSDictionary);
+
+              if ([notification[@"userInfo"][@"id"] isEqual:scheduledNotification.userInfo[@"id"]]) {
+                [UIApplication.sharedApplication cancelLocalNotification:scheduledNotification];
+                break;
+              }
+            }
+          }
+        },
         NO);
   }
 }
@@ -178,11 +179,11 @@
         @"carPlaySetting" : @([settings carPlaySetting]),
         @"alertStyle" : @([settings alertStyle])
       } mutableCopy];
-#if IS_SDK_IOS_11
+
       if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
         propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
       }
-#endif
+
 #if IS_SDK_IOS_12
       if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
         propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
