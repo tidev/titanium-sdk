@@ -69,6 +69,7 @@ methods:
   - name: requestEventsAuthorization
     deprecated:
         since: "5.1.0"
+        removed: "8.1.0"
         notes: Use [Titanium.Calendar.requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
     summary: If authorization is unknown, the system will bring up a dialog requesting permission.
     description: |
