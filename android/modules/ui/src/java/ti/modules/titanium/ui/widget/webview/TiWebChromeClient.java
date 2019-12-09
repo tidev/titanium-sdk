@@ -100,6 +100,16 @@ public class TiWebChromeClient extends WebChromeClient
 		return true;
 	}
 
+	public void onProgressChanged(WebView view, int progress)
+	{
+		WebViewProxy proxy = (WebViewProxy) tiWebView.getProxy();
+		if (proxy != null) {
+			KrollDict data = new KrollDict();
+			data.put("progress", progress);
+			proxy.fireEvent("progress", data);
+		}
+	}
+
 	// This exposes onCreateWindow to JS with a similar API to Android:
 	// If the end-developer sets the 'onCreateWindow' property of the WebViewProxy
 	// to a callback function, then it gets executed when a new window is created
