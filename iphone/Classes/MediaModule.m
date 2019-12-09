@@ -592,13 +592,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if defined(USE_TI_MEDIACAMERAAUTHORIZATION) || defined(USE_TI_MEDIACAMERAAUTHORIZATIONSTATUS)
-- (NSNumber *)cameraAuthorizationStatus
-{
-  DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
-  return [self cameraAuthorization];
-}
-
+#if defined(USE_TI_MEDIACAMERAAUTHORIZATION)
 - (NSNumber *)cameraAuthorization
 {
   return NUMINTEGER([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]);
