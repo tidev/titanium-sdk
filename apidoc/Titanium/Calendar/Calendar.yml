@@ -328,7 +328,7 @@ properties:
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
-        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [calendarAuthorization](Titanium.Calendar.calendarAuthorization) value
         indicating that the application is authorized to use events in the Calendar.
     description: |
         This value is always returned if the device is running an iOS release prior to 6.0.
@@ -338,7 +338,7 @@ properties:
 
   - name: AUTHORIZATION_DENIED
     summary: |
-        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [calendarAuthorization](Titanium.Calendar.calendarAuthorization) value
         indicating that the application is not authorized to use events in the Calendar.
     type: Number
     permission: read-only
@@ -346,7 +346,7 @@ properties:
 
   - name: AUTHORIZATION_RESTRICTED
     summary: |
-        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [calendarAuthorization](Titanium.Calendar.calendarAuthorization) value
         indicating that the application is not authorized to use events in the Calendar.
         the user cannot change this application's status.
     type: Number
@@ -355,7 +355,7 @@ properties:
 
   - name: AUTHORIZATION_UNKNOWN
     summary: |
-        An [eventsAuthorization](Titanium.Calendar.eventsAuthorization) value
+        An [calendarAuthorization](Titanium.Calendar.calendarAuthorization) value
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
@@ -730,6 +730,7 @@ properties:
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
     deprecated:
         since: "5.2.0"
+        removed: "8.1.0"
         notes: Use [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
