@@ -94,6 +94,7 @@ events:
         constants: Titanium.Media.Sound.STATE_*
       - name: description
         summary: Text description of the state of playback.
+        type: String
 
   - name: complete
     summary: Fired when the audio has finished playing.
