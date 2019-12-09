@@ -438,8 +438,9 @@ methods:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.1.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Media.requestAudioRecorderPermissions](Titanium.Media.requestAudioRecorderPermissions) instead.
-    since: 5.1.0
+    since: "5.1.0"
     parameters:
       - name: callback
         summary: Callback function to execute when the users responds to the authorization alert.
