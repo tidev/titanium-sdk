@@ -147,14 +147,6 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public void requestAuthorization(KrollFunction function)
-	{
-		KrollDict dict = new KrollDict();
-		dict.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-		function.callAsync(getKrollObject(), dict);
-	}
-
-	@Kroll.method
 	public void showContacts(@Kroll.argument(optional = true) KrollDict d)
 	{
 		if (TiApplication.getInstance() == null) {
