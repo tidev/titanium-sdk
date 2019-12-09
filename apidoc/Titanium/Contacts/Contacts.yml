@@ -95,6 +95,7 @@ methods:
         type: Number
     deprecated:
         since: "5.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Contacts.getGroupByIdentifier](Titanium.Contacts.getGroupByIdentifier) instead.
 
   - name: getGroupByIdentifier
@@ -130,6 +131,7 @@ methods:
         type: Number
     deprecated:
         since: "5.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Contacts.getPersonByIdentifier](Titanium.Contacts.getPersonByIdentifier) instead.
         
   - name: getPersonByIdentifier
