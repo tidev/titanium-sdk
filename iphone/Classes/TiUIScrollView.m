@@ -367,11 +367,7 @@
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     refreshControl = [args retain];
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[self scrollView] setRefreshControl:refreshControl.control];
-    } else {
-      [[self scrollView] addSubview:refreshControl.control];
-    }
+    [[self scrollView] setRefreshControl:refreshControl.control];
   }
 #endif
 }

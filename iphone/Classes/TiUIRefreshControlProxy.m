@@ -80,10 +80,6 @@
 - (void)beginRefreshing:(id)unused
 {
   TiThreadPerformOnMainThread(^{
-    // For iOS < 10, the refresh-control is added as a sub-view and needs to adjust its content offset.
-    if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [(UIScrollView *)[[self control] superview] setContentOffset:CGPointMake(0, -([[self control] frame].size.height)) animated:YES];
-    }
     [[self control] beginRefreshing];
     [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
   },

@@ -441,18 +441,12 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINTEGER(UIBlurEffectStyleRegular);
-  }
-  return [NSNull null];
+  return NUMINTEGER(UIBlurEffectStyleRegular);
 }
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINTEGER(UIBlurEffectStyleProminent);
-  }
-  return [NSNull null];
+  return NUMINTEGER(UIBlurEffectStyleProminent);
 }
 
 #if IS_SDK_IOS_13

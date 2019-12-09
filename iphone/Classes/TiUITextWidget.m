@@ -153,12 +153,6 @@
 - (void)setAutofillType_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
-
-  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    NSLog(@"[ERROR] The 'autofillHint' property is only available on iOS 10 and later.");
-    return;
-  }
-
   [[self textWidgetView] setTextContentType:[TiUtils stringValue:value]];
 }
 
