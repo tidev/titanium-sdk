@@ -1439,9 +1439,8 @@ public class TiC
 
 	/**
 	 * @module.api
-	 * @deprecated Value will be changed to "countryCode" in SDK 9.0.0
 	 */
-	public static final String PROPERTY_COUNTRY_CODE = "country_code";
+	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
 
 	/**
 	 * @module.api

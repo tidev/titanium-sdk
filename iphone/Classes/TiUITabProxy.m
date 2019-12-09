@@ -269,9 +269,8 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
-#if IS_SDK_IOS_11
   [window processForSafeArea];
-#endif
+
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -404,9 +403,8 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
-#endif
+
   if (theWindow == rootWindow) {
     //This is probably too late for the root view controller.
     //Figure out how to call open before this callback
@@ -766,7 +764,6 @@
 
 @synthesize parentOrientationController;
 
-#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   if (rootWindow == nil) {
@@ -783,7 +780,7 @@
   }
   return NO;
 }
-#endif
+
 - (BOOL)hidesStatusBar
 {
   if (rootWindow == nil) {
