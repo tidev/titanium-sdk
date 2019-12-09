@@ -17,6 +17,7 @@ const V8_PROPS = ANDROID_PROPS.v8;
  * @returns {Promise<void>}
  */
 async function build() {
+	const SNAPSHOT_URL = 'http://v8-snapshot.appcelerator.com';
 	const v8 = V8_PROPS.version;
 	const script = (await fs.readFile(path.join(TMP_DIR, 'common', 'android', 'ti.main.js'))).toString();
 
@@ -25,12 +26,12 @@ async function build() {
 		console.log('Attempting to request snapshot...');
 
 		// Obtain snapshot `id` and start new snapshot generation.
-		const id = await request.post('http://52.10.192.87', { body: { v8, script }, json: true });
+		const id = await request.post(SNAPSHOT_URL, { body: { v8, script }, json: true });
 
 		async function getSnapshot() {
 
 			// Request generated snapshot.
-			const header = await request.get(`http://52.10.192.87/snapshot/${id}`, {
+			const header = await request.get(`${SNAPSHOT_URL}/snapshot/${id}`, {
 				simple: false,
 				resolveWithFullResponse: true
 			});
@@ -44,7 +45,7 @@ async function build() {
 				// Done. Resolve `build` promise.
 				resolve();
 
-			} else if (header.statusCode === 418) {
+			} else if (header.statusCode === 202) {
 				console.log('Waiting for snapshot generation...');
 
 				// Snapshot server is still building, wait for next interval.
