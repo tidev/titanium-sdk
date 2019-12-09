@@ -235,6 +235,7 @@ methods:
   - name: requestAuthorization
     deprecated:
         since: "5.1.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Contacts.requestContactsPermissions](Titanium.Contacts.requestContactsPermissions) instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
@@ -242,7 +243,7 @@ methods:
         Note that the callback may be synchronous or asynchronous. That is, it may be called
         during requestAuthorization or much later. See the "Request access to the address book"
         example on how to best use this method. 
-    since: 2.1.3
+    since: "2.1.3"
     parameters:
       - name: callback
         summary: Callback function to execute when when authorization is no longer unknown.
