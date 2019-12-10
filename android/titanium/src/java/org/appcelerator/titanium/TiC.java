@@ -1439,9 +1439,8 @@ public class TiC
 
 	/**
 	 * @module.api
-	 * @deprecated Value will be changed to "countryCode" in SDK 9.0.0
 	 */
-	public static final String PROPERTY_COUNTRY_CODE = "country_code";
+	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
 
 	/**
 	 * @module.api
@@ -2438,11 +2437,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_STOP = "onStop";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ON_STOP_BLACKLISTED_URL = "onStopBlacklistedUrl"; // Deprecated in 6.1.0
 
 	/**
 	 * @module.api

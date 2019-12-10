@@ -124,9 +124,6 @@ class Android {
 		// Copy android/modules/*/lib/*.jar
 		await this.copyModuleLibraries(path.join(ANDROID_ROOT, 'modules'), ANDROID_DEST);
 
-		// Discard local changes on the generated V8Snapshots.h
-		await git.discardLocalChange(ANDROID_ROOT, 'runtime/v8/src/native/V8Snapshots.h');
-
 		// Copy over module resources
 		const filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium-(.+)?.(jar|res.zip|respackage))?$'); // eslint-disable-line security/detect-non-literal-regexp
 		return fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: src => filterRegExp.test(src) });

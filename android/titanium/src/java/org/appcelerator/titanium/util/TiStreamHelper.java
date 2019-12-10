@@ -238,20 +238,18 @@ public class TiStreamHelper
 			public void run()
 			{
 				int bytesRead = -1;
-				int errorState = 0;
-				String errorDescription = "";
+				int code = 0;
+				String error = "";
 
 				try {
 					bytesRead = sourceStream.readSync(buffer, offset, length);
 
 				} catch (IOException e) {
-					e.printStackTrace();
-					errorState = 1;
-					errorDescription = e.getMessage();
+					code = 1;
+					error = e.getMessage();
 				}
 
-				resultsCallback.callAsync(krollObject,
-										  buildRWCallbackArgs(sourceStream, bytesRead, errorState, errorDescription));
+				resultsCallback.callAsync(krollObject, buildRWCallbackArgs(sourceStream, bytesRead, code, error));
 			}
 		})
 			.start();
@@ -279,34 +277,29 @@ public class TiStreamHelper
 			public void run()
 			{
 				int bytesWritten = -1;
-				int errorState = 0;
-				String errorDescription = "";
+				int code = 0;
+				String error = "";
 
 				try {
 					bytesWritten = outputStream.writeSync(buffer, offset, length);
 
 				} catch (IOException e) {
-					e.printStackTrace();
-					errorState = 1;
-					errorDescription = e.getMessage();
+					code = 1;
+					error = e.getMessage();
 				}
 
-				resultsCallback.callAsync(
-					krollObject, buildRWCallbackArgs(outputStream, bytesWritten, errorState, errorDescription));
+				resultsCallback.callAsync(krollObject, buildRWCallbackArgs(outputStream, bytesWritten, code, error));
 			}
 		})
 			.start();
 	}
 
-	public static KrollDict buildRWCallbackArgs(TiStream sourceStream, int bytesProcessed, int errorState,
-												String errorDescription)
+	public static KrollDict buildRWCallbackArgs(TiStream sourceStream, int bytesProcessed, int code, String error)
 	{
 		KrollDict callbackArgs = new KrollDict();
 		callbackArgs.put("source", sourceStream);
 		callbackArgs.put("bytesProcessed", bytesProcessed);
-		callbackArgs.put("errorState", errorState);
-		callbackArgs.put("errorDescription", errorDescription);
-		callbackArgs.putCodeAndMessage(errorState, errorDescription);
+		callbackArgs.putCodeAndMessage(code, error);
 
 		return callbackArgs;
 	}
