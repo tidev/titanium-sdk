@@ -69,6 +69,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.TextArea.keyboardAppearance](Titanium.UI.TextArea.keyboardAppearance) instead.
 
   - name: keyboardAppearance
