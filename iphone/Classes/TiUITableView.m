@@ -2390,7 +2390,6 @@
 
 - (void)viewGetFocus
 {
-#if IS_SDK_IOS_11
   if (isSearchBarInNavigation) {
     id proxy = [(TiViewProxy *)self.proxy parent];
     while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
@@ -2406,7 +2405,6 @@
       controller.navigationItem.searchController = searchController;
     }
   }
-#endif
   if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
     searchController.searchBar.text = self.searchedString;

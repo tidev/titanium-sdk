@@ -219,6 +219,7 @@ methods:
   - name: createTCPSocket
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Network.Socket.createTCP](Titanium.Network.Socket.createTCP) instead.
     summary: |
         Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
@@ -524,6 +525,7 @@ properties:
   - name: READ_MODE
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
@@ -537,6 +539,7 @@ properties:
   - name: READ_WRITE_MODE
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
@@ -550,6 +553,7 @@ properties:
   - name: SOCKET_CLOSED
     deprecated:
         since: "1.7.0"
+        removed: "1.8.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
@@ -563,6 +567,7 @@ properties:
   - name: SOCKET_CONNECTED
     deprecated:
         since: "1.7.0"
+        removed: "1.8.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
@@ -576,6 +581,7 @@ properties:
   - name: SOCKET_ERROR
     deprecated:
         since: "1.7.0"
+        removed: "1.8.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
@@ -589,6 +595,7 @@ properties:
   - name: SOCKET_INITIALIZED
     deprecated:
         since: "1.7.0"
+        removed: "1.8.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
@@ -602,6 +609,7 @@ properties:
   - name: SOCKET_LISTENING
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
@@ -615,6 +623,7 @@ properties:
   - name: WRITE_MODE
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
             Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
