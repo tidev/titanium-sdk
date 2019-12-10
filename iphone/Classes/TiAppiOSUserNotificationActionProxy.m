@@ -71,28 +71,6 @@
   return _notificationAction;
 }
 
-#pragma mark Public API's
-
-- (void)setActivationMode:(id)value
-{
-  DebugLog(@"[WARN] This property is not available in iOS 10+.");
-}
-
-- (void)setBehavior:(id)value
-{
-  DebugLog(@"[WARN] This property is not available in iOS 10+.");
-}
-
-- (void)setDestructive:(id)value
-{
-  DebugLog(@"[WARN] This property is not available in iOS 10+.");
-}
-
-- (void)setAuthenticationRequired:(id)value
-{
-  DebugLog(@"[WARN] This property is not available in iOS 10+.");
-}
-
 @end
 
 #endif
