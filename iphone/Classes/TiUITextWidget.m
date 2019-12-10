@@ -183,16 +183,6 @@
 
 #pragma mark Responder methods
 
-- (void)setAppearance_:(id)value
-{
-  NSString *className = [NSStringFromClass([self class]) substringFromIndex:4];
-  NSString *deprecatedApi = [NSString stringWithFormat:@"UI.%@%@", className, @".appearance"];
-  NSString *newApi = [NSString stringWithFormat:@"UI.%@%@", className, @".keyboardAppearance"];
-
-  DEPRECATED_REPLACED(deprecatedApi, @"5.2.0", newApi);
-  [self setKeyboardAppearance_:value];
-}
-
 - (void)setKeyboardAppearance_:(id)value
 {
   [[self textWidgetView] setKeyboardAppearance:[TiUtils intValue:value]];
