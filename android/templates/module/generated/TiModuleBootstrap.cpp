@@ -6,11 +6,6 @@
  *
  * Warning: This file is GENERATED, and should not be modified
  */
-#include <jni.h>
-#include <v8.h>
-
-#include <AndroidUtil.h>
-#include <JNIUtil.h>
 #include <JSException.h>
 #include <KrollBindings.h>
 #include <V8Util.h>
@@ -35,6 +30,14 @@ static void TiModule_getBinding(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
+	Local<Context> context = isolate->GetCurrentContext();
+	MaybeLocal<String> maybeBinding = args[0]->ToString(context);
+	if (maybeBinding.IsEmpty()) {
+		titanium::JSException::Error(isolate, "${moduleId} TiModule_getBinding requires 1 argument: binding. Received argument that could not be converted to a String");
+		args.GetReturnValue().Set(scope.Escape(Undefined(isolate)));
+		return;
+	}
+
 	Local<Object> cache;
 	if (bindingCache.IsEmpty()) {
 		cache = Object::New(isolate);
@@ -42,12 +45,13 @@ static void TiModule_getBinding(const FunctionCallbackInfo<Value>& args)
 	} else {
 		cache = bindingCache.Get(isolate);
 	}
-
-	Local<String> binding = args[0]->ToString(isolate);
-
-	if (cache->Has(binding)) {
-		args.GetReturnValue().Set(scope.Escape(cache->Get(binding)));
-		return;
+	Local<String> binding = maybeBinding.ToLocalChecked();
+	if (cache->Has(context, binding).FromMaybe(false)) {
+		MaybeLocal<Value> maybeCachedValue = cache->Get(context, binding);
+		if (!maybeCachedValue.IsEmpty()) {
+			args.GetReturnValue().Set(scope.Escape(maybeCachedValue.ToLocalChecked()));
+			return;
+		}
 	}
 
 	v8::String::Utf8Value bindingValue(isolate, binding);
@@ -63,8 +67,8 @@ static void TiModule_getBinding(const FunctionCallbackInfo<Value>& args)
 	}
 
 	Local<Object> exports = Object::New(isolate);
-	extBinding->bind(exports, isolate->GetCurrentContext());
-	cache->Set(binding, exports);
+	extBinding->bind(exports, context);
+	cache->Set(context, binding, exports);
 
 	args.GetReturnValue().Set(scope.Escape(exports));
 	return;
@@ -76,15 +80,19 @@ static void TiModule_init(Local<Object> exports, Local<Context> context)
 	HandleScope scope(isolate);
 
 	for (int i = 0; titanium::natives[i].name; ++i) {
-		Local<String> name = String::NewFromUtf8(isolate, titanium::natives[i].name);
+		MaybeLocal<String> maybeName = String::NewFromUtf8(isolate, titanium::natives[i].name, v8::NewStringType::kNormal);
+		if (maybeName.IsEmpty()) {
+			LOGE(TAG, "Couldn't generate JS String for binding name: %s, skipping setting value", *titanium::natives[i].name);
+			continue;
+		}
+
 		Local<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(isolate,
 			titanium::natives[i].source, titanium::natives[i].source_length);
-
-		exports->Set(name, source);
+		exports->Set(context, maybeName.ToLocalChecked(), source);
 	}
 
 	Local<FunctionTemplate> constructor = FunctionTemplate::New(isolate, TiModule_getBinding);
-	exports->Set(String::NewFromUtf8(isolate, "getBinding"), constructor->GetFunction(context).ToLocalChecked());
+	exports->Set(context, String::NewFromUtf8(isolate, "getBinding", v8::NewStringType::kNormal).ToLocalChecked(), constructor->GetFunction(context).ToLocalChecked());
 }
 
 static void TiModule_dispose(Isolate* isolate)
@@ -94,11 +102,22 @@ static void TiModule_dispose(Isolate* isolate)
 		return;
 	}
 
-	Local<Array> propertyNames = bindingCache.Get(isolate)->GetPropertyNames();
-	uint32_t length = propertyNames->Length();
+	Local<Object> cache = bindingCache.Get(isolate);
+	Local<Context> context = isolate->GetCurrentContext();
+	MaybeLocal<Array> maybePropertyNames = cache->GetPropertyNames(context);
+	if (maybePropertyNames.IsEmpty()) {
+		return;
+	}
 
+	Local<Array> propertyNames = maybePropertyNames.ToLocalChecked();
+	uint32_t length = propertyNames->Length();
 	for (uint32_t i = 0; i < length; ++i) {
-		v8::String::Utf8Value binding(isolate, propertyNames->Get(i));
+		MaybeLocal<Value> maybePropertyName = propertyNames->Get(context, i);
+		if (maybePropertyName.IsEmpty()) {
+			continue;
+		}
+
+		v8::String::Utf8Value binding(isolate, maybePropertyName.ToLocalChecked());
 		int bindingLength = binding.length();
 
 		titanium::bindings::BindEntry *extBinding =

@@ -2701,23 +2701,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	const tasks = [
 		// First copy all of the Titanium SDK's core JS files shared by all platforms.
 		function (cb) {
-			// Check if a snapshot has been generated.
-			fs.stat(path.join(this.platformPath, 'native', 'include', 'V8Snapshots.h'), (error, stat) => {
-				// 'V8Snapshot.h' will always exists, check size to determin if a snapshot was generated.
-				if (error || stat.size <= 64) {
-					const src = path.join(this.titaniumSdkPath, 'common', 'Resources', 'android');
-					warnDupeDrawableFolders.call(this, src);
-					_t.logger.debug(__('Copying %s', src.cyan));
-					copyDir.call(this, {
-						src: src,
-						dest: this.buildAppMainAssetsResourcesDir,
-						ignoreRootDirs: ti.allPlatformNames
-					}, cb);
-					return;
-				}
-				// Do not copy 'common' bundle over, as it is included in our snapshot.
-				return cb();
-			});
+			const src = path.join(this.titaniumSdkPath, 'common', 'Resources', 'android');
+			warnDupeDrawableFolders.call(this, src);
+			_t.logger.debug(__('Copying %s', src.cyan));
+			copyDir.call(this, {
+				src: src,
+				dest: this.buildAppMainAssetsResourcesDir,
+				ignoreRootDirs: ti.allPlatformNames
+			}, cb);
 		},
 
 		// Next, copy all files in the project's Resources directory,

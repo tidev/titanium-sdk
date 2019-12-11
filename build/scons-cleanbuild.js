@@ -9,8 +9,9 @@ program
 	.option('-s, --android-sdk [path]', 'Explicitly set the path to the Android SDK used for building')
 	.option('-n, --android-ndk [path]', 'Explicitly set the path to the Android NDK used for building')
 	.option('--no-docs', 'Do not produce docs')
+	.option('--symlink', 'If possible, symlink the SDK folder to destination rather than copying')
 	.option('-a, --all', 'Build a zipfile for every OS')
-	// .option('-s, --skip-zip', 'Do not zip up the package') // does this option make sense?
+	.option('-z, --skip-zip', 'Do not zip up the package, leaving folder contents under dist (typically used for local development)')
 	.parse(process.argv);
 
 async function main(program) {

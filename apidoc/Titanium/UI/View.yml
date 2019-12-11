@@ -823,6 +823,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     summary: |
         Finishes a batch update of the View's layout properties and schedules a layout pass of the
@@ -922,6 +923,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
 
   - name: toImage
@@ -972,6 +974,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     parameters:
       - name: params
@@ -1418,6 +1421,15 @@ properties:
     type: Dictionary
     platforms: [iphone, ipad]
     since: 7.3.0
+
+  - name: id
+    summary: View's identifier.
+    description: |
+        The `id` property of the Ti.UI.View represents the view's identifier. The identifier string does
+        not have to be unique. You can use this property with <Titanium.UI.View.getViewById> method.
+    type: String
+    accessors: false
+    optional: true
 
   - name: left
     summary: View's left position, in platform-specific units.
@@ -2017,6 +2029,7 @@ properties:
     summary: Determines whether to enable a circular reveal animation.
     type: Boolean
     default: false
+    optional: true
     osver: {android: {min: 5.0}}
 
 ---

@@ -63,7 +63,6 @@
       [event setObject:stream forKey:@"source"];
     }
     [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
-    [event setObject:errorStr forKey:@"errorDescription"];
     [self _fireEventToListener:@"io" withObject:event listener:callback thisObject:nil];
     return;
   }
