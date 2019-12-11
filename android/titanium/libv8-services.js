@@ -11,12 +11,10 @@ const AndroidBuilder = require('../../build/lib/android');
 const Builder = require('../../build/lib/builder');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const execFile = util.promisify(require('child_process').execFile); // eslint-disable-line security/detect-child-process
 const crypto = require('crypto');
-const ejsRenderFile = util.promisify(require('ejs').renderFile);
 const fs = require('fs-extra');
 const path = require('path');
-const request = require('request');
+const request = require('request-promise-native');
 
 // Determine if we're running on a Windows machine.
 const isWindows = (process.platform === 'win32');
@@ -84,104 +82,86 @@ async function createSnapshot() {
 	const mainBuilder = new Builder({ args: [ 'android' ] });
 	const androidBuilder = new AndroidBuilder({});
 	await mainBuilder.transpile('android', androidBuilder.babelOptions, rollupOutputFilePath);
+	const rollupFileContent = (await fs.readFile(rollupOutputFilePath)).toString();
 
-	// Create the C++ directory we'll be generating snapshot header file to.
+	// Create the C++ directory we'll be generating the snapshot header file to.
 	const cppOutputDirPath = path.join(__dirname, '..', 'runtime', 'v8', 'generated');
 	const v8SnapshotHeaderFilePath = path.join(cppOutputDirPath, 'V8Snapshots.h');
 	await fs.ensureDir(cppOutputDirPath);
 
-	// We can only create a V8 snapshot on Mac. For all other platforms, generate an empty snapshot file.
-	// Note: This is because we've only built the "mksnapshot" command line tool for Mac.
-	if (process.platform !== 'darwin') {
-		console.info('V8 snapshot generation is only supported on macOS, skipping...');
-		await fs.writeFile(v8SnapshotHeaderFilePath, '// V8 snapshots only supported on macOS.');
-		return;
+	// Requests our server to create snapshot of rolled-up "ti.main" in a C++ header file.
+	async function requestSnapshotFromServer() {
+		// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
+		// We will send an HTTP request for the snapshot code later.
+		console.log('Attempting to request snapshot...');
+		const snapshotUrl = 'http://v8-snapshot.appcelerator.com';
+		const packageJsonData = await loadPackageJson();
+		const requestOptions = {
+			body: {
+				v8: packageJsonData.v8.version,
+				script: rollupFileContent
+			},
+			json: true
+		};
+		const snapshotId = await request.post(snapshotUrl, requestOptions);
+
+		// Below function is used to obtain generated C++ header containing V8 snapshot.
+		let wasSuccessful = false;
+		let shouldGiveUp = false;
+		async function getSnapshot() {
+			// Request generated snapshot from server, if done.
+			const httpResponse = await request.get(`${snapshotUrl}/snapshot/${snapshotId}`, {
+				simple: false,
+				resolveWithFullResponse: true
+			});
+			if (httpResponse.statusCode === 200) {
+				// Server has finished creating a C++ header file containing all V8 snapshots.
+				// Write it to file and flag that we're done.
+				console.log('Writing snapshot...');
+				await fs.writeFile(v8SnapshotHeaderFilePath, httpResponse.body);
+				wasSuccessful = true;
+			} else if (httpResponse.statusCode === 202) {
+				// Snapshot server is still building. We need to retry later.
+				console.log('Waiting for snapshot generation...');
+			} else {
+				// Give up if received an unexpected response.
+				console.error('Could not generate snapshot, skipping...');
+				shouldGiveUp = true;
+			}
+		}
+
+		// Request snapshot from server multiple times until done or max retries has exceeded.
+		const MAX_ATTEMPTS = 10;
+		let attemptCount;
+		for (attemptCount = 1; attemptCount <= MAX_ATTEMPTS; attemptCount++) {
+			await getSnapshot();
+			if (wasSuccessful || shouldGiveUp) {
+				break;
+			}
+			await new Promise(resolve => setTimeout(resolve, 5000));
+		}
+		if (attemptCount > MAX_ATTEMPTS) {
+			console.error('Max retries exceeded fetching snapshot from server, skipping...');
+		}
+		return wasSuccessful;
 	}
 
-	// Make sure Titanium's V8 library has been downloaded/installed.
-	// We need its "mksnapshot" command line tool.
-	await updateLibrary();
-
-	// Fetch info about the V8 library we're using.
-	const packageJsonData = await loadPackageJson();
-	const v8LibsDirPath = path.join(
-		__dirname, '..', '..', 'dist', 'android', 'libv8', packageJsonData.v8.version, packageJsonData.v8.mode, 'libs');
-
-	// Obtain CPU architectures we need to generate snapshots for.
-	const targetArchitectures = [];
-	for (const nextArchitecture of packageJsonData.architectures) {
-		if (nextArchitecture === 'arm64-v8a') {
-			targetArchitectures.push('arm64');
-		} else if (nextArchitecture === 'armeabi-v7a') {
-			targetArchitectures.push('arm');
+	// Attempt to generate the "V8Snapshot.h" header file from our server.
+	let wasSuccessful = false;
+	try {
+		wasSuccessful = await requestSnapshotFromServer();
+	} catch (err) {
+		if (err) {
+			console.error('Failed to generate snapshot. Reason:');
+			console.error(err);
 		} else {
-			targetArchitectures.push(nextArchitecture);
+			console.error('Failed to generate snapshot. Reason: Unknown');
 		}
 	}
 
-	// Generate a "startup.js" file wrapping the rolled-up "ti.main" script within a JS function.
-	const rollupFileContent = await fs.readFile(rollupOutputFilePath);
-	const startupEjsFilePath = path.join(__dirname, '..', 'runtime', 'v8', 'tools', 'startup.js.ejs');
-	const outputContent = await ejsRenderFile(startupEjsFilePath, { script: rollupFileContent }, {});
-	const jsOutputDirPath = path.join(__dirname, 'build', 'ti-intermediates', 'js');
-	const startupOutputFilePath = path.join(jsOutputDirPath, 'startup.js');
-	await fs.ensureDir(jsOutputDirPath);
-	await fs.writeFile(startupOutputFilePath, outputContent);
-
-	// Generates a "blob.bin" snapshot binary file of our "ti.main.js" for the given "target" architecture.
-	// Note: Google's "mksnapshot" command line tool does not support double quoted paths for arguments.
-	//       This means spaces are not supported in paths. So, use relative paths to avoid this limitation.
-	async function generateSnapshotBlob(target) {
-		console.log(`Generating snapshot blob for ${target}...`);
-		const targetDirPath = path.resolve(v8LibsDirPath, target);
-		const makeSnapshotFilePath = path.join(targetDirPath, 'mksnapshot');
-		const argsArray = [
-			'--startup_blob=blob.bin',
-			path.relative(targetDirPath, startupOutputFilePath),
-			'--print-all-exceptions'
-		];
-		await fs.chmod(makeSnapshotFilePath, 0o755);
-		await execFile(makeSnapshotFilePath, argsArray, { cwd: targetDirPath });
-	}
-
-	// Generate a C++ header file containing byte arrays of V8 snapshots for the above "startup.js".
-	let wasSuccessful = false;
-	try {
-		// Generate a snapshot for each architecture and fetch its binary/blob.
-		const blobs = {};
-		await Promise.all(targetArchitectures.map(target => generateSnapshotBlob(target)));
-		await Promise.all(targetArchitectures.map(async target => {
-			const blobFilePath = path.join(path.resolve(v8LibsDirPath, target), 'blob.bin');
-			if (!await fs.exists(blobFilePath)) {
-				return Promise.reject(`Failed to generate ${target} snapshot at location: ${blobFilePath}`);
-			}
-			const blobBuffer = Buffer.from(await fs.readFile(blobFilePath, 'binary'), 'binary');
-			if (!blobBuffer || (blobBuffer.length <= 0)) {
-				return Promise.reject(`The generated ${target} snapshot file is empty: ${blobFilePath}`);
-			}
-			blobs[target] = blobBuffer;
-		}));
-
-		// Generate a C++ header file containing byte arrays of all snapshots made above.
-		console.log(`Generating V8Snapshots.h for ${Object.keys(blobs).join(', ')}...`);
-		const snapshotEjsFilePath = path.join(__dirname, '..', 'runtime', 'v8', 'tools', 'V8Snapshots.h.ejs');
-		const fileContent = await ejsRenderFile(snapshotEjsFilePath, blobs, {});
-		await fs.writeFile(v8SnapshotHeaderFilePath, fileContent);
-		wasSuccessful = true;
-	} catch (err) {
-		console.error(err);
-	}
-
-	// Handle snapshot result.
-	if (wasSuccessful) {
-		// Delete rolled-up "ti.main.js" from our output directory since we've successfully created all snapshots.
-		// Prevents Titanium SDK's "app" test project from using it, which forces it to use snapshot instead.
-		await fs.unlink(rollupOutputFilePath);
-	} else {
-		// Failed to generate at least 1 snapshot. Fall-back to loading "ti.main.js" instead.
-		// Note: Can happen on macOS Catalina which doesn't support running x86 "mksnapshot" command line tool.
-		// TODO: Allow partial architecture support for snapshots. Should not be all or nothing.
-		console.error('Unable to generate all V8 snapshots. Dropping snapshot support.');
+	// Generate an empty C++ header if the above failed.
+	// Note: The C++ build will fail if file is missing. This is because it is #included in our code.
+	if (!wasSuccessful) {
 		await fs.writeFile(v8SnapshotHeaderFilePath, '// Failed to build V8 snapshots. See build log.');
 	}
 }
@@ -233,6 +213,7 @@ async function updateLibrary() {
 		const writeStream = fs.createWriteStream(installedLibV8ArchiveFilePath);
 		writeStream.on('error', reject);
 		writeStream.on('finish', resolve);
+		const request = require('request');
 		const downloadUrl = `http://timobile.appcelerator.com.s3.amazonaws.com/libv8/${v8ArchiveFileName}`;
 		const requestHandler = request({ url: downloadUrl });
 		requestHandler.on('error', reject);
