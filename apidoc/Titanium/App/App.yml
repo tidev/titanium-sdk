@@ -308,6 +308,7 @@ events:
         type: Number
         deprecated: 
           since: "9.0.0"
+          notes: Use `column` property for cross-platform parity.
         platforms: [android]
       - name: jsStack
         summary: The javascript stack trace of the exception.
@@ -315,6 +316,7 @@ events:
         since: "8.0.0"
         deprecated: 
           since: "9.0.0"
+          notes: Use `stack` property for cross-platform parity.
         platforms: [android]
       - name: javaStack
         summary: The java stack trace of the exception.
@@ -322,6 +324,7 @@ events:
         since: "8.0.0"
         deprecated: 
           since: "9.0.0"
+          notes: Use `nativeStack` property for cross-platform parity.
         platforms: [android]
       - name: stack
         summary: The javascript stack trace of the exception.
@@ -334,7 +337,7 @@ events:
       - name: column
         summary: The column offset on the line where the error occured.
         type: Number
-        since: "9.0.0"
+        since: {android: "9.0.0",  iphone: "4.1.0", ipad: "4.1.0"}
     platforms: [android, iphone, ipad]
     since: '4.1.0'
 
