@@ -74,7 +74,7 @@ class GradleWrapper {
 	 */
 	async clean(subprojectName) {
 		subprojectName = isNonEmptyString(subprojectName) ? `:${subprojectName}:` : '';
-		return this.run(`${subprojectName}clean --console plain`);
+		await this.run(`${subprojectName}clean --console plain`);
 	}
 
 	/**
@@ -85,7 +85,7 @@ class GradleWrapper {
 	 */
 	async assembleDebug(subprojectName) {
 		subprojectName = isNonEmptyString(subprojectName) ? `:${subprojectName}:` : '';
-		return this.run(`${subprojectName}assembleDebug --console plain --warning-mode all`);
+		await this.run(`${subprojectName}assembleDebug --console plain --warning-mode all`);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class GradleWrapper {
 	 */
 	async assembleRelease(subprojectName) {
 		subprojectName = isNonEmptyString(subprojectName) ? `:${subprojectName}:` : '';
-		return this.run(`${subprojectName}assembleRelease --console plain --warning-mode all`);
+		await this.run(`${subprojectName}assembleRelease --console plain --warning-mode all`);
 	}
 
 	/**
@@ -114,7 +114,7 @@ class GradleWrapper {
 	 */
 	async publish(subprojectName) {
 		subprojectName = isNonEmptyString(subprojectName) ? `:${subprojectName}:` : '';
-		return this.run(`${subprojectName}publish --console plain`);
+		await this.run(`${subprojectName}publish --console plain`);
 	}
 
 	/**
@@ -164,7 +164,7 @@ class GradleWrapper {
 		};
 
 		// Run the gradlew command line async.
-		return new Promise((resolve, reject) => {
+		await new Promise((resolve, reject) => {
 			const childProcess = exec(commandLineString, { cwd: this._gradlewDirPath });
 			if (this._logger) {
 				childProcess.stdout.on('data', createReadableDataHandlerUsing(this._logger.info));
@@ -244,7 +244,7 @@ class GradleWrapper {
 				}
 			}
 		}
-		return writeJavaPropertiesFile(path.join(destinationDirPath, 'gradle.properties'), properties);
+		await writeJavaPropertiesFile(path.join(destinationDirPath, 'gradle.properties'), properties);
 	}
 
 	/**
@@ -260,7 +260,7 @@ class GradleWrapper {
 			{ key: 'sdk.dir', value: androidSdkDirPath },
 			{ key: 'ndk.dir', value: androidNdkDirPath }
 		];
-		return writeJavaPropertiesFile(filePath, properties);
+		await writeJavaPropertiesFile(filePath, properties);
 	}
 }
 
@@ -376,7 +376,7 @@ async function writeJavaPropertiesFile(filePath, properties) {
 	}
 
 	// Create the properties files with the text lines generated above.
-	return fs.writeFile(filePath, fileLines.join('\n') + '\n');
+	await fs.writeFile(filePath, fileLines.join('\n') + '\n');
 }
 
 module.exports = GradleWrapper;

@@ -45,7 +45,7 @@ function quotePath(filePath) {
  * Can be set to 'hex', 'base64, or 'ascii', 'utf8'. Defaults to 'hex' if argument is null or undefined.
  */
 async function fetchFileHash(filePath, hashingAlgorithm, hashEncoding) {
-	return new Promise((resolve, reject) => {
+	return await new Promise((resolve, reject) => {
 		const hash = crypto.createHash(hashingAlgorithm);
 		const readStream = fs.createReadStream(filePath);
 		readStream.on('data', (data) => {
@@ -263,7 +263,7 @@ async function updateLibrary() {
 		+ ' -Pcompression=bzip2'
 		+ ' -Psrc=' + quotePath(installedLibV8ArchiveFilePath)
 		+ ' -Pdest=' + quotePath(installedLibV8DirPath);
-	return exec(untarCommandLine);
+	await exec(untarCommandLine);
 }
 
 /**

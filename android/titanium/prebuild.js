@@ -53,7 +53,7 @@ async function gperf(workingDirPath, inputFilePath, outputFilePath) {
 	if (stderr) {
 		throw new Error(`"gperf" failed to process file "${inputFilePath}". Reason: ${stderr}`);
 	}
-	return fs.writeFile(outputFilePath, stdout);
+	await fs.writeFile(outputFilePath, stdout);
 }
 
 /** Generates a "build.properties" file under "assets" providing Titanium SDK's build version and time. */
@@ -93,7 +93,7 @@ async function generateBuildProperties() {
 	const directoryPath = path.join(__dirname, 'assets', 'Resources', 'ti.internal');
 	const filePath = path.join(directoryPath, 'build.properties');
 	await fs.mkdirs(directoryPath);
-	return fs.writeFile(filePath, fileContentString);
+	await fs.writeFile(filePath, fileContentString);
 }
 
 /** Generates C/C++ source files containing internal JS files and from gperf templates. */
@@ -137,20 +137,22 @@ async function generateSourceCode() {
 
 	// Generate a "KrollJS.h" file containing all of the above fetched JS files.
 	// TODO: Replace our usage of python to make it easier to build on Windows.
-	let commandLine = 'python';
-	commandLine += ' ' + quotePath(path.join(runtimeV8DirPath, 'tools', 'js2c.py'));
-	commandLine += ' ' + quotePath(path.join(runtimeV8DirPath, 'generated', 'KrollJS.h'));
-	commandLine += ' ' + quotePath(path.join(runtimeV8DirPath, 'generated', 'bootstrap.js'));
-	for (let nextPath of filePaths) {
-		commandLine += ' ' + quotePath(nextPath);
+	const commandLineArgs = [
+		'python',
+		quotePath(path.join(runtimeV8DirPath, 'tools', 'js2c.py')),
+		quotePath(path.join(runtimeV8DirPath, 'generated', 'KrollJS.h')),
+		quotePath(path.join(runtimeV8DirPath, 'generated', 'bootstrap.js'))
+	];
+	for (const nextPath of filePaths) {
+		commandLineArgs.push(quotePath(nextPath));
 	}
-	return exec(commandLine);
+	await exec(commandLineArgs.join(' '));
 }
 
 /** Executes the pre-build step. */
 async function main() {
 	// Run the following operations in parallel.
-	return Promise.all([
+	await Promise.all([
 		// Generate a "build.properties" file providing the Titanium SDK's version and other info.
 		generateBuildProperties(),
 

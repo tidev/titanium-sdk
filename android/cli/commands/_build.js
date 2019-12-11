@@ -2745,6 +2745,32 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	];
 
+	// Fire an event requesting additional "Resources" paths from plugins.
+	tasks.push((done) => {
+		const hook = this.cli.createHook('build.android.requestResourcesDirPaths', this, (paths, done) => {
+			const newTasks = [];
+			if (Array.isArray(paths)) {
+				for (const nextPath of paths) {
+					if (typeof nextPath !== 'string') {
+						continue;
+					}
+					if (!fs.existsSync(nextPath) || !fs.statSync(nextPath).isDirectory()) {
+						continue;
+					}
+					newTasks.push((done) => {
+						_t.logger.debug(__('Copying %s', nextPath.cyan));
+						copyDir.call(this, {
+							src: nextPath,
+							dest: this.buildAppMainAssetsResourcesDir
+						}, done);
+					});
+				}
+			}
+			appc.async.series(this, newTasks, done);
+		});
+		hook([], done);
+	});
+
 	// Copy resource files from all modules.
 	for (const module of this.modules) {
 		// Create a task which copies commonjs non-asset files.
@@ -2794,7 +2820,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				_t.logger.debug(__('Copying %s', sourceResourcesDirPath.cyan));
 				copyDir.call(this, {
 					src: sourceResourcesDirPath,
-					dest: path.join(this.buildAppMainAssetsResourcesDir)
+					dest: this.buildAppMainAssetsResourcesDir
 				}, cb);
 			});
 		}
@@ -2806,7 +2832,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				_t.logger.debug(__('Copying %s', sourceResourcesAndroidDirPath.cyan));
 				copyDir.call(this, {
 					src: sourceResourcesAndroidDirPath,
-					dest: path.join(this.buildAppMainAssetsResourcesDir)
+					dest: this.buildAppMainAssetsResourcesDir
 				}, cb);
 			});
 		}
@@ -3726,6 +3752,11 @@ AndroidBuilder.prototype.writeBuildManifest = async function writeBuildManifest(
 			servicesHash: this.servicesHash
 		}, resolve);
 	});
+};
+
+AndroidBuilder.prototype.createGradleWrapper = function createGradleWrapper(directoryPath) {
+	// Creates a gradle handling object for plugins such as hyperloop.
+	return new GradleWrapper(directoryPath);
 };
 
 // create the builder instance and expose the public api

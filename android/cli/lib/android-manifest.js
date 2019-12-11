@@ -563,7 +563,7 @@ class AndroidManifest {
 		if (!fileContent) {
 			fileContent = '';
 		}
-		return Promise.resolve(AndroidManifest.fromXmlString(fileContent.toString()));
+		return AndroidManifest.fromXmlString(fileContent.toString());
 	}
 
 	/**

@@ -641,7 +641,11 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 		this.logger.error('Unable to load Android <manifest/> content from "timodule.xml" file.');
 		throw err;
 	}
-	mainManifest.setPackageName(moduleId);
+	let packageName = moduleId;
+	if (packageName.indexOf('.') < 0) {
+		packageName = `ti.${packageName}`;
+	}
+	mainManifest.setPackageName(packageName);
 	await mainManifest.writeToFilePath(path.join(moduleMainDir, 'AndroidManifest.xml'));
 
 	// Generate Java file used to provide this module's JS source code to Titanium's JS runtime.
