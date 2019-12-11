@@ -197,7 +197,8 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
-	onPropertyChangedForProxy(isolate, property->ToString(isolate), value, info.Holder());
+	Local<Context> context = isolate->GetCurrentContext();
+	onPropertyChangedForProxy(isolate, property->ToString(context).ToLocalChecked(), value, info.Holder());
 }
 
 // This variant is used when accessing a property through a getter method (i.e. setText('whatever'))
@@ -215,7 +216,8 @@ void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%s = value; or obj['%s'] = value;", *propertyKey, *propertyKey);
 
 	Local<Value> value = args[0];
-	onPropertyChangedForProxy(isolate, name->ToString(isolate), value, args.Holder());
+	Local<Context> context = isolate->GetCurrentContext();
+	onPropertyChangedForProxy(isolate, name->ToString(context).ToLocalChecked(), value, args.Holder());
 }
 
 void Proxy::getIndexedProperty(uint32_t index, const PropertyCallbackInfo<Value>& info)
