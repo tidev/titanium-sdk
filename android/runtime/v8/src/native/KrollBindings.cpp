@@ -5,15 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <dlfcn.h>
-#include <map>
 #include <cstring>
-#include <vector>
-#include <v8.h>
-#include <jni.h>
 
-#include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "JNIUtil.h"
 #include "JSException.h"
 #include "Proxy.h"
 #include "ProxyFactory.h"
@@ -58,7 +52,8 @@ void KrollBindings::initNatives(Local<Object> exports, Local<Context> context)
 	HandleScope scope(isolate);
 	for (int i = 0; natives[i].name; ++i) {
 		if (natives[i].source == kroll_native) continue;
-		Local<String> name = String::NewFromUtf8(isolate, natives[i].name);
+		// FIXME: I don't think the name/source strings should ever be "empty" here, but should we do better error handling for it? If it ever is, it'll crash like this...
+		Local<String> name = String::NewFromUtf8(isolate, natives[i].name, v8::NewStringType::kNormal).ToLocalChecked();
 		Local<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(isolate, natives[i].source, natives[i].source_length);
 		exports->Set(context, name, source);
 	}
@@ -146,6 +141,11 @@ Local<Object> KrollBindings::instantiateBinding(Isolate* isolate, bindings::Bind
 		return exports;
 	}
 
+#ifdef TI_DEBUG
+	v8::String::Utf8Value bindingValue(isolate, key);
+	LOGD(TAG, "No binding found/supplied for %s, returning empty object", *bindingValue);
+#endif
+
 	return Local<Object>();
 }
 
@@ -157,6 +157,9 @@ bindings::BindEntry* KrollBindings::getExternalBinding(const char *name, unsigne
 
 void KrollBindings::addExternalBinding(const char *name, struct bindings::BindEntry *binding)
 {
+#ifdef TI_DEBUG
+	LOGD(TAG, "Registered external (native module) binding for name %s", name);
+#endif
 	externalBindings[std::string(name)] = binding;
 }
 
@@ -203,7 +206,7 @@ Local<Object> KrollBindings::getBinding(v8::Isolate* isolate, Local<String> bind
 	}
 
 	// try native modules by lookup function
-	// This uses an array of functions we call to aks for a given binding
+	// This uses an array of functions we call to ask for a given binding
 	// Not sure why we have this *and* the external bindings in a map from name -> binding
 	for (int i = 0; i < KrollBindings::externalLookups.size(); i++) {
 		titanium::LookupFunction lookupFunction = KrollBindings::externalLookups[i];
@@ -261,7 +264,11 @@ void KrollBindings::dispose(v8::Isolate* isolate)
 		uint32_t length = propertyNames->Length();
 
 		for (uint32_t i = 0; i < length; i++) {
-			v8::String::Utf8Value binding(isolate, propertyNames->Get(context, i).ToLocalChecked()); // FIXME Handle when empty!
+			MaybeLocal<Value> propertyName = propertyNames->Get(context, i);
+			if (propertyName.IsEmpty()) {
+				continue;
+			}
+			v8::String::Utf8Value binding(isolate, propertyName.ToLocalChecked());
 			int bindingLength = binding.length();
 
 			struct titanium::bindings::BindEntry *generated = bindings::generated::lookupGeneratedInit(*binding, bindingLength);
