@@ -76,6 +76,22 @@ public class TiUIScrollView extends TiUIView
 						fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 					}
 				}
+				@Override
+				public boolean onSingleTapConfirmed(MotionEvent e)
+				{
+					if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
+						fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
+					}
+					return true;
+				}
+				@Override
+				public boolean onDoubleTap(MotionEvent e)
+				{
+					if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP)) {
+						fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
+					}
+					return true;
+				}
 			});
 			setOnTouchListener(new OnTouchListener() {
 				@Override

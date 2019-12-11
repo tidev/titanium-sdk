@@ -16,10 +16,17 @@
 + (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
 {
   NSString *exceptionName = @"org.appcelerator";
-  NSDictionary *details = @{
-    kTiExceptionSubreason : subreason,
-    kTiExceptionLocation : location
-  };
+  NSDictionary *details;
+  if (subreason != nil) {
+    details = @{
+      kTiExceptionSubreason : subreason,
+      kTiExceptionLocation : location
+    };
+  } else {
+    details = @{
+      kTiExceptionLocation : location
+    };
+  }
   NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
   JSGlobalContextRef jsContext = [context JSGlobalContextRef];
   JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
@@ -29,10 +36,17 @@
 - (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
 {
   NSString *exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];
-  NSDictionary *details = @{
-    kTiExceptionSubreason : subreason,
-    kTiExceptionLocation : location
-  };
+  NSDictionary *details;
+  if (subreason != nil) {
+    details = @{
+      kTiExceptionSubreason : subreason,
+      kTiExceptionLocation : location
+    };
+  } else {
+    details = @{
+      kTiExceptionLocation : location
+    };
+  }
   NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
   JSGlobalContextRef jsContext = [context JSGlobalContextRef];
   JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
@@ -96,6 +110,38 @@
 - (id)_initWithPageContext:(id<TiEvaluator>)context
 {
   return [self init];
+}
+
+- (id)_initWithPageContext:(id<TiEvaluator>)context_ args:(NSArray *)args
+{
+  if (self = [self _initWithPageContext:context_]) {
+    NSDictionary *a = nil;
+    NSUInteger count = [args count];
+    if (count > 0 && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+      a = [args objectAtIndex:0];
+    }
+
+    // If we're being created by an old proxy/module but we're a new-style obj-c proxy
+    // we need to handle assigning the properties object passed into the constructor
+    if (a != nil) {
+      // Get the JS object corresponding to "this" proxy
+      // Note that [JSContext currentContext] is nil, so we need to hack and get the global context
+      // TODO: Can we hack in a nice method that gets current context if available, falls back to global context?
+      // Because a lot of the code in the proxy base class assumes current context is not nil
+      KrollContext *krollContext = [context_ krollContext];
+      JSGlobalContextRef ref = krollContext.context;
+      JSValueRef jsValueRef = TiBindingTiValueFromNSObject(ref, self);
+      JSContext *context = [JSContext contextWithJSGlobalContextRef:ref];
+      JSValue *this = [JSValue valueWithJSValueRef:jsValueRef inContext:context];
+
+      // Go through the key/value pairs and set them on "this"
+      for (NSString *key in a) {
+        id value = a[key];
+        this[key] = value;
+      }
+    }
+  }
+  return self;
 }
 
 - (NSURL *)_baseURL
@@ -206,7 +252,7 @@
     // FIXME: looks like we need to handle bubble logic/etc. See other fireEvent impl
     for (JSManagedValue *storedCallback in listenersForType) {
       JSValue *function = [storedCallback value];
-      [function callWithArguments:@[ dict ]];
+      [self _fireEventToListener:name withObject:dict listener:function];
     }
   }
   @finally {

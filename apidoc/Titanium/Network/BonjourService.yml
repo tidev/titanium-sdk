@@ -11,28 +11,40 @@ description: |
     service and wish to close the socket it uses, it is strongly recommended that you stop 
     the service first.  When a window which publishes a Bonjour service is closed, you must 
     stop the service if the associated socket is also to be closed, or if it is no longer 
-    necessary to publish.  Unlike other network operations, Bonjour service resolution and 
-    publishing is synchronous, so be aware that your code may block while resolution is going 
-    on.  In particular, you may wish to display UI elements indicating background activity 
-    before beginning resolution.
+    necessary to publish.  Bonjour service resolution and publishing is asynchronous.
 extends: Titanium.Proxy
 since: "1.2.0"
 platforms: [iphone, ipad]
 methods:
   - name: publish
-    summary: Publish a Bonjour service to the network.  Only works if isLocal is TRUE
+    summary: Asynchronously publish a Bonjour service to the network.  Only works if isLocal is TRUE
     parameters:
       - name: socket
         summary: a TCPSocket object to associate with the Bonjour service.
-        type: Object
+        type: Titanium.Network.Socket.TCP
+      - name: callback
+        summary: Asynchronous callback function to receive the result of the publish operation
+        optional: true
+        type: Callback<Error, Boolean>
   - name: resolve
-    summary: Resolve a Bonjour service from the network.  Must be done before attempting to access the service's socket information, if a remote service.  You cannot resolve a locally published service.
+    summary: Asynchronously resolve a Bonjour service from the network.  Must be done before attempting to access the service's socket information, if a remote service.  You cannot resolve a locally published service.
     parameters:
       - name: timeout
         summary: the timeout for service resolution, in seconds.  Optional, default is 120s.
+        default: 120
+        optional: true
         type: Number
+      - name: callback
+        summary: Asynchronous callback function to receive the result of the resolve operation
+        optional: true
+        type: Callback<Error, Boolean>
   - name: stop
-    summary: Halts publication of a service.
+    summary: Asynchronously halts a currently running attempt to publish or resolve a service.
+    parameters:
+      - name: callback
+        summary: Asynchronous callback function to receive the result of the stop operation
+        optional: true
+        type: Callback<Error, Boolean>
 properties:
   - name: domain
     summary: the domain of the service
@@ -40,12 +52,130 @@ properties:
   - name: isLocal
     summary: whether or not the service is local to the device
     type: Boolean
+    default: true
   - name: name
     summary: the name of the service
     type: String
   - name: socket
     summary: the TCPSocket object that is used to connect to the service
-    type: Object
+    type: Titanium.Network.Socket.TCP
   - name: type
     summary: the type of the service
     type: String
+
+events:
+  - name: publish
+    summary: Fired when the service has been published (or errored).
+    properties:
+      - name: code
+        type: Number
+        summary: Error code
+      - name: error
+        type: String
+        summary: Error message
+      - name: success
+        type: Boolean
+        summary: Reports if the publish operation was successful
+      - name: source
+        type: Titanium.Network.BonjourService
+        summary: the service whose publish operation was completed/errored.
+  - name: resolve
+    summary: Fired when the service has been resolved (or errored). If successful, the [socket](Titanium.Network.BonjourService.socket) property should now be available.
+    properties:
+      - name: code
+        type: Number
+        summary: Error code
+      - name: error
+        type: String
+        summary: Error message
+      - name: success
+        type: Boolean
+        summary: Reports if the resolve operation was successful
+      - name: source
+        type: Titanium.Network.BonjourService
+        summary: the service whose resolve operation was completed/errored.
+  - name: stop
+    summary: Fired when a service's publish or resolution was stopped via <Titanium.Network.BonjourService.stop>
+    properties:
+      - name: code
+        type: Number
+        summary: Error code
+      - name: error
+        type: String
+        summary: Error message
+      - name: success
+        type: Boolean
+        summary: Reports if the stop operation was successful
+      - name: source
+        type: Titanium.Network.BonjourService
+        summary: the service whose publish or resolve operation was stopped.
+
+examples:
+  - title: Resolve local HTTP/TCP services
+    example: |
+        The following code excerpt looks for http-based TCP zeroconf services on the local network.
+        It then attempts to resolve the service, establishing a socket that can be used for communications.
+
+             // Create the Bonjour Browser (looking for http)
+             var httpBonjourBrowser = Ti.Network.createBonjourBrowser({
+                serviceType: '_http._tcp',
+                domain: 'local'
+             });
+
+             // Handle updated services
+             httpBonjourBrowser.addEventListener('updatedservices', function (e) {
+                for (var service of e.services) {
+                    // callback style
+                    service.resolve(120, (err, success) => {
+                        console.log(service.socket);
+                        console.log(service.socket.port);
+                        console.log(service.socket.host);
+                    });
+                }
+             });
+
+             // Start searching
+             httpBonjourBrowser.search();
+
+  - title: Create and Publish a local HTTP/TCP service
+    example: |
+        The following code excerpt creates a zeroconf bonjour service and publishes it out to the local network.
+        A TCP Socket is used to handle listening for clients and communicating.
+
+             // Create the Bonjour Service
+             var localService = Ti.Network.createBonjourService({
+               name: 'example',
+               type: '_test._tcp',
+               domain: 'local.'
+             });
+
+             // Create the socket we'll tie to the service
+             var bonjourSocket = Ti.Network.Socket.createTCP({
+               host: '127.0.0.1',
+               port: 40401,
+               accepted: function (e) {
+                 // Here you handle clients connecting
+                 Ti.API.info("Listening socket <" + e.socket + "> accepted incoming connection <" + e.inbound + ">");
+                 e.inbound.write(Ti.createBuffer({
+                   value: 'You have been connected to a listening socket.\r\n'
+                 }));
+                 e.inbound.close();
+               },
+               error: function (e) {
+                 // handle errors...
+                 Ti.API.error("Socket <" + e.socket + "> encountered error when listening");
+                 Ti.API.error(" error code <" + e.errorCode + ">");
+                 Ti.API.error(" error description <" + e.error + ">");
+               }
+             });
+
+             // Make the socket listen for connections
+             bonjourSocket.listen();
+
+             // Make the socket accept incoming connections
+             bonjourSocket.accept({ timeout: 10000 });
+
+             // Publish the service
+             localService.publish(bonjourSocket, fnction (err, bool) {
+               // Now you can find the service on your network (including using a Ti.Network.BonjourBrowser)
+             });
