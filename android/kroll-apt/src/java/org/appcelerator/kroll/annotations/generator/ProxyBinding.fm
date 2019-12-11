@@ -526,6 +526,10 @@ fails, a JS exception is returned.
 		<#local coerced = true>
 		<#local type = "MaybeLocal<Number>">
 		<#local valueExpr = expr + "->ToNumber(context)">
+	<#elseif info.jsType == "Boolean">
+		<#local coerced = false>
+		<#local type = "Local<Boolean>">
+		<#local valueExpr = expr + "->ToBoolean(isolate)">
 	<#elseif info?keys?seq_contains("jsHandleCast")> // Array
 		<#local coerced = false>
 		<#local type = "Local<" + info.jsType + ">">
