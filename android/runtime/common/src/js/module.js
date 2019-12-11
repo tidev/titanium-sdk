@@ -238,19 +238,10 @@ Module.prototype.loadExternalModule = function (id, externalBinding, context) {
  * @return {Object}          The loaded module
  */
 Module.prototype.require = function (request, context) {
-	var start, // hack up the start of the string to check relative/absolute/"naked" module id
-		loaded; // variable to hold the possibly loaded module...
-
-	// 1. If X is a core module,
-	loaded = this.loadCoreModule(request, context);
-	if (loaded) {
-		// a. return the core module
-		// b. STOP
-		return loaded;
-	}
+	const start = request.substring(0, 2); // hack up the start of the string to check relative/absolute/"naked" module id
+	let loaded; // variable to hold the possibly loaded module...
 
 	// 2. If X begins with './' or '/' or '../'
-	start = request.substring(0, 2);
 	if (start === './' || start === '..') {
 		loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request), context);
 		if (loaded) {
@@ -263,6 +254,17 @@ Module.prototype.require = function (request, context) {
 			return loaded.exports;
 		}
 	} else {
+		// Despite being step 1 in Node.JS psuedo-code, we moved it down here because we don't allow native modules
+		// to start with './', '..' or '/' - so this avoids a lot of misses on requires starting that way
+
+		// 1. If X is a core module,
+		loaded = this.loadCoreModule(request, context);
+		if (loaded) {
+			// a. return the core module
+			// b. STOP
+			return loaded;
+		}
+
 		// Look for CommonJS module
 		if (request.indexOf('/') === -1) {
 			// For CommonJS we need to look for module.id/module.id.js first...
