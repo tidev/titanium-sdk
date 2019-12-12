@@ -102,19 +102,6 @@ android {
 				'res',
 				"${projectDir}/../modules/ui/res"
 			]
-			// Adds non-source files as resources within JAR/DEX file. Available via getResourceAsStream() method.
-			// TODO: Remove this "resources" block once we moved these files to APK "assets".
-			resources {
-				srcDirs = [
-					'src/java',
-					"${projectDir}/../modules/ui/src/java"
-				]
-				excludes = [
-					'**/*.kt',
-					'**/*.java',
-					'**/*.orig'
-				]
-			}
 		}
 	}
 	// TODO: Add Java 8 support in the future.
