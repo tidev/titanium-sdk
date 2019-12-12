@@ -74,7 +74,7 @@ methods:
             Dictionary of display and animation settings to use when opening the window.
             Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
             iOS only supports the **animated** parameter.
-        type: Object
+        type: openWindowParams
         optional: true
 
   - name: close
@@ -124,6 +124,7 @@ methods:
         type: Titanium.UI.Window
 
   - name: popToRootWindow
+    # FIXME: I don't think this exists on Android!
     summary: Closes all windows that are currently opened inside the tab.
     description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
@@ -131,7 +132,7 @@ methods:
         summary: |
             Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
-        type: Dictionary
+        type: AnimatedOptions
     since: "6.2.0"
 
 properties:

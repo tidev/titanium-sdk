@@ -110,7 +110,7 @@ methods:
             for this dictionary is the `animated` flag, which specifies whether
             the value change should be animated. `animated` is false by default. Only used
             on iOS.
-        type: Dictionary
+        type: AnimatedOptions
         optional: true
 
 events:
@@ -126,14 +126,14 @@ events:
         summary: |
             Dictionary with properties `width` and `height` of the size of the thumb.
             Available with custom thumb image.
-        type: Dictionary
+        type: Size
         platforms: [android]
 
       - name: thumbOffset
         summary: |
             Dictionary with properties `x` and `y` of the thumb's left-top corner in
             the control. Available with custom thumb image.
-        type: Dictionary
+        type: Point
         platforms: [android]
 
   - name: click
