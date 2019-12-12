@@ -419,7 +419,7 @@ properties:
                     </TextField>
                 </Window>
             </Alloy>
-    type: Object
+    type: Titanium.UI.View
     platforms: [iphone, ipad]
 
   - name: leftButtonMode
@@ -515,7 +515,7 @@ properties:
             </Alloy>
 
         The `sayHi` and `doAlert` methods are defined in the Alloy controller.
-    type: Object
+    type: Titanium.UI.View
     platforms: [iphone, ipad]
 
   - name: rightButtonMode
