@@ -36,8 +36,9 @@ properties:
   - name: referenceInsets
     summary: Insets to apply when using the animator's reference view as the boundary.
     description: The `treatReferenceAsBoundary` property needs to be set to `true` to use this property.
-    type: ReferenceInsets
+    type: Padding
     default: All insets are zero.
+    osver: {ios: {min: "7.0"}}
 
   - name: treatReferenceAsBoundary
     summary: Use the animator's reference view as the boundary.
@@ -198,27 +199,3 @@ properties:
   - name: point2
     summary: End point for the boundary
     type: Point
-
----
-name: ReferenceInsets
-summary: Dictionary to specify edge insets for <Titanium.UI.iOS.CollisionBehavior.referenceInsets>.
-since: "3.2"
-platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
-properties:
-  - name: top 
-    summary: Top inset.
-    type: Number
-
-  - name: left
-    summary: Left inset.
-    type: Number
-
-  - name: right
-    summary: Right inset.
-    type: Number
-
-  - name: bottom
-    summary: Bottom inset.
-    type: Number
-

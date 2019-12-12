@@ -398,14 +398,19 @@ examples:
 
 ---
 name: TabIconInsets
-summary: Dictionary to specify edge insets for <Titanium.UI.Tab.iconInsets>.
+extends: Padding
+summary: Dictionary to specify edge insets for <Titanium.UI.Tab.iconInsets>. Difference from typical <Padding> is that `right` and `bottom` are ignored and calculated internally from `top`/`left` values.
 since: "5.2.0"
 platforms: [iphone, ipad]
+excludes:
+  properties: [right, bottom]
 properties:
   - name: top
     summary: Top inset.
     type: Number
+    default: 0
 
   - name: left
     summary: Left inset.
     type: Number
+    default: 0
