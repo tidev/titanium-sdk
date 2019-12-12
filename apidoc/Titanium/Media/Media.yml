@@ -2242,7 +2242,9 @@ since: "3.4.2"
 properties:
   - name: inputs
     summary: An Array of current input ports for the session. See the `AUDIO_SESSION_PORT` constants.
-    type: Array<Object>
+    type: Array<String>
+    constants: Titanium.Media.AUDIO_SESSION_PORT_*
   - name: outputs
     summary: An Array of current output ports for the session. See the `AUDIO_SESSION_PORT` constants.
-    type: Array<Object>
+    type: Array<String>
+    constants: Titanium.Media.AUDIO_SESSION_PORT_*
