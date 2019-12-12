@@ -390,7 +390,7 @@ properties:
 
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
-    type: ViewPadding
+    type: Padding
     platforms: [android, iphone, ipad]
     since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
 

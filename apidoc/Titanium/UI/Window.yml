@@ -1322,7 +1322,7 @@ properties:
             // Open the window.
             win.open();
 
-    type: Dimension
+    type: Padding
     permission: read-only
     since: {android: "7.5.0", iphone: "8.0.0", ipad: "8.0.0"}
 

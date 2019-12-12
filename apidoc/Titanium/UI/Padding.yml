@@ -1,0 +1,24 @@
+---
+  name: Padding
+  summary: Dictionary object of parameters for the padding/insets applied to all kinds of views.
+  properties:
+    - name: left
+      type: Number
+      summary: Left padding/inset
+      default: 0
+
+    - name: right
+      type: Number
+      summary: Right padding/inset
+      default: 0
+
+    - name: top
+      type: Number
+      summary: Top padding/inset
+      default: 0
+
+    - name: bottom
+      type: Number
+      summary: Bottom padding/inset
+      default: 0
+  

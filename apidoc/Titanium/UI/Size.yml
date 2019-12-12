@@ -1,0 +1,15 @@
+---
+  name: Size
+  summary: A simple object consisting of size measurements.
+  since: "2.0.0"
+  description: |
+    The [size](Titanium.UI.View.size) property returns a dimension object with `x` and `y` both set
+    to 0.
+  properties:
+    - name: height
+      summary: The height measurement.
+      type: Number
+
+    - name: width
+      summary: The width measurement.
+      type: Number
