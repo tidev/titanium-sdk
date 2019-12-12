@@ -1147,7 +1147,7 @@ properties:
     description: |
         This was separated from the <Titanium.UI.Window.androidback> event. You need to define this
         callback if you explicitly want to override the back button behavior.
-    type: Callback<Object>
+    type: Callback<void>
     platforms: [android]
 
   - name: orientationModes
@@ -1493,7 +1493,7 @@ properties:
             </Alloy>
 
     platforms: [iphone, ipad]
-    type: Array<Object>
+    type: Array<Titanium.UI.View>
 
   - name: top
     summary: Window's top position, in platform-specific units.
