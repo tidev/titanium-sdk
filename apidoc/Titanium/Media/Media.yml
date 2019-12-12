@@ -1902,6 +1902,7 @@ properties:
     summary: Whether or not the predicate is for an exact match.  The
         default is `true`.
     type: Boolean
+    default: true
 
 # Camera options pseudo-type
 ---
@@ -2111,11 +2112,12 @@ properties:
     summary: The type of media, either `MEDIA_TYPE_PHOTO`, `MEDIA_TYPE_LIVEPHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
     type: String
   - name: cropRect
-    summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
-    type: CropRectType
+    summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo. `width`/`height` values are assumed to be in pixels.
+    type: Dimension
+    optional: true
   - name: previewRect
-    summary: Simple object defining the preview image size.
-    type: PreviewRectType
+    summary: Simple object defining the preview image size. This will be undefined when custom camera overlay is not used. Values are assumed to be in pixels.
+    type: Size
     platforms: [android]
   - name: success
     summary: Indicates if the operation succeeded. Returns `true`.
@@ -2140,34 +2142,6 @@ properties:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
 
-# Arguably we might need a global Rect pseudotype. For now, define locally
----
-name: CropRectType
-summary: Simple object for describing the crop rectangle for an image.
-properties:
-  - name: x
-    summary: X coordinate of the crop rectangle's upper-left corner.
-    type: Number
-  - name: y
-    summary: Y coordinate of the crop rectangle's upper-left corner.
-    type: Number
-  - name: width
-    summary: Width of the crop rectangle, in pixels.
-    type: Number
-  - name: height
-    summary: Height of the crop rectangle, in pixels.
-    type: Number
----
-name: PreviewRectType
-summary: |
-    Simple object for describing the preview image rectangle. This will be undefined when custom camera overlay is not used.
-properties:
-  - name: width
-    summary: Width preview image, in pixels.
-    type: Number
-  - name: height
-    summary: Height preview image, in pixels.
-    type: Number
 ---
 name: PreviewImageOptions
 summary: Options passed to <Titanium.Media.previewImage>.
