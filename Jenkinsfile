@@ -332,7 +332,6 @@ timestamps {
 								buildCommand += ' --all'
 							}
 							sh buildCommand
-							recordIssues(tools: [clang(), java()])
 						} // timeout
 						timeout(15) {
 							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
