@@ -455,6 +455,7 @@ methods:
     parameters:
       - name: params
         summary: Animation or display properties to use when closing the window.
+        # FIXME: iOS supports many different styles: Ti.UI.Animation, Array<Ti.UI.Animation>, or Object like: { animated: false, animationDuration: 1000, animationStyle: itanium.UI.iOS.AnimationStyle.NONE }
         type: [Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
 

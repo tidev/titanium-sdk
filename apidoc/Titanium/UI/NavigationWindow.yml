@@ -66,7 +66,8 @@ methods:
         summary: |
             Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
-        type: Dictionary
+        type: AnimatedOptions
+        optional: true
 
 examples:
   - title: Simple Navigation Window

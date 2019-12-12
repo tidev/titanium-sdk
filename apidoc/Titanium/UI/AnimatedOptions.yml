@@ -1,0 +1,9 @@
+---
+name: AnimatedOptions
+summary: A JavaScript object holding an `animated` property. Used for many UI methods as a means of specifying some transition should be animated.
+properties:
+  - name: animated
+    type: Boolean
+    default: false # Is this true in all cases? Seems to be so far...
+    optional: true
+    summary: If true, animate a transition for the method/value change
