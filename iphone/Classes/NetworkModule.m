@@ -22,21 +22,6 @@ static NSOperationQueue *_operationQueue = nil;
   return @"Ti.Network";
 }
 
-- (NSNumber *)READ_MODE
-{
-  return [NSNumber numberWithInt:READ_MODE];
-}
-
-- (NSNumber *)WRITE_MODE
-{
-  return [NSNumber numberWithInt:WRITE_MODE];
-}
-
-- (NSNumber *)READ_WRITE_MODE
-{
-  return [NSNumber numberWithInt:READ_WRITE_MODE];
-}
-
 - (void)shutdown:(id)sender
 {
   RELEASE_TO_NIL(_operationQueue);

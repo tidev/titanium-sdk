@@ -111,7 +111,7 @@ jstring TypeConverter::jsStringToJavaString(Isolate* isolate, Local<String> jsSt
 
 jstring TypeConverter::jsStringToJavaString(JNIEnv *env, Local<String> jsString)
 {
-	String::Value string(jsString);
+	String::Value string(V8Runtime::v8_isolate, jsString);
 	return env->NewString(reinterpret_cast<const jchar*>(*string), string.length());
 }
 
@@ -136,7 +136,8 @@ jstring TypeConverter::jsValueToJavaString(Isolate* isolate, JNIEnv *env, Local<
 		return NULL;
 	}
 
-	return TypeConverter::jsStringToJavaString(isolate, env, jsValue->ToString(isolate));
+	Local<Context> context = isolate->GetCurrentContext();
+	return TypeConverter::jsStringToJavaString(isolate, env, jsValue->ToString(context).ToLocalChecked());
 }
 
 Local<Value> TypeConverter::javaStringToJsString(Isolate* isolate, jstring javaString)
@@ -223,7 +224,7 @@ Local<Date> TypeConverter::javaDateToJsDate(Isolate* isolate, JNIEnv *env, jobje
 
 Local<Date> TypeConverter::javaLongToJsDate(Isolate* isolate, jlong javaLong)
 {
-	return Date::New(isolate, (double) javaLong).As<Date>(); // perversely, the date constructor returns Local<value> so we need to cast it
+	return Date::New(isolate->GetCurrentContext(), (double) javaLong).ToLocalChecked().As<Date>(); // perversely, the date constructor returns Local<value> so we need to cast it
 }
 
 jobject TypeConverter::jsObjectToJavaFunction(Isolate* isolate, Local<Object> jsObject)
@@ -239,7 +240,7 @@ jobject TypeConverter::jsObjectToJavaFunction(Isolate* isolate, JNIEnv *env, Loc
 {
 	Local<Function> func = jsObject.As<Function>();
 	Persistent<Function, CopyablePersistentTraits<Function>> jsFunction(isolate, func);
-	jsFunction.MarkIndependent();
+	// jsFunction.MarkIndependent(); // Method has been removed!
 
 	// Place the persistent into some global table with incrementing index, use the index as the "ptr" here
 	// Then when we re-construct, use the ptr value as index into the table to grab the persistent!
@@ -943,6 +944,7 @@ Local<Object> TypeConverter::javaHashMapToJsValue(Isolate* isolate, JNIEnv *env,
 
 	int hashMapKeysLength = env->GetArrayLength(hashMapKeys);
 	bool isStringHashMap = env->IsInstanceOf(hashMapKeys, JNIUtil::stringArrayClass);
+	Local<Context> context = isolate->GetCurrentContext();
 
 	for (int i = 0; i < hashMapKeysLength; i++) {
 		jobject javaPairKey = env->GetObjectArrayElement(hashMapKeys, i);
@@ -956,7 +958,7 @@ Local<Object> TypeConverter::javaHashMapToJsValue(Isolate* isolate, JNIEnv *env,
 		jobject javaPairValue = env->CallObjectMethod(javaObject, JNIUtil::hashMapGetMethod, javaPairKey);
 		env->DeleteLocalRef(javaPairKey);
 
-		jsObject->Set(jsPairKey, TypeConverter::javaObjectToJsValue(isolate, env, javaPairValue));
+		jsObject->Set(context, jsPairKey, TypeConverter::javaObjectToJsValue(isolate, env, javaPairValue));
 		env->DeleteLocalRef(javaPairValue);
 	}
 
@@ -1241,7 +1243,7 @@ Local<Object> TypeConverter::javaThrowableToJSError(v8::Isolate* isolate, JNIEnv
 	Local<Context> context = isolate->GetCurrentContext();
 
 	// Now explicitly assign our properly generated stacktrace
-	Local<String> javaStack = String::NewFromUtf8(isolate, stackStream.str().c_str());
+	Local<String> javaStack = String::NewFromUtf8(isolate, stackStream.str().c_str(), v8::NewStringType::kNormal).ToLocalChecked();
 	error->Set(context, STRING_NEW(isolate, "nativeStack"), javaStack);
 
 	// If we're using our custom error interface we can ask for a map of additional properties ot set on the JS Error

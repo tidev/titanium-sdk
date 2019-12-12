@@ -3,6 +3,7 @@ name: Titanium.Network.TCPSocket
 extends: Titanium.Proxy
 deprecated:
     since: "1.7.0"
+    removed: "9.0.0"
     notes: |
         Use [Titanium.Network.Socket.TCP](Titanium.Network.Socket.TCP) where possible.
 summary: |

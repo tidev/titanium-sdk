@@ -22,8 +22,8 @@ methods:
     summary: Conduct a search for Bonjour services matching the type and domain specified during creation
   - name: stopSearch
     summary: Halt an ongoing search
-events:
 
+events:
   - name: updatedservices
     summary: Fired when the discovered services list is updated
     properties:
@@ -36,9 +36,12 @@ properties:
   - name: domain
     summary: The domain the browser is searching in
     type: String
+    default: "local."
   - name: isSearching
     summary: Whether or not the browser is currently searching
     type: Boolean
+    default: false
   - name: serviceType
     summary: The type of the service the browser searches for
     type: String
+    default: null
