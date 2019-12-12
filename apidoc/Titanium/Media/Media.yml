@@ -2176,7 +2176,7 @@ properties:
     accessors: false
   - name: success
     summary: Function to be called back if the preview succeeds. No info is passed.
-    type: Callback<Object>
+    type: Callback<SuccessResponse>
     accessors: false
   - name: error
     summary: Function called back if the preview fails. Check the `message` property of passed back parameter.
