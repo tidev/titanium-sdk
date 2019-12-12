@@ -90,7 +90,8 @@ async function createSnapshot() {
 	await fs.ensureDir(cppOutputDirPath);
 
 	// Requests our server to create snapshot of rolled-up "ti.main" in a C++ header file.
-	async function requestSnapshotFromServer() {
+	let wasSuccessful = false;
+	try {
 		// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
 		// We will send an HTTP request for the snapshot code later.
 		console.log('Attempting to request snapshot...');
@@ -105,63 +106,47 @@ async function createSnapshot() {
 		};
 		const snapshotId = await request.post(snapshotUrl, requestOptions);
 
-		// Below function is used to obtain generated C++ header containing V8 snapshot.
-		let wasSuccessful = false;
-		let shouldGiveUp = false;
-		async function getSnapshot() {
-			// Request generated snapshot from server, if done.
-			const httpResponse = await request.get(`${snapshotUrl}/snapshot/${snapshotId}`, {
+		// Request generated snapshot from server using `snapshotId` obtained from server above.
+		const MAX_ATTEMPTS = 20; // Time-out after two minutes.
+		let attempts;
+		for (attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
+			const response = await request.get(`${snapshotUrl}/snapshot/${snapshotId}`, {
 				simple: false,
 				resolveWithFullResponse: true
 			});
-			if (httpResponse.statusCode === 200) {
+			if (response.statusCode === 200) {
 				// Server has finished creating a C++ header file containing all V8 snapshots.
 				// Write it to file and flag that we're done.
 				console.log('Writing snapshot...');
-				await fs.writeFile(v8SnapshotHeaderFilePath, httpResponse.body);
+				await fs.writeFile(v8SnapshotHeaderFilePath, response.body);
 				wasSuccessful = true;
-			} else if (httpResponse.statusCode === 202) {
+				break;
+			} else if (response.statusCode === 202) {
 				// Snapshot server is still building. We need to retry later.
 				console.log('Waiting for snapshot generation...');
+				await new Promise(resolve => setTimeout(resolve, 6000));
 			} else {
 				// Give up if received an unexpected response.
 				console.error('Could not generate snapshot, skipping...');
-				shouldGiveUp = true;
-			}
-		}
-
-		// Request snapshot from server multiple times until done or max retries has exceeded.
-		const MAX_ATTEMPTS = 10;
-		let attemptCount;
-		for (attemptCount = 1; attemptCount <= MAX_ATTEMPTS; attemptCount++) {
-			await getSnapshot();
-			if (wasSuccessful || shouldGiveUp) {
 				break;
 			}
-			await new Promise(resolve => setTimeout(resolve, 5000));
 		}
-		if (attemptCount > MAX_ATTEMPTS) {
+		if (attempts > MAX_ATTEMPTS) {
 			console.error('Max retries exceeded fetching snapshot from server, skipping...');
 		}
-		return wasSuccessful;
-	}
-
-	// Attempt to generate the "V8Snapshot.h" header file from our server.
-	let wasSuccessful = false;
-	try {
-		wasSuccessful = await requestSnapshotFromServer();
 	} catch (err) {
-		if (err) {
-			console.error('Failed to generate snapshot. Reason:');
-			console.error(err);
-		} else {
-			console.error('Failed to generate snapshot. Reason: Unknown');
-		}
+		console.error(`Failed to request snapshot: ${err}`);
 	}
 
-	// Generate an empty C++ header if the above failed.
+	// Do the following if we've failed to generate snapshot header file above.
 	// Note: The C++ build will fail if file is missing. This is because it is #included in our code.
 	if (!wasSuccessful) {
+		// Trigger a build failure if snapshots are required. The "titanium_mobile/build" SDK build scripts set this.
+		if (process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS === '1') {
+			process.exit(1);
+		}
+
+		// Generaet an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
 		await fs.writeFile(v8SnapshotHeaderFilePath, '// Failed to build V8 snapshots. See build log.');
 	}
 }

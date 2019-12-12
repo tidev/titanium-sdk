@@ -72,11 +72,11 @@ async function generateBuildProperties() {
 	}
 
 	// Fetch Titanium SDK's build version and git hash from environment variables.
-	let buildVersion = process.env.TITANIUM_SDK_BUILD_VERSION;
+	let buildVersion = process.env.TI_SDK_BUILD_VERSION;
 	if (!buildVersion) {
 		buildVersion = '1.0.0';
 	}
-	let buildGitHash = process.env.TITANIUM_SDK_BUILD_GIT_HASH;
+	let buildGitHash = process.env.TI_SDK_BUILD_GIT_HASH;
 	if (!buildGitHash) {
 		buildGitHash = 'HEAD';
 	}
