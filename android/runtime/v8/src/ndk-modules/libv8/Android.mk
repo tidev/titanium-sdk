@@ -13,6 +13,10 @@ endef
 
 include $(CLEAR_VARS)
 
+# Only implement the below if this is not a dry-run build set via "-n" flag.
+# Note: The $(shell) command won't work on Windows for dry-runs. Avoids build failure.
+ifneq ($(findstring n, $(MAKEFLAGS)), n)
+
 # Read android/package.json to get v8 version and mode (release or debug)
 V8_VERSION=$(call GetFromPkg,v8.version)
 LIBV8_MODE := $(call GetFromPkg,v8.mode)
@@ -45,3 +49,5 @@ LOCAL_MODULE    := libv8_monolith
 LOCAL_SRC_FILES := $(LIBV8_DIR)/libs/$(SIMPLIFIED_ARCH)/$(LOCAL_MODULE).a
 LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
 include $(PREBUILT_STATIC_LIBRARY)
+
+endif #ifneq ($(findstring n, $(MAKEFLAGS)), n)

@@ -30,13 +30,14 @@ android {
 				cppFlags '-std=c++11'
 				arguments.addAll([
 					'APP_STL:=c++_shared',
+					'APP_ALLOW_MISSING_DEPS=true',
 					"TI_DIST_DIR=${projectDir}/../../dist".replace('\\', '\\\\'),
 					"NDK_MODULE_PATH+=${projectDir}/../runtime/v8/src/ndk-modules".replace('\\', '\\\\'),
 					"-j${Runtime.runtime.availableProcessors()}".toString()
 				])
 				if (System.getProperty('os.name').toLowerCase().contains('windows')) {
 					// Reduces length of NDK command line strings by writing source file list to text files.
-					arguments.add('APP_SHORT_COMMANDS:=true')
+					arguments.add('APP_SHORT_COMMANDS=true')
 				}
 			}
 		}
