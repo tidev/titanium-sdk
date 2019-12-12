@@ -604,8 +604,8 @@ events:
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
-        type: Object
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible. May be -1 on iOS.
+        type: [Object, Number]
 
       - name: firstVisibleSection
         summary: The first visible section in the list view when the event fires.
@@ -640,8 +640,8 @@ events:
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
-        type: Object
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible. May be -1 on iOS.
+        type: [Object, Number]
 
       - name: firstVisibleSection
         summary: The first visible section in the list view when the event fires.
