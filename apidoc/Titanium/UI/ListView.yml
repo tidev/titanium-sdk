@@ -1028,7 +1028,7 @@ properties:
         Cell separators do not extend all the way to the edge of the list view.
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
-    type: Dictionary
+    type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1068,7 +1068,7 @@ properties:
              });
 
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1088,7 +1088,7 @@ properties:
              });
 
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.4.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1107,7 +1107,7 @@ properties:
                  right:10
              });
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1178,8 +1178,8 @@ properties:
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right`
         specifying the inset from the right edge.
-    type: Dictionary
-    since: 6.1.0
+    type: HorizontalInsets
+    since: "6.1.0"
     platforms: [iphone, ipad]
     availability: creation
 

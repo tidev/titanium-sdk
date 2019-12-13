@@ -1475,7 +1475,7 @@ properties:
                 right:10
             });
 
-    type: Dictionary # TODO: Use Padding?
+    type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1495,7 +1495,7 @@ properties:
             });
 
 
-    type: Dictionary # TODO: Use Padding?
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1515,7 +1515,7 @@ properties:
             });
 
 
-    type: Dictionary # TODO: Use Padding?
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1585,8 +1585,8 @@ properties:
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right`
         specifying the inset from the right edge.
-    type: Dictionary # TODO: Use Padding?
-    since: 7.3.0
+    type: HorizontalInsets
+    since: "7.3.0"
     platforms: [iphone, ipad]
     availability: creation
 
