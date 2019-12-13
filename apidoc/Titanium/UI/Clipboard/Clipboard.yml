@@ -52,7 +52,7 @@ methods:
   - name: getData
     summary: Gets data of the specified MIME type stored in the clipboard. Returns null if non-text mimetype on Android.
     returns:
-        type: [String, Titanium.Blob, null]
+        type: [String,Titanium.Blob]
     parameters:
       - name: type
         summary: MIME type. Must be 'text' or 'text/plain' on Android, or else null is returned.
