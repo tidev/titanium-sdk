@@ -1067,23 +1067,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
-{
-  NSDictionary<NSString *, id> *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
-  NSURL *requestedURL = navigationResponse.response.URL;
-
-  // If we have request headers set, we do a little hack to persist them across different URL's,
-  // which is not officially supported by iOS.
-  if (requestHeaders != nil && requestedURL != nil && ![requestedURL.absoluteString isEqualToString:_currentURL.absoluteString]) {
-    _currentURL = requestedURL;
-    decisionHandler(WKNavigationResponsePolicyCancel);
-    [self loadRequestWithURL:_currentURL];
-    return;
-  }
-
-  decisionHandler(WKNavigationResponsePolicyAllow);
-}
-
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
 {
   if (!navigationAction.targetFrame.isMainFrame) {

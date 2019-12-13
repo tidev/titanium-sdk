@@ -11,6 +11,7 @@
 #include <v8-inspector.h>
 
 #include "KrollBindings.h"
+#include "V8Runtime.h"
 
 namespace titanium {
 
@@ -48,6 +49,13 @@ public:
 	 * @param context current JS context
 	 */
 	static void Initialize(v8::Local<v8::Object>, v8::Local<v8::Context>);
+
+    /**
+     * Override to specify valid default context.
+     */
+	v8::Local<v8::Context> ensureDefaultContextInGroup(int contextGroupId) override {
+        return V8Runtime::GlobalContext();
+    }
 
 private:
 	static const int kContextGroupId = 1;

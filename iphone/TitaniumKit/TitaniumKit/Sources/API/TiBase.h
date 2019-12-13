@@ -456,6 +456,8 @@ enum {
 
 #define TI_SEARCHBAR_HEIGHT 56
 
+#define TI_STATUSBAR_TAG 11101
+
 #ifdef DEBUG
 #define FRAME_DEBUG(f) \
   NSLog(@"FRAME -- size=%fx%f, origin=%f,%f", f.size.width, f.size.height, f.origin.x, f.origin.y);
