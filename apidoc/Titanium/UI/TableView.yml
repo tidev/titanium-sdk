@@ -379,7 +379,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
-        type: Dictionary
+        type: Size
         platforms: [iphone, ipad]
 
       - name: firstVisibleItem
@@ -391,7 +391,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible
             table view
-        type: Dictionary
+        type: Size
 
       - name: totalItemCount
         summary: Total number of rows in the view.
@@ -410,7 +410,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
-        type: Dictionary
+        type: Size
         platforms: [iphone, ipad]
 
       - name: contentOffset
@@ -422,7 +422,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible
             table view.
-        type: Dictionary
+        type: Size
 
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -1475,7 +1475,7 @@ properties:
                 right:10
             });
 
-    type: Dictionary
+    type: Dictionary # TODO: Use Padding?
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1495,7 +1495,7 @@ properties:
             });
 
 
-    type: Dictionary
+    type: Dictionary # TODO: Use Padding?
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1515,7 +1515,7 @@ properties:
             });
 
 
-    type: Dictionary
+    type: Dictionary # TODO: Use Padding?
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1585,7 +1585,7 @@ properties:
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right`
         specifying the inset from the right edge.
-    type: Dictionary
+    type: Dictionary # TODO: Use Padding?
     since: 7.3.0
     platforms: [iphone, ipad]
     availability: creation
