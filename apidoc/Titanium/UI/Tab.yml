@@ -133,6 +133,7 @@ methods:
             Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
         type: AnimatedOptions
+        optional: true
     since: "6.2.0"
 
 properties:

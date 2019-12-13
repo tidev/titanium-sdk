@@ -93,15 +93,15 @@ methods:
         summary: New value for [showCancel](Titanium.UI.SearchBar.showCancel).
         type: Boolean
 
-      - name: animated
+      - name: options
         summary: |
             Dictionary of animation properties. Currently only a
             single boolean property, `animated` is supported. Only used on iOS.
         type: AnimatedOptions
         optional: true
         default: No animation.
-events:
 
+events:
   - name: blur
     summary: Fired when the search bar loses focus.
     properties:
