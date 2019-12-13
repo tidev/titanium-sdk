@@ -426,7 +426,7 @@ properties:
 
   - name: UIApplicationOpenURLOptionsAnnotationKey
     type: Array
-    summary: contains the information passed to a document interaction controller object’s annotation property.
+    summary: contains the information passed to a document interaction controller object's annotation property.
     optional: true
 
   - name: UIApplicationOpenURLOptionsOpenInPlaceKey
