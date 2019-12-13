@@ -117,7 +117,7 @@ events:
       - name: contentSize
         summary: |
             The current content size of the scroll view defined by its `width` and `height` properties.
-        type: Dictionary
+        type: Size
         platforms: [android, iphone, ipad]
         since: { iphone: "5.2.0", ipad: "5.2.0", android: "8.3.0" }
 
@@ -230,7 +230,7 @@ properties:
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset.
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
-    type: Dictionary
+    type: Point
 
   - name: contentWidth
     summary: Width of the scrollable region.
