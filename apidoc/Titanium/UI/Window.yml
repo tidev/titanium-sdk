@@ -455,8 +455,7 @@ methods:
     parameters:
       - name: params
         summary: Animation or display properties to use when closing the window.
-        # FIXME: iOS supports many different styles: Ti.UI.Animation, Array<Ti.UI.Animation>, or Object like: { animated: false, animationDuration: 1000, animationStyle: itanium.UI.iOS.AnimationStyle.NONE }
-        type: [Dictionary<Titanium.UI.Animation>, closeWindowParams]
+        type: [Titanium.UI.Animation, Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
 
   - name: hideNavBar
@@ -467,8 +466,9 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the navigation bar will be animated (default) while being hidden.
-        type: Dictionary
+            the navigation bar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
+        # FIXME: default animated value here is true! Do we define a different type than AnimatedOptions?
         optional: true
     platforms: [iphone, ipad]
 
@@ -517,8 +517,9 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the navigation bar will be animated (default) while being shown.
-        type: Dictionary
+            the navigation bar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
+        # FIXME: default animated value here is true!
         optional: true
     platforms: [iphone, ipad]
 
@@ -532,10 +533,10 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the toolbar will be animated (default) while being shown.
-        type: Dictionary
+            the toolbar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
+        # FIXME: default animated value here is true!
         optional: true
-        default: true
     platforms: [iphone, ipad]
     since: "5.4.0"
 
@@ -549,10 +550,10 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the toolbar will be animated (default) while being hidden.
-        type: Dictionary
+            the toolbar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
+        # FIXME: default animated value here is true!
         optional: true
-        default: true
     platforms: [iphone, ipad]
     since: "5.4.0"
 
@@ -1973,35 +1974,47 @@ properties:
 name: closeWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.close> method.
 since: 3.2.0
-platforms: [android]
-
+platforms: [android, ipad, iphone]
 properties:
-
   - name: animated
     summary: |
-        Determines whether to use an animated effect when the window is closed.
+        Determines whether to use an animated effect when the window is closed. Defaults to `true` on Android, `false` on iOS.
     description: |
         This property supports animated transitions on windows except for modal windows (`modal:true`).
         The transitions are on by default, but you can disable this behavior by setting this value
         to `false`.
     type: Boolean
-    default: true
+
+  - name: animationDuration
+    type: Number
+    default: 1000
+    summary: duration of the animation in milliseconds
+    platforms: [iphone, ipad]
+
+  - name: animationStyle
+    summary: Transition type to use during a transition animation.
+    type: Number
+    constants: Titanium.UI.iOS.AnimationStyle.*
+    default: <Titanium.UI.iOS.AnimationStyle.NONE>
+    platforms: [iphone, ipad]
 
   - name: activityEnterAnimation
     summary: Animation resource to use for the incoming activity.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of <Titanium.UI.Window>
       for more information.
     type: Number
+    platforms: [android]
 
   - name: activityExitAnimation
     summary: Animation resource to use for the outgoing activity.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of <Titanium.UI.Window>
       for more information.
     type: Number
+    platforms: [android]
     examples:
       - title: Fading out a Window
         example: |
