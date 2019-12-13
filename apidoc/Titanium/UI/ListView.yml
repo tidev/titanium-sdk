@@ -1320,9 +1320,9 @@ methods:
               setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
         type: Padding
 
-      - name: animated
+      - name: options
         summary: Determines whether, and how, the content inset change should be animated.
-        type: ListViewContentInsetOption
+        type: AnimatedWithDurationOptions
         optional: true
     platforms: [iphone, ipad]
     since: 3.2.0
@@ -1813,26 +1813,6 @@ properties:
   - name: index
     summary: Section index associated with this title.
     type: Number
-
----
-name: ListViewContentInsetOption
-summary: Optional parameter for [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
-description: |
-    On iOS, the optional parameters `animated` and `duration` to enable the animation and duration
-    for animation while the content insets are updated. For example
-
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-since: 3.2.0
-platforms: [iphone, ipad]
-properties:
-  - name: animated
-    summary: Determines whether the list view's content inset change is animated.
-    type: Boolean
-    default: false
-  - name: duration
-    summary: The duration in `milliseconds` for animation while the content inset is being changed.
-    type: Number
-    default: 300
 
 ---
 name: ListViewMarkerProps

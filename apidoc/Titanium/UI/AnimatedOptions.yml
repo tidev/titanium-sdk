@@ -6,4 +6,15 @@ properties:
     type: Boolean
     default: false # Is this true in all cases? Seems to be so far...
     optional: true
-    summary: If true, animate a transition for the method/value change
+    summary: If `true`, animate a transition for the method/value change
+
+---
+name: AnimatedWithDurationOptions
+extends: AnimatedOptions
+summary: A JavaScript object holding `animated` and `duration` properties. Used on iOS For [TablewView](Titanium.UI.TableView) and [ListView](Titanium.UI.ListView) content offset transitions.
+properties:
+  - name: duration
+    type: Number
+    summary: The duration in `milliseconds` for animation
+    optional: true
+    default: 300

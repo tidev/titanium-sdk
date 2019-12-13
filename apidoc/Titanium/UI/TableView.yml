@@ -951,9 +951,9 @@ methods:
               setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
         type: Padding
 
-      - name: animated
+      - name: options
         summary: Determines whether, and how, the content inset change should be animated.
-        type: TableViewContentInsetOption
+        type: AnimatedWithDurationOptions
         optional: true
     platforms: [iphone, ipad]
     since: "2.1.0"
@@ -964,10 +964,14 @@ methods:
     parameters:
       - name: contentOffset
         summary: |
-            Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
-            reposition the top-left point of the scrollable region of the table view.
-            The `animated` property is optional and set to `false` by default.
-        type: Dictionary
+            Dictionary with the properties `x`, `y`.
+            The `x` and `y` coordinates reposition the top-left point of the scrollable region of the table view.
+        type: Point
+      - name: options
+        summary: |
+            Pass in `{ animated: true }` to animate the transition.
+        type: AnimatedOptions
+        optional: true
     since: 3.4.0
 
   - name: selectRow
@@ -1779,27 +1783,6 @@ properties:
 
   - name: index
     summary: Row index associated with this item.
-    type: Number
-
----
-name: TableViewContentInsetOption
-summary: Optional parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-description: |
-    On iOS, the optional parameters `animated` and `duration`to enable the animation and duration
-    for animation while the content insets are updated. For example
-
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-since: 2.1.0
-platforms: [iphone, ipad]
-
-properties:
-  - name: animated
-    summary: Determines whether the table view's content inset change is animated.
-    type: Boolean
-    default: false
-
-  - name: duration
-    summary: The duration in `milleseconds` for animation while the content inset is  being changed.
     type: Number
 
 ---

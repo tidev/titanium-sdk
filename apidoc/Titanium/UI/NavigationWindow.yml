@@ -40,6 +40,7 @@ methods:
         type: Titanium.UI.Window
 
       - name: options
+        # TODO: This should be AnimatedOptions on iOS, equivalent to Ti.UI.Window.close arg on Android!
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window
             will be animated (default) while being closed (default: true).
@@ -53,16 +54,19 @@ methods:
         type: Titanium.UI.Window
 
       - name: options
+        # TODO: this should be of a type equivalent to Ti.Ui.Windows.open args!
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window
             will be animated (default) while being opened (default: true).
         type: Dictionary
+        optional: true
 
   - name: popToRootWindow
     summary: Closes all windows that are currently opened inside the navigation window.
     description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
       - name: options
+        # TODO: this should be of type equivalent to Ti.UI.Window.close arg on Android, AnimatedOptions on iOS!
         summary: |
             Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
