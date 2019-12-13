@@ -51,9 +51,6 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.defaultAnalyzeOptions = options.defaultAnalyzeOptions;
 
 		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
-
-		this.fileContentsMap = new Map();
-
 		this.resetTaskData();
 
 		this.createHooks();
@@ -169,18 +166,6 @@ class ProcessJsTask extends IncrementalFileTask {
 			});
 		});
 
-		// Windows hyperloop requires that a build.windows.analyzeJsFile runs before compileJsFile
-		// so patch the compileJsFile hook to run that hook first and then fire the compileJsFile
-		// TODO: remove this in 9.0.0 TIMOB-27601
-		if (this.platform === 'windows') {
-			let origCompileJsHook = compileJsFileHook;
-
-			compileJsFileHook = this.builder.cli.createHook(`build.${this.platform}.analyzeJsFile`, this.builder, (from, to, cb) => {
-				const r = this.fileContentsMap.get(from);
-				origCompileJsHook(r, from, to, cb);
-			});
-		}
-
 		this.copyResourceHook = promisify(this.builder.cli.createHook(`build.${this.platform}.copyResource`, this.builder, (from, to, done) => {
 			const originalContents = fs.readFileSync(from).toString();
 
@@ -189,15 +174,8 @@ class ProcessJsTask extends IncrementalFileTask {
 				contents: originalContents,
 				symbols: []
 			};
-			if (this.platform === 'windows') {
-				// We can't pass the contents through the analyzeJsFile hook so store them in a map
-				// which we can then pull the contents from
-				this.fileContentsMap.set(from, r);
-				compileJsFileHook(from, to, done);
-			} else {
-				compileJsFileHook(r, from, to, done);
 
-			}
+			compileJsFileHook(r, from, to, done);
 		}));
 	}
 
