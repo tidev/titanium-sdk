@@ -4,9 +4,12 @@ summary: A JavaScript object holding an `animated` property. Used for many UI me
 properties:
   - name: animated
     type: Boolean
-    default: false # Is this true in all cases? Seems to be so far...
+    default: false # This isn't true in absolutely every case, but the heavy majority
     optional: true
-    summary: If `true`, animate a transition for the method/value change
+    summary: |
+        If `true`, animate a transition for the method/value change.
+
+        Note that for most uses cases the default is assumed to be `false`. The exceptions tend to be <Titanium.UI.Window> methods.
 
 ---
 name: AnimatedWithDurationOptions
