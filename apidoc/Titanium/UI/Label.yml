@@ -172,7 +172,7 @@ properties:
     summary: Shadow offset of the [text](Titanium.UI.Label.text), as a dictionary with the properties `x` and `y`.
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
-    type: Dictionary
+    type: Point
     platforms: [android, iphone, ipad]
     since: {android: "3.2.0"}
 
