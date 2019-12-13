@@ -1333,10 +1333,14 @@ methods:
     parameters:
       - name: contentOffset
         summary: |
-            Dictionary with the properties `x`, `y`. Pass in `animated` `true` as a second dictionary parameter.
+            Dictionary with the properties `x`, `y`.
             The `x` and `y` coordinates reposition the top-left point of the scrollable region of the list view.
-            The `animated` property is optional and set to `false` by default.
-        type: Dictionary
+        type: Point
+      - name: options
+        summary: |
+            Pass in `{ animated: true }` to animate the transition.
+        type: AnimatedOptions
+        optional: true
     since: 3.4.0
 
   - name: setMarker
@@ -1826,8 +1830,9 @@ properties:
     type: Boolean
     default: false
   - name: duration
-    summary: The duration in `milliseconds` for animation while the content inset is  being changed.
+    summary: The duration in `milliseconds` for animation while the content inset is being changed.
     type: Number
+    default: 300
 
 ---
 name: ListViewMarkerProps
