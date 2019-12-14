@@ -118,7 +118,7 @@
     "p-limit": "^2.2.0",
     "pngjs": "^3.4.0",
     "request": "^2.87.0",
-    "semver": "^6.3.0",
+    "semver": "^7.0.0",
     "sprintf": "0.1.5",
     "temp": "0.9.0",
     "windowslib": "^0.6.8",
