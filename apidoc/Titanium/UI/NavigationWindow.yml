@@ -54,7 +54,7 @@ methods:
         type: Titanium.UI.Window
 
       - name: options
-        # TODO: this should be of a type equivalent to Ti.Ui.Windows.open args!
+        # TODO: this should be of a type equivalent to Ti.Ui.Window.open args!
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window
             will be animated (default) while being opened (default: true).
