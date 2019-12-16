@@ -120,6 +120,7 @@ events:
         type: Number
         platforms: [iphone, ipad]
 
+# FIXME: I think Android does support AnimatedOptions for show/hide (separately, versus how ios only really takes show and uses the animated value for hide), defaulting to false
 methods:
   - name: show
     summary: Shows this dialog.
@@ -128,6 +129,7 @@ methods:
         `params` argument, as a popover-like dialog attached to another view or control.
     parameters:
       - name: params
+        # FIXME: I think this is used on iOS, not just iPad
         summary: Argument containing parameters for this method. Only used on iPad.
         type: showParams
         optional: true
@@ -363,6 +365,7 @@ examples:
                 $.dialog.show();
             }
 ---
+# FIXME: I don't think we actually take any args any more, it inherits the animated value from show on iOS!
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
 since: 2.0.0
@@ -382,6 +385,7 @@ properties:
   - name: animated
     summary: Determines whether to animate the dialog as it is shown.
     type: Boolean
+    optional: true
 
   - name: view
     summary: View to which to attach the dialog.
@@ -393,3 +397,4 @@ properties:
         Setting the x, y coordinates to (0, 0) places the dialog in the top-left corner of the
         view object.  Set both the `width` and `height` properties to 1.
     type: Dimension
+    optional: true
