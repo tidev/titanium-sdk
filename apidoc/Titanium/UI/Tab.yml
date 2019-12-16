@@ -134,6 +134,7 @@ methods:
             will be animated while being closed (default: false).
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
     since: "6.2.0"
 
 properties:

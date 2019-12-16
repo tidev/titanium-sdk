@@ -1343,6 +1343,7 @@ methods:
             Pass in `{ animated: true }` to animate the transition. Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
     since: 3.4.0
 
   - name: setMarker

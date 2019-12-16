@@ -50,6 +50,7 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: true }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
 
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
@@ -66,6 +67,7 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: true }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
 
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
@@ -82,6 +84,7 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
   - name: scrollToBottom
     summary: Moves the end of the scrollable region into the viewable area.

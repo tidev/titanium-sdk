@@ -42,6 +42,8 @@ methods:
             Display properties to use when hiding the popover.
             Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
 
   - name: show
     summary: Displays the popover.
