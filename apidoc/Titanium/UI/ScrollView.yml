@@ -45,7 +45,9 @@ methods:
       - name: options
         summary: |
             A simple object for specifying the animation properties when scrolling the view (since SDK 6.1.0).
-            When set to `{ animated: true }` it will scroll smoothly to the destination. On iOS the default value is `true`.
+            When set to `{ animated: true }` it will scroll smoothly to the destination.
+
+            Note that the default here is equivalent to passing in `{ animated: true }`
         type: AnimatedOptions
         optional: true
 
@@ -58,7 +60,10 @@ methods:
             X and Y coordinates to which to reposition the top-left point of the scrollable region.
         type: Point
       - name: animated
-        summary: A JS object with an `animated` property which determines whether the scrollable region reposition should be animated
+        summary: |
+            A JS object with an `animated` property which determines whether the scrollable region reposition should be animated.
+
+            Note that the default here is equivalent to passing in `{ animated: true }`
         type: AnimatedOptions
         optional: true
 
@@ -71,7 +76,10 @@ methods:
         type: Number
 
       - name: options
-        summary: A JS object with an `animated` property which determines whether the scrollable region reposition should be animated
+        summary: |
+            A JS object with an `animated` property which determines whether the scrollable region reposition should be animated
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
 

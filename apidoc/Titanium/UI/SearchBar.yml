@@ -97,6 +97,8 @@ methods:
         summary: |
             Dictionary of animation properties. Currently only a
             single boolean property, `animated` is supported. Only used on iOS.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
         default: No animation.

@@ -468,7 +468,6 @@ methods:
             Options dictionary supporting a single `animated` boolean property to determine whether
             the navigation bar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
-        # FIXME: default animated value here is true! Do we define a different type than AnimatedOptions?
         optional: true
     platforms: [iphone, ipad]
 
@@ -519,7 +518,6 @@ methods:
             Options dictionary supporting a single `animated` boolean property to determine whether
             the navigation bar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
-        # FIXME: default animated value here is true!
         optional: true
     platforms: [iphone, ipad]
 
@@ -535,7 +533,6 @@ methods:
             Options dictionary supporting a single `animated` boolean property to determine whether
             the toolbar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
-        # FIXME: default animated value here is true!
         optional: true
     platforms: [iphone, ipad]
     since: "5.4.0"
@@ -552,7 +549,6 @@ methods:
             Options dictionary supporting a single `animated` boolean property to determine whether
             the toolbar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
-        # FIXME: default animated value here is true!
         optional: true
     platforms: [iphone, ipad]
     since: "5.4.0"
