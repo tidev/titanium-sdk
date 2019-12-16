@@ -753,7 +753,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
-			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -1303,10 +1302,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			releaseDialogs(false);
 		}
 
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1343,10 +1338,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		TiApplication tiApp = getTiApp();
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
-
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
-		}
 
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -1386,20 +1377,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		updateTitle();
 
-		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
-			activityProxy.fireEvent(TiC.EVENT_START, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1426,10 +1403,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_STOP, null);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1455,20 +1428,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
-
-		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
-			activityProxy.fireEvent(TiC.EVENT_RESTART, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
-		}
 	}
 
 	@Override
@@ -1644,9 +1603,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void fireOnDestroy()
 	{
 		if (!onDestroyFired) {
-			if (activityProxy != null) {
-				activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
-			}
 			onDestroyFired = true;
 		}
 	}

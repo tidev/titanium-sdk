@@ -97,6 +97,8 @@ methods:
         summary: |
             Use the `itemtype` property to determine which shortcut should be returned.
         type: String
+    returns:
+      type: ShortcutParams
 
 examples:
   - title: Full example (get shortcuts, add shortcuts, remove shortcuts, check shortcuts).

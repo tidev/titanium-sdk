@@ -38,7 +38,7 @@ DEFINE_DEF_INT_PROP(borderStyle, UITextBorderStyleLine);
 DEFINE_DEF_INT_PROP(clearButtonMode, UITextFieldViewModeNever);
 DEFINE_DEF_INT_PROP(leftButtonMode, UITextFieldViewModeNever);
 DEFINE_DEF_INT_PROP(rightButtonMode, UITextFieldViewModeNever);
-DEFINE_DEF_INT_PROP(appearance, UIKeyboardAppearanceDefault);
+DEFINE_DEF_INT_PROP(keyboardAppearance, UIKeyboardAppearanceDefault);
 DEFINE_DEF_INT_PROP(autocapitalization, UITextAutocapitalizationTypeNone);
 DEFINE_DEF_INT_PROP(maxLength, -1);
 
