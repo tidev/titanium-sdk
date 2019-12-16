@@ -143,14 +143,13 @@ extern NSString *const TI_APPLICATION_GUID;
     BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
     NSMutableDictionary *revisedEvent = [TiUtils dictionaryWithCode:success ? 0 : -1 message:success ? nil : @"error reverse geocoding"];
     [revisedEvent setValuesForKeysWithDictionary:event];
-    // TODO: Remove the zipcode and country_code values after on SDK 9.0.0!
     NSArray<NSMutableDictionary *> *places = (NSArray<NSMutableDictionary *> *)revisedEvent[@"places"];
     for (NSMutableDictionary *dict in places) {
       dict[@"postalCode"] = dict[@"zipcode"];
+      [dict removeObjectForKey:@"zipcode"];
       dict[@"countryCode"] = dict[@"country_code"];
+      [dict removeObjectForKey:@"country_code"];
     }
-    NSLog(@"[WARN] GeocodedAddress properties country_code and zipcode are deprecated in SDK 8.0.0 and will be removed in 9.0.0");
-    NSLog(@"[WARN] Please replace usage with the respective properties: countryCode and postalCode");
     [callback callWithArguments:@[ revisedEvent ]];
   }
 }
@@ -317,11 +316,10 @@ extern NSString *const TI_APPLICATION_GUID;
 
     locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
 
-#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
     }
-#endif
+
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
 
@@ -605,23 +603,19 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
 
 - (BOOL)showBackgroundLocationIndicator
 {
-#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return showBackgroundLocationIndicator;
   }
-#endif
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Returning \"false\" ...");
   return NO;
 }
 
 - (void)setShowBackgroundLocationIndicator:(BOOL)value
 {
-#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     showBackgroundLocationIndicator = value;
     return;
   }
-#endif
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
 }
 

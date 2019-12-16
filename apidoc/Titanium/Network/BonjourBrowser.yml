@@ -22,22 +22,26 @@ methods:
     summary: Conduct a search for Bonjour services matching the type and domain specified during creation
   - name: stopSearch
     summary: Halt an ongoing search
-events:
 
+events:
   - name: updatedservices
     summary: Fired when the discovered services list is updated
     properties:
       - name: services
         summary: An array of BonjourService objects corresponding to currently available services.  If you cache this value, including using it as table data, be aware that it could become out of date at any time due to the asynchronous nature of Bonjour service discovery.
+        type: Array<Titanium.Network.BonjourService>
     since: '3.0.0'
 
 properties:
   - name: domain
     summary: The domain the browser is searching in
     type: String
+    default: "local."
   - name: isSearching
     summary: Whether or not the browser is currently searching
     type: Boolean
+    default: false
   - name: serviceType
     summary: The type of the service the browser searches for
     type: String
+    default: null

@@ -18,6 +18,8 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'contact@garymathews.com',
 	'yordan.banev@gmail.com',
 	'iw@whitfin.io',
+	'mukherjee2@users.noreply.github.com',
+	'14187093+Sajoha@users.noreply.github.com'
 ];
 
 // others use our company email addresses
@@ -90,6 +92,43 @@ function guessPreviousBranch(version) {
 	// ideally it should be like "v1.2.3", but we're doing like '8_1_1_GA' so far
 }
 
+function urlToVersion(url) {
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
+}
+
+function gatherModules() {
+	const modulesJSON = fs.readJSONSync(path.join(__dirname, '../support/module/packaged/modules.json'));
+	const modules = new Map();
+	// Android
+	Object.entries(modulesJSON.android).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		modules.set(moduleId, { name: moduleId, android: version, ios: 'n/a' });
+	});
+	// iOS
+	Object.entries(modulesJSON.ios).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		if (modules.has(moduleId)) {
+			const androidVersion = modules.get(moduleId).android;
+			modules.set(moduleId, { name: moduleId, android: androidVersion, ios: version });
+		} else {
+			modules.set(moduleId, { name: moduleId, android: 'n/a', ios: version });
+		}
+	});
+	// CommonJS
+	Object.entries(modulesJSON.commonjs).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		modules.set(moduleId, { name: moduleId, android: version, ios: version });
+	});
+	// Hyperloop
+	const hyperloopVersion = urlToVersion(modulesJSON.hyperloop.hyperloop.url);
+	modules.set('hyperloop', { name: 'hyperloop', android: hyperloopVersion, ios: hyperloopVersion });
+
+	return modules;
+}
+
 /**
  * Gather up the community contributions to thank them specifically
  */
@@ -115,10 +154,17 @@ module.exports = {
 
 			// check authorName/authorEmail against known axway employee list or some whitelist or something to determine community credits?
 			if (commit.authorEmail) {
-				const domain = commit.authorEmail.split('@')[1];
+				const emailParts = commit.authorEmail.split('@');
+				const domain = emailParts[1];
 				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
 					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
 					&& !commit.authorEmail.includes('greenkeeper[bot]')) {
+					// If this is a noreply github email address, strip it to username so we can link to them
+					// if (domain === 'users.noreply.github.com') {
+					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
+					// 	const username = usernameParts[usernameParts.length - 1];
+					// 	// TODO: Record username so we can provide link in changelog?
+					// }
 					// This is a community contribution! Add name to a community credits section
 					community = true;
 				}
@@ -264,7 +310,9 @@ module.exports = {
 			}
 			context.eosDate = dateFormat(eosDate, 'yyyy-mm-dd', true);
 
-			// TODO: Gather up the modules shipped with this version and toss into a variable we can put into the changelog?
+			// Gather up the modules shipped with this version and toss into a variable we can put into the changelog
+			const modules = gatherModules();
+			context.modules = Array.from(modules.values());
 
 			return context;
 		},
@@ -274,6 +322,7 @@ module.exports = {
 		partials: {
 			about: fs.readFileSync(path.join(__dirname, 'templates/about.hbs'), 'utf8'),
 			credits: fs.readFileSync(path.join(__dirname, 'templates/credits.hbs'), 'utf8'),
+			modules: fs.readFileSync(path.join(__dirname, 'templates/modules.hbs'), 'utf8'),
 		},
 		groupBy: 'type',
 		commitGroupsSort: 'title', // FIXME: Sort so features comes before bug fixes, then perf improvements? Can we bake in community credits?

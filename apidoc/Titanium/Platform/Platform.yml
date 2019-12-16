@@ -96,9 +96,11 @@ methods:
                 * `UIApplicationOpenURLOptionUniversalLinksOnly` (Boolean value)
             Read more about the available keys in the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationopenurloptionskey?language=objc).
         type: Dictionary
+        optional: true
       - name: callback
         summary: The optional callback that is called once the URL is opened (iOS 10+).
         type: Callback
+        optional: true
 
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.

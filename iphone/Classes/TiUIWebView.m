@@ -75,13 +75,11 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     [config setUserContentController:controller];
 
-#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
         [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
       }
     }
-#endif
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
@@ -276,7 +274,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   NSString *baseURL = options[@"baseURL"];
   NSString *mimeType = options[@"mimeType"];
 
-  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL URLWithString:baseURL] : [NSURL fileURLWithPath:baseURL];
+  NSURL *url = [baseURL hasPrefix:@"file:"] ? [NSURL fileURLWithPath:baseURL] : [NSURL URLWithString:baseURL];
 
   [[self webView] loadData:[content dataUsingEncoding:NSUTF8StringEncoding]
                    MIMEType:mimeType
@@ -800,17 +798,17 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     NSArray<NSString *> *cookies = [message.body componentsSeparatedByString:@"; "];
     for (NSString *cookie in cookies) {
       // Get this cookie's name and value
-      NSArray<NSString *> *components = [cookie componentsSeparatedByString:@"="];
-      if (components.count < 2) {
+      NSRange separatorRange = [cookie rangeOfString:@"="];
+      if (separatorRange.location == NSNotFound || separatorRange.location == 0 || separatorRange.location == ([cookie length] - 1)) {
         continue;
       }
+      NSString *cookieName = [cookie substringToIndex:separatorRange.location];
+      NSString *cookieValue = [cookie substringFromIndex:separatorRange.location + separatorRange.length];
 
       // Get the cookie in shared storage with that name
       NSHTTPCookie *localCookie = nil;
       for (NSHTTPCookie *httpCookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:self.webView.URL]) {
-        NSString *cookieName = httpCookie.name;
-        NSString *secondComponent = components[0];
-        if ([cookieName isEqualToString:secondComponent]) {
+        if ([httpCookie.name isEqualToString:cookieName]) {
           localCookie = httpCookie;
           break;
         }
@@ -819,7 +817,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       //If there is a cookie with a stale value, update it now.
       if (localCookie != nil) {
         NSMutableDictionary *cookieProperties = [localCookie.properties mutableCopy];
-        cookieProperties[NSHTTPCookieValue] = components[1];
+        cookieProperties[NSHTTPCookieValue] = cookieValue;
         NSHTTPCookie *updatedCookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:updatedCookie];
       } else {
@@ -979,6 +977,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[TiApp app] showModalController:alertController animated:YES];
 }
 
+- (void)fireBeforeLoad:(nonnull WKNavigationAction *)navigationAction
+{
+  if ([[self proxy] _hasListeners:@"beforeload"]) {
+    [[self proxy] fireEvent:@"beforeload"
+                 withObject:@{
+                   @"url" : navigationAction.request.URL.absoluteString,
+                   @"navigationType" : @(navigationAction.navigationType),
+                   @"isMainFrame" : NUMBOOL(navigationAction.targetFrame.isMainFrame),
+                 }];
+  }
+}
+
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(nonnull WKNavigationAction *)navigationAction decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler
 {
   if (_isViewDetached) {
@@ -1008,20 +1018,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
-  if ([[self proxy] _hasListeners:@"beforeload"]) {
-    [[self proxy] fireEvent:@"beforeload"
-                 withObject:@{
-                   @"url" : navigationAction.request.URL.absoluteString,
-                   @"navigationType" : @(navigationAction.navigationType)
-                 }];
-  }
-
   // Use "onlink" callback property to decide the navigation policy
   KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
-  if (onLink != nil) {
+  if (onLink != nil && navigationAction.navigationType == WKNavigationTypeLinkActivated) {
     JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : navigationAction.request.URL.absoluteString } ]];
     if (functionResult != NULL && JSValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
       if (JSValueToBoolean([onLink.bridge.krollContext context], functionResult)) {
+        [self fireBeforeLoad:navigationAction];
         decisionHandler(WKNavigationActionPolicyAllow);
       } else {
         decisionHandler(WKNavigationActionPolicyCancel);
@@ -1029,6 +1032,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       return;
     }
   }
+
+  [self fireBeforeLoad:navigationAction];
 
   NSString *scheme = [navigationAction.request.URL.scheme lowercaseString];
 
@@ -1060,23 +1065,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   } else {
     decisionHandler(WKNavigationActionPolicyAllow);
   }
-}
-
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
-{
-  NSDictionary<NSString *, id> *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
-  NSURL *requestedURL = navigationResponse.response.URL;
-
-  // If we have request headers set, we do a little hack to persist them across different URL's,
-  // which is not officially supported by iOS.
-  if (requestHeaders != nil && requestedURL != nil && ![requestedURL.absoluteString isEqualToString:_currentURL.absoluteString]) {
-    _currentURL = requestedURL;
-    decisionHandler(WKNavigationResponsePolicyCancel);
-    [self loadRequestWithURL:_currentURL];
-    return;
-  }
-
-  decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
@@ -1365,7 +1353,6 @@ static NSString *UIKitLocalizedString(NSString *string)
 
 @end
 
-#if IS_SDK_IOS_11
 @implementation WebAppProtocolHandler
 
 + (NSString *)specialProtocolScheme
@@ -1416,6 +1403,5 @@ static NSString *UIKitLocalizedString(NSString *string)
 }
 
 @end
-#endif
 
 #endif

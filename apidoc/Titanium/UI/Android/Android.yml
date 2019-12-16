@@ -196,6 +196,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
+        removed: "9.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -204,6 +205,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use [Titanium.UI.AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as email addresses into clickable links.
     type: Number
     permission: read-only
@@ -212,6 +214,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     permission: read-only
@@ -220,6 +223,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -228,6 +232,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only

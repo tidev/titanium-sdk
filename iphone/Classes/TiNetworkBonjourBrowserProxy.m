@@ -10,6 +10,7 @@
 
 #import "TiNetworkBonjourBrowserProxy.h"
 #import "TiNetworkBonjourServiceProxy.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiNetworkBonjourBrowserProxy
 
@@ -22,11 +23,6 @@
   if (self = [super init]) {
     browser = [[NSNetServiceBrowser alloc] init];
     services = [[NSMutableArray alloc] init];
-
-    [browser removeFromRunLoop:[NSRunLoop currentRunLoop]
-                       forMode:NSDefaultRunLoopMode];
-    [browser scheduleInRunLoop:[NSRunLoop mainRunLoop]
-                       forMode:NSDefaultRunLoopMode];
 
     [browser setDelegate:self];
     searching = NO;
@@ -91,6 +87,8 @@
   [browser searchForServicesOfType:serviceType
                           inDomain:domain];
 
+  // TODO: Why isn't this breaking when run on main thread?!
+  // TODO: Should we remove this and make it async like BonjourService?
   if (!searching && !error) {
     [searchCondition lock];
     [searchCondition wait];
@@ -140,7 +138,6 @@
 {
   NSDictionary *eventObject = [NSDictionary dictionaryWithObject:[[services copy] autorelease]
                                                           forKey:@"services"];
-  [self fireEvent:@"updatedServices" withObject:eventObject]; //TODO: Deprecate old event.
   [self fireEvent:@"updatedservices" withObject:eventObject];
 }
 

@@ -91,7 +91,7 @@ static NSArray *touchEventsArray;
 
 - (void)processTempProperties:(NSDictionary *)arg
 {
-  //arg will be non nil when called from updateLayout
+  // arg will be typically be nil (was non-nil when called from removed updateLayout() method)
   if (arg != nil) {
     NSEnumerator *enumerator = [arg keyEnumerator];
     id key;
@@ -127,36 +127,6 @@ static NSArray *touchEventsArray;
   }
 }
 #endif
-
-- (void)startLayout:(id)arg
-{
-  DebugLog(@"startLayout() method is deprecated since 3.0.0 .");
-  updateStarted = YES;
-  allowLayoutUpdate = NO;
-}
-- (void)finishLayout:(id)arg
-{
-  DebugLog(@"finishLayout() method is deprecated since 3.0.0 .");
-  updateStarted = NO;
-  allowLayoutUpdate = YES;
-  [self processTempProperties:nil];
-  allowLayoutUpdate = NO;
-}
-- (void)updateLayout:(id)arg
-{
-  DebugLog(@"updateLayout() method is deprecated since 3.0.0, use applyProperties() instead.");
-  id val = nil;
-  if ([arg isKindOfClass:[NSArray class]]) {
-    val = [arg objectAtIndex:0];
-  } else {
-    val = arg;
-  }
-  updateStarted = NO;
-  allowLayoutUpdate = YES;
-  ENSURE_TYPE_OR_NIL(val, NSDictionary);
-  [self processTempProperties:val];
-  allowLayoutUpdate = NO;
-}
 
 - (BOOL)belongsToContext:(id<TiEvaluator>)context
 {

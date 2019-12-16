@@ -120,12 +120,6 @@ static NSArray *contactKeysWithoutImage;
   return @([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusAuthorized);
 }
 
-- (void)requestAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Contacts.requestAuthorization()", @"5.1.0", @"Contacts.requestContactsPermissions()");
-  [self requestContactsPermissions:args];
-}
-
 - (void)requestContactsPermissions:(id)args
 {
   ENSURE_SINGLE_ARG(args, KrollCallback);
@@ -246,18 +240,6 @@ static NSArray *contactKeysWithoutImage;
   }
 
   [[TiApp app] showModalController:contactPicker animated:animated];
-}
-
-- (TiContactsPerson *)getPersonByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getPersonByID\" method has been removed for iOS 9 and greater.");
-  return nil;
-}
-
-- (TiContactsGroup *)getGroupByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getGroupByID\" method has been removed for iOS 9 and greater.");
-  return nil;
 }
 
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg

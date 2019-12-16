@@ -39,7 +39,7 @@ Persistent<Object> V8Runtime::moduleObject;
 Persistent<Function> V8Runtime::runModuleFunction;
 
 jobject V8Runtime::javaInstance;
-Platform* V8Runtime::platform = nullptr;
+std::unique_ptr<v8::Platform> V8Runtime::platform;
 Isolate* V8Runtime::v8_isolate = nullptr;
 bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
@@ -165,8 +165,8 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	// Set the __dirname and __filename for the app.js.
 	// For other files, it will be injected via the `NativeModule` JavaScript class
-	global->Set(NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
-	global->Set(NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
+	global->Set(context, NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
+	global->Set(context, NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
 
 	Local<Function> mainFunction = result.As<Function>();
 	Local<Value> args[] = { kroll };
@@ -188,7 +188,7 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 		*String::Utf8Value(V8Runtime::v8_isolate, msg->GetScriptResourceName()),
 		msg->GetLineNumber(context).FromMaybe(-1),
 		*String::Utf8Value(V8Runtime::v8_isolate,
-		msg->GetSourceLine(context).FromMaybe(-1)));
+		msg->GetSourceLine(context).ToLocalChecked()));
 }
 
 } // namespace titanium
@@ -208,8 +208,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// Initialize V8.
 		// TODO Enable this when we use snapshots?
 		//V8::InitializeExternalStartupData(argv[0]);
-		V8Runtime::platform = platform::CreateDefaultPlatform();
-		V8::InitializePlatform(V8Runtime::platform);
+		V8Runtime::platform = platform::NewDefaultPlatform();
+		V8::InitializePlatform(V8Runtime::platform.get());
 		V8::Initialize();
 		V8Runtime::initialized = true;
 	}
@@ -259,6 +259,58 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8Runtime::bootstrap(context);
 
 	LOG_HEAP_STATS(isolate, TAG);
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    nativeRunModule
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModuleBytes
+	(JNIEnv *env, jobject self, jbyteArray source, jstring filename, jobject activityProxy)
+{
+	HandleScope scope(V8Runtime::v8_isolate);
+	titanium::JNIScope jniScope(env);
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+
+	if (V8Runtime::moduleObject.IsEmpty()) {
+		Local<Object> module;
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> moduleValue;
+			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			if (!maybeModule.ToLocal(&moduleValue)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			module = moduleValue.As<Object>();
+			V8Runtime::moduleObject.Reset(V8Runtime::v8_isolate, module);
+		}
+
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> runModule;
+			MaybeLocal<Value> maybeRunModule = module->Get(context, STRING_NEW(V8Runtime::v8_isolate, "runModule"));
+			if (!maybeRunModule.ToLocal(&runModule)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			V8Runtime::runModuleFunction.Reset(V8Runtime::v8_isolate, runModule.As<Function>());
+		}
+	}
+
+	Local<Value> jsSource = TypeConverter::javaBytesToJsString(V8Runtime::v8_isolate, env, source);
+	Local<Value> jsFilename = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, filename);
+	Local<Value> jsActivity = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, activityProxy);
+
+	Local<Value> args[] = { jsSource, jsFilename, jsActivity };
+	TryCatch tryCatch(V8Runtime::v8_isolate);
+	V8Runtime::RunModuleFunction()->Call(context, V8Runtime::ModuleObject(), 3, args);
+
+	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
+		V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
+	}
 }
 
 /*

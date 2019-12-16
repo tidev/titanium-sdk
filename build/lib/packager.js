@@ -169,6 +169,9 @@ class Packager {
 			await exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' });
 		}
 
+		// Include 'ti.cloak'
+		await unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
+
 		// hack the fake titanium-sdk npm package in
 		return this.hackTitaniumSDKModule();
 	}
@@ -286,7 +289,7 @@ class Packager {
 	}
 
 	async copySupportDir() {
-		const ignoreDirs = [ 'packaged', '.pyc', path.join(SUPPORT_DIR, 'dev') ];
+		const ignoreDirs = [ 'packaged', '.pyc', path.join(SUPPORT_DIR, 'dev'), path.join(SUPPORT_DIR, 'ti.cloak.zip') ];
 		// Copy support/ into root, but filter out folders based on OS
 		if (this.targetOS !== 'osx') {
 			ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'), path.join(SUPPORT_DIR, 'osx'));
