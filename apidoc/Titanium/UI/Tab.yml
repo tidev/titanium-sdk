@@ -364,16 +364,6 @@ events:
         type: Titanium.UI.Tab
     platforms: [android, iphone, ipad]
 
-  - name: selected
-    summary: Fired when the tab is selected.
-    platforms: [android]
-    since: "3.6.0"
-
-  - name: unselected
-    summary: Fired when the tab is unselected.
-    platforms: [android]
-    since: "3.6.0"
-
 examples:
   - title: Simple Tab Example
     example: |
