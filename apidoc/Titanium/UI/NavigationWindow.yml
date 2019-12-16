@@ -58,7 +58,7 @@ methods:
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window
             will be animated (default) while being opened (default: true).
-        type: Dictionary
+        type: AnimatedOptions
         optional: true
 
   - name: popToRootWindow

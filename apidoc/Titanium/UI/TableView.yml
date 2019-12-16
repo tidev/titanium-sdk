@@ -952,7 +952,10 @@ methods:
         type: Padding
 
       - name: options
-        summary: Determines whether, and how, the content inset change should be animated.
+        summary: |
+            Determines whether, and how, the content inset change should be animated.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedWithDurationOptions
         optional: true
     platforms: [iphone, ipad]
@@ -970,6 +973,8 @@ methods:
       - name: options
         summary: |
             Pass in `{ animated: true }` to animate the transition.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
     since: 3.4.0

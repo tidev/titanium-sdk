@@ -24,16 +24,19 @@ methods:
   - name: show
     summary: Shows the menu popup.
     parameters:
-      - name: params
-        summary: Includes options how the menu popup should be shown.
+      - name: options
+        summary: Includes options how the menu popup should be shown. Note that the default is to be animated.
         type: MenuPopupShowParams
         optional: false
 
   - name: hide
     summary: Hides the menu popup.
     parameters:
-      - name: params
-        summary: Includes options how the menu popup should be hidden. Introduced in SDK 5.2.0
+      - name: options
+        summary: |
+            Includes options how the menu popup should be hidden. Introduced in SDK 5.2.0.
+        
+            Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimationOptions> is false)
         type: AnimatedOptions
         optional: true
 
@@ -109,6 +112,7 @@ properties:
     summary: Indicates the arrow direction of the menu popup.
     description: Use this property to indicate the menu popups arrow to use. 
     type: Number
+    default: Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DEFAULT
     constants: [ Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_UP,Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DOWN,
                 Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_LEFT,Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_RIGHT,
                 Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DEFAULT ]

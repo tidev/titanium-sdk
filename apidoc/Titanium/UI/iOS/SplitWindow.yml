@@ -48,6 +48,8 @@ methods:
           Determines whether the scrollable region reposition should be animated. On iOS, use the optional property `animated` to animate changes to masterView display mode in portrait orientation. For example
 
               setShowMasterInPortrait(true, {animated:true})
+
+          Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
 
@@ -63,6 +65,8 @@ methods:
           Determines whether the scrollable region reposition should be animated. On iOS, use the optional property `animated` to animate changes to masterView display mode in portrait orientation. For example
 
               setMasterIsOverlayed(true, {animated:true})
+
+          Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
 

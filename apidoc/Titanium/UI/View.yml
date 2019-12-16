@@ -863,6 +863,7 @@ methods:
             Animation options for Android only. **Since SDK 5.1.0 and used only on Android 5.0+**
 
             Determines whether to enable a circular reveal animation.
+            Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
         # FIXME: Allow setting platforms/osver on parameters. Sucks we have to stick this in summary!
@@ -910,6 +911,7 @@ methods:
             Animation options for Android only. **Since SDK 5.1.0 and only used on Android 5.0+**
 
             Determines whether to enable a circular reveal animation.
+            Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
         # FIXME: Support platfroms/osver/since on parameters!
