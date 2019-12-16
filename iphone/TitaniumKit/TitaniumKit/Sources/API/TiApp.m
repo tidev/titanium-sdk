@@ -186,11 +186,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     UIApplication *app = [UIApplication sharedApplication];
     NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
     if ([app canOpenURL:url]) {
-      if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-        [app openURL:url options:@{} completionHandler:nil];
-      } else {
-        [app openURL:url];
-      }
+      [app openURL:url options:@{} completionHandler:nil];
     } else {
       DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
     }
@@ -354,10 +350,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     remoteDeviceUUID = [apnsUUID copy];
   }
 
-  // iOS 10+: Register our notification delegate
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
-  }
+  [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
 
   // Get some launch options to validate before finish launching. Some of them
   // need to be mapepd from native to JS-types to be used by the client

@@ -16,7 +16,7 @@
 		"Chris Barber <cbarber@axway.com>",
 		"Hans Knöchel <cbarber@axway.com>"
 	],
-	"minIosVersion": "9.0",
+	"minIosVersion": "10.0",
 	"minWatchosVersion": "2.0",
 	"vendorDependencies": {
 		"xcode": ">=9.0 <=11.x",

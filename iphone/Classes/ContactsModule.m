@@ -113,7 +113,7 @@ static NSArray *contactKeysWithoutImage;
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSContactsUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !calendarPermission) {
+  if (!calendarPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSContactsUsageDescription\" inside the plist in your tiapp.xml when accessing the native contacts. Please add the key and re-run the application.");
   }
 
