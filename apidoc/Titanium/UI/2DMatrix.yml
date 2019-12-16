@@ -123,7 +123,7 @@ methods:
 
       - name: angle
         summary: |
-            Angle to rotate to, in degrees. On Android, if `angleTo` is specified, this specifies
+            Angle to rotate to, in degrees. On Android, if `toAngle` is specified, this specifies
             the starting angle for a rotation animation.
         type: Number
 
