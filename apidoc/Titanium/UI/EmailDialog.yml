@@ -73,6 +73,7 @@ methods:
             Supported on iOS only. Simple object to override animation. Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimationOptions> is false)
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
 
 events:
   - name: complete

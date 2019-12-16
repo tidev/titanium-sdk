@@ -60,6 +60,7 @@ methods:
             will be animated (default) while being opened (default: true).
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
 
   - name: popToRootWindow
     summary: Closes all windows that are currently opened inside the navigation window.
@@ -72,6 +73,7 @@ methods:
             will be animated while being closed (default: false).
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
 examples:
   - title: Simple Navigation Window

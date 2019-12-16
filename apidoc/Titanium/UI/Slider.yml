@@ -112,6 +112,7 @@ methods:
             on iOS.
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
 events:
   - name: change

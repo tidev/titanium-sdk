@@ -39,6 +39,7 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimationOptions> is false)
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
 
   - name: isVisible
     summary: Indicates whether the menu popup is currently visible.

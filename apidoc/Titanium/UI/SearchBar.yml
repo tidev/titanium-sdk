@@ -101,7 +101,7 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
-        default: No animation.
+        default: "{ animated: false }"
 
 events:
   - name: blur

@@ -52,6 +52,7 @@ methods:
           Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
   - name: setMasterIsOverlayed
     summary: Sets the value of the [masterIsOverlayed](Titanium.UI.iOS.SplitWindow.masterIsOverlayed) property.
@@ -69,6 +70,7 @@ methods:
           Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
 properties:
   - name: detailView

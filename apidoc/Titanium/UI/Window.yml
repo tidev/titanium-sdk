@@ -469,6 +469,7 @@ methods:
             the navigation bar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
 
   - name: hideTabBar
@@ -519,6 +520,7 @@ methods:
             the navigation bar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
 
   - name: showToolbar
@@ -534,6 +536,7 @@ methods:
             the toolbar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
     since: "5.4.0"
 
@@ -550,6 +553,7 @@ methods:
             the toolbar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
     since: "5.4.0"
 

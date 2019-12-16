@@ -866,6 +866,7 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
         # FIXME: Allow setting platforms/osver on parameters. Sucks we have to stick this in summary!
 
   - name: insertAt
@@ -914,6 +915,7 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
         # FIXME: Support platfroms/osver/since on parameters!
 
   - name: startLayout
