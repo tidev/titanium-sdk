@@ -243,6 +243,7 @@ events:
     summary: Fired from the activity's `onCreate` method.
     deprecated:
         since: "3.4.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Android.Activity.onCreate](Titanium.Android.Activity.onCreate) instead.
     description: |
         See also:
@@ -253,6 +254,7 @@ events:
     summary: Fired from the activity's `onDestroy` method.
     deprecated:
         since: "3.4.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Android.Activity.onDestroy](Titanium.Android.Activity.onDestroy) instead.
     description: |
         See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
@@ -287,16 +289,28 @@ events:
     summary: Fired when the activity is paused.
     deprecated:
         since: "3.4.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Android.Activity.onPause](Titanium.Android.Activity.onPause) instead.
     description: |
         See also:
         [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
         in the Android Developer Reference.
 
+  - name: restart
+    summary: Fired when the activity is restarted.
+    deprecated:
+        since: "3.4.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.Android.Activity.onRestart](Titanium.Android.Activity.onRestart) instead.
+    description: |
+        See also: [onRestart](https://developer.android.com/reference/android/app/Activity.html#onRestart())
+        in the Android Developer Reference.
+
   - name: resume
     summary: Fired when the activity is resumed.
     deprecated:
         since: "3.4.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Android.Activity.onResume](Titanium.Android.Activity.onResume) instead.
     description: |
         See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
@@ -306,6 +320,7 @@ events:
     summary: Fired when the activity is started.
     deprecated:
         since: "3.4.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Android.Activity.onStart](Titanium.Android.Activity.onStart) instead.
     description: |
         See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
@@ -315,6 +330,7 @@ events:
     summary: Fired when the activity is stopped.
     deprecated:
         since: "3.4.0"
+        removed: "9.0.0"
         notes: Use [Titanium.Android.Activity.onStop](Titanium.Android.Activity.onStop) instead.
     description: |
         See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
@@ -370,7 +386,7 @@ properties:
     summary: |
         Callback function called when the Android activity is created.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onCreateOptionsMenu
     summary: |
@@ -382,19 +398,19 @@ properties:
          See also: 
          [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
-    type: Callback<Object>
+    type: Callback<OptionsMenuCallbackObject>
 
   - name: onDestroy
     summary: |
         Callback function called when the Android activity is destroyed.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onPause
     summary: |
         Callback function called when the Android activity is paused.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onPrepareOptionsMenu
     summary:  |
@@ -406,31 +422,31 @@ properties:
          See also: 
          [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
-    type: Callback<Object>
+    type: Callback<OptionsMenuCallbackObject>
 
   - name: onRestart
     summary: |
         Callback function called when the Android activity is restarted.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onResume
     summary: |
         Callback function called when the Android activity is resumed.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onStart
     summary: |
         Callback function called when the Android activity is started.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: onStop
     summary: |
         Callback function called when the Android activity is stopped.
     since: "3.4.0"
-    type: Callback<Object>
+    type: Callback<ActivityLifecycleCallbackObject>
 
   - name: requestedOrientation
     summary: Specifies a specific orientation for this activity.
@@ -444,7 +460,7 @@ properties:
          This property is used to set a toolbar as an ActionBar prior to the actual activity creation.
          After the activity is created that must be done through the [setSupportActionBar()](Titanium.Android.Activity.setSupportActionBar) method.
     type: Titanium.UI.Toolbar
-    since: 6.2.0
+    since: "6.2.0"
     
 examples:
   - title: Callback Example
@@ -488,3 +504,26 @@ properties:
         the intent as "extras").
     type: Titanium.Android.Intent
 
+---
+name: ActivityLifecycleCallbackObject
+summary: |
+    Simple object passed to the <Titanium.Android.Activity> callbacks for
+    onCreate, onDestroy, onPause, onResume, onStart, onStop, onRestart.
+
+    Additional properties may be set on the Object.
+properties:
+  - name: source
+    summary: The Activity firing the callback.
+    type: Titanium.Android.Activity
+
+---
+name: OptionsMenuCallbackObject
+summary: |
+    Simple object passed to the <Titanium.Android.Activity> callbacks for
+    onPrepareOptionsMenu and onCreateOptionsMenu.
+
+    Additional properties may be set on the Object.
+properties:
+  - name: menu
+    summary: The relevant Menu.
+    type: Titanium.Android.Menu

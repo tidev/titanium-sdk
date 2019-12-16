@@ -288,6 +288,7 @@ events:
     summary: Fired when the tab loses focus.
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) instead.
     properties:
       - name: index
@@ -330,6 +331,7 @@ events:
     summary: Fired when the tab gains focus.
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) instead.
     properties:
       - name: index
@@ -363,16 +365,6 @@ events:
         summary: Previous active tab object.
         type: Titanium.UI.Tab
     platforms: [android, iphone, ipad]
-
-  - name: selected
-    summary: Fired when the tab is selected.
-    platforms: [android]
-    since: "3.6.0"
-
-  - name: unselected
-    summary: Fired when the tab is unselected.
-    platforms: [android]
-    since: "3.6.0"
 
 examples:
   - title: Simple Tab Example

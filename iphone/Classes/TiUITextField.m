@@ -317,26 +317,10 @@
   }
 }
 
-- (void)setPaddingLeft_:(id)value
-{
-  DEPRECATED_REPLACED(@"UI.TextField.paddingLeft", @"6.1.0", @"UI.TextField.padding.left");
-
-  TiTextField *tv = (TiTextField *)[self textWidgetView];
-  tv.paddingLeft = [TiUtils floatValue:value];
-}
-
 - (void)setLeftButtonPadding_:(id)value
 {
   TiTextField *tv = (TiTextField *)[self textWidgetView];
   tv.leftButtonPadding = [TiUtils floatValue:value];
-}
-
-- (void)setPaddingRight_:(id)value
-{
-  DEPRECATED_REPLACED(@"UI.TextField.paddingRight", @"6.1.0", @"UI.TextField.padding.right");
-
-  TiTextField *tv = (TiTextField *)[self textWidgetView];
-  tv.paddingRight = [TiUtils floatValue:value];
 }
 
 - (void)setRightButtonPadding_:(id)value

@@ -612,14 +612,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
-#ifdef USE_TI_MEDIAREQUESTAUTHORIZATION
-- (void)requestAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"5.1.0", @"Media.requestAudioRecorderPermissions");
-  [self requestAudioRecorderPermissions:args];
-}
-#endif
-
 #ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
 - (id)hasAudioPermissions:(id)unused
 {
@@ -641,15 +633,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#ifdef USE_TI_MEDIAREQUESTAUDIOPERMISSIONS
-- (void)requestAudioPermissions:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"6.1.0", @"Media.requestAudioRecorderPermissions");
-  [self requestAudioRecorderPermissions:args];
-}
-#endif
-
-#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUDIOPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUTHORIZATION)
+#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS)
 - (void)requestAudioRecorderPermissions:(id)args
 {
   ENSURE_SINGLE_ARG(args, KrollCallback);
@@ -1033,13 +1017,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if defined(USE_TI_MEDIAREQUESTCAMERAPERMISSIONS) || defined(USE_TI_MEDIAREQUESTCAMERAACCESS)
-- (void)requestCameraAccess:(id)arg
-{
-  DEPRECATED_REPLACED(@"Media.requestCameraAccess", @"5.1.0", @"Media.requestCameraPermissions");
-  [self requestCameraPermissions:arg];
-}
-
+#if defined(USE_TI_MEDIAREQUESTCAMERAPERMISSIONS)
 //request camera access. for >= IOS7
 - (void)requestCameraPermissions:(id)arg
 {
