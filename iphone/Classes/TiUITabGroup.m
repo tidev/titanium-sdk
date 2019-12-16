@@ -127,12 +127,6 @@ DEFINE_EXCEPTIONS
   [event setObject:NUMINTEGER(previousIndex) forKey:@"previousIndex"];
   [event setObject:NUMINTEGER(index) forKey:@"index"];
 
-  if ([self.proxy _hasListeners:@"unselected"]) {
-    DEPRECATED_REPLACED(@"UI.TabGroup.Event.unselected", @"5.2.0", @"UI.TabGroup.Event.blur")
-        [self.proxy fireEvent:@"unselected"
-                   withObject:event];
-  }
-
   if ([self.proxy _hasListeners:@"blur"]) {
     [self.proxy fireEvent:@"blur" withObject:event];
   }
@@ -147,12 +141,6 @@ DEFINE_EXCEPTIONS
 
   // If we're in the middle of opening, the focus happens once the tabgroup is opened
   if (![(TiWindowProxy *)[self proxy] opening]) {
-    if ([self.proxy _hasListeners:@"selected"]) {
-      DEPRECATED_REPLACED(@"UI.TabGroup.Event.selected", @"5.2.0", @"UI.TabGroup.Event.focus")
-          [self.proxy fireEvent:@"selected"
-                     withObject:event];
-    }
-
     if ([self.proxy _hasListeners:@"focus"]) {
       [self.proxy fireEvent:@"focus" withObject:event];
     }
@@ -621,12 +609,6 @@ DEFINE_EXCEPTIONS
     index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
   }
   NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy, @"tab", NUMINTEGER(index), @"index", NUMINT(-1), @"previousIndex", [NSNull null], @"previousTab", nil];
-  if ([self.proxy _hasListeners:@"selected"]) {
-    DEPRECATED_REPLACED(@"UI.TabGroup.Event.selected", @"5.2.0", @"UI.TabGroup.Event.focus")
-        [self.proxy fireEvent:@"selected"
-                   withObject:event];
-  }
-
   if ([self.proxy _hasListeners:@"focus"]) {
     [self.proxy fireEvent:@"focus" withObject:event];
   }

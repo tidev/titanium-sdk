@@ -3409,11 +3409,9 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 		'Contacts.getAllContacts': contactsReadPermissions,
 		'Contacts.showContactPicker': contactsReadPermissions,
 		'Contacts.showContacts': contactsReadPermissions,
-		'Contacts.getPersonByID': contactsReadPermissions,
 		'Contacts.getPeopleWithName': contactsReadPermissions,
 		'Contacts.getAllPeople': contactsReadPermissions,
 		'Contacts.getAllGroups': contactsReadPermissions,
-		'Contacts.getGroupByID': contactsReadPermissions,
 
 		'Media.Android.setSystemWallpaper': wallpaperPermissions,
 		'Media.showCamera': cameraPermissions,

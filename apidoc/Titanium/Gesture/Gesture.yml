@@ -11,8 +11,9 @@ methods:
     summary: Returns whether or not the device is currently held in landscape form.
     description: Value returns `true` if in landscape, and `false` otherwise.
     deprecated:
-        since: 6.1.0
-        notes: Use [Titanium.Gesture.landscape](Titanium.Gesture.landscape) for parity instead.
+        since: "6.1.0"
+        removed: "7.0.0"
+        notes: Use [Titanium.Gesture.landscape](Titanium.Gesture.landscape) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
     returns:
         type: Boolean
 
@@ -20,8 +21,9 @@ methods:
     summary: Returns whether or not the device is currently held in portrait form.
     description: Value returns `true` if in portrait, and `false` otherwise.
     deprecated:
-        since: 6.1.0
-        notes: Use [Titanium.Gesture.portrait](Titanium.Gesture.portrait) for parity instead.
+        since: "6.1.0"
+        removed: "7.0.0"
+        notes: Use [Titanium.Gesture.portrait](Titanium.Gesture.portrait) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
     returns:
         type: Boolean
 

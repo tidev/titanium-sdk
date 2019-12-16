@@ -67,6 +67,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.TextField.keyboardAppearance](Titanium.UI.TextField.keyboardAppearance) instead.
 
   - name: keyboardAppearance
@@ -453,6 +454,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.1.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
 
   - name: paddingRight
@@ -461,6 +463,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.1.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
 
   - name: passwordMask
