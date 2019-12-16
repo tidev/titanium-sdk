@@ -99,7 +99,7 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 		V8Util::fatalException(isolate, tryCatch);
 		return;
 	}
-	target->Set(NEW_SYMBOL(isolate, "API"), moduleInstance);
+	target->Set(context, NEW_SYMBOL(isolate, "API"), moduleInstance);
 }
 
 void APIModule::logDebug(const FunctionCallbackInfo<Value>& args)

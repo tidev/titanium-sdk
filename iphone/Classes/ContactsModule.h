@@ -39,7 +39,6 @@
 - (NSArray *)getAllPeople:(id)unused;
 - (TiContactsPerson *)createPerson:(id)arg;
 - (void)removePerson:(id)arg;
-- (void)requestAuthorization:(id)args;
 - (void)requestContactsPermissions:(id)args;
 
 @property (nonatomic, readonly) NSNumber *contactsAuthorization;

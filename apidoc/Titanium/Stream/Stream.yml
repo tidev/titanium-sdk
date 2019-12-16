@@ -339,23 +339,24 @@ properties:
     platforms: [android]
     deprecated:
         since: "3.1.0"
+        notes: Use success or code values to determine error conditions
+        removed: "9.0.0"
 
   - name: errorDescription
-
     summary: Text description of the error.
     type: String
     deprecated:
         since: "3.1.0"
+        notes: Use error property to determine error message
+        removed: "9.0.0"
 
   - name: success
-
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
     type: Boolean
     since: "3.1.0"
 
   - name: error
-
     summary: Error message, if any returned.
     description: Will be undefined if `success` is `true`.
     type: String
@@ -397,12 +398,16 @@ properties:
     platforms: [android]
     deprecated:
         since: "3.1.0"
+        notes: Use success or code values to determine error conditions
+        removed: "9.0.0"
 
   - name: errorDescription
     summary: Text description of the error.
     type: String
     deprecated:
         since: "3.1.0"
+        notes: Use error property to determine error message
+        removed: "9.0.0"
 
   - name: success
     summary: Indicates if the operation succeeded.
@@ -455,12 +460,16 @@ properties:
     platforms: [android]
     deprecated:
         since: "3.1.0"
+        notes: Use success or code values to determine error conditions
+        removed: "9.0.0"
 
   - name: errorDescription
     summary: Text description of the error.
     type: String
     deprecated:
         since: "3.1.0"
+        notes: Use error property to determine error message
+        removed: "9.0.0"
 
 ---
 name: PumpCallbackArgs
@@ -503,12 +512,16 @@ properties:
     platforms: [android]
     deprecated:
         since: "3.1.0"
+        notes: Use success or code values to determine error conditions
+        removed: "9.0.0"
 
   - name: errorDescription
     summary: Text description of the error.
     type: String
     deprecated:
         since: "3.1.0"
+        notes: Use error property to determine error message
+        removed: "9.0.0"
 
   - name: success
     summary: Indicates if the operation succeeded.

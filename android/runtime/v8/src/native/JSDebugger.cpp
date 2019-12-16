@@ -34,7 +34,7 @@ void JSDebugger::init(JNIEnv *env, jobject jsDebugger, v8::Local<v8::Context> co
 	assert(waitForMessage__ != nullptr);
 
 	if (debugger__ != nullptr) {
-		client__ = new InspectorClient(context, V8Runtime::platform);
+		client__ = new InspectorClient(context, V8Runtime::platform.get());
 	}
 }
 
