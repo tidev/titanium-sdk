@@ -1660,7 +1660,7 @@ properties:
         The correct values will only be available when layout is complete.
         To determine when layout is complete, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
-    type: Dimension # TODO: Define an extension of Dimension with the android-only absolute properties!
+    type: DimensionWithAbsolutes
     permission: read-only
     since: "2.0.0"
 

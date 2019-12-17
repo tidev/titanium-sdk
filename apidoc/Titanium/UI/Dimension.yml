@@ -11,9 +11,24 @@ description: |
   to 0.
 properties:
   - name: x
-    summary: The x-axis coordinate of the position.
+    summary: The x-axis coordinate of the position. When returned by <Titanium.UI.View.rect> the position is relative to it's parent.
     type: Number
 
   - name: y
-    summary: The y-axis coordinate of the position.
+    summary: The y-axis coordinate of the position. When returned by <Titanium.UI.View.rect> the position is relative to it's parent.
     type: Number
+
+---
+name: DimensionWithAbsolutes
+extends: Dimension
+summary: An extension of <Dimension> where Android returns additional absolute X/Y values/properties for <Titanium.UI.View.rect>
+properties:
+  - name: absoluteX
+    summary: The x-axis coordinate of the position relative to the main window.
+    type: Number
+    platforms: [android]
+
+  - name: absoluteY
+    summary: The y-axis coordinate of the position relative to the main window.
+    type: Number
+    platforms: [android]
