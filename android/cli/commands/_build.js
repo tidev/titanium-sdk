@@ -2260,7 +2260,8 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
 
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, this.androidInfo.ndk.path);
+	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	await fs.copyFile(
