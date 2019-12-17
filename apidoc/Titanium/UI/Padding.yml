@@ -1,6 +1,6 @@
 ---
-name: Padding
-summary: Dictionary object of parameters for the padding/insets applied to all kinds of views.
+name: HorizontalInsets
+summary: Dictionary object of parameters for horizontal-only insets applied to [Table](Titanium.UI.TableView) and [List](Titanium.UI.ListView) views. Only `left` and `right` properties are used (see <Padding>).
 properties:
   - name: left
     type: Number
@@ -12,6 +12,11 @@ properties:
     summary: Right padding/inset
     default: 0
 
+---
+name: Padding
+extends: HorizontalInsets
+summary: Dictionary object of parameters for the padding/insets applied to all kinds of views.
+properties:
   - name: top
     type: Number
     summary: Top padding/inset
@@ -21,11 +26,3 @@ properties:
     type: Number
     summary: Bottom padding/inset
     default: 0
-
----
-# TODO: Should we invert the relationship here? (i.e. Padding extends from HorizontalInsets?)
-name: HorizontalInsets
-summary: Dictionary object of parameters for horizontal-only insets applied to [Table](Titanium.UI.TableView) and [List](Titanium.UI.ListView) views. Only `left` and `right` properties are used (see <Padding>).
-extends: Padding
-excludes:
-  properties: [top,bottom]
