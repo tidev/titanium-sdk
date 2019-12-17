@@ -34,7 +34,23 @@ class IOS {
 		return {
 			targets: {
 				ios: minIosVersion
-			}
+			},
+			transform: {
+				platform: 'ios',
+				Ti: {
+					version: this.sdkVersion,
+					buildHash: this.gitHash,
+					buildDate: this.timestamp,
+					Platform: {
+						runtime: 'javascriptcore',
+						manufacturer: 'apple',
+					},
+					Filesystem: {
+						lineEnding: '\n',
+						separator: '/',
+					},
+				},
+			},
 		};
 	}
 
