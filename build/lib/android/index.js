@@ -60,9 +60,13 @@ class Android {
 		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
 		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
 
+		// Set up the build system to fail if unable to generate a V8 snapshot. Needed for fast app startup times.
+		// Note: Allow system to override this behavior if environment variable is already defined.
+		if (typeof process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS === 'undefined') {
+			process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS = '1';
+		}
+
 		// Build the "titanium" library project only.
-		// Note: Trigger a build failure if unable to generate V8 snapshots. We want them for fast app startup times.
-		process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS = '1';
 		process.env.TI_SDK_BUILD_VERSION = this.sdkVersion;
 		process.env.TI_SDK_BUILD_GIT_HASH = this.gitHash;
 		process.env.TI_SDK_VERSION_TAG = this.versionTag;
