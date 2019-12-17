@@ -1982,12 +1982,7 @@
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[self tableView] setRefreshControl:_refreshControlProxy.control];
-    } else {
-      [[self tableView] addSubview:[_refreshControlProxy control]];
-    }
+    [[self tableView] setRefreshControl:_refreshControlProxy.control];
   }
 #endif
 }
