@@ -47,7 +47,7 @@ android {
 					'kroll.outputJsonFilePath': tiModuleBindingsJsonPath,
 					'kroll.outputCppDirPath': "${buildDir}/ti-generated/jni".toString(),
 					'kroll.jsModuleName': '<%- moduleId %>',
-					'kroll.tiBindingsJsonFilePath': '<%- tiBindingsJsonPath %>'
+					'kroll.tiBindingsJsonFilePath': '<%- tiBindingsJsonPath.replace(/\\/g, '\\\\') %>'
 				]
 			}
 		}
@@ -145,7 +145,7 @@ tasks.withType(JavaCompile) {
 			environment 'TI_MODULE_GENERATED_JS_DIR', "${projectDir}/build/ti-generated/js"
 			environment 'TI_MODULE_ID', '<%- moduleId %>'
 			environment 'TI_MODULE_NAMESPACE', '<%- moduleId.toLowerCase() %>'
-			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir %>'
+			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir.replace(/\\/g, '\\\\') %>'
 			executable = 'node'
 			workingDir = projectDir
 			args = ['generate-cpp-files.js']
