@@ -26,7 +26,7 @@ methods:
         type: String
       - name: callback
         summary: Callback function to invoke when the event is fired.
-        type: Callback<Object>
+        type: Callback<Titanium.Event>
 
   - name: removeEventListener
     summary: Removes the specified callback as an event listener for the named event.
@@ -49,7 +49,7 @@ methods:
         type: String
       - name: callback
         summary: Callback function to remove. Must be the same function passed to `addEventListener`.
-        type: Callback<Object>
+        type: Callback<Titanium.Event>
 
   - name: fireEvent
     summary: Fires a synthesized event to any registered listeners.

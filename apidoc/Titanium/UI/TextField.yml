@@ -420,7 +420,7 @@ properties:
                     </TextField>
                 </Window>
             </Alloy>
-    type: Object
+    type: Titanium.UI.View
     platforms: [iphone, ipad]
 
   - name: leftButtonMode
@@ -444,7 +444,7 @@ properties:
 
   - name: padding
     summary: Sets the padding of this text field.
-    type: ViewPadding
+    type: TextFieldPadding
     platforms: [android, iphone, ipad]
     since: "6.0.0"
 
@@ -518,7 +518,7 @@ properties:
             </Alloy>
 
         The `sayHi` and `doAlert` methods are defined in the Alloy controller.
-    type: Object
+    type: Titanium.UI.View
     platforms: [iphone, ipad]
 
   - name: rightButtonMode
@@ -752,7 +752,8 @@ properties:
     type: Number
 ---
 name: TextFieldPadding
-summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding>  that describes the padding
+extends: Padding
+summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding> that describes the padding. Most notable difference from typical <Padding> is that `top`/`bottom` are only supported on Android.
 since: "6.0.0"
 platforms: [android, iphone, ipad]
 properties:
@@ -767,7 +768,11 @@ properties:
   - name: top
     type: Number
     summary: Top padding (Android only, since 6.1.0)
+    since: {"android": "6.1.0"}
+    platforms: [android]
 
   - name: bottom
     type: Number
     summary: Bottom padding (Android only, since 6.1.0)
+    since: {"android": "6.1.0"}
+    platforms: [android]
