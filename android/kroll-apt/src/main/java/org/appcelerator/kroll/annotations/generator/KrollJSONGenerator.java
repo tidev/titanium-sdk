@@ -36,10 +36,24 @@ import javax.tools.StandardLocation;
 
 import org.json.simple.JSONValue;
 
-@SupportedAnnotationTypes({ KrollJSONGenerator.Kroll_proxy, KrollJSONGenerator.Kroll_module })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SuppressWarnings("unchecked")
 // clang-format off
+@SupportedAnnotationTypes({
+	KrollJSONGenerator.Kroll_argument,
+	KrollJSONGenerator.Kroll_constant,
+	KrollJSONGenerator.Kroll_dynamicApis,
+	KrollJSONGenerator.Kroll_getProperty,
+	KrollJSONGenerator.Kroll_inject,
+	KrollJSONGenerator.Kroll_interceptor,
+	KrollJSONGenerator.Kroll_method,
+	KrollJSONGenerator.Kroll_module,
+	KrollJSONGenerator.Kroll_onAppCreate,
+	KrollJSONGenerator.Kroll_property,
+	KrollJSONGenerator.Kroll_proxy,
+	KrollJSONGenerator.Kroll_setProperty,
+	KrollJSONGenerator.Kroll_topLevel
+})
 @SupportedOptions({
 	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_PACKAGE_NAME,
 	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_FILE_NAME,
@@ -59,17 +73,17 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 	protected static final String Kroll_argument = Kroll_annotation + ".argument";
 	protected static final String Kroll_constant = Kroll_annotation + ".constant";
+	protected static final String Kroll_dynamicApis = Kroll_annotation + ".dynamicApis";
 	protected static final String Kroll_getProperty = Kroll_annotation + ".getProperty";
 	protected static final String Kroll_inject = Kroll_annotation + ".inject";
+	protected static final String Kroll_interceptor = Kroll_annotation + ".interceptor";
 	protected static final String Kroll_method = Kroll_annotation + ".method";
 	protected static final String Kroll_module = Kroll_annotation + ".module";
+	protected static final String Kroll_onAppCreate = Kroll_annotation + ".onAppCreate";
 	protected static final String Kroll_property = Kroll_annotation + ".property";
 	protected static final String Kroll_proxy = Kroll_annotation + ".proxy";
 	protected static final String Kroll_setProperty = Kroll_annotation + ".setProperty";
 	protected static final String Kroll_topLevel = Kroll_annotation + ".topLevel";
-	protected static final String Kroll_dynamicApis = Kroll_annotation + ".dynamicApis";
-	protected static final String Kroll_interceptor = Kroll_annotation + ".interceptor";
-	protected static final String Kroll_onAppCreate = Kroll_annotation + ".onAppCreate";
 
 	protected static final String KrollInvocation = "org.appcelerator.kroll.KrollInvocation";
 	protected static final String KrollConverter = Kroll_package + ".KrollConverter";
