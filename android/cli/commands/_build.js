@@ -3260,9 +3260,15 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		ignoreDirs: this.ignoreDirs,
 		ignoreFiles: this.ignoreFiles
 	});
-	data.en || (data.en = {});
-	data.en.app || (data.en.app = {});
-	data.en.app.appname || (data.en.app.appname = this.tiapp.name);
+	if (!data.en) {
+		data.en = data['en-US'] || {};
+	}
+	if (!data.en.app) {
+		data.en.app = {};
+	}
+	if (!data.en.app.appname) {
+		data.en.app.appname = this.tiapp.name;
+	}
 
 	function replaceSpaces(s) {
 		return s.replace(/./g, '\\u0020');
