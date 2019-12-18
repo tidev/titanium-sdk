@@ -2181,7 +2181,7 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 	// Note: Google does not support setting "maxSdkVersion" via gradle script.
 	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'lib.build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
-		compileSdkVersion: this.targetSDK,
+		compileSdkVersion: this.compileSdkVersion,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK
 	});
@@ -2440,7 +2440,7 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		applicationId: this.appid,
-		compileSdkVersion: this.targetSDK,
+		compileSdkVersion: this.compileSdkVersion,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK,
 		versionName: this.tiapp.version ? this.tiapp.version : '1',
