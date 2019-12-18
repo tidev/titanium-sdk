@@ -30,7 +30,6 @@ android {
 				cppFlags '-std=c++11'
 				arguments.addAll([
 					'APP_STL:=c++_shared',
-					'APP_ALLOW_MISSING_DEPS=true',
 					"TI_DIST_DIR=${projectDir}/../../dist".replace('\\', '\\\\'),
 					"NDK_MODULE_PATH+=${projectDir}/../runtime/v8/src/ndk-modules".replace('\\', '\\\\'),
 					"-j${Runtime.runtime.availableProcessors()}".toString()
@@ -111,19 +110,36 @@ android {
 	}
 }
 
-// Download/Install V8 library (if not done already) before executing C/C++ makefile via "clean" or "build".
-def updateV8Library() {
-	exec {
-		executable = 'node'
-		workingDir = projectDir
-		args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
+// Downloads/extracts V8 library and create a makefile for it. To be executed before C/C++ "build" or "clean".
+task updateV8Library() {
+	def packageJson = new groovy.json.JsonSlurper().parse(file("${projectDir}/../package.json"))
+	def v8MakeFilePath = "${projectDir}/../runtime/v8/src/ndk-modules/libv8/V8Settings.mk"
+	inputs.property 'v8.version', packageJson.v8.version
+	inputs.property 'v8.mode', packageJson.v8.mode
+	inputs.property 'v8.checksum', packageJson.v8.checksum
+	outputs.file v8MakeFilePath
+	outputs.files fileTree("${projectDir}/../../dist/android/libv8/${packageJson.v8.version}/${packageJson.v8.mode}")
+	doLast {
+		// Generate a "V8Settings.mk" makefile providing V8 information via variables.
+		// This file is referenced by our "./runtime/v8/src/ndk-modules/libv8/Android.mk" file.
+		def v8MakeFile = file(v8MakeFilePath)
+		v8MakeFile.getParentFile().mkdirs()
+		v8MakeFile.text = [
+			"LIBV8_VERSION=${packageJson.v8.version}",
+			"LIBV8_MODE=${packageJson.v8.mode}"
+		].join('\n') + '\n'
+
+		// Download/install the V8 library referenced in our "package.json", if not already done.
+		exec {
+			executable = 'node'
+			workingDir = projectDir
+			args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
+		}
 	}
 }
-tasks.withType(com.android.build.gradle.tasks.ExternalNativeBuildTask) {
-	doFirst { updateV8Library() }
-}
+preBuild.dependsOn updateV8Library
 tasks.withType(com.android.build.gradle.tasks.ExternalNativeCleanTask) {
-	doFirst { updateV8Library() }
+	dependsOn updateV8Library
 }
 
 // Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
