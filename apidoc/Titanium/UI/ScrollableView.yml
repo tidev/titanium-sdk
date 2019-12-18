@@ -379,7 +379,7 @@ properties:
   - name: padding
     summary: The padding applied to the scrollable view.
     platforms: [android]
-    type: ViewPadding
+    type: Padding
     since: "7.5.0"
 
 examples:

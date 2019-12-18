@@ -89,15 +89,8 @@ NSArray *moviePlayerKeys = nil;
   // For durationavailable event
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
-  // The AVPlayer does not properly support state management on iOS < 10.
-  // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    // iOS 10+: For playbackState property / playbackstate event
-    [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
-  } else {
-    // iOS < 10: For playbackstate event
-    [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  }
+  // For playbackState property / playbackstate event
+  [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
 
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
@@ -123,12 +116,7 @@ NSArray *moviePlayerKeys = nil;
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"player.currentItem.presentationSize"];
-
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
-  } else {
-    [movie removeObserver:self forKeyPath:@"player.rate"];
-  }
+  [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
 }
 
 - (void)configurePlayer
@@ -1000,14 +988,8 @@ NSArray *moviePlayerKeys = nil;
     CGSize size = [[change objectForKey:@"new"] CGSizeValue];
     [self handleNaturalSizeAvailableNotification:size];
   }
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
-      [self handleTimeControlStatusNotification:nil];
-    }
-  } else {
-    if ([keyPath isEqualToString:@"player.rate"]) {
-      [self handlePlaybackStateChangeNotification:nil];
-    }
+  if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
+    [self handleTimeControlStatusNotification:nil];
   }
 }
 
