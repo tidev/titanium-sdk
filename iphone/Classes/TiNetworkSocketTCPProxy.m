@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_NETWORKSOCKET
+#if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))
 #import "TiNetworkSocketTCPProxy.h"
 #import "NetworkModule.h"
 #import <TitaniumKit/TiBuffer.h>

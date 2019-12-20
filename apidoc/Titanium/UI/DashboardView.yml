@@ -45,7 +45,7 @@ events:
 
       - name: location
         summary: Coordinates x and y of the event from the parent view's coordinate system.
-        type: Dictionary
+        type: Point
 
   - name: commit
     summary: Fired when edit mode ends.

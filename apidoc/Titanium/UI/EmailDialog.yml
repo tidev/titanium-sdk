@@ -68,11 +68,12 @@ methods:
   - name: open
     summary: Opens this email dialog.
     parameters:
-      - name: properties
+      - name: options
         summary: |
-            Animation properties. Set `animated` Boolean property to `true` to animate dialog
-            on open. (iPhone, iPad only)
-        type: Object
+            Supported on iOS only. Simple object to override animation. Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimationOptions> is false)
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: true }"
 
 events:
   - name: complete
