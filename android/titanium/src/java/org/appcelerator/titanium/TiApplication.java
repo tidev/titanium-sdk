@@ -161,6 +161,18 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return tiApp;
 	}
 
+	/**
+	 * Determine if activity is first on stack.
+	 * @return boolean to determine if activity is first.
+	 */
+	public static boolean firstOnActivityStack()
+	{
+		if (activityStack.size() == 1) {
+			return true;
+		}
+		return false;
+	}
+
 	public static void addToActivityStack(Activity activity)
 	{
 		if (activity != null) {
