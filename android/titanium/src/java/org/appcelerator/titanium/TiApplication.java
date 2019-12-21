@@ -413,6 +413,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// Release all the cached images
 		TiBlobLruCache.getInstance().evictAll();
 		TiImageLruCache.getInstance().evictAll();
+
+		// Perform hard garbage collection to reclaim memory.
+		KrollRuntime instance = KrollRuntime.getInstance();
+		if (instance != null) {
+			instance.hardGC();
+		}
+
 		super.onLowMemory();
 	}
 
@@ -424,6 +431,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			// Release all the cached images
 			TiBlobLruCache.getInstance().evictAll();
 			TiImageLruCache.getInstance().evictAll();
+
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
 		super.onTrimMemory(level);
 	}
