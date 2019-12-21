@@ -114,11 +114,36 @@ public abstract class KrollRuntime implements Handler.Callback
 		return instance;
 	}
 
+	/**
+	 * Suggest V8 garbage collection during idle.
+	 */
 	public static void suggestGC()
 	{
 		if (instance != null) {
 			instance.setGCFlag();
 		}
+	}
+
+	/**
+	 * Force V8 garbage collection.
+	 */
+	public static void softGC()
+	{
+		// Force V8 garbage collection.
+		if (instance != null) {
+			instance.forceGC();
+		}
+	}
+
+	/**
+	 * Force both V8 and JVM garbage collection.
+	 */
+	public static void hardGC()
+	{
+		softGC();
+
+		// Force JVM garbage collection.
+		System.gc();
 	}
 
 	public static boolean isInitialized()
@@ -437,6 +462,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public void setGCFlag()
+	{
+		// No-op V8 should override.
+	}
+
+	public void forceGC()
 	{
 		// No-op V8 should override.
 	}
