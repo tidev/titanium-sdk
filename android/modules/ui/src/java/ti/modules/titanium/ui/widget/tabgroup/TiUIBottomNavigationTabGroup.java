@@ -26,7 +26,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -168,13 +167,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// Get the MenuItem index
 		int index = this.mMenuItemsArray.size() - 1;
 		updateDrawablesAfterNewItem(index);
-		// Handle shift mode.
-		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
-			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
-			} else {
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_SELECTED);
-			}
+		// Handle label visibility mode
+		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_LABEL_VISIBILITY_MODE)) {
+			int labelVisibilityMode = (int) this.proxy.getProperty(TiC.PROPERTY_LABEL_VISIBILITY_MODE);
+			this.mBottomNavigationView.setLabelVisibilityMode(labelVisibilityMode);
 		}
 	}
 

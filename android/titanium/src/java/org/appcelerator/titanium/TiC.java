@@ -2921,7 +2921,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_SHIFT_MODE = "shiftMode";
+	public static final String PROPERTY_LABEL_VISIBILITY_MODE = "labelVisibilityMode";
 
 	/**
 	 * @module.api

@@ -252,11 +252,6 @@ methods:
     platforms: [android]
     since: 3.6.0
 
-  - name: getActiveTab
-    summary: Gets the currently-active tab.
-    returns:
-        type: Titanium.UI.Tab
-
   - name: open
     summary: Opens the tab group and makes it visible.
 
@@ -267,18 +262,6 @@ methods:
       - name: tab
         summary: Tab to remove.
         type: Titanium.UI.Tab
-
-  - name: setActiveTab
-    summary: Selects the currently active tab in a tab group.
-    parameters:
-      - name: indexOrObject
-        summary: Index or object of the tab to switch to.
-        type: [Number, Titanium.UI.Tab]
-
-  - name: getTabs
-    summary: Gets all tabs that are managed by the tab group.
-    returns:
-        type: Array<Titanium.UI.Tab>
 
 properties:
   - name: activeTab
@@ -321,6 +304,21 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: String
     platforms: [iphone, ipad]
+
+  - name: labelVisibilityMode
+    summary: The label visibility mode determines whether to show or hide labels in the navigation items.
+    description: |
+        Setting the label visibility mode to [LABEL_VISIBILITY_SELECTED](Titanium.UI.Android.LABEL_VISIBILITY_SELECTED) sets the label to only show when
+        selected, setting it to [LABEL_VISIBILITY_LABELED](Titanium.UI.Android.LABEL_VISIBILITY_LABELED) sets the label to always show, and
+        [LABEL_VISIBILITY_UNLABELED](Titanium.UI.Android.LABEL_VISIBILITY_UNLABELED) sets the label to never show.
+
+        Setting the label visibility mode to [LABEL_VISIBILITY_AUTO](Titanium.UI.Android.LABEL_VISIBILITY_AUTO) sets the label to behave as "labeled"
+        when there are 3 items or less, or "selected" when there are 4 items or more.
+
+        NOTE: This property only affects TabGroups with the [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
+    since: "9.0.0"
+    constants: Titanium.UI.Android.LABEL_VISIBILITY_*
+    platforms: [android]
 
   - name: translucent
     summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
@@ -414,6 +412,10 @@ properties:
     type: Boolean
     default: true
     since: "8.0.0"
+    deprecated:
+      since: "9.0.0"
+      removed: "9.0.0"
+      notes: "Use the <Titanium.UI.TabGroup.labelVisibilityMode> property instead."
     platforms: [android]
 
   - name: style
