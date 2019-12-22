@@ -2,7 +2,7 @@ package ti.modules.titanium.android.quicksettings;
 
 import android.os.Build;
 import android.service.quicksettings.TileService;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiC;
