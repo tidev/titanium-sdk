@@ -1,53 +1,45 @@
 
 'use strict';
 
-// this sets the background color of the master UIView (when there are no windows/tab groups on it)
-Titanium.UI.setBackgroundColor('#000');
-
 // create tab group
-var tabGroup = Titanium.UI.createTabGroup();
+const tabGroup = Ti.UI.createTabGroup({
+	tabsBackgroundColor: '#cccccc',
+	style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+	labelVisibilityMode: Ti.UI.Android.LABEL_VISIBILITY_UNLABELED
+});
 
 //
 // create base UI tab and root window
 //
-var win1 = Titanium.UI.createWindow({
+const win1 = Ti.UI.createWindow({
 	title: 'Tab 1',
 	backgroundColor: '#fff'
 });
-var tab1 = Titanium.UI.createTab({
+const tab1 = Ti.UI.createTab({
 	icon: 'KS_nav_views.png',
-	title: 'Tab 1',
 	window: win1
 });
 
-var label1 = Titanium.UI.createLabel({
-	color: '#999',
-	text: 'I am Window 1',
-	font: { fontSize: 20, fontFamily: 'Helvetica Neue' },
-	textAlign: 'center',
-	width: 'auto'
+const label1 = Ti.UI.createLabel({
+	color: '#000',
+	text: 'I am Window 1'
 });
-
 win1.add(label1);
 
 //
 // create controls tab and root window
 //
-var win2 = Titanium.UI.createWindow({
+const win2 = Ti.UI.createWindow({
 	title: 'Tab 2',
 	backgroundColor: '#fff'
 });
-var tab2 = Titanium.UI.createTab({
+const tab2 = Ti.UI.createTab({
 	icon: 'KS_nav_ui.png',
-	title: 'Tab 2',
 	window: win2
 });
-var label2 = Titanium.UI.createLabel({
-	color: '#999',
-	text: 'I am Window 2',
-	font: { fontSize: 20, fontFamily: 'Helvetica Neue' },
-	textAlign: 'center',
-	width: 'auto'
+const label2 = Ti.UI.createLabel({
+	color: '#000',
+	text: 'I am Window 2'
 });
 win2.add(label2);
 
