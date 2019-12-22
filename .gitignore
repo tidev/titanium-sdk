@@ -46,3 +46,4 @@ coverage/
 /android/app/.classpath
 /android/.settings
 /android/.project
+/android/titanium/.cxx
