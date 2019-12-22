@@ -33,3 +33,17 @@ junit_report.xml
 
 .nyc_output/
 coverage/
+
+/android/titanium/.settings
+/android/titanium/.project
+/android/titanium/.classpath
+/android/kroll-apt/bin
+/android/kroll-apt/.settings
+/android/kroll-apt/.project
+/android/kroll-apt/.classpath
+/android/app/.settings
+/android/app/.project
+/android/app/.classpath
+/android/.settings
+/android/.project
+/android/titanium/.cxx
