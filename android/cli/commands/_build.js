@@ -1441,6 +1441,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.debugPort = null;
 	this.profilerHost = null;
 	this.profilerPort = null;
+	this.projectDir	= path.join(cli.argv['project-dir']);
+
 	tool.forEach(function (type) {
 		if (cli.argv[type + '-host']) {
 			if (typeof cli.argv[type + '-host'] === 'number') {
@@ -2255,7 +2257,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 
 	// Copy our SDK's gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
 	// The below install method will also generate a "gradle.properties" file.
-	const gradlew = new GradleWrapper(this.buildDir);
+	const gradlew = new GradleWrapper(this.buildDir, this.projectDir);
 	gradlew.logger = this.logger;
 	await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
 
@@ -3702,7 +3704,7 @@ AndroidBuilder.prototype.buildAppProject = async function buildAppProject() {
 	}
 
 	// Build the "app" project.
-	const gradlew = new GradleWrapper(this.buildDir);
+	const gradlew = new GradleWrapper(this.buildDir, this.projectDir);
 	gradlew.logger = this.logger;
 	if (this.allowDebugging) {
 		await gradlew.assembleDebug('app');
@@ -3752,7 +3754,7 @@ AndroidBuilder.prototype.writeBuildManifest = async function writeBuildManifest(
 
 AndroidBuilder.prototype.createGradleWrapper = function createGradleWrapper(directoryPath) {
 	// Creates a gradle handling object for plugins such as hyperloop.
-	return new GradleWrapper(directoryPath);
+	return new GradleWrapper(directoryPath, this.projectDir);
 };
 
 // create the builder instance and expose the public api
