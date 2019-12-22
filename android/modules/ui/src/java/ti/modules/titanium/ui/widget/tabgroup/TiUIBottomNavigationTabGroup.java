@@ -171,7 +171,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// Handle shift mode.
 		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
 			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
-				disableShiftMode();
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+			} else {
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_SELECTED);
 			}
 		}
 	}
@@ -187,32 +189,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			updateTabTitleColor(i);
 			// Set the background drawable.
 			updateTabBackgroundDrawable(i);
-		}
-	}
-
-	/**
-	 * Disabling shift mode for BottomNavigation currently needs to be done a bit dirty.
-	 * The property is expected to be exposed in future Design library versions, so it will
-	 * be revisited once Titanium takes advantage of them.
-	 *
-	 */
-	private void disableShiftMode()
-	{
-		BottomNavigationMenuView menuView = ((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
-		try {
-			Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
-			shiftingMode.setAccessible(true);
-			shiftingMode.setBoolean(menuView, false);
-			shiftingMode.setAccessible(false);
-			for (int i = 0; i < menuView.getChildCount(); i++) {
-				BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
-				item.setShiftingMode(false);
-				item.setChecked(item.getItemData().isChecked());
-			}
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "Unable to get shift mode field", e);
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, "Unable to change value of shift mode", e);
 		}
 	}
 
