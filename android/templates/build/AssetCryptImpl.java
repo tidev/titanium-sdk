@@ -18,6 +18,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 
+@SuppressWarnings("unchecked")
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
 	private static final String TAG = "AssetCryptImpl";

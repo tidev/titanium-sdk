@@ -1,0 +1,28 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+buildscript {
+	repositories {
+		google()
+		jcenter()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:3.4.2'
+	}
+}
+
+allprojects {
+	repositories {
+		google()
+		jcenter()
+	}
+	project.apply from: "${rootDir}/templates/build/ti.constants.gradle"
+}
+
+task clean(type: Delete) {
+	delete rootProject.buildDir
+}

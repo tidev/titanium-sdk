@@ -72,7 +72,7 @@
     "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
       "npm run ios-sanity-check --"
     ],
-    "*.java": [
+    "android/!(templates)/**/*.java": [
       "npx clang-format -style=file -i",
       "git add"
     ],
@@ -88,13 +88,12 @@
       "path": "./node_modules/cz-conventional-changelog"
     },
     "format": {
-      "android": "android/!(dev|templates)/**/*.java",
+      "android": "android/!(app|templates)/**/*.java",
       "ios": "iphone/Classes/*.{m,h} iphone/Classes/Layout/*.{m,h} iphone/TitaniumKit/TitaniumKit/*.h iphone/TitaniumKit/TitaniumKit/Sources/**/*.{m,h}"
     }
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
-    "appc-aar-tools": "^1.1.5",
     "appc-tasks": "^1.0.2",
     "archiver": "^3.1.1",
     "async": "^2.6.1",

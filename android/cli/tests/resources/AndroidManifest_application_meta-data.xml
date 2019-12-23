@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest>
-	<application>
-		<meta-data android:name="zooVal" android:value="@string/kangaroo" />
-		<meta-data android:name="zooRes" android:resource="@string/kangaroo" />
-	</application>
-</manifest>
