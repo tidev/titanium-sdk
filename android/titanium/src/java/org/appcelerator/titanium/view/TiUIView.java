@@ -1721,11 +1721,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 			private boolean doRotationEvent(MotionEvent event)
 			{
-				//Calculate the angle between the two fingers
+				// Calculate the angle between the two fingers
 				float deltaX = event.getX(0) - event.getX(1);
 				float deltaY = event.getY(0) - event.getY(1);
 				double radians = Math.atan(deltaY / deltaX);
-				//Convert to degrees
+				// Convert to degrees
 				int degrees = (int) (radians * 180 / Math.PI);
 
 				switch (event.getActionMasked()) {
