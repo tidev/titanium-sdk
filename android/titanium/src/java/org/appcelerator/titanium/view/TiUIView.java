@@ -6,30 +6,6 @@
  */
 package org.appcelerator.titanium.view;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollPropertyChange;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiAnimationBuilder;
-import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -69,8 +45,29 @@ import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-
 import com.nineoldandroids.view.ViewHelper;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPropertyChange;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiAnimationBuilder;
+import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy.
@@ -1722,6 +1719,34 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		touchable.setOnTouchListener(new OnTouchListener() {
 			int pointersDown = 0;
 
+			private boolean doRotationEvent(MotionEvent event)
+			{
+				//Calculate the angle between the two fingers
+				float deltaX = event.getX(0) - event.getX(1);
+				float deltaY = event.getY(0) - event.getY(1);
+				double radians = Math.atan(deltaY / deltaX);
+				//Convert to degrees
+				int degrees = (int) (radians * 180 / Math.PI);
+
+				switch (event.getActionMasked()) {
+					case MotionEvent.ACTION_DOWN:
+					case MotionEvent.ACTION_POINTER_DOWN:
+					case MotionEvent.ACTION_POINTER_UP:
+						// start
+						break;
+					case MotionEvent.ACTION_MOVE:
+						// rotate
+						KrollDict data = new KrollDict();
+						data.put(TiC.PROPERTY_ROTATE, degrees);
+						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+						fireEvent(TiC.EVENT_ROTATE, data);
+
+						break;
+				}
+
+				return true;
+			}
+
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1729,6 +1754,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					TiDimension yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
 					lastUpEvent.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(view));
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(view));
+				}
+
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_ROTATE) && event.getPointerCount() == 2) {
+					doRotationEvent(event);
 				}
 
 				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
