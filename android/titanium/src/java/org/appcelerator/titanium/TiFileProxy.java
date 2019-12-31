@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -169,11 +169,6 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public boolean createFile()
 	{
-		Context context = TiApplication.getInstance().getApplicationContext();
-		ContextWrapper contextWrapper = new ContextWrapper(context);
-		tbf = new TiFile(
-			new File(contextWrapper.getDir("data", Context.MODE_PRIVATE) + "/" + tbf.getNativeFile().getName()), path,
-			getExecutable());
 		return tbf.createFile();
 	}
 

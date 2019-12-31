@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -127,61 +127,6 @@ static NSArray *popoverSequence;
     },
         NO);
   }
-}
-
-- (void)setWidth:(id)value
-{
-  ENSURE_SINGLE_ARG_OR_NIL(value, NSObject);
-  DebugLog(@"[WARN] Setting width on the popover directly is deprecated. Change the width property of the contentView property instead");
-
-  if (IS_NULL_OR_NIL(value)) {
-    poWidth = TiDimensionUndefined;
-  } else {
-    poWidth = TiDimensionFromObject(value);
-  }
-  [self replaceValue:value forKey:@"width" notification:NO];
-
-  if (popoverInitialized) {
-    TiThreadPerformOnMainThread(^{
-      [self updateContentSize];
-    },
-        NO);
-  }
-}
-
-- (void)setHeight:(id)value
-{
-  ENSURE_SINGLE_ARG_OR_NIL(value, NSObject);
-  DebugLog(@"[WARN] Setting height on the popover directly is deprecated. Change the height property of the contentView property instead");
-
-  if (IS_NULL_OR_NIL(value)) {
-    poHeight = TiDimensionUndefined;
-  } else {
-    poHeight = TiDimensionFromObject(value);
-  }
-  [self replaceValue:value forKey:@"height" notification:NO];
-
-  if (popoverInitialized) {
-    TiThreadPerformOnMainThread(^{
-      [self updateContentSize];
-    },
-        NO);
-  }
-}
-
-- (void)setTitle:(id)item
-{
-  DebugLog(@"[ERROR] Support for setting title on the popover directly is removed in 3.4.2");
-}
-
-- (void)setRightNavButton:(id)args
-{
-  DebugLog(@"[ERROR] Support for setting rightNavButton on the popover directly is removed in 3.4.2");
-}
-
-- (void)setLeftNavButton:(id)args
-{
-  DebugLog(@"[ERROR] Support for setting leftNavButton on the popover directly is removed in 3.4.2");
 }
 
 #pragma mark Public Methods

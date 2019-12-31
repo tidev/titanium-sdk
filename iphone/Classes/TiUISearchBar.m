@@ -133,16 +133,20 @@
 
 - (void)setColor_:(id)value
 {
-  // TIMOB-10368
-  // Remove this hack again once iOS exposes this as a public API
-  UIView *searchContainerView = [[[self searchBar] subviews] firstObject];
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    [[[self searchBar] searchTextField] setTextColor:[[TiUtils colorValue:value] _color]];
+  } else {
+    // TIMOB-10368
+    // Remove this hack again once iOS exposes this as a public API
+    UIView *searchContainerView = [[[self searchBar] subviews] firstObject];
 
-  [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-    if ([obj isKindOfClass:[UITextField class]]) {
-      [(UITextField *)obj setTextColor:[[TiUtils colorValue:value] _color]];
-      *stop = YES;
-    }
-  }];
+    [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+      if ([obj isKindOfClass:[UITextField class]]) {
+        [(UITextField *)obj setTextColor:[[TiUtils colorValue:value] _color]];
+        *stop = YES;
+      }
+    }];
+  }
 }
 
 - (void)setFieldBackgroundImage_:(id)arg
@@ -184,10 +188,9 @@
 
 - (void)setTintColor_:(id)color
 {
-  TiColor *ticolor = [TiUtils colorValue:color];
-  UIColor *theColor = [ticolor _color];
-  [[self searchBar] setTintColor:theColor];
-  [self setTintColor:theColor];
+  TiColor *tiColor = [TiUtils colorValue:color];
+  [[self searchBar] setTintColor:tiColor.color];
+  [self setTintColor:tiColor.color];
 }
 
 - (void)setBarColor_:(id)value

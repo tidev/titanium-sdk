@@ -42,10 +42,15 @@ methods:
         summary: Y coordinate from the scrollable region's coordinate system.
         type: Number
 
-      - name: animation
-        summary: Animation properties (since SDK 6.1.0).
-        type: ScrollViewAnimationProperties
+      - name: options
+        summary: |
+            A simple object for specifying the animation properties when scrolling the view (since SDK 6.1.0).
+            When set to `{ animated: true }` it will scroll smoothly to the destination.
+
+            Note that the default here is equivalent to passing in `{ animated: true }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
 
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
@@ -54,11 +59,16 @@ methods:
       - name: contentOffsetXY
         summary: |
             X and Y coordinates to which to reposition the top-left point of the scrollable region.
-        type: Dictionary
+        type: Point
       - name: animated
-        summary: Determines whether the scrollable region reposition should be animated
-        type: contentOffsetOption
+        summary: |
+            A JS object with an `animated` property which determines whether the scrollable region reposition should be animated.
+
+            Note that the default here is equivalent to passing in `{ animated: true }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
+
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
     platforms: [iphone, ipad]
@@ -67,10 +77,14 @@ methods:
         summary: Scaling factor of the scroll view's content.
         type: Number
 
-      - name: animated
-        summary: Determines whether the scrollable region reposition should be animated
-        type: zoomScaleOption
+      - name: options
+        summary: |
+            A JS object with an `animated` property which determines whether the scrollable region reposition should be animated
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
   - name: scrollToBottom
     summary: Moves the end of the scrollable region into the viewable area.
@@ -114,9 +128,9 @@ events:
       - name: contentSize
         summary: |
             The current content size of the scroll view defined by its `width` and `height` properties.
-            Available in Titanium SDK 5.2.0 and later.
-        type: Dictionary
-        platforms: [iphone, ipad]
+        type: Size
+        platforms: [android, iphone, ipad]
+        since: { iphone: "5.2.0", ipad: "5.2.0", android: "8.3.0" }
 
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
@@ -227,7 +241,7 @@ properties:
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset.
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
-    type: Dictionary
+    type: Point
 
   - name: contentWidth
     summary: Width of the scrollable region.
@@ -484,48 +498,4 @@ examples:
                    </ScrollView>
                </Window>
            </Alloy>
----
-name: contentOffsetOption
-summary: Optional parameter for [setContentOffset](Titanium.UI.ScrollView.setContentOffset) method.
-description: |
-    On iOS, the optional parameter `animated` to enable the animation while the scrollable region
-    scrolls. For example
 
-        setContentOffset({x:50,y:100}, {animated:true})
-since: 1.8.1
-platforms: [iphone, ipad]
-
-properties:
-  - name: animated
-    summary: Determines whether the scroll view's content area change is animated.
-    type: Boolean
----
-name: zoomScaleOption
-summary: Optional parameter for [setZoomScale](Titanium.UI.ScrollView.setZoomScale) method.
-description: |
-    On iOS, the optional parameter `animated` to enable the animation while the scroll view
-    zooms. For example
-
-        setZoomScale(2, {animated:true})
-since: 3.0.0
-platforms: [iphone, ipad]
-
-properties:
-  - name: animated
-    summary: Determines whether the scroll view's zooming is animated.
-    type: Boolean
-
----
-name: ScrollViewAnimationProperties
-summary: |
-    A simple object for specifying the animation properties when scrolling the view.
-platforms: [iphone, ipad, android]
-since: 6.1.0
-properties:
-  - name: animated
-    summary: When set to `true` it will scroll smoothly to the destination.
-    description: |
-        When set to `true` it will scroll smoothly to the destination.
-        On iOS the default value is `true`.
-    type: Boolean
-    default: false

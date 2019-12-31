@@ -7,6 +7,7 @@
 #ifdef USE_TI_APP
 
 #import "AppModule.h"
+#import "TiUtils+Addons.h"
 #import <TitaniumKit/ListenerEntry.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiHost.h>
@@ -189,8 +190,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   if (appListeners != nil) {
     id type = [args objectAtIndex:0];
     id obj = [args count] > 1 ? [args objectAtIndex:1] : nil;
-
-    DebugLog(@"[DEBUG] Firing app event: %@", type);
 
     NSArray *array = [[appListeners objectForKey:type] copy];
 

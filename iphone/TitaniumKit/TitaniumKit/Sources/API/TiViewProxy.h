@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -140,7 +140,7 @@ enum {
   BOOL viewInitialized;
   BOOL repositioning;
   BOOL isUsingBarButtonItem;
-  //This flag is set to true on startLayout() call and false on finishLayout() call
+  //This flag is set to true on beginning of _initWithProperties() call and false near the end of the method
   BOOL updateStarted;
   BOOL allowLayoutUpdate;
 
@@ -168,9 +168,6 @@ enum {
  */
 @property (nonatomic, readonly) NSArray *children;
 
-- (void)startLayout:(id)arg; //Deprecated since 3.0.0
-- (void)finishLayout:(id)arg; //Deprecated since 3.0.0
-- (void)updateLayout:(id)arg; //Deprecated since 3.0.0
 - (void)setTempProperty:(id)propVal forKey:(id)propName;
 - (void)processTempProperties:(NSDictionary *)arg;
 - (BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
@@ -205,6 +202,12 @@ enum {
  @param arg A single proxy to hide.
  */
 - (void)hide:(id)arg;
+
+/**
+ Clears all previously created motion effects (if set).
+ @param unused An unused parameter for proxy swizzling.
+ */
+- (void)clearMotionEffects:(id)unused;
 
 /**
  Returns the view by the given ID.

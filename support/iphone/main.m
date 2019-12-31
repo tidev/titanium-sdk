@@ -60,11 +60,19 @@ int main(int argc, char *argv[])
                                 alpha:1.0f];
 #endif
   [[TiSharedConfig defaultConfig] setDefaultBackgroundColor:defaultBgColor];
-  
+
 #if defined(DEBUG) || defined(DEVELOPER)
   [[TiSharedConfig defaultConfig] setDebugEnabled:YES];
 #endif
-  
+
+#ifdef __LOG__ID__
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  NSString *documentsDirectory = [paths objectAtIndex:0];
+  NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.log", STRING(__LOG__ID__)]];
+  freopen([logPath cStringUsingEncoding:NSUTF8StringEncoding], "w+", stderr);
+  fprintf(stderr, "[INFO] Application started\n");
+#endif
+
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
   int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
   [pool release];

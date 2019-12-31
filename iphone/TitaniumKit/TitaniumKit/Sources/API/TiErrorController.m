@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  * 
@@ -50,10 +50,15 @@
   [super loadView];
 
   // configure view controller
-  UIColor *errorColor = [UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0];
+  UIColor *errorColor = UIColor.redColor;
   self.navigationItem.title = NSLocalizedString(@"Application Error", nil);
   self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : errorColor };
-  [self.view setBackgroundColor:[UIColor colorWithRed:0.96 green:0.96 blue:0.96 alpha:1.0]];
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  [self.view setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
+#else
+  [self.view setBackgroundColor:UIColor.whiteColor];
+#endif
 
   // release previous allocations
   RELEASE_TO_NIL(scrollView);
@@ -95,7 +100,7 @@
   [messageView setScrollEnabled:NO];
   [messageView setMultipleTouchEnabled:YES];
   [messageView setBackgroundColor:[UIColor clearColor]];
-  [messageView setTextColor:[UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0]];
+  [messageView setTextColor:errorColor];
   [messageView setText:error];
   [messageView setFont:[UIFont fontWithName:@"Courier" size:15]];
   [scrollView addSubview:messageView];
@@ -166,13 +171,10 @@
 
   [self.view layoutIfNeeded];
 
-  // use haptic feedback on supported devices
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    UINotificationFeedbackGenerator *generator = [UINotificationFeedbackGenerator new];
-    [generator prepare];
-    [generator notificationOccurred:UINotificationFeedbackTypeError];
-    RELEASE_TO_NIL(generator);
-  }
+  UINotificationFeedbackGenerator *generator = [UINotificationFeedbackGenerator new];
+  [generator prepare];
+  [generator notificationOccurred:UINotificationFeedbackTypeError];
+  RELEASE_TO_NIL(generator);
 }
 
 - (BOOL)prefersHomeIndicatorAutoHidden

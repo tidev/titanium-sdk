@@ -321,26 +321,18 @@ public class TiLocation implements Handler.Callback
 
 	private KrollDict buildAddress(JSONObject place)
 	{
-		Log.w(
-			TAG,
-			"GeocodedAddress properties country_code, displayAddress, and zipcode are deprecated in SDK 8.0.0 and will be removed in 9.0.0");
-		Log.w(TAG, "Please replace usage with the respective properties: countryCode, address, and postalCode");
 		KrollDict address = new KrollDict();
 		address.put(TiC.PROPERTY_STREET1, place.optString(TiC.PROPERTY_STREET, ""));
 		address.put(TiC.PROPERTY_STREET, place.optString(TiC.PROPERTY_STREET, ""));
 		address.put(TiC.PROPERTY_CITY, place.optString(TiC.PROPERTY_CITY, ""));
-		address.put(TiC.PROPERTY_REGION1, "");                  // AdminArea
-		address.put(TiC.PROPERTY_REGION2, "");                  // SubAdminArea
-		address.put("zipcode", place.optString("zipcode", "")); // TODO: To be removed in SDK 9.0.0!
+		address.put(TiC.PROPERTY_REGION1, ""); // AdminArea
+		address.put(TiC.PROPERTY_REGION2, ""); // SubAdminArea
 		address.put(TiC.PROPERTY_POSTAL_CODE, place.optString("zipcode", ""));
 		address.put(TiC.PROPERTY_COUNTRY, place.optString(TiC.PROPERTY_COUNTRY, ""));
 		address.put(TiC.PROPERTY_STATE, place.optString(TiC.PROPERTY_STATE, ""));
-		// Replace TiC.PROPERTY_COUNTRY_CODE value with "countryCode" in SDK 9.0.0
-		address.put("countryCode", place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));
-		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));
+		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString("country_code", ""));
 		address.put(TiC.PROPERTY_LONGITUDE, place.optDouble(TiC.PROPERTY_LONGITUDE, 0.0d));
 		address.put(TiC.PROPERTY_LATITUDE, place.optDouble(TiC.PROPERTY_LATITUDE, 0.0d));
-		address.put(TiC.PROPERTY_DISPLAY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
 		address.put(TiC.PROPERTY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
 
 		return address;

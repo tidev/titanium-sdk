@@ -183,6 +183,21 @@ events:
         type: Number
         platforms: [iphone, ipad]
 
+  - name: rowsselected
+    summary: |
+        Fired when user stops two-pan gesture interaction for selecting multiple rows. 
+        It is used in conjunction with <Titanium.UI.TableView.allowsMultipleSelectionInteraction>.
+    platforms: [iphone, ipad]
+    since: 8.2.0
+    properties:
+      - name: selectedRows
+        summary: List of rows selected by user.
+        type: Array<SelectedRowObject>
+
+      - name: startingRow
+        summary: First row selected when user started interaction.
+        type: SelectedRowObject
+
   - name: delete
     summary: Fired when a table row is deleted by the user.
     platforms: [iphone, ipad]
@@ -364,7 +379,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
-        type: Dictionary
+        type: Size
         platforms: [iphone, ipad]
 
       - name: firstVisibleItem
@@ -376,7 +391,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible
             table view
-        type: Dictionary
+        type: Size
 
       - name: totalItemCount
         summary: Total number of rows in the view.
@@ -395,7 +410,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
-        type: Dictionary
+        type: Size
         platforms: [iphone, ipad]
 
       - name: contentOffset
@@ -407,7 +422,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible
             table view.
-        type: Dictionary
+        type: Size
 
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -929,12 +944,19 @@ methods:
         Typically used with the [headerPullView](Titanium.UI.TableView.headerPullView) property.
     parameters:
       - name: edgeInsets
-        summary: Dictionary to describe the insets.
-        type: TableViewEdgeInsets
+        summary: |
+          Sets the distance that the content view is inset from the enclosing scroll view of the table.
+          For example
 
-      - name: animated
-        summary: Determines whether, and how, the content inset change should be animated.
-        type: TableViewContentInsetOption
+              setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+        type: Padding
+
+      - name: options
+        summary: |
+            Determines whether, and how, the content inset change should be animated.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedWithDurationOptions
         optional: true
     platforms: [iphone, ipad]
     since: "2.1.0"
@@ -945,10 +967,17 @@ methods:
     parameters:
       - name: contentOffset
         summary: |
-            Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
-            reposition the top-left point of the scrollable region of the table view.
-            The `animated` property is optional and set to `false` by default.
-        type: Dictionary
+            Dictionary with the properties `x`, `y`.
+            The `x` and `y` coordinates reposition the top-left point of the scrollable region of the table view.
+        type: Point
+      - name: options
+        summary: |
+            Pass in `{ animated: true }` to animate the transition.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: 3.4.0
 
   - name: selectRow
@@ -1192,6 +1221,27 @@ properties:
     default: true
     platforms: [iphone, ipad]
 
+  - name: allowsMultipleSelectionDuringEditing
+    summary: Determines whether multiple items of this table view can be selected at the same time while editing the table.
+    type: Boolean
+    default: false
+    since: 8.2.0
+    platforms: [iphone, ipad]
+
+  - name: allowsMultipleSelectionInteraction
+    summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
+    description: |
+        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
+        you must also set <Titanium.UI.TableView.allowsMultipleSelectionDuringEditing> to true.
+        Once user interaction stops the <Titanium.UI.TableView.rowsselected> event is fired.
+    type: Boolean
+    default: false
+    since: 8.2.0
+    platforms: [iphone, ipad]
+
+
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     description: |
@@ -1431,7 +1481,7 @@ properties:
                 right:10
             });
 
-    type: Dictionary
+    type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1451,7 +1501,7 @@ properties:
             });
 
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1471,7 +1521,7 @@ properties:
             });
 
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1541,8 +1591,8 @@ properties:
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right`
         specifying the inset from the right edge.
-    type: Dictionary
-    since: 7.3.0
+    type: HorizontalInsets
+    since: "7.3.0"
     platforms: [iphone, ipad]
     availability: creation
 
@@ -1742,51 +1792,24 @@ properties:
     type: Number
 
 ---
-name: TableViewContentInsetOption
-summary: Optional parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-description: |
-    On iOS, the optional parameters `animated` and `duration`to enable the animation and duration
-    for animation while the content insets are updated. For example
-
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-since: 2.1.0
-platforms: [iphone, ipad]
-
+name: SelectedRowObject
+summary: The arguments for the <Titanium.UI.TableView.rowsselected> event.
+since: 8.2.0
+platforms: [iphone, ipad]    
 properties:
-  - name: animated
-    summary: Determines whether the table view's content inset change is animated.
-    type: Boolean
-    default: false
-
-  - name: duration
-    summary: The duration in `milleseconds` for animation while the content inset is  being changed.
+  - name: index
+    summary: Row index.
     type: Number
 
----
-name: TableViewEdgeInsets
-summary: The parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-description: |
-    On iOS, the parameter `edgeInsets` can be specified to set the distance(`top`, `bottom`,
-    `right`, `left`) that the content view is inset from the enclosing scroll view of the table.
-    For example
+  - name: row
+    summary: Table view row object.
+    type: Titanium.UI.TableViewRow
 
-        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
-since: 2.1.0
-platforms: [iphone, ipad]
+  - name: rowData
+    summary: |
+        Properties of the row. Use this property rather than `row` to access any custom row properties.
+    type: Dictionary<Titanium.UI.TableViewRow>
 
-properties:
-  - name: top
-    summary: Value specifying the top insets for the enclosing scroll view of the table.
-    type: Number
-
-  - name: left
-    summary: Value specifying the left insets for the enclosing scroll view of the table.
-    type: Number
-
-  - name: right
-    summary: Value specifying the right insets for the enclosing scroll view of the table.
-    type: Number
-
-  - name: bottom
-    summary: Value specifying the bottom insets for the enclosing scroll view of the table.
-    type: Number
+  - name: section
+    summary: Table view section object, if the clicked row is contained in a section.
+    type: Titanium.UI.TableViewSection

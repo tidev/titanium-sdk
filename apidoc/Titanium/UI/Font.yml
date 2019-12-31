@@ -100,6 +100,10 @@ properties:
     description: |
         Use one of the TEXT_STYLE constants from <Titanium.UI> to set the font to a predefined system font.
         When this property is set to a valid value, all other font properties are ignored.
+
+        Notes:
+         Since SDK 9.0.0 property <Font.fontFamily> will not be ignored for iOS 11+. 
+         Custom fonts can be used with this property for dynamic font management.
     type: String
     constants: Titanium.UI.TEXT_STYLE_*
     platforms: [iphone, ipad]

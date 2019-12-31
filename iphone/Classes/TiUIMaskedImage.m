@@ -92,7 +92,7 @@
 - (void)setTint_:(id)tint_
 {
   RELEASE_TO_NIL(tint);
-  tint = [[Webcolor webColorNamed:tint_] retain];
+  tint = [[[TiUtils colorValue:tint_] color] retain];
   [self setNeedsDisplay];
 }
 

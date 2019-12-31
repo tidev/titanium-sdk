@@ -89,15 +89,8 @@ NSArray *moviePlayerKeys = nil;
   // For durationavailable event
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
-  // The AVPlayer does not properly support state management on iOS < 10.
-  // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    // iOS 10+: For playbackState property / playbackstate event
-    [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
-  } else {
-    // iOS < 10: For playbackstate event
-    [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  }
+  // For playbackState property / playbackstate event
+  [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
 
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
@@ -106,7 +99,7 @@ NSArray *moviePlayerKeys = nil;
   [movie addObserver:self forKeyPath:@"player.status" options:0 context:nil];
 
   // For naturalSize event
-  [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
+  [movie addObserver:self forKeyPath:@"player.currentItem.presentationSize" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:nil];
 
   // For complete event
   [nc addObserver:self selector:@selector(handlePlayerNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:[[movie player] currentItem]];
@@ -122,13 +115,8 @@ NSArray *moviePlayerKeys = nil;
   }
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
   [movie removeObserver:self forKeyPath:@"player.status"];
-  [movie removeObserver:self forKeyPath:@"videoBounds"];
-
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
-  } else {
-    [movie removeObserver:self forKeyPath:@"player.rate"];
-  }
+  [movie removeObserver:self forKeyPath:@"player.currentItem.presentationSize"];
+  [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
 }
 
 - (void)configurePlayer
@@ -702,9 +690,13 @@ NSArray *moviePlayerKeys = nil;
 
 - (id)naturalSize
 {
+  CGSize size = CGSizeZero;
+  if (movie.player.currentItem) {
+    size = movie.player.currentItem.presentationSize;
+  }
   return @{
-    @"width" : NUMFLOAT(movie ? [movie videoBounds].size.width : 0),
-    @"height" : NUMFLOAT(movie ? [movie videoBounds].size.height : 0),
+    @"width" : NUMFLOAT(size.width),
+    @"height" : NUMFLOAT(size.height)
   };
 }
 
@@ -915,14 +907,14 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-- (void)handleNaturalSizeAvailableNotification:(NSNotification *)note
+- (void)handleNaturalSizeAvailableNotification:(CGSize)size
 {
   if ([self _hasListeners:@"naturalsizeavailable"]) {
     [self fireEvent:@"naturalsizeavailable"
          withObject:@{
            @"naturalSize" : @{
-             @"width" : NUMFLOAT(movie.videoBounds.size.width),
-             @"height" : NUMFLOAT(movie.videoBounds.size.height)
+             @"width" : NUMFLOAT(size.width),
+             @"height" : NUMFLOAT(size.height)
            }
          }];
   }
@@ -992,17 +984,12 @@ NSArray *moviePlayerKeys = nil;
   if ([keyPath isEqualToString:@"player.status"]) {
     [self handleLoadStateChangeNotification:nil];
   }
-  if ([keyPath isEqualToString:@"videoBounds"]) {
-    [self handleNaturalSizeAvailableNotification:nil];
+  if ([keyPath isEqualToString:@"player.currentItem.presentationSize"]) {
+    CGSize size = [[change objectForKey:@"new"] CGSizeValue];
+    [self handleNaturalSizeAvailableNotification:size];
   }
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
-      [self handleTimeControlStatusNotification:nil];
-    }
-  } else {
-    if ([keyPath isEqualToString:@"player.rate"]) {
-      [self handlePlaybackStateChangeNotification:nil];
-    }
+  if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
+    [self handleTimeControlStatusNotification:nil];
   }
 }
 

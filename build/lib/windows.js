@@ -1,6 +1,10 @@
 'use strict';
 
+const path = require('path');
+const fs = require('fs-extra');
 const copyFile = require('./utils').copyFile;
+
+const ROOT_DIR = path.join(__dirname, '..', '..');
 
 class Windows {
 	/**
@@ -11,6 +15,20 @@ class Windows {
 	constructor (options) {
 		this.sdkVersion = options.sdkVersion;
 		this.gitHash = options.gitHash;
+	}
+
+	babelOptions() {
+		const windowsPackage = path.join(ROOT_DIR, 'windows', 'package.json');
+		if (fs.pathExistsSync(windowsPackage)) {
+			const safariVersion = require(windowsPackage).safari; // eslint-disable-line security/detect-non-literal-require
+
+			return {
+				targets: {
+					safari: safariVersion
+				}
+			};
+		}
+		return { };
 	}
 
 	async clean() {
