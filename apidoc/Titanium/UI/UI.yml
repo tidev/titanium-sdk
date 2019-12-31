@@ -2848,28 +2848,28 @@ properties:
     summary: A bottom left border edge used in <Titanium.UI.View.borderRadiusEdges>.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "8.3.0"
+    since: "9.0.0"
     permission: read-only
 
   - name: BORDER_EDGE_BOTTOM_RIGHT
     summary: A bottom right border edge used in <Titanium.UI.View.borderRadiusEdges>.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "8.3.0"
+    since: "9.0.0"
     permission: read-only
 
   - name: BORDER_EDGE_TOP_LEFT
     summary: A top left border edge used in <Titanium.UI.View.borderRadiusEdges>.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "8.3.0"
+    since: "9.0.0"
     permission: read-only
 
   - name: BORDER_EDGE_TOP_RIGHT
     summary: A top right border edge used in <Titanium.UI.View.borderRadiusEdges>.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "8.3.0"
+    since: "9.0.0"
     permission: read-only
 
 examples:
