@@ -1,0 +1,41 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+apply plugin: 'com.android.application'
+
+android {
+	compileSdkVersion 29
+	defaultConfig {
+		applicationId 'com.titanium.test'
+		minSdkVersion 19
+		targetSdkVersion 28
+		versionCode 1
+		versionName "1.0"
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
+	}
+	lintOptions {
+		checkReleaseBuilds false
+	}
+	sourceSets {
+		main {
+			assets.srcDirs = [
+				'src/main/assets',
+				"${projectDir}/../titanium/build/outputs/ti-assets"
+			]
+		}
+	}
+}
+
+dependencies {
+	implementation(project(':titanium')) {
+// Uncomment the below to exclude Google Play Services from app.
+//		exclude group: 'com.google.android.gms'
+	}
+
+	implementation "com.android.support:appcompat-v7:${project.ext.tiSupportLibVersion}"
+}

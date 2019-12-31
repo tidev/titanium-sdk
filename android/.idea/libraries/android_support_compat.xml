@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="android-support-compat">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/modules/compat/lib/android-support-compat.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

@@ -130,9 +130,24 @@
   ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
   ENSURE_SINGLE_ARG(value, NSString);
 
-  UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
-  if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
-    statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+#if IS_SDK_IOS_13
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+    if (!view) {
+      view = [[UIView alloc] initWithFrame:frame];
+      view.tag = TI_STATUSBAR_TAG;
+      [keyWindow addSubview:view];
+    }
+    view.frame = frame;
+    view.backgroundColor = [[TiUtils colorValue:value] _color];
+#endif
+  } else {
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+      statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+    }
   }
 }
 
@@ -441,18 +456,12 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINTEGER(UIBlurEffectStyleRegular);
-  }
-  return [NSNull null];
+  return NUMINTEGER(UIBlurEffectStyleRegular);
 }
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINTEGER(UIBlurEffectStyleProminent);
-  }
-  return [NSNull null];
+  return NUMINTEGER(UIBlurEffectStyleProminent);
 }
 
 #if IS_SDK_IOS_13

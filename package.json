@@ -72,7 +72,7 @@
     "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
       "npm run ios-sanity-check --"
     ],
-    "*.java": [
+    "android/!(templates)/**/*.java": [
       "npx clang-format -style=file -i",
       "git add"
     ],
@@ -88,13 +88,12 @@
       "path": "./node_modules/cz-conventional-changelog"
     },
     "format": {
-      "android": "android/!(dev|templates)/**/*.java",
+      "android": "android/!(app|templates)/**/*.java",
       "ios": "iphone/Classes/*.{m,h} iphone/Classes/Layout/*.{m,h} iphone/TitaniumKit/TitaniumKit/*.h iphone/TitaniumKit/TitaniumKit/Sources/**/*.{m,h}"
     }
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
-    "appc-aar-tools": "^1.1.5",
     "appc-tasks": "^1.0.2",
     "archiver": "^3.1.1",
     "async": "^2.6.1",
@@ -118,7 +117,7 @@
     "p-limit": "^2.2.0",
     "pngjs": "^3.4.0",
     "request": "^2.87.0",
-    "semver": "^6.3.0",
+    "semver": "^7.0.0",
     "sprintf": "0.1.5",
     "temp": "0.9.0",
     "windowslib": "^0.6.8",
@@ -136,8 +135,8 @@
     "clang-format": "1.2.3",
     "commander": "^4.0.1",
     "commitizen": "^4.0.3",
-    "conventional-changelog-cli": "^2.0.30",
-    "core-js": "^3.4.8",
+    "conventional-changelog-cli": "^2.0.31",
+    "core-js": "^3.5.0",
     "cz-conventional-changelog": "^3.0.2",
     "danger": "^9.2.9",
     "dateformat": "^3.0.3",
@@ -157,7 +156,7 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "ssri": "^7.1.0",
-    "titanium-docgen": "^4.0.0"
+    "titanium-docgen": "^4.1.0"
   },
   "repository": {
     "type": "git",

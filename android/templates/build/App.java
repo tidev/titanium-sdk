@@ -30,6 +30,7 @@ public final class <%= classname %>Application extends TiApplication
 	private static final String TAG = "<%= classname %>Application";
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void onCreate()
 	{
 		appInfo = new <%= classname %>AppInfo(this);
@@ -46,7 +47,11 @@ public final class <%= classname %>Application extends TiApplication
 
 <% customModules.forEach(function (module) { %>
 		{
+		<% if ((typeof module.manifest.minsdk === 'string') && (parseInt(module.manifest.minsdk.split('.')[0]) >= 9)) { %>
+			String className = "<%- module.manifest.moduleid %>.TiModuleBootstrap";
+		<% } else { %>
 			String className = "<%- module.manifest.moduleid %>.<%- module.apiName %>Bootstrap";
+		<% } %>
 			try {
 				runtime.addExternalModule(
 						"<%- module.manifest.moduleid %>",
@@ -81,29 +86,6 @@ public final class <%= classname %>Application extends TiApplication
 
 		postOnCreate();
 
-<% appModules.forEach(function (module) { %>
-	<% if (module['on_app_create']) { %>
-		{
-			String className = "<%- module['class_name'] %>";
-			String methodName = "<%- module['on_app_create'] %>";
-			try {
-				Class moduleClass = Class.forName(className);
-				Method moduleMethod = moduleClass.getMethod(methodName, TiApplication.class);
-				moduleMethod.invoke(null, this);
-			} catch (Throwable ex) {
-				Log.e(TAG, "Error invoking: " + className + "." + methodName + "()");
-				if ((ex instanceof InvocationTargetException) && (ex.getCause() != null)) {
-					ex = ex.getCause();
-				}
-				if ((ex instanceof RuntimeException) == false) {
-					ex = new RuntimeException(ex);
-				}
-				throw (RuntimeException) ex;
-			}
-		}
-	<% } %>
-<% }); %>
-
 <% if (customModules.length) { %>
 		// Custom modules
 		KrollModuleInfo moduleInfo;
@@ -131,8 +113,10 @@ public final class <%= classname %>Application extends TiApplication
 
 		moduleInfo = new KrollModuleInfo(
 			"<%- module.manifest.name %>", "<%- module.manifest.moduleid %>", "<%- module.manifest.guid %>", "<%- module.manifest.version %>",
-			"<%- module.manifest.description %>", "<%- module.manifest.author %>", "<%- module.manifest.license %>",
-			"<%- module.manifest.copyright %>");
+			"<%- (module.manifest.description || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>",
+			"<%- (module.manifest.author || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>",
+			"<%- (module.manifest.license || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>",
+			"<%- (module.manifest.copyright || '').replace(/\\/g, '\\\\').replace(/\x22/g, '\\\x22') %>");
 
 		<% if (module.manifest.licensekey) { %>
 		moduleInfo.setLicenseKey("<%- module.manifest.licensekey %>");
