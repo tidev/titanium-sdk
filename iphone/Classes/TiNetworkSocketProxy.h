@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <TitaniumKit/TiProxy.h>
-#ifdef USE_TI_NETWORKSOCKET
+#if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))
 typedef enum {
   SOCKET_INITIALIZED = 1 << 0,
   SOCKET_CONNECTED = 1 << 1,

@@ -70,41 +70,9 @@ exports.defineLazyBinding = function(object, binding) {
 	});
 }
 
-var appModules = exports.appModules = [];
-
-function loadAppModules() {
-	var assets = kroll.binding("assets");
-	var appData = assets.readAsset("app.json");
-
-	if (!appData) {
-		return;
-	}
-
-	var app = JSON.parse(appData);
-	if ("app_modules" in app) {
-		var len = app.app_modules.length;
-		for (var i = 0; i < len; ++i) {
-			appModules[i] = app.app_modules[i].api_name;
-		}
-	}
-}
-
 function addInvocationAPI(module, moduleNamespace, namespace, api) {
 	var apiInfo = { namespace: namespace, api: api };
-
-	// Always push module APIs.
-	if (namespace == moduleNamespace) {
-		module.invocationAPIs.push(apiInfo);
-		return;
-	}
-
-	var len = appModules.length;
-	for (var i = 0; i < len; i++) {
-		if (namespace.indexOf(appModules[i]) == 0) {
-			module.invocationAPIs.push(apiInfo);
-			break;
-		}
-	}
+	module.invocationAPIs.push(apiInfo);
 }
 exports.addInvocationAPI = addInvocationAPI;
 
@@ -117,7 +85,6 @@ function bootstrapGlobals(global, Titanium) {
 exports.bootstrapGlobals = bootstrapGlobals;
 
 exports.bootstrap = function(Titanium) {
-	loadAppModules();
 	var module = Titanium;
 
 	bootstrapGlobals(global, Titanium);

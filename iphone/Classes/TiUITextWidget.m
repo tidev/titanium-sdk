@@ -153,12 +153,6 @@
 - (void)setAutofillType_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
-
-  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    NSLog(@"[ERROR] The 'autofillHint' property is only available on iOS 10 and later.");
-    return;
-  }
-
   [[self textWidgetView] setTextContentType:[TiUtils stringValue:value]];
 }
 
@@ -182,16 +176,6 @@
 #endif
 
 #pragma mark Responder methods
-
-- (void)setAppearance_:(id)value
-{
-  NSString *className = [NSStringFromClass([self class]) substringFromIndex:4];
-  NSString *deprecatedApi = [NSString stringWithFormat:@"UI.%@%@", className, @".appearance"];
-  NSString *newApi = [NSString stringWithFormat:@"UI.%@%@", className, @".keyboardAppearance"];
-
-  DEPRECATED_REPLACED(deprecatedApi, @"5.2.0", newApi);
-  [self setKeyboardAppearance_:value];
-}
 
 - (void)setKeyboardAppearance_:(id)value
 {

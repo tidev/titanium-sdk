@@ -1,3 +1,0 @@
-# Copy this to build.properties and override with your Android SDK path
-
-android.sdk=/path/to/your/android-sdk

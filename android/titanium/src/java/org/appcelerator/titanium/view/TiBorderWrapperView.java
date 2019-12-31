@@ -145,6 +145,16 @@ public class TiBorderWrapperView extends FrameLayout
 		return corners;
 	}
 
+	@Override
+	public void onDescendantInvalidated(View child, View target)
+	{
+		// Also invalidate outline to recalculate drop shadow.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			invalidateOutline();
+		}
+		super.onDescendantInvalidated(child, target);
+	}
+
 	public void setColor(int color)
 	{
 		this.color = color;

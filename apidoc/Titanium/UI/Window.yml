@@ -455,7 +455,7 @@ methods:
     parameters:
       - name: params
         summary: Animation or display properties to use when closing the window.
-        type: [Dictionary<Titanium.UI.Animation>, closeWindowParams]
+        type: [Titanium.UI.Animation, Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
 
   - name: hideNavBar
@@ -466,9 +466,10 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the navigation bar will be animated (default) while being hidden.
-        type: Dictionary
+            the navigation bar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
 
   - name: hideTabBar
@@ -516,9 +517,10 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the navigation bar will be animated (default) while being shown.
-        type: Dictionary
+            the navigation bar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
 
   - name: showToolbar
@@ -531,10 +533,10 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the toolbar will be animated (default) while being shown.
-        type: Dictionary
+            the toolbar will be animated (default) while being shown. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
         optional: true
-        default: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
     since: "5.4.0"
 
@@ -548,10 +550,10 @@ methods:
       - name: options
         summary: |
             Options dictionary supporting a single `animated` boolean property to determine whether
-            the toolbar will be animated (default) while being hidden.
-        type: Dictionary
+            the toolbar will be animated (default) while being hidden. Note that the default here is equivalent to `{ animated: true }`
+        type: AnimatedOptions
         optional: true
-        default: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad]
     since: "5.4.0"
 
@@ -559,6 +561,7 @@ events:
   - name: android:back
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) instead.
     platforms: [android]
     summary: Fired when the Back button is released.
@@ -570,6 +573,7 @@ events:
   - name: android:camera
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) instead.
     summary: Fired when the Camera button is released.
     description: |
@@ -581,6 +585,7 @@ events:
   - name: android:focus
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
@@ -592,6 +597,7 @@ events:
   - name: android:search
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) instead.
     summary: Fired when the Search button is released.
     description: |
@@ -603,6 +609,7 @@ events:
   - name: android:voldown
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) instead.
     summary: Fired when the volume down button is released.
     description: |
@@ -614,6 +621,7 @@ events:
   - name: android:volup
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) instead.
     summary: Fired when the volume up button is released.
     description: |
@@ -1141,7 +1149,7 @@ properties:
     description: |
         This was separated from the <Titanium.UI.Window.androidback> event. You need to define this
         callback if you explicitly want to override the back button behavior.
-    type: Callback<Object>
+    type: Callback<void>
     platforms: [android]
 
   - name: orientationModes
@@ -1316,7 +1324,7 @@ properties:
             // Open the window.
             win.open();
 
-    type: Dimension
+    type: Padding
     permission: read-only
     since: {android: "7.5.0", iphone: "8.0.0", ipad: "8.0.0"}
 
@@ -1487,7 +1495,7 @@ properties:
             </Alloy>
 
     platforms: [iphone, ipad]
-    type: Array<Object>
+    type: Array<Titanium.UI.View>
 
   - name: top
     summary: Window's top position, in platform-specific units.
@@ -1966,35 +1974,47 @@ properties:
 name: closeWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.close> method.
 since: 3.2.0
-platforms: [android]
-
+platforms: [android, ipad, iphone]
 properties:
-
   - name: animated
     summary: |
-        Determines whether to use an animated effect when the window is closed.
+        Determines whether to use an animated effect when the window is closed. Defaults to `true` on Android, `false` on iOS.
     description: |
         This property supports animated transitions on windows except for modal windows (`modal:true`).
         The transitions are on by default, but you can disable this behavior by setting this value
         to `false`.
     type: Boolean
-    default: true
+
+  - name: animationDuration
+    type: Number
+    default: 1000
+    summary: duration of the animation in milliseconds
+    platforms: [iphone, ipad]
+
+  - name: animationStyle
+    summary: Transition type to use during a transition animation.
+    type: Number
+    constants: Titanium.UI.iOS.AnimationStyle.*
+    default: <Titanium.UI.iOS.AnimationStyle.NONE>
+    platforms: [iphone, ipad]
 
   - name: activityEnterAnimation
     summary: Animation resource to use for the incoming activity.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of <Titanium.UI.Window>
       for more information.
     type: Number
+    platforms: [android]
 
   - name: activityExitAnimation
     summary: Animation resource to use for the outgoing activity.
     description: |
       This value will be ignored if `animated` is set to false.
-      See "Window Transitions in Android" in the main description of Titanium.UI.Window
+      See "Window Transitions in Android" in the main description of <Titanium.UI.Window>
       for more information.
     type: Number
+    platforms: [android]
     examples:
       - title: Fading out a Window
         example: |
@@ -2056,6 +2076,6 @@ properties:
 
   - name: offset
     summary: |
-        Dictionary with the properties `width` and `height` used as the horizontal
+        <Size> with the properties `width` and `height` used as the horizontal
         and vertical offset of the shadow, respectively.
-    type: Dictionary
+    type: Size

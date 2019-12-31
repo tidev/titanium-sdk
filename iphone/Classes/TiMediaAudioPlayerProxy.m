@@ -376,15 +376,8 @@
   WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
-  // The AVPlayer does not properly support state management on iOS < 10.
-  // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    // iOS 10+: For playbackState property / playbackstate event
-    [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  } else {
-    // iOS < 10: For playbackstate event
-    [[self player] addObserver:self forKeyPath:@"rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  }
+  // For playbackState property / playbackstate event
+  [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
   // For "error" event
   [nc addObserver:self selector:@selector(handlePlayerErrorNotification:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:_player.currentItem];
@@ -411,11 +404,7 @@
     return;
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[self player] removeObserver:self forKeyPath:@"timeControlStatus"];
-  } else {
-    [[self player] removeObserver:self forKeyPath:@"rate"];
-  }
+  [[self player] removeObserver:self forKeyPath:@"timeControlStatus"];
 
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferFull"];
@@ -424,14 +413,8 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    if (object == _player && [keyPath isEqualToString:@"timeControlStatus"]) {
-      [self handleTimeControlStatusNotification:nil];
-    }
-  } else {
-    if (object == _player && [keyPath isEqualToString:@"rate"]) {
-      [self handlePlaybackStateChangeNotification:nil];
-    }
+  if (object == _player && [keyPath isEqualToString:@"timeControlStatus"]) {
+    [self handleTimeControlStatusNotification:nil];
   }
 
   if (object == _player.currentItem && [keyPath isEqualToString:@"playbackBufferEmpty"]) {

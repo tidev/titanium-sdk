@@ -753,7 +753,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
-			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -992,19 +991,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			case KeyEvent.KEYCODE_BACK: {
 
 				if (event.getAction() == KeyEvent.ACTION_UP) {
-					String backEvent = "android:back";
 					KrollProxy proxy = null;
-					//android:back could be fired from a tabGroup window (activityProxy)
+					//androidback could be fired from a tabGroup window (activityProxy)
 					//or hw window (window).This event is added specifically to the activity
 					//proxy of a tab group in window.js
-					if (activityProxy.hasListeners(backEvent)) {
+					if (activityProxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 						proxy = activityProxy;
-					} else if (window.hasListeners(backEvent)) {
+					} else if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 						proxy = window;
 					}
 
 					if (proxy != null) {
-						proxy.fireEvent(backEvent, null);
+						proxy.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 						handled = true;
 					}
 				}
@@ -1014,13 +1012,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_CAMERA, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:camera")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:camera", null);
 					}
 					handled = true;
 				}
@@ -1034,13 +1025,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:focus")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:focus", null);
-					}
-					handled = true;
-				}
 
 				break;
 			}
@@ -1048,13 +1032,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_SEARCH, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:search")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:search", null);
 					}
 					handled = true;
 				}
@@ -1068,13 +1045,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:volup")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:volup", null);
-					}
-					handled = true;
-				}
 
 				break;
 			}
@@ -1082,13 +1052,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:voldown")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:voldown", null);
 					}
 					handled = true;
 				}
@@ -1339,10 +1302,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			releaseDialogs(false);
 		}
 
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1379,10 +1338,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		TiApplication tiApp = getTiApp();
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
-
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
-		}
 
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -1422,20 +1377,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		updateTitle();
 
-		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
-			activityProxy.fireEvent(TiC.EVENT_START, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1462,10 +1403,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_STOP, null);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1491,20 +1428,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
-
-		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
-			activityProxy.fireEvent(TiC.EVENT_RESTART, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
-		}
 	}
 
 	@Override
@@ -1680,9 +1603,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void fireOnDestroy()
 	{
 		if (!onDestroyFired) {
-			if (activityProxy != null) {
-				activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
-			}
 			onDestroyFired = true;
 		}
 	}
