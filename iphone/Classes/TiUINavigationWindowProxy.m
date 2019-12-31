@@ -213,9 +213,7 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
-#endif
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
@@ -389,7 +387,6 @@
   [super viewDidDisappear:animated];
 }
 
-#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   UIViewController *topVC = [navController topViewController];
@@ -401,7 +398,6 @@
   }
   return [super homeIndicatorAutoHide];
 }
-#endif
 
 - (BOOL)hidesStatusBar
 {

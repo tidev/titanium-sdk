@@ -114,9 +114,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    _tableView.prefetchDataSource = nil;
-  }
+  _tableView.prefetchDataSource = nil;
 
   [_tableView release];
   [_templates release];
@@ -216,9 +214,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
 
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      _tableView.prefetchDataSource = self;
-    }
+    _tableView.prefetchDataSource = self;
 
     if (TiDimensionIsDip(_rowHeight)) {
       [_tableView setRowHeight:_rowHeight.value];
@@ -765,12 +761,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[self tableView] setRefreshControl:_refreshControlProxy.control];
-    } else {
-      [[self tableView] addSubview:[_refreshControlProxy control]];
-    }
+    [[self tableView] setRefreshControl:_refreshControlProxy.control];
   }
 #endif
 }
@@ -2238,7 +2229,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)viewGetFocus
 {
-#if IS_SDK_IOS_11
   if (isSearchBarInNavigation) {
     id proxy = [(TiViewProxy *)self.proxy parent];
     while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
@@ -2254,7 +2244,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       controller.navigationItem.searchController = searchController;
     }
   }
-#endif
 
   if (isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;

@@ -78,7 +78,6 @@ properties:
     type: Boolean
     default: false
 
-
   - name: backgroundColor
     summary: |
         Value of the `backgroundColor` property at the end of the animation, as a color name
@@ -94,8 +93,7 @@ properties:
 
   - name: center
     summary: Value of the `center` property at the end of the animation.
-    type: Object
-
+    type: Point
 
   - name: color
     summary: |
@@ -133,6 +131,7 @@ properties:
   - name: height
     summary: Value of the `height` property at the end of the animation.
     type: Number
+
   - name: left
     summary: Value of the `left` property at the end of the animation.
     type: Number

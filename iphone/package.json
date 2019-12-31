@@ -16,11 +16,11 @@
 		"Chris Barber <cbarber@axway.com>",
 		"Hans Knöchel <cbarber@axway.com>"
 	],
-	"minIosVersion": "9.0",
+	"minIosVersion": "10.0",
 	"minWatchosVersion": "2.0",
 	"vendorDependencies": {
-		"xcode": ">=8.0 <=11.x",
-		"ios sdk": ">=9.0 <=13.x"
+		"xcode": ">=9.0 <=11.x",
+		"ios sdk": ">=10.0 <=13.x"
 	},
 	"repository": {
 		"type": "git",

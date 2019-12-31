@@ -144,6 +144,7 @@ events:
     properties:
       - name: itemIndex
         summary: Index of the selected item from the single choice menu in the dialog.
+        type: Number
 
   - name: tiledialogcancelled
     summary: Dispatched when the alert dialog has been cancelled.

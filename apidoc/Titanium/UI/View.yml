@@ -406,7 +406,7 @@ events:
 
       - name: inProgress
         summary: Returns `true` if a scale gesture is in progress, `false` otherwise.
-        type: Number
+        type: Boolean
         since: "7.5.0"
         platforms: [android]
 
@@ -482,6 +482,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: altitudeAngle
         summary: |
@@ -489,25 +490,28 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-
+        platforms: [iphone, ipad]
 
   - name: touchend
     summary: Fired when a touch event is completed.
@@ -539,6 +543,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: altitudeAngle
         summary: |
@@ -546,24 +551,28 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Penciland are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
@@ -594,6 +603,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: altitudeAngle
         summary: |
@@ -601,24 +611,28 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
@@ -647,6 +661,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: altitudeAngle
         summary: |
@@ -654,24 +669,28 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
+        platforms: [iphone, ipad]
 
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
@@ -810,7 +829,7 @@ methods:
 
       - name: callback
         summary: Function to be invoked upon completion of the animation.
-        type: Callback<Object>
+        type: Callback<Object> # FIXME: iOS appears to fire with the Ti.UI.Animation object, whiel Android fires with an empty object
         optional: true
 
   - name: clearMotionEffects
@@ -823,6 +842,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     summary: |
         Finishes a batch update of the View's layout properties and schedules a layout pass of the
@@ -840,9 +860,14 @@ methods:
     parameters:
       - name: options
         summary: |
-            Animation options for Android. **Since Release 5.1.0.**
-        type: AnimationOption
+            Animation options for Android only. **Since SDK 5.1.0 and used only on Android 5.0+**
+
+            Determines whether to enable a circular reveal animation.
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
+        # FIXME: Allow setting platforms/osver on parameters. Sucks we have to stick this in summary!
 
   - name: insertAt
     summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
@@ -851,12 +876,8 @@ methods:
     parameters:
       - name: params
         summary: |
-            Pass an object with the following key-value pairs:
-
-             * `view` (Titanium.UI.View): View to insert
-             * `position` (Number): Position in the [children](Titanium.UI.View.children) array to
-               insert the view. If omitted, inserts the view to the end of the array.
-        type: Dictionary
+            Pass an object that specifies the view to insert and optionally at which position (defaults to end)
+        type: ViewPositionOptions
     since: 3.3.0
     platforms: [android, iphone, ipad]
 
@@ -878,12 +899,8 @@ methods:
     parameters:
       - name: params
         summary: |
-            Pass an object with the following key-value pairs:
-
-             * `view` (Titanium.UI.View): View to insert
-             * `position` (Number): Position in the [children](Titanium.UI.View.children) array of
-               the view elment to replace.
-        type: Dictionary
+            Pass an object with the view to insert and the position of the view to replace. In this case the `position` property is required.
+        type: ViewPositionOptions
     since: 3.3.0
     platforms: [android, iphone, ipad]
 
@@ -892,9 +909,14 @@ methods:
     parameters:
       - name: options
         summary: |
-            Animation options for Android. **Since Release 5.1.0.**
-        type: AnimationOption
+            Animation options for Android only. **Since SDK 5.1.0 and only used on Android 5.0+**
+
+            Determines whether to enable a circular reveal animation.
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
+        # FIXME: Support platfroms/osver/since on parameters!
 
   - name: startLayout
     summary: Starts a batch update of this view's layout properties.
@@ -922,6 +944,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
 
   - name: stopAnimation
@@ -934,7 +957,7 @@ methods:
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
     description: |
-        The `honorScaleFactor` method is only supported on iOS.
+        The `honorScaleFactor` argument is only supported on iOS.
     returns:
         type: Titanium.Blob
     platforms: [android, iphone, ipad]
@@ -979,6 +1002,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
+        removed: "9.0.0"
         notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     parameters:
       - name: params
@@ -1334,7 +1358,6 @@ properties:
         Defaults to `undefined`.
     type: Point
 
-
   - name: children
     summary: Array of this view's child views.
     type: Array<Titanium.UI.View>
@@ -1410,21 +1433,25 @@ properties:
     type: Number
     constants: [Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE, Titanium.UI.HIDDEN_BEHAVIOR_GONE]
     platforms: [android]
-    since: 6.1.0
+    since: "6.1.0"
 
   - name: horizontalMotionEffect
     summary: Adds a horizontal parallax effect to the view
     description: |
-        Pass an object with the following key-value pairs:
-
-         * `min` (Number): Minimum amount it can move horizontally (-10 for example)
-         * `max` (Number): Maximum amount it can move horizontally (10 for example)
-
-         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
-         To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
-    type: Dictionary
+        Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
+        To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
+    type: MinMaxOptions
     platforms: [iphone, ipad]
-    since: 7.3.0
+    since: "7.3.0"
+
+  - name: id
+    summary: View's identifier.
+    description: |
+        The `id` property of the Ti.UI.View represents the view's identifier. The identifier string does
+        not have to be unique. You can use this property with <Titanium.UI.View.getViewById> method.
+    type: String
+    accessors: false
+    optional: true
 
   - name: left
     summary: View's left position, in platform-specific units.
@@ -1640,7 +1667,7 @@ properties:
         The correct values will only be available when layout is complete.
         To determine when layout is complete, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
-    type: Dimension
+    type: DimensionWithAbsolutes
     permission: read-only
     since: "2.0.0"
 
@@ -1694,7 +1721,6 @@ properties:
         [postlayout](Titanium.UI.View.postlayout) event.
     type: Dimension
     permission: read-only
-
 
   - name: softKeyboardOnFocus
     summary: Determines keyboard behavior when this view is focused. Defaults to <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>.
@@ -1788,14 +1814,9 @@ properties:
   - name: verticalMotionEffect
     summary: Adds a vertical parallax effect to the view
     description: |
-        Pass an object with the following key-value pairs:
-
-         * `min` (Number): Minimum amount it can move vertically (-10 for example)
-         * `max` (Number): Maximum amount it can move vertically (10 for example)
-
-         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
-         To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
-    type: Dictionary
+        Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
+        To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
+    type: MinMaxOptions
     platforms: [iphone, ipad]
     since: 7.3.0
 
@@ -1855,7 +1876,6 @@ properties:
     type: Boolean
     default: true
     since: "2.1.0"
-
 
   - name: zIndex
     summary: Z-index stack order position, relative to other sibling views.
@@ -1988,60 +2008,32 @@ properties:
     type: Number
 
 ---
-name: Dimension
-summary: A simple object consisting of the position and size measurements.
-since: "2.0.0"
-description: |
-  When a dimension is returned by the [rect](Titanium.UI.View.rect) property, `x` represents the
-  view's left position, and `y` represents the view's top position.
-
-  The [size](Titanium.UI.View.size) property returns a dimension object with `x` and `y` both set
-  to 0.
+name: MinMaxOptions
+summary: An object for setting `min`/`max` value pairs.
 properties:
-  - name: height
-    summary: The height measurement.
+  - name: min
     type: Number
+    summary: Minimum value
 
-  - name: width
-    summary: The width measurement.
+  - name: max
     type: Number
-
-  - name: x
-    summary: The x-axis coordinate of the position.
-    type: Number
-
-  - name: y
-    summary: The y-axis coordinate of the position.
-    type: Number
+    summary: Maximum value
 
 ---
-name: AnimationOption
-summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
-since: "5.1.0"
-platforms: [android]
+name: ViewPositionOptions
+summary: |
+    Pass an object with the following key-value pairs:
+
+      * `view` (Titanium.UI.View): View to insert
+      * `position` (Number): Position in the [children](Titanium.UI.View.children) array of
+        the view elment to replace.
 properties:
-  - name: animated
-    summary: Determines whether to enable a circular reveal animation.
-    type: Boolean
-    default: false
-    osver: {android: {min: 5.0}}
+  - name: view
+    type: Titanium.UI.View
+    summary: View to insert. Required.
+    optional: false
 
----
-name: ViewPadding
-summary: Dictionary object of parameters for the padding applied to all kinds of views.
-properties:
-  - name: left
+  - name: position
     type: Number
-    summary: Left padding
-
-  - name: right
-    type: Number
-    summary: Right padding
-
-  - name: top
-    type: Number
-    summary: Top padding
-
-  - name: bottom
-    type: Number
-    summary: Bottom padding
+    summary: Position in the [children](Titanium.UI.View.children) array of the view element to replace.
+    optional: true
