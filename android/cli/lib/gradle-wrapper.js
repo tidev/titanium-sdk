@@ -411,8 +411,8 @@ async function writeJavaPropertiesFile(filePath, platformPath, properties) {
 	const fileName = filePath.split('/').pop();
 	const gradlePropertiesOverwriteFile = path.join(platformPath, fileName);
 
-	if (fs.existsSync(gradlePropertiesOverwriteFile)) {
-		await fs.appendFile(filePath, fs.readFileSync(gradlePropertiesOverwriteFile, 'utf-8').toString() + '\n');
+	if (await fs.exists(gradlePropertiesOverwriteFile)) {
+		await fs.appendFile(filePath, (await fs.readFile(gradlePropertiesOverwriteFile, 'utf-8')).toString() + '\n');
 	}
 }
 
