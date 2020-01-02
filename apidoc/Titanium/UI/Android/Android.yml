@@ -191,7 +191,32 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    
+  - name: LABEL_VISIBILITY_UNLABELED
+    summary: Label is not shown on any navigation items.
+    description: Use with [TabGroup.labelVisibilityMode](Titanium.UI.TabGroup.labelVisibilityMode).
+    type: Number
+    permission: read-only
+    since: "9.0.0"
+  - name: LABEL_VISIBILITY_LABELED
+    summary: Label is shown on all navigation items.
+    description: Use with [TabGroup.labelVisibilityMode](Titanium.UI.TabGroup.labelVisibilityMode).
+    type: Number
+    permission: read-only
+    since: "9.0.0"
+  - name: LABEL_VISIBILITY_SELECTED
+    summary: Label is shown on the selected navigation item.
+    description: Use with [TabGroup.labelVisibilityMode](Titanium.UI.TabGroup.labelVisibilityMode).
+    type: Number
+    permission: read-only
+    since: "9.0.0"
+  - name: LABEL_VISIBILITY_AUTO
+    summary: |
+        Label behaves as "labeled" when there are 3 items or less,
+        or "selected" when there are 4 items or more.
+    description: Use with [TabGroup.labelVisibilityMode](Titanium.UI.TabGroup.labelVisibilityMode).
+    type: Number
+    permission: read-only
+    since: "9.0.0"
   - name: LINKIFY_ALL
     deprecated:
         since: "3.0.0"

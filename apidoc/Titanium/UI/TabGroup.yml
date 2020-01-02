@@ -317,6 +317,7 @@ properties:
 
         NOTE: This property only affects TabGroups with the [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
     since: "9.0.0"
+    type: Number
     constants: Titanium.UI.Android.LABEL_VISIBILITY_*
     platforms: [android]
 
