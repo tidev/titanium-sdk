@@ -138,7 +138,7 @@
 
 - (NSNumber *)hasContentPending
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] hasContentPending]);
   }
 
@@ -147,7 +147,7 @@
 
 - (NSNumber *)remainingComplicationUserInfoTransfers
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return NUMUINTEGER([[self watchSession] remainingComplicationUserInfoTransfers]);
   }
 
@@ -486,10 +486,8 @@
     [dict setObject:[self activationState] forKey:@"activationState"];
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
-    [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
-  }
+  [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
+  [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
 
   return dict;
 }
