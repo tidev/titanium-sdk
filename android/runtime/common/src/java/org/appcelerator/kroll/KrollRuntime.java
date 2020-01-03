@@ -13,12 +13,14 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -109,8 +111,10 @@ public abstract class KrollRuntime implements Handler.Callback
 		runtime.doInit();
 	}
 
+	@Nullable
 	public static KrollRuntime getInstance()
 	{
+		// TODO: Prevent this method from requiring `null` checks.
 		return instance;
 	}
 
