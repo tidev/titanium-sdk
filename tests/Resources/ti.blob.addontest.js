@@ -47,7 +47,7 @@ describe('Titanium.Blob', function () {
 		let blob = Ti.Filesystem.getFile('large.jpg').read();
 		should(blob).be.an.Object;
 
-		win.addEventListener('open', async () => {
+		win.addEventListener('open', () => {
 
 			// Keep re-sizing the image down by 10%
 			for (let i = 0; i < 10; i++) {
