@@ -52,6 +52,8 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import javax.crypto.CipherInputStream;
+
 @SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
 {
@@ -878,7 +880,7 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 
-		if (blob.getType() == TiBlob.TYPE_FILE) {
+		if (blob.getType() == TiBlob.TYPE_FILE && !(blob.getInputStream() instanceof CipherInputStream)) {
 			String fullPath = blob.getNativePath();
 			if (fullPath != null) {
 				setUrl(fullPath);
@@ -1066,7 +1068,13 @@ public class TiUIWebView extends TiUIView
 
 	public void stopLoading()
 	{
-		getWebView().stopLoading();
+		getWebView().getHandler().post(new Runnable() {
+			@Override
+			public void run()
+			{
+				getWebView().stopLoading();
+			}
+		});
 	}
 
 	public boolean shouldInjectBindingCode()

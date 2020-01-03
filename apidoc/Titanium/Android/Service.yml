@@ -34,6 +34,148 @@ description: |
 
       * [Android Services guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Services)
       * [Android Developer: Service](https://developer.android.com/reference/android/app/Service.html)
+    
+    ### Background Location Service Example
+    In order to obtain location events while the application is backgrounded a foreground service must be used.
+    Below is an example of a simple background location service.
+
+    tiapp.xml:
+        <android>
+          <manifest>
+            <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+          </manifest>
+          <services>
+            <service url="locationService.js"/>
+          </services>
+        </android>
+
+    locationService.js:
+        console.log(`Background location service started.`);
+
+        // Create foreground service.
+        Ti.Android.currentService.foregroundNotify(
+          123,
+          Ti.Android.createNotification({
+            contentTitle: "Background Location Service",
+            contentText: "Obtaining location data...",
+            contentIntent: Ti.Android.createPendingIntent({
+              intent: Ti.App.Android.launchIntent || Ti.Android.createIntent(),
+            })
+          }),
+          Ti.Android.FOREGROUND_SERVICE_TYPE_LOCATION
+        );
+
+    app.js:
+        const win = Ti.UI.createWindow({ backgroundColor: 'gray', layout: 'vertical' });
+        const backgroundServiceBtn = Ti.UI.createButton({ title: 'START BACKGROUND SERVICE' });
+        const listView = Ti.UI.createListView();
+
+        let count = 1;
+        let service = null;
+
+        // Set accuracy to high
+        Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
+        
+        // Enable manual configuration via location providers.
+        Ti.Geolocation.Android.manualMode = true;
+        
+        // Define a location provider.
+        Ti.Geolocation.Android.addLocationProvider(
+            Ti.Geolocation.Android.createLocationProvider({
+                name: Ti.Geolocation.Android.PROVIDER_GPS,
+                minUpdateDistance: 0,
+                minUpdateTime: 5000
+            })
+        );
+        
+        function getLocation () {
+
+            // Create location event listener.
+            Ti.Geolocation.addEventListener('location', e => {
+
+                // Create new section for location data.
+                let section = Ti.UI.createListSection({ headerTitle: `#${count++} - ${new Date().toTimeString()}` });
+                if (e.success) {
+                    if (e.coords) {
+                        e = e.coords;
+                    }
+
+                    // Insert location data.
+                    section.setItems([
+                        { properties: { title: 'LOCATION:\n' + e.latitude + ', ' + e.longitude, color: 'green' } },
+                        { properties: { title: 'ALTITUDE:\n' + e.altitude, color: 'green' } },
+                        { properties: { title: 'ACCURACY:\n' + e.accuracy, color: 'green' } }
+                    ]);
+
+                } else {
+
+                    // Oops! Something bad happened.
+                    section.setItems([
+                        { properties: { title: 'ERROR:\n' + e.error, color: 'red' } }
+                    ]);
+                }
+
+                // Add section to listView
+                listView.appendSection(section);
+            });
+        }
+
+        function startBackgroundLocationService() {
+            if (service) {
+                console.log('Starting background location service...');
+                service.start();
+                backgroundServiceBtn.title = 'STOP BACKGROUND SERVICE';
+            }
+        }
+
+        function stopBackgroundLocationService() {
+            if (service) {
+                console.log('Stopping background location service...');
+                service.stop();
+                backgroundServiceBtn.title = 'START BACKGROUND SERVICE';
+            }
+        }
+        
+        win.addEventListener('open', () => {
+
+            // Request location permissions.
+            Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, e => {
+                if (e.success) {
+                    getLocation();
+                } else {
+                    alert('Could not obtain location permissions.');
+                }
+            });
+        });
+
+        backgroundServiceBtn.addEventListener('click', () => {
+            if (!service) {
+
+                // Create background location service.
+                const intent = Ti.Android.createServiceIntent({ url: 'locationService.js' });
+                service = Ti.Android.createService(intent);
+
+                // Android 10+ request background location permissions.
+                if (parseInt(Ti.Platform.version.split('.')[0]) >= 10) {
+                    Ti.Android.requestPermissions([ 'android.permission.ACCESS_BACKGROUND_LOCATION' ], e => {
+                        if (e.success) {
+                            startBackgroundLocationService();
+                        } else {
+                            alert('Could not obtain background location permissions.');
+                        }
+                    });
+                } else {
+                    startBackgroundLocationService();
+                }
+
+            } else {
+                stopBackgroundLocationService();
+            }
+        });
+        
+        win.add([backgroundServiceBtn, listView]);
+        win.open();
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -100,6 +242,12 @@ methods:
         summary: Notification to display in the status bar. Cannot be null.
         type: Titanium.Android.Notification
 
+      - name: foregroundServiceType
+        summary: Notification service type specified by <Titanium.Android.FOREGROUND_SERVICE_TYPE_*>.
+        type: Number
+        default: Titanium.Android.FOREGROUND_SERVICE_TYPE_NONE
+        optional: true
+
   - name: start
     summary: Starts the Service.
     description: |
@@ -125,6 +273,7 @@ events:
             For example, if you have an interval-based Service running every 10 seconds, iteration
             3 would occur at about 30 seconds after you start the instance (assuming your service
             code runs quickly).
+        type: Number
 
   - name: resume
     summary: |
@@ -141,6 +290,7 @@ events:
             For example, if you have an interval-based Service running every 10 seconds, iteration
             3 would occur at about 30 seconds after you start the instance (assuming your service
             code runs quickly).
+        type: Number
 
   - name: start
     summary: Fired when the bound service instance starts.

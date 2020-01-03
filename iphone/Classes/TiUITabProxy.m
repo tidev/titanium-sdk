@@ -7,9 +7,11 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
+#import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -27,6 +29,8 @@
 
 - (void)_destroy
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
@@ -52,7 +56,16 @@
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(didChangeTraitCollection:)
+                                               name:kTiTraitCollectionChanged
+                                             object:nil];
   [super _configure];
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self updateTabBarItem];
 }
 
 - (NSString *)apiName
@@ -256,9 +269,8 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
-#if IS_SDK_IOS_11
   [window processForSafeArea];
-#endif
+
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -342,6 +354,13 @@
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
   }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && [viewController isKindOfClass:[TiViewController class]]) {
+    TiViewController *toViewController = (TiViewController *)viewController;
+    if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+      TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
+      [((TiUITabGroup *)(tabGroup.view))tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+    }
+  }
   [self handleWillShowViewController:viewController animated:animated];
 }
 
@@ -384,9 +403,8 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
-#endif
+
   if (theWindow == rootWindow) {
     //This is probably too late for the root view controller.
     //Figure out how to call open before this callback
@@ -450,10 +468,6 @@
       }
     }
   }
-  if ([self _hasListeners:@"blur"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.blur", @"5.2.0", @"UI.Tab.Event.unselected");
-    [self fireEvent:@"blur" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-  }
 
   if ([self _hasListeners:@"unselected"]) {
     [self fireEvent:@"unselected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
@@ -478,10 +492,6 @@
         [(id<TiWindowProtocol>)theProxy gainFocus];
       }
     }
-  }
-  if ([self _hasListeners:@"focus"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.focus", @"5.2.0", @"UI.Tab.Event.selected");
-    [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
 
   if ([self _hasListeners:@"selected"]) {
@@ -525,7 +535,7 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-    if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    if (badgeColor != nil) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
 
@@ -552,11 +562,16 @@
     if (currentWindow == nil) {
       currentWindow = self;
     }
-    image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
-
+    if ([icon isKindOfClass:[TiBlob class]]) {
+      image = [(TiBlob *)icon image];
+    } else {
+      image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+    }
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
       activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+    } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
+      activeImage = [(TiBlob *)activeIcon image];
     }
   }
   [rootController setTitle:title];
@@ -593,7 +608,7 @@
     }
   }
 
-  if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+  if (badgeColor != nil) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
 
@@ -741,7 +756,6 @@
 
 @synthesize parentOrientationController;
 
-#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   if (rootWindow == nil) {
@@ -758,7 +772,7 @@
   }
   return NO;
 }
-#endif
+
 - (BOOL)hidesStatusBar
 {
   if (rootWindow == nil) {

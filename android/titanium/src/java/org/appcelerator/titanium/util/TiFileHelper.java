@@ -31,6 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.TiApplication;
 
 import android.content.ContentResolver;
@@ -152,8 +153,12 @@ public class TiFileHelper
 				String resid = parts[2];
 
 				if (TI_RESOURCE_PREFIX.equals(section)) {
-					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid
-																+ ".png");
+					try {
+						is = TiApplication.getInstance().getResources().openRawResource(
+							TiRHelper.getResource("drawable." + resid));
+					} catch (Exception e) {
+						Log.w(TAG, "Drawable not found for Titanium id: " + resid);
+					}
 				} else if ("Sys".equals(section)) {
 					Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
 					Integer id = systemIcons.get(resid);
@@ -350,9 +355,11 @@ public class TiFileHelper
 			if (TI_RESOURCE_PREFIX.equals(section)) {
 				InputStream is = null;
 				try {
-					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid
-																+ ".png");
+					is = TiApplication.getInstance().getResources().openRawResource(
+						TiRHelper.getResource("drawable." + resid));
 					d = new BitmapDrawable(is);
+				} catch (Exception e) {
+					Log.w(TAG, "Resource not found for Titanium id: " + resid);
 				} finally {
 					if (is != null) {
 						try {

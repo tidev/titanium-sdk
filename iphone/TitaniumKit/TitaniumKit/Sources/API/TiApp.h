@@ -137,7 +137,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 /**
  Returns singleton instance of TiApp application object.
  */
-+ (TiApp *)app;
++ (TiApp *)app NS_SWIFT_NAME(sharedApp());
 
 /**
  * Returns a read-only dictionary from tiapp.xml properties
@@ -278,7 +278,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  @param _notificationName The name of the notification to schedule.
  @param completionHandler The optional completion handler to invoke if requried.
  */
-- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler;
+- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler;
 
 /**
  Tries to post a given background-mode notification with the given name. If the app did not finish launching so far, it will be queued

@@ -119,7 +119,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private static final double SIMPLE_LOCATION_PASSIVE_DISTANCE = 0.0;
 	private static final double SIMPLE_LOCATION_PASSIVE_TIME = 0;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE = 10.0;
-	private static final double SIMPLE_LOCATION_NETWORK_TIME = 10000;
+	private static final double SIMPLE_LOCATION_NETWORK_TIME = 3000;
 	private static final double SIMPLE_LOCATION_GPS_DISTANCE = 3.0;
 	private static final double SIMPLE_LOCATION_GPS_TIME = 3000;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
@@ -136,6 +136,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
+	private ArrayList<KrollFunction> currentPositionCallback = new ArrayList<>();
 
 	private FusedLocationProvider fusedLocationProvider;
 
@@ -200,6 +201,20 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public void onLocationChanged(Location location)
 	{
 		lastLocation = location;
+
+		// Execute current position callbacks.
+		if (currentPositionCallback.size() > 0) {
+			ArrayList<KrollFunction> currentPositionCallbackClone =
+				(ArrayList<KrollFunction>) currentPositionCallback.clone();
+			currentPositionCallback.clear();
+			for (KrollFunction callback : currentPositionCallbackClone) {
+				callback.call(this.getKrollObject(),
+							  new Object[] { buildLocationEvent(
+								  lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider())) });
+			}
+		}
+
+		// Fire 'location' event listeners.
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION,
 					  buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
@@ -225,50 +240,42 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		switch (state) {
 			case LocationProviderProxy.STATE_DISABLED:
 				message += " is disabled";
-				Log.i(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_ENABLED:
 				message += " is enabled";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-
 				break;
 
 			case LocationProviderProxy.STATE_OUT_OF_SERVICE:
 				message += " is out of service";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_UNAVAILABLE:
 				message += " is unavailable";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_AVAILABLE:
 				message += " is available";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-
 				break;
 
 			case LocationProviderProxy.STATE_UNKNOWN:
-				message += " is in a unknown state [" + state + "]";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
-				break;
-
 			default:
 				message += " is in a unknown state [" + state + "]";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
+		}
+		Log.d(TAG, message, Log.DEBUG_MODE);
 
-				break;
+		if (state != LocationProviderProxy.STATE_ENABLED && state != LocationProviderProxy.STATE_AVAILABLE) {
+			fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
+
+			// Execute current position callbacks.
+			if (currentPositionCallback.size() > 0) {
+				ArrayList<KrollFunction> currentPositionCallbackClone =
+					(ArrayList<KrollFunction>) currentPositionCallback.clone();
+				currentPositionCallback.clear();
+				for (KrollFunction callback : currentPositionCallbackClone) {
+					callback.call(this.getKrollObject(), new Object[] { buildLocationErrorEvent(state, message) });
+				}
+			}
 		}
 	}
 
@@ -670,6 +677,20 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		}
 		if (callback != null) {
 			Location latestKnownLocation = tiLocation.getLastKnownLocation();
+			if (latestKnownLocation == null) {
+				latestKnownLocation = lastLocation;
+			}
+
+			// TIMOB-27572: Samsung devices require a location provider to be registered
+			// in order to obtain last known location.
+			if (latestKnownLocation == null) {
+				if (numLocationListeners == 0) {
+					numLocationListeners++;
+					enableLocationProviders(simpleLocationProviders);
+				}
+				currentPositionCallback.add(callback);
+				return;
+			}
 
 			if (latestKnownLocation != null) {
 				callback.call(
@@ -786,6 +807,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * @return						map of property names and values that contain information
 	 * 								pulled from the specified location
 	 */
+	@SuppressWarnings("NewApi")
 	private KrollDict buildLocationEvent(Location location, LocationProvider locationProvider)
 	{
 		KrollDict coordinates = new KrollDict();
@@ -793,7 +815,11 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
 		coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
 		coordinates.put(TiC.PROPERTY_ACCURACY, location.getAccuracy());
-		coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, location.getVerticalAccuracyMeters());
+		} else {
+			coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null);
+		}
 		coordinates.put(TiC.PROPERTY_HEADING, location.getBearing());
 		coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
 		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());

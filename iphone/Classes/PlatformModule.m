@@ -8,6 +8,7 @@
 
 #import "PlatformModule.h"
 #import "TiPlatformDisplayCaps.h"
+#import "TiUtils+Addons.h"
 #import <TitaniumKit/TiApp.h>
 
 #import <mach/mach.h>
@@ -308,17 +309,13 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
   }
 
   if (newUrl != nil) {
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[UIApplication sharedApplication] openURL:newUrl
-                                         options:optionsDict
-                               completionHandler:^(BOOL success) {
-                                 if (callback != nil) {
-                                   [callback callWithArguments:@[ @{ @"success" : @(success)} ]];
-                                 }
-                               }];
-    } else {
-      result = [[UIApplication sharedApplication] openURL:newUrl];
-    }
+    [[UIApplication sharedApplication] openURL:newUrl
+                                       options:optionsDict
+                             completionHandler:^(BOOL success) {
+                               if (callback != nil) {
+                                 [callback callWithArguments:@[ @{ @"success" : @(success)} ]];
+                               }
+                             }];
   }
 
   return [NSNumber numberWithBool:result];

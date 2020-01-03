@@ -147,7 +147,7 @@ methods:
         summary: Index of where to retrieve an item.
         type: Number
     returns:
-      - type: ListDataItem
+      type: ListDataItem
 
   - name: updateItemAt
     summary: |

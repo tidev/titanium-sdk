@@ -215,8 +215,8 @@ methods:
             reference instead. If you wish to receive the path, use the `nativePath`
             property of that reference instead.
     returns:
-      - type: String
-      - type: Titanium.Filesystem.File
+      type: [String, Titanium.Filesystem.File]
+      summary: Returns a String on iOS, a `Titanium.Filesystem.File` on Android
 
   - name: getProtectionKey
     summary: |

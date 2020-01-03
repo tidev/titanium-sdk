@@ -122,7 +122,6 @@ void JavaObject::MakeJSWeak()
 	// to a weak reference in the JVM. (where we can track when that gets GC'd by the JVM to call back and kill this)
 	if (!isDetached() && !persistent().IsEmpty()) {
 		persistent().SetWeak(this, DetachCallback, v8::WeakCallbackType::kFinalizer); // MUST BE kFinalizer or our object cannot be resurrected!
-		persistent().MarkIndependent();
 	}
 }
 
@@ -130,7 +129,6 @@ void JavaObject::detach()
 {
 	// WAIT A SECOND V8!!! DON'T KILL MY OBJECT YET! THE JVM MAY STILL WANT IT!
 	persistent().ClearWeak(); // Make JS Strong Again!
-	persistent().MarkActive();
 
 	// if the JVM side is a weak reference or we have no object wrapped, don't do anything else
 	if (isDetached()) {

@@ -110,8 +110,9 @@ methods:
             for this dictionary is the `animated` flag, which specifies whether
             the value change should be animated. `animated` is false by default. Only used
             on iOS.
-        type: Dictionary
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
 events:
   - name: change
@@ -126,13 +127,14 @@ events:
         summary: |
             Dictionary with properties `width` and `height` of the size of the thumb.
             Available with custom thumb image.
+        type: Size
         platforms: [android]
 
       - name: thumbOffset
         summary: |
             Dictionary with properties `x` and `y` of the thumb's left-top corner in
             the control. Available with custom thumb image.
-        type: Dictionary
+        type: Point
         platforms: [android]
 
   - name: click
@@ -391,6 +393,18 @@ properties:
     type: [String, Titanium.Blob]
     platforms: [android, iphone, ipad]
 
+  - name: tintColor
+    summary: The color shown for the portion of the progress bar that is filled.
+    since: {iphone: "3.1.3", ipad: "3.1.3", android: "8.3.0"}
+    osver: {android: {min: "5.0"}}
+
+  - name: trackTintColor
+    summary: The color shown for the portion of the progress bar that is not filled.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: {iphone: "8.3.0", ipad: "8.3.0", android: "8.3.0"}
+    osver: {android: {min: "5.0"}}
+
   - name: value
     summary: Current value of the slider.
-    type: String
+    type: Number

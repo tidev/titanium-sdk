@@ -30,19 +30,9 @@ genDir = os.path.join(os.path.dirname(thisDir), "generated")
 if not os.path.exists(genDir):
 	os.makedirs(genDir)
 
-jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
-
 import bootstrap
 
 def loadBindings():
-	bindingPaths = []
-	bindings = { "proxies": {}, "modules": {} }
-	for module in os.listdir(jsonDir):
-		bindingsDir = os.path.join(jsonDir, "org", "appcelerator", "titanium", "bindings")
-		for binding in os.listdir(bindingsDir):
-			jsonPath = os.path.join(bindingsDir, binding)
-			if os.path.exists(jsonPath):
-				bindingPaths.append(jsonPath)
 
 	def mergeModules(source, dest):
 		for k in source.keys():
@@ -64,11 +54,12 @@ def loadBindings():
 						if newMembers:
 							origEntry[listName].extend(newMembers)
 
-	for bindingPath in bindingPaths:
-		moduleName = os.path.basename(bindingPath).replace(".json", "")
-		binding = json.load(open(bindingPath))
-		bindings["proxies"].update(binding["proxies"])
-		mergeModules(binding["modules"], bindings["modules"])
+	bindingPath = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "titanium.bindings.json"))
+	moduleName = os.path.basename(bindingPath).replace(".json", "")
+	binding = json.load(open(bindingPath))
+	bindings = { "proxies": {}, "modules": {} }
+	bindings["proxies"].update(binding["proxies"])
+	mergeModules(binding["modules"], bindings["modules"])
 
 	return bindings
 

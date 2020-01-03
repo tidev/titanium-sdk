@@ -26,6 +26,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   RELEASE_TO_NIL(data);
   RELEASE_TO_NIL(image);
   RELEASE_TO_NIL(path);
+  RELEASE_TO_NIL(systemImageName);
   [super dealloc];
 }
 
@@ -136,12 +137,45 @@ GETTER_IMPL(NSUInteger, size, Size);
   return self;
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (id)initWithSystemImage:(NSString *)imageName
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return nil;
+  }
+
+  if (self = [super init]) {
+    image = [[UIImage systemImageNamed:imageName] retain];
+    type = TiBlobTypeSystemImage;
+    systemImageName = [imageName retain];
+    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+  }
+  return self;
+}
+
+- (NSString *)systemImageName
+{
+  return systemImageName;
+}
+#endif
+
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_
 {
   if (self = [super init]) {
     data = [data_ retain];
     type = TiBlobTypeData;
     mimetype = [mimetype_ copy];
+  }
+  return self;
+}
+
+- (id)initWithData:(NSData *)data_ andPath:(NSString *)path_
+{
+  if (self = [super init]) {
+    data = [data_ retain];
+    type = TiBlobTypeData;
+    path = [path_ retain];
+    mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
   }
   return self;
 }

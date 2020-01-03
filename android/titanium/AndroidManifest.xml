@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.appcelerator.titanium"
-	android:versionCode="1"
-	android:versionName="1.0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.appcelerator.titanium">
+	<application>
+		<activity
+			android:name="org.appcelerator.titanium.TiActivity"
+			android:configChanges="${tiActivityConfigChanges}"/>
+		<activity
+			android:name="org.appcelerator.titanium.TiTranslucentActivity"
+			android:configChanges="${tiActivityConfigChanges}"
+			android:theme="@style/Theme.Titanium.Translucent"/>
+		<activity
+			android:name="ti.modules.titanium.media.TiCameraActivity"
+			android:configChanges="${tiActivityConfigChanges}"
+			android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen"/>
+		<activity
+			android:name="ti.modules.titanium.media.TiVideoActivity"
+			android:configChanges="${tiActivityConfigChanges}"
+			android:theme="@style/Theme.AppCompat.Fullscreen"/>
+		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
 
-	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="28" />
+		<provider
+			android:name="org.appcelerator.titanium.io.TiFileProvider"
+			android:authorities="${applicationId}.tifileprovider"
+			android:exported="false"
+			android:grantUriPermissions="true"/>
 
-	<application android:label="@string/app_name">
+		<service
+			android:name="com.appcelerator.aps.APSAnalyticsService"
+			android:permission="android.permission.BIND_JOB_SERVICE"
+			android:exported="false"/>
 	</application>
 </manifest>
