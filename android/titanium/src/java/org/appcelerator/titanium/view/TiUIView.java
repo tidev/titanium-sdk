@@ -1719,32 +1719,20 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		touchable.setOnTouchListener(new OnTouchListener() {
 			int pointersDown = 0;
 
-			private boolean doRotationEvent(MotionEvent event)
+			private void doRotationEvent(MotionEvent event)
 			{
 				// Calculate the angle between the two fingers
 				float deltaX = event.getX(0) - event.getX(1);
 				float deltaY = event.getY(0) - event.getY(1);
 				double radians = Math.atan(deltaY / deltaX);
-				// Convert to degrees
-				int degrees = (int) (radians * 180 / Math.PI);
+				double degrees = Math.toDegrees(radians);
 
-				switch (event.getActionMasked()) {
-					case MotionEvent.ACTION_DOWN:
-					case MotionEvent.ACTION_POINTER_DOWN:
-					case MotionEvent.ACTION_POINTER_UP:
-						// start
-						break;
-					case MotionEvent.ACTION_MOVE:
-						// rotate
-						KrollDict data = new KrollDict();
-						data.put(TiC.PROPERTY_ROTATE, degrees);
-						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-						fireEvent(TiC.EVENT_ROTATE, data);
-
-						break;
+				if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_ROTATE, degrees);
+					data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+					fireEvent(TiC.EVENT_ROTATE, data);
 				}
-
-				return true;
 			}
 
 			public boolean onTouch(View view, MotionEvent event)
