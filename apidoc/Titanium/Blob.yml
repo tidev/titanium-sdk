@@ -119,8 +119,11 @@ methods:
     since: {android: "3.0.0"}
     parameters:
       - name: options
-        summary: Image cropping options.
-        type: Dictionary<ImageAsCroppedDict>
+        summary: |
+          Image cropping options. <Dimension> properties are all optional for this use case.
+
+          Defaults will be to use the current image's `height`/`width` and to center the cropped rectangle horizontally/vertically on the original image (`x`/`y`).
+        type: Dimension
     returns:
         type: Titanium.Blob
         summary: Cropped image as a blob.
@@ -237,30 +240,3 @@ methods:
     returns:
         type: Titanium.Blob
         summary: The image with a transparent border in a blob, or `null` if this blob is not an image.
----
-name: ImageAsCroppedDict
-summary: Simple object used to specify options for [imageAsCropped](Titanium.Blob.imageAsCropped).
-properties:
-  - name: width
-    type: Number
-    summary: Width to crop this image to.
-    optional: true
-    default: Current image width.
-
-  - name: height
-    type: Number
-    summary: Height to crop this image to.
-    optional: true
-    default: Current image height.
-
-  - name: x
-    type: Number
-    summary: Left coordinate of the cropped rectangle within the source image.
-    optional: true
-    default: Cropped rectangle is centered horizontally on the original image.
-
-  - name: y
-    type: Number
-    summary: Top coordinate of the cropped rectangle within the source image.
-    optional: true
-    default: Cropped rectangle is centered vertically on the original image.

@@ -395,7 +395,7 @@ events:
     properties:
       - name: keyboardFrame
         summary: A dictionary with keys x, y, width and height representing the frame of keyboard on screen.
-        type: Dictionary
+        type: Dimension
 
       - name: animationDuration
         summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.

@@ -113,17 +113,11 @@ static NSArray *contactKeysWithoutImage;
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSContactsUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !calendarPermission) {
+  if (!calendarPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSContactsUsageDescription\" inside the plist in your tiapp.xml when accessing the native contacts. Please add the key and re-run the application.");
   }
 
   return @([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusAuthorized);
-}
-
-- (void)requestAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Contacts.requestAuthorization()", @"5.1.0", @"Contacts.requestContactsPermissions()");
-  [self requestContactsPermissions:args];
 }
 
 - (void)requestContactsPermissions:(id)args
@@ -246,18 +240,6 @@ static NSArray *contactKeysWithoutImage;
   }
 
   [[TiApp app] showModalController:contactPicker animated:animated];
-}
-
-- (TiContactsPerson *)getPersonByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getPersonByID\" method has been removed for iOS 9 and greater.");
-  return nil;
-}
-
-- (TiContactsGroup *)getGroupByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getGroupByID\" method has been removed for iOS 9 and greater.");
-  return nil;
 }
 
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="android-support-v7-cardview">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/modules/cardview/lib/android-support-v7-cardview.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

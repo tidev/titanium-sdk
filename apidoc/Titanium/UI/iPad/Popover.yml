@@ -38,15 +38,21 @@ methods:
     summary: Hides the popover.
     parameters:
       - name: options
-        summary: Display properties to use when hiding the popover.
-        type: PopoverParams
+        summary: |
+            Display properties to use when hiding the popover.
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
 
   - name: show
     summary: Displays the popover.
     parameters:
-      - name: params
-        summary: Display properties to use when displaying the popover.
-        type: PopoverParams
+      - name: options
+        summary: |
+            Display properties to use when displaying the popover.
+            Note that the default here is to be animated.
+        type: ShowPopoverParams
 
 properties:
   - name: arrowDirection
@@ -257,16 +263,14 @@ examples:
             // $.popover.rightNavButton = button;
 
 ---
-name: PopoverParams
-summary: Dictionary of options for <Titanium.UI.iPad.Popover.show> and <Titanium.UI.iPad.Popover.hide>.
+name: ShowPopoverParams
+summary: Dictionary of options for <Titanium.UI.iPad.Popover.show>.
 description: |
     All properties are optional except you need to specify the `view` property for the `show()`
     method to attach the popover to a view component.
-
-    The `hide()` method only supports the `animated` property.
 properties:
   - name: animated
-    summary: Indicates whether to animate showing or hiding the popover.
+    summary: Indicates whether to animate showing the popover.
     type: Boolean
     default: true
     optional: true

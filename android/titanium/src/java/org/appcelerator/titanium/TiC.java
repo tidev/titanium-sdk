@@ -128,11 +128,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_CREATE = "create";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_DESTROY = "destroy";
 
 	/**
@@ -543,11 +538,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_REGION_CHANGED = "regionchanged";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_RESTART = "restart";
 
 	/**
 	 * @module.api

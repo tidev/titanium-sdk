@@ -647,19 +647,11 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 #ifdef USE_TI_UICLIPBOARD
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return UIPasteboardOptionLocalOnly;
-  } else {
-    return @"";
-  }
+  return UIPasteboardOptionLocalOnly;
 }
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return UIPasteboardOptionExpirationDate;
-  } else {
-    return @"";
-  }
+  return UIPasteboardOptionExpirationDate;
 }
 #endif
 
