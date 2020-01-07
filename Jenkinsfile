@@ -327,6 +327,13 @@ timestamps {
 					// TODO parallelize the iOS/Android/Windows portions?
 					ansiColor('xterm') {
 						timeout(15) {
+							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+							if (includeWindows) {
+								buildCommand += ' --all'
+							}
+							sh buildCommand
+						} // timeout
+						timeout(15) {
 							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 							if (includeWindows) {
 								buildCommand += ' --all'

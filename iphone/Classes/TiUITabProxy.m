@@ -535,7 +535,7 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-    if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    if (badgeColor != nil) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
 
@@ -608,7 +608,7 @@
     }
   }
 
-  if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+  if (badgeColor != nil) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
 
