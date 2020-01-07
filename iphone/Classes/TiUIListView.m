@@ -319,21 +319,22 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)proxyDidRelayout:(id)sender
 {
-  TiThreadPerformOnMainThread(^{
-    if (sender == _headerViewProxy) {
-      UIView *headerView = [[self tableView] tableHeaderView];
-      [headerView setFrame:[headerView bounds]];
-      [[self tableView] setTableHeaderView:headerView];
-      [((TiUIListViewProxy *)[self proxy])contentsWillChange];
-    } else if (sender == _footerViewProxy) {
-      UIView *footerView = [[self tableView] tableFooterView];
-      [footerView setFrame:[footerView bounds]];
-      [[self tableView] setTableFooterView:footerView];
-      [((TiUIListViewProxy *)[self proxy])contentsWillChange];
-    } else if (sender == _pullViewProxy) {
-      pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (sender == _headerViewProxy) {
+          UIView *headerView = [[self tableView] tableHeaderView];
+          [headerView setFrame:[headerView bounds]];
+          [[self tableView] setTableHeaderView:headerView];
+          [((TiUIListViewProxy *)[self proxy])contentsWillChange];
+        } else if (sender == _footerViewProxy) {
+          UIView *footerView = [[self tableView] tableFooterView];
+          [footerView setFrame:[footerView bounds]];
+          [[self tableView] setTableFooterView:footerView];
+          [((TiUIListViewProxy *)[self proxy])contentsWillChange];
+        } else if (sender == _pullViewProxy) {
+          pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+        }
+      },
       NO);
 }
 
