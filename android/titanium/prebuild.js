@@ -13,8 +13,8 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
 const glob = util.promisify(require('glob'));
-const moment = require('moment');
 const path = require('path');
+const timestamp = require('../../build/lib/utils').timestamp;
 
 // Determine if we're running on a Windows machine.
 const isWindows = (process.platform === 'win32');
@@ -83,7 +83,7 @@ async function generateBuildProperties() {
 
 	let buildTimestamp = process.env.TI_SDK_BUILD_TIMESTAMP;
 	if (!buildTimestamp) {
-		buildTimestamp = moment().format('YYYY/MM/DD HH:mm');
+		buildTimestamp = timestamp();
 	}
 
 	// Create the "build.properties" content.
