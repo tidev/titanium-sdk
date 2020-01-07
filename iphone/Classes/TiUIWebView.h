@@ -27,12 +27,15 @@
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;
   BOOL _tiCookieHandlerAdded;
+  id reloadData;
+  SEL reloadMethod;
+  BOOL ignoreNextRequest;
 }
 
 // Used from the proxy
 - (void)setHtml_:(id)args;
 - (void)viewDidClose;
-
+- (void)reload;
 - (WKWebView *)webView;
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
