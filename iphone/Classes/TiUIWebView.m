@@ -44,6 +44,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   RELEASE_TO_NIL(_pageToken);
   RELEASE_TO_NIL(_loadingIndicator);
+  RELEASE_TO_NIL(self.reloadData);
   [super dealloc];
 }
 
@@ -173,7 +174,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)setUrl_:(id)value
 {
   ignoreNextRequest = YES;
-  reloadData = value;
+  self.reloadData = value;
   reloadMethod = @selector(setUrl_:);
 
   ENSURE_TYPE(value, NSString);
@@ -206,7 +207,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)setData_:(id)value
 {
   ignoreNextRequest = YES;
-  reloadData = value;
+  self.reloadData = value;
   reloadMethod = @selector(setData_:);
 
   [[self proxy] replaceValue:value forKey:@"data" notification:NO];
@@ -250,7 +251,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)setHtml_:(id)args
 {
   ignoreNextRequest = YES;
-  reloadData = args;
+  self.reloadData = args;
   reloadMethod = @selector(setHtml_:);
 
   NSString *content = nil;
@@ -366,8 +367,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if (_webView == nil) {
     return;
   }
-  if (reloadData != nil) {
-    [self performSelector:reloadMethod withObject:reloadData];
+  if (self.reloadData != nil) {
+    [self performSelector:reloadMethod withObject:self.reloadData];
     return;
   }
   [[self webView] reload];
@@ -1095,7 +1096,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       valid = valid && (navigationAction.navigationType != WKNavigationTypeOther);
     }
     if (valid) {
-      reloadData = navigationAction.request.URL.absoluteString;
+      self.reloadData = navigationAction.request.URL.absoluteString;
       reloadMethod = @selector(setUrl_:);
     }
     decisionHandler(WKNavigationActionPolicyAllow);

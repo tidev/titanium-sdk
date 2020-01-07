@@ -27,10 +27,11 @@
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;
   BOOL _tiCookieHandlerAdded;
-  id reloadData;
-  SEL reloadMethod;
   BOOL ignoreNextRequest;
+  SEL reloadMethod;
 }
+
+@property (nonatomic, retain) id reloadData;
 
 // Used from the proxy
 - (void)setHtml_:(id)args;
