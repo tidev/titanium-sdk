@@ -38,9 +38,10 @@ JSValueRef KrollCallAsFunction(JSContextRef jsContext, JSObjectRef func, JSObjec
 #endif
 
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [o call:args];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [o call:args];
+        },
         YES);
 #if KMETHOD_DEBUG == 1
     double elapsed = [[NSDate date] timeIntervalSinceDate:reftime];

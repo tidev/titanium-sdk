@@ -127,7 +127,7 @@
   id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
 
   NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
-  [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeholder];
+  [[UITextField appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]] setAttributedPlaceholder:placeholder];
   RELEASE_TO_NIL(placeholder);
 }
 

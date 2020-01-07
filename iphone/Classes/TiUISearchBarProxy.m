@@ -53,11 +53,12 @@
   showsCancelButton = boolValue;
 
   //ViewAttached gives a false negative when not attached to a window.
-  TiThreadPerformOnMainThread(^{
-    UISearchBar *search = [self searchBar];
-    [search setShowsCancelButton:showsCancelButton animated:animated];
-    [search sizeToFit];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        UISearchBar *search = [self searchBar];
+        [search setShowsCancelButton:showsCancelButton animated:animated];
+        [search sizeToFit];
+      },
       NO);
 }
 

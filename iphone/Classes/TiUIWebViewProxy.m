@@ -38,9 +38,10 @@
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-  TiThreadPerformOnMainThread(^{
-    [[self webView] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self webView] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
+      },
       NO);
 }
 
@@ -332,7 +333,7 @@
 
   NSDictionary *params = @{ @"username" : username,
     @"password" : password,
-    @"persistence" : @(persistence)};
+    @"persistence" : @(persistence) };
   [self replaceValue:params forKey:@"basicAuthentication" notification:NO];
 }
 
@@ -462,23 +463,25 @@
   // If no argument is passed, return in sync (NOT recommended)
   if (callback == nil) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self evalJSSync:@[ code ]] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self evalJSSync:@[ code ]] retain];
+        },
         YES);
     return [result autorelease];
   }
 
-  TiThreadPerformOnMainThread(^{
-    [[[self webView] webView] evaluateJavaScript:code
-                               completionHandler:^(id result, NSError *error) {
-                                 if (!callback) {
-                                   return;
-                                 }
-                                 result = result ?: [NSNull null];
-                                 [callback call:@[ result ] thisObject:self];
-                               }];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[[self webView] webView] evaluateJavaScript:code
+                                   completionHandler:^(id result, NSError *error) {
+                                     if (!callback) {
+                                       return;
+                                     }
+                                     result = result ?: [NSNull null];
+                                     [callback call:@[ result ] thisObject:self];
+                                   }];
+      },
       NO);
   return nil;
 }
