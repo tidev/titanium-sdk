@@ -287,6 +287,9 @@ events:
       - name: backtrace
         summary: The backtrace of function calls when the error occurred.
         type: String
+        deprecated: 
+          since: "8.0.0"
+          removed: "8.0.0"
         platforms: [iphone, ipad]
       - name: title
         summary: The title for the error.
@@ -303,7 +306,38 @@ events:
       - name: lineOffset
         summary: The offset on the line where the error occurred.
         type: Number
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `column` property for cross-platform parity.
         platforms: [android]
+      - name: jsStack
+        summary: The javascript stack trace of the exception.
+        type: String
+        since: "8.0.0"
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `stack` property for cross-platform parity.
+        platforms: [android]
+      - name: javaStack
+        summary: The java stack trace of the exception.
+        type: String
+        since: "8.0.0"
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `nativeStack` property for cross-platform parity.
+        platforms: [android]
+      - name: stack
+        summary: The javascript stack trace of the exception.
+        type: String
+        since: "9.0.0"
+      - name: nativeStack
+        summary: The native platform stack trace of the exception.
+        type: String
+        since: "9.0.0"
+      - name: column
+        summary: The column offset on the line where the error occured.
+        type: Number
+        since: {android: "9.0.0",  iphone: "4.1.0", ipad: "4.1.0"}
     platforms: [android, iphone, ipad]
     since: '4.1.0'
 
