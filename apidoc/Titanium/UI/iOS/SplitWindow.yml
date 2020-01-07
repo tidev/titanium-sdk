@@ -43,10 +43,16 @@ methods:
         summary: Determines whether to show the master view in portrait orientation.
         type: Boolean
 
-      - name: animated
-        summary: Determines whether the scrollable region reposition should be animated
-        type: animationOption
+      - name: options
+        summary: |
+          Determines whether the scrollable region reposition should be animated. On iOS, use the optional property `animated` to animate changes to masterView display mode in portrait orientation. For example
+
+              setShowMasterInPortrait(true, {animated:true})
+
+          Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
   - name: setMasterIsOverlayed
     summary: Sets the value of the [masterIsOverlayed](Titanium.UI.iOS.SplitWindow.masterIsOverlayed) property.
@@ -55,10 +61,16 @@ methods:
         summary: Determines whether to show the master view is overlayed in portrait orientation.
         type: Boolean
 
-      - name: animated
-        summary: Determines whether the scrollable region reposition should be animated
-        type: animationOption
+      - name: options
+        summary: |
+          Determines whether the scrollable region reposition should be animated. On iOS, use the optional property `animated` to animate changes to masterView display mode in portrait orientation. For example
+
+              setMasterIsOverlayed(true, {animated:true})
+
+          Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
 properties:
   - name: detailView
@@ -156,19 +168,3 @@ examples:
             **controllers/index.js:**
 
             $.index.open();
-
----
-name: animationOption
-summary: |
-    Optional parameter for [setShowMasterInPortrait](Titanium.UI.iOS.SplitWindow.setShowMasterInPortrait) and
-    [setMasterIsOverlayed](Titanium.UI.iOS.SplitWindow.setMasterIsOverlayed) methods.
-description: |
-    On iOS, use the optional parameter `animated` to animate changes to masterView display mode in portrait orientation. For example
-
-        setShowMasterInPortrait(true, {animated:true})
-platforms: [iphone, ipad]
-
-properties:
-  - name: animated
-    summary: Determines whether the change is animated.
-    type: Boolean

@@ -180,6 +180,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			Log.d(TAG, "Launched in " + (SystemClock.uptimeMillis() - TiApplication.START_TIME_MS) + " ms");
 		}
 		super.onResume();
+
+		// Prevent duplicate launch animation.
+		// Windows opened before TiRootActivity has animated may cause an unwanted stutter animation.
+		if (TiApplication.firstOnActivityStack()) {
+			overridePendingTransition(0, 0);
+		}
 	}
 
 	@Override

@@ -161,6 +161,18 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return tiApp;
 	}
 
+	/**
+	 * Determine if activity is first on stack.
+	 * @return boolean to determine if activity is first.
+	 */
+	public static boolean firstOnActivityStack()
+	{
+		if (activityStack.size() == 1) {
+			return true;
+		}
+		return false;
+	}
+
 	public static void addToActivityStack(Activity activity)
 	{
 		if (activity != null) {
@@ -300,12 +312,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected void loadBuildProperties()
 	{
 		// Initialize build property member variables.
-		this.buildVersion = "1.0";
+		this.buildVersion = "1.0.0";
 		this.buildTimestamp = "N/A";
 		this.buildHash = "N/A";
 
 		// Attempt to read the "build.properties" file.
-		try (InputStream stream = KrollAssetHelper.openAsset("Resources/ti.internal/build.properties")) {
+		try (InputStream stream = getAssets().open("Resources/ti.internal/build.properties")) {
 			if (stream != null) {
 				Properties properties = new Properties();
 				properties.load(stream);
@@ -343,6 +355,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
+
+		loadBuildProperties();
 
 		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -456,8 +470,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postOnCreate()
 	{
-		loadBuildProperties();
-
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		if (runtime != null) {
 			Log.i(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
