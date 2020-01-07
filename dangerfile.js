@@ -127,7 +127,7 @@ async function checkChangedFileLocations() {
 	}
 	// Mark hasAppChanges if 'common' dir is changed too!
 	const common = danger.git.fileMatch('common/**');
-	// TODO: Should we add ios/android/windows labels if common dir is changed?
+	// TODO: Should we add ios/android labels if common dir is changed?
 	const hasAppChanges = android.edited || ios.edited || common.edited;
 
 	// Check if any tests were changed/added
