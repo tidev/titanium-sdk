@@ -174,7 +174,6 @@ process.exit = () => {
 process.exitCode = undefined;
 process.noDeprecation = false;
 process.pid = 0;
-// FIXME: Should we try and adopt 'windowsphone'/'windowsstore' to 'win32'?
 // FIXME: Should we try and adopt 'ipad'/'iphone' to 'darwin'? or 'ios'?
 process.platform = Ti.Platform.osname;
 process.ppid = 0;
