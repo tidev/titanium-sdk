@@ -8,12 +8,6 @@
 @import JavaScriptCore;
 
 @protocol TiConsoleExports <JSExport>
-- (void)time:(NSString *)label;
-- (void)timeEnd:(NSString *)label;
-JSExportAs(timeLog,
-           -(void)timeLog
-           : (id)args withData
-           : (NSArray *)logData);
 JSExportAs(log,
            -(void)log
            : (id)unused);
