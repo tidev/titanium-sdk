@@ -9,6 +9,9 @@ const nativeWarn = console.warn;
 const kColorInspectOptions = { colors: true };
 const kNoColorInspectOptions = {};
 
+let groupIndent = '';
+// TODO: Inject indents into the values!
+
 console.debug = function (...args) {
 	nativeDebug.call(console, formatWithOptions(kColorInspectOptions, ...args));
 };
@@ -31,7 +34,6 @@ console.warn = function (...args) {
 
 const times = new Map();
 const counts = new Map();
-let groupIndent = '';
 
 function logTime(label, logData) {
 	label = `${label}`;
