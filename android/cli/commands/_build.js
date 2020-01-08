@@ -3127,7 +3127,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 		const moduleName = module.manifest.name;
 		{
 			// Check if a "<module.name>.json" file exists in the module's root directory.
-			const jsonFilePath = path.join(module.modulePath, moduleName.toLowerCase() + '.json');
+			const jsonFilePath = path.join(module.modulePath, moduleName + '.json');
 			try {
 				if (await fs.exists(jsonFilePath)) {
 					const fileContent = await fs.readFile(jsonFilePath);
