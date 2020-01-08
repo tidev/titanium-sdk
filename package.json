@@ -4,8 +4,7 @@
   "version": "9.0.0",
   "moduleApiVersion": {
     "iphone": "2",
-    "android": "4",
-    "windows": "7"
+    "android": "4"
   },
   "keywords": [
     "appcelerator",
@@ -120,7 +119,6 @@
     "semver": "^7.1.1",
     "sprintf": "0.1.5",
     "temp": "0.9.0",
-    "windowslib": "^0.6.8",
     "xcode": "^2.0.0",
     "xmldom": "^0.2.1"
   },
@@ -163,9 +161,6 @@
     "url": "git://github.com/appcelerator/titanium_mobile.git"
   },
   "vendorDependencies": {
-    "visual studio": ">=10 <=12",
-    "windows phone sdk": "8.x",
-    "msbuild": ">=4.0",
     "node": "10.x || 12.x"
   },
   "engines": {
