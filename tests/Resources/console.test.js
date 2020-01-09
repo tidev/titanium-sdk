@@ -97,8 +97,6 @@ describe('console', function () {
 		});
 	});
 
-	// TODO: test for: dir, assert, dirxml
-
 	describe('#clear', () => {
 		it('is a function', () => {
 			should(console.clear).be.a.Function;
@@ -196,6 +194,7 @@ describe('console', function () {
 		it('is a function', () => {
 			should(console.groupEnd).be.a.Function;
 		});
+		// functionality is tested above in pairs with #group()
 	});
 
 	describe('#groupCollapsed', () => {
@@ -211,10 +210,113 @@ describe('console', function () {
 	});
 
 	describe('#dir', () => {
+		let logs = [];
+		let console;
+
+		before(() => {
+			const fakeTiAPI = {
+				info: msg => {
+					logs.push(msg);
+				},
+				apiName: 'Ti.API',
+			};
+			console = new Console(fakeTiAPI);
+		});
+
+		beforeEach(() => {
+			logs = [];
+		});
+
 		it('is a function', () => {
 			should(console.dir).be.a.Function;
 		});
-		// TODO: Hijack and test that it basically does inspect on the value passed in?
-		// Note that our impl calls directly to the native impl, so not sure how we can hijack the underlying console.log...
+
+		it('outputs number as-is', () => {
+			console.dir(1);
+			logs.length.should.eql(1);
+			logs[0].should.eql('1');
+		});
+
+		it('outputs string as-is', () => {
+			console.dir('1');
+			logs.length.should.eql(1);
+			logs[0].should.eql('\'1\'');
+		});
+
+		it('outputs null as-is', () => {
+			console.dir(null);
+			logs.length.should.eql(1);
+			logs[0].should.eql('null');
+		});
+
+		it('outputs undefined as-is', () => {
+			console.dir(undefined);
+			logs.length.should.eql(1);
+			logs[0].should.eql('undefined');
+		});
+
+		it('outputs object', () => {
+			console.dir({ 1: [ 2 ] });
+			logs.length.should.eql(1);
+			logs[0].should.eql('{ \'1\': [ 2 ] }');
+		});
+	});
+
+	describe('#assert', () => {
+		it('is a function', () => {
+			should(console.assert).be.a.Function;
+		});
+	});
+
+	describe('constructor', () => {
+		// TODO: test validation of stdout/stderr (have write function), various options
+		it('accepts stdout, stderr, ignoreErrors arguments', () => {
+			const stdout = {
+				write: function (contents) {
+					this.logs.push(contents);
+				},
+				logs: []
+			};
+			const stderr = {
+				write: function (contents) {
+					this.logs.push(contents);
+				},
+				logs: []
+			};
+			const console = new Console(stdout, stderr, false);
+			console.log('log'); // stdout
+			console.info('info'); // stdout
+			console.dirxml('dirxml'); // stdout
+			console.warn('warn'); // stderr
+			console.error('error'); // stderr
+			stdout.logs.length.should.eql(3);
+			stdout.logs[0].should.eql('log');
+			stdout.logs[1].should.eql('info');
+			stdout.logs[2].should.eql('dirxml');
+			stderr.logs.length.should.eql(2);
+			stderr.logs[0].should.eql('warn');
+			stderr.logs[1].should.eql('error');
+		});
+
+		it('accepts options object with only stdout', () => {
+			const stdout = {
+				write: function (contents) {
+					this.logs.push(contents);
+				},
+				logs: []
+			};
+			const console = new Console({ stdout });
+			console.log('log'); // stdout
+			console.info('info'); // stdout
+			console.dirxml('dirxml'); // stdout
+			console.warn('warn'); // stderr
+			console.error('error'); // stderr
+			stdout.logs.length.should.eql(5);
+			stdout.logs[0].should.eql('log');
+			stdout.logs[1].should.eql('info');
+			stdout.logs[2].should.eql('dirxml');
+			stdout.logs[3].should.eql('warn');
+			stdout.logs[4].should.eql('error');
+		});
 	});
 });
