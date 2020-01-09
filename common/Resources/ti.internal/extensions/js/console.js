@@ -20,29 +20,25 @@ const kColorInspectOptions = { colors: true };
 const kNoColorInspectOptions = {};
 
 class Console {
-	constructor(options) {
-		// Allow passing in a fake Ti.API that we can hijack the info/warn/error/debug calls!
+	constructor(options, stderr, ignoreErrors) {
 		if (options && options.apiName === 'Ti.API') {
+			// Passing in Ti.API module where we retain log levels
 			this._apiModule = options;
 		} else {
-			// if (!options || typeof options.write === 'function') {
-			// 	options = {
-			// 	  stdout: options,
-			// 	  stderr: arguments[1],
-			// 	  ignoreErrors: arguments[2]
-			// 	};
-			// }
-			// TODO: Support stdout/stderr streams passed in!
-			// TODO: Sniff options. It may be an object like so:
-			// const {
-			// 	stdout,
-			// 	stderr = stdout,
-			// 	ignoreErrors = true,
-			// 	colorMode = 'auto',
-			// 	inspectOptions
-			//   } = options;
-			// or it might be a Ti.API module instance (or stub)
-			// or user may have passed in args like: stdout, [stderr, [ignoreErrors = true]]
+			// Node.JS streams
+			if (!options || typeof options.write === 'function') {
+				// no args, or first arg is a stream
+				options = {
+					stdout: options,
+					stderr,
+					ignoreErrors
+				};
+			}
+			this._stdout = options.stdout; // TODO: enforce has write function?
+			this._stderr = options.stderr || this._stdout;
+			this._ignoreErrors = options.ignoreErrors || true;
+			this._colorMode = options.colorMode || 'auto'; // TODO: enforce boolean or 'auto'
+			this._inspectOptions = options.inspectOptions; // TODO: enforce undefined or typeof 'object'
 		}
 
 		this._times = new Map();
@@ -57,8 +53,16 @@ class Console {
 			}
 			string = this._groupIndent + string;
 		}
-		// FIXME: Support stdout/stderr streams
-		this._apiModule[level](string);
+
+		// Support wrapping Ti.API (which retains log level)
+		if (this._apiModule) {
+			this._apiModule[level](string);
+		} else {
+			// Support Node.JS streams like stdout/stderr which don't have log levels
+			const stream = (level === 'warn' || level === 'error') ? this._stderr : this._stdout;
+			// TODO: Handle this._ignoreErrors by doing try/catch/finally, hanging error handlers
+			stream.write(string);
+		}
 	}
 
 	info(...args) {
