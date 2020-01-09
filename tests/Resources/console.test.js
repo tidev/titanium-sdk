@@ -9,10 +9,18 @@
 /* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
+let Console;
 
-describe.only('console', function () {
+describe('console', function () {
 	it('exists as an object in global namespace', () => {
+		should(global.console).be.an.Object;
 		should(console).be.an.Object;
+	});
+
+	it('can be required', () => {
+		// eslint-disable-next-line node/prefer-global/console
+		Console = require('console');
+		should(Console).be.an.Object; // function?
 	});
 
 	it('#log', () => {
@@ -67,24 +75,24 @@ describe.only('console', function () {
 		});
 
 		it('warns and does not log if label doesn\'t exist', function () {
-			var origLogFunction = console.log,
-				origWarnFunction = console.warn,
-				logs = [],
-				warnings = [];
+			const origLogFunction = console.log;
+			const logs = [];
+			const warnings = [];
+			function warningTest(warning) {
+				warnings.push(warning);
+			}
+			process.on('warning', warningTest);
 			try {
 				console.log = function (string) {
 					logs.push(string);
 				};
-				console.warn = function (string) {
-					warnings.push(string);
-				};
 				console.timeLog('mytimer'); // should spit out a warning that label doesn't exist, but not log the timer
 				warnings.length.should.eql(1);
-				warnings[0].should.eql('Label "mytimer" does not exist');
+				warnings[0].message.should.eql('Label "mytimer" does not exist');
 				logs.length.should.eql(0);
 			} finally {
 				console.log = origLogFunction;
-				console.warn = origWarnFunction;
+				process.off('warning', warningTest);
 			}
 		});
 	});
@@ -143,32 +151,44 @@ describe.only('console', function () {
 
 		it('increases indent by 2 spaces', () => {
 			// FIXME: We can't just hijack console.log, because that's where we handle the indents!
-			const orig = console.log;
+			// Maybe we need to add the constructor stuff so we can create a console hooked to our own "stream"?
+			// Note that we don't have a great mapping to stdout/stderr, because android has actual log priorities that map to the Ti.API/console methods
+			// Whereas Node assumes a "dumb" stdout without specific priorities
+			// instead it treats log/debug/info/dirxml as -> stdout, warn/error as -> stderr
 			const logs = [];
-			try {
-				console.log = function (string) {
-					logs.push(string);
-				};
-				console.group('mylabel');
-				console.log('this should be indented');
-				console.groupEnd();
-				console.group();
-				console.group('something');
-				console.warn('this should be indented twice'); // FIXME: Hijack warn too!
-				console.groupEnd();
-				console.log('this should be indented');
-				console.groupEnd();
-				console.log('this should NOT be indented');
-				logs.length.should.eql(6);
-				logs[0].should.eql('mylabel');
-				logs[1].should.eql('  this should be indented');
-				logs[2].should.eql('  something');
-				logs[3].should.eql('    this should be indented twice');
-				logs[4].should.eql('  this should be indented');
-				logs[5].should.eql('this should NOT be indented');
-			} finally {
-				console.log = orig;
-			}
+			const fakeTiAPI = {
+				warn: msg => {
+					logs.push(`[WARN]${msg}`);
+				},
+				debug: msg => {
+					logs.push(`[DEBUG]${msg}`);
+				},
+				info: msg => {
+					logs.push(`[INFO]${msg}`);
+				},
+				error: msg => {
+					logs.push(`[ERROR]${msg}`);
+				},
+				apiName: 'Ti.API',
+			};
+			const console = new Console(fakeTiAPI);
+			console.group('mylabel');
+			console.log('this should be indented');
+			console.groupEnd();
+			console.group();
+			console.group('something');
+			console.warn('this should be indented twice'); // FIXME: Hijack warn too!
+			console.groupEnd();
+			console.log('this should be indented');
+			console.groupEnd();
+			console.log('this should NOT be indented');
+			logs.length.should.eql(6);
+			logs[0].should.eql('[INFO]mylabel');
+			logs[1].should.eql('[INFO]  this should be indented');
+			logs[2].should.eql('[INFO]  something');
+			logs[3].should.eql('[WARN]    this should be indented twice');
+			logs[4].should.eql('[INFO]  this should be indented');
+			logs[5].should.eql('[INFO]this should NOT be indented');
 		});
 	});
 
@@ -182,5 +202,19 @@ describe.only('console', function () {
 		it('is a function', () => {
 			should(console.groupCollapsed).be.a.Function;
 		});
+	});
+
+	describe('#dirxml', () => {
+		it('is a function', () => {
+			should(console.dirxml).be.a.Function;
+		});
+	});
+
+	describe('#dir', () => {
+		it('is a function', () => {
+			should(console.dir).be.a.Function;
+		});
+		// TODO: Hijack and test that it basically does inspect on the value passed in?
+		// Note that our impl calls directly to the native impl, so not sure how we can hijack the underlying console.log...
 	});
 });
