@@ -74,7 +74,7 @@ class Packager {
 	/**
 	 * @param {String} outputDir path to place the temp files and zipfile
 	 * @param {String} targetOS  'win32', 'linux', or 'osx'
-	 * @param {string[]} platforms The list of SDK platforms to package ('ios', 'windows', 'android')
+	 * @param {string[]} platforms The list of SDK platforms to package ('ios', 'android')
 	 * @param {object} options the options object passed around
 	 * @param {string} options.sdkVersion version string to use
 	 * @param {string} options.versionTag version tag
