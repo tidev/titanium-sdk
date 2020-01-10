@@ -385,7 +385,11 @@
 
 - (void)reload:(id)unused
 {
-  [[[self webView] webView] reload];
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self webView] reload];
+      },
+      NO);
 }
 
 - (void)repaint:(id)unused

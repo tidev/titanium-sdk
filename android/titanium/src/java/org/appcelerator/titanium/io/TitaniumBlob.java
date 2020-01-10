@@ -86,11 +86,18 @@ public class TitaniumBlob extends TiBaseFile
 		} else if (url.startsWith("content://com.android.providers.downloads.documents")) {
 			// This was a file downloaded from the Google cloud.
 			String id = DocumentsContract.getDocumentId(Uri.parse(url));
-			Uri uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-			try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {
-				if ((cursor != null) && cursor.moveToNext()) {
-					this.name = getStringFrom(cursor, 0);
-					this.path = getStringFrom(cursor, 1);
+			try {
+				if (id.startsWith("raw:")) {
+					this.path = id.substring(4);
+					this.name = this.path.substring(this.path.lastIndexOf(File.pathSeparatorChar) + 1);
+				} else {
+					Uri uri =
+						ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+					Cursor cursor = contentResolver.query(uri, projection, null, null, null);
+					if ((cursor != null) && cursor.moveToNext()) {
+						this.name = getStringFrom(cursor, 0);
+						this.path = getStringFrom(cursor, 1);
+					}
 				}
 			} catch (Exception ex) {
 			}

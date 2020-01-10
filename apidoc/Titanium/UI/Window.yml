@@ -890,7 +890,7 @@ properties:
     default: {android: false, ios: true}
     since: {android: "7.5.0", iphone: "6.3.0", ipad: "6.3.0"}
     availability: creation
-    osver: {android: {min: "4.4"}, ios: {min: "11.0"}}
+    osver: {android: {min: "4.4"}}
 
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.

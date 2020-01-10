@@ -722,7 +722,7 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	// Add module's proxy binding JSON file to archive.
 	// Needed by the app build system when generating the "TiApplication" derived class to inject
 	// this module's classes into the KrollRuntime and to invoke module's onAppCreate() if defined.
-	const bindingsFileName = this.manifest.name.toLowerCase() + '.json';
+	const bindingsFileName = this.manifest.name + '.json';
 	const bindingsFilePath = path.join(this.buildModuleDir, 'build', 'ti-generated', 'json', bindingsFileName);
 	if (await fs.exists(bindingsFilePath)) {
 		dest.append(fs.createReadStream(bindingsFilePath), { name: path.join(moduleFolder, bindingsFileName) });

@@ -51,6 +51,11 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public static final String ERROR_SOURCENAME = "sourceName";
 	public static final String ERROR_LINE = "line";
 	public static final String ERROR_LINESOURCE = "lineSource";
+	public static final String ERROR_COLUMN = "column";
+	public static final String ERROR_STACK = "stack";
+	public static final String ERROR_NATIVESTACK = "nativeStack";
+
+	// DEPRECATED in 9.0.0, REMOVE 10.0.0
 	public static final String ERROR_LINEOFFSET = "lineOffset";
 	public static final String ERROR_JS_STACK = "javascriptStack";
 	public static final String ERROR_JAVA_STACK = "javaStack";
@@ -70,6 +75,11 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		dict.put(ERROR_SOURCENAME, error.sourceName);
 		dict.put(ERROR_LINE, error.line);
 		dict.put(ERROR_LINESOURCE, error.lineSource);
+		dict.put(ERROR_COLUMN, error.lineOffset);
+		dict.put(ERROR_STACK, error.jsStack);
+		dict.put(ERROR_NATIVESTACK, error.javaStack);
+
+		// DEPRECATED in 9.0.0, REMOVE 10.0.0
 		dict.put(ERROR_LINEOFFSET, error.lineOffset);
 		dict.put(ERROR_JS_STACK, error.jsStack);
 		dict.put(ERROR_JAVA_STACK, error.javaStack);
@@ -81,12 +91,12 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		String output = new String();
 
 		final String sourceName = error.getString(ERROR_SOURCENAME);
+		final String message = error.getString(ERROR_MESSAGE);
 		final int line = error.getInt(ERROR_LINE);
 		final String lineSource = error.getString(ERROR_LINESOURCE);
-		final int lineOffset = error.getInt(ERROR_LINEOFFSET);
-		final String jsStack = error.getString(ERROR_JS_STACK);
-		final String javaStack = error.getString(ERROR_JAVA_STACK);
-		final String message = error.getString(ERROR_MESSAGE);
+		final int lineOffset = error.optInt(ERROR_COLUMN, error.getInt(ERROR_LINEOFFSET));
+		final String jsStack = error.optString(ERROR_STACK, error.getString(ERROR_JS_STACK));
+		final String javaStack = error.optString(ERROR_NATIVESTACK, error.getString(ERROR_JAVA_STACK));
 
 		if (sourceName != null) {
 			output += sourceName + ":" + line + "\n";
