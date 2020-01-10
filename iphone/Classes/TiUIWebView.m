@@ -44,6 +44,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   RELEASE_TO_NIL(_pageToken);
   RELEASE_TO_NIL(_loadingIndicator);
+  RELEASE_TO_NIL(self.reloadData);
   [super dealloc];
 }
 
@@ -174,6 +175,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setUrl_:(id)value
 {
+  ignoreNextRequest = YES;
+  self.reloadData = value;
+  reloadMethod = @selector(setUrl_:);
+
   ENSURE_TYPE(value, NSString);
   [[self proxy] replaceValue:value forKey:@"url" notification:NO];
 
@@ -203,6 +208,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setData_:(id)value
 {
+  ignoreNextRequest = YES;
+  self.reloadData = value;
+  reloadMethod = @selector(setData_:);
+
   [[self proxy] replaceValue:value forKey:@"data" notification:NO];
 
   if ([[self webView] isLoading]) {
@@ -243,6 +252,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setHtml_:(id)args
 {
+  ignoreNextRequest = YES;
+  self.reloadData = args;
+  reloadMethod = @selector(setHtml_:);
+
   NSString *content = nil;
   NSDictionary *options = nil;
 
@@ -349,6 +362,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   [self _setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value]];
   [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+}
+
+- (void)reload
+{
+  if (_webView == nil) {
+    return;
+  }
+  if (self.reloadData != nil) {
+    [self performSelector:reloadMethod withObject:self.reloadData];
+    return;
+  }
+  [[self webView] reload];
 }
 
 #pragma mark Utilities
@@ -894,6 +919,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([[self proxy] _hasListeners:@"load"]) {
     [[self proxy] fireEvent:@"load" withObject:@{ @"url" : webView.URL.absoluteString, @"title" : webView.title }];
   }
+  ignoreNextRequest = NO;
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error
@@ -1058,25 +1084,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
     decisionHandler(WKNavigationActionPolicyCancel);
   } else {
+    BOOL valid = !ignoreNextRequest;
+    if ([scheme hasPrefix:@"http"]) {
+      //UIWebViewNavigationTypeOther means we are either in a META redirect
+      //or it is a js request from within the page
+      valid = valid && (navigationAction.navigationType != WKNavigationTypeOther);
+    }
+    if (valid) {
+      self.reloadData = navigationAction.request.URL.absoluteString;
+      reloadMethod = @selector(setUrl_:);
+    }
     decisionHandler(WKNavigationActionPolicyAllow);
   }
-}
-
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
-{
-  NSDictionary<NSString *, id> *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
-  NSURL *requestedURL = navigationResponse.response.URL;
-
-  // If we have request headers set, we do a little hack to persist them across different URL's,
-  // which is not officially supported by iOS.
-  if (requestHeaders != nil && requestedURL != nil && ![requestedURL.absoluteString isEqualToString:_currentURL.absoluteString]) {
-    _currentURL = requestedURL;
-    decisionHandler(WKNavigationResponsePolicyCancel);
-    [self loadRequestWithURL:_currentURL];
-    return;
-  }
-
-  decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
