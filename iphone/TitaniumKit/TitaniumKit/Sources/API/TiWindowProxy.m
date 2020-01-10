@@ -273,7 +273,7 @@
       ^{
         [self openOnUIThread:args];
       },
-      YES);
+      NO);
 }
 
 - (void)setStatusBarStyle:(id)style
@@ -329,7 +329,7 @@
       ^{
         [self closeOnUIThread:args];
       },
-      YES);
+      NO);
 }
 
 - (NSNumber *)closed
