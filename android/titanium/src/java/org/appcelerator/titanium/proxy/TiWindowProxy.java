@@ -38,6 +38,7 @@ import android.os.Bundle;
 
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import android.view.View;
@@ -131,11 +132,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 		handleOpen(options);
 	}
 
+	@Kroll.getProperty(name = "closed")
+	public boolean isClosed()
+	{
+		return !opened && !opening;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-
+		// TODO: if not opened, ignore? We do this in WindowProxy subclass, but not the other two...
 		KrollDict options = null;
 		TiAnimation animation = null;
 
@@ -153,6 +160,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 
 		handleClose(options);
+		// FIXME: Maybe fire the close event here and set opened to false as well, rather than leaving to subclasses?
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -465,7 +473,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	protected abstract void handleOpen(KrollDict options);
-	protected abstract void handleClose(KrollDict options);
+	protected abstract void handleClose(@NonNull KrollDict options);
 	protected abstract Activity getWindowActivity();
 
 	/**

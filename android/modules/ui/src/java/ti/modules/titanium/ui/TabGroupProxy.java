@@ -36,6 +36,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -496,7 +497,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected void handleClose(KrollDict options)
+	protected void handleClose(@NonNull KrollDict options)
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
 
@@ -516,6 +517,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
 			activity.finish();
 		}
+
+		// TODO: Does this ever fire the close event?!
 	}
 
 	@Override

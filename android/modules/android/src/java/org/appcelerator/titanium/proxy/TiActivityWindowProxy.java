@@ -14,6 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.android.AndroidModule;
 import android.app.Activity;
+import android.support.annotation.NonNull;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class TiActivityWindowProxy extends TiWindowProxy
@@ -35,7 +36,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleClose(KrollDict options)
+	protected void handleClose(@NonNull KrollDict options)
 	{
 		Log.d(TAG, "handleClose", Log.DEBUG_MODE);
 		fireEvent("close", null);
@@ -45,7 +46,8 @@ public class TiActivityWindowProxy extends TiWindowProxy
 		}
 
 		releaseViews();
-		opened = false;
+		opened =
+			false; // FIXME: This will lead to odd case of a close listener querying isCLosed and getting false! Set to false above? fire event after?
 	}
 
 	@Override
