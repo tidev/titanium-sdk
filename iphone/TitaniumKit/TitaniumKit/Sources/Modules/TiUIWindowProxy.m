@@ -246,6 +246,12 @@
              withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  [self performSelector:@selector(updateStatusBarView)
+             withObject:nil
+             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+#endif
+
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
   [self willChangeSize];
@@ -1043,6 +1049,20 @@
     [barImageView removeFromSuperview];
   }
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (void)updateStatusBarView
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+    if (view) {
+      view.frame = frame;
+    }
+  }
+}
+#endif
 
 - (TiViewProxy *)safeAreaView
 {

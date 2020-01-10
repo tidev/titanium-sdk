@@ -130,9 +130,24 @@
   ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
   ENSURE_SINGLE_ARG(value, NSString);
 
-  UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
-  if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
-    statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+#if IS_SDK_IOS_13
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+    if (!view) {
+      view = [[UIView alloc] initWithFrame:frame];
+      view.tag = TI_STATUSBAR_TAG;
+      [keyWindow addSubview:view];
+    }
+    view.frame = frame;
+    view.backgroundColor = [[TiUtils colorValue:value] _color];
+#endif
+  } else {
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+      statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+    }
   }
 }
 
