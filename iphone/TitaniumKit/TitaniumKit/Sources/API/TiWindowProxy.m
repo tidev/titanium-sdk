@@ -332,6 +332,11 @@
       YES);
 }
 
+- (NSNumber *)closed
+{
+  return NUMBOOL(!opening && !opened && !closing);
+}
+
 - (BOOL)_handleOpen:(id)args
 {
   TiRootViewController *theController = [[TiApp app] controller];
