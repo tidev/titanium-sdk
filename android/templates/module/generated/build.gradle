@@ -10,7 +10,7 @@ repositories {
 }
 
 // Path to proxy binding JSON file created by "kroll-apt" annotation processor and used to do C/C++ code generation.
-def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName.toLowerCase() %>.json".toString()
+def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.json".toString()
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>

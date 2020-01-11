@@ -2097,7 +2097,7 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 	await fs.emptyDir(projectLibsDirPath);
 
 	// Copy module's main JAR to project's "libs" directory.
-	const sourceJarFileName = moduleInfo.manifest.name.toLowerCase() + '.jar';
+	const sourceJarFileName = moduleInfo.manifest.name + '.jar';
 	const sourceJarFilePath = path.join(moduleInfo.modulePath, sourceJarFileName);
 	afs.copyFileSync(sourceJarFilePath, path.join(projectLibsDirPath, sourceJarFileName), {
 		logger: this.logger.debug
@@ -3124,10 +3124,10 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 
 		// Attempt to read the module's Java bindings JSON file.
 		let javaBindings = null;
-		const lowerCaseModuleName = module.manifest.name.toLowerCase();
+		const moduleName = module.manifest.name;
 		{
 			// Check if a "<module.name>.json" file exists in the module's root directory.
-			const jsonFilePath = path.join(module.modulePath, lowerCaseModuleName + '.json');
+			const jsonFilePath = path.join(module.modulePath, moduleName + '.json');
 			try {
 				if (await fs.exists(jsonFilePath)) {
 					const fileContent = await fs.readFile(jsonFilePath);
@@ -3144,7 +3144,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 		}
 		if (!javaBindings) {
 			// Check if a JSON file is embedded within the module's main JAR file.
-			const jarFilePath = path.join(module.modulePath, lowerCaseModuleName + '.jar');
+			const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
 			try {
 				if (await fs.exists(jarFilePath)) {
 					javaBindings = this.getNativeModuleBindings(jarFilePath);
