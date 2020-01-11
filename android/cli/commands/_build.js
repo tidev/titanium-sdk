@@ -2267,6 +2267,18 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
+	// Copy optional "gradle.properties" file contents from Titainum project to the above generated file.
+	// These properties must be copied to the end of the file so that they can override Titanium's default properties.
+	const customGradlePropertiesFilePath = path.join(this.projectDir, 'platform', 'android', 'gradle.properties');
+	if (await fs.exists(customGradlePropertiesFilePath)) {
+		const targetGradlePropertiesFilePath = path.join(this.buildDir, 'gradle.properties');
+		const fileContent = await fs.readFile(customGradlePropertiesFilePath);
+		await fs.appendFile(targetGradlePropertiesFilePath,
+			'\n\n'
+			+ '# The below was copied from project file: ./platform/android/gradle.properties\n'
+			+ fileContent.toString() + '\n');
+	}
+
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
 	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
