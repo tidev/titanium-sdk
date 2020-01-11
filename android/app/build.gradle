@@ -37,5 +37,5 @@ dependencies {
 //		exclude group: 'com.google.android.gms'
 	}
 
-	implementation "androidx.appcompat:appcompat:1.0.0"
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 }

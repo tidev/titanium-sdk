@@ -16,7 +16,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import androidx.appcompat.view.menu.MenuItemWrapperICS;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,12 +68,6 @@ public class MenuProxy extends KrollProxy
 
 		MenuItem item = menu.add(groupId, itemId, order, title);
 		mip = new MenuItemProxy(item);
-		//Appcompat for ICS+ wraps the menu object so here we want to set the wrapped object for look-up purposes
-		//since the wrapper will be copied when onOptionsItemSelected is invoked.
-		if (item instanceof MenuItemWrapperICS) {
-			MenuItemWrapperICS wrapper = (MenuItemWrapperICS) item;
-			item = wrapper.getWrappedObject();
-		}
 		menuMap.put(item, mip);
 
 		if (d.containsKey(TiC.PROPERTY_ACTION_VIEW)) {
@@ -172,11 +165,6 @@ public class MenuProxy extends KrollProxy
 
 	public MenuItemProxy findItem(MenuItem item)
 	{
-		//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
-		if (item instanceof MenuItemWrapperICS) {
-			MenuItemWrapperICS wrapper = (MenuItemWrapperICS) item;
-			item = wrapper.getWrappedObject();
-		}
 		return menuMap.get(item);
 	}
 
@@ -200,11 +188,6 @@ public class MenuProxy extends KrollProxy
 		int len = menu.size();
 		for (int i = 0; i < len; i++) {
 			MenuItem mi = menu.getItem(i);
-			//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
-			if (mi instanceof MenuItemWrapperICS) {
-				MenuItemWrapperICS wrapper = (MenuItemWrapperICS) mi;
-				mi = wrapper.getWrappedObject();
-			}
 			MenuItemProxy mip = menuMap.get(mi);
 			mm.put(mi, mip);
 		}
@@ -222,11 +205,6 @@ public class MenuProxy extends KrollProxy
 	{
 		MenuItem mi = menu.findItem(itemId);
 		if (mi != null) {
-			//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
-			if (mi instanceof MenuItemWrapperICS) {
-				MenuItemWrapperICS wrapper = (MenuItemWrapperICS) mi;
-				mi = wrapper.getWrappedObject();
-			}
 			MenuItemProxy mip = menuMap.remove(mi);
 			if (mip != null) {
 				//TODO release mip items

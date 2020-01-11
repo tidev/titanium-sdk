@@ -185,30 +185,29 @@ dependencies {
 	annotationProcessor project(':kroll-apt')
 	compileOnly project(':kroll-apt')
 
-	// Google Support Library dependencies.
-	def supportLibVersion = project.ext.tiSupportLibVersion
-	implementation 'androidx.vectordrawable:vectordrawable-animated:1.0.0'
-	implementation 'androidx.appcompat:appcompat:1.0.0'
+	// AndroidX Library dependencies.
+	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 	implementation 'androidx.cardview:cardview:1.0.0'
-	implementation 'com.google.android.material:material:1.0.0'
-	implementation 'androidx.exifinterface:exifinterface:1.0.0'
-	implementation 'androidx.recyclerview:recyclerview:1.0.0'
-	implementation 'androidx.core:core:1.0.0'
-	implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-	implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
-	implementation 'androidx.fragment:fragment:1.0.0'
-	implementation 'androidx.media:media:1.0.0'
-	implementation 'androidx.vectordrawable:vectordrawable:1.0.0'
-	implementation 'androidx.transition:transition:1.0.0'
-	compileOnly 'androidx.annotation:annotation:1.0.0'
+	implementation 'androidx.exifinterface:exifinterface:1.1.0'
+	implementation 'androidx.recyclerview:recyclerview:1.1.0'
+	implementation "androidx.core:core:${project.ext.tiAndroidXCoreLibVersion}"
+	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
+	implementation 'androidx.media:media:1.1.0'
+	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+	implementation 'androidx.transition:transition:1.2.0'
+	compileOnly 'androidx.annotation:annotation:1.1.0'
 
-	implementation 'androidx.multidex:multidex:2.0.0'
+	//TODO: Remove multidex library when our min OS version supported is Android 5.0 or higher.
+	implementation 'androidx.multidex:multidex:2.0.1'
+
+	// Google's "Material Components" themed UI library.
+	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 
 	// The Google Play Services libraries are only used by Titanium's geolocation feature.
 	// We link to them dynamically at runtime. So, they can be safely excluded when in the app project.
-	def playServicesLibVersion = project.ext.tiPlayServicesLibVersion
-	implementation "com.google.android.gms:play-services-base:${playServicesLibVersion}"
-	implementation "com.google.android.gms:play-services-location:${playServicesLibVersion}"
+	implementation "com.google.android.gms:play-services-base:${project.ext.tiPlayServicesBaseLibVersion}"
+	implementation 'com.google.android.gms:play-services-location:17.0.0'
 
 	// Reference all local JAR file dependencies.
 	implementation fileTree(dir: 'lib', include: ['*.jar'])
@@ -274,7 +273,7 @@ publish.doLast {
 		include 'jni/**/*'
 		includeEmptyDirs false
 		eachFile {
-			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1));
+			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1))
 		}
 	}
 }

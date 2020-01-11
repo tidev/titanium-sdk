@@ -2259,6 +2259,14 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	gradlew.logger = this.logger;
 	await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
 
+	// Create a "gradle.properties" file. Will add network proxy settings if needed.
+	// Note: Enable Jetifier to replace all Google Support library references with AndroidX in all pre-built JARs.
+	//       This is needed because using both libraries will cause class name collisions, causing a build failure.
+	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
+	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
+	await gradlew.writeGradlePropertiesFile(gradleProperties);
+
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
 	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
