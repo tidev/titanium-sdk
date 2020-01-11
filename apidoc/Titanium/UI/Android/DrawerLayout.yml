@@ -16,6 +16,27 @@ since: "6.2.0"
 platforms: [android]
 
 properties:
+  - name: GRAVITY_NONE
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerGravity) to specify the gravity.
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: GRAVITY_LEFT
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerGravity) to specify the gravity.
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
+  - name: GRAVITY_RIGHT
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerGravity) to specify the gravity.
+    type: Number
+    permission: read-only
+    since: "8.3.0"
+
   - name: LOCK_MODE_LOCKED_CLOSED
     summary: |
         Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is locked closed.
@@ -90,6 +111,13 @@ properties:
     type: Number
     constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
     default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+
+  - name: drawerGravity
+    summary: Get or set the drawerGravity
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.GRAVITY_*
+    default: <Titanium.UI.Android.DrawerLayout.GRAVITY_BOTH>
+    since: "8.3.0"
 
   - name: toolbarEnabled
     summary: Determine whether to enable the toolbar.

@@ -9,15 +9,13 @@ package ti.modules.titanium.ui.android;
 import ti.modules.titanium.ui.widget.TiUIDrawerLayout;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class DrawerLayoutProxy extends TiViewProxy
@@ -30,6 +28,12 @@ public class DrawerLayoutProxy extends TiViewProxy
 	public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
 	@Kroll.constant
 	public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
+	@Kroll.constant
+	public static final int GRAVITY_NONE = Gravity.NO_GRAVITY;
+	@Kroll.constant
+	public static final int GRAVITY_LEFT = Gravity.LEFT;
+	@Kroll.constant
+	public static final int GRAVITY_RIGHT = Gravity.RIGHT;
 
 	private static final String TAG = "DrawerLayoutProxy";
 
@@ -218,6 +222,27 @@ public class DrawerLayoutProxy extends TiViewProxy
 	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_DRAWER_LOCK_MODE, arg);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getDrawerGravity()
+	// clang-format on
+	{
+		if (hasProperty(TiC.PROPERTY_DRAWER_GRAVITY)) {
+			return (Integer) getProperty(TiC.PROPERTY_DRAWER_GRAVITY);
+		}
+		return Gravity.NO_GRAVITY;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setDrawerGravity(Object arg)
+	// clang-format on
+	{
+		setPropertyAndFire(TiC.PROPERTY_DRAWER_GRAVITY, arg);
 	}
 
 	@Kroll.method
