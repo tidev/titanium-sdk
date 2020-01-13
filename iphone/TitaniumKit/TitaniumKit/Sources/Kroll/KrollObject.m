@@ -652,6 +652,9 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
         return [[[KrollMethod alloc] initWithTarget:target selector:@selector(toString:) argcount:0 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
       }
 
+      // For something like TiUiTextWidgetProxy focused:(id)unused - this will assume it's a function/method
+      // So to work around this, we need to explicitly declare a property named "focused" with a different underlying getter
+      // to expose it as a property to JS
       SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", key]);
       if ([target respondsToSelector:selector]) {
         return [[[KrollMethod alloc] initWithTarget:target
@@ -688,7 +691,15 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
       }
     } else {
       NSString *attributes = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
-      SEL selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
+      // look up getter name from the property attributes
+      SEL selector;
+      const char *getterName = property_copyAttributeValue(p, "G");
+      if (getterName != nil) {
+        selector = sel_getUid(getterName);
+      } else {
+        // not set, so use the property name
+        selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
+      }
 
       if ([attributes hasPrefix:@"T@"]) {
         // this means its a return type of id
