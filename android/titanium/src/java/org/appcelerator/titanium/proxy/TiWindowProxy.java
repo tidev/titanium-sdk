@@ -65,7 +65,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	private TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<KrollProxy>();
 
 	protected boolean opened, opening;
-	protected boolean focused;
+	protected boolean isFocused;
 	protected int[] orientationModes = null;
 	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
@@ -136,6 +136,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public boolean isClosed()
 	{
 		return !opened && !opening;
+	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		return isFocused;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -274,6 +280,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	public void onWindowFocusChange(boolean focused)
 	{
+		this.isFocused = focused;
 		fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, null, false);
 	}
 

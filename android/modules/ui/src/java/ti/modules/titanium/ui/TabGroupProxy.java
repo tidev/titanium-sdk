@@ -69,7 +69,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private WeakReference<AppCompatActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private String tabGroupTitle = null;
-	private boolean isFocused;
 	private static int id_toolbar;
 
 	public TabGroupProxy()
