@@ -99,6 +99,13 @@
   }
 }
 
+- (void)fireFocusEvent
+{
+  if ([self _hasListeners:@"focus"]) {
+    [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
 - (void)windowDidOpen
 {
   opening = NO;
@@ -106,10 +113,8 @@
   if ([self _hasListeners:@"open"]) {
     [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
-  if (focussed && [self handleFocusEvents]) {
-    if ([self _hasListeners:@"focus"]) {
-      [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    }
+  if (focussed) {
+    [self fireFocusEvent];
   }
   [super windowDidOpen];
   [self forgetProxy:openAnimation];
@@ -337,6 +342,11 @@
   return NUMBOOL(!opening && !opened && !closing);
 }
 
+- (NSNumber *)focused
+{
+  return NUMBOOL(focussed);
+}
+
 - (BOOL)_handleOpen:(id)args
 {
   TiRootViewController *theController = [[TiApp app] controller];
@@ -437,10 +447,8 @@
 {
   if (!focussed) {
     focussed = YES;
-    if ([self handleFocusEvents] && opened) {
-      if ([self _hasListeners:@"focus"]) {
-        [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-      }
+    if (opened) {
+      [self fireFocusEvent];
     }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [[self view] setAccessibilityElementsHidden:NO];
