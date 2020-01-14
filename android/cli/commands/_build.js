@@ -110,30 +110,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_CONFIG_SETTING_NOT_INSTALLED');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_NOT_SUPPORTED');
-
-					if (!cli.argv.prompt) {
-						// check that the Android SDK is found and sane
-						// note: if we're prompting, then we'll do this check in the --android-sdk validate() callback
-						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
-
-						// make sure we have an Android SDK and some Android targets
-						if (!Object.keys(androidInfo.targets).filter(function (id) {
-							var t = androidInfo.targets[id];
-							return t.type === 'platform' && t['api-level'] >= _t.minTargetApiLevel;
-						}).length) {
-							if (Object.keys(androidInfo.targets).length) {
-								logger.error(__('No valid Android SDK targets found.'));
-							} else {
-								logger.error(__('No Android SDK targets found.'));
-							}
-							logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minTargetApiLevel) + '\n');
-							process.exit(1);
-						}
-					}
 
 					// if --android-sdk was not specified, then we simply try to set a default android sdk
 					if (!cli.argv['android-sdk']) {
