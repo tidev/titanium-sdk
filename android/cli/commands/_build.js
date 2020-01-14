@@ -328,37 +328,36 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							} else if (process.platform === 'win32' && value.indexOf('&') !== -1) {
 								callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
 							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path === afs.resolvePath(value)) {
-								// no sense doing the detection again, just make sure we found the sdk
-								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 								callback(null, value);
 							} else {
-								// do a quick scan to see if the path is correct
-								android.findSDK(value, config, appc.pkginfo.package(module), function (err) {
-									if (err) {
-										callback(new Error(__('Invalid Android SDK path: %s', value)));
+								// attempt to find android sdk
+								android.findSDK(value, config, appc.pkginfo.package(module), function () {
+
+									// NOTE: ignore errors when finding sdk, let gradle validate the sdk
+
+									function next() {
+										// set the android sdk in the config just in case a plugin or something needs it
+										config.set('android.sdkPath', value);
+
+										// path looks good, do a full scan again
+										androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
+
+											// assume sdk is valid, let gradle validate the sdk
+											if (!androidInfo.sdk) {
+												androidInfo.sdk = { path: value };
+											}
+
+											_t.androidInfo = androidInfo;
+											callback(null, value);
+										});
+									}
+
+									// new android sdk path looks good
+									// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
+									if (_t.androidInfo.sdk) {
+										new ADB(config).stopServer(next);
 									} else {
-										function next() {
-											// set the android sdk in the config just in case a plugin or something needs it
-											config.set('android.sdkPath', value);
-
-											// path looks good, do a full scan again
-											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
-												// check that the Android SDK is found and sane
-												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
-												_t.androidInfo = androidInfo;
-												callback(null, value);
-											});
-										}
-
-										// new android sdk path looks good
-										// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
-										if (_t.androidInfo.sdk) {
-											new ADB(config).stopServer(next);
-										} else {
-											next();
-										}
+										next();
 									}
 								});
 							}
@@ -434,13 +433,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								// if there are no devices/emulators, error
 								if (!Object.keys(opts).length) {
 									if (cli.argv.target === 'device') {
-										logger.error(__('Unable to find any devices') + '\n');
-										logger.log(__('Please plug in an Android device, then try again.') + '\n');
+										logger.warn(__('Unable to find any devices, possibily due to missing dependencies.') + '\n');
+										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									} else {
-										logger.error(__('Unable to find any emulators') + '\n');
-										logger.log(__('Please create an Android emulator, then try again.') + '\n');
+										logger.warn(__('Unable to find any emulators, possibily due to missing dependencies.') + '\n');
+										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									}
-									process.exit(1);
+									_t.buildOnly = true;
+									return callback();
 								}
 
 								callback(fields.select({
@@ -484,7 +484,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						},
 						verifyIfRequired: function (callback) {
-							if (cli.argv['build-only']) {
+							if (_t.buildOnly) {
 								// not required if we're build only
 								return callback();
 							}
@@ -1040,7 +1040,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// map sdk versions to sdk targets instead of by id
-	const targetSDKMap = {};
+	const targetSDKMap = {
+
+		// placeholder for gradle to use
+		[this.compileSdkVersion]: {
+			sdk: this.compileSdkVersion
+		}
+	};
 	Object.keys(this.androidInfo.targets).forEach(function (i) {
 		var t = this.androidInfo.targets[i];
 		if (t.type === 'platform') {
@@ -1050,11 +1056,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// check the Android SDK we require to build exists
 	this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
-	if (!this.androidCompileSDK) {
-		logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
-		logger.error(__('Android SDK API %s is required to build Android apps', this.compileSdkVersion) + '\n');
-		process.exit(1);
-	}
 
 	// If "tiapp.xml" contains "AndroidManifest.xml" info, then load/store it to "this.customAndroidManifest" field.
 	try {
@@ -1184,77 +1185,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		}
 
 	} else {
-		// if no target sdk, then default to most recent supported/installed
-		Object
-			.keys(targetSDKMap)
-			.sort(function (a, b) {
-				if (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision === targetSDKMap[b].revision) {
-					return 0;
-				} else if (targetSDKMap[a].sdk < targetSDKMap[b].sdk || (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision < targetSDKMap[b].revision)) {
-					return -1;
-				}
-				return 1;
-			})
-			.reverse()
-			.some(function (ver) {
-				if (targetSDKMap[ver].sdk >= this.minTargetApiLevel && targetSDKMap[ver].sdk <= this.maxSupportedApiLevel) {
-					this.targetSDK = this.realTargetSDK = targetSDKMap[ver].sdk;
-					return true;
-				}
-				return false;
-			}, this);
-
-		if (!this.targetSDK || this.realTargetSDK < this.minTargetApiLevel) {
-			if (this.minTargetApiLevel === this.maxSupportedApiLevel) {
-				logger.error(__('Unable to find Android SDK API %s', this.maxSupportedApiLevel));
-				logger.error(__('Android SDK API %s is required to build Android apps', this.maxSupportedApiLevel) + '\n');
-			} else {
-				logger.error(__('Unable to find a suitable installed Android SDK that is API >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
-			}
-			process.exit(1);
-		}
+		this.targetSDK = this.maxSupportedApiLevel;
+		this.realTargetSDK = this.targetSDK;
 	}
 
 	// check that we have this target sdk installed
 	this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
 	if (!this.androidTargetSDK) {
-		logger.error(__('Target Android SDK API %s is not installed', this.targetSDK) + '\n');
-
-		const sdks = Object.keys(targetSDKMap).filter(function (ver) {
-			return ~~ver > this.minSupportedApiLevel;
-		}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
-
-		if (sdks.length) {
-			logger.log(__('To target Android SDK API %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-			logger.log(
-				appc.string.wrap(
-					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDK APIs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-					config.get('cli.width', 100)
-				)
-			);
-			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-			logger.log('    <android>'.grey);
-			logger.log('        <manifest>'.grey);
-			logger.log(('            <uses-sdk '
-				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
-				+ 'android:targetSdkVersion="' + sdks[0] + '" '
-				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-				+ '/>').magenta);
-			logger.log('        </manifest>'.grey);
-			logger.log('    </android>'.grey);
-			logger.log('</ti:app>'.grey);
-			logger.log();
-		} else {
-			logger.log(__('To target Android SDK API %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-		}
-		process.exit(1);
-	}
-
-	if (!this.androidTargetSDK.androidJar) {
-		logger.error(__('Target Android SDK API %s is missing "android.jar"', this.targetSDK) + '\n');
-		process.exit(1);
+		this.androidTargetSDK = {
+			sdk: this.targetSDK
+		};
 	}
 
 	if (this.realTargetSDK < this.realMinSDK) {
@@ -1305,21 +1246,19 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	let deviceId = cli.argv['device-id'];
 
-	if (!cli.argv['build-only'] && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
+	if (!this.buildOnly && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
 		// no --device-id, so intelligently auto select one
-		const ver = this.androidTargetSDK.version,
-			apiLevel = this.androidTargetSDK.sdk,
-			devicesToAutoSelectFrom = this.devicesToAutoSelectFrom,
-			len = devicesToAutoSelectFrom.length,
-			verRegExp = /^((\d\.)?\d\.)?\d$/;
+		const apiLevel = this.androidTargetSDK.sdk,
+			devicesToAutoSelectFrom = this.devicesToAutoSelectFrom.sort((a, b) => b.api - a.api),
+			len = devicesToAutoSelectFrom.length;
 
 		// reset the device id
 		deviceId = null;
 
 		if (cli.argv.target === 'device') {
-			logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+			logger.info('Auto selecting device');
 		} else {
-			logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
+			logger.info('Auto selecting emulator');
 		}
 
 		function setDeviceId(device) {
@@ -1339,68 +1278,44 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			}
 		}
 
-		function gte(device) {
-			return device.api >= apiLevel && (!verRegExp.test(device.version) || appc.version.gte(device.version, ver));
-		}
-
-		function lt(device) {
-			return device.api < apiLevel && (!verRegExp.test(device.version) || appc.version.lt(device.version, ver));
-		}
-
-		// find the first one where version is >= and google apis == true
-		logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+		logger.debug(__('Searching for API >= %s and has Google APIs', apiLevel.cyan));
 		for (let i = 0; i < len; i++) {
-			if (gte(devicesToAutoSelectFrom[i]) && devicesToAutoSelectFrom[i].googleApis) {
+			if (devicesToAutoSelectFrom[i].api >= apiLevel && devicesToAutoSelectFrom[i].googleApis) {
 				setDeviceId(devicesToAutoSelectFrom[i]);
 				break;
 			}
 		}
 
 		if (!deviceId) {
-			// find first one where version is >= and google apis is a maybe
-			logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+			logger.debug(__('Searching for API >= %s', apiLevel.cyan));
 			for (let i = 0; i < len; i++) {
-				if (gte(devicesToAutoSelectFrom[i]) && devicesToAutoSelectFrom[i].googleApis === null) {
+				if (devicesToAutoSelectFrom[i].api >= apiLevel) {
 					setDeviceId(devicesToAutoSelectFrom[i]);
 					break;
 				}
 			}
 
 			if (!deviceId) {
-				// find first one where version is >= and no google apis
-				logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+				logger.debug(__('Searching for API < %s and has Google APIs', apiLevel.cyan));
 				for (let i = 0; i < len; i++) {
-					if (gte(devicesToAutoSelectFrom[i])) {
+					if (devicesToAutoSelectFrom[i].api < apiLevel && devicesToAutoSelectFrom[i].googleApis) { // eslint-disable-line max-depth
 						setDeviceId(devicesToAutoSelectFrom[i]);
 						break;
 					}
 				}
 
 				if (!deviceId) {
-					// find first one where version < and google apis == true
-					logger.debug(__('Searching for version < %s and has Google APIs', ver));
-					for (let i = len - 1; i >= 0; i--) {
-						if (lt(devicesToAutoSelectFrom[i])) { // eslint-disable-line max-depth
+					logger.debug(__('Searching for API < %s', apiLevel.cyan));
+					for (let i = 0; i < len; i++) { // eslint-disable-line max-depth
+						if (devicesToAutoSelectFrom[i].api < apiLevel) { // eslint-disable-line max-depth
 							setDeviceId(devicesToAutoSelectFrom[i]);
 							break;
 						}
 					}
 
-					if (!deviceId) {
-						// find first one where version <
-						logger.debug(__('Searching for version < %s and no Google APIs', ver));
-						for (let i = len - 1; i >= 0; i--) { // eslint-disable-line max-depth
-							if (lt(devicesToAutoSelectFrom[i]) && devicesToAutoSelectFrom[i].googleApis) { // eslint-disable-line max-depth
-								setDeviceId(devicesToAutoSelectFrom[i]);
-								break;
-							}
-						}
-
-						if (!deviceId) { // eslint-disable-line max-depth
-							// just grab first one
-							logger.debug(__('Selecting first device'));
-							setDeviceId(devicesToAutoSelectFrom[0]);
-						}
+					if (!deviceId) { // eslint-disable-line max-depth
+						logger.debug(__('Selecting first device'));
+						setDeviceId(devicesToAutoSelectFrom[0]);
 					}
 				}
 			}
