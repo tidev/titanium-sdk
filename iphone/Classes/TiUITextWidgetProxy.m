@@ -86,6 +86,12 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
   }
 }
 
+// This is exposed to JS as "focused" property
+- (BOOL)isFocused
+{
+  return [self focused:nil];
+}
+
 - (BOOL)focused:(id)unused
 {
   if (![NSThread isMainThread]) {
