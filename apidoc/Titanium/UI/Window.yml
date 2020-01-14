@@ -851,6 +851,13 @@ properties:
     default: false
     availability: creation
 
+  - name: focused
+    summary: Determines whether this TextArea has focus.
+    type: Boolean
+    default: false
+    permission: read-only
+    since: "9.1.0"
+
   - name: includeOpaqueBars
     summary: |
         Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar).

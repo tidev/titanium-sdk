@@ -227,6 +227,13 @@ properties:
     platforms: [iphone, ipad]
     since: "7.5.0"
 
+  - name: focused
+    summary: Determines whether this SearchBar has focus.
+    type: Boolean
+    default: false
+    permission: read-only
+    since: "9.1.0"
+
   - name: hintText
     summary: Text to show when the search bar field is not focused.
     type: String
