@@ -803,6 +803,13 @@ properties:
     type: [Number,String]
     default: 0
 
+  - name: closed
+    summary: Determines whether this Window is closed.
+    type: Boolean
+    default: true
+    permission: read-only
+    since: "9.1.0"
+
   - name: exitOnClose
     summary: |
         Boolean value indicating if the application should exit when the Android
