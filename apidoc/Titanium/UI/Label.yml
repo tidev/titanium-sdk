@@ -138,7 +138,7 @@ properties:
   - name: lineSpacing
     summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
     platforms: [android]
-    type: Dictionary
+    type: LabelLineSpacing
     since: "5.4.0"
 
   - name: maxLines
@@ -172,7 +172,7 @@ properties:
     summary: Shadow offset of the [text](Titanium.UI.Label.text), as a dictionary with the properties `x` and `y`.
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
-    type: Dictionary
+    type: Point
     platforms: [android, iphone, ipad]
     since: {android: "3.2.0"}
 
@@ -316,3 +316,14 @@ examples:
                     </Label>
                 </Window>
             </Alloy>
+---
+name: LabelLineSpacing
+summary: See [TextView.setLineSpacing](https://developer.android.com/reference/android/widget/TextView#setLineSpacing(float,%20float))
+platforms: [android]
+properties:
+  - name: add
+    summary: The value in pixels that should be added to each line other than the last line. This will be applied after the multiplier
+    type: Number
+  - name: multiply
+    summary: The value by which each line height other than the last line will be multiplied by
+    type: Number

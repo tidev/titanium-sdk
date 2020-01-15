@@ -87,11 +87,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     exceptionStackTrace = [NSThread callStackSymbols];
   }
 
+  NSMutableDictionary *errorDict = [error.dictionaryValue mutableCopy];
+  [errorDict setObject:[NSNumber numberWithLong:error.column] forKey:@"column"];
+  [errorDict setObject:[NSNumber numberWithLong:error.lineNo] forKey:@"line"];
   if (exceptionStackTrace == nil) {
     [[TiApp app] showModalError:[error description]];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
-                                                        object:self
-                                                      userInfo:error.dictionaryValue];
   } else {
     NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
     NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
@@ -105,13 +105,12 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
       [formattedStackTrace addObject:line];
     }
-
     NSString *stackTrace = [formattedStackTrace componentsJoinedByString:@"\n"];
+    [errorDict setObject:stackTrace forKey:@"nativeStack"];
+
     [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], stackTrace]];
-    NSMutableDictionary *errorDict = [error.dictionaryValue mutableCopy];
-    [errorDict setObject:stackTrace forKey:@"stackTrace"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification object:self userInfo:errorDict];
   }
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification object:self userInfo:errorDict];
 }
 
 - (NSString *)removeWhitespace:(NSString *)line

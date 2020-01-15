@@ -1,0 +1,10 @@
+
+repositories {
+	google()
+	jcenter()
+}
+
+dependencies {
+	// Add the module's library dependencies here.
+	// See:  https://developer.android.com/studio/build/dependencies
+}

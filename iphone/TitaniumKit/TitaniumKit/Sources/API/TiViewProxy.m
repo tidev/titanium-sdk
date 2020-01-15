@@ -137,7 +137,7 @@ static NSArray *touchEventsArray;
 - (void)add:(id)arg
 {
   TiUIWindowProxy *windowProxy = nil;
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     windowProxy = (TiUIWindowProxy *)self;
     if (arg == windowProxy.safeAreaViewProxy) {
       // If adding the safeAreaViewProxy, it need to be add on window.
@@ -240,7 +240,7 @@ static NSArray *touchEventsArray;
 
 - (void)replaceAt:(id)args
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy replaceAt:args];
@@ -261,7 +261,7 @@ static NSArray *touchEventsArray;
 
 - (void)remove:(id)arg
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy remove:arg];
@@ -330,7 +330,7 @@ static NSArray *touchEventsArray;
 
 - (void)removeAllChildren:(id)arg
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy removeAllChildren:arg];
@@ -1455,9 +1455,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
      */
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:YES];
-    if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      return;
-    }
 
     if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
       NSMutableDictionary *safeAreaProperties = [NSMutableDictionary dictionary];

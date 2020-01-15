@@ -821,7 +821,6 @@ properties:
         Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application)
     type: Dictionary
   - name: inBackground
-    summary: |
-        Boolean indicating if notification was received while app was in background.
-        This property became available in Titanium Mobile 3.1.0 for iOS.
+    summary: Boolean indicating if notification was received while app was in background.
     type: Boolean
+    since: "3.1.0"

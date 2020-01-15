@@ -44,9 +44,8 @@ methods:
         
         Returns null if the value in the table is NULL.
     returns:
-      - type: String
-      - type: Number
-      - type: Titanium.Blob
+      type: [String, Number, Titanium.Blob]
+      summary: return type varies based on the underlying data and optional `type` argument. If BLOB, we return a Titanium.Blob. If TEXT, we return String. If any kind of number, we return a Number.
     parameters:
       - name: index
         summary: A zero-based column index.
@@ -76,9 +75,8 @@ methods:
         
         Returns null if the value in the table is NULL.        
     returns:
-      - type: String
-      - type: Number
-      - type: Titanium.Blob
+      type: [String, Number, Titanium.Blob]
+      summary: return type varies based on the underlying data and optional `type` argument. If BLOB, we return a Titanium.Blob. If TEXT, we return String. If any kind of number, we return a Number.
     parameters:
       - name: name
         summary: A column name or alias used in the SQL query.

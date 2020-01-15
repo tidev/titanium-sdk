@@ -43,7 +43,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.graphics.drawable.PaintDrawable;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -58,7 +58,6 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -83,8 +82,6 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
-
-import com.appcelerator.aps.APSAnalyticsMeta;
 
 /**
  * A set of utility methods focused on UI and View operations.
@@ -885,45 +882,45 @@ public class TiUIHelper
 
 	private static String getResourceKeyForImage(String url)
 	{
-		if (resourceImageKeys.containsKey(url)) {
-			return resourceImageKeys.get(url);
+		// Validate argument.
+		if ((url == null) || url.isEmpty()) {
+			return null;
 		}
 
+		// Check if URL's "res" name has been fetched before.
+		if (TiUIHelper.resourceImageKeys.containsKey(url)) {
+			return TiUIHelper.resourceImageKeys.get(url);
+		}
+
+		// If given URL contains "/Resources/images/", then it references an APK "res" file.
+		// Fetch its subpath if this the case.
 		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
 		Matcher matcher = pattern.matcher(url);
 		if (!matcher.matches()) {
 			return null;
 		}
-
-		String chopped = matcher.group(1);
-		if (chopped == null) {
+		String path = matcher.group(1);
+		if (path == null) {
 			return null;
 		}
 
-		chopped = chopped.toLowerCase();
-		String forHash = chopped;
-		if (forHash.endsWith(".9.png")) {
-			forHash = forHash.replace(".9.png", ".png");
-		}
-		String withoutExtension = chopped;
-
-		if (chopped.matches("^.*\\..*$")) {
-			if (chopped.endsWith(".9.png")) {
-				withoutExtension = chopped.substring(0, chopped.lastIndexOf(".9.png"));
-			} else {
-				withoutExtension = chopped.substring(0, chopped.lastIndexOf('.'));
-			}
+		// This is a "res" drawable references. Remove file extension since Android strips them off in built app.
+		// Note: Periods are not legal characters in resource names. So, it's okay to strip off the 1st one found.
+		int index = path.indexOf('.');
+		String pathWithoutExtension = path;
+		if (index > 0) {
+			pathWithoutExtension = path.substring(0, index);
+		} else if (index == 0) {
+			pathWithoutExtension = null;
 		}
 
-		String cleanedWithoutExtension = withoutExtension.replaceAll("[^a-z0-9_]", "_");
-		StringBuilder result = new StringBuilder(100);
-		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80)));
-		result.append("_");
-		result.append(TiDigestUtils.md5Hex(forHash).substring(0, 10));
+		// If we've extracted a valid "res" path, then store it for fast access later.
+		if ((pathWithoutExtension != null) && !pathWithoutExtension.isEmpty()) {
+			TiUIHelper.resourceImageKeys.put(url, pathWithoutExtension);
+		}
 
-		String sResult = result.toString();
-		resourceImageKeys.put(url, sResult);
-		return sResult;
+		// Return the "res" file path for given URL.
+		return pathWithoutExtension;
 	}
 
 	public static int getResourceId(String url)

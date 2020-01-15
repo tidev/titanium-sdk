@@ -159,7 +159,10 @@
       [_items addObjectsFromArray:items];
       id<TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
       if (theDelegate != nil) {
-        [theDelegate updateSearchResults:nil];
+        TiThreadPerformOnMainThread(^{
+          [theDelegate updateSearchResults:nil];
+        },
+            NO);
         if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
           [(TiViewProxy *)theDispatcher contentsWillChange];
         }
