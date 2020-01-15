@@ -1,6 +1,8 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 repositories {
 	maven {
@@ -120,8 +122,8 @@ android {
 	}
 	// TODO: Add Java 8 support in the future.
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
@@ -158,12 +160,15 @@ dependencies {
 	def krollAptJarPath = '<%- krollAptJarPath.replace(/\\/g, '\\\\') %>'
 	annotationProcessor files(krollAptJarPath)
 	compileOnly files(krollAptJarPath)
+	kapt files(krollAptJarPath)
 
 	// Reference this module's local AAR/JAR file dependencies.
 	implementation fileTree(dir: "${projectDir}/../../lib", include: ['*.aar', '*.jar'])
 
 	// Reference the main Titanium library.
 	implementation 'org.appcelerator:titanium:<%- tiSdkVersion %>'
+
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 // This block is used when we run "gradlew :module:publish" at the command line.
