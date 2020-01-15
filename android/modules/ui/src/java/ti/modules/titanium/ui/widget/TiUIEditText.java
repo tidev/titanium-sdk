@@ -8,10 +8,10 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.design.widget.TextInputEditText;
-import android.support.v4.view.NestedScrollingChild2;
-import android.support.v4.view.NestedScrollingChildHelper;
-import android.support.v4.view.ViewCompat;
+import com.google.android.material.textfield.TextInputEditText;
+import androidx.core.view.NestedScrollingChild2;
+import androidx.core.view.NestedScrollingChildHelper;
+import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.inputmethod.EditorInfo;

@@ -9,7 +9,7 @@ package ti.modules.titanium.android.notificationmanager;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 
-import android.support.v4.app.NotificationCompat.Style;
+import androidx.core.app.NotificationCompat.Style;
 
 @Kroll.proxy
 abstract class StyleProxy extends KrollProxy
