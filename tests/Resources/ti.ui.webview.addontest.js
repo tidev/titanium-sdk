@@ -42,19 +42,42 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('#assetsDirectory', function (finish) {
-		var webView;
-		var htmlFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'folder with spaces', 'comingSoon.html');
-		var resourecDir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
-
 		win = Ti.UI.createWindow();
-		webView = Ti.UI.createWebView({
-			url: htmlFile.nativePath,
-			assetsDirectory: resourecDir.nativePath
+		var loadCount = 0;
+		function createDirectory(f) {
+			if (f && !f.exists()) {
+				f.createDirectory();
+			}
+			return f;
+		}
+
+		// Copy from Resources to cache folder
+		var cacheDir = createDirectory(Ti.Filesystem.getFile(Ti.Filesystem.applicationCacheDirectory));
+		var htmlDir = createDirectory(Ti.Filesystem.getFile(cacheDir.nativePath, 'html'));
+		var cssDir = createDirectory(Ti.Filesystem.getFile(cacheDir.nativePath, 'folder with spaces'));
+		var resourceDir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
+
+		var htmlFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'html', 'example.html');
+		var cssFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'folder with spaces', 'comingSoon.html');
+
+		var htmlInCache = Ti.Filesystem.getFile(cacheDir.nativePath, 'html', 'example.html');
+		var cssInCache = Ti.Filesystem.getFile(cacheDir.nativePath, 'folder with spaces', 'comingSoon.html');
+
+		htmlFile.copy(htmlInCache.nativePath);
+		cssFile.copy(cssInCache.nativePath);
+
+		var webView = Ti.UI.createWebView({
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL,
+			url: htmlInCache.nativePath,
+			assetsDirectory: cacheDir.nativePath
 		});
-		should(webView.assetsDirectory).be.a.String;
 
 		webView.addEventListener('load', function () {
-			finish();
+			loadCount++;
+			if (loadCount > 1) {
+				finish();
+			}
 		});
 		win.add(webView);
 		win.open();
