@@ -47,7 +47,7 @@ class Documentation {
 		return this.generateReport('typescript', 'index.d.ts');
 	}
 
-	async generate() {
+	generate() {
 		return Promise.all([
 			this.generateParityReport(),
 			this.generateJSCA(),

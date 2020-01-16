@@ -14,7 +14,6 @@ program
 async function main(program) {
 	const Builder = require('./lib/builder');
 	const builder = new Builder(program);
-	await builder.generateDocs();
 	return builder.package();
 }
 

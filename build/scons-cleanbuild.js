@@ -19,7 +19,6 @@ async function main(program) {
 	const builder = new Builder(program);
 	await builder.clean();
 	await builder.build();
-	await builder.generateDocs();
 	await builder.package();
 	await builder.install();
 }

@@ -3,6 +3,7 @@
 const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
+const TitaniumES = require('titanium-es');
 const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
@@ -144,6 +145,15 @@ class Builder {
 		await this.ensureGitHash();
 		console.log('Building MobileSDK version %s, githash %s', this.program.sdkVersion, this.program.gitHash);
 
+		// Generate documentation, including `api.jsca` required for Titanium-ES.
+		this.program.docs = true;
+		await this.generateDocs();
+
+		// Generate Titanium-ES proxy wrappers.
+		const EXT_DIR = path.join(ROOT_DIR, 'common', 'Resources', 'ti.internal', 'extensions');
+		await fs.appendFile(path.join(EXT_DIR, 'index.js'), '// Load Titanium-ES\nimport \'./titanium-es\';');
+		await TitaniumES.generate(path.join(DIST_DIR, 'api.jsca'), path.join(EXT_DIR, 'titanium-es'));
+
 		// TODO: build platforms in parallel
 		for (const item of this.platforms) {
 			const Platform = require(`./${item}`); // eslint-disable-line security/detect-non-literal-require
@@ -179,7 +189,7 @@ class Builder {
 		return packager.package();
 	}
 
-	async generateDocs() {
+	generateDocs() {
 		if (!this.program.docs) { // are we skipping doc generation?
 			return;
 		}
