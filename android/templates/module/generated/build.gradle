@@ -120,7 +120,7 @@ android {
 			}
 		}
 	}
-	// TODO: Add Java 8 support in the future.
+
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
@@ -130,6 +130,10 @@ android {
 	packagingOptions {
 		exclude '/lib/**/libc++_shared.so'
 		exclude '/lib/**/libkroll-v8.so'
+	}
+	// Sets the JVM target in order to allow usage of Java 8 features in Kotlin native modules.
+	kotlinOptions {
+		jvmTarget = '1.8'
 	}
 }
 
