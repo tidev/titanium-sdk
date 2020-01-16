@@ -73,6 +73,9 @@ android {
 <% } %>
 		}
 	}
+	dexOptions {
+		javaMaxHeapSize '<%- dexJavaMaxHeapSize %>'
+	}
 	lintOptions {
 		checkReleaseBuilds false
 	}
