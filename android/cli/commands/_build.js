@@ -2606,7 +2606,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				let isDrawable = false;
 
 				if (m && m.length >= 4 && m[3]) {
-					const destFilename = m[3].toLowerCase();
+					const destFilename = m[3];
+					const destLowerCaseFilename = destFilename.toLowerCase();
+					const extMatch = destLowerCaseFilename.match(drawableExtRegExp);
+					const origExt = extMatch && extMatch[1] || '';
 
 					destDir = path.join(
 						_t.buildAppMainResDir,
@@ -2615,11 +2618,30 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 					if (splashScreenRegExp.test(filename)) {
 						// we have a splash screen image
-						const extMatch = destFilename.match(drawableExtRegExp);
-						const origExt = extMatch && extMatch[1] || '';
 						to = path.join(destDir, 'background' + origExt);
 					} else {
-						to = path.join(destDir, filename);
+						// We have a drawable image file. (Rename it if it contains invalid characters.)
+						let warningMessages = [];
+						if (destFilename.includes('/') || destFilename.includes('\\')) {
+							warningMessages.push(__('- Files cannot be put into subdirectories.'));
+						}
+						let destFilteredFilename = destLowerCaseFilename.replace(drawableExtRegExp, '');
+						destFilteredFilename = destFilteredFilename.replace(/[^a-z0-9_]/g, '_') + origExt;
+						if (destFilteredFilename !== destFilename) {
+							warningMessages.push(__('- Names must contain only lowercase a-z, 0-9, or underscore.'));
+						}
+						if (/^\d/.test(destFilteredFilename)) {
+							warningMessages.push(__('- Names cannot start with a number.'));
+							destFilteredFilename = '_' + destFilteredFilename;
+						}
+						if (warningMessages.length > 0) {
+							_t.logger.warn(__(`Invalid "res" file: ${path.relative(_t.projectDir, from)}`));
+							for (const nextMessage of warningMessages) {
+								_t.logger.warn(nextMessage);
+							}
+							_t.logger.warn(__(`- Titanium will rename to: ${destFilteredFilename}`));
+						}
+						to = path.join(destDir, destFilteredFilename);
 					}
 					isDrawable = true;
 				} else if (m = relPath.match(relSplashScreenRegExp)) {
