@@ -20,7 +20,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.View;
 
