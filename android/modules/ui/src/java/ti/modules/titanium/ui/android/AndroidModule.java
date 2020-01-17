@@ -19,9 +19,8 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.text.util.Linkify;
 import android.view.Gravity;
-import android.support.v4.view.GravityCompat;
+import androidx.core.view.GravityCompat;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 // clang-format off
@@ -92,17 +91,6 @@ public class AndroidModule extends KrollModule
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS;
 	@Kroll.constant
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
-
-	@Kroll.constant
-	public static final int LINKIFY_ALL = Linkify.ALL;
-	@Kroll.constant
-	public static final int LINKIFY_EMAIL_ADDRESSES = Linkify.EMAIL_ADDRESSES;
-	@Kroll.constant
-	public static final int LINKIFY_MAP_ADDRESSES = Linkify.MAP_ADDRESSES;
-	@Kroll.constant
-	public static final int LINKIFY_PHONE_NUMBERS = Linkify.PHONE_NUMBERS;
-	@Kroll.constant
-	public static final int LINKIFY_WEB_URLS = Linkify.WEB_URLS;
 
 	@Kroll.constant
 	public static final int SWITCH_STYLE_CHECKBOX = 0;

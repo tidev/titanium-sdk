@@ -313,6 +313,29 @@
   _allowedURLSchemes = [[NSArray arrayWithArray:schemes] retain];
 }
 
+- (void)setBasicAuthentication:(id)value
+{
+  // This was a regression between 7.x and 8.0.0. It should be removed in later versions
+  if ([value isKindOfClass:[NSDictionary class]]) {
+    NSLog(@"[WARN] Please pass the basicAuthentication parameters as function arguments, e.g. \"webView.setBasicAuthentication(username, password, persistence)\"");
+    [self replaceValue:value forKey:@"basicAuthentication" notification:NO];
+    return;
+  }
+
+  NSString *username = value[0];
+  NSString *password = value[1];
+  NSURLCredentialPersistence persistence = NSURLCredentialPersistenceNone;
+
+  if ([value count] == 3) {
+    persistence = [TiUtils intValue:value[2] def:NSURLCredentialPersistenceNone];
+  }
+
+  NSDictionary *params = @{ @"username" : username,
+    @"password" : password,
+    @"persistence" : @(persistence)};
+  [self replaceValue:params forKey:@"basicAuthentication" notification:NO];
+}
+
 - (void)setHtml:(id)args
 {
   [[self webView] setHtml_:args];
@@ -362,7 +385,11 @@
 
 - (void)reload:(id)unused
 {
-  [[[self webView] webView] reload];
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self webView] reload];
+      },
+      NO);
 }
 
 - (void)repaint:(id)unused

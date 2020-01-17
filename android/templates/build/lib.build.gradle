@@ -1,0 +1,26 @@
+
+apply plugin: 'com.android.library'
+
+android {
+	compileSdkVersion <%- compileSdkVersion %>
+	defaultConfig {
+		minSdkVersion <%- minSdkVersion %>
+		targetSdkVersion <%- targetSdkVersion %>
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		aaptOptions {
+			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
+			// So, we must redefine ignore string with underscore pattern removed to support this too.
+			ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+		}
+	}
+	lintOptions {
+		checkReleaseBuilds false
+	}
+}
+
+// Disable linting to improve build performance.
+tasks.lint.enabled = false
+
+dependencies {
+	implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
+}

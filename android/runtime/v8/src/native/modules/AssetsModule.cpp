@@ -53,7 +53,7 @@ void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
 
 	jstring resourceName = TypeConverter::jsStringToJavaString(isolate, env, jsResourceName.ToLocalChecked());
 
-	jstring assetData = (jstring) env->CallStaticObjectMethod(
+	jbyteArray assetData = (jbyteArray) env->CallStaticObjectMethod(
 		JNIUtil::krollAssetHelperClass,
 		JNIUtil::krollAssetHelperReadAssetMethod,
 		resourceName);
@@ -72,19 +72,7 @@ void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
 		args.GetReturnValue().Set(v8::Null(isolate));
 		return;
 	}
-
-	jint len = env->GetStringLength(assetData);
-	const jchar *assetChars = env->GetStringChars(assetData, NULL);
-	if (!assetChars) {
-		args.GetReturnValue().Set(v8::Null(isolate));
-		return;
-	}
-
-	// FIXME Handle when this string constructor goes wrong...
-	Local<String> resourceData = String::NewFromTwoByte(isolate, assetChars, v8::NewStringType::kNormal, len).ToLocalChecked();
-	env->ReleaseStringChars(assetData, assetChars);
-	env->DeleteLocalRef(assetData);
-
+	Local<String> resourceData = TypeConverter::javaBytesToJsString(isolate, env, assetData).As<String>();
 	args.GetReturnValue().Set(resourceData);
 }
 

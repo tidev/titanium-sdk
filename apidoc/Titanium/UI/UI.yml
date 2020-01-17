@@ -2798,7 +2798,6 @@ properties:
         windows.
     type: String
 
-
   - name: backgroundImage
     summary: |
         Local path or URL to an image file for setting a background for the master view (when there
@@ -2808,13 +2807,16 @@ properties:
         windows.
     type: String
 
-
   - name: currentTab
     summary: The currently active tab, if a tab group is open.
     description: |
         If no tab group is open, this value is undefined.
     type: Titanium.UI.Tab
-
+    platforms: [android]
+    since: "1.8.0"
+    deprecated:
+      since: "3.5.0"
+      removed: "6.0.0"
 
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.

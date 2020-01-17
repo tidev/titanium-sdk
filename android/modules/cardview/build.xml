@@ -1,3 +1,0 @@
-<project name="cardview" default="build">
-	<import file="../../build/build-module.xml"/>
-</project>

@@ -80,7 +80,6 @@ class NativeObject
 
   inline void MakeWeak(void) {
     persistent().SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
-    persistent().MarkIndependent();
   }
 
   /* Ref() marks the object as being attached to an event loop.
@@ -104,10 +103,12 @@ class NativeObject
    */
   virtual void Unref() {
     assert(!persistent().IsEmpty());
-    assert(!persistent().IsWeak());
-    assert(refs_ > 0);
-    if (--refs_ == 0)
-      MakeWeak();
+    if (refs_ > 0) {
+      refs_--;
+      if (0 == refs_) {
+        MakeWeak();
+      }
+    }
   }
 
   int refs_;  // ro

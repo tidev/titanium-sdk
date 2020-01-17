@@ -678,18 +678,12 @@ public class ListSectionProxy extends ViewProxy
 				KrollDict properties = new KrollDict((HashMap) data.get(binding));
 				KrollDict diffProperties = viewItem.generateDiffProperties(properties);
 				if (!diffProperties.isEmpty()) {
-					if (viewProxy != null && viewProxy.getProperties() != null) {
-						viewProxy.getProperties().putAll(diffProperties);
-					}
 					view.processProperties(diffProperties);
 				}
 
 			} else if (dataItem != null && view != null) {
 				KrollDict diffProperties = viewItem.generateDiffProperties(dataItem.getDefaultProperties());
 				if (!diffProperties.isEmpty()) {
-					if (viewProxy != null && viewProxy.getProperties() != null) {
-						viewProxy.getProperties().putAll(diffProperties);
-					}
 					view.processProperties(diffProperties);
 				}
 			} else {

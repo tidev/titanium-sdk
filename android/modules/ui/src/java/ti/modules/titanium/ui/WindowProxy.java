@@ -37,13 +37,12 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
 import android.transition.ChangeImageTransform;
@@ -309,9 +308,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			activity.getSupportActionBar().setHomeButtonEnabled(
 				!getProperties().optBoolean(TiC.PROPERTY_HIDES_BACK_BUTTON, false));
 			// Get a reference to the root window in the NavigationWindow.
-			WindowProxy rootWindowProxy = ((NavigationWindowProxy) this.getNavigationWindow()).getRootWindowProxy();
+			TiWindowProxy rootTiWindowProxy =
+				((NavigationWindowProxy) this.getNavigationWindow()).getRootTiWindowProxy();
 			// If the root window matches this window do not show the Up navigation button.
-			activityProxy.getActionBar().setDisplayHomeAsUp(rootWindowProxy != this);
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootTiWindowProxy != this);
 		}
 
 		// Handle barColor property.

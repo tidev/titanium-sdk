@@ -19,6 +19,7 @@
   @private
   BOOL reloadAddressBook;
   BOOL animated;
+  BOOL _includeNote;
   KrollCallback *cancelCallback;
   KrollCallback *selectedPersonCallback;
   KrollCallback *selectedPropertyCallback;
@@ -38,7 +39,6 @@
 - (NSArray *)getAllPeople:(id)unused;
 - (TiContactsPerson *)createPerson:(id)arg;
 - (void)removePerson:(id)arg;
-- (void)requestAuthorization:(id)args;
 - (void)requestContactsPermissions:(id)args;
 
 @property (nonatomic, readonly) NSNumber *contactsAuthorization;

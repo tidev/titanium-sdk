@@ -246,6 +246,12 @@
              withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  [self performSelector:@selector(updateStatusBarView)
+             withObject:nil
+             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+#endif
+
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
   [self willChangeSize];
@@ -270,30 +276,28 @@
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   // TO DO: Refactor navigation bar customisation iOS 13
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if ([self shouldUseNavBarApperance]) {
     TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
     if (newColor == nil) {
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
-    if (controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll)) {
-      UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
-      if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-        [appearance configureWithTransparentBackground];
-        if (newColor == nil) {
-          appearance.backgroundColor = self.view.backgroundColor;
-        } else {
-          appearance.backgroundColor = newColor.color;
-        }
+    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
+    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+      [appearance configureWithTransparentBackground];
+      if (newColor == nil) {
+        appearance.backgroundColor = self.view.backgroundColor;
       } else {
-        [appearance configureWithDefaultBackground];
-        if (newColor != nil) {
-          appearance.backgroundColor = newColor.color;
-        }
+        appearance.backgroundColor = newColor.color;
       }
-      controller.navigationController.navigationBar.standardAppearance = appearance;
-      controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
-      controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
+    } else {
+      [appearance configureWithDefaultBackground];
+      if (newColor != nil) {
+        appearance.backgroundColor = newColor.color;
+      }
     }
+    controller.navigationController.navigationBar.standardAppearance = appearance;
+    controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+    controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
   }
 #endif
   shouldUpdateNavBar = YES;
@@ -404,7 +408,7 @@
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
     if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      if ([self shouldUseNavBarApperance]) {
         navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
         navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
       }
@@ -412,13 +416,18 @@
       navigationBar.largeTitleTextAttributes = theAttributes;
     }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    if ([self shouldUseNavBarApperance]) {
       navigationBar.standardAppearance.titleTextAttributes = theAttributes;
       navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
     }
 #endif
     navigationBar.titleTextAttributes = theAttributes;
   }
+}
+
+- (BOOL)shouldUseNavBarApperance
+{
+  return ([TiUtils isIOSVersionOrGreater:@"13.0"] && (controller != nil) && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll));
 }
 
 - (void)updateBarImage
@@ -439,12 +448,11 @@
     UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    if ([self shouldUseNavBarApperance]) {
       ourNB.standardAppearance.backgroundImage = resizableImage;
       ourNB.scrollEdgeAppearance.backgroundImage = resizableImage;
     }
 #endif
-
     [ourNB setBackgroundImage:resizableImage
                 forBarMetrics:UIBarMetricsDefault];
 
@@ -456,7 +464,7 @@
       UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
       ourNB.shadowImage = resizableImage;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      if ([self shouldUseNavBarApperance]) {
         ourNB.standardAppearance.shadowImage = resizableImage;
         ourNB.scrollEdgeAppearance.shadowImage = resizableImage;
       }
@@ -467,7 +475,7 @@
         //Set an empty Image.
         ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-        if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+        if ([self shouldUseNavBarApperance]) {
           ourNB.standardAppearance.shadowColor = nil;
           ourNB.scrollEdgeAppearance.shadowColor = nil;
         }
@@ -1044,6 +1052,20 @@
   }
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (void)updateStatusBarView
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+    if (view) {
+      view.frame = frame;
+    }
+  }
+}
+#endif
+
 - (TiViewProxy *)safeAreaView
 {
   return self.safeAreaViewProxy;
@@ -1057,21 +1079,15 @@
     @"right" : NUMFLOAT(0.0) }
           forKey:@"safeAreaPadding"];
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    if (self.shouldExtendSafeArea && !hidesStatusBar) {
-      [self setValue:@{ @"top" : NUMFLOAT(20.0),
-        @"left" : NUMFLOAT(0.0),
-        @"bottom" : NUMFLOAT(0.0),
-        @"right" : NUMFLOAT(0.0) }
-              forKey:@"safeAreaPadding"];
-    }
-
-    return;
-  }
-
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
-  UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+    safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  } else if (!hidesStatusBar) {
+    safeAreaInset.top = 20.0;
+  }
 
   if (self.tabGroup) {
     edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];

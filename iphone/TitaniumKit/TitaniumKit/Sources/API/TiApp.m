@@ -186,11 +186,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     UIApplication *app = [UIApplication sharedApplication];
     NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
     if ([app canOpenURL:url]) {
-      if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-        [app openURL:url options:@{} completionHandler:nil];
-      } else {
-        [app openURL:url];
-      }
+      [app openURL:url options:@{} completionHandler:nil];
     } else {
       DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
     }
@@ -354,10 +350,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     remoteDeviceUUID = [apnsUUID copy];
   }
 
-  // iOS 10+: Register our notification delegate
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
-  }
+  [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
 
   // Get some launch options to validate before finish launching. Some of them
   // need to be mapepd from native to JS-types to be used by the client
@@ -432,7 +425,12 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
+  id source = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
+  if (source != nil) {
+    [launchOptions setObject:source forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
@@ -453,7 +451,11 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
+  if (sourceApplication != nil) {
+    [launchOptions setObject:sourceApplication forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];

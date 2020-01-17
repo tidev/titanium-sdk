@@ -1,7 +1,5 @@
 import assertArgumentType from './_errors';
 
-const isWin32 = (Ti.Platform.osname === 'windowsphone') || (Ti.Platform.osname === 'windowsstore');
-
 const FORWARD_SLASH = 47; // '/'
 const BACKWARD_SLASH = 92; // '\\'
 
@@ -559,7 +557,7 @@ const PosixPath = {
 	}
 };
 
-const path = isWin32 ? Win32Path : PosixPath;
+const path = PosixPath;
 path.win32 = Win32Path;
 path.posix = PosixPath;
 
