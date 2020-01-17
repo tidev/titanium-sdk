@@ -89,7 +89,7 @@ android {
 tasks.lint.enabled = false
 
 dependencies {
-	implementation "com.android.support:appcompat-v7:${project.ext.tiSupportLibVersion}"
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 	implementation fileTree(dir: "${rootDir}/libs", include: ['*.aar', '*.jar'])
 	implementation fileTree(dir: "${projectDir}/src/main", include: ['*.aar', '*.jar'])
 <% if (libFilePaths && (libFilePaths.length > 0)) { %>

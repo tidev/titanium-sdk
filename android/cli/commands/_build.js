@@ -2097,7 +2097,7 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 	await fs.emptyDir(projectLibsDirPath);
 
 	// Copy module's main JAR to project's "libs" directory.
-	const sourceJarFileName = moduleInfo.manifest.name.toLowerCase() + '.jar';
+	const sourceJarFileName = moduleInfo.manifest.name + '.jar';
 	const sourceJarFilePath = path.join(moduleInfo.modulePath, sourceJarFileName);
 	afs.copyFileSync(sourceJarFilePath, path.join(projectLibsDirPath, sourceJarFileName), {
 		logger: this.logger.debug
@@ -2258,6 +2258,26 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	const gradlew = new GradleWrapper(this.buildDir);
 	gradlew.logger = this.logger;
 	await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
+
+	// Create a "gradle.properties" file. Will add network proxy settings if needed.
+	// Note: Enable Jetifier to replace all Google Support library references with AndroidX in all pre-built JARs.
+	//       This is needed because using both libraries will cause class name collisions, causing a build failure.
+	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
+	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
+	await gradlew.writeGradlePropertiesFile(gradleProperties);
+
+	// Copy optional "gradle.properties" file contents from Titainum project to the above generated file.
+	// These properties must be copied to the end of the file so that they can override Titanium's default properties.
+	const customGradlePropertiesFilePath = path.join(this.projectDir, 'platform', 'android', 'gradle.properties');
+	if (await fs.exists(customGradlePropertiesFilePath)) {
+		const targetGradlePropertiesFilePath = path.join(this.buildDir, 'gradle.properties');
+		const fileContent = await fs.readFile(customGradlePropertiesFilePath);
+		await fs.appendFile(targetGradlePropertiesFilePath,
+			'\n\n'
+			+ '# The below was copied from project file: ./platform/android/gradle.properties\n'
+			+ fileContent.toString() + '\n');
+	}
 
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
 	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
@@ -3140,10 +3160,10 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 
 		// Attempt to read the module's Java bindings JSON file.
 		let javaBindings = null;
-		const lowerCaseModuleName = module.manifest.name.toLowerCase();
+		const moduleName = module.manifest.name;
 		{
 			// Check if a "<module.name>.json" file exists in the module's root directory.
-			const jsonFilePath = path.join(module.modulePath, lowerCaseModuleName + '.json');
+			const jsonFilePath = path.join(module.modulePath, moduleName + '.json');
 			try {
 				if (await fs.exists(jsonFilePath)) {
 					const fileContent = await fs.readFile(jsonFilePath);
@@ -3160,7 +3180,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 		}
 		if (!javaBindings) {
 			// Check if a JSON file is embedded within the module's main JAR file.
-			const jarFilePath = path.join(module.modulePath, lowerCaseModuleName + '.jar');
+			const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
 			try {
 				if (await fs.exists(jarFilePath)) {
 					javaBindings = this.getNativeModuleBindings(jarFilePath);

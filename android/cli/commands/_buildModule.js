@@ -534,10 +534,12 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	this.logger.info(__('Generating root project files'));
 
 	// Copy our SDK's gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
-	// The below install method will also generate a "gradle.properties" file.
 	const gradlew = new GradleWrapper(this.buildDir);
 	gradlew.logger = this.logger;
 	await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
+
+	// Create a "gradle.properties" file. Will add network proxy settings if needed.
+	await gradlew.writeDefaultGradlePropertiesFile();
 
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, this.androidInfo.ndk.path);
@@ -722,7 +724,7 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	// Add module's proxy binding JSON file to archive.
 	// Needed by the app build system when generating the "TiApplication" derived class to inject
 	// this module's classes into the KrollRuntime and to invoke module's onAppCreate() if defined.
-	const bindingsFileName = this.manifest.name.toLowerCase() + '.json';
+	const bindingsFileName = this.manifest.name + '.json';
 	const bindingsFilePath = path.join(this.buildModuleDir, 'build', 'ti-generated', 'json', bindingsFileName);
 	if (await fs.exists(bindingsFilePath)) {
 		dest.append(fs.createReadStream(bindingsFilePath), { name: path.join(moduleFolder, bindingsFileName) });
