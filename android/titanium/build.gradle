@@ -186,16 +186,19 @@ dependencies {
 	compileOnly project(':kroll-apt')
 
 	// AndroidX Library dependencies.
-	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 	implementation 'androidx.cardview:cardview:1.0.0'
-	implementation 'androidx.exifinterface:exifinterface:1.1.0'
-	implementation 'androidx.recyclerview:recyclerview:1.1.0'
 	implementation "androidx.core:core:${project.ext.tiAndroidXCoreLibVersion}"
+	implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
+	implementation 'androidx.exifinterface:exifinterface:1.1.0'
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
 	implementation 'androidx.media:media:1.1.0'
-	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+	implementation 'androidx.recyclerview:recyclerview:1.1.0'
+	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
 	implementation 'androidx.transition:transition:1.2.0'
+	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
+	implementation 'androidx.viewpager:viewpager:1.0.0'
 	compileOnly 'androidx.annotation:annotation:1.1.0'
 
 	//TODO: Remove multidex library when our min OS version supported is Android 5.0 or higher.
