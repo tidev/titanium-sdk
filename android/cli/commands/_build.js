@@ -3096,12 +3096,13 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 	// Fetch relative paths to all of the app's *.js and *.json files.
 	const filePathDictionary = {};
 	const normalizedAssetsDir = this.buildAppMainAssetsDir.replace(/\\/g, '/');
-	(function walk(dir) {
-		fs.readdirSync(dir).forEach(function (fileName) {
-			const filePath = path.join(dir, fileName);
-			const stat = fs.statSync(filePath);
+	const walkDir = async (directoryPath) => {
+		const fileNameArray = await fs.readdir(directoryPath);
+		for (const fileName of fileNameArray) {
+			const filePath = path.join(directoryPath, fileName);
+			const stat = await fs.stat(filePath);
 			if (stat.isDirectory()) {
-				walk(filePath);
+				await walkDir(filePath);
 			} else if (stat.isFile()) {
 				const lowerCaseFileName = fileName.toLowerCase();
 				if (lowerCaseFileName.endsWith('.js') || lowerCaseFileName.endsWith('.json')) {
@@ -3110,8 +3111,9 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 					filePathDictionary[normalizedFilePath] = 1;
 				}
 			}
-		});
-	}(this.buildAppMainAssetsResourcesDir));
+		}
+	};
+	await walkDir(this.buildAppMainAssetsResourcesDir);
 	for (const filePath of this.jsFilesToEncrypt) {
 		filePathDictionary['Resources/' + filePath.replace(/\\/g, '/')] = 1;
 	}
@@ -3167,9 +3169,11 @@ AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindi
 AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() {
 	this.logger.info('Generating Java files');
 
-	const copyTemplate = (src, dest, ejsParams) => {
+	const copyTemplate = async (src, dest, ejsParams) => {
 		this.logger.debug(__('Copying template %s => %s', src.cyan, dest.cyan));
-		fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), ejsParams));
+		let fileContent = await fs.readFile(src);
+		fileContent = ejs.render(fileContent.toString(), ejsParams);
+		await fs.writeFile(dest, fileContent);
 	};
 
 	// Fetch Java proxy class information from all modules.
@@ -3237,10 +3241,10 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 	}
 
 	// Copy main application Java classes.
-	fs.ensureDirSync(this.buildGenAppIdDir);
-	copyTemplate(
+	await fs.ensureDir(this.buildGenAppIdDir);
+	await copyTemplate(
 		path.join(this.templatesDir, 'AppInfo.java'),
-		path.join(this.buildGenAppIdDir, this.classname + 'AppInfo.java'),
+		path.join(this.buildGenAppIdDir, `${this.classname}AppInfo.java`),
 		{
 			appid: this.appid,
 			buildType: this.buildType,
@@ -3248,9 +3252,9 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			deployType: this.deployType,
 			tiapp: this.tiapp
 		});
-	copyTemplate(
+	await copyTemplate(
 		path.join(this.templatesDir, 'App.java'),
-		path.join(this.buildGenAppIdDir, this.classname + 'Application.java'),
+		path.join(this.buildGenAppIdDir, `${this.classname}Application.java`),
 		{
 			appid: this.appid,
 			classname: this.classname,
@@ -3258,9 +3262,9 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			deployType: this.deployType,
 			encryptJS: this.encryptJS
 		});
-	copyTemplate(
+	await copyTemplate(
 		path.join(this.templatesDir, 'Activity.java'),
-		path.join(this.buildGenAppIdDir, this.classname + 'Activity.java'),
+		path.join(this.buildGenAppIdDir, `${this.classname}Activity.java`),
 		{
 			appid: this.appid,
 			classname: this.classname
@@ -3275,24 +3279,25 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 	// Generate the JavaScript-based activity classes.
 	const android = this.tiapp.android;
 	if (android && android.activities) {
-		const activityTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSActivity.java')).toString();
-		Object.keys(android.activities).forEach(function (name) {
-			var activity = android.activities[name];
+		const activityTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSActivity.java'))).toString();
+		for (const activityName in android.activities) {
+			const activity = android.activities[activityName];
 			this.logger.debug(__('Generating activity class: %s', activity.classname.cyan));
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, activity.classname + '.java'), ejs.render(activityTemplate, {
+			const fileContent = ejs.render(activityTemplate, {
 				appid: this.appid,
 				activity: activity
-			}));
-		}, this);
+			});
+			await fs.writeFile(path.join(this.buildGenAppIdDir, `${activity.classname}.java`), fileContent);
+		}
 	}
 
 	// Generate the JavaScript-based Service classes.
 	if (android && android.services) {
-		const serviceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSService.java')).toString();
-		const intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString();
-		const quickSettingsServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSQuickSettingsService.java')).toString();
-		Object.keys(android.services).forEach(function (name) {
-			const service = android.services[name];
+		const serviceTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSService.java'))).toString();
+		const intervalServiceTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSIntervalService.java'))).toString();
+		const quickSettingsServiceTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSQuickSettingsService.java'))).toString();
+		for (const serviceName in android.services) {
+			const service = android.services[serviceName];
 			let tpl = serviceTemplate;
 			if (service.type === 'interval') {
 				tpl = intervalServiceTemplate;
@@ -3303,11 +3308,12 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			} else {
 				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
 			}
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, service.classname + '.java'), ejs.render(tpl, {
+			const fileContent = ejs.render(tpl, {
 				appid: this.appid,
 				service: service
-			}));
-		}, this);
+			});
+			await fs.writeFile(path.join(this.buildGenAppIdDir, `${service.classname}.java`), fileContent);
+		}
 	}
 };
 
@@ -3349,7 +3355,7 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		return locale;
 	}
 
-	Object.keys(data).forEach(function (locale) {
+	for (const locale of Object.keys(data)) {
 		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
 		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
 		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
@@ -3363,7 +3369,6 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		appnameNode.appendChild(dom.createTextNode(appname));
 		root.appendChild(dom.createTextNode('\n\t'));
 		root.appendChild(appnameNode);
-
 		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
 			if (name.indexOf(' ') !== -1) {
 				badStringNames[locale] || (badStringNames[locale] = []);
@@ -3377,13 +3382,12 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 				root.appendChild(node);
 			}
 		});
-
 		root.appendChild(dom.createTextNode('\n'));
 
 		this.logger.debug(__('Writing %s strings => %s', locale.cyan, filePath.cyan));
-		fs.ensureDirSync(dirPath);
-		fs.writeFileSync(filePath, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
-	}, this);
+		await fs.ensureDir(dirPath);
+		await fs.writeFile(filePath, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
+	}
 
 	if (Object.keys(badStringNames).length) {
 		this.logger.error(__('Found invalid i18n string names:'));
