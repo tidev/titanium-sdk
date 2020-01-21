@@ -211,6 +211,27 @@ class AndroidManifest {
 	}
 
 	/**
+	 * Fetches the "versionCode" and "versionName" attributes from the <manifest/> element.
+	 * @return {{versionCode: {String}, versionName: {String}}}
+	 * Returns a dictionary providing the "versionCode" and "versionName" attributes read from <manifest/> element.
+	 *
+	 * Returns null if no XML content has been loaded;
+	 */
+	getAppVersionInfo() {
+		let versionInfo = null;
+		if (!this.isEmpty()) {
+			const element = this._xmlDomDocument.documentElement;
+			if (element.tagName === 'manifest') {
+				versionInfo = {
+					versionCode: element.getAttribute('android:versionCode'),
+					versionName: element.getAttribute('android:versionName')
+				};
+			}
+		}
+		return versionInfo;
+	}
+
+	/**
 	 * Fetches the manifest's <uses-sdk/> element's information.
 	 * @return {{minSdkVersion: {String}, maxSdkVersion: {String}, targetSdkVersion: {String}}}
 	 * Returns the <uses-sdk/> element's information such as "minSdkVersion", "maxSdkVersion", and "targetSdkVersion".

@@ -13,6 +13,7 @@ android {
 		applicationId '<%- applicationId %>'
 		minSdkVersion <%- minSdkVersion %>
 		targetSdkVersion <%- targetSdkVersion %>
+		versionCode <%- versionCode %>
 		versionName '<%- versionName %>'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
