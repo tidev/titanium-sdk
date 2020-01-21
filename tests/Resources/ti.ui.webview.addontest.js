@@ -53,18 +53,17 @@ describe('Titanium.UI.WebView', function () {
 
 		// Copy from Resources to cache folder
 		var cacheDir = createDirectory(Ti.Filesystem.getFile(Ti.Filesystem.applicationCacheDirectory));
-		var htmlDir = createDirectory(Ti.Filesystem.getFile(cacheDir.nativePath, 'html'));
-		var cssDir = createDirectory(Ti.Filesystem.getFile(cacheDir.nativePath, 'folder with spaces'));
-		var resourceDir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
+		createDirectory(Ti.Filesystem.getFile(cacheDir.nativePath, 'html'));
+		createDirectory(Ti.Filesystem.getFile(cacheDir.nativePath, 'folder with spaces'));
 
 		var htmlFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'html', 'example.html');
-		var cssFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'folder with spaces', 'comingSoon.html');
+		var nextHtmlFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'folder with spaces', 'comingSoon.html');
 
 		var htmlInCache = Ti.Filesystem.getFile(cacheDir.nativePath, 'html', 'example.html');
-		var cssInCache = Ti.Filesystem.getFile(cacheDir.nativePath, 'folder with spaces', 'comingSoon.html');
+		var nextHtmlInCache = Ti.Filesystem.getFile(cacheDir.nativePath, 'folder with spaces', 'comingSoon.html');
 
 		htmlFile.copy(htmlInCache.nativePath);
-		cssFile.copy(cssInCache.nativePath);
+		nextHtmlFile.copy(nextHtmlInCache.nativePath);
 
 		var webView = Ti.UI.createWebView({
 			width: Ti.UI.FILL,
