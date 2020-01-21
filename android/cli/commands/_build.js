@@ -2455,6 +2455,21 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		dexerHook('', [ '', '' ], {}, resolve);
 	});
 
+	// Acquire the app's version integer code and name to be written to "build.gradle" later.
+	let versionCode = '1';
+	let versionName = this.tiapp.version ? this.tiapp.version : '1';
+	if (this.customAndroidManifest) {
+		const versionInfo = this.customAndroidManifest.getAppVersionInfo();
+		if (versionInfo) {
+			if (versionInfo.versionCode) {
+				versionCode = versionInfo.versionCode;
+			}
+			if (versionInfo.versionName) {
+				versionName = versionInfo.versionName;
+			}
+		}
+	}
+
 	// Generate a "build.gradle" file for this project from the SDK's "app.build.gradle" EJS template.
 	// Note: Google does not support setting "maxSdkVersion" via gradle script.
 	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
@@ -2463,7 +2478,8 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		compileSdkVersion: this.compileSdkVersion,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK,
-		versionName: this.tiapp.version ? this.tiapp.version : '1',
+		versionCode: versionCode,
+		versionName: versionName,
 		libFilePaths: this.libFilePaths,
 		libProjectNames: this.libProjectNames,
 		libDependencyStrings: this.libDependencyStrings,
