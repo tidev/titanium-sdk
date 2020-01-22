@@ -159,6 +159,9 @@ tasks.withType(JavaCompile) {
 	}
 }
 
+// Titanium does not support incremental @Kroll annotation processing. Disable it in kotlin to avoid build warnings.
+project.ext['kapt.incremental.apt'] = false
+
 dependencies {
 	// This reads the code's @Kroll annotations and generates code which interops between V8 and proxy classes.
 	def krollAptJarPath = '<%- krollAptJarPath.replace(/\\/g, '\\\\') %>'
