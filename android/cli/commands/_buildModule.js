@@ -613,6 +613,7 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 		moduleMavenArtifactId: mavenArtifactId,
 		moduleName: this.manifest.name,
 		moduleVersion: this.manifest.version,
+		moduleArchitectures: this.manifest.architectures.split(' '),
 		tiBindingsJsonPath: path.join(this.platformPath, 'titanium.bindings.json'),
 		tiMavenUrl: encodeURI('file://' + path.join(this.platformPath, 'm2repository').replace(/\\/g, '/')),
 		tiSdkModuleTemplateDir: this.moduleTemplateDir,

@@ -1278,13 +1278,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// determine the abis to support
 	this.abis = this.validABIs;
 	const customABIs = cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1;
-	if (!customABIs && this.deployType === 'production') {
-		// If a users has not specified the abi tag in the tiapp,
-		// remove 'x86' from production builds 'x86' devices are scarce;
-		// this is predominantly used for emulators
-		// we can save 16MB+ by removing this from release builds
-		this.abis.splice(this.abis.indexOf('x86'), 1);
-	}
 	if (customABIs) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
@@ -1555,6 +1548,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 							process.exit(1);
 						}
 					}
+				} else {
+					// Limit application build ABI to that of provided native modules.
+					this.abis = this.abis.filter(abi => {
+						if (!module.manifest.architectures.includes(abi)) {
+							this.logger.warn(__('Module %s does not contain %s ABI. Application will build without %s ABI support!', module.id.cyan, abi.cyan, abi.cyan));
+							return false;
+						}
+						return true;
+					});
 				}
 
 				// scan the module for any CLI hooks
