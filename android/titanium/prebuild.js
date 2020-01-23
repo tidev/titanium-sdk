@@ -106,9 +106,21 @@ async function generateSourceCode() {
 		runtimeV8DirPath, 'src/native/KrollNativeBindings.gperf',
 		path.join(runtimeV8DirPath, 'generated/KrollNativeBindings.h'));
 
+	// Fetch the "python" command line tool to use. Prefer "python2" if available.
+	// TODO: Replace our usage of python to make it easier to build on Windows.
+	let pythonCommand = 'python';
+	if (!isWindows) {
+		try {
+			await exec('type python2 > /dev/null');
+			pythonCommand = 'python2';
+		} catch (ex) {
+			// The "python2" command line tool does not exist on this system.
+		}
+	}
+
 	// Create "bootstrap.js" which generates create*() functions for all Titanium internal modules.
 	// TODO: Replace our usage of python to make it easier to build on Windows.
-	await exec('python ' + quotePath(path.join(runtimeV8DirPath, 'tools', 'genBootstrap.py')) + ' --runtime=v8');
+	await exec(pythonCommand + ' ' + quotePath(path.join(runtimeV8DirPath, 'tools', 'genBootstrap.py')) + ' --runtime=v8');
 
 	// Generate a "KrollGeneratedBindings.h" file with perfect hashes via gperf tool.
 	// Note: 2nd argument is inserted into file as-is. Use relative path since absolute may contain user name.
@@ -138,7 +150,7 @@ async function generateSourceCode() {
 	// Generate a "KrollJS.h" file containing all of the above fetched JS files.
 	// TODO: Replace our usage of python to make it easier to build on Windows.
 	const commandLineArgs = [
-		'python',
+		pythonCommand,
 		quotePath(path.join(runtimeV8DirPath, 'tools', 'js2c.py')),
 		quotePath(path.join(runtimeV8DirPath, 'generated', 'KrollJS.h')),
 		quotePath(path.join(runtimeV8DirPath, 'generated', 'bootstrap.js'))
