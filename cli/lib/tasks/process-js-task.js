@@ -51,6 +51,9 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.defaultAnalyzeOptions = options.defaultAnalyzeOptions;
 
 		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
+
+		this.fileContentsMap = new Map();
+
 		this.resetTaskData();
 
 		this.createHooks();
@@ -174,7 +177,6 @@ class ProcessJsTask extends IncrementalFileTask {
 				contents: originalContents,
 				symbols: []
 			};
-
 			compileJsFileHook(r, from, to, done);
 		}));
 	}

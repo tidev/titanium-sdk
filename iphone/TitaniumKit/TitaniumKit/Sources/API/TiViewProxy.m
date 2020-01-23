@@ -91,7 +91,7 @@ static NSArray *touchEventsArray;
 
 - (void)processTempProperties:(NSDictionary *)arg
 {
-  //arg will be non nil when called from updateLayout
+  // arg will be typically be nil (was non-nil when called from removed updateLayout() method)
   if (arg != nil) {
     NSEnumerator *enumerator = [arg keyEnumerator];
     id key;
@@ -128,36 +128,6 @@ static NSArray *touchEventsArray;
 }
 #endif
 
-- (void)startLayout:(id)arg
-{
-  DebugLog(@"startLayout() method is deprecated since 3.0.0 .");
-  updateStarted = YES;
-  allowLayoutUpdate = NO;
-}
-- (void)finishLayout:(id)arg
-{
-  DebugLog(@"finishLayout() method is deprecated since 3.0.0 .");
-  updateStarted = NO;
-  allowLayoutUpdate = YES;
-  [self processTempProperties:nil];
-  allowLayoutUpdate = NO;
-}
-- (void)updateLayout:(id)arg
-{
-  DebugLog(@"updateLayout() method is deprecated since 3.0.0, use applyProperties() instead.");
-  id val = nil;
-  if ([arg isKindOfClass:[NSArray class]]) {
-    val = [arg objectAtIndex:0];
-  } else {
-    val = arg;
-  }
-  updateStarted = NO;
-  allowLayoutUpdate = YES;
-  ENSURE_TYPE_OR_NIL(val, NSDictionary);
-  [self processTempProperties:val];
-  allowLayoutUpdate = NO;
-}
-
 - (BOOL)belongsToContext:(id<TiEvaluator>)context
 {
   id<TiEvaluator> myContext = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
@@ -167,7 +137,7 @@ static NSArray *touchEventsArray;
 - (void)add:(id)arg
 {
   TiUIWindowProxy *windowProxy = nil;
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     windowProxy = (TiUIWindowProxy *)self;
     if (arg == windowProxy.safeAreaViewProxy) {
       // If adding the safeAreaViewProxy, it need to be add on window.
@@ -270,7 +240,7 @@ static NSArray *touchEventsArray;
 
 - (void)replaceAt:(id)args
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy replaceAt:args];
@@ -291,7 +261,7 @@ static NSArray *touchEventsArray;
 
 - (void)remove:(id)arg
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy remove:arg];
@@ -360,7 +330,7 @@ static NSArray *touchEventsArray;
 
 - (void)removeAllChildren:(id)arg
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy removeAllChildren:arg];
@@ -1485,9 +1455,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
      */
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:YES];
-    if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      return;
-    }
 
     if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
       NSMutableDictionary *safeAreaProperties = [NSMutableDictionary dictionary];

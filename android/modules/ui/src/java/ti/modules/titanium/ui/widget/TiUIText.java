@@ -29,7 +29,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.TextInputLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -51,9 +51,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-
-import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_ACTION;
-import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_NEW_LINE;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
@@ -468,7 +465,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	{
 		super.focus();
 		if (tv != null && proxy != null && proxy.getProperties() != null) {
-			final boolean editable = proxy.getProperties().optBoolean(TiC.PROPERTY_EDITABLE, false);
+			final boolean editable = proxy.getProperties().optBoolean(TiC.PROPERTY_EDITABLE, true);
 			TiUIHelper.showSoftKeyboard(tv, editable);
 		}
 	}

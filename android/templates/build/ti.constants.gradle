@@ -1,0 +1,17 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+project.ext {
+	tiAndroidXAppCompatLibVersion = '1.1.0'
+	tiAndroidXCoreLibVersion = '1.1.0'
+	tiAndroidXFragmentLibVersion = '1.1.0'
+	tiMaterialLibVersion = '1.0.0'
+	tiPlayServicesBaseLibVersion = '17.1.0'
+	tiManifestPlaceholders = [
+		tiActivityConfigChanges: 'density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode'
+	]
+}

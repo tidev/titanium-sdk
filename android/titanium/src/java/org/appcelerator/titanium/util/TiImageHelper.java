@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiFileHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -20,7 +19,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.RectF;
-import android.support.media.ExifInterface;
+import androidx.exifinterface.media.ExifInterface;
 
 /**
  * Utility class for image manipulations.

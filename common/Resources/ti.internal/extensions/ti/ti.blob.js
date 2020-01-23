@@ -9,6 +9,7 @@ if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
 	const buffer = Ti.createBuffer({ value: '' });
 	const blob = buffer.toBlob();
 	blob.constructor.prototype.toString = function () {
-		return this.text;
+		const value = this.text;
+		return (value === undefined) ? '[object TiBlob]' :  value;
 	};
 }

@@ -9,7 +9,6 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
@@ -21,9 +20,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Message;
-import android.support.v4.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -174,7 +171,7 @@ public class MenuItemProxy extends KrollProxy
 
 	private void updateContentDescription()
 	{
-		String contentDescription = composeContentDescription();
+		String contentDescription = TiUIView.composeContentDescription(properties);
 		MenuItemCompat.setContentDescription(item, contentDescription);
 	}
 

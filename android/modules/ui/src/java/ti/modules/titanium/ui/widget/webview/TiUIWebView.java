@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,6 +51,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+
+import javax.crypto.CipherInputStream;
 
 @SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
@@ -878,7 +880,7 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 
-		if (blob.getType() == TiBlob.TYPE_FILE) {
+		if (blob.getType() == TiBlob.TYPE_FILE && !(blob.getInputStream() instanceof CipherInputStream)) {
 			String fullPath = blob.getNativePath();
 			if (fullPath != null) {
 				setUrl(fullPath);

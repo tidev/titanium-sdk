@@ -11,12 +11,6 @@
 #import <TitaniumKit/TiModule.h>
 
 typedef enum {
-  READ_MODE = 1,
-  WRITE_MODE = 2,
-  READ_WRITE_MODE = 3 // Alias for READ | WRITE
-} SocketMode;
-
-typedef enum {
   // DEFAULT TLS is 0
   TLS_VERSION_1_0 = 1,
   TLS_VERSION_1_1,
@@ -51,10 +45,6 @@ typedef enum {
 @property (nonatomic, readonly) NSNumber *NOTIFICATION_TYPE_BADGE;
 @property (nonatomic, readonly) NSNumber *NOTIFICATION_TYPE_ALERT;
 @property (nonatomic, readonly) NSNumber *NOTIFICATION_TYPE_SOUND;
-
-@property (readonly, nonatomic) NSNumber *READ_MODE;
-@property (readonly, nonatomic) NSNumber *WRITE_MODE;
-@property (readonly, nonatomic) NSNumber *READ_WRITE_MODE;
 
 @property (nonatomic, readonly) NSNumber *TLS_VERSION_1_0;
 @property (nonatomic, readonly) NSNumber *TLS_VERSION_1_1;

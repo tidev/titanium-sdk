@@ -24,6 +24,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.android.AndroidModule;
@@ -35,8 +36,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import android.view.LayoutInflater;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -68,6 +71,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private TabProxy selectedTab;
 	private String tabGroupTitle = null;
 	private boolean isFocused;
+	private static int id_toolbar;
 
 	public TabGroupProxy()
 	{
@@ -417,6 +421,30 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			((TiUIAbstractTabGroup) view).updateTitle(this.tabGroupTitle);
 		}
 		setModelListener(view);
+
+		// add toolbar to NavigationWindow
+		if (this.getNavigationWindow() != null) {
+			if (activity.getSupportActionBar() == null) {
+				try {
+					if (id_toolbar == 0) {
+						id_toolbar = TiRHelper.getResource("layout.titanium_ui_toolbar");
+					}
+				} catch (TiRHelper.ResourceNotFoundException e) {
+					android.util.Log.e(TAG, "XML resources could not be found!!!");
+				}
+				LayoutInflater inflater = LayoutInflater.from(activity);
+				Toolbar toolbar = (Toolbar) inflater.inflate(id_toolbar, null, false);
+
+				activity.setSupportActionBar(toolbar);
+			}
+			activity.getSupportActionBar().setHomeButtonEnabled(
+				!getProperties().optBoolean(TiC.PROPERTY_HIDES_BACK_BUTTON, false));
+			// Get a reference to the root window in the NavigationWindow.
+			TiWindowProxy rootTiWindowProxy =
+				((NavigationWindowProxy) this.getNavigationWindow()).getRootTiWindowProxy();
+			// If the root window matches this window do not show the Up navigation button.
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(rootTiWindowProxy != this);
+		}
 
 		// Need to handle the cached activity proxy properties in the JS side.
 		callPropertySync(PROPERTY_POST_TAB_GROUP_CREATED, null);
