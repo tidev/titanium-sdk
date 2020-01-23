@@ -371,9 +371,9 @@ async function writeJavaPropertiesFile(filePath, properties) {
 	}
 
 	// Turn the given property entries into an array of text lines to be written to file later.
-	let fileLines = [];
+	const fileLines = [];
 	if (properties) {
-		for (let nextProperty of properties) {
+		for (const nextProperty of properties) {
 			// Handle the next property row entry.
 			let hasAddedLine = false;
 			if (typeof nextProperty === 'object') {
@@ -382,7 +382,7 @@ async function writeJavaPropertiesFile(filePath, properties) {
 					let comment = nextProperty.comment;
 					comment = comment.replace(/[\r\n]/g, '');
 					if (!comment.startsWith('#') && !comment.startsWith('!')) {
-						comment = '#' + comment;
+						comment = '# ' + comment;
 					}
 					fileLines.push(comment);
 					hasAddedLine = true;

@@ -36,7 +36,7 @@ import javax.tools.StandardLocation;
 
 import org.json.simple.JSONValue;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SuppressWarnings("unchecked")
 // clang-format off
 @SupportedAnnotationTypes({

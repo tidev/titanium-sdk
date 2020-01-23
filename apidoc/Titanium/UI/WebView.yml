@@ -731,6 +731,21 @@ properties:
     since: "3.0.0"
     default: false
 
+  - name: assetsDirectory
+    summary: Path of file or directory to allow read access by the WebView.
+    description: |
+        Use this property to change the resources the web view has access to when loading the content of a local file.
+        By default the web view only has access to files inside the same directory as the loaded file. To reference
+        resources from other directories (e.g. a parent directory) change this property accordingly.
+
+        If assetsDirectory references a single file, only that file may be loaded. If assetsDirectory references a
+        directory, files inside that directory may be loaded.
+
+        This property needs to be set before [url](Titanium.UI.WebView.url) is assigned to a local file.
+    type: String
+    platforms: [iphone, ipad]
+    since: "9.0.0"
+
   - name: html
     summary: HTML content of this web view.
     description: |
