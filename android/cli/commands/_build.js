@@ -1198,13 +1198,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// determine the abis to support
 	this.abis = this.validABIs;
 	const customABIs = cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1;
-	if (!customABIs && this.deployType === 'production') {
-		// If a users has not specified the abi tag in the tiapp,
-		// remove 'x86' from production builds 'x86' devices are scarce;
-		// this is predominantly used for emulators
-		// we can save 16MB+ by removing this from release builds
-		this.abis.splice(this.abis.indexOf('x86'), 1);
-	}
 	if (customABIs) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
@@ -1449,6 +1442,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 							process.exit(1);
 						}
 					}
+				} else {
+					// Limit application build ABI to that of provided native modules.
+					this.abis = this.abis.filter(abi => {
+						if (!module.manifest.architectures.includes(abi)) {
+							this.logger.warn(__('Module %s does not contain %s ABI. Application will build without %s ABI support!', module.id.cyan, abi.cyan, abi.cyan));
+							return false;
+						}
+						return true;
+					});
 				}
 
 				// scan the module for any CLI hooks
@@ -2150,6 +2152,26 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	gradlew.logger = this.logger;
 	await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
 
+	// Create a "gradle.properties" file. Will add network proxy settings if needed.
+	// Note: Enable Jetifier to replace all Google Support library references with AndroidX in all pre-built JARs.
+	//       This is needed because using both libraries will cause class name collisions, causing a build failure.
+	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
+	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
+	await gradlew.writeGradlePropertiesFile(gradleProperties);
+
+	// Copy optional "gradle.properties" file contents from Titainum project to the above generated file.
+	// These properties must be copied to the end of the file so that they can override Titanium's default properties.
+	const customGradlePropertiesFilePath = path.join(this.projectDir, 'platform', 'android', 'gradle.properties');
+	if (await fs.exists(customGradlePropertiesFilePath)) {
+		const targetGradlePropertiesFilePath = path.join(this.buildDir, 'gradle.properties');
+		const fileContent = await fs.readFile(customGradlePropertiesFilePath);
+		await fs.appendFile(targetGradlePropertiesFilePath,
+			'\n\n'
+			+ '# The below was copied from project file: ./platform/android/gradle.properties\n'
+			+ fileContent.toString() + '\n');
+	}
+
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
 	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
@@ -2326,6 +2348,21 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		dexerHook('', [ '', '' ], {}, resolve);
 	});
 
+	// Acquire the app's version integer code and name to be written to "build.gradle" later.
+	let versionCode = '1';
+	let versionName = this.tiapp.version ? this.tiapp.version : '1';
+	if (this.customAndroidManifest) {
+		const versionInfo = this.customAndroidManifest.getAppVersionInfo();
+		if (versionInfo) {
+			if (versionInfo.versionCode) {
+				versionCode = versionInfo.versionCode;
+			}
+			if (versionInfo.versionName) {
+				versionName = versionInfo.versionName;
+			}
+		}
+	}
+
 	// Generate a "build.gradle" file for this project from the SDK's "app.build.gradle" EJS template.
 	// Note: Google does not support setting "maxSdkVersion" via gradle script.
 	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
@@ -2334,7 +2371,8 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		compileSdkVersion: this.compileSdkVersion,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK,
-		versionName: this.tiapp.version ? this.tiapp.version : '1',
+		versionCode: versionCode,
+		versionName: versionName,
 		libFilePaths: this.libFilePaths,
 		libProjectNames: this.libProjectNames,
 		libDependencyStrings: this.libDependencyStrings,
