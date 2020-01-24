@@ -10,6 +10,37 @@ const LAUNCH_IMAGE_REGEXP = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]
 const LAUNCH_LOGO_REGEXP = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/;
 const BUNDLE_FILE_REGEXP = /.+\.bundle\/.+/;
 
+/**
+ * Merges multiple maps
+ * @param {Array<Map>} maps maps to merge
+ * @returns {Map}
+ */
+function mergeMaps(maps) {
+	const merged = new Map();
+	if (maps.length !== 0) {
+		return maps.reduce((combined, list) => {
+			return new Map([ ...combined, ...list ]);
+		}, merged);
+	}
+	return merged;
+}
+
+class FileInfo {
+	/**
+	 * @param {string} name file basename
+	 * @param {string} from src filepath (absolute)
+	 * @param {string} to destination filepath (absolute)
+	 */
+	constructor(name, from, to) {
+		// TODO: Why not use path methods to grab the basename/extension?
+		const parts = name.match(FILENAME_REGEXP);
+		this.name = parts ? parts[1] : name;
+		this.ext = parts ? parts[2] : null;
+		this.src = from;
+		this.dest = to; // NOTE: Removed srcStat property since it appeared to be unused (and instead re-calculated by copyResources())
+	}
+}
+
 class Result {
 	constructor() {
 		this.appIcons = new Map();
@@ -43,11 +74,7 @@ class Result {
 		const mapFields = [ 'appIcons', 'cssFiles', 'jsFiles', 'launchImages', 'launchLogos', 'imageAssets', 'resourcesToCopy' ];
 		for (const key of mapFields) {
 			const maps = results.map(aResult => aResult[key]).filter(m => m.size !== 0);
-			if (maps.length !== 0) {
-				merged[key] = maps.reduce((combined, list) => {
-					return new Map([ ...combined, ...list ]);
-				}, merged[key]);
-			}
+			merged[key] = mergeMaps(maps);
 		}
 		const sets = [ 'htmlJsFiles' ];
 		for (const key of sets) {
@@ -65,19 +92,13 @@ class Result {
 class Walker {
 	/**
 	 *
-	 * @param {object} options options
-	 * @param {string} options.tiappIcon tiapp icon filename
-	 * @param {boolean} [options.useAppThinning=false] use app thinning?
+	 * @param {object} [options] options
 	 * @param {RegExp} [options.ignoreDirs=undefined] RegExp used to filter directories
 	 * @param {RegExp} [options.ignoreFiles=undefined] RegExp used to filter files
 	 */
 	constructor(options) {
-		this.useAppThinning = options.useAppThinning;
 		this.ignoreDirs = options.ignoreDirs;
 		this.ignoreFiles = options.ignoreFiles;
-
-		const appIcon = options.tiappIcon.match(FILENAME_REGEXP);
-		this.appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'); // eslint-disable-line security/detect-non-literal-regexp
 	}
 
 	/**
@@ -92,10 +113,10 @@ class Walker {
 	 * @param {RegExp} ignore regexp of directories/files to ignore
 	 * @param {string} [origSrc] A way of preserving the original root src directory we started with?
 	 * @param {string} [prefix] replaces the original src dir name in the relative path we record
-	 * @returns {Promise<Result>} collected resources/assets
+	 * @returns {Promise<Map<string, FileInfo>>} collected resources/assets
 	 */
 	async walk(src, dest, ignore, origSrc, prefix) {
-		const results = new Result();
+		const results = new Map();
 		// TODO: Instead of checking existence here, why not just catch Error on readdirSync below? (what's faster?)
 		if (!await fs.exists(src)) {
 			return results;
@@ -111,13 +132,13 @@ class Walker {
 	 * HTML to analyze (though we do that here...)
 	 * JPG/PNG to look for app icons/launch images
 	 * Everything else to copy straight up
-	 * @param {Result} results collected results
+	 * @param {Map<string, FileInfo>} results collected results
 	 * @param {string} src source path
 	 * @param {string} dest destination path
 	 * @param {RegExp} ignore regexp of directories/files to ignore
 	 * @param {string} [origSrc] A way of preserving the original root src directory we started with?
 	 * @param {string} [prefix] replaces the original src dir name in the relative path we record
-	 * @returns {Promis<Result>} collected results
+	 * @returns {Promise<Map<string, FileInfo>>} collected results
 	 */
 	async _walkDir(results, src, dest, ignore, origSrc, prefix) {
 		const list = await fs.readdir(src, { withFileTypes: true });
@@ -126,7 +147,7 @@ class Walker {
 	}
 
 	/**
-	 * @param {Result} results collecting results
+	 * @param {Map<string, FileInfo>} results collecting results
 	 * @param {fs.Dir} dirent directory entry
 	 * @param {string} src source directory path
 	 * @param {string} dest destination path
@@ -158,7 +179,7 @@ class Walker {
 	}
 
 	/**
-	 * @param {Result} results collecting results
+	 * @param {Map<string, FileInfo>} results collecting results
 	 * @param {string} from full source filepath
 	 * @param {string} to full destination filepath
 	 * @param {string} name base filename
@@ -171,17 +192,46 @@ class Walker {
 		if (this.ignoreFiles && this.ignoreFiles.test(name)) {
 			return;
 		}
-		// TODO: Why not use path methods to grab the basename/extension?
-		const parts = name.match(FILENAME_REGEXP),
-			info = {
-				name: parts ? parts[1] : name,
-				ext: parts ? parts[2] : null,
-				src: from,
-				dest: to // NOTE: Removed srcStat property since it appeared to be unused (and instead re-calculated by copyResources())
-			};
+		const info = new FileInfo(name, from, to);
 		const relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : '');
+		results.set(relPath, info);
+	}
+}
 
-		switch (parts && parts[2]) {
+class Categorizer {
+	/**
+	 * @param {object} options options
+	 * @param {string} options.tiappIcon tiapp icon filename
+	 * @param {boolean} [options.useAppThinning=false] use app thinning?
+	 */
+	constructor(options) {
+		this.useAppThinning = options.useAppThinning;
+
+		const appIcon = options.tiappIcon.match(FILENAME_REGEXP);
+		this.appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'); // eslint-disable-line security/detect-non-literal-regexp
+	}
+
+	/**
+	 * @param {Map<string, object>} map map from relative peth to file info
+	 * @returns {Result}
+	 */
+	run(map) {
+		const results = new Result();
+		// loop through the map sorting them all into the various buckets!
+		map.forEach((value, key) => {
+			this._handleFile(results, key, value);
+		});
+		results.dontProcessJsFilesReferencedFromHTML();
+		return results;
+	}
+
+	/**
+	 * @param {Result} results collector
+	 * @param {string} relPath relative path (should be unique)
+	 * @param {FileInfo} info file info like extension, basename, src/dest filepaths
+	 */
+	_handleFile(results, relPath, info) {
+		switch (info.ext) {
 			case 'js':
 				results.jsFiles.set(relPath, info);
 				break;
@@ -192,26 +242,28 @@ class Walker {
 
 			case 'png':
 				// check if we have an app icon
-				if (!origSrc) { // I think this is to try and only check in the first root src dir?
-					if (this.appIconRegExp) {
-						const m = name.match(this.appIconRegExp);
-						if (m) {
-							info.tag = m[1];
-							results.appIcons.set(relPath, info);
-							return;
-						}
-					}
-
-					if (LAUNCH_IMAGE_REGEXP.test(name)) {
-						results.launchImages.set(relPath, info);
+				// FIXME: Only check for these in files in root of the src dir! How can we tell? check against relPath instead of name?
+				// if (!origSrc) { // I think this is to try and only check in the first root src dir?
+				if (this.appIconRegExp) {
+					const m = info.name.match(this.appIconRegExp);
+					if (m) {
+						info.tag = m[1];
+						results.appIcons.set(relPath, info);
 						return;
 					}
 				}
+
+				if (LAUNCH_IMAGE_REGEXP.test(info.name)) {
+					results.launchImages.set(relPath, info);
+					return;
+				}
+				// }
 				// fall through to lump with JPG...
+
 			case 'jpg':
 				// if the image is the LaunchLogo.png, then let that pass so we can use it
 				// in the LaunchScreen.storyboard
-				const m = name.match(LAUNCH_LOGO_REGEXP);
+				const m = info.name.match(LAUNCH_LOGO_REGEXP);
 				if (m) {
 					info.scale = m[1];
 					info.device = m[2];
@@ -228,7 +280,7 @@ class Walker {
 				break;
 
 			case 'html':
-				jsanalyze.analyzeHtmlFile(from, relPath.split('/').slice(0, -1).join('/')).forEach(file => {
+				jsanalyze.analyzeHtmlFile(info.src, relPath.split('/').slice(0, -1).join('/')).forEach(file => {
 					results.htmlJsFiles.add(file);
 				});
 				// fall through to default case
@@ -239,5 +291,9 @@ class Walker {
 	}
 }
 
-Walker.Result = Result; // FIXME: Export this stuff properly!
-module.exports = Walker;
+module.exports = {
+	Walker,
+	Result,
+	Categorizer,
+	mergeMaps,
+};

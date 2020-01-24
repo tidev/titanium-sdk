@@ -5025,11 +5025,8 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 
 iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	console.time('gathering resources');
-	const Walker = require('../lib/gather');
-	const Result = Walker.Result;
-	const walker = new Walker({
-		tiappIcon: this.tiapp.icon,
-		useAppThinning: this.useAppThinning,
+	const gather = require('../lib/gather');
+	const walker = new gather.Walker({
 		ignoreDirs: this.ignoreDirs,
 		ignoreFiles: this.ignoreFiles,
 	});
@@ -5037,23 +5034,38 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	this.logger.info(__('Analyzing Resources directory'));
 	const firstWave = await Promise.all([
 		walker.walk(path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios'), this.xcodeAppDir),
-		walker.walk(path.join(this.projectDir, 'node_modules'), path.join(this.xcodeAppDir, 'node_modules')),
+		walker.walk(path.join(this.projectDir, 'platform', 'iphone'), this.buildDir),
+		walker.walk(path.join(this.projectDir, 'platform', 'ios'), this.buildDir),
 		walker.walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp),
 		walker.walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir),
 		walker.walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir),
 	]);
-	let combined = Result.merge(firstWave);
-	combined.dontProcessJsFilesReferencedFromHTML();
+	let combined = gather.mergeMaps(firstWave);
 
-	this.logger.info(__('Analyzing platform files'));
-	const secondWave = await Promise.all([
-		walker.walk(path.join(this.projectDir, 'platform', 'iphone'), this.buildDir),
-		walker.walk(path.join(this.projectDir, 'platform', 'ios'), this.buildDir),
-	]);
-	secondWave.unshift(combined); // stick results of our first merge at the front, then merge again
-	combined = Result.merge(secondWave);
+	const moduleCopier = require('../../../cli/lib/module-copier');
+	console.log(this.projectDir);
+	const dirSet = await moduleCopier.gather(this.projectDir);
+	const nodeModuleDirs = Array.from(dirSet);
+	const secondWave = await Promise.all(nodeModuleDirs.map(async dir => {
+		// here dir is the absolute path to the directory
+		// That means we need to construct the relative path to append to this.projectDir and this.xcodeAppDir
+		const relativePath = dir.substring(this.projectDir.length + 1);
+		return walker.walk(dir, path.join(this.xcodeAppDir, relativePath), null, null, relativePath);
+	}));
+	// merge the node_modules results on top of the project results... (shouldn't be any conflicts!)
+	secondWave.unshift(combined);
+	combined = gather.mergeMaps(secondWave);
 
 	this.logger.info(__('Analyzing module files'));
+	// detect ambiguous modules
+	this.modules.forEach(module => {
+		const filename = `${module.id}.js`;
+		if (combined.has(filename)) {
+			this.logger.error(__('There is a project resource "%s" that conflicts with a native iOS module', filename));
+			this.logger.error(__('Please rename the file, then rebuild') + '\n');
+			process.exit(1);
+		}
+	});
 	// do modules in parallel - and for each we need to merge the results together!
 	const allModulesResults = await Promise.all(this.modules.map(async module => {
 		const moduleResults = await Promise.all([
@@ -5064,36 +5076,11 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 			walker.walk(path.join(module.modulePath, 'Resources', 'iphone'), this.xcodeAppDir),
 			walker.walk(path.join(module.modulePath, 'Resources', 'ios'),    this.xcodeAppDir),
 		]);
-		return Result.merge(moduleResults);
+		return gather.mergeMaps(moduleResults);
 	}));
 	//  merge the allModulesResults over top our current combined!
 	allModulesResults.unshift(combined);
-	combined = Result.merge(allModulesResults);
-
-	this.logger.info(__('Analyzing localized launch images'));
-	ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(launchImage => {
-		const parts = launchImage.split('/'),
-			file = parts.pop(),
-			lang = parts.pop(),
-			relPath = path.join(lang + '.lproj', file);
-
-		combined.launchImages.set(relPath, {
-			i18n: lang,
-			src: launchImage,
-			dest: path.join(this.xcodeAppDir, relPath),
-			srcStat: fs.statSync(launchImage)
-		});
-	});
-
-	// detect ambiguous modules
-	this.modules.forEach(module => {
-		const filename = `${module.id}.js`;
-		if (combined.jsFiles.has(filename)) {
-			this.logger.error(__('There is a project resource "%s" that conflicts with a native iOS module', filename));
-			this.logger.error(__('Please rename the file, then rebuild') + '\n');
-			process.exit(1);
-		}
-	});
+	combined = gather.mergeMaps(allModulesResults);
 
 	this.logger.info(__('Analyzing CommonJS modules'));
 	const commonJsResults = await Promise.all(this.commonJsModules.map(async module => {
@@ -5104,15 +5091,48 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	}));
 	// merge the commonJsResults over top our current combined!
 	commonJsResults.unshift(combined);
-	combined = Result.merge(commonJsResults);
+	combined = gather.mergeMaps(commonJsResults);
+
+	// Ok, so we have a Map<string, FileInfo> for the full set of unique relative paths
+	// now categorize (i.e. lump into buckets of js/css/html/assets/generic resources)
+	const categorizer = new gather.Categorizer({
+		tiappIcon: this.tiapp.icon,
+		useAppThinning: this.useAppThinning,
+	});
+	const categorized = await categorizer.run(combined);
+
+	this.logger.info(__('Analyzing localized launch images'));
+	// TODO: this logic is very similar to what we have in gather.Categorizer already! Basically looks in i18n/<lang>/*.png but only inclues those matching LAUNCH_IMAGE_REGEXP
+	ti.i18n.findLaunchScreens(this.projectDir, this.logger, { ignoreDirs: this.ignoreDirs }).forEach(launchImage => {
+		const parts = launchImage.split('/'),
+			file = parts.pop(),
+			lang = parts.pop(),
+			relPath = path.join(lang + '.lproj', file);
+
+		categorized.launchImages.set(relPath, {
+			i18n: lang,
+			src: launchImage,
+			dest: path.join(this.xcodeAppDir, relPath),
+			srcStat: fs.statSync(launchImage)
+		});
+	});
 
 	console.timeEnd('gathering resources');
-	return combined;
+	return categorized;
 };
 
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	const unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/;
 
+	// What we need to do in general terms is:
+	// - gather together all the input files (this is done via the old "walk" method, now extracted to gatherResources())
+	// - categorize/filter the input files (currently also done in walk/gatherResources())
+	// - Then process the categorized files by "bucket":
+	//   - js files to transpile/minify/encyrpt/source maps/copy
+	//   - css files (possibly minify, copy)
+	//   - "resources"/misc (copy)
+	//   - images/assets/launch logos/etc - create asset catalog, image sets, app icons/itunes artwork
+	// - We also write out some generated files for app properties, require index, environment variables, bootstrap files
 	util.callbackify(this.gatherResources.bind(this))((err, gatheredResults) => {
 		if (err) {
 			return next(err);
