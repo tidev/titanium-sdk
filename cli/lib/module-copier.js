@@ -1,12 +1,30 @@
 'use strict';
 
-const copier = {};
-module.exports = copier;
-
 const fs = require('fs-extra');
 const path = require('path');
 
 const NODE_MODULES = 'node_modules';
+
+const copier = {};
+/**
+ * @param {string} projectPath absolute filepath for project root directory
+ * @param {object} [options] options object
+ * @param {boolean} [options.includeOptional=true] whether to include optional dependencies when gathering
+ * @returns {Promise<Set<string>>} A Promise that resolves on completion
+ */
+copier.gather = async function (projectPath, options = { includeOptional: true }) {
+	if (projectPath === null || projectPath === undefined) {
+		throw new Error('projectPath must be defined.');
+	}
+	// resolve path names for file copying
+	projectPath = path.resolve(projectPath);
+
+	// recursively gather the full set of dependencies/directories we need to copy
+	const root = new Dependency(null, 'fake-id', projectPath);
+	const directoriesToBeCopied = await root.getDirectoriesToCopy(options.includeOptional);
+
+	return new Set(directoriesToBeCopied); // de-duplicate
+};
 
 /**
  * @param {string} projectPath absolute filepath for project root directory
@@ -27,11 +45,7 @@ copier.execute = async (projectPath, targetPath, options = { includeOptional: tr
 	projectPath = path.resolve(projectPath);
 	targetPath = path.resolve(targetPath);
 
-	// recursively gather the full set of dependencies/directories we need to copy
-	const root = new Dependency(null, 'fake-id', projectPath);
-	const directoriesToBeCopied = await root.getDirectoriesToCopy(options.includeOptional);
-
-	const dirSet = new Set(directoriesToBeCopied); // de-duplicate
+	const dirSet = await copier.gather(projectPath, options);
 	// back to Array so we can #map()
 	const deDuplicated = Array.from(dirSet);
 
@@ -111,3 +125,5 @@ class Dependency {
 		return null;
 	}
 }
+
+module.exports = copier;
