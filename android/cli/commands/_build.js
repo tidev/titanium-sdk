@@ -3464,7 +3464,7 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 
 	// Define namespaces that need permissions when accessed in JavaScript.
 	const tiNamespacePermissions = {
-		geolocation: geoPermissions
+		Geolocation: geoPermissions
 	};
 
 	// Define methods that need permissions when invoked in JavaScript.
@@ -3527,7 +3527,7 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 			for (;namespaceParts.length > 0; namespaceParts.pop()) {
 				const namespace = namespaceParts.join('.');
 				if (namespace && tiNamespacePermissions[namespace]) {
-					for (const permission of tiNamespacePermissions) {
+					for (const permission of tiNamespacePermissions[namespace]) {
 						neededPermissionDictionary[permission] = true;
 					}
 				}
