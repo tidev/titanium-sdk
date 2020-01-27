@@ -247,7 +247,7 @@ methods:
         summary: Name of the semantic color defined in the applications colorset.
         type: String
     returns:
-      - type: String
+      - type: Titanium.UI.Color
     since: "8.2.0"
 
 properties:
@@ -484,7 +484,7 @@ properties:
     summary: |
         Use with <Attribute.type> to apply a text effect.
     description: |
-        Set <Attribute.value> to `Titainium.UI.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
+        Set <Attribute.value> to `Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
         letterpress effect to the text.
 
         See <Attribute> for more information.
@@ -2379,19 +2379,19 @@ properties:
     permission: read-only
 
   - name: SEMANTIC_COLOR_TYPE_DARK
-    summary: Return the dark value from the applications colorset
+    summary: The value returned by <Titanium.UI.semanticColorType> when the device is in dark/night mode.
     type: String
     permission: read-only
     since: "8.2.0"
 
   - name: SEMANTIC_COLOR_TYPE_LIGHT
-    summary: Return the light value from the applications colorset.
+    summary: The value returned by <Titanium.UI.semanticColorType> when the device is in light/normal mode.
     type: String
     permission: read-only
     since: "8.2.0"
 
   - name: semanticColorType
-    summary: When running on Android, iOS 10 or lower, or Windows the value to return form the applications colorset.
+    summary: The current mode for the device (corrsponding to night/dark or light/normal)
     type: String
     constants: Titanium.UI.SEMANTIC_COLOR_TYPE_*
     since: "8.2.0"
