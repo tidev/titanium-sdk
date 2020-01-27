@@ -10,9 +10,10 @@ const copier = {};
  * @param {string} projectPath absolute filepath for project root directory
  * @param {object} [options] options object
  * @param {boolean} [options.includeOptional=true] whether to include optional dependencies when gathering
+ * @param {boolean} [options.includePeers=true] whether to include peer dependencies when gathering
  * @returns {Promise<Set<string>>} A Promise that resolves on completion
  */
-copier.gather = async function (projectPath, options = { includeOptional: true }) {
+copier.gather = async function (projectPath, options = { includeOptional: true, includePeers: true }) {
 	if (projectPath === null || projectPath === undefined) {
 		throw new Error('projectPath must be defined.');
 	}
@@ -21,7 +22,7 @@ copier.gather = async function (projectPath, options = { includeOptional: true }
 
 	// recursively gather the full set of dependencies/directories we need to copy
 	const root = new Dependency(null, 'fake-id', projectPath);
-	const directoriesToBeCopied = await root.getDirectoriesToCopy(options.includeOptional);
+	const directoriesToBeCopied = await root.getDirectoriesToCopy(options.includeOptional, options.includePeers);
 
 	return new Set(directoriesToBeCopied); // de-duplicate
 };
@@ -31,9 +32,10 @@ copier.gather = async function (projectPath, options = { includeOptional: true }
  * @param {string} targetPath absolute filepath for target directory to copy node_modules into
  * @param {object} [options] options object
  * @param {boolean} [options.includeOptional=true] whether to include optional dependencies when gathering
+ * @param {boolean} [options.includePeers=true] whether to include peer dependencies when gathering
  * @returns {Promise<void>} A Promise that resolves on completion
  */
-copier.execute = async (projectPath, targetPath, options = { includeOptional: true }) => {
+copier.execute = async function (projectPath, targetPath, options = { includeOptional: true, includePeers: true }) {
 	if (projectPath === null || projectPath === undefined) {
 		throw new Error('projectPath must be defined.');
 	}
@@ -65,17 +67,19 @@ class Dependency {
 	}
 
 	/**
-	 * @param {boolean} [includeOptional=true] include optional dependencies?
-	 * @returns {Promise<string[]>} full set of directories to copy
+	 * @description Get directories that need to be copied to target.
+	 * @param {boolean} [includeOptional=true] - Include optional dependencies?
+	 * @param {boolean} [includePeers=true] - Include peer dependencies?
+	 * @returns {Promise<string[]>} Full set of directories to copy.
 	 */
-	async getDirectoriesToCopy(includeOptional = true) {
-		const childrenNames = await this.gatherChildren(includeOptional);
+	async getDirectoriesToCopy(includeOptional = true, includePeers = true) {
+		const childrenNames = await this.gatherChildren(includeOptional, includePeers);
 		if (childrenNames.length === 0) {
 			return [ this.directory ]; // just need our own directory!
 		}
 
 		const children = (await Promise.all(childrenNames.map(name => this.resolve(name)))).filter(child => child !== null);
-		const allDirs = await Promise.all(children.map(c => c.getDirectoriesToCopy(includeOptional)));
+		const allDirs = await Promise.all(children.map(c => c.getDirectoriesToCopy(includeOptional, includePeers)));
 		// flatten allDirs doen to single Array
 		const flattened = allDirs.reduce((acc, val) => acc.concat(val), []); // TODO: replace with flat() call once Node 11+
 
@@ -90,16 +94,36 @@ class Dependency {
 	}
 
 	/**
-	 * @param {boolean} [includeOptional] include optional dependencies?
-	 * @returns {Promise<string[]>} set of dependency names
+	 * @description Gather a list of all child dependencies.
+	 * @param {boolean} [includeOptional=true] - Include optional dependencies?
+	 * @param {boolean} [includePeers=true] - Include peer dependencies?
+	 * @returns {Promise<string[]>} Set of dependency names.
 	 */
-	async gatherChildren(includeOptional = true) {
+	async gatherChildren(includeOptional = true, includePeers = true) {
 		const packageJson = await fs.readJson(path.join(this.directory, 'package.json'));
+
+		// if package is specifically marked to be ignored or is a native module wrapped in a package, skip it
+		if (packageJson.titanium) {
+			if (packageJson.titanium.ignore) {
+				return; // ignore this module
+			}
+
+			// native modules as npm packages are handled separately by CLI native module code
+			if (packageJson.titanium.type === 'native-module') {
+				return;
+			}
+		}
+
 		const dependencies = Object.keys(packageJson.dependencies || {});
 		// include optional dependencies too?
 		if (includeOptional && packageJson.optionalDependencies) {
 			dependencies.push(...Object.keys(packageJson.optionalDependencies));
 		}
+
+		if (includePeers && packageJson.peerDependencies) {
+			dependencies.push(...Object.keys(packageJson.peerDependencies));
+		}
+
 		return dependencies;
 	}
 
