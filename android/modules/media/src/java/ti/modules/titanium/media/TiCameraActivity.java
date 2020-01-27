@@ -732,7 +732,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 								camera.cancelAutoFocus();
 							}
-							camera.autoFocus(null);
+							try {
+								camera.autoFocus(null);
+							} catch (Exception e) {
+								Log.e(TAG, e.getMessage());
+							}
 						}
 					};
 					camera.autoFocus(focusCallback);
