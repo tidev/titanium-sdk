@@ -198,26 +198,6 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
   return RGBACOLOR(red, green, blue, alpha);
 }
 
-+ (NSString *)hexForColor:(UIColor *)color
-{
-  CGFloat red;
-  CGFloat green;
-  CGFloat blue;
-  CGFloat alpha;
-  BOOL wasConverted = [color getRed:&red
-                              green:&green
-                               blue:&blue
-                              alpha:&alpha];
-  if (!wasConverted) {
-    return @"#000000";
-  }
-  if (lroundf(alpha * 255.0) != 255) {
-    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0), lroundf(alpha * 255.0)];
-  } else {
-    return [NSString stringWithFormat:@"#%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
-  }
-}
-
 + (void)flushCache
 {
   RELEASE_TO_NIL(colorLookup);

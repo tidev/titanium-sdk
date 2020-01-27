@@ -864,11 +864,10 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
 {
   ENSURE_SINGLE_ARG(color, NSString);
 
-  UIColor *uiColor = UIColor.blackColor;
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    uiColor = [UIColor colorNamed:color];
+    return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
   }
-  return [Webcolor hexForColor:uiColor];
+  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
 }
 
 @end
