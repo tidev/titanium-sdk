@@ -28,8 +28,9 @@ Object.defineProperty(UI, 'semanticColorType', {
 		// Assume "light" mode unless we explicitly know it's dark
 		if (isIOS13Plus && Ti.App.iOS.userInterfaceStyle === Ti.App.iOS.USER_INTERFACE_STYLE_DARK) {
 			return UI.SEMANTIC_COLOR_TYPE_DARK;
+		} else if (isAndroid && Ti.UI.Android.nightModeStatus === Ti.UI.Android.MODE_NIGHT_YES) {
+			return UI.SEMANTIC_COLOR_TYPE_DARK;
 		}
-		// TODO: Make this work on Android too!
 		return UI.SEMANTIC_COLOR_TYPE_LIGHT;
 	}
 });
