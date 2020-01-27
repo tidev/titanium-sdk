@@ -1079,21 +1079,15 @@
     @"right" : NUMFLOAT(0.0) }
           forKey:@"safeAreaPadding"];
 
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    if (self.shouldExtendSafeArea && !hidesStatusBar) {
-      [self setValue:@{ @"top" : NUMFLOAT(20.0),
-        @"left" : NUMFLOAT(0.0),
-        @"bottom" : NUMFLOAT(0.0),
-        @"right" : NUMFLOAT(0.0) }
-              forKey:@"safeAreaPadding"];
-    }
-
-    return;
-  }
-
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
-  UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+    safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  } else if (!hidesStatusBar) {
+    safeAreaInset.top = 20.0;
+  }
 
   if (self.tabGroup) {
     edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];

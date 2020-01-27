@@ -41,7 +41,7 @@ android {
 			}
 		}
 		ndk {
-			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'
+			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
 		}
 	}
 	buildTypes {
@@ -103,10 +103,9 @@ android {
 			]
 		}
 	}
-	// TODO: Add Java 8 support in the future.
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
 	}
 }
 
@@ -185,31 +184,32 @@ dependencies {
 	annotationProcessor project(':kroll-apt')
 	compileOnly project(':kroll-apt')
 
-	// Google Support Library dependencies.
-	def supportLibVersion = project.ext.tiSupportLibVersion
-	implementation "com.android.support:animated-vector-drawable:${supportLibVersion}"
-	implementation "com.android.support:appcompat-v7:${supportLibVersion}"
-	implementation "com.android.support:cardview-v7:${supportLibVersion}"
-	implementation "com.android.support:design:${supportLibVersion}"
-	implementation "com.android.support:exifinterface:${supportLibVersion}"
-	implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
-	implementation "com.android.support:support-compat:${supportLibVersion}"
-	implementation "com.android.support:support-core-ui:${supportLibVersion}"
-	implementation "com.android.support:support-core-utils:${supportLibVersion}"
-	implementation "com.android.support:support-fragment:${supportLibVersion}"
-	implementation "com.android.support:support-media-compat:${supportLibVersion}"
-	implementation "com.android.support:support-vector-drawable:${supportLibVersion}"
-	implementation "com.android.support:transition:${supportLibVersion}"
-	compileOnly "com.android.support:support-annotations:${supportLibVersion}"
+	// AndroidX Library dependencies.
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
+	implementation 'androidx.cardview:cardview:1.0.0'
+	implementation "androidx.core:core:${project.ext.tiAndroidXCoreLibVersion}"
+	implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
+	implementation 'androidx.exifinterface:exifinterface:1.1.0'
+	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
+	implementation 'androidx.media:media:1.1.0'
+	implementation 'androidx.recyclerview:recyclerview:1.1.0'
+	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+	implementation 'androidx.transition:transition:1.2.0'
+	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
+	implementation 'androidx.viewpager:viewpager:1.0.0'
+	compileOnly 'androidx.annotation:annotation:1.1.0'
 
-	// TODO: When we switch to AndroidX, we must change this to 'androidx.multidex:multidex:2.0.1'.
-	implementation 'com.android.support:multidex:1.0.3'
+	//TODO: Remove multidex library when our min OS version supported is Android 5.0 or higher.
+	implementation 'androidx.multidex:multidex:2.0.1'
+
+	// Google's "Material Components" themed UI library.
+	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 
 	// The Google Play Services libraries are only used by Titanium's geolocation feature.
 	// We link to them dynamically at runtime. So, they can be safely excluded when in the app project.
-	def playServicesLibVersion = project.ext.tiPlayServicesLibVersion
-	implementation "com.google.android.gms:play-services-base:${playServicesLibVersion}"
-	implementation "com.google.android.gms:play-services-location:${playServicesLibVersion}"
+	implementation "com.google.android.gms:play-services-base:${project.ext.tiPlayServicesBaseLibVersion}"
+	implementation 'com.google.android.gms:play-services-location:17.0.0'
 
 	// Reference all local JAR file dependencies.
 	implementation fileTree(dir: 'lib', include: ['*.jar'])
@@ -275,7 +275,7 @@ publish.doLast {
 		include 'jni/**/*'
 		includeEmptyDirs false
 		eachFile {
-			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1));
+			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1))
 		}
 	}
 }
