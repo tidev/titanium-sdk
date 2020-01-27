@@ -53,9 +53,13 @@ UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
 		}
 	}
 
-	// TODO: Make a "fake" TiColor object here that wraps the hex value (so that both platforms return a Ti.UI.Color-like object?)
+	// Make a "fake" TiColor object here that wraps the hex value (so that both platforms return a Ti.UI.Color-like object)
 	try {
-		return colorset[colorName][UI.semanticColorType].color || colorset[colorName][UI.semanticColorType];
+		const entry = colorset[colorName][UI.semanticColorType];
+		return {
+			toHex: () => entry.color || entry,
+			apiName: 'Ti.UI.Color'
+		};
 	} catch (error) {
 		console.error(`Failed to lookup color for ${colorName}`);
 	}
