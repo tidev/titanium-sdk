@@ -26,6 +26,7 @@ class Android {
 	 * @param {String} options.sdkVersion version of Titanium SDK
 	 * @param {String} options.versionTag version of the Titanium SDK package folder/zip
 	 * @param {String} options.gitHash SHA of Titanium SDK HEAD
+	 * @param {string} options.timestamp Value injected for Ti.buildDate
 	 * @constructor
 	 */
 	constructor (options) {
@@ -34,6 +35,7 @@ class Android {
 		this.sdkVersion = options.sdkVersion;
 		this.versionTag = options.versionTag;
 		this.gitHash = options.gitHash;
+		this.timestamp = options.timestamp;
 	}
 
 	babelOptions() {
@@ -44,7 +46,24 @@ class Android {
 		return {
 			targets: {
 				chrome: version
-			}
+			},
+			transform: {
+				platform: 'android',
+				Ti: {
+					version: this.sdkVersion,
+					buildHash: this.gitHash,
+					buildDate: this.timestamp,
+					Platform: {
+						osname: 'android',
+						name: 'android',
+						runtime: 'v8',
+					},
+					Filesystem: {
+						lineEnding: '\n',
+						separator: '/',
+					},
+				},
+			},
 		};
 	}
 
@@ -69,6 +88,7 @@ class Android {
 		// Build the "titanium" library project only.
 		process.env.TI_SDK_BUILD_VERSION = this.sdkVersion;
 		process.env.TI_SDK_BUILD_GIT_HASH = this.gitHash;
+		process.env.TI_SDK_BUILD_TIMESTAMP = this.timestamp;
 		process.env.TI_SDK_VERSION_TAG = this.versionTag;
 		await gradlew(':titanium:assembleRelease');
 	}
