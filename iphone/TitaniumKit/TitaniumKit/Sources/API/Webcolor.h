@@ -36,6 +36,13 @@
  */
 + (UIColor *)colorForHex:(NSString *)hexCode;
 
+/**
+ Returns hex string color for a color.
+ @param color The color object.
+ @return The hex string.
+ */
++ (NSString *)hexForColor:(UIColor *)color;
+
 + (void)flushCache;
 + (BOOL)isDarkColor:(UIColor *)color;
 

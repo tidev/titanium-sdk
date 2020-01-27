@@ -860,14 +860,15 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocum
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
 
-- (TiColor *)fetchSemanticColor:(id)color
+- (NSString *)fetchSemanticColor:(id)color
 {
   ENSURE_SINGLE_ARG(color, NSString);
 
+  UIColor *uiColor = UIColor.blackColor;
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
+    uiColor = [UIColor colorNamed:color];
   }
-  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+  return [Webcolor hexForColor:uiColor];
 }
 
 @end
