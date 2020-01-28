@@ -5,8 +5,8 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
-import android.os.Message;
-import android.support.v7.widget.Toolbar;
+
+import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
