@@ -15,6 +15,7 @@ const isIOS13Plus = isIOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
 const UI = isAndroid ? kroll.binding('Titanium').Titanium.UI : Ti.UI;
 
 // Make our read-only constants
+// TODO: Remove in SDK 10, DEPRECATED in 9.1.0
 Object.defineProperty(UI, 'SEMANTIC_COLOR_TYPE_LIGHT', {
 	value: 'light',
 	writable: false
@@ -25,10 +26,9 @@ Object.defineProperty(UI, 'SEMANTIC_COLOR_TYPE_DARK', {
 });
 Object.defineProperty(UI, 'semanticColorType', {
 	get: () => {
+		// TODO: Guard against ios < 13 and Android api < 29?
 		// Assume "light" mode unless we explicitly know it's dark
-		if (isIOS13Plus && Ti.App.iOS.userInterfaceStyle === Ti.App.iOS.USER_INTERFACE_STYLE_DARK) {
-			return UI.SEMANTIC_COLOR_TYPE_DARK;
-		} else if (isAndroid && Ti.UI.Android.nightModeStatus === Ti.UI.Android.MODE_NIGHT_YES) {
+		if (Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_DARK) {
 			return UI.SEMANTIC_COLOR_TYPE_DARK;
 		}
 		return UI.SEMANTIC_COLOR_TYPE_LIGHT;
@@ -38,6 +38,7 @@ Object.defineProperty(UI, 'semanticColorType', {
 let colorset;
 UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
 	if (isIOS13Plus) {
+		// FIXME: Why are we secretly hanging it under the namespaced module? Why not just place it in the right place originally and only override for Android or iOS < 13?
 		return Ti.UI.iOS.fetchSemanticColor(colorName);
 	}
 
