@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,6 +22,7 @@ import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -377,6 +378,13 @@ public class UIModule extends KrollModule
 	@Kroll.constant
 	public static final int HIDDEN_BEHAVIOR_INVISIBLE = View.INVISIBLE;
 
+	@Kroll.constant
+	public static final int USER_INTERFACE_STYLE_LIGHT = Configuration.UI_MODE_NIGHT_NO;
+	@Kroll.constant
+	public static final int USER_INTERFACE_STYLE_DARK = Configuration.UI_MODE_NIGHT_YES;
+	@Kroll.constant
+	public static final int USER_INTERFACE_STYLE_UNSPECIFIED = Configuration.UI_MODE_NIGHT_UNDEFINED;
+
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
 	public UIModule()
@@ -481,6 +489,13 @@ public class UIModule extends KrollModule
 				windowProxy.setOrientationModes(orientationModes);
 			}
 		}
+	}
+
+	@Kroll.getProperty
+	public int getUserInterfaceStyle()
+	{
+		return TiApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode
+			& Configuration.UI_MODE_NIGHT_MASK;
 	}
 
 	@Override
