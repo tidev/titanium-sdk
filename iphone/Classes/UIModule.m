@@ -64,6 +64,34 @@
   [super dealloc];
 }
 
+- (void)_listenerAdded:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userInterfaceStyle"]) {
+    lastEmittedMode = self.userInterfaceStyle;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeTraitCollection:)
+                                                 name:kTiTraitCollectionChanged
+                                               object:nil];
+  }
+}
+
+- (void)_listenerRemoved:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userInterfaceStyle"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+  }
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  NSNumber *currentMode = self.userInterfaceStyle;
+  if (currentMode == lastEmittedMode) {
+    return;
+  }
+  lastEmittedMode = currentMode;
+  [self fireEvent:@"userInterfaceStyle" withObject:@{ @"value" : currentMode }];
+}
+
 - (NSString *)apiName
 {
   return @"Ti.UI";
