@@ -8,6 +8,8 @@ description: |
     under the hood when converting the passed in String representations. One major exception is use of the 
     <Titanium.UI.fetchSemanticColor> method, which will return an instance to be passed to UI components.
     This instance will automatically "adapt" the receiver to light/dark mode changes.
+
+    Note that Android does not currently support passing in instances of this type for UI components/properties!
 extends: Titanium.UI.View
 since: "9.1.0"
 platforms: [iphone, ipad, android]
