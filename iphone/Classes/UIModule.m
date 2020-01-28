@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -334,6 +334,41 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
   return @"";
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)userInterfaceStyle
+{
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleUnspecified);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_LIGHT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleLight);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_DARK
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleDark);
+  }
+
+  return NUMINT(0);
+}
+#endif
+
 - (NSNumber *)isLandscape:(id)args
 {
   return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
