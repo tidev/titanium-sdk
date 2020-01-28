@@ -42,8 +42,8 @@
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/Webcolor.h>
 
 @implementation UIModule
 
@@ -368,6 +368,16 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return NUMINT(0);
 }
 #endif
+
+- (NSString *)fetchSemanticColor:(id)color
+{
+  ENSURE_SINGLE_ARG(color, NSString);
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
+  }
+  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+}
 
 - (NSNumber *)isLandscape:(id)args
 {
