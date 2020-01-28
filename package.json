@@ -129,6 +129,7 @@
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^1.0.1",
     "@seadub/danger-plugin-junit": "0.1.2",
+    "babel-plugin-transform-titanium": "^0.1.1",
     "chai": "^4.2.0",
     "clang-format": "1.2.3",
     "commander": "^4.0.1",
