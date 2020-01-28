@@ -77,6 +77,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 
 	const _t = this;
 
+	this.buildOnly = cli.argv['build-only'] !== undefined;
+
 	function assertIssue(logger, issues, name) {
 		for (let i = 0; i < issues.length; i++) {
 			if ((typeof name === 'string' && issues[i].id === name) || (typeof name === 'object' && name.test(issues[i].id))) {
@@ -1614,8 +1616,6 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
-
-	this.buildOnly = argv['build-only'];
 
 	const deviceId = this.deviceId = argv['device-id'];
 	if (!this.buildOnly && this.target === 'emulator') {
