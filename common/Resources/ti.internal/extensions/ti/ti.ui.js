@@ -37,7 +37,7 @@ Object.defineProperty(UI, 'semanticColorType', {
 
 // on Android/iOS < 13, we need to roll our own fetchSemanticColor impl
 // on iOS 13+, we have a native version
-if (isIOS13Plus) {
+if (!isIOS13Plus) {
 	let colorset;
 	UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
 		if (!colorset) {
