@@ -199,19 +199,36 @@ describe('Titanium.UI', function () {
 
 	// Constants are tested in ti.ui.constants.test.js
 
-	it('.SEMANTIC_COLOR_TYPE_DARK', function () {
-		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_DARK').which.is.a.string;
+	it('.SEMANTIC_COLOR_TYPE_DARK', () => {
+		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_DARK').which.is.a.String;
 	});
 
-	it('.SEMANTIC_COLOR_TYPE_LIGHT', function () {
-		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_LIGHT').which.is.a.string;
+	it('.SEMANTIC_COLOR_TYPE_LIGHT', () => {
+		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_LIGHT').which.is.a.String;
 	});
 
-	it('.semanticColorType defaults to SEMANTIC_COLOR_TYPE_LIGHT', function () {
+	it('.semanticColorType defaults to SEMANTIC_COLOR_TYPE_LIGHT', () => {
 		should(Ti.UI.semanticColorType).eql(Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT);
 	});
 
-	it.only('#fetchSemanticColor()', function () {
+	it('.USER_INTERFACE_STYLE_LIGHT', () => {
+		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_LIGHT').which.is.a.Number;
+	});
+
+	it('.USER_INTERFACE_STYLE_DARK', () => {
+		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_DARK').which.is.a.Number;
+	});
+
+	it('.USER_INTERFACE_STYLE_UNSPECIFIED', () => {
+		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_UNSPECIFIED').which.is.a.Number;
+	});
+
+	it('.userInterfaceStyle defaults to USER_INTERFACE_STYLE_LIGHT', () => {
+		// FIXME: we can't gurantee the emulator theme didn't get changed. Just specify it has to be one of the constants?
+		should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+	});
+
+	it('#fetchSemanticColor()', () => {
 		const semanticColors = require('./semantic.colors.json');
 
 		const result = Ti.UI.fetchSemanticColor('textColor');
