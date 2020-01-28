@@ -142,6 +142,7 @@
     }
     view.frame = frame;
     view.backgroundColor = [[TiUtils colorValue:value] _color];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
 #endif
   } else {
     UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
@@ -206,6 +207,8 @@
 
 - (void)dealloc
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+
   [super dealloc];
 }
 
@@ -257,6 +260,20 @@
 #endif
   [super didReceiveMemoryWarning:notification];
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+    if (view) {
+      view.frame = frame;
+    }
+  }
+}
+#endif
 
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
 - (TIUIiOSAlertDialogStyleProxy *)AlertDialogStyle
