@@ -174,6 +174,16 @@ description:  |
 extends: Titanium.Module
 since: "0.4"
 
+events:
+  - name: userInterfaceStyle
+    summary: Fired when the `userInterfaceStyle` changes.
+    properties:
+      - name: value
+        summary: The battery state.
+        type: Number
+        constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    platforms: [android, iphone, ipad]
+
 methods:
   - name: create2DMatrix
     summary: Creates and returns an instance of <Titanium.UI.2DMatrix>.
