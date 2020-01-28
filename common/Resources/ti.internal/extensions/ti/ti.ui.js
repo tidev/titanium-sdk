@@ -35,34 +35,33 @@ Object.defineProperty(UI, 'semanticColorType', {
 	}
 });
 
-let colorset;
-UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
-	if (isIOS13Plus) {
-		// FIXME: Why are we secretly hanging it under the namespaced module? Why not just place it in the right place originally and only override for Android or iOS < 13?
-		return Ti.UI.iOS.fetchSemanticColor(colorName);
-	}
-
-	if (!colorset) {
-		try {
-			const colorsetFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'semantic.colors.json');
-			if (colorsetFile.exists()) {
-				colorset = JSON.parse(colorsetFile.read().text);
+// on Android/iOS < 13, we need to roll our own fetchSemanticColor impl
+// on iOS 13+, we have a native version
+if (isIOS13Plus) {
+	let colorset;
+	UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
+		if (!colorset) {
+			try {
+				const colorsetFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'semantic.colors.json');
+				if (colorsetFile.exists()) {
+					colorset = JSON.parse(colorsetFile.read().text);
+				}
+			} catch (error) {
+				// We should probably throw an Error here (or return a fallback color!)
+				console.error('Failed to load colors file \'semantic.colors.json\'');
+				return;
 			}
-		} catch (error) {
-			// We should probably throw an Error here (or return a fallback color!)
-			console.error('Failed to load colors file \'semantic.colors.json\'');
-			return;
 		}
-	}
 
-	// Make a "fake" TiColor object here that wraps the hex value (so that both platforms return a Ti.UI.Color-like object)
-	try {
-		const entry = colorset[colorName][UI.semanticColorType];
-		return {
-			toHex: () => entry.color || entry,
-			apiName: 'Ti.UI.Color'
-		};
-	} catch (error) {
-		console.error(`Failed to lookup color for ${colorName}`);
-	}
-};
+		// Make a "fake" TiColor object here that wraps the hex value (so that both platforms return a Ti.UI.Color-like object)
+		try {
+			const entry = colorset[colorName][UI.semanticColorType];
+			return {
+				toHex: () => entry.color || entry,
+				apiName: 'Ti.UI.Color'
+			};
+		} catch (error) {
+			console.error(`Failed to lookup color for ${colorName}`);
+		}
+	};
+}
