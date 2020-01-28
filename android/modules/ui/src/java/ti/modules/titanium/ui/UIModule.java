@@ -387,6 +387,8 @@ public class UIModule extends KrollModule
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
+	protected BroadcastReceiver modeChangeReceiver;
+
 	public UIModule()
 	{
 		super();
@@ -502,5 +504,92 @@ public class UIModule extends KrollModule
 	public String getApiName()
 	{
 		return "Ti.UI";
+	}
+
+	@Override
+	public void onResume(Activity activity)
+	{
+		super.onResume(activity);
+		if (modeChangeReceiver != null) {
+			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
+			registerModeChangeReceiver(modeChangeReceiver);
+		}
+	}
+
+	@Override
+	public void onPause(Activity activity)
+	{
+		super.onPause(activity);
+		if (modeChangeReceiver != null) {
+			unregisterModeChangeReceiver();
+			modeChangeReceiver = null;
+		}
+	}
+
+	@Override
+	public void onDestroy(Activity activity)
+	{
+		super.onDestroy(activity);
+		if (modeChangeReceiver != null) {
+			unregisterModeChangeReceiver();
+			modeChangeReceiver = null;
+		}
+	}
+
+	@Override
+	public void eventListenerAdded(String type, int count, final KrollProxy proxy)
+	{
+		super.eventListenerAdded(type, count, proxy);
+		if ("userInterfaceStyle".equals(type) && modeChangeReceiver == null) {
+			modeChangeReceiver = new Receiver(this);
+			registerModeChangeReceiver(modeChangeReceiver);
+		}
+	}
+
+	@Override
+	public void eventListenerRemoved(String type, int count, KrollProxy proxy)
+	{
+		super.eventListenerRemoved(type, count, proxy);
+		if ("userInterfaceStyle".equals(type) && count == 0 && modeChangeReceiver != null) {
+			unregisterModeChangeReceiver();
+			modeChangeReceiver = null;
+		}
+	}
+
+	protected void registerModeChangeReceiver(BroadcastReceiver modeChangeReceiver)
+	{
+		getActivity().registerReceiver(modeChangeReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+	}
+
+	protected void unregisterModeChangeReceiver()
+	{
+		getActivity().unregisterReceiver(modeChangeReceiver);
+	}
+
+	private class Receiver extends BroadcastReceiver
+	{
+		private UIModule module;
+		private int lastEmittedStyle;
+
+		public Receiver(UIModule module)
+		{
+			super();
+			this.module = module;
+			lastEmittedStyle = this.module.getUserInterfaceStyle();
+		}
+
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			int currentMode = this.module.getUserInterfaceStyle();
+			if (currentMode == lastEmittedStyle) {
+				return;
+			}
+			lastEmittedStyle = currentMode;
+
+			KrollDict event = new KrollDict();
+			event.put("value", lastEmittedStyle);
+			this.module.fireEvent("userInterfaceStyle", event);
+		}
 	}
 }
