@@ -7,7 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
-import android.support.v4.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.view.View.MeasureSpec;
 import android.view.View;
 import android.view.ViewParent;

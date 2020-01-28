@@ -7,8 +7,8 @@
 
 apply plugin: 'java'
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType(JavaCompile) {
 	// Suppress compiler warning "bootstrap class path not set in conjunction with source" which happens when

@@ -16,6 +16,18 @@
 
 @implementation TiUIWebViewProxy
 
+static NSArray *webViewKeySequence;
+
+#pragma mark Internal
+
+- (NSArray *)keySequence
+{
+  if (webViewKeySequence == nil) {
+    webViewKeySequence = [[NSArray arrayWithObjects:@"assetsDirectory", @"url", nil] retain];
+  }
+  return webViewKeySequence;
+}
+
 - (id)_initWithPageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
