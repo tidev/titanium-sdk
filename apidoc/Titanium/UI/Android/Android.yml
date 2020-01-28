@@ -237,43 +237,6 @@ properties:
     type: Number
     permission: read-only
 
-  - name: MODE_NIGHT_NO
-    summary: |
-        Constant for <Titanium.UI.Android.nightModeStatus>
-    description: |
-        Value indicating that night mode type has been set.
-        Used in the `nightModeStatus` property.
-        See [UI_MODE_NIGHT_NO](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_NO)
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: '9.0.0'
-
-  - name: MODE_NIGHT_UNDEFINED
-    summary: |
-        Constant for <Titanium.UI.Android.nightModeStatus>
-    description: |
-        Value indicating that no mode type has been set.
-        Used in the `nightModeStatus` property.
-        See [UI_MODE_NIGHT_UNDEFINED](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_UNDEFINED)
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: '9.0.0'
-
-  - name: MODE_NIGHT_YES
-    summary: |
-        Constant for <Titanium.UI.Android.nightModeStatus>
-    description: |
-        Value indicating that night mode type has been set.
-        Used in the `nightModeStatus` property.
-        See [UI_MODE_NIGHT_YES](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_YES)
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: '9.0.0'
-
-
   - name: OVER_SCROLL_ALWAYS
     summary: Always allow a user to over-scroll this view, provided it is a view that can scroll.
     description: |
@@ -878,18 +841,6 @@ properties:
     permission: read-only
     platforms: [android]
     since: "8.0.0"
-
-  - name: nightModeStatus
-    summary: The status of night mode of user interface.
-    description: |
-      Use this property to determine whether your interface should be configured with a dark or light appearance.
-      The default value of this trait is set to the corresponding appearance setting on the user's device.
-      See [UI_MODE_NIGHT_MASK](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_MASK).
-      See <Titanium.App.iOS.userInterfaceStyle>
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: "9.0.0"
 
 examples:
   - title: Android Preferences Example
