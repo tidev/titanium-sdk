@@ -1136,7 +1136,7 @@ properties:
     summary: Background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. Defaults to `Transparent`.
-    type: String
+    type: [ String, Titanium.UI.Color ]
 
   - name: backgroundDisabledColor
     summary: Disabled background color of the view, as a color name or hex triplet.
@@ -1313,7 +1313,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         Defaults to the normal background color of this view (Android), black (iOS).
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
@@ -1615,7 +1615,7 @@ properties:
       Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
 
       Defaults to `undefined`. Results in a light grey background color on the wrapper view.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "3.3.0"
     platforms: [iphone,ipad]
 
@@ -1726,7 +1726,7 @@ properties:
     description: |
         This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified,
         the tintColor of the View is inherited from its superview.
-    type: [String]
+    type: [String, Titanium.UI.Color]
     since: "3.1.3"
     default: null
     osver: {ios: {min: "7.0"}}
@@ -1823,7 +1823,7 @@ properties:
   - name: viewShadowColor
     summary: Determines the color of the shadow.
     description: Defaults to `undefined`. Behaves as if transparent.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone,ipad]
     since: "3.3.0"
 
@@ -1988,7 +1988,7 @@ properties:
         Color value at this point in the gradient, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: offset
     summary: The color's normalized position within the gradient, ranging from 0 (start) to 1 (end).

@@ -2817,7 +2817,7 @@ properties:
     description: |
         The default background color may also show through if you use semi-transparent
         windows.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: backgroundImage
     summary: |
@@ -2863,7 +2863,7 @@ properties:
     summary: |
         Sets the global tint color of the application. It is inherited by the child views and can be
         overwritten by them using the `tintColor` property.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "6.0.0"
     platforms: [iphone, ipad]
 

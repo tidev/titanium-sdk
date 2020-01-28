@@ -774,7 +774,7 @@ properties:
         [opacity](Titanium.UI.Window.opacity) property before opening the window.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: Transparent
 
   - name: barColor
@@ -784,7 +784,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android, iphone, ipad]
     since: {android: "8.0.1", iphone: "0.9", ipad: "0.9"}
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: barImage
     summary: Background image for the nav bar, specified as a URL to a local image.
@@ -1097,7 +1097,7 @@ properties:
     summary: The tintColor to apply to the navigation bar.
     description: |
         This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
-    type: [String]
+    type: [String, Titanium.UI.Color]
     since: "3.1.3"
     default: null
     osver: {ios: {min: "7.0"}}
@@ -1964,11 +1964,11 @@ properties:
 
   - name: barColor
     summary: Background color for the toolbar, as a color name or hex triplet.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: tintColor
     summary: The tintColor to apply to the tool bar.
-    type: String
+    type: [String, Titanium.UI.Color]
 
 ---
 name: closeWindowParams
@@ -2050,7 +2050,7 @@ properties:
     summary: Color of the window title, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: font
     summary: Font to use for the window title.
@@ -2072,7 +2072,7 @@ properties:
 
   - name: color
     summary: Color name or hex triplet specifying the color of the shadow.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: offset
     summary: |
