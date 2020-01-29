@@ -229,13 +229,20 @@ describe('Titanium.UI', function () {
 	});
 
 	it('#fetchSemanticColor()', () => {
+		const isIOS = (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
+		const isIOS13Plus = isIOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
 		const semanticColors = require('./semantic.colors.json');
 
 		const result = Ti.UI.fetchSemanticColor('textColor');
-		should(result).be.an.Object;
-		should(result.apiName).eql('Ti.UI.Color');
-		// should be either the dark mode or light mode value. How can we tell what mode it's in?!
-		result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
+		if (isIOS13Plus) {
+			// We get a Ti.UI.Color proxy on iOS 13+
+			should(result).be.an.Object;
+			should(result.apiName).eql('Ti.UI.Color');
+			result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
+		} else {
+			should(result).be.a.String;
+			result.toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
+		}
 	});
 
 	// TODO Write tests for Ti.UI.global properties below!
