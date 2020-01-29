@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -22,6 +23,10 @@ import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -511,8 +516,9 @@ public class UIModule extends KrollModule
 	{
 		super.onResume(activity);
 		if (modeChangeReceiver != null) {
-			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
 			registerModeChangeReceiver(modeChangeReceiver);
+			// double check that the value didn't change while we were paused
+			modeChangeReceiver.onReceive(null, null);
 		}
 	}
 
@@ -540,7 +546,7 @@ public class UIModule extends KrollModule
 	public void eventListenerAdded(String type, int count, final KrollProxy proxy)
 	{
 		super.eventListenerAdded(type, count, proxy);
-		if ("userInterfaceStyle".equals(type) && modeChangeReceiver == null) {
+		if (TiC.EVENT_USER_INTERFACE_STYLE.equals(type) && modeChangeReceiver == null) {
 			modeChangeReceiver = new Receiver(this);
 			registerModeChangeReceiver(modeChangeReceiver);
 		}
@@ -550,7 +556,7 @@ public class UIModule extends KrollModule
 	public void eventListenerRemoved(String type, int count, KrollProxy proxy)
 	{
 		super.eventListenerRemoved(type, count, proxy);
-		if ("userInterfaceStyle".equals(type) && count == 0 && modeChangeReceiver != null) {
+		if (TiC.EVENT_USER_INTERFACE_STYLE.equals(type) && modeChangeReceiver != null) {
 			unregisterModeChangeReceiver();
 			modeChangeReceiver = null;
 		}
@@ -558,12 +564,13 @@ public class UIModule extends KrollModule
 
 	protected void registerModeChangeReceiver(BroadcastReceiver modeChangeReceiver)
 	{
-		getActivity().registerReceiver(modeChangeReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+		TiApplication.getInstance().registerReceiver(modeChangeReceiver,
+													 new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
 	}
 
 	protected void unregisterModeChangeReceiver()
 	{
-		getActivity().unregisterReceiver(modeChangeReceiver);
+		TiApplication.getInstance().unregisterReceiver(modeChangeReceiver);
 	}
 
 	private class Receiver extends BroadcastReceiver
@@ -588,8 +595,8 @@ public class UIModule extends KrollModule
 			lastEmittedStyle = currentMode;
 
 			KrollDict event = new KrollDict();
-			event.put("value", lastEmittedStyle);
-			this.module.fireEvent("userInterfaceStyle", event);
+			event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
+			this.module.fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
 		}
 	}
 }
