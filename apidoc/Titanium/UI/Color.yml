@@ -10,9 +10,13 @@ description: |
     This instance will automatically "adapt" the receiver to light/dark mode changes.
 
     Note that Android does not currently support passing in instances of this type for UI components/properties!
-extends: Titanium.UI.View
+
+    See [UI Element Colors](https://developer.apple.com/documentation/uikit/uicolor/ui_element_colors?language=objc) and
+    [Standard Colors](https://developer.apple.com/documentation/uikit/uicolor/standard_colors?language=objc) for lists of
+    named colors to pass to <Titanium.UI.fetchSemanticColor> on iOS.
+extends: Titanium.Proxy
 since: "9.1.0"
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad]
 methods:
   - name: toHex
     summary: Returns a hex string representation of the color
