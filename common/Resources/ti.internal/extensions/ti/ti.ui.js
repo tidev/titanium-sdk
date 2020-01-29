@@ -53,13 +53,17 @@ if (!isIOS13Plus) {
 			}
 		}
 
-		// Make a "fake" TiColor object here that wraps the hex value (so that both platforms return a Ti.UI.Color-like object)
 		try {
 			const entry = colorset[colorName][UI.semanticColorType];
-			return {
-				toHex: () => entry.color || entry,
-				apiName: 'Ti.UI.Color'
-			};
+			const hex = entry.color || entry;
+			// For now, return a string on iOS < 13, Android so we can pass the result directly to the UI property we want to set
+			// Otherwise we need to modify the Android APIs to accept this faked Ti.UI.Color instance and convert it to it's own internal
+			// Color representation
+			return hex;
+			// return {
+			// 	toHex: () => hex,
+			// 	apiName: 'Ti.UI.Color'
+			// };
 		} catch (error) {
 			console.error(`Failed to lookup color for ${colorName}`);
 		}
