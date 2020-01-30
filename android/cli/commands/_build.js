@@ -3355,7 +3355,7 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 
 	// Define namespaces that need permissions when accessed in JavaScript.
 	const tiNamespacePermissions = {
-		geolocation: geoPermissions
+		Geolocation: geoPermissions
 	};
 
 	// Define methods that need permissions when invoked in JavaScript.
@@ -3418,7 +3418,7 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 			for (;namespaceParts.length > 0; namespaceParts.pop()) {
 				const namespace = namespaceParts.join('.');
 				if (namespace && tiNamespacePermissions[namespace]) {
-					for (const permission of tiNamespacePermissions) {
+					for (const permission of tiNamespacePermissions[namespace]) {
 						neededPermissionDictionary[permission] = true;
 					}
 				}
@@ -3659,9 +3659,20 @@ AndroidBuilder.prototype.buildAppProject = async function buildAppProject() {
 	const gradlew = new GradleWrapper(this.buildDir);
 	gradlew.logger = this.logger;
 	if (this.allowDebugging) {
+		// Build a debug version of the APK. (Native code can be debugged via Android Studio.)
 		await gradlew.assembleDebug('app');
 	} else {
+		// Build a release version of the APK.
 		await gradlew.assembleRelease('app');
+
+		// Create an "*.aab" app-bundle file of the app.
+		// Note: This is a Google Play publishing format. App-bundles cannot be ran on Android devices.
+		//       Google's server will generate multiple APKs from this split by architecture and image density.
+		await gradlew.bundleRelease('app');
+
+		// Set path to the app-bundle file that was built up above.
+		// Our "package.js" event hook will later copy it to the developer's chosen destination directory.
+		this.aabFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'bundle', 'release', 'app.aab');
 	}
 };
 
