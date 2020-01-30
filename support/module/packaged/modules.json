@@ -31,24 +31,24 @@
 	},
 	"android": {
 		"facebook": {
-			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/android-8.0.0/facebook-android-8.0.0.zip",
-			"integrity": "sha512-LM73iq9PPV9qqW4dXU0bgZkNJwnIyRft6CWN6bON1HgHS5e6KD0xjvjRk2sWAgvEXE+FazDCRZ5e14SUN+T2Fg=="
+			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v9.0.0-android/facebook-android-9.0.0.zip",
+			"integrity": "sha512-QYSxTm5nHhLUhqaeNngfmjXPkmvog123DfF913E41whtVUjEIBBh+V6+d3pbEEoAugCOOTWqYRd3heMQ9M2bdg=="
 		},
 		"ti.cloudpush": {
 			"url": "https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-6.0.1.zip",
 			"integrity": "sha512-jWm02Frq1M0mMfG9sVqgYmcgUQKJvtu1SWYoCmajZR/m8NKANPNtDVD0VH5Znx7X2KB87nF6I7L4kEYXaeXzNQ=="
 		},
 		"ti.map": {
-			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v4.5.0-android/ti.map-android-4.5.0.zip",
-			"integrity": "sha512-xrwR5L1hA07ueTuC7XvWQQsR4lp5lrT5sUTFXcFthCX4NHFD27SRyWocFukAqdPjB4sfBZ36cnnPPmvY8WRyTQ=="
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v5.0.0-android/ti.map-android-5.0.0.zip",
+			"integrity": "sha512-+CCV3N77tHvJtY+Sx6nVLJGMEEDO7ZquxuBnQ4WHN/9vJX3yM6ij4PV2PBpz7dE5TKSAUdhFAHw+vFKbWaSyhg=="
 		},
 		"ti.webdialog": {
-			"url": "https://github.com/appcelerator-modules/titanium-web-dialog/releases/download/android-1.1.0/ti.webdialog-android-1.1.0.zip",
-			"integrity": "sha512-aE5Y3Ll3yXyO7oo9RdbMRNpFfnxrfhHzddIJS0KPJ+eZyNtK/h2S7BstSkQkiQt4GBaGFALaEaWqyMCSuvailA=="
+			"url": "https://github.com/appcelerator-modules/titanium-web-dialog/releases/download/v2.0.0-android/ti.webdialog-android-2.0.0.zip",
+			"integrity": "sha512-+haYFThyviM98FRMBHAIQdEVjXUQBphdVad/XeW0Hpv1z2J7zwiKzLGiIaRpBGjrP/A4kdDh3jfiVqHxSfcbNg=="
 		},
 		"ti.playservices": {
-			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/16.1.3/ti.playservices-android-16.1.3.zip",
-			"integrity": "sha512-d2yGEw84lp30fzWRBr/PHJIn2jpIQy8OBih1MpFdaemyLW9+lLz2giPoMJD5VoBcTh/yXbfhXl8P5uPmNsffWg=="
+			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/17.1.0/ti.playservices-android-17.1.0.zip",
+			"integrity": "sha512-sobsaptebR+OkCejTK98nXSGeLZicfQ9ULMEQ51kEtYKjCZQtKZLDfo2nV25/OXGz48mWYsUJLKERk4OAuwyXw=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/android-3.0.0/ti.identity-android-3.0.0.zip",
