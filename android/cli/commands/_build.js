@@ -579,8 +579,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									return callback();
 								}
 
-								// yup, still required
-								callback(true);
+								// Failed to find devices, fallback to buildOnly.
+								logger.warn('Unable to find any emulators or devices, possibily due to missing dependencies.');
+								logger.warn('Continuing with build... (will attempt to install missing dependencies)');
+								_t.buildOnly = true;
+								return callback();
 							});
 						}
 					},
