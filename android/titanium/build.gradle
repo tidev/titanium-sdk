@@ -94,9 +94,6 @@ android {
 				"${projectDir}/../runtime/v8/src/native/modules",
 				"${projectDir}/../runtime/v8/generated"
 			]
-			jniLibs.srcDirs = [
-				'src/jniLibs'
-			]
 			res.srcDirs = [
 				'res',
 				"${projectDir}/../modules/ui/res"

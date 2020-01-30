@@ -65,15 +65,13 @@
   },
   "lint-staged": {
     "iphone/**/*.{m,h}": [
-      "npx clang-format -style=file -i",
-      "git add"
+      "npx clang-format -style=file -i"
     ],
     "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
       "npm run ios-sanity-check --"
     ],
     "android/!(templates)/**/*.java": [
-      "npx clang-format -style=file -i",
-      "git add"
+      "npx clang-format -style=file -i"
     ],
     "!(**/locales/**/*).js": "eslint"
   },
@@ -97,7 +95,7 @@
     "archiver": "^3.1.1",
     "async": "^2.6.1",
     "buffer-equal": "1.0.0",
-    "clean-css": "4.2.1",
+    "clean-css": "4.2.2",
     "colors": "^1.4.0",
     "css-parse": "2.0.0",
     "ejs": "^2.7.4",
@@ -143,14 +141,14 @@
     "eslint-config-axway": "^4.5.0",
     "eslint-plugin-mocha": "^6.1.0",
     "glob": "^7.1.5",
-    "husky": "^4.0.6",
-    "lint-staged": "^9.5.0",
-    "mocha": "^6.2.0",
+    "husky": "^4.2.1",
+    "lint-staged": "^10.0.3",
+    "mocha": "^7.0.1",
     "mocha-jenkins-reporter": "^0.4.2",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.0.0",
     "request-promise-native": "^1.0.8",
-    "rollup": "^1.27.14",
+    "rollup": "^1.30.1",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
