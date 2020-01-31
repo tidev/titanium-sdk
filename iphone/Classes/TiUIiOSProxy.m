@@ -261,7 +261,7 @@
   [super didReceiveMemoryWarning:notification];
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if IS_SDK_IOS_13
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
