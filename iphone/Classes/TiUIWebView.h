@@ -29,6 +29,7 @@
   BOOL _tiCookieHandlerAdded;
   BOOL ignoreNextRequest;
   SEL reloadMethod;
+  NSString *assetsDirectory;
 }
 
 @property (nonatomic, retain) id reloadData;

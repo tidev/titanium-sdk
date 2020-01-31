@@ -29,10 +29,9 @@ android {
 		}
 <% } %>
 	}
-	// TODO: Add Java 8 support in the future.
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
 	}
 	signingConfigs {
 		def tiKeystoreFilePath = <%- "'" + tiSdkAndroidDir.replace(/\\/g, '\\\\') + "/dev_keystore'" %>
@@ -73,6 +72,9 @@ android {
 				<%- "'" + proguardFilePaths.join("',\n'").replace(/\\/g, '\\\\') + "'" %>)
 <% } %>
 		}
+	}
+	dexOptions {
+		javaMaxHeapSize '<%- dexJavaMaxHeapSize %>'
 	}
 	lintOptions {
 		checkReleaseBuilds false

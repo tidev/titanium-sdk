@@ -76,6 +76,7 @@ public class FusedLocationProvider
 		}
 		try {
 			Class.forName("com.google.android.gms.common.GoogleApiAvailability");
+			Class.forName("com.google.android.gms.location.FusedLocationProviderClient");
 			return PlayServices.validVersion() && PlayServices.available(context);
 		} catch (Exception e) {
 			useFusedLocation = false;
