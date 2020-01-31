@@ -118,10 +118,10 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 									sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 									// run main branch tests on devices
 									if (testOnDevices) {
-										sh "node test.js -T device -C all -b ../../${zipName} -p android"
+										sh label: 'Run Test Suite on device(s)', script: "node test.js -T device -C all -b ../../${zipName} -p android"
 									// run PR tests on emulator
 									} else {
-										sh "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p android"
+										sh label: 'Run Test Suite on emulator', script: "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p android"
 									}
 								}
 							} catch (e) {
@@ -179,7 +179,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
 						dir('scripts') {
 							try {
 								timeout(20) {
-									sh "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
+									sh label: 'Run Test Suite', script: "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
 								}
 							} catch (e) {
 								gatherIOSCrashReports()
@@ -297,14 +297,14 @@ timestamps {
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
-							sh buildCommand
+							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
 							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
-							sh buildCommand
+							sh label: 'build', script: buildCommand
 							recordIssues(tools: [clang(), java()])
 						} // timeout
 						timeout(15) {
@@ -316,7 +316,7 @@ timestamps {
 								// On PRs, just build android and ios for macOS
 								packageCommand += ' android ios'
 							}
-							sh packageCommand
+							sh label: 'package', script: packageCommand
 						} // timeout
 					} // ansiColor
 

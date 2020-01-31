@@ -113,6 +113,21 @@ class GradleWrapper {
 	}
 
 	/**
+	 * Builds a release version of an application project to an "*.aab" app-bundle file.
+	 * This is a Google Play publishing format, when uploaded, Google's servers will then generate multiple
+	 * APK files splits by CPU architecture and image densities. (App-bundle files cannot be ran on a device.)
+	 * @param {String} [subprojectName]
+	 * Optional name of the gradle subproject to generate an AAB app-bundle for, such as 'app'.
+	 * Will build the app and all of its dependency projects if not done already.
+	 *
+	 * Can be null/undefined, in which case all application projects will be built as app-bundles.
+	 */
+	async bundleRelease(subprojectName) {
+		subprojectName = isNonEmptyString(subprojectName) ? `:${subprojectName}:` : '';
+		await this.run(`${subprojectName}bundleRelease --console plain`);
+	}
+
+	/**
 	 * Executes the gradle script's "publishing" task for the project.
 	 *
 	 * Typically used to create a maven repository directory tree for the last built library project
