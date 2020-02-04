@@ -67,7 +67,18 @@ class AndroidManifest {
 	toString() {
 		let text = '<?xml version="1.0" encoding="utf-8"?>' + os.EOL;
 		if (this._xmlDomDocument && this._xmlDomDocument.documentElement) {
+			// Write XML content to string.
 			text += this._xmlDomDocument.documentElement + os.EOL;
+
+			// Remove all "xmlns:android=<url>"" namespace definitions from child elements.
+			// Google only allows it in root <manifest/> element or else a build/validation error will occur.
+			let startReplaceIndex = text.indexOf('<manifest');
+			if (startReplaceIndex >= 0) {
+				startReplaceIndex = text.indexOf('>', startReplaceIndex);
+				text = text.replace(/xmlns:android=".*?"/g, (match, p1) => {
+					return (p1 <= startReplaceIndex) ? match : '';
+				});
+			}
 		}
 		return text;
 	}
