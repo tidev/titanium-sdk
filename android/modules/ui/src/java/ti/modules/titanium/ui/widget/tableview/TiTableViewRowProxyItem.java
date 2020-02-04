@@ -31,7 +31,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;

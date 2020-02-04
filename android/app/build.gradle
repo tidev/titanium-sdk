@@ -29,6 +29,10 @@ android {
 			]
 		}
 	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
 }
 
 dependencies {
@@ -37,5 +41,5 @@ dependencies {
 //		exclude group: 'com.google.android.gms'
 	}
 
-	implementation "com.android.support:appcompat-v7:${project.ext.tiSupportLibVersion}"
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 }

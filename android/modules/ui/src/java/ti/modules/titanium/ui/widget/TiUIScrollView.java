@@ -9,9 +9,9 @@ package ti.modules.titanium.ui.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
-import android.support.v4.view.NestedScrollingChild;
-import android.support.v4.view.NestedScrollingChildHelper;
-import android.support.v4.widget.NestedScrollView;
+import androidx.core.view.NestedScrollingChild;
+import androidx.core.view.NestedScrollingChildHelper;
+import androidx.core.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Xml;
 import android.view.GestureDetector;
@@ -37,7 +37,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 import org.xmlpull.v1.XmlPullParser;
 import ti.modules.titanium.ui.RefreshControlProxy;
-import ti.modules.titanium.ui.ScrollViewProxy;
 
 public class TiUIScrollView extends TiUIView
 {

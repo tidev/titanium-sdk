@@ -471,7 +471,6 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
 
-
   - name: EVENT_ACCESSIBILITY_CHANGED
     summary: Convenience constant for system event "accessibilitychanged".
     type: String
@@ -484,18 +483,21 @@ properties:
     type: Boolean
     permission: read-only
 
-
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
-
 
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
+  - name: currentService
+    summary: A reference to the currnet background service running when the application is placed in the background.
+    type: Titanium.App.iOS.BackgroundService
+    permission: read-only
+    platforms: [iphone, ipad]
 
   - name: deployType
     summary: |
@@ -508,19 +510,16 @@ properties:
     type: String
     permission: read-only
 
-
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
-
 
   - name: forceSplashAsSnapshot
     summary: Shows the application's splash screen on app resume.
@@ -538,7 +537,6 @@ properties:
         The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
-
 
   - name: installId
     summary: The install ID for this application.
@@ -562,7 +560,6 @@ properties:
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: proximityDetection
     summary: Determines whether proximity detection is enabled.
@@ -604,24 +601,20 @@ properties:
     type: String
     permission: read-only
 
-
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
-
 
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
 
-
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.
