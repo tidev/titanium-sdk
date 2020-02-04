@@ -5768,14 +5768,29 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 					Object.keys(imageAssets).forEach(function (file) {
+						const directories = file.split('/');
+						let newPath = '';
+						for (let i = 0; i < directories.length - 1; i++) {
+							newPath = newPath + '/' + directories[i];
+
+							writeAssetContentsFile.call(this, path.join(assetCatalog, newPath, 'Contents.json'), {
+								info: {
+									version: 1,
+									author: 'xcode'
+								},
+								properties: {
+									'provides-namespace': true
+								},
+							});
+						}
+
 						const imageName = imageAssets[file].name,
 							match = file.match(imageNameRegExp);
 
 						if (match) {
 							const imageExt = imageAssets[file].ext;
 							const imageSetName = match[1];
-							const imageSetNameSHA = sha1(imageSetName + '.' + imageExt);
-							const imageSetRelPath = imageSetNameSHA + '.imageset';
+							const imageSetRelPath = imageSetName + '.imageset';
 
 							// update image file's destination
 							const dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
