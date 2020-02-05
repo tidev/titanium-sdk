@@ -75,8 +75,8 @@ class AndroidManifest {
 			let startReplaceIndex = text.indexOf('<manifest');
 			if (startReplaceIndex >= 0) {
 				startReplaceIndex = text.indexOf('>', startReplaceIndex);
-				text = text.replace(/xmlns:android=".*?"/g, (match, p1) => {
-					return (p1 <= startReplaceIndex) ? match : '';
+				text = text.replace(/\sxmlns:android=".*?"/g, (match, offset) => {
+					return (offset <= startReplaceIndex) ? match : '';
 				});
 			}
 		}
@@ -651,8 +651,8 @@ class AndroidManifest {
 			// Remove "xmlns:android" namespace attributes from all child elements. Only supported in <manifest/>.
 			// Note: CLI used to wrongly inject these after updating "tiapp.xml" if missing from root element.
 			const manifestEndIndex = text.indexOf('>', manifestIndex);
-			text = text.replace(/xmlns:android=".*?"/g, (match, p1) => {
-				return (p1 <= manifestEndIndex) ? match : '';
+			text = text.replace(/\sxmlns:android=".*?"/g, (match, offset) => {
+				return (offset <= manifestEndIndex) ? match : '';
 			});
 		}
 
