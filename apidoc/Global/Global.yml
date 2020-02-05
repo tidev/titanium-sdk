@@ -282,3 +282,17 @@ methods:
                 setTimeout(function(){
                     Ti.API.debug('Called using setTimeout');
                 }, 500);
+
+
+properties:
+  - name: console
+    summary: Console logging facilities.
+    type: Console
+    accessors: false
+
+  - name: JSON
+    summary: |
+        An intrinsic object that provides functions to convert JavaScript values to and from
+        the JavaScript Object Notation (JSON) format.
+    type: JSON
+    accessors: false
