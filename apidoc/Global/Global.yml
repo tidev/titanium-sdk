@@ -65,6 +65,7 @@ methods:
       - name: timerId
         summary: Unique timer identifier returned by [setInterval](Global.setInterval).
         type: Number
+        optional: true
 
   - name: clearTimeout
     summary: Cancels a one-time timer.
@@ -72,6 +73,7 @@ methods:
       - name: timerId
         summary: Unique timer identifier returned by [setTimeout](Global.setTimeout).
         type: Number
+        optional: true
 
   - name: decodeURIComponent
     summary: |
@@ -240,6 +242,7 @@ methods:
       - name: delay
         summary: Time in milliseconds to wait between calls to function.
         type: Number
+        optional: true
     examples:
       - title: Update a label once every second, and stop at 10 seconds
         example: |
@@ -275,6 +278,7 @@ methods:
       - name: delay
         summary: Time in milliseconds to wait before the function is called.
         type: Number
+        optional: true
     examples:
       - title: Execute a function in 500 milliseconds
         example: |
