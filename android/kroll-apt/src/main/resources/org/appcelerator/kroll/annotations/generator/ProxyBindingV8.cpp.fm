@@ -273,10 +273,10 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 
 	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
-	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.${propertyName}; or obj['${propertyName}'];");
+	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please access the property in standard JS style: obj.${propertyName}; or obj['${propertyName}'];");
 	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
-	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.${propertyName} = value; or obj['${propertyName}'] = value;");
+	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please modify the property in standard JS style: obj.${propertyName} = value; or obj['${propertyName}'] = value;");
 	</#if>
 
 	jobject javaProxy = proxy->getJavaObject();
