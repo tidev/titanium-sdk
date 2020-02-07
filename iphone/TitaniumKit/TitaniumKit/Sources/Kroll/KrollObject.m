@@ -580,7 +580,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
         if ([target respondsToSelector:NSSelectorFromString(propertyKey)]) {
           // This is the code path for delegating something like Ti.Filesystem.File#setHidden(), see KrollMethod for other cases (when type is KrollMethodPropertySetter, the last option in this if block below)
           // Spit out a deprecation warning to use normal property setter!
-          DebugLog(@"[WARN] Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%@ = value; or obj['%@'] = value;", propertyKey, propertyKey);
+          DebugLog(@"[WARN] Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please modify the property in standard JS style: obj.%@ = value; or obj['%@'] = value;", propertyKey, propertyKey);
         }
         [result setSelector:selector];
       } else {
@@ -619,7 +619,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
     if ([target respondsToSelector:selector]) {
       // Spit out a deprecation warning to use normal property accessor!
       // This is the code path for delegating something like Ti.Filesystem.File#getHidden(), see KrollMethod for other cases (when type is KrollMethodPropertyGetter, the last option in this if block below)
-      DebugLog(@"[WARN] Automatic getter methods for properties are in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.%@ or obj['%@']", partkey, partkey);
+      DebugLog(@"[WARN] Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please access the property in standard JS style: obj.%@ or obj['%@']", partkey, partkey);
       [result setSelector:selector];
       [result setType:KrollMethodGetter];
       return [result autorelease];
