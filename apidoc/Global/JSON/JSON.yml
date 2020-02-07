@@ -1,8 +1,8 @@
 # JSON module doc adapted from Public Domain json2 reference implementation by Douglas Crockford
 # https://github.com/douglascrockford/JSON-js
 ---
-name: Global.JSON
-summary: Global JSON object providing the [parse](Global.JSON.parse) and [stringify](Global.JSON.stringify) methods.
+name: JSON
+summary: Global JSON object providing the [parse](JSON.parse) and [stringify](JSON.stringify) methods.
 platforms: [android, iphone, ipad]
 methods:
 
