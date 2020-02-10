@@ -175,7 +175,7 @@ extends: Titanium.Module
 since: "0.4"
 
 events:
-  - name: userInterfaceStyle
+  - name: userinterfacestyle
     summary: Fired when the `userInterfaceStyle` changes.
     properties:
       - name: value
