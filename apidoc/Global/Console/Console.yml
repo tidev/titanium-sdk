@@ -25,6 +25,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
 
   - name: info
     summary: Log a message at the `info` level.
@@ -36,6 +37,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
 
   - name: warn
     summary: Log a message at the `warn` level.
@@ -47,6 +49,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
             
   - name: error
     summary: Log a message at the `error` level.
@@ -58,6 +61,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
         
   - name: debug
     summary: Log a message at the `debug` level.
@@ -69,6 +73,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
 
   - name: time
     summary: Start a timer to track duration of an operation.
@@ -117,4 +122,5 @@ methods:
         summary: Extra log data to be provided when logging, can be a single argument or any number of arguments.
         type: Object
         optional: true
+        repeatable: true
     since: 7.5.0
