@@ -702,7 +702,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_USER_INTERFACE_STYLE = "userInterfaceStyle";
+	public static final String EVENT_USER_INTERFACE_STYLE = "userinterfacestyle";
 
 	/**
 	 * @module.api
