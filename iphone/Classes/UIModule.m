@@ -67,7 +67,7 @@
 
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
-  if ((count == 1) && [type isEqual:@"userInterfaceStyle"]) {
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
     lastEmittedMode = self.userInterfaceStyle;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didChangeTraitCollection:)
@@ -78,7 +78,7 @@
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
-  if ((count == 1) && [type isEqual:@"userInterfaceStyle"]) {
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
   }
 }
@@ -90,7 +90,7 @@
     return;
   }
   lastEmittedMode = currentMode;
-  [self fireEvent:@"userInterfaceStyle" withObject:@{ @"value" : currentMode }];
+  [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
 }
 
 - (NSString *)apiName
