@@ -25,6 +25,8 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
+import android.view.View;
+
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -171,6 +173,16 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 	}
 
+	@Override
+	public KrollDict getRect()
+	{
+		View v = null;
+		if (tableViewItem != null) {
+			v = tableViewItem.getContentView();
+		}
+		return getViewRect(v);
+	}
+
 	public void setTableViewItem(TiTableViewRowProxyItem item)
 	{
 		this.tableViewItem = item;
@@ -201,9 +213,14 @@ public class TableViewRowProxy extends TiViewProxy
 			if (tableViewItem != null) {
 				tableViewItem.setRowData(this);
 				// update/refresh table view when a row's data changed.
-				TiUITableView table = getTable().getTableView();
-				table.setModelDirty();
-				table.updateView();
+				TableViewProxy proxy = getTable();
+				if (proxy != null) {
+					TiUITableView table = (TiUITableView) proxy.peekView();
+					if (table != null) {
+						table.setModelDirty();
+						table.updateView();
+					}
+				}
 			}
 			return true;
 		}
