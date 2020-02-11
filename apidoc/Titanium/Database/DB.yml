@@ -29,6 +29,7 @@ methods:
           to be substituted with the respective `?` placeholder of the query.
         type: [String, Array<String>, Object, Array<Object>]
         optional: true
+        repeatable: true
     examples:
     - title: Executing a Query
       example: |
