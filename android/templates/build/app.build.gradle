@@ -1,6 +1,11 @@
 
 apply plugin: 'com.android.application'
 
+// Apply the Google Services plugin if included
+if (file("${projectDir}/google-services.json").exists()) {
+	apply plugin: 'com.google.gms.google-services'
+}
+
 repositories {
 <% if (mavenRepositoryUrls) { for (let nextUrl of mavenRepositoryUrls) { %>
 	maven { url '<%- nextUrl %>' }
