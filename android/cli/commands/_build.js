@@ -1200,6 +1200,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// determine the abis to support
 	this.abis = this.validABIs;
 	const customABIs = cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1;
+	if (!customABIs && (this.deployType === 'production')) {
+		// If "tiapp.xml" does not have <abi/> entry, then exclude "x86" and "x86_64" from production builds by default.
+		// These abis are mostly needed for testing in an emulator. Physical x86 devices are extremely rare.
+		this.abis = this.abis.filter(abi => {
+			return !abi.startsWith('x86');
+		});
+	}
 	if (customABIs) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
