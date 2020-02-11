@@ -39,16 +39,16 @@
 			"integrity": "sha512-jWm02Frq1M0mMfG9sVqgYmcgUQKJvtu1SWYoCmajZR/m8NKANPNtDVD0VH5Znx7X2KB87nF6I7L4kEYXaeXzNQ=="
 		},
 		"ti.map": {
-			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v5.0.0-android/ti.map-android-5.0.0.zip",
-			"integrity": "sha512-+CCV3N77tHvJtY+Sx6nVLJGMEEDO7ZquxuBnQ4WHN/9vJX3yM6ij4PV2PBpz7dE5TKSAUdhFAHw+vFKbWaSyhg=="
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v5.0.1-android/ti.map-android-5.0.1.zip",
+			"integrity": "sha512-W8Fq4DV3E8kcWqcZdjvoEbKHgqBumZS9jzi4gTiZf1OeeNoEsnXI4ZrjOZsO0VguuG9kra82EcXU6HMM/Jur0Q=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/appcelerator-modules/titanium-web-dialog/releases/download/v2.0.0-android/ti.webdialog-android-2.0.0.zip",
 			"integrity": "sha512-+haYFThyviM98FRMBHAIQdEVjXUQBphdVad/XeW0Hpv1z2J7zwiKzLGiIaRpBGjrP/A4kdDh3jfiVqHxSfcbNg=="
 		},
 		"ti.playservices": {
-			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/17.1.0/ti.playservices-android-17.1.0.zip",
-			"integrity": "sha512-sobsaptebR+OkCejTK98nXSGeLZicfQ9ULMEQ51kEtYKjCZQtKZLDfo2nV25/OXGz48mWYsUJLKERk4OAuwyXw=="
+			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/v17.1.1/ti.playservices-android-17.1.1.zip",
+			"integrity": "sha512-/823uyjx5KL3kqCoyMGVjm7+S6KG8y0E8IYXMuf4JoO41gwcbSxIebltwzo/RyYGcYycVFnHqtudKOh0zN65aQ=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/v3.0.1-android/ti.identity-android-3.0.1.zip",
