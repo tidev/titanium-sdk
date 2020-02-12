@@ -52,7 +52,7 @@ Examples:
 	git add package.json
 	git add package-lock.json
 	git commit -m "chore(release): bump version to 9.1.0"
-	git push origin master
+	git push origin master # NOTE that non-admins will likely have to open a PR to achieve this rather than directly push to master
 
 **Minor bump**
 
@@ -64,12 +64,16 @@ Examples:
 	git add package.json
 	git add package-lock.json
 	git commit -m "chore(release): bump version to 8.4.0"
-	git push origin 8_4_X
+	git push origin 8_4_X  # NOTE that non-admins will likely have to open a PR to achieve this rather than directly push to branch
 
 
 ### Updating milestones of PRs
 
 It's important to take any existing PRs that are open against the master branch and re-assign the new milestone to them of the updated master target version. i.e. If we cut a `9_0_X` branch, assign all the open 9.0.0 PRs against master to have a new milestone of 9.1.0.
+    
+Github Issue filter example:
+
+	is:pr is:open milestone:9.0.0 base:master 
 
 ### Inform the team
 
