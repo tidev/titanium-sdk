@@ -151,7 +151,6 @@ class Builder {
 
 		// Generate Titanium-ES proxy wrappers.
 		const EXT_DIR = path.join(ROOT_DIR, 'common', 'Resources', 'ti.internal', 'extensions');
-		await fs.appendFile(path.join(EXT_DIR, 'index.js'), '// Load Titanium-ES\nimport \'./titanium-es\';');
 		await TitaniumES.generate(path.join(DIST_DIR, 'api.jsca'), path.join(EXT_DIR, 'titanium-es'));
 
 		// TODO: build platforms in parallel
