@@ -150,8 +150,9 @@ class Builder {
 		await this.generateDocs();
 
 		// Generate Titanium-ES proxy wrappers.
-		const EXT_DIR = path.join(ROOT_DIR, 'common', 'Resources', 'ti.internal', 'extensions');
-		await TitaniumES.generate(path.join(DIST_DIR, 'api.jsca'), path.join(EXT_DIR, 'titanium-es'));
+		const EXT_DIR = path.join(TMP_DIR, 'common', 'ti.internal', 'extensions');
+		const ROLLUP_EXT_DIR = path.join(ROOT_DIR, 'common', 'Resources', 'ti.internal', 'extensions');
+		await TitaniumES.generate(path.join(DIST_DIR, 'api.jsca'), EXT_DIR, ROLLUP_EXT_DIR);
 
 		// TODO: build platforms in parallel
 		for (const item of this.platforms) {
@@ -188,7 +189,7 @@ class Builder {
 		return packager.package();
 	}
 
-	generateDocs() {
+	async generateDocs() {
 		if (!this.program.docs) { // are we skipping doc generation?
 			return;
 		}

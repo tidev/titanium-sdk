@@ -5001,6 +5001,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	this.logger.info(__('Analyzing Resources directory'));
+	walk(path.join(this.titaniumSdkPath, 'common', 'Resources'), this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
@@ -6014,7 +6015,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			series(this, [
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
-					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios');
+					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
 					const task = new ProcessJsTask({
 						inputFiles: Object.keys(jsFiles).map(relPath => jsFiles[relPath].src),
 						incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
