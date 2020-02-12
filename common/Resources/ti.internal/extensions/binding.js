@@ -81,11 +81,6 @@ export function register(moduleId, binding) {
 		Ti.API.warn(`Another binding has already registered for module id: '${moduleId}', it will be overwritten...`);
 	}
 
-	// Lazy-load binding.
-	if (binding instanceof Function) {
-		binding = binding();
-	}
-
 	bindings.set(moduleId, binding);
 }
 
