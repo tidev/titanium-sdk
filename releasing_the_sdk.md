@@ -1,5 +1,29 @@
 # Releasing the SDK
 
+## Migrating tests to suite
+
+It's a good habit to migrate any overriden/added tests from the branch over to the suite before cutting a new branch.
+
+Typically this involves copying any resources from tests/Resources over to titanium-mobile-mocha-suite/Resources.
+For files with the `addontest.js` suffix, you'll want to manually merge over the added tests into the existing suite for the API,
+i.e. `tests/Resources/ti.ui.tableview.addontest.js` tests should be copy-pasted into `titanium-mobile-mocha-suite/Resources/ti.ui.tableview.test.js`
+
+Typical steps:
+
+    # Copy new tests over to suite
+    mv tests/Resources/*.test.js ../titanium-mobile-mocha-suite/Resources
+	git add tests/
+	git commit -m "test: migrate overridden tests to suite"
+	git push origin master
+	# NOTE: you'll need to handle addontest.js files manually
+	cd ../titanium-mobile-mocha-suite
+	# Now edit the app.js to add a require for any new test.js files!
+	git add Resources
+	git commit -m "test: migrate overridden tests from SDK"
+	git push origin master
+
+NOTE: the `tests/Resources/ti.example.addontest.js` should remain in the SDK!
+
 ## Cutting a maintenance branch
 
 Typically before a release we generate a new maintenance branch for it, i.e. `9_0_X`
@@ -17,8 +41,12 @@ Examples:
 **Major bump**
 
 	git checkout master
+
+	# Create 9_0_X branch and push it to github
 	git checkout -b 9_0_X
 	git push origin 9_0_X
+
+	# Bump version on master to 9.1.0 and push to github
 	git checkout master
 	npm --no-git-tag-version version major
 	git add package.json
@@ -29,6 +57,8 @@ Examples:
 **Minor bump**
 
 	git checkout 8_3_X
+
+	# Create 8_4_X branch, update version, push it to github
 	git checkout -b 8_4_X
 	npm --no-git-tag-version version minor
 	git add package.json
