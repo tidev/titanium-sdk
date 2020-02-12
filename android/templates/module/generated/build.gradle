@@ -125,7 +125,7 @@ android {
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
 	kotlinOptions {
-		jvmTarget = '1.8'
+		jvmTarget = JavaVersion.VERSION_1_8
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
