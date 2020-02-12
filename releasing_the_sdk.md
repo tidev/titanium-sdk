@@ -38,7 +38,7 @@ previous maintenance branch for new minors.
 
 Examples:
 
-**Major bump**
+**Major New Release**
 
 	git checkout master
 
@@ -48,13 +48,13 @@ Examples:
 
 	# Bump version on master to 9.1.0 and push to github
 	git checkout master
-	npm --no-git-tag-version version major
+	npm --no-git-tag-version version minor
 	git add package.json
 	git add package-lock.json
 	git commit -m "chore(release): bump version to 9.1.0"
 	git push origin master # NOTE that non-admins will likely have to open a PR to achieve this rather than directly push to master
 
-**Minor bump**
+**Minor New Release**
 
 	git checkout 8_3_X
 
