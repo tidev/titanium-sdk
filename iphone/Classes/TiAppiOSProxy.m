@@ -465,18 +465,20 @@
                                                                         }
 
                                                                         if ([self _hasListeners:@"usernotificationsettings"]) {
-                                                                          NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{ @"success" : NUMBOOL(granted) }];
-
                                                                           if (error) {
-                                                                            [event setValue:[error localizedDescription] forKey:@"error"];
-                                                                            [event setValue:NUMINTEGER([error code]) forKey:@"code"];
-                                                                            [self fireEvent:@"usernotificationsettings" withObject:event];
+                                                                            [self fireEvent:@"usernotificationsettings"
+                                                                                 withObject:@{
+                                                                                   @"success" : NUMBOOL(granted),
+                                                                                   @"error" : [error localizedDescription],
+                                                                                   @"code" : NUMINTEGER([error code])
+                                                                                 }];
                                                                           } else {
                                                                             [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *_Nonnull settings) {
                                                                               // Assign the granted types
-                                                                              [event setDictionary:[self formatUserNotificationSettings:settings]];
+                                                                              NSMutableDictionary *event = [[self formatUserNotificationSettings:settings] mutableCopy];
+                                                                              [event setValue:NUMBOOL(granted) forKey:@"success"];
                                                                               // Assign the granted categories
-                                                                              [event setValue:categories forKey:@"categories"];
+                                                                              [event setValue:((categories != nil) ? categories : @{}) forKey:@"categories"];
                                                                               [self fireEvent:@"usernotificationsettings" withObject:event];
                                                                             }];
                                                                           }
