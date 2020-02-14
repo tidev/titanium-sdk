@@ -16,7 +16,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;

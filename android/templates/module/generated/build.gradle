@@ -1,6 +1,8 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 repositories {
 	maven {
@@ -61,7 +63,7 @@ android {
 			}
 		}
 		ndk {
-			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'
+			abiFilters <%- "'" + moduleArchitectures.join("','") + "'" %>
 		}
 	}
 	externalNativeBuild {
@@ -118,16 +120,34 @@ android {
 			}
 		}
 	}
-	// TODO: Add Java 8 support in the future.
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+	kotlinOptions {
+		jvmTarget = JavaVersion.VERSION_1_8
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
 	packagingOptions {
 		exclude '/lib/**/libc++_shared.so'
 		exclude '/lib/**/libkroll-v8.so'
+	}
+}
+
+// Trigger a build failure if an AAR library was found under the "lib" directory.
+// While it will compile with the library, Google's build system won't merge the AAR into this module's AAR.
+preBuild.doFirst {
+	def libDirectory = new File("${projectDir}/../../lib")
+	if (libDirectory.exists()) {
+		libDirectory.eachFile {
+			if (it.name.toLowerCase().endsWith('.aar')) {
+				def errorMessage =
+					'AAR files are no longer supported under the "lib" directory. ' +
+					'You must reference AAR libraries via a "build.gradle" file\'s dependencies section instead.'
+				throw new GradleException(errorMessage)
+			}
+		}
 	}
 }
 
@@ -153,17 +173,24 @@ tasks.withType(JavaCompile) {
 	}
 }
 
+// Titanium does not support incremental @Kroll annotation processing. Disable it in kotlin to avoid build warnings.
+project.ext['kapt.incremental.apt'] = false
+
 dependencies {
 	// This reads the code's @Kroll annotations and generates code which interops between V8 and proxy classes.
 	def krollAptJarPath = '<%- krollAptJarPath.replace(/\\/g, '\\\\') %>'
 	annotationProcessor files(krollAptJarPath)
 	compileOnly files(krollAptJarPath)
+	kapt files(krollAptJarPath)
 
-	// Reference this module's local AAR/JAR file dependencies.
-	implementation fileTree(dir: "${projectDir}/../../lib", include: ['*.aar', '*.jar'])
+	// Reference this module's local JAR file dependencies.
+	implementation fileTree(dir: "${projectDir}/../../lib", include: ['*.jar'])
 
 	// Reference the main Titanium library.
 	implementation 'org.appcelerator:titanium:<%- tiSdkVersion %>'
+
+	// Reference the core kotlin library.
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 // This block is used when we run "gradlew :module:publish" at the command line.

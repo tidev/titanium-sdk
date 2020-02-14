@@ -12,7 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-import android.support.v4.app.NotificationCompat.BigTextStyle;
+import androidx.core.app.NotificationCompat.BigTextStyle;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class BigTextStyleProxy extends StyleProxy
