@@ -12,7 +12,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 ## Community Credits
 
 * Sergey Volkov
-    * [TIMOB-26662] Android: TableViewRow bugs (#10542) ([19f532b](https://github.com/appcelerator/titanium_mobile/commit/19f532b334c75afdb9340e343a1fa0caf7b93bcb))
+    * [TIMOB-26662](https://jira.appcelerator.org/browse/TIMOB-26662) Android: TableViewRow bugs (#10542) ([19f532b](https://github.com/appcelerator/titanium_mobile/commit/19f532b334c75afdb9340e343a1fa0caf7b93bcb))
     * add "repeatable" property on methods parameters ([ea0da79](https://github.com/appcelerator/titanium_mobile/commit/ea0da79e2fef897c8757303f368990472f4ef7f1))
     * fix optional parameters on "timers" methods ([8a00014](https://github.com/appcelerator/titanium_mobile/commit/8a0001478a94c9714f8b9b68e96c96ad1b5db50b))
     * split interface and property definition for console and JSON ([958a6a3](https://github.com/appcelerator/titanium_mobile/commit/958a6a3dcc086b835ed2c887512bd65c1c9e3ea5))
