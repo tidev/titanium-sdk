@@ -4,10 +4,6 @@ summary: The APIs that reside in the global scope, which may be called without a
 description: |
     Titanium provides a number of global built-in objects, detailed below.
 
-    #### JSON
-
-    Titanium provides a built-in [JSON](Global.JSON) object two functions, `parse` and `stringify`.
-
     #### String Utilities
 
     Titanium includes several extra utility functions for formatting text, attached to the
