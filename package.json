@@ -152,7 +152,7 @@
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "ssri": "^7.1.0",
+    "ssri": "^8.0.0",
     "titanium-docgen": "^4.1.0"
   },
   "repository": {
