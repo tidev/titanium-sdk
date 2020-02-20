@@ -142,12 +142,12 @@
 
 - (NSNumber *)keyboardType
 {
-  return NUMINT([[self searchBar] keyboardType]);
+  return @([[self searchBar] keyboardType]);
 }
 
 - (NSNumber *)keyboardAppearance
 {
-  return NUMINT([[self searchBar] keyboardAppearance]);
+  return @([[self searchBar] keyboardAppearance]);
 }
 
 - (NSString *)prompt
@@ -169,7 +169,7 @@
 
 - (NSNumber *)autocapitalization
 {
-  return NUMINT([[self searchBar] autocapitalizationType]);
+  return @([[self searchBar] autocapitalizationType]);
 }
 
 - (id)tintColor
@@ -184,8 +184,51 @@
 
 - (NSNumber *)style
 {
-  return NUMINT([[self searchBar] searchBarStyle]);
+  return @([[self searchBar] searchBarStyle]);
 }
+
+#if IS_SDK_IOS_13
+- (void)insertTokenAtIndex:(id)params
+{
+  ENSURE_ARG_COUNT(params, 2);
+
+  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return;
+  }
+
+  NSDictionary<NSString *, NSString *> *token = params[0];
+  int index = [TiUtils intValue:params[1]];
+
+  UISearchToken *searchToken = [UISearchToken tokenWithIcon:[TiUtils toImage:token[@"image"] proxy:self]
+                                                       text:[TiUtils stringValue:@"text" properties:token]];
+
+  if (token[@"identifier"] == nil) {
+    NSLog(@"[WARN] Missing search token identifier! Using a generated UUID …");
+  }
+
+  searchToken.representedObject = [TiUtils stringValue:@"identifier" properties:token def:[TiUtils createUUID]];
+
+  [[[self searchBar] searchTextField] insertToken:searchToken atIndex:index];
+}
+
+- (void)removeTokenAtIndex:(id)index
+{
+  ENSURE_SINGLE_ARG(index, NSNumber);
+  [[[self searchBar] searchTextField] removeTokenAtIndex:[TiUtils intValue:index]];
+}
+
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)tokens
+{
+  NSArray<UISearchToken *> *tokens = [[[self searchBar] searchTextField] tokens];
+  NSMutableArray<id> *result = [NSMutableArray arrayWithCapacity:tokens.count];
+
+  [tokens enumerateObjectsUsingBlock:^(UISearchToken *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    [result addObject:obj.representedObject];
+  }];
+
+  return result;
+}
+#endif
 
 USE_VIEW_FOR_CONTENT_HEIGHT
 @end
