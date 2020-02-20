@@ -6,6 +6,12 @@
  */
 package org.appcelerator.titanium;
 
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ThumbnailUtils;
+import android.util.Base64;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,7 +20,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLConnection;
 import java.util.HashMap;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -25,13 +30,6 @@ import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
-
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ThumbnailUtils;
-import android.util.Base64;
 
 /**
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
@@ -763,7 +761,10 @@ public class TiBlob extends KrollProxy
 			imgWidth = img.getWidth();
 			imgHeight = img.getHeight();
 			if (rotation != 0) {
+				float scaleWidth = (float) dstWidth / imgWidth;
+				float scaleHeight = (float) dstHeight / imgHeight;
 				Matrix matrix = new Matrix();
+				matrix.postScale(scaleWidth, scaleHeight);
 				matrix.postRotate(rotation);
 				imageResized = Bitmap.createBitmap(img, 0, 0, imgWidth, imgHeight, matrix, true);
 			} else {
