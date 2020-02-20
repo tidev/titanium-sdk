@@ -112,6 +112,8 @@ methods:
       - name: index
         type: Number
         summary: The index to insert the token at.
+    osver: { ios: { min: "13.0" } }
+    since: 9.1.0
 
   - name: removeTokenAtIndex
     summary: Removes an existing token at the specified index.
@@ -119,6 +121,8 @@ methods:
       - name: index
         type: Number
         summary: The index to remove the token at.
+    osver: { ios: { min: "13.0" } }
+    since: 9.1.0
 
 events:
   - name: blur
