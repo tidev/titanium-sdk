@@ -354,10 +354,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		final String mediaDirectory =
 			mediaType.equals(MEDIA_TYPE_VIDEO) ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_PICTURES;
-		final File imageFile = MediaModule.createExternalStorageFile(extension, mediaDirectory, saveToPhotoGallery);
+		final File mediaFile = MediaModule.createExternalStorageFile(extension, mediaDirectory, saveToPhotoGallery);
 
 		//Sanity Checks
-		if (imageFile == null) {
+		if (mediaFile == null) {
 			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(NO_CAMERA, "Unable to create file for storage");
@@ -373,12 +373,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				errorCallback.callAsync(getKrollObject(), response);
 			}
 			Log.e(TAG, "Camera not supported");
-			imageFile.delete();
+			mediaFile.delete();
 			return;
 		}
 
 		//Create Intent
-		final Uri fileUri = getMediaUriFrom(imageFile);
+		final Uri fileUri = getMediaUriFrom(mediaFile);
 		Intent intent = new Intent(intentType);
 		intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		if (Build.VERSION.SDK_INT >= 16) {
@@ -396,7 +396,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 
 		CameraResultHandler resultHandler = new CameraResultHandler();
-		resultHandler.imageFile = imageFile;
+		resultHandler.mediaFile = mediaFile;
 		resultHandler.successCallback = successCallback;
 		resultHandler.errorCallback = errorCallback;
 		resultHandler.cancelCallback = cancelCallback;
@@ -767,7 +767,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
 	{
-		protected File imageFile;
+		protected File mediaFile;
 		protected boolean saveToPhotoGallery;
 		protected int code;
 		protected KrollFunction successCallback, cancelCallback, errorCallback;
@@ -787,7 +787,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		{
 			if (requestCode == code) {
 
-				Uri uri = data != null ? data.getData() : getMediaUriFrom(imageFile);
+				Uri uri = data != null ? data.getData() : getMediaUriFrom(mediaFile);
 
 				if (resultCode == Activity.RESULT_OK) {
 					if (saveToPhotoGallery) {
@@ -816,8 +816,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 				} else {
 					// Delete the file.
-					if (imageFile != null) {
-						imageFile.delete();
+					if (mediaFile != null) {
+						mediaFile.delete();
 					}
 					if (resultCode == Activity.RESULT_CANCELED) {
 						if (cancelCallback != null) {
@@ -843,8 +843,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (requestCode != code) {
 				return;
 			}
-			if (imageFile != null) {
-				imageFile.delete();
+			if (mediaFile != null) {
+				mediaFile.delete();
 			}
 			String msg = "Camera problem: " + e.getMessage();
 			Log.e(TAG, msg, e);
