@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -579,7 +580,7 @@ public class TiFileHelper
 				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
 							   + "' does not exist. Call to File.createTempFile() will fail.");
 			}
-			result = File.createTempFile("tia", suffix, dir);
+			result = new File(dir.getPath() + "/tia" + Math.abs(new Random().nextLong()) + suffix);
 
 			if (destroyOnExit) {
 				tempFiles.add(result);
