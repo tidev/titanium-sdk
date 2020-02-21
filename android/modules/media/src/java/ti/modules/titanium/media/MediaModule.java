@@ -780,7 +780,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		{
 			if (requestCode == code) {
 
-				Uri uri = data != null ? data.getData() : getMediaUriFrom(mediaFile);
+				Uri uri = data != null ? data.getData() : null;
+				if (uri == null) {
+					uri = getMediaUriFrom(mediaFile);
+				}
 
 				if (resultCode == Activity.RESULT_OK) {
 					if (saveToPhotoGallery) {
