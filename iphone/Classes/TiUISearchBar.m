@@ -129,10 +129,12 @@
   NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
 #if IS_SDK_IOS_13
-        TiThreadPerformOnMainThread(^{
+    TiThreadPerformOnMainThread(
+        ^{
           UISearchTextField *textField = [[self searchBar] searchTextField];
           [textField setAttributedPlaceholder:placeholder];
-        }, NO);
+        },
+        NO);
 #endif
   } else {
     [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeholder];
