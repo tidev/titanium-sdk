@@ -2148,7 +2148,7 @@ properties:
 
   - name: R
     summary: Accessor for Android system resources.
-    type: Titanium.Android.R
+    type: RProxy
     permission: read-only
     accessors: false
 
