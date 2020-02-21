@@ -287,13 +287,15 @@ public class MediaModule extends KrollModule implements Handler.Callback
 						return ContentUris.withAppendedId(contentUri, id);
 					}
 				}
-			}
 
-			// Could not find media, create new one.
-			final ContentValues values = new ContentValues();
-			values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.getName());
-			values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath);
-			return contentResolver.insert(contentUri, values);
+				// Could not find media, create new one.
+				final ContentValues values = new ContentValues();
+				values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.getName());
+				values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath);
+				return contentResolver.insert(contentUri, values);
+			} catch (Exception e) {
+				// Do nothing...
+			}
 		}
 
 		// Return uri from our file provider.
