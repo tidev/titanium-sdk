@@ -573,18 +573,13 @@ public class TiFileHelper
 
 	public File getTempFile(File dir, String suffix, boolean destroyOnExit) throws IOException
 	{
-		File result = null;
-		Context context = softContext.get();
-		if (context != null) {
-			if (!dir.exists()) {
-				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
-							   + "' does not exist. Call to File.createTempFile() will fail.");
-			}
-			result = new File(dir.getPath() + "/tia" + Math.abs(new Random().nextLong()) + suffix);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		final File result = new File(dir.getPath() + "/tia" + Math.abs(new Random().nextLong()) + suffix);
 
-			if (destroyOnExit) {
-				tempFiles.add(result);
-			}
+		if (destroyOnExit) {
+			tempFiles.add(result);
 		}
 		return result;
 	}

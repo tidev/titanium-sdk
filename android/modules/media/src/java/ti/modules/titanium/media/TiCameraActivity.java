@@ -6,8 +6,10 @@
  */
 package ti.modules.titanium.media;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -39,6 +41,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
+
+import android.os.Environment;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Surface;
@@ -447,11 +451,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			return;
 		}
 
-		if (saveToPhotoGallery) {
-			videoFile = MediaModule.createGalleryImageFile();
-		} else {
-			videoFile = TiFileFactory.createDataFile("tia", ".mp4");
-		}
+		videoFile = MediaModule.createExternalStorageFile(".mp4", Environment.DIRECTORY_MOVIES, saveToPhotoGallery);
 
 		if (recorder == null) {
 			recorder = new MediaRecorder();
@@ -672,35 +672,24 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	private static File writeToFile(byte[] data, boolean saveToGallery) throws Throwable
 	{
-		try {
-			File imageFile = null;
-			if (saveToGallery) {
-				imageFile = MediaModule.createGalleryImageFile();
-			} else {
-				// Save the picture in the internal data directory so it is private to this application.
-				String extension = ".jpg";
-				if (MEDIA_TYPE_VIDEO.equals(mediaType)) {
-					extension = ".mp4";
-				}
-				imageFile = TiFileFactory.createDataFile("tia", extension);
-			}
+		final boolean isVideo = MEDIA_TYPE_VIDEO.equals(mediaType);
+		final String extension = isVideo ? ".mp4" : ".jpg";
+		final File mediaFile = MediaModule.createExternalStorageFile(
+			extension, isVideo ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_PICTURES, saveToGallery);
+		final Uri mediaUri = MediaModule.getMediaUriFrom(mediaFile);
+		final OutputStream mediaOutputStream =
+			TiApplication.getInstance().getContentResolver().openOutputStream(mediaUri);
 
-			FileOutputStream imageOut = new FileOutputStream(imageFile);
-			imageOut.write(data);
-			imageOut.close();
+		BufferedOutputStream imageOut = new BufferedOutputStream(mediaOutputStream);
+		imageOut.write(data);
+		imageOut.close();
 
-			if (saveToGallery) {
-				Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-				Uri contentUri = Uri.fromFile(imageFile);
-				mediaScanIntent.setData(contentUri);
-				Activity activity = TiApplication.getAppCurrentActivity();
-				activity.sendBroadcast(mediaScanIntent);
-			}
-			return imageFile;
-
-		} catch (Throwable t) {
-			throw t;
+		if (saveToGallery) {
+			Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+			mediaScanIntent.setData(mediaUri);
+			TiApplication.getInstance().sendBroadcast(mediaScanIntent);
 		}
+		return mediaFile;
 	}
 
 	static public void takePicture()
