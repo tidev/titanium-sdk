@@ -12,6 +12,8 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 ## Community Credits
 
 * Sergey Volkov
+    * [TIMOB-26662](https://jira.appcelerator.org/browse/TIMOB-26662) Android: TableViewRow bugs (#10542) ([19f532b](https://github.com/appcelerator/titanium_mobile/commit/19f532b334c75afdb9340e343a1fa0caf7b93bcb))
+    * add "repeatable" property on methods parameters ([ea0da79](https://github.com/appcelerator/titanium_mobile/commit/ea0da79e2fef897c8757303f368990472f4ef7f1))
     * fix optional parameters on "timers" methods ([8a00014](https://github.com/appcelerator/titanium_mobile/commit/8a0001478a94c9714f8b9b68e96c96ad1b5db50b))
     * split interface and property definition for console and JSON ([958a6a3](https://github.com/appcelerator/titanium_mobile/commit/958a6a3dcc086b835ed2c887512bd65c1c9e3ea5))
     * fix Ti.UI.TableView.setData argument ([70c16f7](https://github.com/appcelerator/titanium_mobile/commit/70c16f7ca213f39791330758489be4f951dfa1ab))
@@ -30,7 +32,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
     * remove duplicate prop "category" from "localnotificationaction" ([163065a](https://github.com/appcelerator/titanium_mobile/commit/163065a7496702b9e705f7a9f74b84b5e981220b))
 
 * Hans Knöchel
-  *  add generated .cxx directory to .gitignore ([37b446c](https://github.com/appcelerator/titanium_mobile/commit/37b446cbdb439d0d911f403a8514ca6aa562c748))
+    *  add generated .cxx directory to .gitignore ([37b446c](https://github.com/appcelerator/titanium_mobile/commit/37b446cbdb439d0d911f403a8514ca6aa562c748))
     * [TIMOB-27441](https://jira.appcelerator.org/browse/TIMOB-27441) - do not log Ti.App events ([2c84e30](https://github.com/appcelerator/titanium_mobile/commit/2c84e3070a8870edb9b1bc1645468d4f82174fe1))
 
 * Giorgio Mandolini
@@ -62,6 +64,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 * [TIMOB-27747](https://jira.appcelerator.org/browse/TIMOB-27747) - crash with old "ti.playservices" in 9.0.0 ([c194ecf](https://github.com/appcelerator/titanium_mobile/commit/c194ecfe06b5fd42b66131d5809f4bee45aaa9f9))
 * [TIMOB-27694](https://jira.appcelerator.org/browse/TIMOB-27694) - default Ti.Ui.TextField.editable is true in #focus() ([99d08f6](https://github.com/appcelerator/titanium_mobile/commit/99d08f6ad81b6caa07a43ecbbbfeca45df4a3ed9))
 * [TIMOB-27496](https://jira.appcelerator.org/browse/TIMOB-27496) - do not modify original ListView proxy ([e75b514](https://github.com/appcelerator/titanium_mobile/commit/e75b514c1ea0f14a8f1e2e6e91a33502b921e164))
+* [TIMOB-27746](https://jira.appcelerator.org/browse/TIMOB-27746) - firebase upload with ti.map and ti.playservices ([f63e597](https://github.com/appcelerator/titanium_mobile/commit/f63e597adfc21c4aac6894234b2c92bee4c5a593))
 * [TIMOB-25945](https://jira.appcelerator.org/browse/TIMOB-25945) - fix losing elevation effect after dimensions change ([f46784b](https://github.com/appcelerator/titanium_mobile/commit/f46784bb83bf630de23a89e3c53fea4b5940729e))
 * fix scroll view's layout resizing with children ([5723b11](https://github.com/appcelerator/titanium_mobile/commit/5723b11146548fb759092b0db5567b12a151efe4))
 * fix support for Java 8 in Kotlin ([2287e83](https://github.com/appcelerator/titanium_mobile/commit/2287e8379091bc4c492d33245f0e48e4bfc61b8a))
@@ -88,6 +91,8 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 * cookies updated while reloading webview ([fc11337](https://github.com/appcelerator/titanium_mobile/commit/fc1133732d1d33405e0cf693a74e61d5ef7783a3))
 * expose TiApp singleton accessor to swift ([495d76c](https://github.com/appcelerator/titanium_mobile/commit/495d76ce367551e52f0b2779ed856ec0955e3f52))
 * [TIMOB-27350](https://jira.appcelerator.org/browse/TIMOB-27350) - fix toString() for binary blobs ([c95ddb3](https://github.com/appcelerator/titanium_mobile/commit/c95ddb3b45b536f193d60065f7c1cef1ebd44491))
+* [TIMOB-27528](https://jira.appcelerator.org/browse/TIMOB-27528) - handle uncaught exceptions in proxy fireEvent callbacks ([5dbc89f](https://github.com/appcelerator/titanium_mobile/commit/5dbc89f0ba347d9d4f8aac7164bf0e87f44a19c6))
+* [TIMOB-27528](https://jira.appcelerator.org/browse/TIMOB-27528) - handle uncaught exceptions in timer callbacks ([29944dc](https://github.com/appcelerator/titanium_mobile/commit/29944dc73a3b55f266002cabc34bea889891d685))
 * handle when new proxies are created with dictionary arguments ([2c8e2ac](https://github.com/appcelerator/titanium_mobile/commit/2c8e2ac07e07a49434bded23324d8e7f9492ae8a))
 * handle when throwing new obj-c proxy error without subreason ([3e2934b](https://github.com/appcelerator/titanium_mobile/commit/3e2934bbe5bd74626e0b6e12fd28583373f6bcb4))
 * navBar properties not working properly with extendEdges set to Ti.UI.EXTEND_EDGE_TOP ([d673c36](https://github.com/appcelerator/titanium_mobile/commit/d673c362888de7d0ceda6509ab2a222231d399c8))
@@ -107,6 +112,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 * tintColor not working for TabbedBar in  iOS 13 ([ec6fbf6](https://github.com/appcelerator/titanium_mobile/commit/ec6fbf624e27ac4f7c798bf7d93966ff74a930d7))
 * [TIMOB-27484](https://jira.appcelerator.org/browse/TIMOB-27484) - update to core-js 3 ([ffa4cef](https://github.com/appcelerator/titanium_mobile/commit/ffa4cefa7c6f3ec1b33963cbee3eecd3e6b07ab0))
 * [TIMOB-27630](https://jira.appcelerator.org/browse/TIMOB-27630) - use correct target for transpiling on ios ([c4a998a](https://github.com/appcelerator/titanium_mobile/commit/c4a998ad8442737afa957deee4e1cc2e938fca57))
+* [TIMOB-27763](https://jira.appcelerator.org/browse/TIMOB-27763) - usernotificationsettings event has no success property ([e835456](https://github.com/appcelerator/titanium_mobile/commit/e835456155f265fd24752c0b9bea89ed1d84c356))
 * when firing events to new proxies, fill in type/source ([e56abfc](https://github.com/appcelerator/titanium_mobile/commit/e56abfca2705c71e88acbd2ff946a176a4df4e38))
 
 
@@ -125,6 +131,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 * target Java8 and Kotlin support for native modules ([5ce5e72](https://github.com/appcelerator/titanium_mobile/commit/5ce5e72b3a90803fc4b54555cd0e8b900c756d9e))
 * [TIMOB-27685](https://jira.appcelerator.org/browse/TIMOB-27685) [TIMOB-27298](https://jira.appcelerator.org/browse/TIMOB-27298) [TIMOB-27297](https://jira.appcelerator.org/browse/TIMOB-27297) - update hyperloop for gradle ([13f78c4](https://github.com/appcelerator/titanium_mobile/commit/13f78c4a3023ba997e55267b70c039e1331af682))
 * Update V8 to 7.8.279.23 ([9006b4d](https://github.com/appcelerator/titanium_mobile/commit/9006b4d58b8fc827545e7fcbc5ff740bf49fe939))
+* [TIMOB-27752](https://jira.appcelerator.org/browse/TIMOB-27752) - exclude x86/x86_64 in production builds by default ([c8f358d](https://github.com/appcelerator/titanium_mobile/commit/c8f358dcdd50763fb509576ee635f626bc9ba069))
 
 ### iOS platform
 
@@ -151,6 +158,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 * Removed deprecated tcp error callback errorCode property ([7e405aa](https://github.com/appcelerator/titanium_mobile/commit/7e405aa9449554c81d1014666c57d8497541161a))
 * Removed deprecated stream callback properties ([4b48db8](https://github.com/appcelerator/titanium_mobile/commit/4b48db872f7389218072a07c8734781cc41e7bcb))
 * Removed the LINKIFY_* constants living in Android namespace ([7c88912](https://github.com/appcelerator/titanium_mobile/commit/7c88912487fbc9aa84b73e324f8eda25540aa148))
+* [TIMOB-27758](https://jira.appcelerator.org/browse/TIMOB-27758) module builds should fail with aar in lib folder in 9.0.0 ([c8bbeab](https://github.com/appcelerator/titanium_mobile/commit/c8bbeab4f117e6f9a16988338a50a48f20402911))
 
 
 ### iOS platform
@@ -179,10 +187,10 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 | Module      | Android version | iOS Version |
 | ----------- | --------------- | ----------- |
 | facebook | 9.0.0 | 7.0.1 |
-| ti.cloudpush | 6.0.1 | n/a |
-| ti.map | 5.0.0 | 3.3.0 |
+| ti.cloudpush | 7.0.0 | n/a |
+| ti.map | 5.0.1 | 3.3.0 |
 | ti.webdialog | 2.0.0 | 1.1.0 |
-| ti.playservices | 17.1.0 | n/a |
+| ti.playservices | 17.1.1 | n/a |
 | ti.identity | 3.0.1 | 1.1.0 |
 | urlSession | n/a | 2.2.0 |
 | ti.coremotion | n/a | 2.0.1 |
