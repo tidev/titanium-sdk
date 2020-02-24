@@ -124,20 +124,20 @@
 
 - (void)setHintTextColor_:(id)value
 {
-  id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
+  id hintText = [self.proxy valueForUndefinedKey:@"hintText"] ?: @"";
 
   NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
 #if IS_SDK_IOS_13
     TiThreadPerformOnMainThread(
         ^{
-          UISearchTextField *textField = [[self searchBar] searchTextField];
-          [textField setAttributedPlaceholder:placeholder];
+          UISearchTextField *textField = self.searchBar.searchTextField;
+          textField.attributedPlaceholder = placeholder;
         },
         NO);
 #endif
   } else {
-    [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeholder];
+    [UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]].attributedPlaceholder = placeholder;
   }
   RELEASE_TO_NIL(placeholder);
 }
@@ -146,16 +146,16 @@
 {
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
 #if IS_SDK_IOS_13
-    [[[self searchBar] searchTextField] setTextColor:[[TiUtils colorValue:value] _color]];
+    self.searchBar.searchTextField.textColor = [[TiUtils colorValue:value] _color];
 #endif
   } else {
     // TIMOB-10368
     // Remove this hack again once iOS exposes this as a public API
-    UIView *searchContainerView = [[[self searchBar] subviews] firstObject];
+    UIView *searchContainerView = self.searchBar.subviews.firstObject;
 
-    [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    [searchContainerView.subviews enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
       if ([obj isKindOfClass:[UITextField class]]) {
-        [(UITextField *)obj setTextColor:[[TiUtils colorValue:value] _color]];
+        ((UITextField *)obj).textColor = [[TiUtils colorValue:value] _color];
         *stop = YES;
       }
     }];
