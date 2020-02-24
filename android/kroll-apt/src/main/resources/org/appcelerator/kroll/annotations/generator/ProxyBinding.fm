@@ -755,8 +755,12 @@ beprovided to handle the result.
 		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
 	}
 	if (holder.IsEmpty() || holder->IsNull()) {
-		LOGE(TAG, "Couldn't obtain argument holder");
-		args.GetReturnValue().Set(v8::Undefined(isolate));
-		return;
+		if (!moduleInstance.IsEmpty()) {
+			holder = moduleInstance.Get(isolate);
+		} else {
+			LOGE(TAG, "Couldn't obtain argument holder");
+			args.GetReturnValue().Set(v8::Undefined(isolate));
+			return;
+		}
 	}
 </#macro>
