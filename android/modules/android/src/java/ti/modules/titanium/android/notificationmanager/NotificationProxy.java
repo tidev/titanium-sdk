@@ -50,10 +50,7 @@ public class NotificationProxy extends KrollProxy
 		super();
 		notificationBuilder = new NotificationCompat.Builder(TiApplication.getInstance().getApplicationContext())
 								  .setSmallIcon(android.R.drawable.stat_sys_warning)
-								  .setWhen(System.currentTimeMillis())
-								  .setChannelId(NotificationManagerModule.useDefaultChannel()
-													? NotificationManagerModule.DEFAULT_CHANNEL_ID
-													: "miscellaneous"); // NotificationChannel.DEFAULT_CHANNEL_ID
+								  .setWhen(System.currentTimeMillis());
 
 		//set up default values
 		flags = Notification.FLAG_AUTO_CANCEL;
@@ -88,6 +85,10 @@ public class NotificationProxy extends KrollProxy
 		}
 		if (d.containsKey(TiC.PROPERTY_CHANNEL_ID)) {
 			setChannelId(d.getString(TiC.PROPERTY_CHANNEL_ID));
+		} else {
+			setChannelId(NotificationManagerModule.useDefaultChannel()
+							 ? NotificationManagerModule.DEFAULT_CHANNEL_ID
+							 : "miscellaneous"); // NotificationChannel.DEFAULT_CHANNEL_ID
 		}
 		if (d.containsKey(TiC.PROPERTY_CONTENT_VIEW)) {
 			setContentView((RemoteViewsProxy) d.get(TiC.PROPERTY_CONTENT_VIEW));
