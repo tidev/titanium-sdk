@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -23,10 +23,10 @@
 /* Begin PBXBuildFile section */
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
-		4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */; };
-		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
 		B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */ = {isa = PBXBuildFile; fileRef = B106A6FB24535CB800B1305E /* JSValue+Addons.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = B106A6FC24535CB800B1305E /* JSValue+Addons.m */; };
+		B10E8D502408559300578E8F /* APSHTTPClient.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */; };
+		B10E8D5824085E1E00578E8F /* APSAnalytics.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */; };
 		B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B7624B6A216663C7000C365A /* ObjcProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B7624B6B216663C7000C365A /* ObjcProxy.m */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
@@ -183,6 +183,8 @@
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
 		B106A6FB24535CB800B1305E /* JSValue+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JSValue+Addons.h"; sourceTree = "<group>"; };
 		B106A6FC24535CB800B1305E /* JSValue+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "JSValue+Addons.m"; sourceTree = "<group>"; };
+		B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = APSHTTPClient.xcframework; path = TitaniumKit/Libraries/APSHTTPClient/APSHTTPClient.xcframework; sourceTree = "<group>"; };
+		B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = APSAnalytics.xcframework; path = TitaniumKit/Libraries/APSAnalytics/APSAnalytics.xcframework; sourceTree = "<group>"; };
 		B7624B6A216663C7000C365A /* ObjcProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcProxy.h; sourceTree = "<group>"; };
 		B7624B6B216663C7000C365A /* ObjcProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcProxy.m; sourceTree = "<group>"; };
 		DB1596572075389000292B19 /* APIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIModule.m; sourceTree = "<group>"; };
@@ -332,10 +334,6 @@
 		DB3908632075228900AE31EC /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
 		DB3908642075228900AE31EC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
 		DB5813E62075FCF200CA1437 /* TiDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiDefines.h; sourceTree = "<group>"; };
-		DB5813E82075FDC600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		DB5813E92075FDF600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = TitaniumKit/Libraries/APSAnalytics/libAPSAnalytics.a; sourceTree = "<group>"; };
-		DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = TitaniumKit/Libraries/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
 		DBE66A34210F92FD00095F1E /* KrollWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollWrapper.h; sourceTree = "<group>"; };
 		DBE66A35210F92FD00095F1E /* KrollWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollWrapper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -347,8 +345,8 @@
 			files = (
 				DB258DAD1F097697000D0D8D /* Foundation.framework in Frameworks */,
 				DB258DAB1F097692000D0D8D /* JavaScriptCore.framework in Frameworks */,
-				4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */,
-				4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */,
+				B10E8D502408559300578E8F /* APSHTTPClient.xcframework in Frameworks */,
+				B10E8D5824085E1E00578E8F /* APSAnalytics.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -562,8 +560,8 @@
 		DB258DA91F097691000D0D8D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */,
-				DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */,
+				B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */,
+				B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */,
 				DB258DAC1F097697000D0D8D /* Foundation.framework */,
 				DB258DAA1F097692000D0D8D /* JavaScriptCore.framework */,
 			);
@@ -583,7 +581,6 @@
 			isa = PBXGroup;
 			children = (
 				DB39085F2075228900AE31EC /* APSAnalytics.h */,
-				DB5813E82075FDC600CA1437 /* module.modulemap */,
 			);
 			path = APSAnalytics;
 			sourceTree = "<group>";
@@ -596,7 +593,6 @@
 				DB3908622075228900AE31EC /* APSHTTPClient.h */,
 				DB3908632075228900AE31EC /* APSHTTPHelper.h */,
 				DB3908642075228900AE31EC /* APSHTTPPostForm.h */,
-				DB5813E92075FDF600CA1437 /* module.modulemap */,
 			);
 			path = APSHTTPClient;
 			sourceTree = "<group>";
@@ -1003,7 +999,11 @@
 				INFOPLIST_FILE = TitaniumKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
@@ -1043,7 +1043,11 @@
 				INFOPLIST_FILE = TitaniumKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
