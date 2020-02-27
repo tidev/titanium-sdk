@@ -122,15 +122,13 @@
 		24CA8C7E111167B60084E2DE /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7D111167B60084E2DE /* CoreLocation.framework */; };
 		24CA8C80111167B60084E2DE /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7F111167B60084E2DE /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24CA8C82111167B60084E2DE /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C81111167B60084E2DE /* MessageUI.framework */; };
-		24CA8C84111167B60084E2DE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C83111167B60084E2DE /* MobileCoreServices.framework */; };
-		24CA8C86111167B60084E2DE /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; };
+		24CA8C86111167B60084E2DE /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; platformFilter = ios; };
 		24CA8C88111167B60084E2DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C87111167B60084E2DE /* QuartzCore.framework */; };
 		24CA8C8A111167B60084E2DE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C89111167B60084E2DE /* SystemConfiguration.framework */; };
 		24CA8CED1111689B0084E2DE /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */; };
 		24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
-		24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D5C75811E6364F00F097E2 /* libtiverify.a */; };
 		24DEDAC7112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24E50E1A1160666300AF54AF /* LauncherButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E061160666300AF54AF /* LauncherButton.m */; };
 		24E50E1B1160666300AF54AF /* LauncherItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E081160666300AF54AF /* LauncherItem.m */; };
@@ -209,6 +207,7 @@
 		84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
 		84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
 		AD3174C21D015DA9000D5F1A /* TiCalendarAttendee.m in Sources */ = {isa = PBXBuildFile; fileRef = AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */; };
+		B112F936244E69B1005901DA /* tiverify.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B112F935244E69B1005901DA /* tiverify.xcframework */; };
 		B1E5DCF82463401A007817F8 /* TiUIShortcutProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B1E5DCF72463401A007817F8 /* TiUIShortcutProxy.m */; };
 		B1E5DCFC24634057007817F8 /* TiUIShortcutItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B1E5DCFB24634057007817F8 /* TiUIShortcutItemProxy.m */; };
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
@@ -220,6 +219,7 @@
 		B637616F1BC5CA4A0070A695 /* TiLayoutDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B637616C1BC5CA4A0070A695 /* TiLayoutDimension.m */; };
 		B63761701BC5CA4A0070A695 /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B637616E1BC5CA4A0070A695 /* TiLayoutView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
+		B787388624F4565100E25A1D /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B787388424F4565100E25A1D /* CoreServices.framework */; };
 		BB26FC8019AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m */; };
 		BB26FC8319AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
@@ -539,7 +539,6 @@
 		24CA916411116F870084E2DE /* Titanium.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Titanium.plist; sourceTree = "<group>"; };
 		24D0700411D0253D00F615D8 /* TiUIiOSProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiUIiOSProxy.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiUIiOSProxy.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		24D5C75811E6364F00F097E2 /* libtiverify.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtiverify.a; path = ../lib/libtiverify.a; sourceTree = SOURCE_ROOT; };
 		24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbarButton.h; sourceTree = "<group>"; };
 		24DEDAC3112371A500398D86 /* XMLModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLModule.h; sourceTree = "<group>"; };
 		24DEDAC4112371A500398D86 /* XMLModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLModule.m; sourceTree = "<group>"; };
@@ -696,6 +695,7 @@
 		84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSplitWindow.m; sourceTree = "<group>"; };
 		AD3174C01D015DA9000D5F1A /* TiCalendarAttendee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarAttendee.h; sourceTree = "<group>"; };
 		AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarAttendee.m; sourceTree = "<group>"; };
+		B112F935244E69B1005901DA /* tiverify.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = tiverify.xcframework; path = ../lib/tiverify.xcframework; sourceTree = "<group>"; };
 		B14703DF24DCE10100E8EBF4 /* Titanium-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Titanium-Bridging-Header.h"; sourceTree = "<group>"; };
 		B1E5DCF62463401A007817F8 /* TiUIShortcutProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIShortcutProxy.h; sourceTree = "<group>"; };
 		B1E5DCF72463401A007817F8 /* TiUIShortcutProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiUIShortcutProxy.m; sourceTree = "<group>"; };
@@ -723,6 +723,7 @@
 		B637616E1BC5CA4A0070A695 /* TiLayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutView.m; path = Layout/TiLayoutView.m; sourceTree = "<group>"; };
 		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
+		B787388424F4565100E25A1D /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk/System/Library/Frameworks/CoreServices.framework; sourceTree = DEVELOPER_DIR; };
 		BB26FC7C19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationActionProxy.h; sourceTree = "<group>"; };
 		BB26FC7D19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationActionProxy.m; sourceTree = "<group>"; };
 		BB26FC7E19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationCategoryProxy.h; sourceTree = "<group>"; };
@@ -803,14 +804,15 @@
 				84BBA58816570F90006B8C22 /* Security.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
+				B787388624F4565100E25A1D /* CoreServices.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				24CA8C76111167B60084E2DE /* AddressBook.framework in Frameworks */,
 				24CA8C78111167B60084E2DE /* AddressBookUI.framework in Frameworks */,
 				24CA8C7C111167B60084E2DE /* CFNetwork.framework in Frameworks */,
 				24CA8C7E111167B60084E2DE /* CoreLocation.framework in Frameworks */,
+				B112F936244E69B1005901DA /* tiverify.xcframework in Frameworks */,
 				24CA8C80111167B60084E2DE /* MapKit.framework in Frameworks */,
 				24CA8C82111167B60084E2DE /* MessageUI.framework in Frameworks */,
-				24CA8C84111167B60084E2DE /* MobileCoreServices.framework in Frameworks */,
 				24CA8C86111167B60084E2DE /* OpenGLES.framework in Frameworks */,
 				24CA8C88111167B60084E2DE /* QuartzCore.framework in Frameworks */,
 				24CA8C8A111167B60084E2DE /* SystemConfiguration.framework in Frameworks */,
@@ -818,7 +820,6 @@
 				DB769E23210F138E004D9338 /* TitaniumKit.framework in Frameworks */,
 				24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */,
 				24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */,
-				24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1637,7 +1638,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				24D5C75811E6364F00F097E2 /* libtiverify.a */,
+				B787388424F4565100E25A1D /* CoreServices.framework */,
+				B112F935244E69B1005901DA /* tiverify.xcframework */,
 				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
 				84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */,
 				841CCAD01807395C00C8DB76 /* CoreText.framework */,
@@ -2371,7 +2373,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2406,6 +2407,9 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2418,7 +2422,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2451,6 +2454,9 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
