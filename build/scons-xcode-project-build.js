@@ -16,7 +16,10 @@ const targetBuildDir = program.args[1];
 const productName = program.args[2];
 
 const ROOT_DIR = path.join(__dirname, '..');
-const appDir = path.join(targetBuildDir, `${productName}.app`);
+var appDir = path.join(targetBuildDir, `${productName}.app`);
+if (targetBuildDir.includes('mac') === true) {
+	appDir = path.join(targetBuildDir, `${productName}.app`, 'Contents/Resources');
+}
 const xcodeProjectResources = path.join(projectDir, '../Resources');
 const localeCompiler = path.join(ROOT_DIR, 'support/dev/localecompiler.py');
 

@@ -16,6 +16,20 @@ var btn = Ti.UI.createButton({
 
 btn.addEventListener('click', function() {
     Ti.API.info('Hello world!');
+        const url = "https://www.google.com/";
+// above url have space after keyword google
+    const client = Ti.Network.createHTTPClient({
+        onload: function(e) {
+            console.log("success");
+        },
+     
+        onerror: function(e) {
+            console.log("failure");
+            console.error(e.error);
+        },
+    });
+    client.open("GET", url);
+    client.send();
 });
 
 win.add(btn);

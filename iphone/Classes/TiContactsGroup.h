@@ -6,7 +6,7 @@
  */
 #import <TitaniumKit/TiProxy.h>
 
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS) && !TARGET_OS_MACCATALYST
 #import "ContactsModule.h"
 #import <AddressBook/AddressBook.h>
 #import <Contacts/Contacts.h>
