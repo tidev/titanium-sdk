@@ -21,7 +21,7 @@
 #import "TiAppiOSUserNotificationActionProxy.h"
 #import "TiAppiOSUserNotificationCategoryProxy.h"
 
-#ifdef USE_TI_APPIOSUSERNOTIFICATIONCENTER
+#if defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER) && !TARGET_OS_MACCATALYST
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #endif
 
@@ -240,7 +240,7 @@
   RELEASE_TO_NIL(event);
 }
 
-#ifdef USE_TI_APPIOSUSERNOTIFICATIONCENTER
+#if defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER) && !TARGET_OS_MACCATALYST
 - (id)UserNotificationCenter
 {
   if (UserNotificationCenter == nil) {
@@ -697,8 +697,11 @@
                                                                  radius:radius
                                                              identifier:identifier];
 
-    trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
-                                                       repeats:triggersOnce];
+#if !TARGET_OS_MACCATALYST
+    trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion repeats:triggersOnce];
+#else
+    trigger = nil;
+#endif
     RELEASE_TO_NIL(circularRegion);
   } else {
     DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");

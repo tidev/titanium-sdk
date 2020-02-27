@@ -857,4 +857,6 @@ typedef enum {
  */
 + (BOOL)isHyperloopAvailable;
 
++ (BOOL)isMacOS;
+
 @end

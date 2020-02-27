@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_APPIOS
+#if defined(USE_TI_APPIOS) && defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER) && !TARGET_OS_MACCATALYST
 
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"

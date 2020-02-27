@@ -1372,7 +1372,9 @@
 {
   WARN_IF_BACKGROUND_THREAD_OBJ;
   if ([self presentedViewController] == nil && isCurrentlyVisible) {
+#if !TARGET_OS_MACCATALYST
     [self refreshOrientationWithDuration:nil];
+#endif
     [self updateStatusBar];
   }
 
