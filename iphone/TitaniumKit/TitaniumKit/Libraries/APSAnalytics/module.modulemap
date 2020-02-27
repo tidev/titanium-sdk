@@ -1,4 +1,0 @@
-module APSAnalytics {
-  umbrella header "APSAnalytics.h"
-  export *
-}
