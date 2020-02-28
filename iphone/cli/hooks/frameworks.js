@@ -553,7 +553,8 @@ class FrameworkIntegrator {
 		this._xobjs.PBXBuildFile[buildFileUuid] = {
 			isa: 'PBXBuildFile',
 			fileRef: fileRefUuid,
-			fileRef_comment: frameworkPackageName
+			fileRef_comment: frameworkPackageName,
+			platformFilter: 'ios'
 		};
 		this._xobjs.PBXBuildFile[buildFileUuid + '_comment'] = frameworkPackageName + ' in Frameworks';
 		this._frameworksBuildPhase.files.push({
@@ -576,7 +577,8 @@ class FrameworkIntegrator {
 			isa: 'PBXBuildFile',
 			fileRef: fileRefUuid,
 			fileRef_comment: frameworkPackageName,
-			settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
+			settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] },
+			platformFilter: 'ios'
 		};
 		this._xobjs.PBXBuildFile[embeddedBuildFileUuid + '_comment'] = frameworkPackageName + ' in Embed Frameworks';
 
@@ -641,14 +643,13 @@ class FrameworkIntegrator {
 		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
 		for (let buildConf of buildConfigurations) {
 			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-			let searchPaths = (buildSettings.LD_RUNPATH_SEARCH_PATHS || '').replace(/^"/, '').replace(/"$/, '');
+			let searchPaths = buildSettings.LD_RUNPATH_SEARCH_PATHS;
 			if (searchPaths.indexOf('$(inherited)') === -1) {
 				searchPaths += ' $(inherited)';
 			}
 			if (searchPaths.indexOf(dynamicFrameworksSearchPath) === -1) {
 				searchPaths += ` ${dynamicFrameworksSearchPath}`;
 			}
-			buildSettings.LD_RUNPATH_SEARCH_PATHS = '"' + searchPaths.trim() + '"';
 		}
 	}
 

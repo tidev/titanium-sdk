@@ -90,7 +90,7 @@ class IOS {
 	async copyLegacyHeaders(DEST_IOS) {
 		// Gather all the *.h files in TitaniumKit, create "redirecting" headers in iphone/include that point to the TitaniumKit ones
 		await fs.ensureDir(path.join(DEST_IOS, 'include'));
-		const subdirs = await fs.readdir(path.join(IOS_ROOT, 'TitaniumKit/build/Release-iphoneuniversal/TitaniumKit.framework/Headers'));
+		const subdirs = await fs.readdir(path.join(IOS_ROOT, 'TitaniumKit/build/TitaniumKit.xcframework/ios-armv7_arm64/TitaniumKit.framework/Headers'));
 		// create them all in parallel
 		await Promise.all(subdirs.map(file => {
 			// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0?
@@ -140,7 +140,7 @@ class IOS {
 			copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ]),
 
 			// Copy TitaniumKit
-			copyFiles(path.join(IOS_ROOT, 'TitaniumKit/build/Release-iphoneuniversal'), path.join(DEST_IOS, 'Frameworks'), [ 'TitaniumKit.framework' ]),
+			copyFiles(path.join(IOS_ROOT, 'TitaniumKit/build'), path.join(DEST_IOS, 'Frameworks'), [ 'TitaniumKit.xcframework' ]),
 
 			// Copy and inject values for special source files
 			this.injectSDKConstants(path.join(DEST_IOS, 'main.m')),
