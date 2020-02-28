@@ -3353,6 +3353,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 				if (lib.isXCFrameworkOfFramework) {
 					const embedFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+					// add the build file
+					xobjs.PBXBuildFile[buildFileUuid] = {
+						isa: 'PBXBuildFile',
+						fileRef: fileRefUuid,
+						fileRef_comment: lib.libName,
+						platformFilter: 'ios'
+					};
+					xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
 
 					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid] = {
 						isa: 'PBXBuildFile',
@@ -6938,6 +6946,10 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		if (this.simOnlyActiveArch) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
+	}
+	
+	if (this.target === 'mac') {
+	   args.push('SUPPORTS_MACCATALYST=YES');
 	}
 
 	if (this.target === 'mac') {
