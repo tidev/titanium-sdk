@@ -6947,9 +6947,9 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
 	}
-	
+
 	if (this.target === 'mac') {
-	   args.push('SUPPORTS_MACCATALYST=YES');
+		args.push('SUPPORTS_MACCATALYST=YES');
 	}
 
 	if (this.target === 'mac') {
