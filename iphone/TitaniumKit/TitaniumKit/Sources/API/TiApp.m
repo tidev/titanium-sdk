@@ -1388,7 +1388,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 
   // Inject the trigger (time- or location-based) into the payload
   UNNotificationTrigger *trigger = notification.request.trigger;
-  
+
 #if !TARGET_OS_MACCATALYST
   if (trigger != nil) {
     if ([trigger isKindOfClass:[UNCalendarNotificationTrigger class]]) {
