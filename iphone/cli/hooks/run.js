@@ -16,7 +16,6 @@ const appc = require('node-appc'),
 	__n = i18n.__n,
 	exec = require('child_process').exec;
 
-
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
@@ -24,13 +23,14 @@ exports.init = function (logger, config, cli) {
 		priority: 10000,
 		post: function (builder, finished) {
 			if (cli.argv.target === 'mac') {
+				// TO DO: Modify it to log messages
 				logger.info(__('Launching Mac'));
-				const command = 'open -a ' + builder.iosBuildDir + '/' + builder.tiapp.name + '.app/Contents/MacOS/'+ builder.tiapp.name;
+				const command = 'open -a ' + builder.iosBuildDir + '/' + builder.tiapp.name + '.app/Contents/MacOS/' + builder.tiapp.name;
 
-				exec(command, function() {});
+				exec(command, function () {});
 				return finished();
 			}
-			
+
 			if (cli.argv.target !== 'simulator') {
 				return finished();
 			}

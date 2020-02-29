@@ -60,7 +60,7 @@ function iOSBuilder() {
 		device: 'test',
 		'dist-appstore': 'production',
 		'dist-adhoc': 'production',
-		'mac': 'development'
+		mac: 'development'
 	};
 
 	// list of available build-targets
@@ -2731,7 +2731,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
-			// check if  enable-mac-target flag has changed
+		// check if  enable-mac-target flag has changed
 		if (this.enableMacTarget !== manifest.enableMacTarget) {
 			this.logger.info(__('Forcing clean build: enable-mac-target flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.enableMacTarget));
@@ -3199,7 +3199,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDeveloperName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	} else if (this.target === 'mac') {
-		buildSettings['"CODE_SIGN_IDENTITY[sdk=macosx*]"'] = `"-"`;
+		buildSettings['"CODE_SIGN_IDENTITY[sdk=macosx*]"'] = '"-"';
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
@@ -6875,9 +6875,9 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
 	}
-	
+
 	if (this.target === 'mac') {
-	   args.push('SUPPORTS_MACCATALYST=YES');
+		args.push('SUPPORTS_MACCATALYST=YES');
 	}
 
 	xcodebuildHook(
