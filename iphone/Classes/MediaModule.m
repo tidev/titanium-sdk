@@ -414,7 +414,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)setAudioSessionMode:(NSNumber *)mode
 {
   DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  #if !TARGET_OS_MACCATALYST
+#if !TARGET_OS_MACCATALYST
 
   switch ([mode unsignedIntegerValue]) {
   case kAudioSessionCategory_AmbientSound:
