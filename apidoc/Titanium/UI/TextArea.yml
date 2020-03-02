@@ -338,7 +338,7 @@ properties:
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
-    type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
+    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
 
   - name: keyboardToolbarColor
