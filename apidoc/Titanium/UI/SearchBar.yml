@@ -360,7 +360,7 @@ platforms: [iphone, ipad]
 properties:
   - name: identifier
     summary: The identifier of the search bar token.
-    type: Titanium.UI.ListSection
+    type: String
     optional: false
 
   - name: text
