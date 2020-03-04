@@ -214,6 +214,9 @@
 - (void)removeTokenAtIndex:(id)index
 {
   ENSURE_SINGLE_ARG(index, NSNumber);
+  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
+     return;
+   }
   [[[self searchBar] searchTextField] removeTokenAtIndex:[TiUtils intValue:index]];
 }
 
