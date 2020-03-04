@@ -1,5 +1,5 @@
 ---
-name: R
+name: Titanium.Android.R
 summary: |
   The Titanium binding of the native Android `R` class, giving access to
   Android system-wide resources or application resources.

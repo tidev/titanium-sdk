@@ -26,7 +26,7 @@ properties:
 
         To access system-wide resources, rather than application resources, use
         <Titanium.Android.R> instead.
-    type: R
+    type: Titanium.Android.R
     permission: read-only
 
   - name: appVersionCode
