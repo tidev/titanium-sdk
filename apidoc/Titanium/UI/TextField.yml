@@ -20,6 +20,12 @@ description: |
     </table>
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
+
+    #### `click` event in iOS
+
+    In iOS 11+, `click` event in text field is not fired due to changes from apple. 
+    Use `touchstart` event instead of `click` event.
+
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
