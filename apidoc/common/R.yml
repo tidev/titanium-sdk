@@ -1,26 +1,29 @@
 ---
-name: RProxy
+name: R
 summary: |
-  The Titanium binding of the native Android `R` class, giving access to Android system-wide
-  resources or application resources.
+  The Titanium binding of the native Android `R` class, giving access to
+  Android system-wide resources or application resources.
 description: |
-    To access system-wide resources your application's resources, use <Titanium.Android.R>.
+    To access system-wide resources your application's resources, use
+    <Titanium.Android.R>.
     To access your application's resources, use <Titanium.App.Android.R>.
 
-    These properties and sub-properties correspond directly to the properties of the the `android.R`
-    class, and should have the same syntax.
+    These properties and sub-properties correspond directly to the properties
+    of the the `android.R` class, and should have the same syntax.
     To retrieve the "OK" string from system resources in Android:
 
         Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);
 
-    If the file  `platform/android/res/drawable/icon.png` exists in the project, it can be accessed
-    using its integer id, as follows:
+    If the file  `platform/android/res/drawable/icon.png` exists in the
+    project, it can be accessed using its resource name, as follows:
 
         var resid = Titanium.App.Android.R.drawable.icon;
 
-    See also: [android.R](https://developer.android.com/reference/android/R.html) in the
+    See also:
+    [android.R](https://developer.android.com/reference/android/R.html) in the
     Android Developer Reference.
-    For more information, refer to the official documentation on the Android Developer website about
+    For more information, refer to the official documentation on the Android
+    Developer website about
     [accessing application resources](https://developer.android.com/guide/topics/resources/accessing-resources.html).
 
     Starting in Titanium SDK 7.3.0, this API exposes all Android related R classes
