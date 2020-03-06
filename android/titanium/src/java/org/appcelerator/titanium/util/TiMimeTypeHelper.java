@@ -251,7 +251,7 @@ public class TiMimeTypeHelper
 	{
 		boolean isBinary = false;
 		if ((mimeType != null) && !mimeType.isEmpty()) {
-			String parts[] = mimeType.split(";");
+			String[] parts = mimeType.split(";");
 			mimeType = parts[0];
 
 			if (mimeType.startsWith("application/")) {

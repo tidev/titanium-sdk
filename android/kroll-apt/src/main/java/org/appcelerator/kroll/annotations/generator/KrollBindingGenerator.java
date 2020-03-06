@@ -322,26 +322,32 @@ public class KrollBindingGenerator
 				// if there's no setProperty impl, then need to add one and remove from propertyAccessors
 				if (dynamicProperties.containsKey(propertyName)) {
 					System.out.println(
-						"[WARN] Clashing property definition in proxy.propertyAccessors and a @Kroll.set/getProperty annotations for property '"
-						+ proxyClassName + "." + propertyName + "'.");
+						"[WARN] Clashing property definition in proxy.propertyAccessors and a @Kroll.set/getProperty "
+						+ "annotations for property '" + proxyClassName + "." + propertyName + "'.");
 					Map<String, Object> dynamicProperty = (Map<String, Object>) dynamicProperties.get(propertyName);
 					if ((Boolean) dynamicProperty.get("set")) { // there's a setter
 						// is getter defined?
 						if ((Boolean) dynamicProperty.get("get")) {
 							System.err.println(
-								"Likely fix is to remove from proxy.propertyAccessors listing, as both getter and setter methods are defined.");
+								"Likely fix is to remove from proxy.propertyAccessors listing, as both getter and "
+								+ "setter methods are defined.");
 						} else {
 							System.err.println(
-								"Likely fix is to remove from proxy.propertyAccessors listing, as a setter method is already defined. A getter IS NOT defined, so you may want to add a @Kroll.getProperty implementation as well (or rely n the default getter generated, which uses #onPropertyChanged() to react).");
+								"Likely fix is to remove from proxy.propertyAccessors listing, as a setter method "
+								+ "is already defined. A getter IS NOT defined, so you may want to add a "
+								+ "@Kroll.getProperty implementation as well (or rely n the default getter generated, "
+								+ "which uses #onPropertyChanged() to react).");
 						}
 						System.exit(1);
 					} else {
 						// NO SETTER! (must have getter)
 						// This may be a valid usage pattern: override getProperty, wants the "default" set implementation
 						System.out.println(
-							"[WARN] This will use the 'default' implementation for a setter and treat the property as readwrite, with a non-default getter.");
+							"[WARN] This will use the 'default' implementation for a setter and treat the property as "
+							+ "readwrite, with a non-default getter.");
 						System.out.println(
-							"[WARN] This is not an error, but you may want to consider adding a @Kroll.setProperty implementation and then removing from proxy.propertyAccessors listing.");
+							"[WARN] This is not an error, but you may want to consider adding a @Kroll.setProperty "
+							+ "implementation and then removing from proxy.propertyAccessors listing.");
 					}
 					// Don't check for clashing methods, since we handle that for dynamic properties in next loop (and we have a dynamic property with same name)
 					continue;
@@ -355,31 +361,34 @@ public class KrollBindingGenerator
 				boolean hasClashingSetter = methods.containsKey("set" + upperProp);
 				if (hasClashingGetter && hasClashingSetter) {
 					System.err.println(
-						"Clashing method definitions in proxy.propertyAccessors and @Kroll.method annotations for property accessors on '"
-						+ proxyClassName + "." + propertyName + " - get" + upperProp + "() and set" + upperProp
-						+ "()'.");
+						"Clashing method definitions in proxy.propertyAccessors and @Kroll.method annotations for "
+						+ "property accessors on '" + proxyClassName + "." + propertyName
+						+ " - get" + upperProp + "() and set" + upperProp + "()'.");
 					System.err.println(
-						"Likely fix is to remove from proxy.propertyAccessors listing, remove @Kroll.method annotation and add @Kroll.getProperty/@Kroll.setProperty annotations to the methods.");
+						"Likely fix is to remove from proxy.propertyAccessors listing, remove @Kroll.method "
+						+ "annotation and add @Kroll.getProperty/@Kroll.setProperty annotations to the methods.");
 					System.err.println("Alternately, please rename the methods to avoid the clash.");
 					System.exit(1);
 				}
 				if (hasClashingGetter) {
 					// There's a getter due to propertyAccessor entry, but also a method with same name
 					System.err.println(
-						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation for property accessor '"
-						+ proxyClassName + "#get" + upperProp + "()'.");
+						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation for "
+						+ "property accessor '" + proxyClassName + "#get" + upperProp + "()'.");
 					System.err.println(
-						"Likely fix is to remove @Kroll.method annotation and add @Kroll.getProperty annotation to method.");
+						"Likely fix is to remove @Kroll.method annotation and add @Kroll.getProperty "
+						+ "annotation to method.");
 					System.err.println("Alternately, please rename the method to avoid the clash.");
 					System.exit(1);
 				}
 				if (hasClashingSetter) {
 					// There's a setter due to propertyAccessor entry, but also a method with same name
 					System.err.println(
-						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation for property accessor '"
-						+ proxyClassName + "#set" + upperProp + "()'.");
+						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation "
+						+ "for property accessor '" + proxyClassName + "#set" + upperProp + "()'.");
 					System.err.println(
-						"Likely fix is to remove @Kroll.method annotation and add @Kroll.setProperty annotation to method.");
+						"Likely fix is to remove @Kroll.method annotation and add @Kroll.setProperty "
+						+ "annotation to method.");
 					System.err.println("Alternately, please rename the method to avoid the clash.");
 					System.exit(1);
 				}
@@ -394,16 +403,17 @@ public class KrollBindingGenerator
 					getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
 				}
 
-				// Turns out implying @Kroll.method from @Kroll.getProperty/setProperty is a pain in the ass (as they have properties that can change their names)!
-				// so let's warn when they're not paired up
+				// Turns out implying @Kroll.method from @Kroll.getProperty/setProperty is a pain in the ass
+				// (as they have properties that can change their names!), so let's warn when they're not paired up.
 
-				// method has @Kroll.getProperty but no @Kroll.method. This is ok in some cases, but generally we want getter accessors until they get removed in SDK 9
+				// method has @Kroll.getProperty but no @Kroll.method. This is ok in some cases,
+				// but generally we want getter accessors until they get removed in SDK 10.
 				if (hasGetter && !methods.containsKey(getterName)) {
 					// There are rare cases where we don't want this, like Ti.Android.R (I assume we don't want Ti.Android#getR())
 					System.out.println(
 						"[WARN] Property has getter defined with @Kroll.getProperty on " + proxyClassName + "#"
-						+ getterName
-						+ "(), but has no @Kroll.method annotation. Consider adding one to expose the getter accessor to JS.");
+						+ getterName + "(), but has no @Kroll.method annotation. Consider adding one to expose the "
+						+ "getter accessor to JS.");
 				}
 
 				// there's no getProperty defined, but there's a method with the target name
@@ -425,11 +435,12 @@ public class KrollBindingGenerator
 				}
 
 				if (hasSetter && !methods.containsKey(setterName)) {
-					// method has @Kroll.setProperty but no @Kroll.method. This is ok in some cases, but generally we want setter accessors unitl they get removed in SDK 9
+					// method has @Kroll.setProperty but no @Kroll.method. This is ok in some cases,
+					// but generally we want setter accessors unitl they get removed in SDK 10.
 					System.out.println(
 						"[WARN] Property has setter defined with @Kroll.getProperty on " + proxyClassName + "#"
-						+ setterName
-						+ "(), but has no @Kroll.method annotation. Consider adding one to expose the setter accessor to JS.");
+						+ setterName + "(), but has no @Kroll.method annotation. Consider adding one to expose "
+						+ "the setter accessor to JS.");
 				}
 
 				// there's no setProperty defined, but there's a method with the target name

@@ -6,6 +6,7 @@
  */
 
 apply plugin: 'com.android.library'
+//apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 
 android {
@@ -138,6 +139,14 @@ tasks.withType(com.android.build.gradle.tasks.ExternalNativeCleanTask) {
 	dependsOn updateV8Library
 }
 
+// Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
+// Will trigger a build failure if any violations have been detected.
+task checkJavaStyle(type: Checkstyle) {
+	source android.sourceSets.main.java.srcDirs
+	include '**/*.java'
+	classpath = files()
+}
+
 // Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
 // takes a V8 snapshot of rolled-up files, and then generates a C++ header file of that snapshot to be compiled-in.
 // Note: This supports incremental builds. Only executes when JS files change or snapshot output file is missing.
@@ -158,6 +167,7 @@ task snapshotTiCommonFiles() {
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // This downloads the V8 library, generates C/C++ files, and generates some asset files.
 tasks.withType(JavaCompile) {
+	dependsOn checkJavaStyle
 	dependsOn snapshotTiCommonFiles
 	doLast {
 		exec {

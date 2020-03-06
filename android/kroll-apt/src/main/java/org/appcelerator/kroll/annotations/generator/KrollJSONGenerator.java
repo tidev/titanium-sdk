@@ -38,7 +38,6 @@ import org.json.simple.JSONValue;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SuppressWarnings("unchecked")
-// clang-format off
 @SupportedAnnotationTypes({
 	KrollJSONGenerator.Kroll_argument,
 	KrollJSONGenerator.Kroll_constant,
@@ -62,7 +61,6 @@ import org.json.simple.JSONValue;
 	KrollJSONGenerator.OPTION_JS_MODULE_NAME,
 	KrollJSONGenerator.OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME
 })
-// clang-format on
 public class KrollJSONGenerator extends AbstractProcessor
 {
 	protected static final String TAG = "KrollBindingGen";
@@ -356,10 +354,11 @@ public class KrollJSONGenerator extends AbstractProcessor
 		@Override
 		public String visitExecutable(ExecutableElement e, Object p)
 		{
-			utils.acceptAnnotations(e,
-									new String[] { Kroll_method, Kroll_getProperty, Kroll_setProperty, Kroll_inject,
-												   Kroll_topLevel, Kroll_onAppCreate, Kroll_interceptor },
-									this, e);
+			String[] elementNames = new String[] {
+				Kroll_method, Kroll_getProperty, Kroll_setProperty, Kroll_inject,
+				Kroll_topLevel, Kroll_onAppCreate, Kroll_interceptor
+			};
+			utils.acceptAnnotations(e, elementNames, this, e);
 			return null;
 		}
 

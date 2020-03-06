@@ -71,11 +71,9 @@ public class FilesystemModule extends KrollModule
 		return new FileProxy(invocation.getSourceUrl(), parts);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isExternalStoragePresent()
-	// clang-format on
 	{
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
@@ -114,47 +112,41 @@ public class FilesystemModule extends KrollModule
 			return;
 		}
 
-		String[] permissions = new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE,
-											  android.Manifest.permission.WRITE_EXTERNAL_STORAGE };
+		String[] permissions = new String[] {
+			android.Manifest.permission.READ_EXTERNAL_STORAGE,
+			android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+		};
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback,
 														 getKrollObject());
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public FileProxy getApplicationDirectory()
-	// clang-format on
 	{
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationDataDirectory()
-	// clang-format on
 	{
 		return "appdata-private://";
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getResRawDirectory()
-	// clang-format on
 	{
 		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
 	}
 
 	@SuppressWarnings("deprecation")
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationCacheDirectory()
-	// clang-format on
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app == null) {
@@ -172,48 +164,38 @@ public class FilesystemModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getResourcesDirectory()
-	// clang-format on
 	{
 		return "app://";
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getExternalStorageDirectory()
-	// clang-format on
 	{
 		return "appdata://";
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTempDirectory()
-	// clang-format on
 	{
 		TiApplication tiApplication = TiApplication.getInstance();
 		return "file://" + tiApplication.getTempFileHelper().getTempDirectory().getAbsolutePath();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSeparator()
-	// clang-format on
 	{
 		return File.separator;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getLineEnding()
-	// clang-format on
 	{
 		return System.getProperty("line.separator");
 	}

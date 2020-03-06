@@ -21,11 +21,13 @@ public class RProxy extends KrollProxy
 {
 	private static final String TAG = "TiAndroidRProxy";
 
-	private static final String[] RESOURCE_TYPES = { "anim",      "animator", "array",        "attr",   "bool",
-													 "color",     "dimen",    "drawable",     "font",   "fraction",
-													 "id",        "integer",  "interpolator", "layout", "menu",
-													 "mipmap",    "plurals",  "raw",          "string", "style",
-													 "styleable", "xml" };
+	private static final String[] RESOURCE_TYPES = {
+		"anim",      "animator", "array",        "attr",   "bool",
+		"color",     "dimen",    "drawable",     "font",   "fraction",
+		"id",        "integer",  "interpolator", "layout", "menu",
+		"mipmap",    "plurals",  "raw",          "string", "style",
+		"styleable", "xml"
+	};
 
 	public static final int RESOURCE_TYPE_ANDROID = 0;
 	public static final int RESOURCE_TYPE_APPLICATION = 1;

@@ -100,9 +100,11 @@ public class NotificationManagerModule extends KrollModule
 			defaultChannel =
 				new NotificationChannel(DEFAULT_CHANNEL_ID, "miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
 			getManager().createNotificationChannel(defaultChannel);
-			Log.w(
-				TAG,
-				"Falling back to default notification channel.\nIt is highly advised to create your own notification channel using Ti.Android.NotificationManager.createNotificationChannel()");
+			String warningMessage
+				= "Falling back to default notification channel.\n"
+				+ "It is highly advised to create your own notification channel using"
+				+ " Ti.Android.NotificationManager.createNotificationChannel()";
+			Log.w(TAG, warningMessage);
 		}
 
 		return useDefaultChannel;

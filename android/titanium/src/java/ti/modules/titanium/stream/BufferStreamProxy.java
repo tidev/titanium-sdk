@@ -49,7 +49,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 
 	// TiStream interface methods
 	@Kroll.method
-	public int read(Object args[]) throws Exception
+	public int read(Object[] args) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to read from buffer, not open");
@@ -88,7 +88,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 	//public void write(BufferProxy buffer, KrollFunction resultsCallback)
 	//public void write(BufferProxy buffer, int offset, int length)
 	//public void write(BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
-	public int write(Object args[]) throws Exception
+	public int write(Object[] args) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to write to buffer, not open");
