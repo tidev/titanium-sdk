@@ -10,7 +10,19 @@ apply plugin: 'java'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+// Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
+// Will trigger a build failure if any violations have been detected.
+task checkJavaStyle(type: Checkstyle) {
+	source 'src/main/java'
+	include '**/*.java'
+	classpath = files()
+}
+
+// Hook into Java compile task.
 tasks.withType(JavaCompile) {
+	// Check Java code for mistakes before compiling.
+	dependsOn checkJavaStyle
+
 	// Suppress compiler warning "bootstrap class path not set in conjunction with source" which happens when
 	// building with JDK newer than the Java version we're targeting. (Ex: Build with JDK 8, but target Java 7.)
 	// Note: Build tool wants a reference to runtime JAR of the same version we're targeting. Not going to happen.

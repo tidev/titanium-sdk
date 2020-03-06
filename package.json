@@ -42,7 +42,7 @@
     "ios-sanity-check": "./build/scons check-ios-toplevel",
     "link": "npm run deploy -- --symlink",
     "lint": "npm-run-all --parallel lint:**",
-    "lint:android": "clang-format-lint $npm_package_config_format_android",
+    "lint:android": "echo Disabled in favor of gradle checkstyle tool.",
     "lint:docs": "tdoc-validate ./apidoc",
     "lint:ios": "clang-format-lint $npm_package_config_format_ios",
     "lint:js": "eslint .",
@@ -69,9 +69,6 @@
     ],
     "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
       "npm run ios-sanity-check --"
-    ],
-    "android/!(templates)/**/*.java": [
-      "npx clang-format -style=file -i"
     ],
     "!(**/locales/**/*).js": "eslint"
   },
