@@ -215,16 +215,16 @@
 {
   ENSURE_SINGLE_ARG(index, NSNumber);
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-     return;
-   }
+    return;
+  }
   [[[self searchBar] searchTextField] removeTokenAtIndex:[TiUtils intValue:index]];
 }
 
 - (NSArray<NSDictionary<NSString *, NSString *> *> *)tokens
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-     return;
-   }
+    return;
+  }
   NSArray<UISearchToken *> *tokens = [[[self searchBar] searchTextField] tokens];
   NSMutableArray<id> *result = [NSMutableArray arrayWithCapacity:tokens.count];
 
