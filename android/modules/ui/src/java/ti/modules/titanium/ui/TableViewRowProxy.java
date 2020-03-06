@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,184 +8,160 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import android.graphics.Color;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUITableView;
-import ti.modules.titanium.ui.widget.tableview.TableViewModel;
-import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
-import android.os.Message;
+import android.graphics.Color;
 import android.view.View;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewHolder;
+
 @Kroll.proxy(creatableInModule = UIModule.class,
-	propertyAccessors = {
-		TiC.PROPERTY_HAS_CHECK,
-		TiC.PROPERTY_HAS_CHILD,
-		TiC.PROPERTY_CLASS_NAME,
-		TiC.PROPERTY_LAYOUT,
-		TiC.PROPERTY_LEFT_IMAGE,
-		TiC.PROPERTY_RIGHT_IMAGE,
-		TiC.PROPERTY_TITLE,
-		TiC.PROPERTY_HEADER,
-		TiC.PROPERTY_FOOTER
-})
+			 propertyAccessors = { TiC.PROPERTY_HAS_CHECK, TiC.PROPERTY_HAS_CHILD, TiC.PROPERTY_CLASS_NAME,
+								   TiC.PROPERTY_LAYOUT, TiC.PROPERTY_LEFT_IMAGE, TiC.PROPERTY_RIGHT_IMAGE,
+								   TiC.PROPERTY_TITLE, TiC.PROPERTY_HEADER, TiC.PROPERTY_FOOTER })
 public class TableViewRowProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewRowProxy";
 
-	protected ArrayList<TiViewProxy> controls;
-	protected TiTableViewRowProxyItem tableViewItem;
+	public int index;
+	public int indexInSection;
 
-	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5001;
+	private TableViewHolder holder;
+	private List<TiViewProxy> children = new ArrayList<>();
+
+	private class RowView extends TiUIView
+	{
+		public RowView(TiViewProxy proxy)
+		{
+			super(proxy);
+		}
+
+		// Make `setNativeView` public.
+		// When a TableViewHolder recycles, switch to the new holder.
+		public void setNativeView(View view)
+		{
+			super.setNativeView(view);
+		}
+	}
 
 	public TableViewRowProxy()
 	{
 		super();
-		// TIMOB-24058: Prevent setOnClickListener() from being set allowing
-		// backgroundSelectedColor and backgroundSelectedImage to function
-		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, false);
+	}
+
+	public void setHolder(TableViewHolder holder)
+	{
+		this.holder = holder;
+
+		// Update to new holder.
+		final RowView row = (RowView) getOrCreateView();
+		if (row != null) {
+			row.setNativeView(this.holder.getView());
+
+			// Register touch events.
+			row.registerForTouch();
+
+			// Grab latest `nativeView`.
+			final View nativeView = row.getNativeView();
+			nativeView.setAlpha(1.0f);
+
+			row.processProperties(this.properties);
+
+			// TODO: Implement native item selection.
+			// Create a new selector using new background.
+			/*final StateListDrawable selector = new StateListDrawable();
+			selector.addState(new int[] { android.R.attr.state_activated }, new ColorDrawable(Color.BLUE));
+			selector.addState(new int[] {}, nativeView.getBackground());
+			nativeView.setBackground(selector);*/
+		}
+	}
+
+	public void invalidate()
+	{
+		if (this.holder != null) {
+			this.holder.bind(this, this.holder.itemView.isActivated());
+			this.holder.itemView.invalidate();
+		}
 	}
 
 	@Override
 	public void setActivity(Activity activity)
 	{
 		super.setActivity(activity);
-		if (controls != null) {
-			for (TiViewProxy control : controls) {
-				control.setActivity(activity);
-			}
-		}
-	}
 
-	@Override
-	public void handleCreationDict(KrollDict options)
-	{
-		super.handleCreationDict(options);
-		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
-			Log.w(TAG, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
-			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR));
-		}
-		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
-			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
-		}
-		if (!options.containsKey(TiC.PROPERTY_COLOR)) {
-			if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-				int color = TiColorHelper.parseColor((String) options.get(TiC.PROPERTY_BACKGROUND_COLOR));
-				if (Math.abs(color - Color.WHITE) < Math.abs(color - Color.BLACK)) {
-					options.put(TiC.PROPERTY_COLOR, "black");
-				} else {
-					options.put(TiC.PROPERTY_COLOR, "white");
-				}
-			} else {
-				options.put(TiC.PROPERTY_COLOR, "white");
-			}
-		}
-	}
-
-	public void setCreationProperties(KrollDict options)
-	{
-		for (String key : options.keySet()) {
-			setProperty(key, options.get(key));
+		for (TiViewProxy child : this.children) {
+			child.setActivity(activity);
 		}
 	}
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		return null;
-	}
-
-	public ArrayList<TiViewProxy> getControls()
-	{
-		return controls;
-	}
-
-	public boolean hasControls()
-	{
-		return (controls != null && controls.size() > 0);
+		return new RowView(this);
 	}
 
 	@Override
 	public TiViewProxy[] getChildren()
 	{
-		if (controls == null) {
-			return new TiViewProxy[0];
-		}
-		return controls.toArray(new TiViewProxy[controls.size()]);
+		return this.children.toArray(new TiViewProxy[this.children.size()]);
 	}
 
 	@Override
 	public void add(Object args)
 	{
 		if (args == null) {
-			Log.e(TAG, "Add called with a null child");
+			Log.w(TAG, "add() called with null parameter.");
 			return;
 		}
 		if (args instanceof Object[]) {
 			for (Object arg : (Object[]) args) {
 				if (arg instanceof TiViewProxy) {
-					add((TiViewProxy) arg);
+					add(arg);
 				} else {
-					Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+					Log.w(TAG, "add() called with unsupported array object: " + arg.getClass().getSimpleName());
 				}
 			}
 		} else if (args instanceof TiViewProxy) {
-			if (controls == null) {
-				controls = new ArrayList<TiViewProxy>();
-			}
 			TiViewProxy view = (TiViewProxy) args;
-			controls.add(view);
+			this.children.add(view);
 			view.setParent(this);
-			if (tableViewItem != null) {
-				Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-				// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
-				message.sendToTarget();
-			}
+
 		} else {
-			Log.w(TAG, "add() unsupported argument type: " + args.getClass().getSimpleName());
+			Log.w(TAG, "add() called with unsupported argument type: " + args.getClass().getSimpleName());
 		}
 	}
 
 	@Override
-	public void remove(TiViewProxy control)
+	public void remove(TiViewProxy child)
 	{
-		if (controls == null) {
+		if (child == null) {
+			Log.w(TAG, "remove() called with null parameter.");
 			return;
 		}
-		controls.remove(control);
-		if (tableViewItem != null) {
-			Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-			// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
-			message.sendToTarget();
-		}
+
+		this.children.remove(child);
 	}
 
 	@Override
 	public KrollDict getRect()
 	{
-		View v = null;
-		if (tableViewItem != null) {
-			v = tableViewItem.getContentView();
+		View view = null;
+		if (this.holder != null) {
+			view = this.holder.itemView;
 		}
-		return getViewRect(v);
+		return getViewRect(view);
 	}
 
-	public void setTableViewItem(TiTableViewRowProxyItem item)
-	{
-		this.tableViewItem = item;
-	}
-
-	public TableViewProxy getTable()
+	public TableViewProxy getTableViewProxy()
 	{
 		TiViewProxy parent = getParent();
 		while (!(parent instanceof TableViewProxy) && parent != null) {
@@ -194,101 +170,87 @@ public class TableViewRowProxy extends TiViewProxy
 		return (TableViewProxy) parent;
 	}
 
+	private void processProperty(String name, Object value)
+	{
+		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
+			Log.w(TAG, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead.");
+			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, value);
+		}
+		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
+			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead.");
+			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, value);
+		}
+		if (!properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
+			if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
+
+				// Attempt define text color to create contrast from background color.
+				int color = TiColorHelper.parseColor((String) value);
+				if (Math.abs(color - Color.WHITE) < Math.abs(color - Color.BLACK)) {
+					setProperty(TiC.PROPERTY_COLOR, "black");
+				} else {
+					setProperty(TiC.PROPERTY_COLOR, "white");
+				}
+			} else {
+				setProperty(TiC.PROPERTY_COLOR, "white");
+			}
+		}
+	}
+
 	@Override
 	public void setProperty(String name, Object value)
 	{
 		super.setProperty(name, value);
-		if (tableViewItem != null) {
-			tableViewItem.setRowData(this);
-		}
+
+		processProperty(name, value);
 	}
 
 	@Override
-	public boolean handleMessage(Message msg)
+	public void onPropertyChanged(String name, Object value)
 	{
-		if (msg.what == MSG_SET_DATA) {
-			if (tableViewItem != null) {
-				tableViewItem.setRowData(this);
-				// update/refresh table view when a row's data changed.
-				TableViewProxy proxy = getTable();
-				if (proxy != null) {
-					TiUITableView table = (TiUITableView) proxy.peekView();
-					if (table != null) {
-						table.setModelDirty();
-						table.updateView();
-					}
-				}
-			}
-			return true;
-		}
-		return super.handleMessage(msg);
-	}
+		super.onPropertyChanged(name, value);
 
-	public static void fillClickEvent(HashMap<String, Object> data, TableViewModel model, Item item)
-	{
-		// Don't include rowData if we click on a section
-		if (!(item.proxy instanceof TableViewSectionProxy)) {
-			data.put(TiC.PROPERTY_ROW_DATA, item.rowData);
-		}
-
-		data.put(TiC.PROPERTY_SECTION, model.getSection(item.sectionIndex));
-		data.put(TiC.EVENT_PROPERTY_ROW, item.proxy);
-		data.put(TiC.EVENT_PROPERTY_INDEX, item.index);
-		data.put(TiC.EVENT_PROPERTY_DETAIL, false);
+		processProperty(name, value);
+		invalidate();
 	}
 
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
-		// Inject row click data for events coming from row children.
-		TableViewProxy table = getTable();
-		if (tableViewItem != null) {
-			Item item = tableViewItem.getRowData();
-			if (table != null && item != null && data instanceof HashMap) {
-				// The data object may already be in use by the runtime thread
-				// due to a child view's event fire. Create a copy to be thread safe.
-				@SuppressWarnings("unchecked")
-				KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
-				fillClickEvent(dataCopy, table.getTableView().getModel(), item);
-				data = dataCopy;
+		// Inject row data into events.
+		TableViewProxy tableViewProxy = getTableViewProxy();
+		if (tableViewProxy != null && data instanceof HashMap) {
+			final KrollDict payload = new KrollDict((HashMap<String, Object>) data);
+
+			payload.put(TiC.PROPERTY_ROW_DATA, properties);
+			if (getParent() instanceof TableViewSectionProxy) {
+				payload.put(TiC.PROPERTY_SECTION, getParent());
 			}
+			payload.put(TiC.EVENT_PROPERTY_ROW, this);
+			payload.put(TiC.EVENT_PROPERTY_INDEX, index);
+			payload.put(TiC.EVENT_PROPERTY_DETAIL, false);
+			data = payload;
 		}
 
 		return super.fireEvent(eventName, data, bubbles);
 	}
 
 	@Override
-	public void firePropertyChanged(String name, Object oldValue, Object newValue)
-	{
-		super.firePropertyChanged(name, oldValue, newValue);
-		TableViewProxy table = getTable();
-		if (table != null) {
-			table.updateView();
-		}
-	}
-
-	public void setLabelsClickable(boolean clickable)
-	{
-		if (controls != null) {
-			for (TiViewProxy control : controls) {
-				if (control instanceof LabelProxy) {
-					((LabelProxy) control).setClickable(clickable);
-				}
-			}
-		}
-	}
-
-	@Override
 	public void releaseViews()
 	{
-		if (tableViewItem != null) {
-			tableViewItem.release();
-			tableViewItem = null;
+		this.holder = null;
+
+		final KrollDict properties = getProperties();
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final TiViewProxy header = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
+			header.releaseViews();
 		}
-		if (controls != null) {
-			for (TiViewProxy control : controls) {
-				control.releaseViews();
-			}
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final TiViewProxy footer = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
+			footer.releaseViews();
+		}
+
+		for (TiViewProxy child : this.children) {
+			child.releaseViews();
 		}
 
 		super.releaseViews();
@@ -298,21 +260,9 @@ public class TableViewRowProxy extends TiViewProxy
 	public void release()
 	{
 		releaseViews();
-
-		if (controls != null) {
-			for (TiViewProxy control : controls) {
-				control.release();
-			}
-			controls.clear();
-			controls = null;
-		}
+		this.children.clear();
 
 		super.release();
-	}
-
-	public TiTableViewRowProxyItem getTableViewRowProxyItem()
-	{
-		return tableViewItem;
 	}
 
 	@Override

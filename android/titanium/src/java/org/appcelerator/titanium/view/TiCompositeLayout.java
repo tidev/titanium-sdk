@@ -114,7 +114,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, null);
 	}
 
 	/**
@@ -126,12 +126,12 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, null);
 	}
 
 	public TiCompositeLayout(Context context, AttributeSet set)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, set);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
-		this(context, LayoutArrangement.DEFAULT, proxy);
+		this(context, LayoutArrangement.DEFAULT, proxy, null);
 	}
 
 	/**
@@ -154,7 +154,21 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy)
 	{
-		super(context);
+		this(context, arrangement, proxy, null);
+	}
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 *
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @param proxy the associated proxy.
+	 * @param set the component attribute set.
+	 */
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy, AttributeSet set)
+	{
+		super(context, set);
+
 		this.arrangement = arrangement;
 		this.viewSorter = new TreeSet<View>(new Comparator<View>() {
 			public int compare(View o1, View o2)

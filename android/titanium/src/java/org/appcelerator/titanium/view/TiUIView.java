@@ -322,6 +322,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 */
 	protected void setNativeView(View view)
 	{
+		if (view instanceof TiBorderWrapperView) {
+			this.borderView = (TiBorderWrapperView) view;
+			view = this.borderView.getChildAt(0);
+		}
+
 		this.nativeView = view;
 		boolean clickable = true;
 
@@ -1431,13 +1436,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			if (background == null) {
 				applyCustomBackground(false);
 			}
-
 			if (background != null) {
 				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg, TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false), bgColor, bgSelected,
 					bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor, gradientDrawable);
 
 				background.setBackgroundDrawable(bgDrawable);
+				applyCustomBackground(false);
 			}
 		}
 	}

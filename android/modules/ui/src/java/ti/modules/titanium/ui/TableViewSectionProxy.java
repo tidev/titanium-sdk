@@ -1,15 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -26,12 +26,12 @@ import android.app.Activity;
 public class TableViewSectionProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewSectionProxy";
-	protected ArrayList<TableViewRowProxy> rows = new ArrayList<TableViewRowProxy>();
+
+	protected List<TableViewRowProxy> rows = new ArrayList<>();
 
 	public TableViewSectionProxy()
 	{
 		super();
-		rows = new ArrayList<TableViewRowProxy>();
 	}
 
 	@Override
@@ -44,43 +44,68 @@ public class TableViewSectionProxy extends TiViewProxy
 	public void setActivity(Activity activity)
 	{
 		super.setActivity(activity);
-		if (rows != null) {
-			for (TableViewRowProxy row : rows) {
-				row.setActivity(activity);
+
+		for (TableViewRowProxy row : this.rows) {
+			row.setActivity(activity);
+		}
+	}
+
+	public int getRowIndex(TableViewRowProxy row)
+	{
+		return this.rows.indexOf(row);
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public TableViewRowProxy[] getRows()
+	{
+		return this.rows.toArray(new TableViewRowProxy[this.rows.size()]);
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public int getRowCount()
+	// clang-format on
+	{
+		return this.rows.size();
+	}
+
+	public TableViewProxy getTableViewProxy()
+	{
+		TiViewProxy parent = getParent();
+		while (!(parent instanceof TableViewProxy) && parent != null) {
+			parent = parent.getParent();
+		}
+		return (TableViewProxy) parent;
+	}
+
+	@Kroll.method
+	public void add(TableViewRowProxy row)
+	{
+		if (row != null) {
+			this.rows.add(row);
+			row.setParent(this);
+
+			final TableViewProxy tableViewProxy = getTableViewProxy();
+			if (tableViewProxy != null) {
+				tableViewProxy.update();
 			}
 		}
 	}
 
 	@Kroll.method
-	@Kroll.getProperty
-	public TableViewRowProxy[] getRows()
+	public void remove(TableViewRowProxy row)
 	{
-		return rows.toArray(new TableViewRowProxy[rows.size()]);
-	}
+		if (row != null) {
+			this.rows.remove(row);
+			if (row.getParent() == this) {
+				row.setParent(null);
+			}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public double getRowCount()
-	{
-		return rows.size();
-	}
-
-	@Kroll.method
-	public void add(TableViewRowProxy rowProxy)
-	{
-		if (rowProxy != null) {
-			rows.add(rowProxy);
-			rowProxy.setParent(this);
-		}
-	}
-
-	@Kroll.method
-	public void remove(TableViewRowProxy rowProxy)
-	{
-		if (rowProxy != null) {
-			rows.remove(rowProxy);
-			if (rowProxy.getParent() == this) {
-				rowProxy.setParent(null);
+			final TableViewProxy tableViewProxy = getTableViewProxy();
+			if (tableViewProxy != null) {
+				tableViewProxy.update();
 			}
 		}
 	}
@@ -89,54 +114,11 @@ public class TableViewSectionProxy extends TiViewProxy
 	public TableViewRowProxy rowAtIndex(int index)
 	{
 		TableViewRowProxy result = null;
+
 		if (index > -1 && index < rows.size()) {
 			result = rows.get(index);
 		}
-
 		return result;
-	}
-
-	@Kroll.method
-	public void insertRowAt(int index, TableViewRowProxy row)
-	{
-		if (index > -1 && index <= rows.size()) {
-			rows.add(index, row);
-			row.setParent(this);
-		} else {
-			Log.e(TAG, "Index out of range. Unable to insert row at index " + index, Log.DEBUG_MODE);
-		}
-	}
-
-	@Kroll.method
-	public void removeRowAt(int index)
-	{
-		if (index > -1 && index < rows.size()) {
-			TableViewRowProxy rowProxy = rows.get(index);
-			rows.remove(index);
-			if (rowProxy.getParent() == this) {
-				rowProxy.setParent(null);
-			}
-		} else {
-			Log.e(TAG, "Index out of range. Unable to remove row at index " + index, Log.DEBUG_MODE);
-		}
-	}
-
-	@Kroll.method
-	public void updateRowAt(int index, TableViewRowProxy row)
-	{
-		TableViewRowProxy oldRow = rows.get(index);
-		if (row == oldRow) {
-			return;
-		}
-		if (index > -1 && index < rows.size()) {
-			rows.set(index, row);
-			row.setParent(this);
-			if (oldRow.getParent() == this && !rows.contains(oldRow)) {
-				oldRow.setParent(null);
-			}
-		} else {
-			Log.e(TAG, "Index out of range. Unable to update row at index " + index, Log.DEBUG_MODE);
-		}
 	}
 
 	@Override
@@ -148,26 +130,20 @@ public class TableViewSectionProxy extends TiViewProxy
 	@Override
 	public void releaseViews()
 	{
-		super.releaseViews();
-
-		if (rows != null) {
-			for (TableViewRowProxy row : rows) {
-				row.releaseViews();
-			}
+		for (TableViewRowProxy row : this.rows) {
+			row.releaseViews();
 		}
+
+		super.releaseViews();
 	}
 
 	@Override
 	public void release()
 	{
-		super.release();
-
 		releaseViews();
+		this.rows.clear();
 
-		if (rows != null) {
-			rows.clear();
-			rows = null;
-		}
+		super.release();
 	}
 
 	@Override

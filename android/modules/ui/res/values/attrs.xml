@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<attr name="headerTitleSize" format="string" />
+	<attr name="headerTitleStyle" format="string" />
+	<attr name="headerTitleColor" format="color" />
+	<attr name="headerTitleBackground" format="reference" />
+	<attr name="headerTitleBackgroundColor" format="color" />
+	<attr name="footerTitleSize" format="string" />
+	<attr name="footerTitleStyle" format="string" />
+	<attr name="footerTitleColor" format="color" />
+	<attr name="footerTitleBackground" format="reference" />
+	<attr name="footerTitleBackgroundColor" format="color" />
+</resources>

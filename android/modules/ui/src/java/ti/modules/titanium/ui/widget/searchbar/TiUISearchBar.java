@@ -101,7 +101,7 @@ public class TiUISearchBar extends TiUIText
 		promptText.setGravity(Gravity.CENTER_HORIZONTAL);
 		layout.addView(promptText, params);
 
-		params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		params.addRule(RelativeLayout.LEFT_OF, CANCEL_BUTTON_ID);
