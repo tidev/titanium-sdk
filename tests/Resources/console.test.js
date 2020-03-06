@@ -268,20 +268,25 @@ describe('console', function () {
 		});
 	});
 
+	describe('#table', () => {
+		it('is a function', () => {
+			should(console.table).be.a.Function;
+		});
+	});
+
 	describe('constructor', () => {
 		// TODO: test validation of stdout/stderr (have write function), various options
 		it('accepts stdout, stderr, ignoreErrors arguments', () => {
-			const stdout = {
-				write: function (contents) {
-					this.logs.push(contents);
-				},
-				logs: []
+			const events = require('events');
+			const stdout = new events.EventEmitter();
+			stdout.logs = [];
+			stdout.write = function (contents) {
+				this.logs.push(contents);
 			};
-			const stderr = {
-				write: function (contents) {
-					this.logs.push(contents);
-				},
-				logs: []
+			const stderr = new events.EventEmitter();
+			stderr.logs = [];
+			stderr.write = function (contents) {
+				this.logs.push(contents);
 			};
 			const console = new Console(stdout, stderr, false);
 			console.log('log'); // stdout
@@ -298,12 +303,48 @@ describe('console', function () {
 			stderr.logs[1].should.eql('error');
 		});
 
+		it('squashes sync errors on stdout write by default (ignoreErrors = true)', () => {
+			const events = require('events');
+			const stdout = new events.EventEmitter();
+			stdout.write = function () {
+				throw new Error('testing');
+			};
+
+			const stderr = new events.EventEmitter();
+			stderr.logs = [];
+			stderr.write = function (contents) {
+				this.logs.push(contents);
+			};
+			const console = new Console(stdout, stderr);
+			console.log('log'); // should not throw the error
+		});
+
+		// TODO: How do we test if a stream throws an async error?
+
+		it('doesnt handle sync errors on stdout write if ignoreErrors is false', () => {
+			const events = require('events');
+			const stdout = new events.EventEmitter();
+			stdout.write = function () {
+				throw new Error('testing');
+			};
+
+			const stderr = new events.EventEmitter();
+			stderr.logs = [];
+			stderr.write = function (contents) {
+				this.logs.push(contents);
+			};
+			const console = new Console(stdout, stderr, false);
+			should.throws(() => {
+				console.log('log');
+			}, Error);
+		});
+
 		it('accepts options object with only stdout', () => {
-			const stdout = {
-				write: function (contents) {
-					this.logs.push(contents);
-				},
-				logs: []
+			const events = require('events');
+			const stdout = new events.EventEmitter();
+			stdout.logs = [];
+			stdout.write = function (contents) {
+				this.logs.push(contents);
 			};
 			const console = new Console({ stdout });
 			console.log('log'); // stdout
