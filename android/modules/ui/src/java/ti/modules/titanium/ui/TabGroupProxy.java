@@ -517,7 +517,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			activity.finish();
 		}
 
-		// TODO: Does this ever fire the close event?!
+		// NOTE: this does not directly fire the close event, but is fired by closeFromActivity()
 	}
 
 	@Override

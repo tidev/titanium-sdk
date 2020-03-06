@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,6 +39,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	protected void handleClose(@NonNull KrollDict options)
 	{
 		Log.d(TAG, "handleClose", Log.DEBUG_MODE);
+		opened = false;
 		fireEvent("close", null);
 
 		if (view != null) {
@@ -46,8 +47,6 @@ public class TiActivityWindowProxy extends TiWindowProxy
 		}
 
 		releaseViews();
-		opened =
-			false; // FIXME: This will lead to odd case of a close listener querying isCLosed and getting false! Set to false above? fire event after?
 	}
 
 	@Override
