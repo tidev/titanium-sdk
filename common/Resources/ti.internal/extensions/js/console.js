@@ -1,4 +1,7 @@
 import { formatWithOptions, inspect } from '../node/internal/util/inspect';
+import { isStackOverflowError } from '../node/internal/errors';
+
+function noop() {}
 
 function logTime(self, label, logData) {
 	label = `${label}`;
@@ -19,6 +22,27 @@ function logTime(self, label, logData) {
 const kColorInspectOptions = { colors: true };
 const kNoColorInspectOptions = {};
 
+let tableWarned; // boolean flag for one-time warning about console.table not being implemented
+
+// Make a function that can serve as the callback passed to `stream.write()`.
+function createWriteErrorHandler(stream) {
+	return (err) => {
+		// This conditional evaluates to true if and only if there was an error
+		// that was not already emitted (which happens when the _write callback
+		// is invoked asynchronously).
+		if (err !== null && !stream._writableState.errorEmitted) {
+			// If there was an error, it will be emitted on `stream` as
+			// an `error` event. Adding a `once` listener will keep that error
+			// from becoming an uncaught exception, but since the handler is
+			// removed after the event, non-console.* writes won't be affected.
+			// we are only adding noop if there is no one else listening for 'error'
+			if (stream.listenerCount('error') === 0) {
+				stream.once('error', noop);
+			}
+		}
+	};
+}
+
 class Console {
 	constructor(options, stderr, ignoreErrors) {
 		if (options && options.apiName === 'Ti.API') {
@@ -36,7 +60,11 @@ class Console {
 			}
 			this._stdout = options.stdout; // TODO: enforce has write function?
 			this._stderr = options.stderr || this._stdout;
-			this._ignoreErrors = options.ignoreErrors || true;
+			this._ignoreErrors = options.ignoreErrors !== false;
+			if (this._ignoreErrors) {
+				this._stdoutErrorHandler = createWriteErrorHandler(this._stdout);
+				this._stderrErrorHandler = createWriteErrorHandler(this._stderr);
+			}
 			this._colorMode = options.colorMode || 'auto'; // TODO: enforce boolean or 'auto'
 			this._inspectOptions = options.inspectOptions; // TODO: enforce undefined or typeof 'object'
 		}
@@ -59,9 +87,34 @@ class Console {
 			this._apiModule[level](string);
 		} else {
 			// Support Node.JS streams like stdout/stderr which don't have log levels
-			const stream = (level === 'warn' || level === 'error') ? this._stderr : this._stdout;
-			// TODO: Handle this._ignoreErrors by doing try/catch/finally, hanging error handlers
-			stream.write(string);
+			const useStdErr = (level === 'warn' || level === 'error');
+			const stream = useStdErr ? this._stderr : this._stdout;
+
+			if (this._ignoreErrors === false) {
+				return stream.write(string);
+			}
+
+			// There may be an error occurring synchronously (e.g. for files or TTYs
+			// on POSIX systems) or asynchronously (e.g. pipes on POSIX systems), so
+			// handle both situations.
+			try {
+				// Add and later remove a noop error handler to catch synchronous errors.
+				if (stream.listenerCount('error') === 0) {
+					stream.once('error', noop);
+				}
+
+				const errorHandler = useStdErr ? this._stderrErrorHandler : this._stdoutErrorHandler;
+				stream.write(string, errorHandler);
+			} catch (e) {
+				// Console is a debugging utility, so it swallowing errors is not desirable
+				// even in edge cases such as low stack space.
+				if (isStackOverflowError(e)) {
+					throw e;
+				}
+				// Sorry, there's no proper way to pass along the error here.
+			} finally {
+				stream.removeListener && stream.removeListener('error', noop);
+			}
 		}
 	}
 
@@ -149,7 +202,14 @@ class Console {
 	timeLog(label = 'default', ...logData) {
 		logTime(this, label, logData);
 	}
-	// TODO: console.table()
+
+	// TODO: implement console.table()
+	table() {
+		if (!tableWarned) {
+			tableWarned = true;
+			process.emitWarning('"console.table" is not yet implemented in Titanium!');
+		}
+	}
 }
 Console.prototype.log = Console.prototype.info; // Treat log as alias to info
 Console.prototype.dirxml = Console.prototype.log; // Treat dirxml as alias to log
