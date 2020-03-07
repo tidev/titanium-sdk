@@ -31,6 +31,8 @@ junit_report.xml
 .vscode/
 /android/runtime/v8/src/native/V8Snapshots.h
 
+common/Resources/ti.internal/extensions/titanium-es
+
 .nyc_output/
 coverage/
 

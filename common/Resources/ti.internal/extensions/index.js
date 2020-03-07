@@ -4,3 +4,5 @@ import './js';
 import './ti';
 // Load the Node compatible APIs
 import './node';
+// Load Titanium-ES
+import './titanium-es';

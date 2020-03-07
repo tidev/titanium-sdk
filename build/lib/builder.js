@@ -3,6 +3,7 @@
 const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
+const TitaniumES = require('titanium-es');
 const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
@@ -143,6 +144,15 @@ class Builder {
 	async build() {
 		await this.ensureGitHash();
 		console.log('Building MobileSDK version %s, githash %s', this.program.sdkVersion, this.program.gitHash);
+
+		// Generate documentation, including `api.jsca` required for Titanium-ES.
+		this.program.docs = true;
+		await this.generateDocs();
+
+		// Generate Titanium-ES proxy wrappers.
+		const EXT_DIR = path.join(TMP_DIR, 'common', 'ti.internal', 'extensions');
+		const ROLLUP_EXT_DIR = path.join(ROOT_DIR, 'common', 'Resources', 'ti.internal', 'extensions');
+		await TitaniumES.generate(path.join(DIST_DIR, 'api.jsca'), EXT_DIR, ROLLUP_EXT_DIR);
 
 		// TODO: build platforms in parallel
 		for (const item of this.platforms) {
