@@ -253,6 +253,7 @@ async function createLocalPropertiesFile(sdkPath, ndkPath) {
 	const ndkTestPaths = [
 		ndkPath,                            // Prefer given argument's path 1st if provided and it exists.
 		process.env.ANDROID_NDK,            // Titanium's preferred environment variable for setting the path.
+		process.env.ANDROID_NDK_HOME,       // Google's officially supported environment variable.
 		ndkSideBySidePath,                  // Google installs multiple NDK versions under Android SDK folder as of 2019.
 		path.join(sdkPath, 'ndk-bundle')    // Google installed only one NDK version under Android SDK before 2019.
 	];
