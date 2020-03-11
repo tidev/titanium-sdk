@@ -1009,6 +1009,7 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
+        optional: true
 
   - name: setHeaderPullView
     summary: Sets the value of the [Titanium.UI.TableView.headerPullView] property.

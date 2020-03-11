@@ -44,6 +44,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   RELEASE_TO_NIL(_pageToken);
   RELEASE_TO_NIL(_loadingIndicator);
+  RELEASE_TO_NIL(self.reloadData);
   [super dealloc];
 }
 
@@ -172,6 +173,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setUrl_:(id)value
 {
+  ignoreNextRequest = YES;
+  self.reloadData = value;
+  reloadMethod = @selector(setUrl_:);
+
   ENSURE_TYPE(value, NSString);
   [[self proxy] replaceValue:value forKey:@"url" notification:NO];
 
@@ -199,8 +204,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[self webView] setBackgroundColor:[[TiUtils colorValue:value] color]];
 }
 
+- (void)setAssetsDirectory_:(id)value
+{
+  ENSURE_TYPE_OR_NIL(value, NSString);
+  assetsDirectory = value;
+}
+
 - (void)setData_:(id)value
 {
+  ignoreNextRequest = YES;
+  self.reloadData = value;
+  reloadMethod = @selector(setData_:);
+
   [[self proxy] replaceValue:value forKey:@"data" notification:NO];
 
   if ([[self webView] isLoading]) {
@@ -241,6 +256,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setHtml_:(id)args
 {
+  ignoreNextRequest = YES;
+  self.reloadData = args;
+  reloadMethod = @selector(setHtml_:);
+
   NSString *content = nil;
   NSDictionary *options = nil;
 
@@ -347,6 +366,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   [self _setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value]];
   [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+}
+
+- (void)reload
+{
+  if (_webView == nil) {
+    return;
+  }
+  if (self.reloadData != nil) {
+    [self performSelector:reloadMethod withObject:self.reloadData];
+    return;
+  }
+  [[self webView] reload];
 }
 
 #pragma mark Utilities
@@ -672,51 +703,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)loadLocalURL:(NSURL *)url
 {
-  NSStringEncoding encoding = NSUTF8StringEncoding;
   NSString *path = [url path];
-  NSString *mimeType = [Mimetypes mimeTypeForExtension:path];
-  NSError *error = nil;
   NSURL *baseURL = [[url copy] autorelease];
 
   // first check to see if we're attempting to load a file from the
   // filesystem and if so, and it exists, use that
   if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-    // per the Apple docs on what to do when you don't know the encoding ahead of a
-    // file read:
-    // step 1: read and attempt to have system determine
-    NSString *html = [NSString stringWithContentsOfFile:path usedEncoding:&encoding error:&error];
-    if (html == nil && error != nil) {
-      //step 2: if unknown encoding, try UTF-8
-      error = nil;
-      html = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-      if (html == nil && error != nil) {
-        //step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
-        //at this point we're just going to fail
-        //This is assuming, of course, that this just isn't a pdf or some other non-HTML file.
-        if ([[path pathExtension] hasPrefix:@"htm"]) {
-          DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.", [path lastPathComponent]);
-        }
-      } else {
-        // if we get here, it succeeded using UTF8
-        encoding = NSUTF8StringEncoding;
-      }
-    } else {
-      error = nil;
-    }
-    if ((error != nil && [error code] == 261) || [mimeType isEqualToString:(NSString *)svgMimeType]) {
-      //TODO: Shouldn't we be checking for an HTML mime type before trying to read? This is right now rather inefficient, but it
-      //Gets the job done, with minimal reliance on extensions.
-      // this is a different encoding than specified, just send it to the webview to load
-
-      NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-      [self loadRequestWithURL:url];
-      return;
-    } else if (error != nil) {
-      DebugLog(@"[DEBUG] Cannot load file: %@. Error message was: %@", path, error);
-      return;
-    }
     NSURL *requestURL = [NSURL fileURLWithPath:path];
-    [self loadRequestWithURL:requestURL];
+    NSString *readAccessDirectory = assetsDirectory ?: [[url URLByDeletingLastPathComponent] absoluteString];
+
+    [[self webView] loadFileURL:requestURL
+        allowingReadAccessToURL:[NSURL URLWithString:readAccessDirectory]];
+
   } else {
     // convert it into a app:// relative path to load the resource
     // from our application
@@ -724,7 +722,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     NSData *data = [TiUtils loadAppResource:url];
     NSString *html = nil;
     if (data != nil) {
-      html = [[[NSString alloc] initWithData:data encoding:encoding] autorelease];
+      html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
     }
     if (html != nil) {
       //Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
@@ -892,6 +890,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([[self proxy] _hasListeners:@"load"]) {
     [[self proxy] fireEvent:@"load" withObject:@{ @"url" : webView.URL.absoluteString, @"title" : webView.title }];
   }
+  ignoreNextRequest = NO;
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error
@@ -1063,6 +1062,16 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
     decisionHandler(WKNavigationActionPolicyCancel);
   } else {
+    BOOL valid = !ignoreNextRequest;
+    if ([scheme hasPrefix:@"http"]) {
+      //UIWebViewNavigationTypeOther means we are either in a META redirect
+      //or it is a js request from within the page
+      valid = valid && (navigationAction.navigationType != WKNavigationTypeOther);
+    }
+    if (valid) {
+      self.reloadData = navigationAction.request.URL.absoluteString;
+      reloadMethod = @selector(setUrl_:);
+    }
     decisionHandler(WKNavigationActionPolicyAllow);
   }
 }

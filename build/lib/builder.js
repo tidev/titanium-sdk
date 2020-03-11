@@ -18,9 +18,9 @@ const TMP_DIR = path.join(DIST_DIR, 'tmp');
 
 // platforms/OS mappings
 const ALL_OSES = [ 'win32', 'linux', 'osx' ];
-const ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
+const ALL_PLATFORMS = [ 'ios', 'android' ];
 const OS_TO_PLATFORMS = {
-	win32: [ 'android', 'windows' ],
+	win32: [ 'android' ],
 	osx: [ 'android', 'ios' ],
 	linux: [ 'android' ]
 };
@@ -39,9 +39,13 @@ function determineBabelOptions(babelOptions) {
 		useBuiltIns: 'entry',
 		corejs: 3
 	};
+	// extract out options.transform used by babel-plugin-transform-titanium
+	const transform = options.transform || {};
+	delete options.transform;
 
 	return {
 		presets: [ [ '@babel/env', options ] ],
+		plugins: [ [ require.resolve('babel-plugin-transform-titanium'), transform ] ],
 		exclude: 'node_modules/**'
 	};
 }
