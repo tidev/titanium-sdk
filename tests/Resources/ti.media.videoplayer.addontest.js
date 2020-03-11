@@ -51,10 +51,10 @@ describe('Titanium.Media.VideoPlayer', function () {
 		win = Ti.UI.createWindow();
 		var videoPlayer = Ti.Media.createVideoPlayer({
 			height: '72%',
-			url : '/movie.mp4'
+			url: '/movie.mp4'
 		});
 		win.add(videoPlayer);
-		win.addEventListener('open', function(e) {
+		win.addEventListener('open', function () {
 			videoPlayer.play();
 
 			setTimeout(function () {
@@ -63,7 +63,7 @@ describe('Titanium.Media.VideoPlayer', function () {
 			}, 2000);
 		});
 
-		videoPlayer.addEventListener('playing', function(e) {
+		videoPlayer.addEventListener('playing', function () {
 			finish();
 		});
 
