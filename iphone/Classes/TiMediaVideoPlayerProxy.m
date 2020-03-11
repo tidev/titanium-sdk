@@ -902,7 +902,7 @@ NSArray *moviePlayerKeys = nil;
   _playbackState = TiVideoPlayerPlaybackStatePlaying;
 
   if ([self _hasListeners:@"playing"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
+    NSDictionary *event = [NSDictionary dictionaryWithObject:NULL_IF_NIL([self url]) forKey:@"url"];
     [self fireEvent:@"playing" withObject:event];
   }
 }
