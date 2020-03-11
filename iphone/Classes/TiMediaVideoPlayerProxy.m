@@ -985,8 +985,11 @@ NSArray *moviePlayerKeys = nil;
     [self handleLoadStateChangeNotification:nil];
   }
   if ([keyPath isEqualToString:@"player.currentItem.presentationSize"]) {
-    CGSize size = [[change objectForKey:@"new"] CGSizeValue];
-    [self handleNaturalSizeAvailableNotification:size];
+    id sizeObject = [change objectForKey:@"new"];
+    if (![sizeObject isKindOfClass:[NSNull class]]) {
+      CGSize size = [sizeObject CGSizeValue];
+      [self handleNaturalSizeAvailableNotification:size];
+    }
   }
   if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
     [self handleTimeControlStatusNotification:nil];
