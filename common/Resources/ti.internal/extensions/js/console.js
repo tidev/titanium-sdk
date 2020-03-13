@@ -134,6 +134,10 @@ class Console {
 		this._writeToConsole('debug', formatWithOptions(kColorInspectOptions, ...args));
 	}
 
+	trace(...args) {
+		this._writeToConsole('trace', formatWithOptions(kColorInspectOptions, ...args));
+	}
+
 	clear() {} // no-op
 
 	group(...data) {
