@@ -87,7 +87,7 @@ class Console {
 			this._apiModule[level](string);
 		} else {
 			// Support Node.JS streams like stdout/stderr which don't have log levels
-			const useStdErr = (level === 'warn' || level === 'error');
+			const useStdErr = (level === 'warn' || level === 'error' || level === 'trace');
 			const stream = useStdErr ? this._stderr : this._stdout;
 
 			if (this._ignoreErrors === false) {
