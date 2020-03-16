@@ -65,7 +65,6 @@
 		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');
 		global.Module = NativeModule.require('module');
-		global.console = NativeModule.require('console'); // Convenience toplevel alias for logging facilities
 	};
 
 	startup.runMain = function () {};
