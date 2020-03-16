@@ -39,6 +39,10 @@ describe('console', function () {
 		should(console.warn).be.a.Function;
 	});
 
+	it('#trace', () => {
+		should(console.trace).be.a.Function;
+	});
+
 	it('#time', () => {
 		should(console.time).be.a.Function;
 	});
@@ -294,6 +298,7 @@ describe('console', function () {
 			console.dirxml('dirxml'); // stdout
 			console.warn('warn'); // stderr
 			console.error('error'); // stderr
+			console.trace('trace'); // stderr
 			stdout.logs.length.should.eql(3);
 			stdout.logs[0].should.eql('log');
 			stdout.logs[1].should.eql('info');
@@ -301,6 +306,7 @@ describe('console', function () {
 			stderr.logs.length.should.eql(2);
 			stderr.logs[0].should.eql('warn');
 			stderr.logs[1].should.eql('error');
+			stderr.logs[1].should.eql('trace');
 		});
 
 		it('squashes sync errors on stdout write by default (ignoreErrors = true)', () => {
