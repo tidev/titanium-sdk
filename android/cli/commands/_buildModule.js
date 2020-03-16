@@ -305,8 +305,8 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 			cli.emit('build.module.pre.compile', this, resolve);
 		});
 
-		// If this is a "hybrid" module (has native and JS code), then make sure "manifest" is flagged as "commonjs".
-		await this.updateModuleManifest();
+		// Update module files such as "manifest" if needed.
+		await this.updateModuleFiles();
 
 		// Generate all gradle project files.
 		await this.generateRootProjectFiles();
@@ -459,7 +459,17 @@ AndroidModuleBuilder.prototype.cleanup = async function cleanup() {
 	}
 };
 
-AndroidModuleBuilder.prototype.updateModuleManifest = async function updateModuleManifest() {
+AndroidModuleBuilder.prototype.updateModuleFiles = async function updateModuleFiles() {
+	// Add empty "build.gradle" template file to project folder if missing. Used to define library dependencies.
+	// Note: Appcelerator Studio looks for this file to determine if this is an Android module project.
+	const buildGradleFileName = 'build.gradle';
+	const buildGradleFilePath = path.join(this.projectDir, buildGradleFileName);
+	if (!await fs.exists(buildGradleFilePath)) {
+		await fs.copyFile(
+			path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', buildGradleFileName),
+			buildGradleFilePath);
+	}
+
 	// Determine if "assets" directory contains at least 1 JavaScript file.
 	let hasJSFile = false;
 	if (await fs.exists(this.assetsDir)) {
