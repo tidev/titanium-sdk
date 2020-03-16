@@ -8,7 +8,6 @@
 #import "APSAnalytics.h"
 #import "KrollCallback.h"
 #import "TiApp.h"
-#import "TiConsole.h"
 #import "TiExceptionHandler.h"
 #import "TiHost.h"
 #import "TiSharedConfig.h"
@@ -522,9 +521,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
     [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
     [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
   }
-
-  // Load the "console" object into the global scope
-  objcJSContext[@"console"] = [[TiConsole alloc] init];
 
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
