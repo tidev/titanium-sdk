@@ -2217,7 +2217,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								module.libName = xcFrameworkOfLib;
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isXCFrameworkOfLib = true;
-								//TO DO : Change hash calculation
+								// TO DO : Change hash calculation
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, 'ios-i386_x86_64-simulator',  'lib' + module.id.toLowerCase() + '.a'))));
 							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
 								module.libName = xcFrameworkOfFramework;
