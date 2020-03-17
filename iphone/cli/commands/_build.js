@@ -2191,6 +2191,12 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						} else {
 							module.native = true;
 							const frameworkName = this.scrubbedModuleId(module.id) + '.framework';
+							const xcFrameworkOfLib = module.id + '.xcframework';
+							const xcFrameworkOfFramework = this.scrubbedModuleId(module.id) + '.xcframework';
+
+							module.isFramework = false;
+							module.isXCFrameworkOfLib = false;
+							module.isXCFrameworkOfFramework = false;
 
 							// Try to load native module as static library (Obj-C)
 							if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
@@ -2207,8 +2213,20 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								module.isFramework = true;
 								// For Swift frameworks, use the binary inside the .framework for hashing
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
+							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
+								module.libName = xcFrameworkOfLib;
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isXCFrameworkOfLib = true;
+								//TO DO : Change hash calculation
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, 'ios-i386_x86_64-simulator',  'lib' + module.id.toLowerCase() + '.a'))));
+							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
+								module.libName = xcFrameworkOfFramework;
+								module.libFile = path.join(module.modulePath, module.libName);
 
-								// Else - fail
+								module.isXCFrameworkOfFramework = true;
+
+								//TO DO : Change hash calculation
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, 'ios-i386_x86_64-simulator',  this.scrubbedModuleId(module.id) + '.framework', this.scrubbedModuleId(module.id)))));
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
@@ -3308,46 +3326,92 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			// Framworks are handled by our framework manager!
 			if (isFramework) {
 				return;
+			} else if (lib.isXCFrameworkOfFramework || lib.isXCFrameworkOfLib) {
+				const frameworkFileRefUuid = this.generateXcodeUuid(xcodeProject);
+				const frameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+				xobjs.PBXFileReference[frameworkFileRefUuid] = {
+					isa: 'PBXFileReference',
+					lastKnownFileType: 'wrapper.xcframework',
+					name: lib.libName,
+					path: '"' + lib.libFile + '"',
+					sourceTree: '"<group>"'
+				};
+				xobjs.PBXFileReference[frameworkFileRefUuid + '_comment'] = lib.libName;
+
+				xobjs.PBXBuildFile[frameworkBuildFileUuid] = {
+					isa: 'PBXBuildFile',
+					fileRef: frameworkFileRefUuid,
+					fileRef_comment: lib.libName
+				};
+				xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
+
+				frameworksBuildPhase.files.push({
+					value: frameworkBuildFileUuid,
+					comment: xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment']
+				});
+
+				if(lib.isXCFrameworkOfFramework) {
+					const embedFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid] = {
+						isa: 'PBXBuildFile',
+						fileRef: frameworkFileRefUuid,
+						fileRef_comment: lib.libName,
+						settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
+					};
+					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment'] = lib.libName + ' in Embed Frameworks';
+
+					copyFilesBuildPhase.files.push({
+						value: embedFrameworkBuildFileUuid,
+						comment: xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment']
+					});
+				}
+
+				frameworksGroup.children.push({
+					value: frameworkFileRefUuid,
+					comment: lib.libName
+				});
+			} else {
+				// add the file reference
+				xobjs.PBXFileReference[fileRefUuid] = {
+					isa: 'PBXFileReference',
+					lastKnownFileType: 'archive.ar',
+					name: lib.libName,
+					path: '"' + lib.libFile + '"',
+					sourceTree: '"<absolute>"'
+				};
+				xobjs.PBXFileReference[fileRefUuid + '_comment'] = lib.libName;
+
+				// add the library to the Frameworks group
+				frameworksGroup.children.push({
+					value: fileRefUuid,
+					comment: lib.libName
+				});
+
+				// add the build file
+				xobjs.PBXBuildFile[buildFileUuid] = {
+					isa: 'PBXBuildFile',
+					fileRef: fileRefUuid,
+					fileRef_comment: lib.libName,
+					platformFilter: 'ios'
+				};
+				xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
+
+				// add the library to the frameworks build phase
+				frameworksBuildPhase.files.push({
+					value: buildFileUuid,
+					comment: lib.libName + ' in Frameworks'
+				});
+
+				// add the library / framework to the dedicated search paths
+				xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+					var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+
+					buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+					buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
+				});
 			}
-
-			// add the file reference
-			xobjs.PBXFileReference[fileRefUuid] = {
-				isa: 'PBXFileReference',
-				lastKnownFileType: 'archive.ar',
-				name: lib.libName,
-				path: '"' + lib.libFile + '"',
-				sourceTree: '"<absolute>"'
-			};
-			xobjs.PBXFileReference[fileRefUuid + '_comment'] = lib.libName;
-
-			// add the library to the Frameworks group
-			frameworksGroup.children.push({
-				value: fileRefUuid,
-				comment: lib.libName
-			});
-
-			// add the build file
-			xobjs.PBXBuildFile[buildFileUuid] = {
-				isa: 'PBXBuildFile',
-				fileRef: fileRefUuid,
-				fileRef_comment: lib.libName,
-				platformFilter: 'ios'
-			};
-			xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
-
-			// add the library to the frameworks build phase
-			frameworksBuildPhase.files.push({
-				value: buildFileUuid,
-				comment: lib.libName + ' in Frameworks'
-			});
-
-			// add the library / framework to the dedicated search paths
-			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-
-				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
-				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
-			});
 		}, this);
 	} else {
 		this.logger.trace(__('No native module libraries to add'));
