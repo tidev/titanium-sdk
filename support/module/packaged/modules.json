@@ -9,8 +9,8 @@
 			"integrity": "sha512-fVtskrodL5ot2rUoxoU9Lf8CBXhduzx7lnDwVOzla2VahgNIlXCyvUZhZP0t6kLmolUD0rVbG0ly6v1g4UzDdQ=="
 		},
 		"ti.coremotion": {
-			"url": "https://github.com/appcelerator-modules/ti.coremotion/releases/download/v2.0.1/ti.coremotion-iphone-2.0.1.zip",
-			"integrity": "sha512-h1wM7mE/cgpk2n1YOYBNMNBQq5ViLxil6+GRnVqSaFB3LY3ubGSZVkZQ5rzC74anLlNXJVpsH/bP98AQ6zzXbA=="
+			"url": "https://github.com/appcelerator-modules/ti.coremotion/releases/download/v2.1.0/ti.coremotion-iphone-2.1.0.zip",
+			"integrity": "sha512-/37884hmpvg9XoGZy9BJ3nA6luz04Eff/oYRwCE+wadYvmoMMGZmHhmWRjkBC4wIhUj6YY6MuQlHr7X7MO/Ccw=="
 		},
 		"ti.map": {
 			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v3.3.0-iphone/ti.map-iphone-3.3.0.zip",
