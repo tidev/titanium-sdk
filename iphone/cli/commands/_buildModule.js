@@ -501,7 +501,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
 	this.logger.info(__('Creating universal library'));
 
-	const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId ;
+	const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId ;
 	const findLib = function (dest) {
 		const libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a' ;
 		let lib = path.join(this.projectDir, 'build', dest + libPath);
@@ -609,7 +609,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 
 	lib = findLib('ios-x86_64-maccatalyst');
 	if (lib instanceof Error) {
- 		this.logger.warn(__('The module is missing maccatalyst support.'));
+		this.logger.warn(__('The module is missing maccatalyst support.'));
 	}
 	const manifestArchs = this.manifest.architectures.split(' '),
 		  buildDiff     = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
