@@ -504,6 +504,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 	const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId;
 	const findLib = function (dest) {
 		const libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
+
 		let lib = path.join(this.projectDir, 'build', dest + libPath);
 		this.logger.info(__('Looking for ' + lib));
 
