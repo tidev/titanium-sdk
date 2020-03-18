@@ -149,7 +149,7 @@
     "nyc": "^15.0.0",
     "request-promise-native": "^1.0.8",
     "rollup": "^1.32.1",
-    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "ssri": "^8.0.0",
