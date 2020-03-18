@@ -1,7 +1,6 @@
 import assertArgumentType from './_errors';
 import path from './path';
 
-const isWindows = Ti.Platform.name === 'windows';
 const isAndroid = Ti.Platform.name === 'android';
 
 // Keep track of printing out one-time warning messages for unsupported operations/options/arguments
@@ -231,7 +230,7 @@ fs.accessSync = function (path, mode = fs.constants.F_OK) {
 	if ((mode & fs.constants.W_OK) && !fileHandle.writable) {
 		throw permissionDenied('access', path);
 	}
-	if (!isWindows && (mode & fs.constants.X_OK) && !fileHandle.executable && fileHandle.isFile()) {
+	if ((mode & fs.constants.X_OK) && !fileHandle.executable && fileHandle.isFile()) {
 		throw permissionDenied('access', path);
 	}
 };

@@ -18,7 +18,7 @@ properties:
     description: |
         The items will be shown as soon in the menu popup when the `show` method is called.
         To hide them again, use the `hide` method in conjunction.
-    type: [String]
+    type: Array<String>
 
 methods:
   - name: show

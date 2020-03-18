@@ -10,7 +10,7 @@ package org.appcelerator.titanium.view;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import java.lang.reflect.Field;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiRHelper;
