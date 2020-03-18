@@ -7,8 +7,8 @@
 package ti.modules.titanium.ui.widget;
 
 import android.graphics.drawable.Drawable;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.TabLayout;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
 import android.view.MenuItem;
 
 import org.appcelerator.kroll.KrollDict;

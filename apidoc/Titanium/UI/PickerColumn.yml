@@ -10,7 +10,25 @@ description: |
     On Android, the `useSpinner` property must be enabled to support multiple columns.
 
     See <Titanium.UI.Picker> for further examples of usage.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
+excludes:
+  properties: [
+    accessibilityHidden, accessibilityHint, accessibilityLabel, accessibilityValue, animatedCenter,
+    anchorPoint, backgroundColor, backgroundDisabledColor, backgroundDisabledImage,
+    backgroundFocusedColor, backgroundFocusedImage, backgroundGradient, backgroundImage,
+    backgroundLeftCap, backgroundRepeat, backgroundSelectedColor, backgroundSelectedImage,
+    backgroundTopCap, borderColor, borderRadius, borderWidth, bottom, center, children, clipMode,
+    elevation, focusable, height, hiddenBehavior, horizontalMotionEffect, left, layout, opacity,
+    overrideCurrentAnimation, pullBackgroundColor, previewContext, right, rect, rotation,
+    rotationX, rotationY, scaleX, scaleY, size, softKeyboardOnFocus, top, touchEnabled,
+    touchFeedback, touchFeedbackColor, transform, translationX, translationY, translationZ,
+    transitionName, verticalMotionEffect, viewShadowRadius, viewShadowColor, viewShadowOffset,
+    visible, width, horizontalWrap, keepScreenOn, tintColor, zIndex]
+  methods: [add, animate, clearMotionEffects, finishLayout, hide, insertAt, remove,
+    removeAllChildren, replaceAt, show, startLayout, toImage, updateLayout, convertPointToView,
+    getViewById]
+  events: [click, dblclick, doubletap, keypressed, longpress, pinch, singletap, swipe, touchcancel,
+    touchend, touchmove, touchstart, twofingertap]
 since: "0.9"
 platforms: [android, iphone, ipad]
 
