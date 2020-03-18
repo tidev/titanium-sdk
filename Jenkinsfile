@@ -8,13 +8,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: 
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
 def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
-def isGreenKeeper = env.BRANCH_NAME.startsWith('greenkeeper/') || 'greenkeeper[bot]'.equals(env.CHANGE_AUTHOR) // greenkeeper needs special handling to avoid using npm ci, and to use greenkeeper-lockfile
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
-// target branch of windows SDK to use and test suite to test with
-def targetBranch = isGreenKeeper ? 'master' : (isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master'))
-def includeWindows = isMainlineBranch // Include Windows SDK if on a mainline branch, by default
-// Note that the `includeWindows` flag also currently toggles whether we build for all OSes/platforms, or just iOS/Android for macOS
+// target branch of test suite to test with
+def targetBranch = isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master')
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
 def testOnDevices = isMainlineBranch // run tests on devices
@@ -28,7 +25,6 @@ def npmVersion = 'latest' // We can change this without any changes to Jenkins. 
 def gitCommit = ''
 def basename = ''
 def vtag = ''
-def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
 @NonCPS
 def hasAPIDocChanges() {
@@ -121,10 +117,10 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 									sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 									// run main branch tests on devices
 									if (testOnDevices) {
-										sh "node test.js -T device -C all -b ../../${zipName} -p android"
+										sh label: 'Run Test Suite on device(s)', script: "node test.js -T device -C all -b ../../${zipName} -p android"
 									// run PR tests on emulator
 									} else {
-										sh "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p android"
+										sh label: 'Run Test Suite on emulator', script: "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p android"
 									}
 								}
 							} catch (e) {
@@ -182,7 +178,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
 						dir('scripts') {
 							try {
 								timeout(20) {
-									sh "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
+									sh label: 'Run Test Suite', script: "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
 								}
 							} catch (e) {
 								gatherIOSCrashReports()
@@ -281,37 +277,6 @@ timestamps {
 					}
 				}
 
-				// Skip the Windows SDK portion if a PR, we don't need it
-				stage('Windows') {
-					if (includeWindows) {
-						// This may be the very first build on this branch, so there's no windows build to grab yet
-						try {
-							sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
-							if (fileExists('branches.json')) {
-								def branchesJSONContents = readFile('branches.json')
-								if (!branchesJSONContents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
-									def branchesJSON = jsonParse(branchesJSONContents)
-									isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
-								}
-							}
-						} catch (err) {
-							// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
-						}
-
-						// If there's no windows build for this branch yet, use master
-						def windowsBranch = targetBranch
-						if (isFirstBuildOnBranch) {
-							windowsBranch = 'master'
-							manager.addWarningBadge("Looks like the first build on branch ${env.BRANCH_NAME}. Using 'master' branch build of Windows SDK to bootstrap.")
-						}
-						step([$class: 'CopyArtifact',
-							projectName: "../titanium_mobile_windows/${windowsBranch}",
-							selector: [$class: 'StatusBuildSelector', stable: false],
-							filter: 'dist/windows/'])
-						sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-					} // if(includeWindows)
-				} // stage
-
 				stage('Build') {
 					// Normal build, pull out the version
 					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
@@ -324,33 +289,33 @@ timestamps {
 					basename = "dist/mobilesdk-${vtag}"
 					echo "BASENAME:        ${basename}"
 
-					// TODO parallelize the iOS/Android/Windows portions?
+					// TODO parallelize the iOS/Android portions?
 					ansiColor('xterm') {
 						timeout(15) {
 							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
-							if (includeWindows) {
+							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
-							sh buildCommand
+							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
 							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
-							if (includeWindows) {
+							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
-							sh buildCommand
+							sh label: 'build', script: buildCommand
 							recordIssues(tools: [clang(), java()])
 						} // timeout
 						timeout(15) {
 							def packageCommand = "npm run package -- --version-tag ${vtag}"
-							if (includeWindows) {
-								// on mainline builds, include windows sdk, build for all 3 host OSes
+							if (isMainlineBranch) {
+								// on mainline builds, build for all 3 host OSes
 								packageCommand += ' --all'
 							} else {
 								// On PRs, just build android and ios for macOS
 								packageCommand += ' android ios'
 							}
-							sh packageCommand
+							sh label: 'package', script: packageCommand
 						} // timeout
 					} // ansiColor
 
@@ -502,11 +467,6 @@ timestamps {
 						pluginFailureResultConstraint: 'FAILURE',
 						userMetadata: []])
 
-					// Trigger titanium_mobile_windows if this is the first build on a "mainline" branch
-					if (isFirstBuildOnBranch) {
-						// Trigger build of titanium_mobile_windows in our pipeline multibranch group!
-						build job: "../titanium_mobile_windows/${env.BRANCH_NAME}", wait: false
-					}
 					// Now wipe the workspace. otherwise the unstashed artifacts will stick around on the node (master)
 					deleteDir()
 				} // node

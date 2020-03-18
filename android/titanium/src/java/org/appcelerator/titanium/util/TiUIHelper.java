@@ -43,7 +43,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.graphics.drawable.PaintDrawable;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -58,7 +58,6 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -83,8 +82,6 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
-
-import com.appcelerator.aps.APSAnalyticsMeta;
 
 /**
  * A set of utility methods focused on UI and View operations.
@@ -908,17 +905,33 @@ public class TiUIHelper
 		}
 
 		// This is a "res" drawable references. Remove file extension since Android strips them off in built app.
-		// Note: Periods are not legal characters in resource names. So, it's okay to strip off the 1st one found.
-		int index = path.indexOf('.');
+		final String NINE_PATCH_EXTENSION = ".9.png";
 		String pathWithoutExtension = path;
+		int index = -1;
+		if (path.toLowerCase().endsWith(NINE_PATCH_EXTENSION)) {
+			index = path.length() - NINE_PATCH_EXTENSION.length();
+		} else {
+			index = path.lastIndexOf('.');
+			if ((index >= 0) && (path.indexOf('/', index) >= 0)) {
+				index = -1;
+			}
+		}
 		if (index > 0) {
 			pathWithoutExtension = path.substring(0, index);
 		} else if (index == 0) {
 			pathWithoutExtension = null;
 		}
 
-		// If we've extracted a valid "res" path, then store it for fast access later.
+		// Handle extracted "res" file path.
 		if ((pathWithoutExtension != null) && !pathWithoutExtension.isEmpty()) {
+			// If "res" file path is invalid, then make it valid.
+			// Must be all lower-case, can only contain letters/number, and cannot start with a number.
+			pathWithoutExtension = pathWithoutExtension.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+			if (Character.isDigit(pathWithoutExtension.charAt(0))) {
+				pathWithoutExtension = "_" + pathWithoutExtension;
+			}
+
+			// Add "res" path to dictionary for fast access later.
 			TiUIHelper.resourceImageKeys.put(url, pathWithoutExtension);
 		}
 
