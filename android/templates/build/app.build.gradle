@@ -13,6 +13,7 @@ android {
 		applicationId '<%- applicationId %>'
 		minSdkVersion <%- minSdkVersion %>
 		targetSdkVersion <%- targetSdkVersion %>
+		versionCode <%- versionCode %>
 		versionName '<%- versionName %>'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
@@ -28,10 +29,9 @@ android {
 		}
 <% } %>
 	}
-	// TODO: Add Java 8 support in the future.
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
 	}
 	signingConfigs {
 		def tiKeystoreFilePath = <%- "'" + tiSdkAndroidDir.replace(/\\/g, '\\\\') + "/dev_keystore'" %>
@@ -73,6 +73,9 @@ android {
 <% } %>
 		}
 	}
+	dexOptions {
+		javaMaxHeapSize '<%- dexJavaMaxHeapSize %>'
+	}
 	lintOptions {
 		checkReleaseBuilds false
 	}
@@ -88,7 +91,7 @@ android {
 tasks.lint.enabled = false
 
 dependencies {
-	implementation "com.android.support:appcompat-v7:${project.ext.tiSupportLibVersion}"
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 	implementation fileTree(dir: "${rootDir}/libs", include: ['*.aar', '*.jar'])
 	implementation fileTree(dir: "${projectDir}/src/main", include: ['*.aar', '*.jar'])
 <% if (libFilePaths && (libFilePaths.length > 0)) { %>

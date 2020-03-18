@@ -31,7 +31,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -552,10 +552,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				// Make sure the height is greater than 1 (not 0 since image views default to 1)
-				if (hasChildView && h > 1) {
-					content.getLayoutParams().height = h;
-				}
 
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
@@ -654,6 +650,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 		return selectorDrawable;
+	}
+
+	public TiCompositeLayout getContentView()
+	{
+		return this.content;
 	}
 
 	@Override

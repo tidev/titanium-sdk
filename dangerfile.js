@@ -127,7 +127,7 @@ async function checkChangedFileLocations() {
 	}
 	// Mark hasAppChanges if 'common' dir is changed too!
 	const common = danger.git.fileMatch('common/**');
-	// TODO: Should we add ios/android/windows labels if common dir is changed?
+	// TODO: Should we add ios/android labels if common dir is changed?
 	const hasAppChanges = android.edited || ios.edited || common.edited;
 
 	// Check if any tests were changed/added
@@ -163,7 +163,7 @@ async function checkMergeable() {
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
 	// Don't give special thanks to the greenkeeper bot account
-	if (github.pr.user.login === 'greenkeeper[bot]') {
+	if (github.pr.user.login === 'greenkeeper[bot]' || github.pr.user.login === 'dependabot-preview[bot]') {
 		return;
 	}
 	if (github.pr.author_association === 'FIRST_TIMER') {

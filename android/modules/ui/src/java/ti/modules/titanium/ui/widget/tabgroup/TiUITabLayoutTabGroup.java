@@ -9,7 +9,7 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.design.widget.TabLayout;
+import com.google.android.material.tabs.TabLayout;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;

@@ -16,7 +16,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;
@@ -159,6 +159,18 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static TiApplication getInstance()
 	{
 		return tiApp;
+	}
+
+	/**
+	 * Determine if activity is first on stack.
+	 * @return boolean to determine if activity is first.
+	 */
+	public static boolean firstOnActivityStack()
+	{
+		if (activityStack.size() == 1) {
+			return true;
+		}
+		return false;
 	}
 
 	public static void addToActivityStack(Activity activity)
