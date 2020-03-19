@@ -230,7 +230,8 @@
   self.backgroundImage = arg;
 }
 
-#pragma mark Delegate
+#pragma mark UISearchBarDelegate
+
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
   if (delegate != nil && [delegate respondsToSelector:@selector(searchBarShouldBeginEditing:)]) {
@@ -343,6 +344,7 @@
   [self processKeyPressed:text];
   return YES;
 }
+
 @end
 
 #endif
