@@ -118,7 +118,12 @@
   [[self searchBar] setPlaceholder:[TiUtils stringValue:value]];
 
   if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
-    [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      // Need to call a bit later to get searchTextField loaded
+      [self performSelector:@selector(setHintTextColor_:) withObject:[[self proxy] valueForUndefinedKey:@"hintTextColor"] afterDelay:.01];
+    } else {
+      [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+    }
   }
 }
 
@@ -129,12 +134,7 @@
   NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
 #if IS_SDK_IOS_13
-    TiThreadPerformOnMainThread(
-        ^{
-          UISearchTextField *textField = self.searchBar.searchTextField;
-          textField.attributedPlaceholder = placeholder;
-        },
-        NO);
+    self.searchBar.searchTextField.attributedPlaceholder = placeholder;
 #endif
   } else {
     [UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]].attributedPlaceholder = placeholder;
