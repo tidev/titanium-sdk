@@ -100,7 +100,7 @@
     "css-parse": "2.0.0",
     "ejs": "^3.0.1",
     "fields": "0.1.24",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.0.0",
     "ioslib": "^1.7.20",
     "klaw-sync": "^6.0.0",
     "liveview": "^1.5.0",
