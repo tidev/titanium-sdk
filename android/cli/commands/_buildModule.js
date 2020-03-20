@@ -206,11 +206,6 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
 			this.androidInfo = androidInfo;
 
-			if (!this.androidInfo.ndk) {
-				logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
-				process.exit(1);
-			}
-
 			const targetSDKMap = {
 
 				// placeholder for gradle to use
@@ -515,7 +510,8 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, this.androidInfo.ndk.path);
+	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');
