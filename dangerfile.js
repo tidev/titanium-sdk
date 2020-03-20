@@ -163,7 +163,7 @@ async function checkMergeable() {
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
 	// Don't give special thanks to the greenkeeper bot account
-	if (github.pr.user.login === 'greenkeeper[bot]') {
+	if (github.pr.user.login === 'greenkeeper[bot]' || github.pr.user.login === 'dependabot-preview[bot]') {
 		return;
 	}
 	if (github.pr.author_association === 'FIRST_TIMER') {
