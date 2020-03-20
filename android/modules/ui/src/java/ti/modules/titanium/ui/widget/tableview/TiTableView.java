@@ -189,12 +189,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		 * IMPORTANT NOTE:
 		 * getView() is called by the Android framework whenever it needs a view.
 		 * The call to getView() could come on a measurement pass or on a layout
-		 * pass.  It's not possible to tell from the arguments whether the framework
-		 * is calling getView() for a measurement pass or for a layout pass.  Therefore,
+		 * pass. It's not possible to tell from the arguments whether the framework
+		 * is calling getView() for a measurement pass or for a layout pass. Therefore,
 		 * it is important that getView() and all methods call by getView() only create
 		 * the views and fill them in with the appropriate data.  What getView() and the
 		 * methods call by getView MUST NOT do is to make any associations between
-		 * proxies and views.   Those associations must be made only for the views
+		 * proxies and views. Those associations must be made only for the views
 		 *  that are used for layout, and should be driven from the onLayout() callback.
 		 */
 		public View getView(int position, View convertView, ViewGroup parent)
@@ -210,15 +210,14 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				return v;
 			}
 
-			// If we've already set up a view container for the item, then use it. (Ignore "convertView" argument.)
-			// Notes:
-			// - There is no point in recycling the "convertView" row container since we always store the row's
-			//   child views in memory. If you want to recycle child views, then use "TiListView" instead.
-			// - If row contains an EditText/TextField/TextArea, then we don't want to change its parent to a
-			//   different "convertView" row container, because it'll reset the connection with the keyboard.
 			if (item.proxy instanceof TableViewRowProxy) {
 				TableViewRowProxy row = (TableViewRowProxy) item.proxy;
-				v = row.getTableViewRowProxyItem();
+				TiTableViewRowProxyItem rowItem = row.getTableViewRowProxyItem();
+
+				// Attempt to reuse old view.
+				if (rowItem != null) {
+					v = rowItem.equals(convertView) ? (TiBaseTableViewItem) convertView : null;
+				}
 			}
 
 			// If we haven't created a view container for the given row item, then do so now.

@@ -1290,6 +1290,7 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: ListViewAnimationProperties
+        optional: true
 
   - name: selectItem
     summary: Selects an item in the list using the specified item and section indices.
