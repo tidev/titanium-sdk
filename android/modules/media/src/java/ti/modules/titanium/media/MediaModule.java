@@ -564,6 +564,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void requestCameraPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasCameraPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 
@@ -588,6 +591,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void requestAudioRecorderPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasAudioRecorderPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 		String[] permissions = new String[] { Manifest.permission.RECORD_AUDIO };
