@@ -21,6 +21,7 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'mukherjee2@users.noreply.github.com',
 	'14187093+Sajoha@users.noreply.github.com'
 ];
+// TODO: Skip bots like dependabot!
 
 // others use our company email addresses
 const KNOWN_EMPLOYEE_EMAIL_DOMAINS = [
@@ -161,7 +162,8 @@ module.exports = {
 				const domain = emailParts[1];
 				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
 					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
-					&& !commit.authorEmail.includes('greenkeeper[bot]')) {
+					&& !commit.authorEmail.includes('greenkeeper[bot]')
+					&& !commit.authorEmail.includes('dependabot-preview[bot]')) {
 					// If this is a noreply github email address, strip it to username so we can link to them
 					// if (domain === 'users.noreply.github.com') {
 					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
