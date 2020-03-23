@@ -118,31 +118,44 @@
   [[self searchBar] setPlaceholder:[TiUtils stringValue:value]];
 
   if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
-    [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      // Need to call a bit later to get searchTextField loaded
+      [self performSelector:@selector(setHintTextColor_:) withObject:[[self proxy] valueForUndefinedKey:@"hintTextColor"] afterDelay:.01];
+    } else {
+      [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+    }
   }
 }
 
 - (void)setHintTextColor_:(id)value
 {
-  id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
+  id hintText = [self.proxy valueForUndefinedKey:@"hintText"] ?: @"";
 
   NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
-  [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeholder];
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+#if IS_SDK_IOS_13
+    self.searchBar.searchTextField.attributedPlaceholder = placeholder;
+#endif
+  } else {
+    [UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]].attributedPlaceholder = placeholder;
+  }
   RELEASE_TO_NIL(placeholder);
 }
 
 - (void)setColor_:(id)value
 {
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    [[[self searchBar] searchTextField] setTextColor:[[TiUtils colorValue:value] _color]];
+#if IS_SDK_IOS_13
+    self.searchBar.searchTextField.textColor = [[TiUtils colorValue:value] _color];
+#endif
   } else {
     // TIMOB-10368
     // Remove this hack again once iOS exposes this as a public API
-    UIView *searchContainerView = [[[self searchBar] subviews] firstObject];
+    UIView *searchContainerView = self.searchBar.subviews.firstObject;
 
-    [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    [searchContainerView.subviews enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
       if ([obj isKindOfClass:[UITextField class]]) {
-        [(UITextField *)obj setTextColor:[[TiUtils colorValue:value] _color]];
+        ((UITextField *)obj).textColor = [[TiUtils colorValue:value] _color];
         *stop = YES;
       }
     }];
@@ -230,7 +243,8 @@
   self.backgroundImage = arg;
 }
 
-#pragma mark Delegate
+#pragma mark UISearchBarDelegate
+
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
   if (delegate != nil && [delegate respondsToSelector:@selector(searchBarShouldBeginEditing:)]) {
@@ -343,6 +357,7 @@
   [self processKeyPressed:text];
   return YES;
 }
+
 @end
 
 #endif

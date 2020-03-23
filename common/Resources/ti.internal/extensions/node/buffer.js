@@ -1615,7 +1615,8 @@ const arrayIndexHandler = {
 		if (typeof propKey === 'string') {
 			const num = Number(propKey);
 			if (Number.isSafeInteger(num)) {
-				return setAdjustedIndex(target, num, value);
+				setAdjustedIndex(target, num, value);
+				return true;
 			}
 		}
 		return Reflect.set(target, propKey, value, receiver);
@@ -1644,7 +1645,6 @@ function setAdjustedIndex(buf, index, value) {
 	if (index >= 0 || index < buf._tiBuffer.length) {
 		buf._tiBuffer[index + buf.byteOffset] = value;
 	}
-	return value;
 }
 
 /**
