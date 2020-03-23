@@ -27,6 +27,7 @@
 package android.widget;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
@@ -368,13 +369,14 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	}
 
-	// TITANIUM Added to detect HTTP redirects before we hand off to MediaPlayer
-	// See: http://code.google.com/p/android/issues/detail?id=10810
 	private void setDataSource()
 	{
 		try {
-			mUri = TiUIHelper.getRedirectUri(mUri);
-			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
+			// TIMOB-27493: disable caching, which would otherwise introduce a delay.
+			Map<String, String> headers = new HashMap<>();
+			headers.put("Cache-Control", "no-cache");
+
+			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
 		}
@@ -568,6 +570,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mOnCompletionListener != null) {
 				mOnCompletionListener.onCompletion(mMediaPlayer);
 			}
+			if (mp != null) {
+				mp.release();
+			}
 		}
 	};
 
@@ -579,6 +584,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			mTargetState = STATE_ERROR;
 			if (mMediaController != null) {
 				mMediaController.hide();
+			}
+			if (mp != null) {
+				mp.release();
 			}
 
 			/* If an error handler has been supplied, use it and finish. */
