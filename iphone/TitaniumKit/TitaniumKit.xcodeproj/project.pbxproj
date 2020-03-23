@@ -103,8 +103,6 @@
 		DB15FCB11F0A86E600A82C45 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCAF1F0A86E600A82C45 /* TiBindingTiValue.m */; };
 		DB15FCB81F0A874F00A82C45 /* TopTiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCB61F0A874F00A82C45 /* TopTiModule.h */; };
 		DB15FCB91F0A874F00A82C45 /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCB71F0A874F00A82C45 /* TopTiModule.m */; };
-		DB15FCC01F0A876F00A82C45 /* TiConsole.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCBE1F0A876F00A82C45 /* TiConsole.h */; };
-		DB15FCC11F0A876F00A82C45 /* TiConsole.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCBF1F0A876F00A82C45 /* TiConsole.m */; };
 		DB15FCC81F0A879B00A82C45 /* ImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCC61F0A879B00A82C45 /* ImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FCC91F0A879B00A82C45 /* ImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCC71F0A879B00A82C45 /* ImageLoader.m */; };
 		DB15FCCC1F0A87A400A82C45 /* TiErrorController.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCCA1F0A87A400A82C45 /* TiErrorController.h */; };
@@ -259,8 +257,6 @@
 		DB15FCAF1F0A86E600A82C45 /* TiBindingTiValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingTiValue.m; sourceTree = "<group>"; };
 		DB15FCB61F0A874F00A82C45 /* TopTiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TopTiModule.h; sourceTree = "<group>"; };
 		DB15FCB71F0A874F00A82C45 /* TopTiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TopTiModule.m; sourceTree = "<group>"; };
-		DB15FCBE1F0A876F00A82C45 /* TiConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiConsole.h; sourceTree = "<group>"; };
-		DB15FCBF1F0A876F00A82C45 /* TiConsole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiConsole.m; sourceTree = "<group>"; };
 		DB15FCC61F0A879B00A82C45 /* ImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageLoader.h; sourceTree = "<group>"; };
 		DB15FCC71F0A879B00A82C45 /* ImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageLoader.m; sourceTree = "<group>"; };
 		DB15FCCA1F0A87A400A82C45 /* TiErrorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiErrorController.h; sourceTree = "<group>"; };
@@ -489,8 +485,6 @@
 				DB15FC441F0A838E00A82C45 /* TiColor.m */,
 				DB15FD1E1F0A8A5E00A82C45 /* TiComplexValue.h */,
 				DB15FD1F1F0A8A5E00A82C45 /* TiComplexValue.m */,
-				DB15FCBE1F0A876F00A82C45 /* TiConsole.h */,
-				DB15FCBF1F0A876F00A82C45 /* TiConsole.m */,
 				DB15FC831F0A857E00A82C45 /* TiControllerProtocols.h */,
 				DB15FBEA1F0A80E400A82C45 /* TiDimension.h */,
 				DB15FBEB1F0A80E400A82C45 /* TiDimension.m */,
@@ -675,7 +669,6 @@
 				DB15FD241F0A8A7B00A82C45 /* TiBindingEvent.h in Headers */,
 				DB15FD141F0A897B00A82C45 /* TiViewController.h in Headers */,
 				DB15FC451F0A838E00A82C45 /* TiColor.h in Headers */,
-				DB15FCC01F0A876F00A82C45 /* TiConsole.h in Headers */,
 				DB3908662075228900AE31EC /* APSHTTPResponse.h in Headers */,
 				DB3908692075228900AE31EC /* APSHTTPHelper.h in Headers */,
 				DB3908672075228900AE31EC /* APSHTTPRequest.h in Headers */,
@@ -804,7 +797,6 @@
 				DB15FC8C1F0A859800A82C45 /* UIImage+RoundedCorner.m in Sources */,
 				DB15FC741F0A850E00A82C45 /* Mimetypes.m in Sources */,
 				DB15FC801F0A855F00A82C45 /* UIImage+Alpha.m in Sources */,
-				DB15FCC11F0A876F00A82C45 /* TiConsole.m in Sources */,
 				DB15FCA51F0A864A00A82C45 /* TiGradient.m in Sources */,
 				DB15FD311F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				DB15FD351F0A95C500A82C45 /* TiUIViewProxy.m in Sources */,
