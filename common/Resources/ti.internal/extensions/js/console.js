@@ -219,6 +219,9 @@ Console.prototype.log = Console.prototype.info; // Treat log as alias to info
 Console.prototype.dirxml = Console.prototype.log; // Treat dirxml as alias to log
 Console.prototype.groupCollapsed = Console.prototype.group;
 
-global.console = new Console(Ti.API);
+const globalConsole = new Console(Ti.API);
+globalConsole.Console = Console;
 
-export default Console;
+global.console = globalConsole;
+
+export default globalConsole;
