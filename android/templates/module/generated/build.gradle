@@ -151,6 +151,14 @@ preBuild.doFirst {
 	}
 }
 
+// Set up project to compile Java side before compiling the C/C++ side.
+// We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
+project.afterEvaluate {
+	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
+	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+}
+
+// Hook into Java compile task.
 tasks.withType(JavaCompile) {
 	// Log all Java linting errors/warnings.
 	options.compilerArgs << "-Xlint:all"

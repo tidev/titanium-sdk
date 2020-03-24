@@ -11,16 +11,26 @@
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 let Console;
 
-describe('console', function () {
+describe.only('console', function () {
 	it('exists as an object in global namespace', () => {
 		should(global.console).be.an.Object;
 		should(console).be.an.Object;
 	});
 
-	it('can be required', () => {
+	it('can be required, exposes global console', () => {
 		// eslint-disable-next-line node/prefer-global/console
-		Console = require('console');
-		should(Console).be.an.Object; // function?
+		const requiredConsole = require('console');
+		should(requiredConsole).be.an.Object;
+		should(requiredConsole).eql(global.console);
+	});
+
+	it('exposes constructor as property off global console', () => {
+		// eslint-disable-next-line node/prefer-global/console
+		const requiredConsole = require('console');
+		should(global.console.Console).be.a.Function;
+		should(requiredConsole.Console).be.a.Function;
+		should(requiredConsole.Console).eql(global.console.Console);
+		Console = global.console.Console;
 	});
 
 	it('#log', () => {
@@ -37,6 +47,10 @@ describe('console', function () {
 
 	it('#warn', () => {
 		should(console.warn).be.a.Function;
+	});
+
+	it('#trace', () => {
+		should(console.trace).be.a.Function;
 	});
 
 	it('#time', () => {
@@ -294,13 +308,15 @@ describe('console', function () {
 			console.dirxml('dirxml'); // stdout
 			console.warn('warn'); // stderr
 			console.error('error'); // stderr
+			console.trace('trace'); // stderr
 			stdout.logs.length.should.eql(3);
 			stdout.logs[0].should.eql('log');
 			stdout.logs[1].should.eql('info');
 			stdout.logs[2].should.eql('dirxml');
-			stderr.logs.length.should.eql(2);
+			stderr.logs.length.should.eql(3);
 			stderr.logs[0].should.eql('warn');
 			stderr.logs[1].should.eql('error');
+			stderr.logs[2].should.eql('trace');
 		});
 
 		it('squashes sync errors on stdout write by default (ignoreErrors = true)', () => {
