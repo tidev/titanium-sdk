@@ -155,6 +155,13 @@ task snapshotTiCommonFiles() {
 	}
 }
 
+// Set up project to compile Java side before compiling the C/C++ side.
+// We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
+project.afterEvaluate {
+	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
+	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+}
+
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // This downloads the V8 library, generates C/C++ files, and generates some asset files.
 tasks.withType(JavaCompile) {
