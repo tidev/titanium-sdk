@@ -61,6 +61,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	@Override
+	public void forceGC()
+	{
+		nativeIdle();
+	}
+
+	@Override
 	public void initRuntime()
 	{
 		KrollApplication application = getKrollApplication();
