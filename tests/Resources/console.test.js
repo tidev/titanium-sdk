@@ -11,7 +11,7 @@
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 let Console;
 
-describe.only('console', function () {
+describe('console', function () {
 	it('exists as an object in global namespace', () => {
 		should(global.console).be.an.Object;
 		should(console).be.an.Object;
