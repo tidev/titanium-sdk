@@ -111,9 +111,9 @@
   UISearchBar *search = [self searchBar];
   [search setShowsCancelButton:[TiUtils boolValue:value]];
   [search sizeToFit];
-  
+
   id textColor = [[self proxy] valueForUndefinedKey:@"color"];
-  if ([TiUtils isIOSVersionLower:@"11.0"] && textColor){
+  if ([TiUtils isIOSVersionLower:@"11.0"] && textColor) {
     UIView *searchContainerView = self.searchBar.subviews.firstObject;
 
     [searchContainerView.subviews enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
