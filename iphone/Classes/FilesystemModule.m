@@ -215,20 +215,8 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
     imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
     imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
 
-    if (imageArg != nil) {
-      unsigned char digest[CC_SHA1_DIGEST_LENGTH];
-      NSData *stringBytes = [imageArg dataUsingEncoding:NSUTF8StringEncoding];
-      if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
-        // SHA-1 hash has been calculated and stored in 'digest'.
-        NSMutableString *sha = [[NSMutableString alloc] init];
-        for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
-          [sha appendFormat:@"%02x", digest[i]];
-        }
-        [sha appendString:[newpath substringFromIndex:[newpath length] - 4]];
-        image = [UIImage imageNamed:sha];
-        RELEASE_TO_NIL(sha)
-      }
-    }
+    image = [UIImage imageNamed:imageArg];
+
     return [[[TiBlob alloc] initWithImage:image] autorelease];
   }
   return nil;

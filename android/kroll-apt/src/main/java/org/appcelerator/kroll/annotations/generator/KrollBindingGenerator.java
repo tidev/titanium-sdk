@@ -47,6 +47,7 @@ public class KrollBindingGenerator
 	private HashMap<String, Object> tiModules = new HashMap<String, Object>();
 
 	private JSONUtils jsonUtils;
+	private boolean canOverwrite = true;
 
 	public KrollBindingGenerator(String outPath, String moduleId)
 	{
@@ -88,15 +89,16 @@ public class KrollBindingGenerator
 		Writer writer = null;
 		try {
 			File file = new File(outPath, outFile);
-			System.out.println("Generating " + file.getAbsolutePath());
-
 			File parent = file.getParentFile();
 			if (!parent.exists()) {
 				parent.mkdirs();
 			}
 
-			writer = new FileWriter(file);
-			template.process(root, writer);
+			if (this.canOverwrite || !file.exists()) {
+				System.out.println("Generating " + file.getAbsolutePath());
+				writer = new FileWriter(file);
+				template.process(root, writer);
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -227,6 +229,16 @@ public class KrollBindingGenerator
 			properties = (Map<Object, Object>) JSONValue.parseWithException(reader);
 		}
 		loadBindingsFrom(properties);
+	}
+
+	public boolean getCanOverwrite()
+	{
+		return this.canOverwrite;
+	}
+
+	public void setCanOverwrite(boolean value)
+	{
+		this.canOverwrite = value;
 	}
 
 	public void loadBindingsFrom(Map<Object, Object> properties)

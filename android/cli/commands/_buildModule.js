@@ -206,12 +206,13 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
 			this.androidInfo = androidInfo;
 
-			if (!this.androidInfo.ndk) {
-				logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
-				process.exit(1);
-			}
+			const targetSDKMap = {
 
-			const targetSDKMap = {};
+				// placeholder for gradle to use
+				[this.compileSdkVersion]: {
+					sdk: this.compileSdkVersion
+				}
+			};
 			Object.keys(this.androidInfo.targets).forEach(function (id) {
 				var t = this.androidInfo.targets[id];
 				if (t.type === 'platform') {
@@ -221,69 +222,17 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 			// check the Android SDK we require to build exists
 			this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
-			if (!this.androidCompileSDK) {
-				logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
-				logger.error(__('Android SDK API %s is required to build Android modules', this.compileSdkVersion) + '\n');
-				process.exit(1);
-			}
 
 			// if no target sdk, then default to most recent supported/installed
 			if (!this.targetSDK) {
-				const levels = Object.keys(targetSDKMap).sort();
-
-				for (let i = levels.length - 1; i >= 0; i--) {
-					if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
-						this.targetSDK = levels[i];
-						break;
-					}
-				}
-
-				if (!this.targetSDK) {
-					logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
-					process.exit(1);
-				}
+				this.targetSDK = this.maxSupportedApiLevel;
 			}
-
-			// check that we have this target sdk installed
 			this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
 			if (!this.androidTargetSDK) {
-				logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
-
-				const sdks = Object.keys(targetSDKMap).filter(function (ver) {
-					return ver > this.minSupportedApiLevel;
-				}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
-
-				if (sdks.length) {
-					logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-					logger.log(
-						appc.string.wrap(
-							__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-							config.get('cli.width', 100)
-						)
-					);
-					logger.log();
-					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-					logger.log('    <android>'.grey);
-					logger.log('        <manifest>'.grey);
-					logger.log(('            <uses-sdk '
-						+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
-						+ 'android:targetSdkVersion="' + sdks[0] + '" '
-						+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-						+ '/>').magenta);
-					logger.log('        </manifest>'.grey);
-					logger.log('    </android>'.grey);
-					logger.log('</ti:app>'.grey);
-					logger.log();
-				} else {
-					logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-				}
-				process.exit(1);
-			}
-
-			if (!this.androidTargetSDK.androidJar) {
-				logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
-				process.exit(1);
+				this.androidTargetSDK = {
+					sdk: this.targetSDK
+				};
 			}
 
 			if (this.targetSDK < this.minSDK) {
@@ -300,6 +249,9 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 				// print warning that version this.targetSDK is not tested
 				logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', ('' + this.targetSDK).cyan, this.titaniumSdkVersion));
 			}
+
+			// get javac params
+			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
 
 			// detect java development kit
 			appc.jdk.detect(config, null, function (jdkInfo) {
@@ -348,8 +300,8 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 			cli.emit('build.module.pre.compile', this, resolve);
 		});
 
-		// If this is a "hybrid" module (has native and JS code), then make sure "manifest" is flagged as "commonjs".
-		await this.updateModuleManifest();
+		// Update module files such as "manifest" if needed.
+		await this.updateModuleFiles();
 
 		// Generate all gradle project files.
 		await this.generateRootProjectFiles();
@@ -502,7 +454,17 @@ AndroidModuleBuilder.prototype.cleanup = async function cleanup() {
 	}
 };
 
-AndroidModuleBuilder.prototype.updateModuleManifest = async function updateModuleManifest() {
+AndroidModuleBuilder.prototype.updateModuleFiles = async function updateModuleFiles() {
+	// Add empty "build.gradle" template file to project folder if missing. Used to define library dependencies.
+	// Note: Appcelerator Studio looks for this file to determine if this is an Android module project.
+	const buildGradleFileName = 'build.gradle';
+	const buildGradleFilePath = path.join(this.projectDir, buildGradleFileName);
+	if (!await fs.exists(buildGradleFilePath)) {
+		await fs.copyFile(
+			path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', buildGradleFileName),
+			buildGradleFilePath);
+	}
+
 	// Determine if "assets" directory contains at least 1 JavaScript file.
 	let hasJSFile = false;
 	if (await fs.exists(this.assetsDir)) {
@@ -539,10 +501,17 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
 
 	// Create a "gradle.properties" file. Will add network proxy settings if needed.
-	await gradlew.writeDefaultGradlePropertiesFile();
+	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
+	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({
+		key: 'org.gradle.jvmargs',
+		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
+	});
+	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, this.androidInfo.ndk.path);
+	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');

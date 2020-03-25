@@ -8,7 +8,7 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #import <pthread.h>
 
-// Macros to make life easier for defining properties with getters/setter accessor methods (which we'll remove in SDK 9.0.0
+// Macros to make life easier for defining properties with getters/setter accessor methods (which we'll remove in SDK 10.0.0
 
 // Defines a setProp() accessor method in JS-world that points to setterProp:(TYPE)value in native code
 #define SETTER(TYPE, NAME) JSExportAs(set##NAME, -(void)setter##NAME \

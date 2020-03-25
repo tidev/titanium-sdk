@@ -8,11 +8,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: 
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
 def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
-def isGreenKeeper = env.BRANCH_NAME.startsWith('greenkeeper/') || 'greenkeeper[bot]'.equals(env.CHANGE_AUTHOR) // greenkeeper needs special handling to avoid using npm ci, and to use greenkeeper-lockfile
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
-def targetBranch = isGreenKeeper ? 'master' : (isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master'))
+def targetBranch = isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master')
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
 def testOnDevices = isMainlineBranch // run tests on devices
@@ -118,10 +117,10 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 									sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 									// run main branch tests on devices
 									if (testOnDevices) {
-										sh "node test.js -T device -C all -b ../../${zipName} -p android"
+										sh label: 'Run Test Suite on device(s)', script: "node test.js -T device -C all -b ../../${zipName} -p android"
 									// run PR tests on emulator
 									} else {
-										sh "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p android"
+										sh label: 'Run Test Suite on emulator', script: "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p android"
 									}
 								}
 							} catch (e) {
@@ -179,7 +178,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
 						dir('scripts') {
 							try {
 								timeout(20) {
-									sh "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
+									sh label: 'Run Test Suite', script: "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
 								}
 							} catch (e) {
 								gatherIOSCrashReports()
@@ -297,17 +296,17 @@ timestamps {
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
-							sh buildCommand
+							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
 							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
-							sh buildCommand
+							sh label: 'build', script: buildCommand
 							recordIssues(tools: [clang(), java()])
 						} // timeout
-						timeout(15) {
+						timeout(25) {
 							def packageCommand = "npm run package -- --version-tag ${vtag}"
 							if (isMainlineBranch) {
 								// on mainline builds, build for all 3 host OSes
@@ -316,7 +315,7 @@ timestamps {
 								// On PRs, just build android and ios for macOS
 								packageCommand += ' android ios'
 							}
-							sh packageCommand
+							sh label: 'package', script: packageCommand
 						} // timeout
 					} // ansiColor
 

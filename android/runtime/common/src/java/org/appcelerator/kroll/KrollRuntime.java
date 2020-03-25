@@ -13,12 +13,14 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import androidx.annotation.Nullable;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -109,16 +111,43 @@ public abstract class KrollRuntime implements Handler.Callback
 		runtime.doInit();
 	}
 
+	@Nullable
 	public static KrollRuntime getInstance()
 	{
+		// TODO: Prevent this method from requiring `null` checks.
 		return instance;
 	}
 
+	/**
+	 * Suggest V8 garbage collection during idle.
+	 */
 	public static void suggestGC()
 	{
 		if (instance != null) {
 			instance.setGCFlag();
 		}
+	}
+
+	/**
+	 * Force V8 garbage collection.
+	 */
+	public static void softGC()
+	{
+		// Force V8 garbage collection.
+		if (instance != null) {
+			instance.forceGC();
+		}
+	}
+
+	/**
+	 * Force both V8 and JVM garbage collection.
+	 */
+	public static void hardGC()
+	{
+		softGC();
+
+		// Force JVM garbage collection.
+		System.gc();
 	}
 
 	public static boolean isInitialized()
@@ -437,6 +466,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public void setGCFlag()
+	{
+		// No-op V8 should override.
+	}
+
+	public void forceGC()
 	{
 		// No-op V8 should override.
 	}
