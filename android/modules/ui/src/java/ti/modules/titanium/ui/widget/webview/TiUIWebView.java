@@ -34,6 +34,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
@@ -599,13 +600,17 @@ public class TiUIWebView extends TiUIView
 	{
 		reloadMethod = reloadTypes.URL;
 		reloadData = url;
-		String finalUrl = url;
-		Uri uri = Uri.parse(finalUrl);
-		boolean originalUrlHasScheme = (uri.getScheme() != null);
+		final Uri uri = Uri.parse(url);
 
-		if (!originalUrlHasScheme) {
-			finalUrl = getProxy().resolveUrl(null, finalUrl);
-		}
+		// Extract URL query parameters.
+		final String query = uri.getQuery() != null ? "?" + uri.getQuery() : null;
+
+		// Resolve URL path.
+		// The scheme is processed by `resolveUrl()`.
+		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
+
+		// Reconstruct URL, ommiting any query parameters.
+		final String finalUrl = finalUri.getScheme() + TiUrl.SCHEME_SUFFIX + finalUri.getPath();
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
@@ -641,9 +646,9 @@ public class TiUIWebView extends TiUIView
 					}
 					String baseUrl = tiFile.nativePath();
 					if (baseUrl == null) {
-						baseUrl = originalUrlHasScheme ? url : finalUrl;
+						baseUrl = finalUrl;
 					}
-					setHtmlInternal(out.toString(), baseUrl, "text/html");
+					setHtmlInternal(out.toString(), baseUrl + query, "text/html");
 					return;
 				} catch (IOException ioe) {
 					Log.e(TAG,
@@ -671,9 +676,9 @@ public class TiUIWebView extends TiUIView
 		}
 		isLocalHTML = false;
 		if (extraHeaders.size() > 0) {
-			getWebView().loadUrl(finalUrl, extraHeaders);
+			getWebView().loadUrl(finalUrl + query, extraHeaders);
 		} else {
-			getWebView().loadUrl(finalUrl);
+			getWebView().loadUrl(finalUrl + query);
 		}
 	}
 
