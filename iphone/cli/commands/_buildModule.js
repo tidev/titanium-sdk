@@ -459,7 +459,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 
 	const xcodeBuildArgumentsForTarget = function (target) {
 		let args = [
-		    'archive',
+			'archive',
 			'-configuration', 'Release',
 			'-sdk', target,
 			'-archivePath', path.join(this.projectDir, 'build', target + '.xcarchive'),
@@ -501,9 +501,9 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
 	this.logger.info(__('Creating universal library'));
 
-	const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId ;
+	const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId;
 	const findLib = function (dest) {
-		const libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a' ;
+		const libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
 		let lib = path.join(this.projectDir, 'build', dest + libPath);
 		this.logger.info(__('Looking for ' + lib));
 
@@ -520,14 +520,14 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 	if (!this.isFramework && !fs.existsSync(headerPath)) {
 		fs.mkdirSync(headerPath);
 	}
-    var buildType = this.isFramework ? '-framework' : '-library';
+	var buildType = this.isFramework ? '-framework' : '-library';
 
 	let lib = findLib('iphoneos');
 	if (lib instanceof Error) {
 		return next(lib);
 	}
 
-	args.push('-create-xcframework')
+	args.push('-create-xcframework');
 	args.push(buildType);
 	args.push(lib);
 
@@ -578,7 +578,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	this.logger.info(__('Verifying universal library'));
 
 	const findLib = function (dest) {
-		const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId ;
+		const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId;
 		const libName = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a';
 		let lib = path.join(this.projectDir, 'build', moduleId + '.xcframework', dest, libName);
 		this.logger.info(__('Looking for ' + lib));
@@ -593,7 +593,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 
 	let lib = findLib('ios-armv7_arm64');
 	if (lib instanceof Error) {
- 		this.logger.warn(__('The module is missing 64-bit support.'));
+		this.logger.warn(__('The module is missing 64-bit support.'));
 	} else {
 		buildArchs.push('armv7');
 		buildArchs.push('arm64');
@@ -601,7 +601,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
    
 	lib = findLib('ios-i386_x86_64-simulator');
 	if (lib instanceof Error) {
- 		this.logger.warn(__('The module is missing ios simulator support.'));
+		this.logger.warn(__('The module is missing ios simulator support.'));
 	} else {
 		buildArchs.push('i386');
 		buildArchs.push('x86_64');
@@ -612,7 +612,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 		this.logger.warn(__('The module is missing maccatalyst support.'));
 	}
 	const manifestArchs = this.manifest.architectures.split(' '),
-		  buildDiff     = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
+		buildDiff = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
 
 	if (buildArchs.length !== manifestArchs.length || buildDiff.length > 0) {
 		this.logger.error(__('There is discrepancy between the architectures specified in module manifest and compiled binary.'));
@@ -641,7 +641,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		binarylibName = this.isFramework ? this.moduleIdAsIdentifier + '.xcframework' : moduleId + '.xcframework',
 		binarylibFile = path.join(this.projectDir, 'build', binarylibName);
 
-	   this.logger.info(__('binarylibFile is ' + binarylibFile));
+	this.logger.info(__('binarylibFile is ' + binarylibFile));
 
 	this.moduleZipPath = moduleZipFullPath;
 
