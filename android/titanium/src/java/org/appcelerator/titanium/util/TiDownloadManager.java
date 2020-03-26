@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
@@ -88,7 +89,7 @@ public class TiDownloadManager implements Handler.Callback
 	 * <p>
 	 * Returns null if failed to download content or if given an invalid argument.
 	 */
-	public InputStream blockingDownload(final URI uri)
+	public InputStream blockingDownload(final URI uri) throws Exception
 	{
 		// Validate.
 		if (uri == null) {
@@ -146,13 +147,7 @@ public class TiDownloadManager implements Handler.Callback
 
 		// Convert the given URI to a URL object.
 		// Note: This object will validate the string and throw an exception if malformed.
-		URL url = null;
-		try {
-			url = new URL(uri.toString());
-		} catch (Exception ex) {
-			Log.e(TAG, "Failed to parse URL: " + uri.toString(), ex);
-			return null;
-		}
+		URL url = new URL(uri.toString());
 
 		// Attempt to download the file.
 		URLConnection connection = null;
@@ -215,9 +210,6 @@ public class TiDownloadManager implements Handler.Callback
 				}
 				break;
 			}
-		} catch (Exception ex) {
-			// Failed to download file/content.
-			Log.e(TAG, "Failed to download from: " + uri.toString(), ex);
 		} finally {
 			// Close the connection if we don't have a stream to the response body. (Nothing to download.)
 			if ((inputStream == null) && (connection instanceof HttpURLConnection)) {
@@ -356,7 +348,7 @@ public class TiDownloadManager implements Handler.Callback
 
 				// fire a download fail event if we are unable to download
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
-				Log.e(TAG, "Exception downloading from: " + uri, e);
+				Log.e(TAG, "Exception downloading from: " + uri + "\n" + e.getMessage());
 			}
 		}
 	}
