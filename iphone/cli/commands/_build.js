@@ -2225,7 +2225,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 								module.isXCFrameworkOfFramework = true;
 
-								//TO DO : Change hash calculation
+								// TO DO : Change hash calculation
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, 'ios-i386_x86_64-simulator',  this.scrubbedModuleId(module.id) + '.framework', this.scrubbedModuleId(module.id)))));
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
@@ -3351,7 +3351,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					comment: xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment']
 				});
 
-				if(lib.isXCFrameworkOfFramework) {
+				if (lib.isXCFrameworkOfFramework) {
 					const embedFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
 
 					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid] = {
