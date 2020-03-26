@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
