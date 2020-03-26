@@ -598,7 +598,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 		buildArchs.push('armv7');
 		buildArchs.push('arm64');
 	}
-   
+
 	lib = findLib('ios-i386_x86_64-simulator');
 	if (lib instanceof Error) {
 		this.logger.warn(__('The module is missing ios simulator support.'));
