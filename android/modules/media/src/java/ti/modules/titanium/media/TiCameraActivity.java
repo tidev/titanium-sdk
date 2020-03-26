@@ -703,23 +703,28 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 						public void onAutoFocus(boolean success, Camera camera)
 						{
 							if (takingPicture) {
-								try {
-									camera.takePicture(shutterCallback, null, jpegCallback);
-								} catch (Exception e) {
-									Log.w(TAG, "could not take picture: " + e.toString());
-									takingPicture = false;
-								}
-								if (!success) {
+								if (success) {
+									try {
+										camera.takePicture(shutterCallback, null, jpegCallback);
+									} catch (Exception e) {
+										Log.w(TAG, "Could not take picture: " + e.toString());
+										takingPicture = false;
+									}
+
+									// This is required in order to continue auto-focus after taking a picture.
+									// Calling 'cancelAutofocus' may cause issues on Android M. (TIMOB-20260)
+									// Which is why this requires an exception handler.
+									// NOTE: We should really update to Camera2 API.
+									try {
+										camera.cancelAutoFocus();
+										camera.autoFocus(null);
+									} catch (Exception e) {
+										Log.w(TAG, "Failed to cancel auto focus: " + e.toString());
+									}
+								} else {
 									Log.w(TAG, "Unable to focus.");
 								}
 							}
-							// This is a Hotfix for TIMOB-20260
-							// "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera)
-							// We need to move to android.hardware.camera2 APIs as soon as we can.
-							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-								camera.cancelAutoFocus();
-							}
-							camera.autoFocus(null);
 						}
 					};
 					camera.autoFocus(focusCallback);
@@ -727,7 +732,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					camera.takePicture(shutterCallback, null, jpegCallback);
 				}
 			} catch (Exception e) {
-				Log.w(TAG, "could not take picture: " + e.toString());
+				Log.w(TAG, "Could not take picture: " + e.toString());
 				if (camera != null) {
 					camera.release();
 				}
