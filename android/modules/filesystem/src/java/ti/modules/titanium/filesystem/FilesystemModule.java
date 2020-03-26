@@ -15,6 +15,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
@@ -111,6 +112,9 @@ public class FilesystemModule extends KrollModule
 	public void requestStoragePermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasStoragePermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 

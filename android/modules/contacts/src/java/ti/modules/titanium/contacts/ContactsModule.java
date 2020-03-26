@@ -83,6 +83,9 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	public void requestContactsPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasContactsPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 
