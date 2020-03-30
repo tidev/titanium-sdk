@@ -179,7 +179,7 @@ events:
     summary: Fired when the `userInterfaceStyle` changes.
     properties:
       - name: value
-        summary: The battery state.
+        summary: The new userInterfaceStyle value.
         type: Number
         constants: Titanium.UI.USER_INTERFACE_STYLE_*
     platforms: [android, iphone, ipad]
