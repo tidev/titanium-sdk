@@ -255,7 +255,8 @@ public class TiMimeTypeHelper
 			mimeType = parts[0];
 
 			if (mimeType.startsWith("application/")) {
-				if (!mimeType.endsWith("xml") && !mimeType.endsWith("json")) {
+				if (!mimeType.equals("application/javascript") && !mimeType.endsWith("xml")
+					&& !mimeType.endsWith("json")) {
 					isBinary = true;
 				}
 			} else if (mimeType.startsWith("image/")) {
