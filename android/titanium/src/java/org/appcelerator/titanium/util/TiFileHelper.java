@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,13 +22,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.TiApplication;
 
 import android.content.ContentResolver;
@@ -569,18 +569,13 @@ public class TiFileHelper
 
 	public File getTempFile(File dir, String suffix, boolean destroyOnExit) throws IOException
 	{
-		File result = null;
-		Context context = softContext.get();
-		if (context != null) {
-			if (!dir.exists()) {
-				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
-							   + "' does not exist. Call to File.createTempFile() will fail.");
-			}
-			result = File.createTempFile("tia", suffix, dir);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		final File result = new File(dir.getPath() + "/tia" + Math.abs(new Random().nextLong()) + suffix);
 
-			if (destroyOnExit) {
-				tempFiles.add(result);
-			}
+		if (destroyOnExit) {
+			tempFiles.add(result);
 		}
 		return result;
 	}

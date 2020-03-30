@@ -56,35 +56,6 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 {
 	private static final String TAG = "TiUIText";
 
-	public static final int RETURNKEY_GO = 0;
-	public static final int RETURNKEY_GOOGLE = 1;
-	public static final int RETURNKEY_JOIN = 2;
-	public static final int RETURNKEY_NEXT = 3;
-	public static final int RETURNKEY_ROUTE = 4;
-	public static final int RETURNKEY_SEARCH = 5;
-	public static final int RETURNKEY_YAHOO = 6;
-	public static final int RETURNKEY_DONE = 7;
-	public static final int RETURNKEY_EMERGENCY_CALL = 8;
-	public static final int RETURNKEY_DEFAULT = 9;
-	public static final int RETURNKEY_SEND = 10;
-
-	private static final int KEYBOARD_ASCII = 0;
-	private static final int KEYBOARD_NUMBERS_PUNCTUATION = 1;
-	private static final int KEYBOARD_URL = 2;
-	private static final int KEYBOARD_NUMBER_PAD = 3;
-	private static final int KEYBOARD_PHONE_PAD = 4;
-	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
-	@SuppressWarnings("unused")
-	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
-	private static final int KEYBOARD_DEFAULT = 7;
-	private static final int KEYBOARD_DECIMAL_PAD = 8;
-
-	// UIModule also has these as values - there's a chance they won't stay in sync if somebody changes one without changing these
-	private static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
-	private static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
-	private static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
-	private static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
-
 	private boolean field;
 	private int maxLength = -1;
 	private boolean isTruncatingText = false;
@@ -214,7 +185,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
-			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), RETURNKEY_DEFAULT));
+			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), UIModule.RETURNKEY_DEFAULT));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
@@ -616,7 +587,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 	public void handleKeyboard(KrollDict d)
 	{
-		int type = KEYBOARD_ASCII;
+		int type = UIModule.KEYBOARD_TYPE_ASCII;
 		boolean passwordMask = false;
 		boolean editable = true;
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
@@ -653,8 +624,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 				// turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in
 				// landscape mode.
-				if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD
-					|| type == KEYBOARD_NUMBER_PAD) {
+				if (type == UIModule.KEYBOARD_TYPE_NUMBERS_PUNCTUATION || type == UIModule.KEYBOARD_TYPE_DECIMAL_PAD
+					|| type == UIModule.KEYBOARD_TYPE_NUMBER_PAD) {
 					tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 				}
 			} else {
@@ -672,19 +643,19 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 				disableChangeEvent = false;
 
-				switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
-					case TEXT_AUTOCAPITALIZATION_NONE:
+				switch (
+					TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), UIModule.TEXT_AUTOCAPITALIZATION_NONE)) {
+					case UIModule.TEXT_AUTOCAPITALIZATION_NONE:
 						autoCapValue = 0;
 						break;
-					case TEXT_AUTOCAPITALIZATION_ALL:
+					case UIModule.TEXT_AUTOCAPITALIZATION_ALL:
 						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
 						tv.setFilters(new InputFilter[] { new InputFilter.AllCaps() });
 						break;
-					case TEXT_AUTOCAPITALIZATION_SENTENCES:
+					case UIModule.TEXT_AUTOCAPITALIZATION_SENTENCES:
 						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 						break;
-
-					case TEXT_AUTOCAPITALIZATION_WORDS:
+					case UIModule.TEXT_AUTOCAPITALIZATION_WORDS:
 						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 						break;
 					default:
@@ -699,24 +670,25 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 
 			if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
-				type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), KEYBOARD_DEFAULT);
+				type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), UIModule.KEYBOARD_TYPE_DEFAULT);
 			}
 
 			int typeModifiers = autocorrect | autoCapValue;
 			int textTypeAndClass = typeModifiers;
 
-			if (type != KEYBOARD_DECIMAL_PAD) {
+			if (type != UIModule.KEYBOARD_TYPE_DECIMAL_PAD && type != UIModule.KEYBOARD_TYPE_NUMBER_PAD
+				&& type != UIModule.KEYBOARD_TYPE_PHONE_PAD) {
 				textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 			}
 
 			tv.setCursorVisible(true);
 			switch (type) {
-				case KEYBOARD_DEFAULT:
-				case KEYBOARD_ASCII:
+				case UIModule.KEYBOARD_TYPE_DEFAULT:
+				case UIModule.KEYBOARD_TYPE_ASCII:
 					// Don't need a key listener, inputType handles that.
 					break;
-				case KEYBOARD_NUMBERS_PUNCTUATION:
-					textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
+				case UIModule.KEYBOARD_TYPE_NUMBERS_PUNCTUATION:
+					textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
 					tv.setKeyListener(new NumberKeyListener() {
 						@Override
 						public int getInputType()
@@ -736,22 +708,22 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 						}
 					});
 					break;
-				case KEYBOARD_URL:
+				case UIModule.KEYBOARD_TYPE_URL:
 					Log.d(TAG, "Setting keyboard type URL-3", Log.DEBUG_MODE);
 					tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 					break;
-				case KEYBOARD_DECIMAL_PAD:
+				case UIModule.KEYBOARD_TYPE_DECIMAL_PAD:
 					textTypeAndClass = (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
-				case KEYBOARD_NUMBER_PAD:
+				case UIModule.KEYBOARD_TYPE_NUMBER_PAD:
 					tv.setKeyListener(DigitsKeyListener.getInstance(true, true));
 					textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
 					break;
-				case KEYBOARD_PHONE_PAD:
+				case UIModule.KEYBOARD_TYPE_PHONE_PAD:
 					tv.setKeyListener(DialerKeyListener.getInstance());
 					textTypeAndClass |= InputType.TYPE_CLASS_PHONE;
 					break;
-				case KEYBOARD_EMAIL_ADDRESS:
+				case UIModule.KEYBOARD_TYPE_EMAIL:
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 					break;
 			}
@@ -792,8 +764,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 				// turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in
 				// landscape mode.
-				if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD
-					|| type == KEYBOARD_NUMBER_PAD) {
+				if (type == UIModule.KEYBOARD_TYPE_NUMBERS_PUNCTUATION || type == UIModule.KEYBOARD_TYPE_DECIMAL_PAD
+					|| type == UIModule.KEYBOARD_TYPE_NUMBER_PAD) {
 					tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 				}
 
@@ -860,37 +832,37 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	public void handleReturnKeyType(int type)
 	{
 		switch (type) {
-			case RETURNKEY_GO:
+			case UIModule.RETURNKEY_GO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_GOOGLE:
+			case UIModule.RETURNKEY_GOOGLE:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_JOIN:
+			case UIModule.RETURNKEY_JOIN:
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_NEXT:
+			case UIModule.RETURNKEY_NEXT:
 				tv.setImeOptions(EditorInfo.IME_ACTION_NEXT);
 				break;
-			case RETURNKEY_ROUTE:
+			case UIModule.RETURNKEY_ROUTE:
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_SEARCH:
+			case UIModule.RETURNKEY_SEARCH:
 				tv.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
 				break;
-			case RETURNKEY_YAHOO:
+			case UIModule.RETURNKEY_YAHOO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_DONE:
+			case UIModule.RETURNKEY_DONE:
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_EMERGENCY_CALL:
+			case UIModule.RETURNKEY_EMERGENCY_CALL:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_DEFAULT:
+			case UIModule.RETURNKEY_DEFAULT:
 				tv.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 				break;
-			case RETURNKEY_SEND:
+			case UIModule.RETURNKEY_SEND:
 				tv.setImeOptions(EditorInfo.IME_ACTION_SEND);
 				break;
 		}

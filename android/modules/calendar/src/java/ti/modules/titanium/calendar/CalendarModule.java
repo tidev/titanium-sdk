@@ -10,6 +10,8 @@ package ti.modules.titanium.calendar;
 import java.util.ArrayList;
 
 import android.provider.CalendarContract;
+
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -127,6 +129,9 @@ public class CalendarModule extends KrollModule
 	public void requestCalendarPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasCalendarPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 

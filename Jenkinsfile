@@ -318,7 +318,7 @@ timestamps {
 								recordIssues(tools: [clang(), java()])
 							}
 						} // timeout
-						timeout(15) {
+						timeout(25) {
 							def packageCommand = "npm run package -- --version-tag ${vtag}"
 							if (isMainlineBranch) {
 								// on mainline builds, build for all 3 host OSes
