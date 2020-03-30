@@ -268,7 +268,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			// Attempt to find existing media.
 			final String[] projection =
 				new String[] { MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME,
-							   MediaStore.MediaColumns.RELATIVE_PATH };
+					MediaStore.MediaColumns.RELATIVE_PATH };
 			final Uri contentUri =
 				isMovie ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 			try (Cursor cursor = contentResolver.query(contentUri, projection, null, null, null)) {

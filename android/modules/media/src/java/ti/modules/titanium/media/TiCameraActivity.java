@@ -36,7 +36,6 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.hardware.Camera.Size;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
 
