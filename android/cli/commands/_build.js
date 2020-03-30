@@ -3320,7 +3320,7 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 AndroidBuilder.prototype.generateSemanticColors = async function generateSemanticColors() {
 	this.logger.info(__('Generating semantic colors resources'));
 	const _t = this;
-	const xmlFileName = 'semantic.colors.xml';
+	const xmlFileName = 'ti.semantic.colors.xml';
 	const valuesDirPath = path.join(this.buildAppMainResDir, 'values');
 	const valuesNightDirPath = path.join(this.buildAppMainResDir, 'values-night');
 	await fs.ensureDir(valuesDirPath);
