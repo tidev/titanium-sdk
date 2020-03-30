@@ -23,6 +23,11 @@ retirejs.output.json
 junit.*.xml
 junit_report.xml
 
+/android/.project
+/android/app/.project
+/android/kroll-apt/.project
+/android/titanium/.project
+
 /iphone/TitaniumKit/Carthage
 /iphone/TitaniumKit/docs
 /iphone/TitaniumKit/build
