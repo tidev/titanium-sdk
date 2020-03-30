@@ -63,15 +63,6 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "lint-staged": {
-    "iphone/**/*.{m,h}": [
-      "npx clang-format -style=file -i"
-    ],
-    "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
-      "npm run ios-sanity-check --"
-    ],
-    "!(**/locales/**/*).js": "eslint"
-  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
