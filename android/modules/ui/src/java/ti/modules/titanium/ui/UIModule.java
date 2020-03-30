@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -392,11 +393,27 @@ public class UIModule extends KrollModule
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
-	protected BroadcastReceiver modeChangeReceiver;
-
 	public UIModule()
 	{
 		super();
+
+		// Register the module's broadcast receiver.
+		final UIModule.Receiver broadcastReceiver = new UIModule.Receiver(this);
+		TiApplication.getInstance().registerReceiver(broadcastReceiver,
+													 new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+
+		// Set up a listener to be invoked when the JavaScript runtime is about to be terminated/disposed.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				// Remove this listener from the runtime's static collection.
+				KrollRuntime.removeOnDisposingListener(this);
+
+				// Unregister this module's broadcast receviers.
+				TiApplication.getInstance().unregisterReceiver(broadcastReceiver);
+			}
+		});
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
@@ -509,68 +526,6 @@ public class UIModule extends KrollModule
 	public String getApiName()
 	{
 		return "Ti.UI";
-	}
-
-	@Override
-	public void onResume(Activity activity)
-	{
-		super.onResume(activity);
-		if (modeChangeReceiver != null) {
-			registerModeChangeReceiver(modeChangeReceiver);
-			// double check that the value didn't change while we were paused
-			modeChangeReceiver.onReceive(null, null);
-		}
-	}
-
-	@Override
-	public void onPause(Activity activity)
-	{
-		super.onPause(activity);
-		if (modeChangeReceiver != null) {
-			unregisterModeChangeReceiver();
-			modeChangeReceiver = null;
-		}
-	}
-
-	@Override
-	public void onDestroy(Activity activity)
-	{
-		super.onDestroy(activity);
-		if (modeChangeReceiver != null) {
-			unregisterModeChangeReceiver();
-			modeChangeReceiver = null;
-		}
-	}
-
-	@Override
-	public void eventListenerAdded(String type, int count, final KrollProxy proxy)
-	{
-		super.eventListenerAdded(type, count, proxy);
-		if (TiC.EVENT_USER_INTERFACE_STYLE.equals(type) && modeChangeReceiver == null) {
-			modeChangeReceiver = new Receiver(this);
-			registerModeChangeReceiver(modeChangeReceiver);
-		}
-	}
-
-	@Override
-	public void eventListenerRemoved(String type, int count, KrollProxy proxy)
-	{
-		super.eventListenerRemoved(type, count, proxy);
-		if (TiC.EVENT_USER_INTERFACE_STYLE.equals(type) && modeChangeReceiver != null) {
-			unregisterModeChangeReceiver();
-			modeChangeReceiver = null;
-		}
-	}
-
-	protected void registerModeChangeReceiver(BroadcastReceiver modeChangeReceiver)
-	{
-		TiApplication.getInstance().registerReceiver(modeChangeReceiver,
-													 new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
-	}
-
-	protected void unregisterModeChangeReceiver()
-	{
-		TiApplication.getInstance().unregisterReceiver(modeChangeReceiver);
 	}
 
 	private class Receiver extends BroadcastReceiver
