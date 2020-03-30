@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,9 +9,9 @@
 
 const AndroidBuilder = require('../../build/lib/android');
 const Builder = require('../../build/lib/builder');
+const BuildUtils = require('../../build/lib/utils');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const crypto = require('crypto');
 const fs = require('fs-extra');
 const path = require('path');
 const request = require('request-promise-native');
@@ -35,38 +35,11 @@ function quotePath(filePath) {
 }
 
 /**
- * Reads all of the bytes of the given file and returns a hash using the given algorithm.
- * @param {String} filePath Path to the file to read the bytes of and calculate a hash. Cannot be null.
- * @param {String} hashingAlgorithm Hashing algorithm to use such as 'md5', 'sha256', etc. Cannot be null.
- * @param {String} [hashEncoding]
- * Optional argument indicating how to encode the returned hash result.
- * Can be set to 'hex', 'base64, or 'ascii', 'utf8'. Defaults to 'hex' if argument is null or undefined.
- */
-async function fetchFileHash(filePath, hashingAlgorithm, hashEncoding) {
-	return await new Promise((resolve, reject) => {
-		const hash = crypto.createHash(hashingAlgorithm);
-		const readStream = fs.createReadStream(filePath);
-		readStream.on('data', (data) => {
-			hash.update(data);
-		});
-		readStream.on('end', () => {
-			if (!hashEncoding) {
-				hashEncoding = 'hex';
-			}
-			resolve(hash.digest(hashEncoding));
-		});
-		readStream.on('error', reject);
-	});
-}
-
-/**
  * Async loads the "titanium_mobile/android/package.json" file and returns it as a dictionary.
  * @returns {Promise<Object>} Dictionary of the parsed JSON file if loaded successfully.
  */
 async function loadPackageJson() {
-	const filePath = path.join(__dirname, '..', 'package.json');
-	const fileContent = await fs.readFile(filePath, 'utf8');
-	return JSON.parse(fileContent);
+	return fs.readJson('../package.json');
 }
 
 /**
@@ -153,7 +126,7 @@ async function createSnapshot() {
 
 /**
  * Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
- * If not, then this function will automatically download/install it. Function will do nothing if alredy installed.
+ * If not, then this function will automatically download/install it. Function will do nothing if already installed.
  */
 async function updateLibrary() {
 	// Fetch info about the V8 library we should be building with.
@@ -161,75 +134,68 @@ async function updateLibrary() {
 	const packageJsonData = await loadPackageJson();
 	const v8TargetVersion = packageJsonData.v8.version;
 	const v8TargetMode = packageJsonData.v8.mode;
-	const v8TargetChecksum = packageJsonData.v8.checksum;
-
-	// Check if the targeted V8 version is already installed.
-	let isV8Installed = false;
+	const integrity = packageJsonData.v8.integrity;
 	const v8ArchiveFileName = `libv8-${v8TargetVersion}-${v8TargetMode}.tar.bz2`;
 	const installedLibV8DirPath = path.join(
-		__dirname, '..', '..', 'dist', 'android', 'libv8', v8TargetVersion, v8TargetMode);
+		__dirname, '../../dist/android/libv8', v8TargetVersion, v8TargetMode);
 	const installedLibV8ArchiveFilePath = path.join(installedLibV8DirPath, v8ArchiveFileName);
-	const installedLibV8JsonFilePath = path.join(installedLibV8DirPath, 'libv8.json');
-	if (await fs.exists(installedLibV8JsonFilePath)) {
-		// Check if targetd V8 version folder exists.
-		const v8InstalledVersion = JSON.parse(await fs.readFile(installedLibV8JsonFilePath, 'utf8')).version;
-		if (v8InstalledVersion === v8TargetVersion) {
-			// Check if a tarball of the V8 library exists.
-			if (await fs.exists(installedLibV8ArchiveFilePath)) {
-				// Check if the V8 tarball file's hash matches what is in our package JSON.
-				const v8InstalledChecksum = await fetchFileHash(installedLibV8ArchiveFilePath, 'sha512', 'hex');
-				if (v8InstalledChecksum === v8TargetChecksum) {
-					// Yes, the targeted V8 library version is installed and it's checksum/hash is correct.
-					isV8Installed = true;
-				}
-			}
-		}
-	}
 
+	// Check if already installed
 	// Do not continue if targeted V8 library is already downloaded/installed. We're good to go.
-	if (isV8Installed) {
+	// FIXME: This assumes if the archive matches our integrity hash then the directory contents are ok
+	// But does not actually check any sort of hash for the extracted contents
+	if (await isV8Installed(installedLibV8DirPath, v8TargetVersion, v8ArchiveFileName, integrity)) {
 		return;
 	}
 
-	// Download a tarball of the targeted V8 library version.
-	console.log(`Downloading V8 library: ${v8ArchiveFileName}`);
-	await fs.mkdirs(installedLibV8DirPath);
-	await new Promise((resolve, reject) => {
-		const writeStream = fs.createWriteStream(installedLibV8ArchiveFilePath);
-		writeStream.on('error', reject);
-		writeStream.on('finish', resolve);
-		const request = require('request');
-		const downloadUrl = `http://timobile.appcelerator.com.s3.amazonaws.com/libv8/${v8ArchiveFileName}`;
-		const requestHandler = request({ url: downloadUrl });
-		requestHandler.on('error', reject);
-		requestHandler.on('response', (response) => {
-			const statusCode = response.statusCode;
-			if (statusCode === 200) {
-				requestHandler.pipe(writeStream);
-			} else {
-				reject(`Failed to download V8 library. Received status code ${statusCode} from: ${downloadUrl}`);
-			}
-		});
-	});
+	// Download V8 archive (downloads to temp dir, which helps CI server avoid re-downloading between builds generally)
+	const downloadUrl = `http://timobile.appcelerator.com.s3.amazonaws.com/libv8/${v8ArchiveFileName}`;
+	const downloadedTarball = await BuildUtils.downloadURL(downloadUrl, integrity, { progress: false });
 
-	// Verify that the hash of the download V8 tarball matches what is in our package JSON.
-	const v8DownloadedChecksum = await fetchFileHash(installedLibV8ArchiveFilePath, 'sha512', 'hex');
-	if (v8DownloadedChecksum !== v8TargetChecksum) {
-		const errorMessage
-			= 'Checksum for downloaded libv8 does not match what is defined in "package.json". '
-			+ 'Expected: ' + v8TargetChecksum + ', Received: ' + v8DownloadedChecksum;
-		throw new Error(errorMessage);
-	}
+	// For now, copy the downloaded tarball to the eventual destination filepath!
+	// Otherwise our check if already installed fails above
+	await fs.ensureDir(installedLibV8DirPath);
+	await fs.copy(downloadedTarball, installedLibV8ArchiveFilePath);
 
 	// Extract the downloaded V8 archive's files.
-	console.log(`Decompressing downloaded V8 file: ${installedLibV8ArchiveFilePath}`);
+	console.log(`Decompressing downloaded V8 file: ${downloadedTarball}`);
 	const untarCommandLine
 		= quotePath(path.join(__dirname, '..', isWindows ? 'gradlew.bat' : 'gradlew'))
 		+ ' -b ' + quotePath(path.join(__dirname, '..', 'untar.gradle'))
 		+ ' -Pcompression=bzip2'
-		+ ' -Psrc=' + quotePath(installedLibV8ArchiveFilePath)
+		+ ' -Psrc=' + quotePath(downloadedTarball)
 		+ ' -Pdest=' + quotePath(installedLibV8DirPath);
-	await exec(untarCommandLine);
+	return exec(untarCommandLine);
+}
+
+/**
+ * Attempts to determine if we've already downloaded V8 and extracted it to our dist/android folder
+ * @param {string} installedLibV8DirPath directory where extracted v8 will live
+ * @param {string} v8TargetVersion the version of v8 we expect to be there
+ * @param {string} installedLibV8ArchiveFilePath filepath to the tarball (under dist folder)
+ * @param {string} integrity ssri generated integrity hash
+ */
+async function isV8Installed(installedLibV8DirPath, v8TargetVersion, installedLibV8ArchiveFilePath, integrity) {
+	const installedLibV8JsonFilePath = path.join(installedLibV8DirPath, 'libv8.json');
+	if (!await fs.exists(installedLibV8JsonFilePath)) {
+		return false;
+	}
+
+	// Check if targeted V8 version folder exists.
+	const v8InstalledVersion = (await fs.readJson(installedLibV8JsonFilePath, 'utf8')).version;
+	if (v8InstalledVersion === v8TargetVersion) {
+		// Check if a tarball of the V8 library exists. (NOTE: we explicitly copy file here to make this work!)
+		if (!await fs.exists(installedLibV8ArchiveFilePath)) {
+			return false;
+		}
+		// Check if the V8 tarball file's hash matches what is in our package JSON.
+		const installedHash = await BuildUtils.generateSSRIHashFromURL(`file://${installedLibV8ArchiveFilePath}`);
+		if (installedHash.toString() === integrity) {
+			// Yes, the targeted V8 library version is installed and it's checksum/hash is correct.
+			return true;
+		}
+	}
+	return false;
 }
 
 /**

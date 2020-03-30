@@ -113,7 +113,7 @@ task updateV8Library() {
 	def v8MakeFilePath = "${projectDir}/../runtime/v8/src/ndk-modules/libv8/V8Settings.mk"
 	inputs.property 'v8.version', packageJson.v8.version
 	inputs.property 'v8.mode', packageJson.v8.mode
-	inputs.property 'v8.checksum', packageJson.v8.checksum
+	inputs.property 'v8.integrity', packageJson.v8.integrity
 	outputs.file v8MakeFilePath
 	outputs.files fileTree("${projectDir}/../../dist/android/libv8/${packageJson.v8.version}/${packageJson.v8.mode}")
 	doLast {
