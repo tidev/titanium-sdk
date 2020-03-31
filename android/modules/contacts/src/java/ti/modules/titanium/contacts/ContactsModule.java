@@ -27,8 +27,6 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 
 @Kroll.module
 @ContextSpecific
@@ -64,11 +62,9 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		contactsApi = CommonContactsApi.getInstance();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getContactsAuthorization()
-	// clang-format on
 	{
 		return AUTHORIZATION_AUTHORIZED;
 	}

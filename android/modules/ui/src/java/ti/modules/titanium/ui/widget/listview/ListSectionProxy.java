@@ -128,11 +128,9 @@ public class ListSectionProxy extends ViewProxy
 		adapter = a;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setHeaderView(TiViewProxy headerView)
-	// clang-format on
 	{
 		this.headerView = headerView;
 		if (adapter != null) {
@@ -140,65 +138,51 @@ public class ListSectionProxy extends ViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiViewProxy getHeaderView()
-	// clang-format on
 	{
 		return headerView;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setFooterView(TiViewProxy footerView)
-	// clang-format on
 	{
 		handleSetFooterView(footerView);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiViewProxy getFooterView()
-	// clang-format on
 	{
 		return footerView;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setHeaderTitle(String headerTitle)
-	// clang-format on
 	{
 		handleSetHeaderTitle(headerTitle);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getHeaderTitle()
-	// clang-format on
 	{
 		return headerTitle;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setFooterTitle(String footerTitle)
-	// clang-format on
 	{
 		handleSetFooterTitle(footerTitle);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getFooterTitle()
-	// clang-format on
 	{
 		return footerTitle;
 	}
@@ -232,20 +216,16 @@ public class ListSectionProxy extends ViewProxy
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setItems(Object data)
-	// clang-format on
 	{
 		handleSetItems(data);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public Object[] getItems()
-	// clang-format on
 	{
 		if (itemProperties == null) {
 			return new Object[0];

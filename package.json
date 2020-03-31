@@ -35,14 +35,14 @@
     "docs:deprecated": "./build/scons deprecations",
     "docs:removed": "./build/scons removals 7.0.0",
     "format": "npm-run-all --parallel format:**",
-    "format:android": "npm run lint:android -- --fix",
+    "format:android": "echo Formatting Android code is not supported.",
     "format:ios": "npm run lint:ios -- --fix",
     "format:js": "npm run lint:js -- --fix",
     "ios": "./build/scons cleanbuild ios",
     "ios-sanity-check": "./build/scons check-ios-toplevel",
     "link": "npm run deploy -- --symlink",
     "lint": "npm-run-all --parallel lint:**",
-    "lint:android": "clang-format-lint $npm_package_config_format_android",
+    "lint:android": "./android/gradlew checkJavaStyle -p ./android --console plain",
     "lint:docs": "tdoc-validate ./apidoc",
     "lint:ios": "clang-format-lint $npm_package_config_format_ios",
     "lint:js": "eslint .",
@@ -69,9 +69,6 @@
     ],
     "iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m": [
       "npm run ios-sanity-check --"
-    ],
-    "android/!(templates)/**/*.java": [
-      "npx clang-format -style=file -i"
     ],
     "!(**/locales/**/*).js": "eslint"
   },
@@ -138,11 +135,11 @@
     "danger": "^10.0.0",
     "dateformat": "^3.0.3",
     "eslint": "^6.8.0",
-    "eslint-config-axway": "^4.5.0",
+    "eslint-config-axway": "^4.6.0",
     "eslint-plugin-mocha": "^6.3.0",
     "glob": "^7.1.6",
     "husky": "^4.2.3",
-    "lint-staged": "^10.0.9",
+    "lint-staged": "^10.1.0",
     "mocha": "^7.1.1",
     "mocha-jenkins-reporter": "^0.4.2",
     "npm-run-all": "^4.1.5",

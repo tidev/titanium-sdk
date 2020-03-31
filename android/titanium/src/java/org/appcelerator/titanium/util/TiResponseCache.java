@@ -60,8 +60,8 @@ public class TiResponseCache extends ResponseCache
 
 	private static ScheduledExecutorService cleanupExecutor = null;
 
-	public static interface CompleteListener {
-		public void cacheCompleted(URI uri);
+	public interface CompleteListener {
+		void cacheCompleted(URI uri);
 	}
 
 	private static class TiCacheCleanup implements Runnable
@@ -80,12 +80,12 @@ public class TiResponseCache extends ResponseCache
 			// Build up a list of access times
 			HashMap<Long, File> lastTime = new HashMap<Long, File>();
 			for (File hdrFile : cacheDir.listFiles(new FilenameFilter() {
-					 // TODO @Override
-					 public boolean accept(File dir, String name)
-					 {
-						 return name.endsWith(HEADER_SUFFIX);
-					 }
-				 })) {
+					// TODO @Override
+					public boolean accept(File dir, String name)
+					{
+						return name.endsWith(HEADER_SUFFIX);
+					}
+				})) {
 				lastTime.put(hdrFile.lastModified(), hdrFile);
 			}
 
@@ -459,7 +459,7 @@ public class TiResponseCache extends ResponseCache
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
 		BufferedReader rdr = new BufferedReader(new FileReader(hFile), 1024);
 		for (String line = rdr.readLine(); line != null; line = rdr.readLine()) {
-			String keyval[] = line.split("=", 2);
+			String[] keyval = line.split("=", 2);
 			if (keyval.length < 2) {
 				continue;
 			}
@@ -613,7 +613,7 @@ public class TiResponseCache extends ResponseCache
 		cacheDir = dir;
 	}
 
-	private static final void fireCacheCompleted(URI uri)
+	private static void fireCacheCompleted(URI uri)
 	{
 		synchronized (completeListeners)
 		{

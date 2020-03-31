@@ -90,7 +90,7 @@ public class TiNetworkListener
 
 			message.sendToTarget();
 		}
-	};
+	}
 
 	/**
      * Create a new TitaniumNetworkListener.

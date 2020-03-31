@@ -36,7 +36,6 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.hardware.Camera.Size;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
 
@@ -584,7 +583,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	/**
 	 * Computes the optimal preview size given the target display size and aspect ratio.
-	 * 
+	 *
 	 * @param supportPreviewSizes
 	 *            a list of preview sizes the camera supports
 	 * @param targetSize
@@ -628,9 +627,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	}
 
 	/**
-	 * Computes the optimal picture size given the preview size. 
+	 * Computes the optimal picture size given the preview size.
 	 * This returns the maximum resolution size.
-	 * 
+	 *
 	 * @param sizes
 	 *            a list of picture sizes the camera supports
 	 * @return the optimal size of the picture
@@ -873,10 +872,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				camera = Camera.open(cameraId);
 			}
 		} catch (Exception e) {
-			Log.e(
-				TAG,
-				"Could not open camera. Camera may be in use by another process or device policy manager has disabled the camera.",
-				e);
+			String errorMessage
+				= "Could not open camera. "
+				+ "Camera may be in use by another process or device policy manager has disabled the camera.";
+			Log.e(TAG, errorMessage, e);
 		}
 
 		if (camera == null) {

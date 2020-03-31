@@ -61,11 +61,9 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getAppVersionCode()
-	// clang-format on
 	{
 		if (appVersionCode == -1) {
 			initializeVersionValues();
@@ -73,11 +71,9 @@ public class AndroidModule extends KrollModule
 		return appVersionCode;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getLaunchIntent()
-	// clang-format on
 	{
 		TiBaseActivity rootActivity = TiApplication.getInstance().getRootActivity();
 		if (rootActivity != null) {
@@ -89,11 +85,9 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getAppVersionName()
-	// clang-format on
 	{
 		if (appVersionName == null) {
 			initializeVersionValues();
