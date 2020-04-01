@@ -157,6 +157,9 @@ async function updateLibrary() {
 	await fs.ensureDir(installedLibV8DirPath);
 	await fs.copy(downloadedTarball, installedLibV8ArchiveFilePath);
 
+	// TODO: Use same sort of caching logic for extracted copy as we do for pre-packaged modules!
+	// Utils.cacheUnzip - but instead of unzipping, we need to do the untar here!
+
 	// Extract the downloaded V8 archive's files.
 	console.log(`Decompressing downloaded V8 file: ${downloadedTarball}`);
 	const untarCommandLine
