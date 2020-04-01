@@ -247,18 +247,24 @@ Utils.downloadURL = async function downloadURL(url, integrity, options) {
 Utils.cacheUnzip = async function (zipFile, integrity, outDir) {
 	const { hashElement } = require('folder-hash');
 	const exists = await fs.pathExists(outDir);
-	const cacheFile = cachedDownloadPath(`${integrity}.json`);
+	// The integrity hash may contain characters like '/' which we need to convert
+	// see https://en.wikipedia.org/wiki/Base64#Filenames
+	const cacheFile = cachedDownloadPath(`${integrity.replace(/\//g, '-')}.json`);
 	// if the extracted directory already exists...
 	if (exists) {
 		// we need to hash and verify it matches expectations
 		const hash = await hashElement(outDir);
 		// Read the cache file and compare hashes!
-		const cachedHash = await fs.readJson(cacheFile);
-		// eslint-disable-next-line security/detect-possible-timing-attacks
-		if (hash.hash === cachedHash.hash) { // we're only checking top-level dir hash
-			// we got a match, so we do nothing!
-			console.log(`CACHE HIT! ${outDir}`);
-			return;
+		try {
+			const cachedHash = await fs.readJson(cacheFile);
+			// eslint-disable-next-line security/detect-possible-timing-attacks
+			if (hash.hash === cachedHash.hash) { // we're only checking top-level dir hash
+				// we got a match, so we do nothing!
+				console.log(`CACHE HIT! ${outDir}`);
+				return;
+			}
+		} catch (err) {
+			// ignore, assuem cache file didn't exist
 		}
 	}
 
