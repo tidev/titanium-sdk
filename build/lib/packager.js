@@ -244,8 +244,9 @@ class Packager {
 		modules = Array.from(new Set(modules));
 
 		// Fetch the listed modules from URLs, unzip to tmp dir, then copy to our ultimate build dir
-		await Promise.all(modules.map(m => this.handleModule(m)));
 		const modulesDir = path.join(this.zipDir, 'modules');
+		await fs.ensureDir(modulesDir);
+		await Promise.all(modules.map(m => this.handleModule(m)));
 
 		// Need to wipe directories of multi-platform modules for platforms we don't need!
 		// i.e. modules/iphone on win32 builds (there because of hyperloop)
