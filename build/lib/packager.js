@@ -245,7 +245,19 @@ class Packager {
 
 		// Fetch the listed modules from URLs, unzip to tmp dir, then copy to our ultimate build dir
 		const modulesDir = path.join(this.zipDir, 'modules');
+
+		// We have a race condition problem where where the top-level modules folder and the platform-specific
+		// sub-folders are trying to be created at the same time if we copy moduels in parallel
+		// How can we avoid? Pre-create the common folder structure in advance!
 		await fs.ensureDir(modulesDir);
+		const subDirs = this.platforms.concat([ 'commonjs' ]);
+		// Convert ios to iphone
+		const iosIndex = subDirs.indexOf('ios');
+		if (iosIndex !== -1) {
+			subDirs[iosIndex] = 'iphone';
+		}
+		await Promise.all(subDirs.map(d => fs.ensureDir(path.join(modulesDir, d))));
+		// Now download/extract/copy the modules
 		await Promise.all(modules.map(m => this.handleModule(m)));
 
 		// Need to wipe directories of multi-platform modules for platforms we don't need!
