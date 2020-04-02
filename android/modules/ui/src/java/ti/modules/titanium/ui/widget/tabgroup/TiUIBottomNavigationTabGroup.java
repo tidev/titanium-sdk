@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.annotation.SuppressLint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -22,6 +24,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -267,6 +270,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
+	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateTabTitleColor(int index)
 	{
@@ -295,7 +299,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
+		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
 	}
 
@@ -336,8 +340,37 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 		// Make the ViewPager to select the proper page too.
 		selectTab(index);
+
 		// Trigger the select event firing for the new tab.
 		((TabGroupProxy) getProxy()).onTabSelected(index);
 		return false;
+	}
+
+	private void updateIconTint()
+	{
+		for (int i = 0; i < this.mMenuItemsArray.size(); i++) {
+			final TiUITab tab = this.tabs.get(i);
+			if (tab.getProxy() != null) {
+				final TiViewProxy tabProxy = tab.getProxy();
+				final Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
+				final int activeTintColor = TiColorHelper.parseColor(tabProxy.getProperties().optString(
+					TiC.PROPERTY_ACTIVE_TINT_COLOR,
+					tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "white")));
+				final int tintColor =
+					TiColorHelper.parseColor(tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "gray"));
+				final int color = i == currentlySelectedIndex ? activeTintColor : tintColor;
+
+				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+				this.mBottomNavigationView.getMenu().getItem(i).setIcon(drawable);
+			}
+		}
+	}
+
+	@Override
+	public void selectTab(int tabIndex)
+	{
+		super.selectTab(tabIndex);
+
+		updateIconTint();
 	}
 }
