@@ -315,7 +315,7 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
                                        options:optionsDict
                              completionHandler:^(BOOL success) {
                                if (callback != nil) {
-                                 [callback callWithArguments:@[ @{ @"success" : @(success)} ]];
+                                 [callback callWithArguments:@[ @{@"success" : @(success)} ]];
                                }
                              }];
   }

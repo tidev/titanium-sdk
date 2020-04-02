@@ -738,7 +738,7 @@ DEFINE_EXCEPTIONS
       //If borderWidth > 0, or borderRadius > 0 enable clipping
       self.clipsToBounds = YES;
     } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]) {
-      self.clipsToBounds = ([[((TiViewProxy *)self.proxy)children] count] > 0);
+      self.clipsToBounds = ([[((TiViewProxy *)self.proxy) children] count] > 0);
     } else {
       DeveloperLog(@"[WARN] Proxy is nil or not of kind TiViewProxy. Check");
       self.clipsToBounds = NO;

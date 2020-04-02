@@ -1093,7 +1093,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
     // If parent has a non absolute layout signal the parent that
     //contents will change else just lay ourselves out
-    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
+    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
       [parent contentsWillChange];
     } else {
       if (CGRectIsEmpty(sandboxBounds) && (view != nil)) {
@@ -2117,7 +2117,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   if (windowOpened && [self viewAttached]) {
     CGRect oldFrame = [[self view] frame];
     BOOL relayout = ![self suppressesRelayout];
-    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
+    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
       //Do not mess up the sandbox in vertical/horizontal layouts
       relayout = NO;
     }
@@ -2248,7 +2248,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
     UIView *parentView = [parent parentViewForChild:self];
     CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
-    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
+    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
       sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties, self, sandboxBounds.size, &autoresizeCache);
     } else {
       sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties, self, referenceSize, &autoresizeCache);
@@ -2477,13 +2477,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     CGFloat desiredWidth = MIN([child minimumParentWidthForSize:bounds.size], bounds.size.width);
 
     //TOP + BOTTOM
-    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties] -> top, bounds.size.height)
-        + TiDimensionCalculateValue([child layoutProperties] -> bottom, bounds.size.height);
+    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
     //LEFT + RIGHT
-    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties] -> left, bounds.size.width)
-        + TiDimensionCalculateValue([child layoutProperties] -> right, bounds.size.width);
+    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
+        + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
 
-    TiDimension constraint = [child layoutProperties] -> height;
+    TiDimension constraint = [child layoutProperties]->height;
 
     if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint)) {
       bounds.size.height = TiDimensionCalculateValue(constraint, bounds.size.height) + offsetV;
@@ -2506,15 +2506,15 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         verticalLayoutBoundary += bounds.size.height;
       }
     } else if (TiDimensionIsUndefined(constraint)) {
-      if (!TiDimensionIsUndefined([child layoutProperties] -> top) && !TiDimensionIsUndefined([child layoutProperties] -> centerY)) {
-        CGFloat height = 2 * (TiDimensionCalculateValue([child layoutProperties] -> centerY, boundingValue) - TiDimensionCalculateValue([child layoutProperties] -> top, boundingValue));
+      if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->centerY)) {
+        CGFloat height = 2 * (TiDimensionCalculateValue([child layoutProperties]->centerY, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->top, boundingValue));
         bounds.size.height = height + offsetV;
         verticalLayoutBoundary += bounds.size.height;
-      } else if (!TiDimensionIsUndefined([child layoutProperties] -> top) && !TiDimensionIsUndefined([child layoutProperties] -> bottom)) {
+      } else if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->bottom)) {
         bounds.size.height = boundingValue;
         verticalLayoutBoundary += bounds.size.height;
-      } else if (!TiDimensionIsUndefined([child layoutProperties] -> centerY) && !TiDimensionIsUndefined([child layoutProperties] -> bottom)) {
-        CGFloat height = 2 * (boundingValue - TiDimensionCalculateValue([child layoutProperties] -> bottom, boundingValue) - TiDimensionCalculateValue([child layoutProperties] -> centerY, boundingValue));
+      } else if (!TiDimensionIsUndefined([child layoutProperties]->centerY) && !TiDimensionIsUndefined([child layoutProperties]->bottom)) {
+        CGFloat height = 2 * (boundingValue - TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->centerY, boundingValue));
         bounds.size.height = height + offsetV;
         verticalLayoutBoundary += bounds.size.height;
       } else if (followsFillBehavior) {
@@ -2534,13 +2534,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     CGFloat boundingHeight = bounds.size.height - verticalLayoutBoundary;
 
     //LEFT + RIGHT
-    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties] -> left, bounds.size.width)
-        + TiDimensionCalculateValue([child layoutProperties] -> right, bounds.size.width);
+    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
+        + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
     //TOP + BOTTOM
-    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties] -> top, bounds.size.height)
-        + TiDimensionCalculateValue([child layoutProperties] -> bottom, bounds.size.height);
+    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
 
-    TiDimension constraint = [child layoutProperties] -> width;
+    TiDimension constraint = [child layoutProperties]->width;
 
     CGFloat desiredWidth;
     BOOL recalculateWidth = NO;
@@ -2550,15 +2550,15 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       desiredWidth = TiDimensionCalculateValue(constraint, bounds.size.width) + offsetH;
       isPercent = TiDimensionIsPercent(constraint);
     } else if (TiDimensionIsUndefined(constraint)) {
-      if (!TiDimensionIsUndefined([child layoutProperties] -> left) && !TiDimensionIsUndefined([child layoutProperties] -> centerX)) {
-        desiredWidth = 2 * (TiDimensionCalculateValue([child layoutProperties] -> centerX, boundingWidth) - TiDimensionCalculateValue([child layoutProperties] -> left, boundingWidth));
+      if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->centerX)) {
+        desiredWidth = 2 * (TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->left, boundingWidth));
         desiredWidth += offsetH;
-      } else if (!TiDimensionIsUndefined([child layoutProperties] -> left) && !TiDimensionIsUndefined([child layoutProperties] -> right)) {
+      } else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right)) {
         recalculateWidth = YES;
         followsFillBehavior = YES;
         desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH, boundingHeight - offsetV)] + offsetH;
-      } else if (!TiDimensionIsUndefined([child layoutProperties] -> centerX) && !TiDimensionIsUndefined([child layoutProperties] -> right)) {
-        desiredWidth = 2 * (boundingWidth - TiDimensionCalculateValue([child layoutProperties] -> right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties] -> centerX, boundingWidth));
+      } else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right)) {
+        desiredWidth = 2 * (boundingWidth - TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth));
         desiredWidth += offsetH;
       } else {
         recalculateWidth = YES;
@@ -2575,7 +2575,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
     CGFloat desiredHeight;
-    BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties] -> height) || TiDimensionIsDip([child layoutProperties] -> height);
+    BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
     if (childIsFixedHeight) {
       //For percent width is irrelevant
       desiredHeight = [child minimumParentHeightForSize:CGSizeMake(0, bounds.size.height)];
