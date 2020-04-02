@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.content.res.Configuration;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import com.google.android.material.tabs.TabLayout;
@@ -19,6 +20,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -246,12 +248,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		}
 
 		try {
-			LinearLayout tabLL = getTabLinearLayoutForIndex(index);
+			final LinearLayout tabLayout = getTabLinearLayoutForIndex(index);
 			// Set the TextView textColor.
-			for (int i = 0; i < tabLL.getChildCount(); i++) {
-				if (tabLL.getChildAt(i) instanceof TextView) {
-					((TextView) tabLL.getChildAt(i))
-						.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+			for (int i = 0; i < tabLayout.getChildCount(); i++) {
+				if (tabLayout.getChildAt(i) instanceof TextView) {
+					final TextView textView = (TextView) tabLayout.getChildAt(i);
+
+					//TIMOB-27830: Update text color after layout for change to take effect.
+					tabLayout.addOnLayoutChangeListener(
+						(v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+							textView.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+						});
 				}
 			}
 		} catch (Exception e) {
@@ -330,5 +337,33 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		LinearLayout stripLayout = ((LinearLayout) this.mTabLayout.getChildAt(0));
 		// Get the just added TabView as a LinearLayout in order to set the background.
 		return ((LinearLayout) stripLayout.getChildAt(index));
+	}
+
+	private void updateIconTint()
+	{
+		for (int i = 0; i < this.mTabLayout.getTabCount(); i++) {
+			final TiUITab tab = this.tabs.get(i);
+			if (tab.getProxy() != null) {
+				final TiViewProxy tabProxy = tab.getProxy();
+				final Drawable drawable = this.mTabLayout.getTabAt(i).getIcon();
+				final int activeTintColor = TiColorHelper.parseColor(tabProxy.getProperties().optString(
+					TiC.PROPERTY_ACTIVE_TINT_COLOR,
+					tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "white")));
+				final int tintColor =
+					TiColorHelper.parseColor(tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "gray"));
+				final int color = i == this.mTabLayout.getSelectedTabPosition() ? activeTintColor : tintColor;
+
+				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+				this.mTabLayout.getTabAt(i).setIcon(drawable);
+			}
+		}
+	}
+
+	@Override
+	public void selectTab(int tabIndex)
+	{
+		super.selectTab(tabIndex);
+
+		updateIconTint();
 	}
 }
