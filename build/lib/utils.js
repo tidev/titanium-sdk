@@ -245,6 +245,23 @@ Utils.downloadURL = async function downloadURL(url, integrity, options) {
  * @param {string} outDir filepath of directory to extract zip to
  */
 Utils.cacheUnzip = async function (zipFile, integrity, outDir) {
+	return Utils.cacheExtract(zipFile, integrity, outDir, Utils.unzip);
+};
+
+/**
+ * @callback AsyncExtractFunction
+ * @param {string} inFile filepath of input file
+ * @param {string} outDir filepath of output directory to place extracted/mnipulated contents of input file
+ * @return {Promise<void>}
+ */
+
+/**
+ * @param {string} inFile filepath to input file we're extracting
+ * @param {string} integrity SSRI generated integrity hash for the input file
+ * @param {string} outDir filepath of directory to extract the input file to
+ * @param {AsyncExtractFunction} extractFunc function to call to extract/manipulate the input file
+ */
+Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 	const { hashElement } = require('folder-hash');
 	const exists = await fs.pathExists(outDir);
 	// The integrity hash may contain characters like '/' which we need to convert
@@ -260,17 +277,16 @@ Utils.cacheUnzip = async function (zipFile, integrity, outDir) {
 			// eslint-disable-next-line security/detect-possible-timing-attacks
 			if (hash.hash === cachedHash.hash) { // we're only checking top-level dir hash
 				// we got a match, so we do nothing!
-				console.log(`CACHE HIT! ${outDir}`);
 				return;
 			}
 		} catch (err) {
-			// ignore, assuem cache file didn't exist
+			// ignore, assume cache file didn't exist
 		}
 	}
 
 	// ok the output dir doesn't exist, or it's hash doesn't match expectations
 	// we need to extract and then record the new hash for caching
-	await Utils.unzip(zipFile, outDir);
+	await extractFunc(inFile, outDir);
 	const hash = await hashElement(outDir);
 	return fs.writeJson(cacheFile, hash);
 };

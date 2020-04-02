@@ -138,67 +138,27 @@ async function updateLibrary() {
 	const v8ArchiveFileName = `libv8-${v8TargetVersion}-${v8TargetMode}.tar.bz2`;
 	const installedLibV8DirPath = path.join(
 		__dirname, '../../dist/android/libv8', v8TargetVersion, v8TargetMode);
-	const installedLibV8ArchiveFilePath = path.join(installedLibV8DirPath, v8ArchiveFileName);
-
-	// Check if already installed
-	// Do not continue if targeted V8 library is already downloaded/installed. We're good to go.
-	// FIXME: This assumes if the archive matches our integrity hash then the directory contents are ok
-	// But does not actually check any sort of hash for the extracted contents
-	if (await isV8Installed(installedLibV8DirPath, v8TargetVersion, v8ArchiveFileName, integrity)) {
-		return;
-	}
 
 	// Download V8 archive (downloads to temp dir, which helps CI server avoid re-downloading between builds generally)
 	const downloadUrl = `http://timobile.appcelerator.com.s3.amazonaws.com/libv8/${v8ArchiveFileName}`;
+	// FIXME: Can we skip the download if the ultimate destination exists?!
 	const downloadedTarball = await BuildUtils.downloadURL(downloadUrl, integrity, { progress: false });
-
-	// For now, copy the downloaded tarball to the eventual destination filepath!
-	// Otherwise our check if already installed fails above
-	await fs.ensureDir(installedLibV8DirPath);
-	await fs.copy(downloadedTarball, installedLibV8ArchiveFilePath);
-
-	// TODO: Use same sort of caching logic for extracted copy as we do for pre-packaged modules!
-	// Utils.cacheUnzip - but instead of unzipping, we need to do the untar here!
-
-	// Extract the downloaded V8 archive's files.
-	console.log(`Decompressing downloaded V8 file: ${downloadedTarball}`);
-	const untarCommandLine
-		= quotePath(path.join(__dirname, '..', isWindows ? 'gradlew.bat' : 'gradlew'))
-		+ ' -b ' + quotePath(path.join(__dirname, '..', 'untar.gradle'))
-		+ ' -Pcompression=bzip2'
-		+ ' -Psrc=' + quotePath(downloadedTarball)
-		+ ' -Pdest=' + quotePath(installedLibV8DirPath);
-	return exec(untarCommandLine);
-}
-
-/**
- * Attempts to determine if we've already downloaded V8 and extracted it to our dist/android folder
- * @param {string} installedLibV8DirPath directory where extracted v8 will live
- * @param {string} v8TargetVersion the version of v8 we expect to be there
- * @param {string} installedLibV8ArchiveFilePath filepath to the tarball (under dist folder)
- * @param {string} integrity ssri generated integrity hash
- */
-async function isV8Installed(installedLibV8DirPath, v8TargetVersion, installedLibV8ArchiveFilePath, integrity) {
-	const installedLibV8JsonFilePath = path.join(installedLibV8DirPath, 'libv8.json');
-	if (!await fs.exists(installedLibV8JsonFilePath)) {
-		return false;
-	}
-
-	// Check if targeted V8 version folder exists.
-	const v8InstalledVersion = (await fs.readJson(installedLibV8JsonFilePath, 'utf8')).version;
-	if (v8InstalledVersion === v8TargetVersion) {
-		// Check if a tarball of the V8 library exists. (NOTE: we explicitly copy file here to make this work!)
-		if (!await fs.exists(installedLibV8ArchiveFilePath)) {
-			return false;
-		}
-		// Check if the V8 tarball file's hash matches what is in our package JSON.
-		const installedHash = await BuildUtils.generateSSRIHashFromURL(`file://${installedLibV8ArchiveFilePath}`);
-		if (installedHash.toString() === integrity) {
-			// Yes, the targeted V8 library version is installed and it's checksum/hash is correct.
-			return true;
-		}
-	}
-	return false;
+	let tmpExtractDir = BuildUtils.cachedDownloadPath(downloadUrl); // store alongside the place we store the tar.bz2, just drop the extension
+	tmpExtractDir = tmpExtractDir.substring(0, tmpExtractDir.length - '.tar.bz2'.length); // drop .tar.bz2
+	// Now extract to tmp dir and "cache" it for later builds
+	await BuildUtils.cacheExtract(downloadedTarball, integrity, tmpExtractDir, async function (inFile, outDir) {
+		// Extract the downloaded V8 archive's files.
+		console.log(`Decompressing downloaded V8 file: ${inFile}`);
+		const untarCommandLine
+			= quotePath(path.join(__dirname, '..', isWindows ? 'gradlew.bat' : 'gradlew'))
+			+ ' -b ' + quotePath(path.join(__dirname, '..', 'untar.gradle'))
+			+ ' -Pcompression=bzip2'
+			+ ' -Psrc=' + quotePath(inFile)
+			+ ' -Pdest=' + quotePath(outDir);
+		return exec(untarCommandLine);
+	});
+	// Now copy from tmp dir to ultimate destination
+	return fs.copy(tmpExtractDir, installedLibV8DirPath);
 }
 
 /**
