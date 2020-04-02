@@ -8,7 +8,7 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #import <pthread.h>
 
-// Macros to make life easier for defining properties with getters/setter accessor methods (which we'll remove in SDK 9.0.0
+// Macros to make life easier for defining properties with getters/setter accessor methods (which we'll remove in SDK 10.0.0
 
 // Defines a setProp() accessor method in JS-world that points to setterProp:(TYPE)value in native code
 #define SETTER(TYPE, NAME) JSExportAs(set##NAME, -(void)setter##NAME \
@@ -118,6 +118,7 @@ JSExportAs(fireEvent,
   @deprecated Only here for backwards compatibility with SDK < 8.1.0. Use `init` instead.
  */
 - (id)_initWithPageContext:(id<TiEvaluator>)context __attribute__((deprecated));
+- (id)_initWithPageContext:(id<TiEvaluator>)context args:(NSArray *)args __attribute__((deprecated));
 
 // hooks for when an event listener gets added/removed
 - (void)_listenerAdded:(NSString *)type count:(int)count;

@@ -22,11 +22,9 @@ public class NamedNodeMapProxy extends KrollProxy
 		this.map = map;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
-	// clang-format on
 	{
 		return map.getLength();
 	}

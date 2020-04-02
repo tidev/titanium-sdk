@@ -269,106 +269,81 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 - (id)hasText:(id)unused
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMBOOL([[self pasteboard] hasStrings]);
-  }
-
-  return [self hasData:@"text/plain"];
+  return NUMBOOL([[self pasteboard] hasStrings]);
 }
 
 - (id)hasColors:(id)unused
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMBOOL([[self pasteboard] hasColors]);
-  }
-
-  NSLog(@"[WARN] Ti.UI.Clipboard.hasColors() is only available on iOS 10 and later.");
-  return NUMBOOL(NO);
+  return NUMBOOL([[self pasteboard] hasColors]);
 }
 
 - (id)hasImages:(id)unused
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMBOOL([[self pasteboard] hasImages]);
-  }
-
-  NSLog(@"[WARN] Ti.UI.Clipboard.hasImages() is only available on iOS 10 and later.");
-  return NUMBOOL(NO);
+  return NUMBOOL([[self pasteboard] hasImages]);
 }
 
 - (id)hasURLs:(id)unused
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMBOOL([[self pasteboard] hasURLs]);
-  }
-
-  NSLog(@"[WARN] Ti.UI.Clipboard.hasURLs() is only available on iOS 10 and later.");
-  return NUMBOOL(NO);
+  return NUMBOOL([[self pasteboard] hasURLs]);
 }
 
 - (void)setItems:(id)args
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    NSArray *items = [args objectForKey:@"items"];
-    NSDictionary *options = [args objectForKey:@"options"];
+  NSArray *items = [args objectForKey:@"items"];
+  NSDictionary *options = [args objectForKey:@"options"];
 
-    __block NSMutableArray *result = [[[NSMutableArray alloc] init] retain];
+  __block NSMutableArray *result = [[[NSMutableArray alloc] init] retain];
 
-    // The key of the items must be a string (mime-type)
-    for (id item in items) {
-      NSMutableDictionary *newDict = [[NSMutableDictionary alloc] init];
-      for (id key in item) {
-        ENSURE_TYPE(key, NSString);
-        [newDict setValue:[item valueForKey:key] forKey:mimeTypeToUTType(key)];
-      }
-      if (newDict != nil) {
-        [result addObject:newDict];
-      }
-      RELEASE_TO_NIL(newDict);
+  // The key of the items must be a string (mime-type)
+  for (id item in items) {
+    NSMutableDictionary *newDict = [[NSMutableDictionary alloc] init];
+    for (id key in item) {
+      ENSURE_TYPE(key, NSString);
+      [newDict setValue:[item valueForKey:key] forKey:mimeTypeToUTType(key)];
     }
-
-    TiThreadPerformOnMainThread(^{
-      if (options == nil) {
-        [[self pasteboard] setItems:result];
-      } else {
-        [[self pasteboard] setItems:result options:options];
-      }
-      RELEASE_TO_NIL(result);
-    },
-        YES);
+    if (newDict != nil) {
+      [result addObject:newDict];
+    }
+    RELEASE_TO_NIL(newDict);
   }
+
+  TiThreadPerformOnMainThread(^{
+    if (options == nil) {
+      [[self pasteboard] setItems:result];
+    } else {
+      [[self pasteboard] setItems:result options:options];
+    }
+    RELEASE_TO_NIL(result);
+  },
+      YES);
 }
 
 - (id)getItems:(id)unused
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    __block id items;
+  __block id items;
 
-    TiThreadPerformOnMainThread(^{
-      items = [[[self pasteboard] items] retain];
+  TiThreadPerformOnMainThread(^{
+    items = [[[self pasteboard] items] retain];
 
-      // Check for invalid UTI's / mime-types to prevent a runtime-crash
-      for (NSDictionary *item in items) {
-        for (NSString *key in [item allKeys]) {
-          if ([key hasPrefix:@"dyn."]) {
-            NSLog(@"[ERROR] Invalid mime-type specified to setItems() before. Returning an empty result ...");
+    // Check for invalid UTI's / mime-types to prevent a runtime-crash
+    for (NSDictionary *item in items) {
+      for (NSString *key in [item allKeys]) {
+        if ([key hasPrefix:@"dyn."]) {
+          NSLog(@"[ERROR] Invalid mime-type specified to setItems() before. Returning an empty result ...");
 
-            RELEASE_TO_NIL(items);
-            items = @[];
-            break;
-          }
-        }
-        if ([items count] == 0) {
+          RELEASE_TO_NIL(items);
+          items = @[];
           break;
         }
       }
-    },
-        YES);
+      if ([items count] == 0) {
+        break;
+      }
+    }
+  },
+      YES);
 
-    return [items autorelease];
-  }
-
-  return @[];
+  return [items autorelease];
 }
 
 - (void)setData:(id)args

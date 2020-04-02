@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="<%- appid %>" android:versionCode="1" android:versionName="1">
+<manifest
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	package="<%- packageName %>"
+	android:versionCode="1">
 
-	<uses-sdk android:minSdkVersion="<%- minSDK %>"
-		<% if (targetSDK) { %>
-			android:targetSdkVersion="<%- targetSDK %>"
-		<% } %>
-		<% if (maxSDK) { %>
-			android:maxSdkVersion="<%- maxSDK %>"
-		<% } %>
-		/>
-
-	<application android:icon="@drawable/appicon"
-		android:label="<%- tiapp.name %>" android:name="<%- classname %>Application"
-		android:debuggable="false"
+	<application
+		android:icon="<%- appIcon %>"
+		android:label="<%- appLabel %>"
+		android:name="<%- classname %>Application"
 		android:usesCleartextTraffic="true"
-		android:theme="@style/Theme.AppCompat<% if (tiapp.fullscreen || tiapp['statusbar-hidden'] || tiapp['navbar-hidden']) { %>.NoTitleBar<% if (tiapp.fullscreen || tiapp['statusbar-hidden']) { %>.Fullscreen<% } %><% } %>">
+		android:theme="<%- appTheme %>">
 
-		<activity android:name=".<%- classname %>Activity"
-			android:configChanges="<%- allActivityConfigChanges %>"
+		<activity
+			android:name=".<%- classname %>Activity"
+			android:configChanges="${tiActivityConfigChanges}"
 			android:label="@string/app_name"
 			android:theme="@style/Theme.Titanium"
 			android:alwaysRetainTaskState="true">
@@ -28,29 +23,9 @@
 			</intent-filter>
 		</activity>
 
-		<activity
-			android:name="org.appcelerator.titanium.TiActivity"
-			android:configChanges="<%- allActivityConfigChanges %>" />
-		<activity
-			android:name="org.appcelerator.titanium.TiTranslucentActivity"
-			android:configChanges="<%- allActivityConfigChanges %>"
-			android:theme="@style/Theme.Titanium.Translucent" />
-		<activity
-			android:name="ti.modules.titanium.media.TiCameraActivity"
-			android:configChanges="<%- allActivityConfigChanges %>"
-			android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen" />
-		<activity
-			android:name="ti.modules.titanium.media.TiVideoActivity"
-			android:configChanges="<%- allActivityConfigChanges %>"
-			android:theme="@style/Theme.AppCompat.Fullscreen" />
-		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
-
-		<provider
-			android:name="org.appcelerator.titanium.io.TiFileProvider"
-			android:authorities="<%- appid %>.tifileprovider"
-			android:exported="false"
-			android:grantUriPermissions="true"/>
+<% if (appChildXmlLines) { for (let nextLine of appChildXmlLines) { %>
+		<%- nextLine %>
+<% } } %>
 
 	</application>
-
 </manifest>

@@ -18,9 +18,12 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 
+@SuppressWarnings("unchecked")
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
 	private static final String TAG = "AssetCryptImpl";
+
+	private static final String BIN_EXT = ".bin";
 
 	private static byte[] salt = {
 		<% for (let i = 0; i < salt.length - 1; i++){ -%>
@@ -72,6 +75,9 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 	{
 		if (!assets.contains(path)) {
 			return null;
+		}
+		if (!path.endsWith(BIN_EXT)) {
+			path = path + BIN_EXT;
 		}
 		try {
 			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");

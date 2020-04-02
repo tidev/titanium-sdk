@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_MEDIA
 
-#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS)
 #import <MediaPlayer/MediaPlayer.h>
 #endif
 #import "TiMediaAudioSession.h"
@@ -82,7 +82,6 @@
 @property (nonatomic, readonly) NSDictionary *currentRoute;
 @property (nonatomic, readonly) NSNumber *audioPlaying;
 @property (nonatomic, readonly) NSNumber *isCameraSupported;
-@property (nonatomic, readonly) NSNumber *cameraAuthorizationStatus;
 @property (nonatomic, assign) NSNumber *audioSessionMode;
 @property (nonatomic, assign) NSString *audioSessionCategory;
 

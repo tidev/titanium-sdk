@@ -11,7 +11,6 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;

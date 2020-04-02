@@ -256,6 +256,7 @@ events:
     properties:
       - name: state
         summary: Proximity state value.
+        type: Boolean
     platforms: [iphone, android]
     since: {android: "3.3.0"}
 
@@ -267,32 +268,76 @@ events:
     properties:
       - name: message
         summary: The error message.
+        type: String
       - name: line
         summary: The line where the error occurred.
+        type: Number
       - name: sourceId
         summary: A unique identification for the source file.
+        type: Number
         platforms: [iphone, ipad]
       - name: type
         summary: The type of error.
+        type: String
         platforms: [iphone, ipad]
       - name: sourceURL
         summary: The URL to the source file.
+        type: String
         platforms: [iphone, ipad]
       - name: backtrace
         summary: The backtrace of function calls when the error occurred.
+        type: String
+        deprecated: 
+          since: "8.0.0"
+          removed: "8.0.0"
         platforms: [iphone, ipad]
       - name: title
         summary: The title for the error.
+        type: String
         platforms: [android]
       - name: sourceName
         summary: The name of the source file.
+        type: String
         platforms: [android]
       - name: lineSource
         summary: The line source reference.
+        type: String
         platforms: [android]
       - name: lineOffset
         summary: The offset on the line where the error occurred.
+        type: Number
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `column` property for cross-platform parity.
         platforms: [android]
+      - name: jsStack
+        summary: The javascript stack trace of the exception.
+        type: String
+        since: "8.0.0"
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `stack` property for cross-platform parity.
+        platforms: [android]
+      - name: javaStack
+        summary: The java stack trace of the exception.
+        type: String
+        since: "8.0.0"
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `nativeStack` property for cross-platform parity.
+        platforms: [android]
+      - name: stack
+        summary: The javascript stack trace of the exception.
+        type: String
+        since: "9.0.0"
+      - name: nativeStack
+        summary: The native platform stack trace of the exception.
+        type: String
+        since: "9.0.0"
+      - name: column
+        summary: The column offset on the line where the error occured.
+        type: Number
+        since: {android: "9.0.0",  iphone: "4.1.0", ipad: "4.1.0"}
     platforms: [android, iphone, ipad]
     since: '4.1.0'
 
@@ -350,7 +395,7 @@ events:
     properties:
       - name: keyboardFrame
         summary: A dictionary with keys x, y, width and height representing the frame of keyboard on screen.
-        type: Dictionary
+        type: Dimension
 
       - name: animationDuration
         summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
@@ -426,7 +471,6 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
 
-
   - name: EVENT_ACCESSIBILITY_CHANGED
     summary: Convenience constant for system event "accessibilitychanged".
     type: String
@@ -439,18 +483,21 @@ properties:
     type: Boolean
     permission: read-only
 
-
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
-
 
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
+  - name: currentService
+    summary: A reference to the currnet background service running when the application is placed in the background.
+    type: Titanium.App.iOS.BackgroundService
+    permission: read-only
+    platforms: [iphone, ipad]
 
   - name: deployType
     summary: |
@@ -463,19 +510,16 @@ properties:
     type: String
     permission: read-only
 
-
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
-
 
   - name: forceSplashAsSnapshot
     summary: Shows the application's splash screen on app resume.
@@ -493,7 +537,6 @@ properties:
         The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
-
 
   - name: installId
     summary: The install ID for this application.
@@ -517,7 +560,6 @@ properties:
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: proximityDetection
     summary: Determines whether proximity detection is enabled.
@@ -559,24 +601,20 @@ properties:
     type: String
     permission: read-only
 
-
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
-
 
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
 
-
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.

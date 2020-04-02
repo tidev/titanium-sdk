@@ -7,16 +7,13 @@
 # libv8 (for both ARMv5 and ARMv7a)
 LOCAL_PATH := $(call my-dir)
 
-define GetFromPkg
-$(shell node -p "require('$(LOCAL_PATH)/../../../../../package.json').$(1)")
-endef
-
 include $(CLEAR_VARS)
 
-# Read android/package.json to get v8 version and mode (release or debug)
-V8_VERSION=$(call GetFromPkg,v8.version)
-LIBV8_MODE := $(call GetFromPkg,v8.mode)
-LIBV8_DIR := $(TI_DIST_DIR)/android/libv8/$(V8_VERSION)/$(LIBV8_MODE)
+# Fetch V8 "version" and release/debug "mode" from generated "V8Settings.mk" file.
+# Use these settings to determine path to V8 library to compile with below.
+#include $(LOCAL_PATH)/../../../generated/V8Settings.mk
+include $(LOCAL_PATH)/V8Settings.mk
+LIBV8_DIR := $(TI_DIST_DIR)/android/libv8/$(LIBV8_VERSION)/$(LIBV8_MODE)
 
 # https://jira.appcelerator.org/browse/TIMOB-15263
 LOCAL_DISABLE_FORMAT_STRING_CHECKS=true

@@ -311,10 +311,6 @@
 #ifdef USE_TI_APPIOSSEARCHQUERY
 - (TiAppiOSSearchQueryProxy *)createSearchQuery:(id)args
 {
-  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    NSLog(@"[ERROR] Search-Queries are only available in iOS 10 and later.");
-    return nil;
-  }
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -410,115 +406,84 @@
     }
   }
 
-  NSUInteger types = UIUserNotificationTypeNone;
-
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    types = UNAuthorizationOptionNone;
-  }
+  NSUInteger types = UNAuthorizationOptionNone;
 
   if (typesRequested != nil) {
     for (id thisTypeRequested in typesRequested) {
       // Handle basic iOS 12+ enums
-      if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-        switch ([TiUtils intValue:thisTypeRequested]) {
-        case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
-        {
-          types |= UNAuthorizationOptionBadge;
-          break;
-        }
-        case UNAuthorizationOptionAlert: // USER_NOTIFICATION_TYPE_ALERT
-        {
-          types |= UNAuthorizationOptionAlert;
-          break;
-        }
-        case UNAuthorizationOptionSound: // USER_NOTIFICATION_TYPE_SOUND
-        {
-          types |= UNAuthorizationOptionSound;
-          break;
-        }
-        case UNAuthorizationOptionCarPlay: // USER_NOTIFICATION_TYPE_CAR_PLAY
-        {
-          types |= UNAuthorizationOptionCarPlay;
-          break;
-        }
-        }
+      switch ([TiUtils intValue:thisTypeRequested]) {
+      case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
+      {
+        types |= UNAuthorizationOptionBadge;
+        break;
+      }
+      case UNAuthorizationOptionAlert: // USER_NOTIFICATION_TYPE_ALERT
+      {
+        types |= UNAuthorizationOptionAlert;
+        break;
+      }
+      case UNAuthorizationOptionSound: // USER_NOTIFICATION_TYPE_SOUND
+      {
+        types |= UNAuthorizationOptionSound;
+        break;
+      }
+      case UNAuthorizationOptionCarPlay: // USER_NOTIFICATION_TYPE_CAR_PLAY
+      {
+        types |= UNAuthorizationOptionCarPlay;
+        break;
+      }
+      }
 #if IS_SDK_IOS_12
-        // Handle additional iOS 12+ enums
-        if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-          switch ([TiUtils intValue:thisTypeRequested]) {
-          case UNAuthorizationOptionCriticalAlert: // USER_NOTIFICATION_TYPE_CRITICAL_ALERT
-          {
-            types |= UNAuthorizationOptionCriticalAlert;
-            break;
-          }
-          case UNAuthorizationOptionProvisional: // USER_NOTIFICATION_TYPE_PROVISIONAL
-          {
-            types |= UNAuthorizationOptionProvisional;
-            break;
-          }
-          case UNAuthorizationOptionProvidesAppNotificationSettings: // USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
-          {
-            types |= UNAuthorizationOptionProvidesAppNotificationSettings;
-            break;
-          }
-          }
-        }
-#endif
-      } else {
+      // Handle additional iOS 12+ enums
+      if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
         switch ([TiUtils intValue:thisTypeRequested]) {
-        case UIUserNotificationTypeBadge: // USER_NOTIFICATION_TYPE_BADGE
+        case UNAuthorizationOptionCriticalAlert: // USER_NOTIFICATION_TYPE_CRITICAL_ALERT
         {
-          types |= UIUserNotificationTypeBadge;
+          types |= UNAuthorizationOptionCriticalAlert;
           break;
         }
-        case UIUserNotificationTypeAlert: // USER_NOTIFICATION_TYPE_ALERT
+        case UNAuthorizationOptionProvisional: // USER_NOTIFICATION_TYPE_PROVISIONAL
         {
-          types |= UIUserNotificationTypeAlert;
+          types |= UNAuthorizationOptionProvisional;
           break;
         }
-        case UIUserNotificationTypeSound: // USER_NOTIFICATION_TYPE_SOUND
+        case UNAuthorizationOptionProvidesAppNotificationSettings: // USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
         {
-          types |= UIUserNotificationTypeSound;
+          types |= UNAuthorizationOptionProvidesAppNotificationSettings;
           break;
         }
         }
       }
+#endif
     }
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:types
-                                                                        completionHandler:^(BOOL granted, NSError *error) {
-                                                                          if (granted) {
-                                                                            [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithArray:nativeCategories]];
-                                                                          }
+  [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:types
+                                                                      completionHandler:^(BOOL granted, NSError *error) {
+                                                                        if (granted) {
+                                                                          [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithArray:nativeCategories]];
+                                                                        }
 
-                                                                          if ([self _hasListeners:@"usernotificationsettings"]) {
-                                                                            NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{ @"success" : NUMBOOL(granted) }];
-
-                                                                            if (error) {
-                                                                              [event setValue:[error localizedDescription] forKey:@"error"];
-                                                                              [event setValue:NUMINTEGER([error code]) forKey:@"code"];
+                                                                        if ([self _hasListeners:@"usernotificationsettings"]) {
+                                                                          if (error) {
+                                                                            [self fireEvent:@"usernotificationsettings"
+                                                                                 withObject:@{
+                                                                                   @"success" : NUMBOOL(granted),
+                                                                                   @"error" : [error localizedDescription],
+                                                                                   @"code" : NUMINTEGER([error code])
+                                                                                 }];
+                                                                          } else {
+                                                                            [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *_Nonnull settings) {
+                                                                              // Assign the granted types
+                                                                              NSMutableDictionary *event = [[self formatUserNotificationSettings:settings] mutableCopy];
+                                                                              [event setValue:NUMBOOL(granted) forKey:@"success"];
+                                                                              // Assign the granted categories
+                                                                              [event setValue:((categories != nil) ? categories : @{}) forKey:@"categories"];
                                                                               [self fireEvent:@"usernotificationsettings" withObject:event];
-                                                                            } else {
-                                                                              [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *_Nonnull settings) {
-                                                                                // Assign the granted types
-                                                                                [event setDictionary:[self formatUserNotificationSettings:settings]];
-                                                                                // Assign the granted categories
-                                                                                [event setValue:categories forKey:@"categories"];
-                                                                                [self fireEvent:@"usernotificationsettings" withObject:event];
-                                                                              }];
-                                                                            }
+                                                                            }];
                                                                           }
-                                                                        }];
-  } else {
-    UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types
-                                                                          categories:[NSSet setWithArray:nativeCategories]];
-    TiThreadPerformOnMainThread(^{
-      [[UIApplication sharedApplication] registerUserNotificationSettings:notif];
-    },
-        NO);
-  }
+                                                                        }
+                                                                      }];
 }
 
 - (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
@@ -543,9 +508,7 @@
 {
   DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"7.3.0", @"App.iOS.UserNotificationCenter.requestUserNotificationSettings");
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    DebugLog(@"[ERROR] Please use Ti.App.iOS.UserNotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
-  }
+  DebugLog(@"[ERROR] Please use Ti.App.iOS.UserNotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
 
   __block NSDictionary *returnVal = nil;
   TiThreadPerformOnMainThread(^{
@@ -599,60 +562,37 @@
   NSMutableArray *typesArray = [NSMutableArray array];
   NSMutableArray *categoriesArray = [NSMutableArray array];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    UNNotificationSetting alertSetting = [(UNNotificationSettings *)notificationSettings alertSetting];
-    UNNotificationSetting badgeSetting = [(UNNotificationSettings *)notificationSettings badgeSetting];
-    UNNotificationSetting soundSetting = [(UNNotificationSettings *)notificationSettings soundSetting];
-    UNNotificationSetting carPlaySetting = [(UNNotificationSettings *)notificationSettings carPlaySetting];
+  UNNotificationSetting alertSetting = [(UNNotificationSettings *)notificationSettings alertSetting];
+  UNNotificationSetting badgeSetting = [(UNNotificationSettings *)notificationSettings badgeSetting];
+  UNNotificationSetting soundSetting = [(UNNotificationSettings *)notificationSettings soundSetting];
+  UNNotificationSetting carPlaySetting = [(UNNotificationSettings *)notificationSettings carPlaySetting];
 
-    if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
 #if IS_SDK_IOS_12
-      UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
-      BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
+    UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
+    BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
 
-      if (criticalAlertSetting == UNNotificationSettingEnabled) {
-        [typesArray addObject:@(UNAuthorizationOptionCriticalAlert)];
-      }
-      if (providesAppNotificationSettings) {
-        [typesArray addObject:@(UNAuthorizationOptionProvidesAppNotificationSettings)];
-      }
+    if (criticalAlertSetting == UNNotificationSettingEnabled) {
+      [typesArray addObject:@(UNAuthorizationOptionCriticalAlert)];
+    }
+    if (providesAppNotificationSettings) {
+      [typesArray addObject:@(UNAuthorizationOptionProvidesAppNotificationSettings)];
+    }
 #endif
-    }
+  }
 
-    // Types
-    if (alertSetting == UNNotificationSettingEnabled) {
-      [typesArray addObject:@(UNAuthorizationOptionAlert)];
-    }
-    if (badgeSetting == UNNotificationSettingEnabled) {
-      [typesArray addObject:@(UNAuthorizationOptionBadge)];
-    }
-    if (soundSetting == UNNotificationSettingEnabled) {
-      [typesArray addObject:@(UNAuthorizationOptionSound)];
-    }
-    if (carPlaySetting == UNNotificationSettingEnabled) {
-      [typesArray addObject:@(UNAuthorizationOptionCarPlay)];
-    }
-  } else {
-    NSUInteger types = [(UIUserNotificationSettings *)notificationSettings types];
-    NSSet *categories = [(UIUserNotificationSettings *)notificationSettings categories];
-
-    // Types
-    if ((types & UIUserNotificationTypeBadge) != 0) {
-      [typesArray addObject:NUMINT(UIUserNotificationTypeBadge)];
-    }
-    if ((types & UIUserNotificationTypeAlert) != 0) {
-      [typesArray addObject:NUMINT(UIUserNotificationTypeAlert)];
-    }
-    if ((types & UIUserNotificationTypeSound) != 0) {
-      [typesArray addObject:NUMINT(UIUserNotificationTypeSound)];
-    }
-
-    // Categories
-    for (id cat in categories) {
-      TiAppiOSUserNotificationCategoryProxy *categoryProxy = [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-      categoryProxy.notificationCategory = cat;
-      [categoriesArray addObject:categoryProxy];
-    }
+  // Types
+  if (alertSetting == UNNotificationSettingEnabled) {
+    [typesArray addObject:@(UNAuthorizationOptionAlert)];
+  }
+  if (badgeSetting == UNNotificationSettingEnabled) {
+    [typesArray addObject:@(UNAuthorizationOptionBadge)];
+  }
+  if (soundSetting == UNNotificationSettingEnabled) {
+    [typesArray addObject:@(UNAuthorizationOptionSound)];
+  }
+  if (carPlaySetting == UNNotificationSettingEnabled) {
+    [typesArray addObject:@(UNAuthorizationOptionCarPlay)];
   }
 
   return [NSDictionary dictionaryWithObjectsAndKeys:
@@ -684,279 +624,181 @@
   // Construct a new local notification proxy from our current context
   TiAppiOSLocalNotificationProxy *notification = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 
-  // For iOS 10+, use the UserNotifications framework to manage notification
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    NSString *alertSubtitle = [TiUtils stringValue:@"alertSubtitle" properties:args];
-    NSString *category = [TiUtils stringValue:@"category" properties:args];
-    NSArray<NSDictionary<NSString *, id> *> *attachments = [args objectForKey:@"attachments"];
+  NSString *alertSubtitle = [TiUtils stringValue:@"alertSubtitle" properties:args];
+  NSString *category = [TiUtils stringValue:@"category" properties:args];
+  NSArray<NSDictionary<NSString *, id> *> *attachments = [args objectForKey:@"attachments"];
 
-    UNNotificationTrigger *trigger = nil;
+  UNNotificationTrigger *trigger = nil;
 
-    // Configure a date-based trigger
-    if (date != nil) {
-      // Handle time intervals as well (backwards compatibility)
-      if ([date isKindOfClass:[NSNumber class]]) {
-        date = [NSDate dateWithTimeIntervalSince1970:[TiUtils doubleValue:date] / 1000];
-      }
-      NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+  // Configure a date-based trigger
+  if (date != nil) {
+    // Handle time intervals as well (backwards compatibility)
+    if ([date isKindOfClass:[NSNumber class]]) {
+      date = [NSDate dateWithTimeIntervalSince1970:[TiUtils doubleValue:date] / 1000];
+    }
+    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
-      if (timezone != nil) {
-        calendar.timeZone = [NSTimeZone timeZoneWithName:[TiUtils stringValue:timezone]];
-      }
-
-      // Per default, use all components and don't repeat
-      NSCalendarUnit components = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
-
-      if (repeat != nil) {
-        if ([repeat isEqual:@"daily"]) {
-          components = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
-        } else if ([repeat isEqual:@"weekly"]) {
-          components = NSCalendarUnitWeekday | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
-        } else if ([repeat isEqual:@"monthly"]) {
-          components = NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
-        } else if ([repeat isEqual:@"yearly"]) {
-          components = NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
-        } else {
-          DebugLog(@"[ERROR] Unknown `repeat` value specified. Disabling repeat-behavior.");
-        }
-      }
-
-      trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:[calendar components:components
-                                                                                             fromDate:date]
-                                                                         repeats:(repeat != nil)];
-      RELEASE_TO_NIL(calendar);
-
-      // Configure a location-based trigger
-    } else if (region != nil) {
-      BOOL triggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-      double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0.0];
-      double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0.0];
-      double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
-
-      CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
-                                                                   radius:radius
-                                                               identifier:identifier];
-
-      trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
-                                                         repeats:triggersOnce];
-      RELEASE_TO_NIL(circularRegion);
-    } else {
-      DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");
-      return;
+    if (timezone != nil) {
+      calendar.timeZone = [NSTimeZone timeZoneWithName:[TiUtils stringValue:timezone]];
     }
 
-    // Instantiate a new mutable notification content
-    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
-
-    // Set badge. No nil-check required, since nil will be converted to 0, which resets the badge
-    [content setBadge:[TiUtils numberFromObject:badge]];
-
-    // Set the title of the notification
-    if (alertTitle != nil) {
-      [content setTitle:[TiUtils stringValue:alertTitle]];
-    }
-
-    // Set the subtitle of the notification
-    if (alertSubtitle != nil) {
-      [content setSubtitle:[TiUtils stringValue:alertSubtitle]];
-    }
-
-    // Set the content (body) of the notification
-    if (alertBody != nil) {
-      [content setBody:[TiUtils stringValue:alertBody]];
-    }
-
-    // Set the launch image of the notification, e.g an image- or storyboard name
-    if (alertLaunchImage != nil) {
-      [content setLaunchImageName:[TiUtils stringValue:alertLaunchImage]];
-    }
-
-    // Set additional user-info
-    [self assignUserInfo:userInfo toContent:content ensureIdentifier:identifier];
-
-    // Set attachments
-    if (attachments != nil) {
-      NSMutableArray<UNNotificationAttachment *> *_attachments = [NSMutableArray arrayWithCapacity:[attachments count]];
-      for (id attachment in attachments) {
-        NSString *_identifier;
-        NSString *_url;
-        NSDictionary *_options; // e.g. {"UNNotificationAttachmentOptionsTypeHintKey": "test"}
-        NSError *error = nil;
-
-        ENSURE_ARG_FOR_KEY(_identifier, attachment, @"identifier", NSString);
-        ENSURE_ARG_FOR_KEY(_url, attachment, @"url", NSString);
-        ENSURE_ARG_OR_NIL_FOR_KEY(_options, attachment, @"options", NSDictionary);
-
-        NSDictionary *nativeOptions = _options != nil ? [[self formatNotificationAttachmentOptions:_options] retain] : nil;
-
-        UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
-                                                                                               URL:[TiUtils toURL:_url proxy:self]
-                                                                                           options:nativeOptions
-                                                                                             error:&error];
-
-        RELEASE_TO_NIL(nativeOptions);
-
-        if (error != nil) {
-          DebugLog(@"[ERROR] Attachment with the identifier = \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
-        } else {
-          [_attachments addObject:_attachment];
-        }
-      }
-      [content setAttachments:_attachments];
-    }
-
-    // Set notification sound
-    if (sound != nil) {
-      // Set a default sound
-      if ([sound isEqual:@"default"]) {
-        [content setSound:[UNNotificationSound defaultSound]];
-      } else {
-        // Set a custom sound name
-        [content setSound:[UNNotificationSound soundNamed:sound]];
-      }
-    }
-
-    // Set category identifier
-    if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
-      [content setCategoryIdentifier:[(TiAppiOSUserNotificationCategoryProxy *)category identifier]];
-    } else if (category != nil && [category isKindOfClass:[NSString class]]) {
-      [content setCategoryIdentifier:[TiUtils stringValue:category]];
-    }
-
-#if IS_SDK_IOS_12
-    // Add iOS 12+ API's to enable threading and notification groups
-    if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-      // Set the string the notification adds to the category’s summary format string.
-      if (summaryArgument != nil) {
-        [content setSummaryArgument:summaryArgument];
-      }
-      // Set a number that indicates how many items are represented in the summary.
-      if (summaryArgumentCount != nil) {
-        [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
-      }
-    }
-#endif
-
-    // Set the thread identifier to enable grouped notifications
-    if (threadIdentifier != nil) {
-      [content setThreadIdentifier:threadIdentifier];
-    }
-
-    // Construct a new notiication request using our content and trigger (e.g. date or location)
-    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
-                                                                          content:content
-                                                                          trigger:trigger];
-
-    TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                             withCompletionHandler:^(NSError *error) {
-                                                               if (error) {
-                                                                 DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
-                                                               }
-                                                             }];
-    },
-        NO);
-
-    notification.notification = content;
-    [content release];
-
-    return notification;
-  } else {
-    UILocalNotification *content = [UILocalNotification new];
-    id alertAction = [args objectForKey:@"alertAction"];
-
-    if (date != nil) {
-      content.fireDate = date;
-      if (timezone != nil) {
-        content.timeZone = [NSTimeZone timeZoneWithName:[TiUtils stringValue:timezone]];
-      } else {
-        content.timeZone = [NSTimeZone defaultTimeZone];
-      }
-    }
+    // Per default, use all components and don't repeat
+    NSCalendarUnit components = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
 
     if (repeat != nil) {
-      if ([repeat isEqual:@"weekly"]) {
-        content.repeatInterval = NSCalendarUnitWeekOfYear;
-      } else if ([repeat isEqual:@"daily"]) {
-        content.repeatInterval = NSCalendarUnitDay;
-      } else if ([repeat isEqual:@"yearly"]) {
-        content.repeatInterval = NSCalendarUnitYear;
+      if ([repeat isEqual:@"daily"]) {
+        components = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+      } else if ([repeat isEqual:@"weekly"]) {
+        components = NSCalendarUnitWeekday | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
       } else if ([repeat isEqual:@"monthly"]) {
-        content.repeatInterval = NSCalendarUnitMonth;
-      }
-    }
-
-    if (alertBody != nil) {
-      content.alertBody = alertBody;
-    }
-
-    if (alertTitle != nil) {
-      content.alertTitle = alertTitle;
-    }
-
-    if (alertAction != nil) {
-      content.alertAction = alertAction;
-    }
-
-    if (alertLaunchImage != nil) {
-      content.alertLaunchImage = alertLaunchImage;
-    }
-
-    if (badge != nil) {
-      content.applicationIconBadgeNumber = [TiUtils intValue:badge];
-    }
-
-    if (region != nil) {
-      ENSURE_TYPE(region, NSDictionary);
-
-      CLLocationDegrees latitude = [TiUtils doubleValue:@"latitude" properties:region def:0];
-      CLLocationDegrees longitude = [TiUtils doubleValue:@"longitude" properties:region def:0];
-      CLLocationDistance radius = [TiUtils doubleValue:@"radius" properties:region def:kCLDistanceFilterNone];
-      NSString *regionIdentifier = [TiUtils stringValue:@"identifier" properties:region def:@"notification"];
-      BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-
-      CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
-
-      if (!CLLocationCoordinate2DIsValid(center)) {
-        DebugLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
+        components = NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+      } else if ([repeat isEqual:@"yearly"]) {
+        components = NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
       } else {
-        content.region = [[[CLCircularRegion alloc] initWithCenter:center radius:radius identifier:regionIdentifier] autorelease];
-        content.regionTriggersOnce = regionTriggersOnce;
+        DebugLog(@"[ERROR] Unknown `repeat` value specified. Disabling repeat-behavior.");
       }
     }
 
-    if (sound) {
-      if ([sound isEqual:@"default"]) {
-        content.soundName = UILocalNotificationDefaultSoundName;
-      } else {
-        content.soundName = sound;
-      }
-    }
+    trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:[calendar components:components
+                                                                                           fromDate:date]
+                                                                       repeats:(repeat != nil)];
+    RELEASE_TO_NIL(calendar);
 
-    // Set additional user-info
-    [self assignUserInfo:userInfo toContent:content ensureIdentifier:identifier];
+    // Configure a location-based trigger
+  } else if (region != nil) {
+    BOOL triggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
+    double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0.0];
+    double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0.0];
+    double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
 
-    id category = [args objectForKey:@"category"];
-    if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
-      content.category = [(TiAppiOSUserNotificationCategoryProxy *)category identifier];
-    } else if (category != nil && [category isKindOfClass:[NSString class]]) {
-      content.category = category;
-    }
+    CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
+                                                                 radius:radius
+                                                             identifier:identifier];
 
-    TiThreadPerformOnMainThread(^{
-      if (date != nil || region != nil) {
-        [[UIApplication sharedApplication] scheduleLocalNotification:content];
-      } else {
-        [[UIApplication sharedApplication] presentLocalNotificationNow:content];
-      }
-    },
-        NO);
-
-    notification.notification = content;
-    [content release];
-
-    return notification;
+    trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
+                                                       repeats:triggersOnce];
+    RELEASE_TO_NIL(circularRegion);
+  } else {
+    DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");
+    return;
   }
+
+  // Instantiate a new mutable notification content
+  UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+
+  // Set badge. No nil-check required, since nil will be converted to 0, which resets the badge
+  [content setBadge:[TiUtils numberFromObject:badge]];
+
+  // Set the title of the notification
+  if (alertTitle != nil) {
+    [content setTitle:[TiUtils stringValue:alertTitle]];
+  }
+
+  // Set the subtitle of the notification
+  if (alertSubtitle != nil) {
+    [content setSubtitle:[TiUtils stringValue:alertSubtitle]];
+  }
+
+  // Set the content (body) of the notification
+  if (alertBody != nil) {
+    [content setBody:[TiUtils stringValue:alertBody]];
+  }
+
+  // Set the launch image of the notification, e.g an image- or storyboard name
+  if (alertLaunchImage != nil) {
+    [content setLaunchImageName:[TiUtils stringValue:alertLaunchImage]];
+  }
+
+  // Set additional user-info
+  [self assignUserInfo:userInfo toContent:content ensureIdentifier:identifier];
+
+  // Set attachments
+  if (attachments != nil) {
+    NSMutableArray<UNNotificationAttachment *> *_attachments = [NSMutableArray arrayWithCapacity:[attachments count]];
+    for (id attachment in attachments) {
+      NSString *_identifier;
+      NSString *_url;
+      NSDictionary *_options; // e.g. {"UNNotificationAttachmentOptionsTypeHintKey": "test"}
+      NSError *error = nil;
+
+      ENSURE_ARG_FOR_KEY(_identifier, attachment, @"identifier", NSString);
+      ENSURE_ARG_FOR_KEY(_url, attachment, @"url", NSString);
+      ENSURE_ARG_OR_NIL_FOR_KEY(_options, attachment, @"options", NSDictionary);
+
+      NSDictionary *nativeOptions = _options != nil ? [[self formatNotificationAttachmentOptions:_options] retain] : nil;
+
+      UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
+                                                                                             URL:[TiUtils toURL:_url proxy:self]
+                                                                                         options:nativeOptions
+                                                                                           error:&error];
+
+      RELEASE_TO_NIL(nativeOptions);
+
+      if (error != nil) {
+        DebugLog(@"[ERROR] Attachment with the identifier = \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
+      } else {
+        [_attachments addObject:_attachment];
+      }
+    }
+    [content setAttachments:_attachments];
+  }
+
+  // Set notification sound
+  if (sound != nil) {
+    // Set a default sound
+    if ([sound isEqual:@"default"]) {
+      [content setSound:[UNNotificationSound defaultSound]];
+    } else {
+      // Set a custom sound name
+      [content setSound:[UNNotificationSound soundNamed:sound]];
+    }
+  }
+
+  // Set category identifier
+  if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
+    [content setCategoryIdentifier:[(TiAppiOSUserNotificationCategoryProxy *)category identifier]];
+  } else if (category != nil && [category isKindOfClass:[NSString class]]) {
+    [content setCategoryIdentifier:[TiUtils stringValue:category]];
+  }
+
+#if IS_SDK_IOS_12
+  // Add iOS 12+ API's to enable threading and notification groups
+  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+    // Set the string the notification adds to the category’s summary format string.
+    if (summaryArgument != nil) {
+      [content setSummaryArgument:summaryArgument];
+    }
+    // Set a number that indicates how many items are represented in the summary.
+    if (summaryArgumentCount != nil) {
+      [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
+    }
+  }
+#endif
+
+  // Set the thread identifier to enable grouped notifications
+  if (threadIdentifier != nil) {
+    [content setThreadIdentifier:threadIdentifier];
+  }
+
+  // Construct a new notiication request using our content and trigger (e.g. date or location)
+  UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
+                                                                        content:content
+                                                                        trigger:trigger];
+
+  TiThreadPerformOnMainThread(^{
+    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
+                                                           withCompletionHandler:^(NSError *error) {
+                                                             if (error) {
+                                                               DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+                                                             }
+                                                           }];
+  },
+      NO);
+
+  notification.notification = content;
+  [content release];
+
+  return notification;
 }
 
 /**
@@ -986,11 +828,7 @@
 
   DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications()", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications()");
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
-  } else {
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
-  }
+  [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
 }
 
 - (void)cancelLocalNotification:(id)identifier
@@ -1000,19 +838,7 @@
 
   DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification(identifier)", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications(identifier)");
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ identifier ]];
-  } else {
-    NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
-    if (notifications != nil) {
-      for (UILocalNotification *notification in notifications) {
-        if ([[[notification userInfo] objectForKey:@"id"] isEqual:identifier]) {
-          [[UIApplication sharedApplication] cancelLocalNotification:notification];
-          return;
-        }
-      }
-    }
-  }
+  [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ identifier ]];
 }
 
 - (void)didReceiveContinueActivityNotification:(NSNotification *)note
@@ -1148,46 +974,27 @@
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_NONE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNAuthorizationOptionNone);
-  }
-
-  return NUMINT(UIUserNotificationTypeNone);
+  return NUMINT(UNAuthorizationOptionNone);
 }
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_BADGE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNAuthorizationOptionBadge);
-  }
-
-  return NUMINT(UIUserNotificationTypeBadge);
+  return NUMINT(UNAuthorizationOptionBadge);
 }
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_SOUND
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNAuthorizationOptionSound);
-  }
-
-  return NUMINT(UIUserNotificationTypeSound);
+  return NUMINT(UNAuthorizationOptionSound);
 }
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_ALERT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNAuthorizationOptionAlert);
-  }
-
-  return NUMINT(UIUserNotificationTypeAlert);
+  return NUMINT(UNAuthorizationOptionAlert);
 }
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_CAR_PLAY
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNAuthorizationOptionCarPlay);
-  }
-  return NUMINT(0);
+  return NUMINT(UNAuthorizationOptionCarPlay);
 }
 
 #if IS_SDK_IOS_12
@@ -1218,20 +1025,12 @@
 
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNNotificationActionOptionNone);
-  }
-
-  return NUMINT(UIUserNotificationActivationModeBackground);
+  return NUMINT(UNNotificationActionOptionNone);
 }
 
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNNotificationActionOptionForeground);
-  }
-
-  return NUMINT(UIUserNotificationActivationModeForeground);
+  return NUMINT(UNNotificationActionOptionForeground);
 }
 
 - (NSNumber *)USER_NOTIFICATION_BEHAVIOR_DEFAULT
@@ -1246,47 +1045,27 @@
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_NONE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNNotificationCategoryOptionNone);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UNNotificationCategoryOptionNone);
 }
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNNotificationCategoryOptionCustomDismissAction);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UNNotificationCategoryOptionCustomDismissAction);
 }
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNNotificationCategoryOptionAllowInCarPlay);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UNNotificationCategoryOptionAllowInCarPlay);
 }
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowTitle);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowTitle);
 }
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000

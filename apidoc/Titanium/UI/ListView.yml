@@ -604,8 +604,8 @@ events:
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
-        type: Object
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible. May be -1 on iOS.
+        type: [Object, Number]
 
       - name: firstVisibleSection
         summary: The first visible section in the list view when the event fires.
@@ -640,8 +640,8 @@ events:
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
-        type: Object
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible. May be -1 on iOS.
+        type: [Object, Number]
 
       - name: firstVisibleSection
         summary: The first visible section in the list view when the event fires.
@@ -1028,7 +1028,7 @@ properties:
         Cell separators do not extend all the way to the edge of the list view.
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
-    type: Dictionary
+    type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1068,7 +1068,7 @@ properties:
              });
 
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1088,7 +1088,7 @@ properties:
              });
 
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.4.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1107,7 +1107,7 @@ properties:
                  right:10
              });
 
-    type: Dictionary
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
@@ -1178,8 +1178,8 @@ properties:
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right`
         specifying the inset from the right edge.
-    type: Dictionary
-    since: 6.1.0
+    type: HorizontalInsets
+    since: "6.1.0"
     platforms: [iphone, ipad]
     availability: creation
 
@@ -1290,6 +1290,7 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: ListViewAnimationProperties
+        optional: true
 
   - name: selectItem
     summary: Selects an item in the list using the specified item and section indices.
@@ -1313,12 +1314,18 @@ methods:
         Typically used with the [pullView](Titanium.UI.ListView.pullView) property.
     parameters:
       - name: edgeInsets
-        summary: Dictionary to describe the insets.
-        type: ListViewEdgeInsets
+        summary: |
+          Sets the distance that the content view is inset from the enclosing scroll view of the list view.
+          For example
 
-      - name: animated
-        summary: Determines whether, and how, the content inset change should be animated.
-        type: ListViewContentInsetOption
+              setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+        type: Padding
+
+      - name: options
+        summary: |
+            Determines whether, and how, the content inset change should be animated.
+            Note that the default here is equivalent to passing in `{ animated: false, duration: 300 }`
+        type: AnimatedWithDurationOptions
         optional: true
     platforms: [iphone, ipad]
     since: 3.2.0
@@ -1329,10 +1336,15 @@ methods:
     parameters:
       - name: contentOffset
         summary: |
-            Dictionary with the properties `x`, `y`. Pass in `animated` `true` as a second dictionary parameter.
+            Dictionary with the properties `x`, `y`.
             The `x` and `y` coordinates reposition the top-left point of the scrollable region of the list view.
-            The `animated` property is optional and set to `false` by default.
-        type: Dictionary
+        type: Point
+      - name: options
+        summary: |
+            Pass in `{ animated: true }` to animate the transition. Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: 3.4.0
 
   - name: setMarker
@@ -1807,25 +1819,6 @@ properties:
     type: Number
 
 ---
-name: ListViewContentInsetOption
-summary: Optional parameter for [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
-description: |
-    On iOS, the optional parameters `animated` and `duration` to enable the animation and duration
-    for animation while the content insets are updated. For example
-
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-since: 3.2.0
-platforms: [iphone, ipad]
-properties:
-  - name: animated
-    summary: Determines whether the list view's content inset change is animated.
-    type: Boolean
-    default: false
-  - name: duration
-    summary: The duration in `milliseconds` for animation while the content inset is  being changed.
-    type: Number
-
----
 name: ListViewMarkerProps
 summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
 description: |
@@ -1841,34 +1834,6 @@ properties:
     type: Number
   - name: itemIndex
     summary: The itemIndex of the reference item.
-    type: Number
-
----
-name: ListViewEdgeInsets
-summary: The parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-description: |
-    On iOS, the parameter `edgeInsets` can be specified to set the distance(`top`, `bottom`,
-    `right`, `left`) that the content view is inset from the enclosing scroll view of the list view.
-    For example
-
-        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
-since: 3.2.0
-platforms: [iphone, ipad]
-properties:
-  - name: top
-    summary: Value specifying the top insets for the enclosing scroll view of the list view.
-    type: Number
-
-  - name: left
-    summary: Value specifying the left insets for the enclosing scroll view of the list view.
-    type: Number
-
-  - name: right
-    summary: Value specifying the right insets for the enclosing scroll view of the list view.
-    type: Number
-
-  - name: bottom
-    summary: Value specifying the bottom insets for the enclosing scroll view of the list view.
     type: Number
 
 ---

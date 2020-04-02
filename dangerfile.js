@@ -127,7 +127,7 @@ async function checkChangedFileLocations() {
 	}
 	// Mark hasAppChanges if 'common' dir is changed too!
 	const common = danger.git.fileMatch('common/**');
-	// TODO: Should we add ios/android/windows labels if common dir is changed?
+	// TODO: Should we add ios/android labels if common dir is changed?
 	const hasAppChanges = android.edited || ios.edited || common.edited;
 
 	// Check if any tests were changed/added
@@ -163,7 +163,7 @@ async function checkMergeable() {
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
 	// Don't give special thanks to the greenkeeper bot account
-	if (github.pr.user.login === 'greenkeeper[bot]') {
+	if (github.pr.user.login === 'greenkeeper[bot]' || github.pr.user.login === 'dependabot-preview[bot]') {
 		return;
 	}
 	if (github.pr.author_association === 'FIRST_TIMER') {
@@ -189,7 +189,7 @@ async function addMissingLabels() {
 	if (filteredLabels.length === 0) {
 		return;
 	}
-	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
+	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, issue_number: github.pr.number, labels: filteredLabels });
 }
 
 async function requestReviews() {
@@ -223,7 +223,7 @@ async function requestReviews() {
 	const filtered = teamsToReview.filter(t => !teamSlugs.includes(t));
 	if (filtered.length > 0) {
 		debug(`Assigning PR reviews to teams: ${filtered}`);
-		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: filtered });
+		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, pull_number: github.pr.number, team_reviewers: filtered });
 	}
 }
 

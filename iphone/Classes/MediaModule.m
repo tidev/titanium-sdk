@@ -165,17 +165,11 @@ static NSDictionary *TI_filterableItemProperties;
                                                      MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
                                                      nil];
 
-#ifdef __IPHONE_10_0
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      TI_itemProperties[@"dateAdded"] = MPMediaItemPropertyDateAdded;
-#ifdef __IPHONE_10_3
-      if ([TiUtils isIOSVersionOrGreater:@"10.3"]) {
-        TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
-      }
-#endif
+    TI_itemProperties[@"dateAdded"] = MPMediaItemPropertyDateAdded;
+    if ([TiUtils isIOSVersionOrGreater:@"10.3"]) {
+      TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
     }
   }
-#endif
 
   return TI_itemProperties;
 }
@@ -592,13 +586,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if defined(USE_TI_MEDIACAMERAAUTHORIZATION) || defined(USE_TI_MEDIACAMERAAUTHORIZATIONSTATUS)
-- (NSNumber *)cameraAuthorizationStatus
-{
-  DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
-  return [self cameraAuthorization];
-}
-
+#if defined(USE_TI_MEDIACAMERAAUTHORIZATION)
 - (NSNumber *)cameraAuthorization
 {
   return NUMINTEGER([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]);
@@ -624,14 +612,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
-#ifdef USE_TI_MEDIAREQUESTAUTHORIZATION
-- (void)requestAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"5.1.0", @"Media.requestAudioRecorderPermissions");
-  [self requestAudioRecorderPermissions:args];
-}
-#endif
-
 #ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
 - (id)hasAudioPermissions:(id)unused
 {
@@ -645,7 +625,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !microphonePermission) {
+  if (!microphonePermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
@@ -653,15 +633,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#ifdef USE_TI_MEDIAREQUESTAUDIOPERMISSIONS
-- (void)requestAudioPermissions:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"6.1.0", @"Media.requestAudioRecorderPermissions");
-  [self requestAudioRecorderPermissions:args];
-}
-#endif
-
-#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUDIOPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUTHORIZATION)
+#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS)
 - (void)requestAudioRecorderPermissions:(id)args
 {
   ENSURE_SINGLE_ARG(args, KrollCallback);
@@ -1045,13 +1017,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if defined(USE_TI_MEDIAREQUESTCAMERAPERMISSIONS) || defined(USE_TI_MEDIAREQUESTCAMERAACCESS)
-- (void)requestCameraAccess:(id)arg
-{
-  DEPRECATED_REPLACED(@"Media.requestCameraAccess", @"5.1.0", @"Media.requestCameraPermissions");
-  [self requestCameraPermissions:arg];
-}
-
+#if defined(USE_TI_MEDIAREQUESTCAMERAPERMISSIONS)
 //request camera access. for >= IOS7
 - (void)requestCameraPermissions:(id)arg
 {
@@ -1077,7 +1043,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !cameraPermission) {
+  if (!cameraPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
   }
 
@@ -1112,7 +1078,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
   // Reading (!) from gallery permissions are required on iOS 10 and later.
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !readFromGalleryPermission) {
+  if (!readFromGalleryPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. It will be ignored on devices < iOS 10. Please add the key and re-run the application.");
   }
 
@@ -1162,47 +1128,47 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self sendPickerError:MediaModuleErrorNoMusicPlayer];
 #else
 
-    if (args != nil) {
-      MPMediaType mediaTypes = 0;
-      id mediaList = [args objectForKey:@"mediaTypes"];
+  if (args != nil) {
+    MPMediaType mediaTypes = 0;
+    id mediaList = [args objectForKey:@"mediaTypes"];
 
-      if (mediaList != nil) {
-        if ([mediaList isKindOfClass:[NSArray class]]) {
-          for (NSNumber *type in mediaList) {
-            switch ([type integerValue]) {
-            case MPMediaTypeMusic:
-            case MPMediaTypeAnyAudio:
-            case MPMediaTypeAudioBook:
-            case MPMediaTypePodcast:
-            case MPMediaTypeAny:
-              mediaTypes |= [type integerValue];
-            }
-          }
-        } else {
-          ENSURE_TYPE(mediaList, NSNumber);
-          switch ([mediaList integerValue]) {
+    if (mediaList != nil) {
+      if ([mediaList isKindOfClass:[NSArray class]]) {
+        for (NSNumber *type in mediaList) {
+          switch ([type integerValue]) {
           case MPMediaTypeMusic:
           case MPMediaTypeAnyAudio:
           case MPMediaTypeAudioBook:
           case MPMediaTypePodcast:
           case MPMediaTypeAny:
-            mediaTypes = [mediaList integerValue];
+            mediaTypes |= [type integerValue];
           }
         }
+      } else {
+        ENSURE_TYPE(mediaList, NSNumber);
+        switch ([mediaList integerValue]) {
+        case MPMediaTypeMusic:
+        case MPMediaTypeAnyAudio:
+        case MPMediaTypeAudioBook:
+        case MPMediaTypePodcast:
+        case MPMediaTypeAny:
+          mediaTypes = [mediaList integerValue];
+        }
       }
-
-      if (mediaTypes == 0) {
-        mediaTypes = MPMediaTypeAny;
-      }
-
-      musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
-      musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
-    } else {
-      musicPicker = [[MPMediaPickerController alloc] init];
     }
-    [musicPicker setDelegate:self];
 
-    [self displayModalPicker:musicPicker settings:args];
+    if (mediaTypes == 0) {
+      mediaTypes = MPMediaTypeAny;
+    }
+
+    musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
+    musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
+  } else {
+    musicPicker = [[MPMediaPickerController alloc] init];
+  }
+  [musicPicker setDelegate:self];
+
+  [self displayModalPicker:musicPicker settings:args];
 #endif
 }
 
@@ -1230,7 +1196,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !musicPermission) {
+  if (!musicPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
@@ -1270,7 +1236,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     NSLog(@"[ERROR] It looks like you are accessing the music-library without sufficient permissions. Please use the Ti.Media.hasMusicLibraryPermissions() method to validate the permissions and only call this method if permissions are granted.");
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !musicPermission) {
+  if (!musicPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
@@ -1616,25 +1582,23 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
 
     // iOS 10 requires a certain number of additional permissions declared in the Info.plist (<ios><plist/></ios>)
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
-      NSString *readFromGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
-      NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
+    NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+    NSString *readFromGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+    NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
-      // Microphone permissions are required when using the video-camera
-      if (movieRequired && !microphonePermission) {
-        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera to take videos. Please add the key and re-run the application.");
-      }
+    // Microphone permissions are required when using the video-camera
+    if (movieRequired && !microphonePermission) {
+      NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera to take videos. Please add the key and re-run the application.");
+    }
 
-      // Gallery permissions are required when saving or selecting media from the gallery
-      if (saveToRoll && !readFromGalleryPermission) {
-        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
-      }
+    // Gallery permissions are required when saving or selecting media from the gallery
+    if (saveToRoll && !readFromGalleryPermission) {
+      NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
+    }
 
-      // Writing (!) to gallery permissions are also required on iOS 11 and later.
-      if ([TiUtils isIOSVersionOrGreater:@"11.0"] && saveToRoll && !addToGalleryPermission) {
-        NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
-      }
+    // Writing (!) to gallery permissions are also required on iOS 11 and later.
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && saveToRoll && !addToGalleryPermission) {
+      NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
     }
 
     double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
@@ -1669,8 +1633,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #ifndef TI_USE_AUTOLAYOUT
       ApplyConstraintToViewWithBounds([cameraViewProxy layoutProperties], (TiUIView *)view, [[UIScreen mainScreen] bounds]);
 #else
-        [TiUtils setView:view
-            positionRect:view.bounds];
+      [TiUtils setView:view
+          positionRect:view.bounds];
 #endif
 
       [cameraView windowWillOpen];

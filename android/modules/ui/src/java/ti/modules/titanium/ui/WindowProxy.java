@@ -37,13 +37,12 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
 import android.transition.ChangeImageTransform;
@@ -58,7 +57,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_MODAL,
@@ -66,7 +64,6 @@ import android.view.Window;
 		TiC.PROPERTY_FLAG_SECURE,
 		TiC.PROPERTY_BAR_COLOR
 })
-// clang-format on
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
@@ -423,11 +420,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		super.onPropertyChanged(name, value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setSustainedPerformanceMode(boolean mode)
-	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
 		Activity activity = getWindowActivity();
@@ -436,21 +431,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSustainedPerformanceMode()
-	// clang-format on
 	{
 		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE), false);
 	}
 
-	// clang-format off
 	@Override
 	@Kroll.setProperty(retain = false)
 	@Kroll.method
 	public void setWidth(Object width)
-	// clang-format on
 	{
 		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
@@ -462,12 +453,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		super.setWidth(width);
 	}
 
-	// clang-format off
 	@Override
 	@Kroll.setProperty(retain = false)
 	@Kroll.method
 	public void setHeight(Object height)
-	// clang-format on
 	{
 		if (opening || opened) {
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);

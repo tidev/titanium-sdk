@@ -1,0 +1,58 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+apply plugin: 'com.android.application'
+
+// Set up Android app project.
+android {
+	compileSdkVersion 29
+	defaultConfig {
+		applicationId 'com.titanium.test'
+		minSdkVersion 19
+		targetSdkVersion 29
+		versionCode 1
+		versionName '1.0'
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
+	}
+	lintOptions {
+		checkReleaseBuilds false
+	}
+	sourceSets {
+		main {
+			assets.srcDirs = [
+				'src/main/assets',
+				"${projectDir}/../titanium/build/outputs/ti-assets"
+			]
+		}
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+}
+
+// Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
+// Will trigger a build failure if any violations have been detected.
+task checkJavaStyle(type: Checkstyle) {
+	source android.sourceSets.main.java.srcDirs
+	include '**/*.java'
+	classpath = files()
+}
+tasks.withType(JavaCompile) {
+	dependsOn checkJavaStyle
+}
+
+// Define library dependencies used by this app.
+dependencies {
+	implementation(project(':titanium')) {
+// Uncomment the below to exclude Google Play Services from app.
+//		exclude group: 'com.google.android.gms'
+	}
+
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
+}

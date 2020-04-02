@@ -14,13 +14,13 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -254,15 +254,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected ColorStateList textColorStateList(TiViewProxy tabProxy, int stateToUse)
 	{
 		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
-		int[] textColors = { tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
-								 ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString())
-								 : this.textColorInt,
-							 tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
-								 ? TiColorHelper.parseColor(
-									   tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString())
-								 : this.textColorInt };
-		ColorStateList stateListDrawable = new ColorStateList(textColorStates, textColors);
-		return stateListDrawable;
+		int[] textColors = { this.textColorInt, this.textColorInt };
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+			textColors[0] = TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString());
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+			textColors[1] = TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString());
+		}
+		return new ColorStateList(textColorStates, textColors);
 	}
 
 	/**
