@@ -443,6 +443,7 @@ events:
         This event does not fire when navigating remote web pages.
     properties:
       - name: url
+        type: String
         summary: URL of the web document being loaded.
 
       - name: navigationType
@@ -450,6 +451,12 @@ events:
         type: Number
         constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone]
+
+      - name: isMainFrame
+        summary: Indicate if the event was generated from the main page or an iframe.
+        type: Boolean
+        platforms: [ipad, iphone]
+        since: "9.0.0"
 
   - name: error
     summary: Fired when the web view cannot load the content.
@@ -485,6 +492,8 @@ events:
         platforms: [iphone, ipad, android]
         deprecated:
             since: "3.1.0"
+            removed: "9.0.0"
+            notes: Removed on ios in 8.0.0. Removed on android in 9.0.0.
       - name: errorCode
         summary: A constant or underlying platform specific error code. Use code instead.
         type: Number
@@ -492,11 +501,14 @@ events:
         platforms: [iphone, ipad, android]
         deprecated:
             since: "3.1.0"
+            removed: "9.0.0"
+            notes: Removed on ios in 8.0.0. Removed on android in 9.0.0.
 
   - name: load
     summary: Fired when the web view content is loaded.
     properties:
       - name: url
+        type: String
         summary: URL of the web document.
 
   - name: onLoadResource
@@ -530,8 +542,10 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
+        type: String
     deprecated:
         since: "6.1.0"
+        removed: "9.0.0"
         notes: Use the  cross-platform `blacklisturl` event instead.
 
   - name: blacklisturl
@@ -541,6 +555,7 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
+        type: String
 
   - name: message
     summary: Fired when a script message is received from a webpage.
@@ -715,6 +730,21 @@ properties:
     platforms: [iphone, ipad]
     since: "3.0.0"
     default: false
+
+  - name: assetsDirectory
+    summary: Path of file or directory to allow read access by the WebView.
+    description: |
+        Use this property to change the resources the web view has access to when loading the content of a local file.
+        By default the web view only has access to files inside the same directory as the loaded file. To reference
+        resources from other directories (e.g. a parent directory) change this property accordingly.
+
+        If assetsDirectory references a single file, only that file may be loaded. If assetsDirectory references a
+        directory, files inside that directory may be loaded.
+
+        This property needs to be set before [url](Titanium.UI.WebView.url) is assigned to a local file.
+    type: String
+    platforms: [iphone, ipad]
+    since: "9.0.0"
 
   - name: html
     summary: HTML content of this web view.

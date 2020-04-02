@@ -269,9 +269,8 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
-#if IS_SDK_IOS_11
   [window processForSafeArea];
-#endif
+
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -404,9 +403,8 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
-#endif
+
   if (theWindow == rootWindow) {
     //This is probably too late for the root view controller.
     //Figure out how to call open before this callback
@@ -470,10 +468,6 @@
       }
     }
   }
-  if ([self _hasListeners:@"blur"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.blur", @"5.2.0", @"UI.Tab.Event.unselected");
-    [self fireEvent:@"blur" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-  }
 
   if ([self _hasListeners:@"unselected"]) {
     [self fireEvent:@"unselected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
@@ -498,10 +492,6 @@
         [(id<TiWindowProtocol>)theProxy gainFocus];
       }
     }
-  }
-  if ([self _hasListeners:@"focus"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.focus", @"5.2.0", @"UI.Tab.Event.selected");
-    [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
 
   if ([self _hasListeners:@"selected"]) {
@@ -545,7 +535,7 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-    if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    if (badgeColor != nil) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
 
@@ -618,7 +608,7 @@
     }
   }
 
-  if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+  if (badgeColor != nil) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
 
@@ -766,7 +756,6 @@
 
 @synthesize parentOrientationController;
 
-#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   if (rootWindow == nil) {
@@ -783,7 +772,7 @@
   }
   return NO;
 }
-#endif
+
 - (BOOL)hidesStatusBar
 {
   if (rootWindow == nil) {

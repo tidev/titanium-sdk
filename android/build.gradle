@@ -1,0 +1,42 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+buildscript {
+	ext.kotlin_version = '1.3.61'
+
+	repositories {
+		google()
+		jcenter()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:3.6.0'
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	}
+}
+
+allprojects {
+	repositories {
+		google()
+		jcenter()
+	}
+
+	// Load plugin used to enforce our Java coding style guidelines.
+	project.apply plugin: 'checkstyle'
+	checkstyle {
+		toolVersion = '8.30'
+		configFile file("${rootDir}/checkstyle.xml");
+		ignoreFailures false
+		showViolations true
+	}
+
+	// Include Titanium's gradle constants in all gradle sub-projects.
+	project.apply from: "${rootDir}/templates/build/ti.constants.gradle"
+}
+
+task clean(type: Delete) {
+	delete rootProject.buildDir
+}

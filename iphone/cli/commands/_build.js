@@ -2114,23 +2114,20 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 			function determineMinIosVer() {
 				// figure out the min-ios-ver that this app is going to support
-				let defaultMinIosSdk = this.packageJson.minIosVersion;
+				let defaultMinIosVersion = this.packageJson.minIosVersion;
 
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '9.0')) {
-					defaultMinIosSdk = '9.0';
-				}
+				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosVersion;
 
-				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
-
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '9.0')) {
-					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '9.0'));
-					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '9.0'));
-				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
-					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
-					this.minIosVer = defaultMinIosSdk;
-				} else if (version.lt(this.minIosVer, defaultMinIosSdk)) {
-					logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(defaultMinIosSdk, 2).cyan));
-					this.minIosVer = defaultMinIosSdk;
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '10.0')) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '10.0'));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '10.0'));
+					this.minIosVer = defaultMinIosVersion;
+				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosVersion)) {
+					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosVersion.cyan));
+					this.minIosVer = defaultMinIosVersion;
+				} else if (version.lt(this.minIosVer, defaultMinIosVersion)) {
+					logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(defaultMinIosVersion, 2).cyan));
+					this.minIosVer = defaultMinIosVersion;
 				} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
 					logger.error(__('The <min-ios-ver> of the iOS section in the tiapp.xml is set to %s and is greater than the specified iOS version %s', version.format(this.minIosVer, 2), version.format(this.iosSdkVersion, 2)));
 					logger.error(__('Either rerun with --ios-version %s or set the <min-ios-ver> to %s.', version.format(this.minIosVer, 2), version.format(this.iosSdkVersion, 2)) + '\n');
@@ -4682,7 +4679,8 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles(next) {
 			beforeCopy: function (srcFile, destFile, srcStat) {
 				this.unmarkBuildDirFile(destFile);
 
-				if (path.basename(srcFile) === 'Info.plist') {
+				// Only check source Info.plist files, not compiled framework Info.plist files
+				if (path.basename(srcFile) === 'Info.plist' && !srcFile.includes('.framework')) {
 					// validate the info.plist
 					const infoPlist = new appc.plist(srcFile);
 					if (infoPlist.WKWatchKitApp) {
@@ -5771,14 +5769,29 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 					Object.keys(imageAssets).forEach(function (file) {
+						const directories = file.split('/');
+						let newPath = '';
+						for (let i = 0; i < directories.length - 1; i++) {
+							newPath = newPath + '/' + directories[i];
+
+							writeAssetContentsFile.call(this, path.join(assetCatalog, newPath, 'Contents.json'), {
+								info: {
+									version: 1,
+									author: 'xcode'
+								},
+								properties: {
+									'provides-namespace': true
+								},
+							});
+						}
+
 						const imageName = imageAssets[file].name,
 							match = file.match(imageNameRegExp);
 
 						if (match) {
 							const imageExt = imageAssets[file].ext;
 							const imageSetName = match[1];
-							const imageSetNameSHA = sha1(imageSetName + '.' + imageExt);
-							const imageSetRelPath = imageSetNameSHA + '.imageset';
+							const imageSetRelPath = imageSetName + '.imageset';
 
 							// update image file's destination
 							const dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
@@ -6017,7 +6030,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							resourcesDir: this.xcodeAppDir,
 							logger: this.logger,
 							targets: {
-								ios: this.minSupportedIosSdk
+								ios: this.minIosVersion
 							}
 						}
 					});

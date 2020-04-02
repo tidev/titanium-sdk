@@ -217,6 +217,7 @@ events:
         constants: Titanium.Media.AUDIO_STATE_*
       - name: description
         summary: Text description of the state of playback.
+        type: Number
 
   - name: complete
     summary: Fired when the audio has finished playing.
@@ -271,6 +272,7 @@ events:
     properties:
       - name: progress
         summary: Current progress, in milliseconds.
+        type: Number
         
   - name: seek
     summary: Fired once the [seekToTime](Titanium.Media.AudioPlayer.seek) method completes.
@@ -282,6 +284,8 @@ events:
             If the new request completes without being interrupted by another seek 
             request or by any other operation this event will be invoked with 
             the `finished` parameter set to `true`. 
+        type: Boolean
+    platforms: [iphone, ipad]
 properties:
   - name: STATE_BUFFERING
     summary: Audio data is being buffered from the network.

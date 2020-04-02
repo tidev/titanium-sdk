@@ -22,29 +22,23 @@ public class ProcessingInstructionProxy extends NodeProxy
 		this.pi = pi;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getData()
-	// clang-format on
 	{
 		return pi.getData();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTarget()
-	// clang-format on
 	{
 		return pi.getTarget();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setData(String data) throws DOMException
-	// clang-format on
 	{
 		pi.setData(data);
 	}

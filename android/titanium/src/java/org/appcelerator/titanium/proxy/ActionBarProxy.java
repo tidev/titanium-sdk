@@ -11,14 +11,13 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.graphics.drawable.Drawable;
-import android.os.Message;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, TiC.PROPERTY_CUSTOM_VIEW })
@@ -42,11 +41,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
-	// clang-format on
 	{
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
@@ -55,11 +52,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
-	// clang-format on
 	{
 		if (actionBar != null) {
 			actionBar.setHomeButtonEnabled(homeButtonEnabled);
@@ -68,20 +63,16 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setNavigationMode(int navigationMode)
-	// clang-format on
 	{
 		actionBar.setNavigationMode(navigationMode);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBackgroundImage(String url)
-	// clang-format on
 	{
 		if (actionBar == null) {
 			Log.w(TAG, "ActionBar is not enabled");
@@ -97,11 +88,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setTitle(String title)
-	// clang-format on
 	{
 		if (actionBar != null) {
 			actionBar.setTitle(title);
@@ -110,11 +99,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setSubtitle(String subTitle)
-	// clang-format on
 	{
 		if (actionBar != null) {
 			actionBar.setDisplayShowTitleEnabled(true);
@@ -141,11 +128,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSubtitle()
-	// clang-format on
 	{
 		if (actionBar == null) {
 			return null;
@@ -153,11 +138,9 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getSubtitle();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
-	// clang-format on
 	{
 		if (actionBar == null) {
 			return null;
@@ -165,11 +148,9 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getTitle();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getNavigationMode()
-	// clang-format on
 	{
 		if (actionBar == null) {
 			return 0;
@@ -197,11 +178,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setLogo(String url)
-	// clang-format on
 	{
 		if (actionBar == null) {
 			Log.w(TAG, "ActionBar is not enabled");
@@ -214,11 +193,9 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setIcon(String url)
-	// clang-format on
 	{
 		if (actionBar == null) {
 			Log.w(TAG, "ActionBar is not enabled");

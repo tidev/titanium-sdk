@@ -16,7 +16,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;
@@ -112,8 +112,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
-	public static interface ActivityTransitionListener {
-		public void onActivityTransition(boolean state);
+	public interface ActivityTransitionListener {
+		void onActivityTransition(boolean state);
 	}
 
 	public static void addActivityTransitionListener(ActivityTransitionListener a)
@@ -159,6 +159,18 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static TiApplication getInstance()
 	{
 		return tiApp;
+	}
+
+	/**
+	 * Determine if activity is first on stack.
+	 * @return boolean to determine if activity is first.
+	 */
+	public static boolean firstOnActivityStack()
+	{
+		if (activityStack.size() == 1) {
+			return true;
+		}
+		return false;
 	}
 
 	public static void addToActivityStack(Activity activity)
@@ -300,12 +312,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected void loadBuildProperties()
 	{
 		// Initialize build property member variables.
-		this.buildVersion = "1.0";
+		this.buildVersion = "1.0.0";
 		this.buildTimestamp = "N/A";
 		this.buildHash = "N/A";
 
 		// Attempt to read the "build.properties" file.
-		try (InputStream stream = KrollAssetHelper.openAsset("Resources/ti.internal/build.properties")) {
+		try (InputStream stream = getAssets().open("Resources/ti.internal/build.properties")) {
 			if (stream != null) {
 				Properties properties = new Properties();
 				properties.load(stream);
@@ -343,6 +355,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
+
+		loadBuildProperties();
 
 		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -411,6 +425,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// Release all the cached images
 		TiBlobLruCache.getInstance().evictAll();
 		TiImageLruCache.getInstance().evictAll();
+
+		// Perform hard garbage collection to reclaim memory.
+		KrollRuntime instance = KrollRuntime.getInstance();
+		if (instance != null) {
+			instance.hardGC();
+		}
+
 		super.onLowMemory();
 	}
 
@@ -422,6 +443,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			// Release all the cached images
 			TiBlobLruCache.getInstance().evictAll();
 			TiImageLruCache.getInstance().evictAll();
+
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
 		super.onTrimMemory(level);
 	}
@@ -456,8 +483,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postOnCreate()
 	{
-		loadBuildProperties();
-
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		if (runtime != null) {
 			Log.i(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
@@ -769,6 +794,35 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return false;
 	}
 
+	public static void launch()
+	{
+		final TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity == null) {
+			return;
+		}
+
+		// Fetch a path to the main script that was last loaded.
+		String appPath = rootActivity.getUrl();
+		if ((appPath == null) || appPath.isEmpty()) {
+			return;
+		}
+		appPath = "Resources/" + appPath;
+
+		final KrollRuntime runtime = KrollRuntime.getInstance();
+		final boolean hasSnapshot = runtime.evalString("global._startSnapshot") != null;
+		if (hasSnapshot) {
+
+			// Snapshot available, start snapshot.
+			runtime.doRunModule("global._startSnapshot(global)", appPath, rootActivity.getActivityProxy());
+
+		} else {
+
+			// Could not find snapshot, fallback to launch script.
+			runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath,
+									 rootActivity.getActivityProxy());
+		}
+	}
+
 	public void softRestart()
 	{
 		// Fetch the root activity hosting the JavaScript runtime.
@@ -795,13 +849,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			return;
 		}
 
-		// Fetch a path to the main script that was last loaded.
-		String appPath = rootActivity.getUrl();
-		if ((appPath == null) || appPath.isEmpty()) {
-			return;
-		}
-		appPath = "Resources/" + appPath;
-
 		// Prevent termination of root activity.
 		boolean canFinishRoot = TiBaseActivity.canFinishRoot;
 		TiBaseActivity.canFinishRoot = false;
@@ -820,7 +867,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		runtime.initRuntime();
 
 		// manually re-launch app
-		runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath, rootActivity.getActivityProxy());
+		TiApplication.launch();
 	}
 
 	@Override

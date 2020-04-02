@@ -223,7 +223,7 @@ properties:
     summary: Shadow offset of the [title](Titanium.UI.Button.title), as a dictionary with the properties `x` and `y`.
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowRadius](Titanium.UI.Button.shadowRadius).
-    type: Dictionary
+    type: Point
     platforms: [android]
     since: "3.2.0"
 

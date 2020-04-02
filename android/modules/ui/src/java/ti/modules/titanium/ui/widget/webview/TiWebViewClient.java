@@ -112,9 +112,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 		}
 		KrollDict data = new KrollDict();
 		data.put("url", failingUrl);
-		data.put("errorCode", errorCode);
 		data.putCodeAndMessage(errorCode, description);
-		data.put("message", description);
 		proxy.fireEvent("error", data);
 	}
 
@@ -148,10 +146,6 @@ public class TiWebViewClient extends WebViewClientClassicExt
 					data.put("url", url);
 					data.put("message", "Webview did not load blacklisted url.");
 					proxy.fireEvent(TiC.PROPERTY_BLACKLIST_URL, data);
-
-					// Deprecated since 6.1.0, leave here until we remove it (7.0.0?)
-					proxy.fireEvent(TiC.PROPERTY_ON_STOP_BLACKLISTED_URL, data);
-
 					return true;
 				}
 			}

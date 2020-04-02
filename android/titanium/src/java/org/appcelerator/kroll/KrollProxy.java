@@ -32,7 +32,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Pair;
 
 import org.json.JSONObject;
@@ -765,20 +764,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		krollObject.setProperty(name, value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBubbleParent()
-	// clang-format on
 	{
 		return bubbleParent;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBubbleParent(Object value)
-	// clang-format on
 	{
 		bubbleParent = TiConvert.toBoolean(value);
 	}
@@ -927,37 +922,43 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 						krollData.remove(TiC.PROPERTY_SUCCESS);
 						krollData.remove(TiC.PROPERTY_CODE);
 					} else {
-						Log.w(
-							TAG,
-							"DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-							Log.DEBUG_MODE);
+						String warningMessage
+							= "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true"
+							+ " if and only if code is nonzero. For java modules, consider the putCodeAndMessage()"
+							+ " method to do this for you. The capability to use other types will be removed in a"
+							+ " future version.";
+						Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 					}
 				} else if (successValue) {
-					Log.w(
-						TAG,
-						"DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-						Log.DEBUG_MODE);
+					String warningMessage
+						= "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property"
+						+ " that is 0. For java modules, consider the putCodeAndMessage() method to do this for you."
+						+ " The capability to use other types will be removed in a future version.";
+					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				} else {
-					Log.w(
-						TAG,
-						"DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-						Log.DEBUG_MODE);
+					String warningMessage
+						= "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property"
+						+ " that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for"
+						+ " you. The capability to use other types will be removed in a future version.";
+					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				}
 			} else if (hashValue != null) {
-				Log.w(
-					TAG,
-					"DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-					Log.DEBUG_MODE);
+				String warningMessage
+					= "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java"
+					+ " modules, consider the putCodeAndMessage() method to do this for you. The capability to use"
+					+ " other types will be removed in a future version.";
+				Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
 			if (hashValue instanceof String) {
 				message = (String) hashValue;
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
 			} else if (hashValue != null) {
-				Log.w(
-					TAG,
-					"DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-					Log.DEBUG_MODE);
+				String warningMessage
+					= "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules,"
+					+ " consider the putCodeAndMessage() method to do this for you. The capability to use other types"
+					+ " will be removed in a future version.";
+				Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (hashValue instanceof KrollProxy) {
@@ -974,57 +975,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		return krollObject.fireEvent(source, event, krollData, bubbles, reportSuccess, code, message);
-	}
-
-	/**
-	 * Our view proxy supports three properties to match iOS regarding
-	 * the text that is read aloud (or otherwise communicated) by the
-	 * assistive technology: accessibilityLabel, accessibilityHint
-	 * and accessibilityValue.
-	 *
-	 * We combine these to create the single Android property contentDescription.
-	 * (e.g., View.setContentDescription(...));
-	 */
-	public String composeContentDescription()
-	{
-		if (properties == null) {
-			return null;
-		}
-
-		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
-		StringBuilder buffer = new StringBuilder();
-		String label = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
-		String hint = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
-		String value = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
-
-		if (!TextUtils.isEmpty(label)) {
-			buffer.append(label);
-			if (!label.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		if (!TextUtils.isEmpty(value)) {
-			if (buffer.length() > 0) {
-				buffer.append(" ");
-			}
-			buffer.append(value);
-			if (!value.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		if (!TextUtils.isEmpty(hint)) {
-			if (buffer.length() > 0) {
-				buffer.append(" ");
-			}
-			buffer.append(hint);
-			if (!hint.matches(punctuationPattern)) {
-				buffer.append(".");
-			}
-		}
-
-		return buffer.toString();
 	}
 
 	public void firePropertyChanged(String name, Object oldValue, Object newValue)
@@ -1485,11 +1435,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	// For subclasses to override
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getApiName()
-	// clang-format on
 	{
 		return "Ti.Proxy";
 	}

@@ -13,7 +13,6 @@ import android.graphics.Color;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -25,7 +24,8 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
-// clang-format off
+import android.view.View;
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_HAS_CHECK,
@@ -38,7 +38,6 @@ import android.os.Message;
 		TiC.PROPERTY_HEADER,
 		TiC.PROPERTY_FOOTER
 })
-// clang-format on
 public class TableViewRowProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewRowProxy";
@@ -171,6 +170,16 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 	}
 
+	@Override
+	public KrollDict getRect()
+	{
+		View v = null;
+		if (tableViewItem != null) {
+			v = tableViewItem.getContentView();
+		}
+		return getViewRect(v);
+	}
+
 	public void setTableViewItem(TiTableViewRowProxyItem item)
 	{
 		this.tableViewItem = item;
@@ -201,9 +210,14 @@ public class TableViewRowProxy extends TiViewProxy
 			if (tableViewItem != null) {
 				tableViewItem.setRowData(this);
 				// update/refresh table view when a row's data changed.
-				TiUITableView table = getTable().getTableView();
-				table.setModelDirty();
-				table.updateView();
+				TableViewProxy proxy = getTable();
+				if (proxy != null) {
+					TiUITableView table = (TiUITableView) proxy.peekView();
+					if (table != null) {
+						table.setModelDirty();
+						table.updateView();
+					}
+				}
 			}
 			return true;
 		}

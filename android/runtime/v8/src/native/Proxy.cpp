@@ -124,7 +124,7 @@ void Proxy::getProperty(const FunctionCallbackInfo<Value>& args)
 
 	// Spit out deprecation notice to use normal property getter
 	v8::String::Utf8Value propertyKey(isolate, name);
-	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.%s; or obj['%s'];", *propertyKey, *propertyKey);
+	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please access the property in standard JS style: obj.%s; or obj['%s'];", *propertyKey, *propertyKey);
 
 	args.GetReturnValue().Set(getPropertyForProxy(isolate, name, args.Holder()));
 }
@@ -197,7 +197,8 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
-	onPropertyChangedForProxy(isolate, property->ToString(isolate), value, info.Holder());
+	Local<Context> context = isolate->GetCurrentContext();
+	onPropertyChangedForProxy(isolate, property->ToString(context).ToLocalChecked(), value, info.Holder());
 }
 
 // This variant is used when accessing a property through a getter method (i.e. setText('whatever'))
@@ -212,10 +213,11 @@ void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Local<Name> name = args.Data().As<Name>();
 	// Spit out deprecation notice to use normal property setter, not setX() style method.
 	v8::String::Utf8Value propertyKey(isolate, name);
-	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%s = value; or obj['%s'] = value;", *propertyKey, *propertyKey);
+	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please modify the property in standard JS style: obj.%s = value; or obj['%s'] = value;", *propertyKey, *propertyKey);
 
 	Local<Value> value = args[0];
-	onPropertyChangedForProxy(isolate, name->ToString(isolate), value, args.Holder());
+	Local<Context> context = isolate->GetCurrentContext();
+	onPropertyChangedForProxy(isolate, name->ToString(context).ToLocalChecked(), value, args.Holder());
 }
 
 void Proxy::getIndexedProperty(uint32_t index, const PropertyCallbackInfo<Value>& info)

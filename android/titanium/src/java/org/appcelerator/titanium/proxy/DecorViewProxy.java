@@ -15,9 +15,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.View;
 
 @Kroll.proxy

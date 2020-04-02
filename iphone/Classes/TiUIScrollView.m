@@ -147,7 +147,6 @@
 
 - (void)adjustScrollViewInsets
 {
-#if IS_SDK_IOS_11
   id viewProxy = self.proxy;
   while (viewProxy && ![viewProxy isKindOfClass:[TiWindowProxy class]]) {
     viewProxy = [viewProxy parent];
@@ -160,7 +159,6 @@
       [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
     }
   }
-#endif
 }
 
 - (id)accessibilityElement
@@ -369,11 +367,7 @@
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     refreshControl = [args retain];
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[self scrollView] setRefreshControl:refreshControl.control];
-    } else {
-      [[self scrollView] addSubview:refreshControl.control];
-    }
+    [[self scrollView] setRefreshControl:refreshControl.control];
   }
 #endif
 }

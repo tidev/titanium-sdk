@@ -21,6 +21,7 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'mukherjee2@users.noreply.github.com',
 	'14187093+Sajoha@users.noreply.github.com'
 ];
+// TODO: Skip bots like dependabot!
 
 // others use our company email addresses
 const KNOWN_EMPLOYEE_EMAIL_DOMAINS = [
@@ -92,10 +93,48 @@ function guessPreviousBranch(version) {
 	// ideally it should be like "v1.2.3", but we're doing like '8_1_1_GA' so far
 }
 
+function urlToVersion(url) {
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
+}
+
+function gatherModules() {
+	const modulesJSON = fs.readJSONSync(path.join(__dirname, '../support/module/packaged/modules.json'));
+	const modules = new Map();
+	// Android
+	Object.entries(modulesJSON.android).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		modules.set(moduleId, { name: moduleId, android: version, ios: 'n/a' });
+	});
+	// iOS
+	Object.entries(modulesJSON.ios).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		if (modules.has(moduleId)) {
+			const androidVersion = modules.get(moduleId).android;
+			modules.set(moduleId, { name: moduleId, android: androidVersion, ios: version });
+		} else {
+			modules.set(moduleId, { name: moduleId, android: 'n/a', ios: version });
+		}
+	});
+	// CommonJS
+	Object.entries(modulesJSON.commonjs).forEach(entry => {
+		const moduleId = entry[0];
+		const version = urlToVersion(entry[1].url);
+		modules.set(moduleId, { name: moduleId, android: version, ios: version });
+	});
+	// Hyperloop
+	const hyperloopVersion = urlToVersion(modulesJSON.hyperloop.hyperloop.url);
+	modules.set('hyperloop', { name: 'hyperloop', android: hyperloopVersion, ios: hyperloopVersion });
+
+	return modules;
+}
+
 /**
  * Gather up the community contributions to thank them specifically
  */
 const communityContributions = new Map();
+const breakingChanges = []; // gathe rthe breaking changes specially
 
 module.exports = {
 	gitRawCommitsOpts: {
@@ -105,14 +144,16 @@ module.exports = {
 	},
 	writerOpts: {
 		transform: function (commit) {
-			// flag to not end up discarding breaking changes regardless of commit type
 			let discard = true;
 			let community = false;
+			let breaking = false;
 
-			// Don't discard breaking change commits!
+			// Special handling of breaking changes. We gather them in a separate array
+			// and place them all together (so discard them from the normal listings)
 			commit.notes.forEach(note => {
 				note.title = 'BREAKING CHANGES';
-				discard = false;
+				discard = true;
+				breaking = true;
 			});
 
 			// check authorName/authorEmail against known axway employee list or some whitelist or something to determine community credits?
@@ -121,7 +162,8 @@ module.exports = {
 				const domain = emailParts[1];
 				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
 					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
-					&& !commit.authorEmail.includes('greenkeeper[bot]')) {
+					&& !commit.authorEmail.includes('greenkeeper[bot]')
+					&& !commit.authorEmail.includes('dependabot-preview[bot]')) {
 					// If this is a noreply github email address, strip it to username so we can link to them
 					// if (domain === 'users.noreply.github.com') {
 					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
@@ -149,7 +191,7 @@ module.exports = {
 				commit.type = 'Bug Fixes';
 			} else if (commit.type === 'perf') {
 				commit.type = 'Performance Improvements';
-			} else if (discard && !community) {
+			} else if (discard && !community && !breaking) {
 				return; // ignore this commit!
 			// Only retain other types of commits if they somehow contain breaking changes...
 			} else if (commit.type === 'revert') {
@@ -214,6 +256,16 @@ module.exports = {
 				}
 			}
 
+			// was this a breaking change? We have a special place for that!
+			if (breaking) {
+				breakingChanges.push(commit);
+				// it may have been a refactoring or other change we don't normally list,
+				// so don't include whatever random category it was
+				if (discard) {
+					return;
+				}
+			}
+
 			return commit;
 		},
 		finalizeContext: function (context) {
@@ -237,6 +289,19 @@ module.exports = {
 				};
 			});
 
+			// HACK the breaking change commits into one heading with sub-headings by platform
+			const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
+			const scopeGroups = [];
+			grouped.forEach((val, key) => {
+				scopeGroups.push({ title: key, commits: val });
+			});
+			context.noteGroups = [
+				{
+					title: 'BREAKING CHANGES',
+					scopeGroups
+				}
+			];
+
 			// convert communityContributions from map to array of objects!
 			context.communityContributions = [];
 			communityContributions.forEach((value, key) => {
@@ -246,7 +311,7 @@ module.exports = {
 				});
 			});
 
-			// We need to know not onlif it a release is a patch release, but also if its major or minor
+			// We need to know not only if it a release is a patch release, but also if its major or minor
 			if (context.version && semver.valid(context.version)) {
 				context.isMajor = !context.isPatch && semver.minor(context.version) === 0;
 			}
@@ -273,16 +338,20 @@ module.exports = {
 			}
 			context.eosDate = dateFormat(eosDate, 'yyyy-mm-dd', true);
 
-			// TODO: Gather up the modules shipped with this version and toss into a variable we can put into the changelog?
+			// Gather up the modules shipped with this version and toss into a variable we can put into the changelog
+			const modules = gatherModules();
+			context.modules = Array.from(modules.values());
 
 			return context;
 		},
 		commitPartial: fs.readFileSync(path.join(__dirname, 'templates/commit.hbs'), 'utf8'),
 		headerPartial: fs.readFileSync(path.join(__dirname, 'templates/header.hbs'), 'utf8'),
+		footerPartial: fs.readFileSync(path.join(__dirname, 'templates/footer.hbs'), 'utf8'),
 		mainTemplate: fs.readFileSync(path.join(__dirname, 'templates/template.hbs'), 'utf8'),
 		partials: {
 			about: fs.readFileSync(path.join(__dirname, 'templates/about.hbs'), 'utf8'),
 			credits: fs.readFileSync(path.join(__dirname, 'templates/credits.hbs'), 'utf8'),
+			modules: fs.readFileSync(path.join(__dirname, 'templates/modules.hbs'), 'utf8'),
 		},
 		groupBy: 'type',
 		commitGroupsSort: 'title', // FIXME: Sort so features comes before bug fixes, then perf improvements? Can we bake in community credits?

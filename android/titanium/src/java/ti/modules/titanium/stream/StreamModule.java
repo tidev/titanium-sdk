@@ -62,7 +62,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void read(TiStream sourceStream, BufferProxy buffer, KrollFunction resultsCallback)
 	//public void read(TiStream sourceStream, BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
-	public void read(Object args[]) throws Exception
+	public void read(Object[] args) throws Exception
 	{
 		if (args.length == 0) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -82,7 +82,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public BufferProxy readAll(TiStream sourceStream) throws IOException
 	//public void readAll(final TiStream sourceStream, final BufferProxy buffer, final KrollFunction resultsCallback)
-	public Object readAll(Object args[]) throws IOException
+	public Object readAll(Object[] args) throws IOException
 	{
 		if (args.length != 1 && args.length != 3) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -130,8 +130,8 @@ public class StreamModule extends KrollModule
 			public void run()
 			{
 				int offset = 0;
-				int errorState = 0;
-				String errorDescription = "";
+				int code = 0;
+				String error = "";
 
 				if (fbuffer.getLength() < 1024) {
 					fbuffer.resize(1024);
@@ -141,13 +141,12 @@ public class StreamModule extends KrollModule
 					readAllSync(fsourceStream, fbuffer, offset);
 
 				} catch (IOException e) {
-					errorState = 1;
-					errorDescription = e.getMessage();
+					code = 1;
+					error = e.getMessage();
 				}
 
-				fResultsCallback.callAsync(getKrollObject(),
-										   TiStreamHelper.buildRWCallbackArgs(fsourceStream, fbuffer.getLength(),
-																			  errorState, errorDescription));
+				fResultsCallback.callAsync(getKrollObject(), TiStreamHelper.buildRWCallbackArgs(
+																 fsourceStream, fbuffer.getLength(), code, error));
 			}
 		})
 			.start();
@@ -176,7 +175,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void write(TiStream outputStream, BufferProxy buffer, KrollFunction resultsCallback)
 	//public void write(TiStream outputStream, BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
-	public void write(Object args[]) throws Exception
+	public void write(Object[] args) throws Exception
 	{
 		if (args.length == 0) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -198,7 +197,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize) throws IOException
 	//public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize, KrollFunction resultsCallback)
-	public int writeStream(Object args[]) throws IOException
+	public int writeStream(Object[] args) throws IOException
 	{
 		if (args.length < 3 || args.length > 4) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -247,20 +246,20 @@ public class StreamModule extends KrollModule
 			public void run()
 			{
 				int totalBytesWritten = 0;
-				int errorState = 0;
-				String errorDescription = "";
+				int code = 0;
+				String error = "";
 
 				try {
 					totalBytesWritten = writeStreamSync(finputStream, foutputStream, fmaxChunkSize);
 
 				} catch (IOException e) {
-					errorState = 1;
-					errorDescription = e.getMessage();
+					code = 1;
+					error = e.getMessage();
 				}
 
-				fResultsCallback.callAsync(getKrollObject(),
-										   buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten,
-																		errorState, errorDescription));
+				fResultsCallback.callAsync(
+					getKrollObject(),
+					buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten, code, error));
 			}
 		})
 			.start();
@@ -290,7 +289,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void pump(TiStream inputStream, KrollFunction handler, int maxChunkSize)
 	//public void pump(TiStream inputStream, KrollFunction handler, int maxChunkSize, boolean isAsync)
-	public void pump(Object args[])
+	public void pump(Object[] args)
 	{
 		if (args.length != 3 && args.length != 4) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -352,8 +351,6 @@ public class StreamModule extends KrollModule
 	private void pumpSync(TiStream inputStream, KrollFunction handler, int maxChunkSize)
 	{
 		int totalBytesRead = 0;
-		int errorState = 0;
-		String errorDescription = "";
 		final KrollObject krollObject = getKrollObject();
 		try {
 			while (inputStream.isReadable()) {
@@ -371,8 +368,7 @@ public class StreamModule extends KrollModule
 					}
 				}
 
-				handler.call(krollObject, buildPumpCallbackArgs(inputStream, buffer, bytesRead, totalBytesRead,
-																errorState, errorDescription));
+				handler.call(krollObject, buildPumpCallbackArgs(inputStream, buffer, bytesRead, totalBytesRead, 0, ""));
 				buffer = null;
 
 				if (bytesRead == -1) {
@@ -381,38 +377,32 @@ public class StreamModule extends KrollModule
 			}
 
 		} catch (IOException e) {
-			errorState = 1;
-			errorDescription = e.getMessage();
-			handler.call(krollObject, buildPumpCallbackArgs(inputStream, new BufferProxy(), 0, totalBytesRead,
-															errorState, errorDescription));
+			handler.call(krollObject,
+						 buildPumpCallbackArgs(inputStream, new BufferProxy(), 0, totalBytesRead, 1, e.getMessage()));
 		}
 	}
 
-	private KrollDict buildWriteStreamCallbackArgs(TiStream fromStream, TiStream toStream, int bytesProcessed,
-												   int errorState, String errorDescription)
+	private KrollDict buildWriteStreamCallbackArgs(TiStream fromStream, TiStream toStream, int bytesProcessed, int code,
+												   String error)
 	{
 		KrollDict callbackArgs = new KrollDict();
 		callbackArgs.put("fromStream", fromStream);
 		callbackArgs.put("toStream", toStream);
 		callbackArgs.put("bytesProcessed", bytesProcessed);
-		callbackArgs.put("errorState", errorState);
-		callbackArgs.put("errorDescription", errorDescription);
-		callbackArgs.putCodeAndMessage(errorState, errorDescription);
+		callbackArgs.putCodeAndMessage(code, error);
 
 		return callbackArgs;
 	}
 
 	private KrollDict buildPumpCallbackArgs(TiStream sourceStream, BufferProxy buffer, int bytesProcessed,
-											int totalBytesProcessed, int errorState, String errorDescription)
+											int totalBytesProcessed, int code, String error)
 	{
 		KrollDict callbackArgs = new KrollDict();
 		callbackArgs.put("source", sourceStream);
 		callbackArgs.put("buffer", buffer);
 		callbackArgs.put("bytesProcessed", bytesProcessed);
 		callbackArgs.put("totalBytesProcessed", totalBytesProcessed);
-		callbackArgs.put("errorState", errorState);
-		callbackArgs.put("errorDescription", errorDescription);
-		callbackArgs.putCodeAndMessage(errorState, errorDescription);
+		callbackArgs.putCodeAndMessage(code, error);
 
 		return callbackArgs;
 	}
