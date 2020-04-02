@@ -122,9 +122,10 @@ static NSArray *popoverSequence;
   [self replaceValue:actualArgs forKey:@"passthroughViews" notification:NO];
 
   if (popoverInitialized) {
-    TiThreadPerformOnMainThread(^{
-      [self updatePassThroughViews];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updatePassThroughViews];
+        },
         NO);
   }
 }
@@ -179,9 +180,10 @@ static NSArray *popoverSequence;
   [popOverCondition unlock];
   popoverInitialized = YES;
 
-  TiThreadPerformOnMainThread(^{
-    [self initAndShowPopOver];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self initAndShowPopOver];
+      },
       YES);
 }
 
@@ -197,14 +199,15 @@ static NSArray *popoverSequence;
   isDismissing = YES;
   [closingCondition unlock];
 
-  TiThreadPerformOnMainThread(^{
-    [contentViewProxy windowWillClose];
-    animated = [TiUtils boolValue:@"animated" properties:args def:NO];
-    [[self viewController] dismissViewControllerAnimated:animated
-                                              completion:^{
-                                                [self cleanup];
-                                              }];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [contentViewProxy windowWillClose];
+        animated = [TiUtils boolValue:@"animated" properties:args def:NO];
+        [[self viewController] dismissViewControllerAnimated:animated
+                                                  completion:^{
+                                                    [self cleanup];
+                                                  }];
+      },
       NO);
 }
 

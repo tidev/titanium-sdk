@@ -196,9 +196,10 @@ DEFINE_EXCEPTIONS
   if ([NSThread isMainThread]) {
     [super removeFromSuperview];
   } else {
-    TiThreadPerformOnMainThread(^{
-      [super removeFromSuperview];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [super removeFromSuperview];
+        },
         YES);
   }
 }
@@ -532,9 +533,10 @@ DEFINE_EXCEPTIONS
 - (void)renderRepeatedBackground:(id)image
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self renderRepeatedBackground:image];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self renderRepeatedBackground:image];
+        },
         NO);
     return;
   }

@@ -689,9 +689,10 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
                                  userInfo:nil];
   }
   stopped = NO;
-  TiThreadPerformOnMainThread(^{
-    [self main];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self main];
+      },
       NO);
 }
 

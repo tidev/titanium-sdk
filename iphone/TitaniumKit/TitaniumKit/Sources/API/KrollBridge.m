@@ -108,9 +108,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
     OSSpinLockLock(&krollBridgeRegistryLock);
     CFSetAddValue(krollBridgeRegistry, self);
     OSSpinLockUnlock(&krollBridgeRegistryLock);
-    TiThreadPerformOnMainThread(^{
-      [self registerForMemoryWarning];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self registerForMemoryWarning];
+        },
         NO);
   }
   return self;
@@ -581,9 +582,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)didStopNewContext:(KrollContext *)kroll
 {
-  TiThreadPerformOnMainThread(^{
-    [self unregisterForMemoryWarning];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self unregisterForMemoryWarning];
+      },
       NO);
   [self removeProxies];
   RELEASE_TO_NIL(console);
