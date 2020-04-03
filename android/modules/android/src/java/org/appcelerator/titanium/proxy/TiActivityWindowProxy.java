@@ -14,7 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.android.AndroidModule;
 import android.app.Activity;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class TiActivityWindowProxy extends TiWindowProxy
