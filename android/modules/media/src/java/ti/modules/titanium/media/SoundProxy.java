@@ -117,20 +117,16 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 			  Log.DEBUG_MODE);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getUrl()
-	// clang-format on
 	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setUrl(Object url)
-	// clang-format on
 	{
 		String path = parseURL(url);
 		if (path != null) {
@@ -138,29 +134,23 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getAudioType()
-	// clang-format on
 	{
 		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_TYPE));
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setAudioType(int val)
-	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_AUDIO_TYPE, val);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isPlaying()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -169,11 +159,9 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return false;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isPaused()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -182,11 +170,9 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return false;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isLooping()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -195,11 +181,9 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return false;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setLooping(boolean looping)
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -266,11 +250,9 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getDuration()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -280,11 +262,9 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return 0;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getTime()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -294,11 +274,9 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setTime(Object pos)
-	// clang-format on
 	{
 		if (pos != null) {
 			TiSound s = getSound();

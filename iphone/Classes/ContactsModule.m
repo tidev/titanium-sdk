@@ -154,17 +154,18 @@ static NSArray *contactKeysWithoutImage;
     [invocationArray release];
     return;
   }
-  TiThreadPerformOnMainThread(^() {
-    CNContactStore *ourContactStore = [self contactStore];
-    [ourContactStore requestAccessForEntityType:CNEntityTypeContacts
-                              completionHandler:^(BOOL granted, NSError *error) {
-                                NSString *errorMessage = granted ? nil : @"The user has denied access to the address book";
-                                NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code] message:errorMessage];
-                                KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
-                                [[callback context] enqueue:invocationEvent];
-                                RELEASE_TO_NIL(invocationEvent);
-                              }];
-  },
+  TiThreadPerformOnMainThread(
+      ^() {
+        CNContactStore *ourContactStore = [self contactStore];
+        [ourContactStore requestAccessForEntityType:CNEntityTypeContacts
+                                  completionHandler:^(BOOL granted, NSError *error) {
+                                    NSString *errorMessage = granted ? nil : @"The user has denied access to the address book";
+                                    NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code] message:errorMessage];
+                                    KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
+                                    [[callback context] enqueue:invocationEvent];
+                                    RELEASE_TO_NIL(invocationEvent);
+                                  }];
+      },
       NO);
 }
 
@@ -246,9 +247,10 @@ static NSArray *contactKeysWithoutImage;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getPersonByIdentifier:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getPersonByIdentifier:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -277,9 +279,10 @@ static NSArray *contactKeysWithoutImage;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getGroupByIdentifier:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getGroupByIdentifier:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -306,9 +309,10 @@ static NSArray *contactKeysWithoutImage;
 
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getPeopleWithName:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getPeopleWithName:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -346,9 +350,10 @@ static NSArray *contactKeysWithoutImage;
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getAllPeople:unused] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getAllPeople:unused] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -390,9 +395,10 @@ static NSArray *contactKeysWithoutImage;
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getAllGroups:unused] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getAllGroups:unused] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -421,9 +427,10 @@ static NSArray *contactKeysWithoutImage;
 
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createPerson:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createPerson:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -474,9 +481,10 @@ static NSArray *contactKeysWithoutImage;
 
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createGroup:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createGroup:arg] retain];
+        },
         YES);
     return [result autorelease];
   }

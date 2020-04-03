@@ -76,7 +76,7 @@
 
 - (id)ownerElement
 {
-  xmlNodePtr parentNode = [node XMLNode] -> parent;
+  xmlNodePtr parentNode = [node XMLNode]->parent;
   if (parentNode == NULL)
     return [NSNull null];
 
@@ -95,7 +95,7 @@
 - (id)specified
 {
   //TODO - Support for default values specified in the DTD.
-  if ([node XMLNode] -> parent == nil)
+  if ([node XMLNode]->parent == nil)
     return NUMBOOL(YES);
 
   return NUMBOOL(isSpecified);

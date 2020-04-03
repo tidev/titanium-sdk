@@ -87,7 +87,7 @@ class Console {
 			this._apiModule[level](string);
 		} else {
 			// Support Node.JS streams like stdout/stderr which don't have log levels
-			const useStdErr = (level === 'warn' || level === 'error');
+			const useStdErr = (level === 'warn' || level === 'error' || level === 'trace');
 			const stream = useStdErr ? this._stderr : this._stdout;
 
 			if (this._ignoreErrors === false) {
@@ -132,6 +132,10 @@ class Console {
 
 	debug(...args) {
 		this._writeToConsole('debug', formatWithOptions(kColorInspectOptions, ...args));
+	}
+
+	trace(...args) {
+		this._writeToConsole('trace', formatWithOptions(kColorInspectOptions, ...args));
 	}
 
 	clear() {} // no-op
@@ -215,6 +219,9 @@ Console.prototype.log = Console.prototype.info; // Treat log as alias to info
 Console.prototype.dirxml = Console.prototype.log; // Treat dirxml as alias to log
 Console.prototype.groupCollapsed = Console.prototype.group;
 
-global.console = new Console(Ti.API);
+const globalConsole = new Console(Ti.API);
+globalConsole.Console = Console;
 
-export default Console;
+global.console = globalConsole;
+
+export default globalConsole;

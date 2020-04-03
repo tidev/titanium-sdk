@@ -284,7 +284,7 @@ public class TiProperties
 	 * @return mapping of key, or default value.
 	 * @module.api
 	 */
-	public String[] getList(String key, String def[])
+	public String[] getList(String key, String[] def)
 	{
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "getList called with key:" + key + ", def:" + def);
@@ -295,7 +295,7 @@ public class TiProperties
 			return def;
 		}
 
-		String list[] = new String[length];
+		String[] list = new String[length];
 		for (int i = 0; i < length; i++) {
 			list[i] = preferences.getString(key + "." + i, "");
 		}

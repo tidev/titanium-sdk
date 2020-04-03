@@ -96,16 +96,18 @@
 - (void)_destroy
 {
   if (!closing && opened) {
-    TiThreadPerformOnMainThread(^{
-      [self close:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self close:nil];
+        },
         YES);
   }
 
-  TiThreadPerformOnMainThread(^{
-    [barImageView removeFromSuperview];
-    RELEASE_TO_NIL(barImageView);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [barImageView removeFromSuperview];
+        RELEASE_TO_NIL(barImageView);
+      },
       YES);
 
   if (context != nil) {
@@ -330,17 +332,18 @@
   __block TiColor *newColor = [TiUtils colorValue:color];
 
   [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    if (controller != nil) {
-      if (newColor == nil) {
-        //Get from TabGroup
-        newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-      }
-      UINavigationBar *navBar = [[controller navigationController] navigationBar];
-      [navBar setTintColor:[newColor color]];
-      [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (controller != nil) {
+          if (newColor == nil) {
+            //Get from TabGroup
+            newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+          }
+          UINavigationBar *navBar = [[controller navigationController] navigationBar];
+          [navBar setTintColor:[newColor color]];
+          [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+        }
+      },
       NO);
 }
 
@@ -491,9 +494,10 @@
 {
   [self replaceValue:value forKey:@"barImage" notification:NO];
   if (controller != nil) {
-    TiThreadPerformOnMainThread(^{
-      [self updateBarImage];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updateBarImage];
+        },
         NO);
   }
 }
@@ -502,9 +506,10 @@
 {
   [self replaceValue:value forKey:@"shadowImage" notification:NO];
   if (controller != nil) {
-    TiThreadPerformOnMainThread(^{
-      [self updateBarImage];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updateBarImage];
+        },
         NO);
   }
 }
@@ -513,9 +518,10 @@
 {
   [self replaceValue:value forKey:@"hideShadow" notification:NO];
   if (controller != nil) {
-    TiThreadPerformOnMainThread(^{
-      [self updateBarImage];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updateBarImage];
+        },
         NO);
   }
 }
@@ -604,9 +610,10 @@
 
   [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    [self refreshRightNavButtons:nil];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self refreshRightNavButtons:nil];
+      },
       NO);
 }
 
@@ -672,9 +679,10 @@
   }
   [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    [self refreshLeftNavButtons:nil];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self refreshLeftNavButtons:nil];
+      },
       NO);
 }
 
@@ -691,12 +699,13 @@
 - (void)setTabBarHidden:(id)value
 {
   [self replaceValue:value forKey:@"tabBarHidden" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    if (controller != nil) {
-      [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
-      [self processForSafeArea];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (controller != nil) {
+          [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
+          [self processForSafeArea];
+        }
+      },
       NO);
 }
 
@@ -771,11 +780,12 @@
   if (!shouldUpdateNavBar || controller == nil || [controller navigationController] == nil) {
     return; // No need to update the title if not in a nav controller
   }
-  TiThreadPerformOnMainThread(^{
-    if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
-      [self updateTitleView];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
+          [self updateTitleView];
+        }
+      },
       NO);
 }
 
@@ -867,11 +877,12 @@
 {
   NSString *title = [TiUtils stringValue:title_];
   [self replaceValue:title forKey:@"title" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
-      controller.navigationItem.title = title;
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+          controller.navigationItem.title = title;
+        }
+      },
       [NSThread isMainThread]);
 }
 
@@ -941,40 +952,41 @@
     [self rememberProxy:proxy];
   }
   [self replaceValue:items forKey:@"toolbar" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
-      NSArray *existing = [controller toolbarItems];
-      UINavigationController *ourNC = [controller navigationController];
-      if (existing != nil) {
-        for (id current in existing) {
-          if ([current respondsToSelector:@selector(proxy)]) {
-            TiViewProxy *p = (TiViewProxy *)[current performSelector:@selector(proxy)];
-            [p removeBarButtonView];
+  TiThreadPerformOnMainThread(
+      ^{
+        if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+          NSArray *existing = [controller toolbarItems];
+          UINavigationController *ourNC = [controller navigationController];
+          if (existing != nil) {
+            for (id current in existing) {
+              if ([current respondsToSelector:@selector(proxy)]) {
+                TiViewProxy *p = (TiViewProxy *)[current performSelector:@selector(proxy)];
+                [p removeBarButtonView];
+              }
+            }
           }
-        }
-      }
-      NSMutableArray *array = [[NSMutableArray alloc] initWithArray:@[]];
-      for (TiViewProxy *proxy in items) {
-        if ([proxy supportsNavBarPositioning]) {
-          UIBarButtonItem *item = [proxy barButtonItem];
-          [array addObject:item];
-        }
-      }
-      hasToolbar = array != nil && [array count] > 0;
-      BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:YES];
-      BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
-      TiColor *toolbarColor = [TiUtils colorValue:@"barColor" properties:properties];
-      UIColor *barColor = [TiUtils barColorForColor:toolbarColor];
-      [controller setToolbarItems:array animated:animated];
-      [ourNC setToolbarHidden:!hasToolbar animated:animated];
-      [ourNC.toolbar setTranslucent:translucent];
-      UIColor *tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
-      [ourNC.toolbar setBarTintColor:barColor];
-      [ourNC.toolbar setTintColor:tintColor];
+          NSMutableArray *array = [[NSMutableArray alloc] initWithArray:@[]];
+          for (TiViewProxy *proxy in items) {
+            if ([proxy supportsNavBarPositioning]) {
+              UIBarButtonItem *item = [proxy barButtonItem];
+              [array addObject:item];
+            }
+          }
+          hasToolbar = array != nil && [array count] > 0;
+          BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:YES];
+          BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
+          TiColor *toolbarColor = [TiUtils colorValue:@"barColor" properties:properties];
+          UIColor *barColor = [TiUtils barColorForColor:toolbarColor];
+          [controller setToolbarItems:array animated:animated];
+          [ourNC setToolbarHidden:!hasToolbar animated:animated];
+          [ourNC.toolbar setTranslucent:translucent];
+          UIColor *tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
+          [ourNC.toolbar setBarTintColor:barColor];
+          [ourNC.toolbar setTintColor:tintColor];
 
-      [array release];
-    }
-  },
+          [array release];
+        }
+      },
       YES);
 }
 

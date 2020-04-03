@@ -68,7 +68,7 @@ public class TiThumbnailRetriever implements Handler.Callback
 	}
 
 	public interface ThumbnailResponseHandler {
-		public abstract void handleThumbnailResponse(KrollDict bitmapResponse);
+		void handleThumbnailResponse(KrollDict bitmapResponse);
 	}
 
 	@Override
