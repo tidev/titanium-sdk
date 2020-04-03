@@ -263,7 +263,17 @@ timestamps {
 					if (fileExists('npm_test.log')) {
 						sh 'rm -rf npm_test.log'
 					}
-					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
+					// forcibly grab and set correct value for android sdk path by grabbing from node we're actually building on (using env.ANDROID_SDK will pick up master node's env value!)
+					def androidSDK = env.ANDROID_SDK
+					withEnv(['ANDROID_SDK=']) {
+					    try {
+							androidSDK = sh(returnStdout: true, script: 'printenv ANDROID_SDK').trim()
+						} catch (e) {
+							// squash, env var not set at OS-level
+						}
+					}
+					def npmTestResult = sh(returnStatus: true, script: "ANDROID_SDK_ROOT=${androidSDK} npm test &> npm_test.log")
+					recordIssues(tools: [checkStyle(pattern: 'android/**/build/reports/checkstyle/checkJavaStyle.xml')])
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
@@ -289,22 +299,24 @@ timestamps {
 					basename = "dist/mobilesdk-${vtag}"
 					echo "BASENAME:        ${basename}"
 
-					// TODO parallelize the iOS/Android portions?
 					ansiColor('xterm') {
 						timeout(15) {
-							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R16B}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
 							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
-							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
+							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
-							sh label: 'build', script: buildCommand
-							recordIssues(tools: [clang(), java()])
+							try {
+								sh label: 'build', script: buildCommand
+							} finally {
+								recordIssues(tools: [clang(), java()])
+							}
 						} // timeout
 						timeout(25) {
 							def packageCommand = "npm run package -- --version-tag ${vtag}"

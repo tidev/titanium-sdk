@@ -22,11 +22,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.ServiceConnection;
-import android.Manifest;
 import android.os.Build;
 import android.os.IBinder;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 @Kroll.proxy
@@ -72,20 +70,16 @@ public class ServiceProxy extends KrollProxy
 		this.serviceInstanceId = serviceInstanceId;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getServiceInstanceId()
-	// clang-format on
 	{
 		return serviceInstanceId;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getIntent()
-	// clang-format on
 	{
 		return intentProxy;
 	}
@@ -108,9 +102,10 @@ public class ServiceProxy extends KrollProxy
 	public void start()
 	{
 		if (!forBoundServices) {
-			Log.w(
-				TAG,
-				"Only services created via Ti.Android.createService can be started via the start() command. Ignoring start() request.");
+			String message
+				= "Only services created via Ti.Android.createService can be started via the start() command."
+				+ " Ignoring start() request.";
+			Log.w(TAG, message);
 			return;
 		}
 		bindAndInvokeService();

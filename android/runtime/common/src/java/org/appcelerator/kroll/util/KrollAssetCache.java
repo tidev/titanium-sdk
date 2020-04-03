@@ -37,6 +37,7 @@ public class KrollAssetCache
 			return null;
 		}
 	}
+
 	private static final CacheTask task = new CacheTask();
 
 	/**

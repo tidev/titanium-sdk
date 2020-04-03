@@ -139,7 +139,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([path hasPrefix:@"/"]) {
     path = [path substringFromIndex:1];
   }
-  return [NSURL URLWithString:[[NSString stringWithFormat:@"app://%@/%@", TI_APPLICATION_ID, path] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+  return [NSURL URLWithString:[[NSString stringWithFormat:@"app://%@/%@", TI_APPLICATION_ID, path] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
 }
 
 + (BOOL)isLocalURL:(NSURL *)url
@@ -887,6 +887,20 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [self _cleanupLoadingIndicator];
   [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    // TO DO: Once TIMOB-26915 done, remove this
+    __block BOOL finishedEvaluation = NO;
+    [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+      for (NSHTTPCookie *cookie in cookies) {
+        [NSHTTPCookieStorage.sharedHTTPCookieStorage setCookie:cookie];
+      }
+      finishedEvaluation = YES;
+    }];
+    while (!finishedEvaluation) {
+      [NSRunLoop.currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:NSDate.distantFuture];
+    }
+  }
+
   if ([[self proxy] _hasListeners:@"load"]) {
     [[self proxy] fireEvent:@"load" withObject:@{ @"url" : webView.URL.absoluteString, @"title" : webView.title }];
   }
@@ -1040,26 +1054,27 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
       if ([[self proxy] _hasListeners:@"handleurl"]) {
-        TiThreadPerformOnMainThread(^{
-          [[self proxy] fireEvent:@"handleurl"
-                       withObject:@{
-                         @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
-                         @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
-                       }];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [[self proxy] fireEvent:@"handleurl"
+                           withObject:@{
+                             @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
+                             @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
+                           }];
+            },
             NO);
       } else {
         // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
         DebugLog(@"[WARN] In iOS, please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
         DebugLog(@"[WARN] In iOS, it returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
 
-        [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+        [UIApplication.sharedApplication openURL:navigationAction.request.URL options:@{} completionHandler:nil];
         decisionHandler(WKNavigationActionPolicyCancel);
       }
     }
   } else if (!([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"] || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) && [[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
     // Support tel: protocol
-    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    [UIApplication.sharedApplication openURL:navigationAction.request.URL options:@{} completionHandler:nil];
     decisionHandler(WKNavigationActionPolicyCancel);
   } else {
     BOOL valid = !ignoreNextRequest;

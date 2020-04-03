@@ -150,128 +150,100 @@ public class NodeProxy extends KrollProxy
 		return getProxy(node.cloneNode(deep));
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getAttributes()
-	// clang-format on
 	{
 		return new NamedNodeMapProxy(node.getAttributes());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NodeListProxy getChildNodes()
-	// clang-format on
 	{
 		return new NodeListProxy(node.getChildNodes());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getFirstChild()
-	// clang-format on
 	{
 		return getProxy(node.getFirstChild());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getLastChild()
-	// clang-format on
 	{
 		return getProxy(node.getLastChild());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getLocalName()
-	// clang-format on
 	{
 		return node.getLocalName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNamespaceURI()
-	// clang-format on
 	{
 		return node.getNamespaceURI();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getNextSibling()
-	// clang-format on
 	{
 		return getProxy(node.getNextSibling());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeName()
-	// clang-format on
 	{
 		return node.getNodeName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public short getNodeType()
-	// clang-format on
 	{
 		return node.getNodeType();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeValue() throws DOMException
-	// clang-format on
 	{
 		return node.getNodeValue();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public DocumentProxy getOwnerDocument()
-	// clang-format on
 	{
 		return new DocumentProxy(node.getOwnerDocument());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getParentNode()
-	// clang-format on
 	{
 		return getProxy(node.getParentNode());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getPrefix()
-	// clang-format on
 	{
 		return node.getPrefix();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getPreviousSibling()
-	// clang-format on
 	{
 		return getProxy(node.getPreviousSibling());
 	}
@@ -320,20 +292,16 @@ public class NodeProxy extends KrollProxy
 		return removeProxyForNode(oldNode);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setNodeValue(String nodeValue) throws DOMException
-	// clang-format on
 	{
 		node.setNodeValue(nodeValue);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setPrefix(String prefix) throws DOMException
-	// clang-format on
 	{
 		node.setPrefix(prefix);
 	}

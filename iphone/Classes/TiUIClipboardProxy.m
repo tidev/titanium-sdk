@@ -174,9 +174,10 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   ENSURE_STRING(arg);
   NSString *mimeType = arg;
   __block id result;
-  TiThreadPerformOnMainThread(^{
-    result = [[self getData_:mimeType] retain];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[self getData_:mimeType] retain];
+      },
       YES);
   return [result autorelease];
 }
@@ -235,34 +236,35 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   ENSURE_STRING_OR_NIL(arg);
   NSString *mimeType = arg;
   __block BOOL result = NO;
-  TiThreadPerformOnMainThread(^{
-    UIPasteboard *board = [self pasteboard];
-    ClipboardType dataType = mimeTypeToDataType(mimeType);
+  TiThreadPerformOnMainThread(
+      ^{
+        UIPasteboard *board = [self pasteboard];
+        ClipboardType dataType = mimeTypeToDataType(mimeType);
 
-    switch (dataType) {
-    case CLIPBOARD_TEXT: {
-      result = [board containsPasteboardTypes:UIPasteboardTypeListString];
-      break;
-    }
-    case CLIPBOARD_URI_LIST: {
-      result = [board containsPasteboardTypes:UIPasteboardTypeListURL];
-      break;
-    }
-    case CLIPBOARD_IMAGE: {
-      result = [board containsPasteboardTypes:UIPasteboardTypeListImage];
-      break;
-    }
-    case CLIPBOARD_COLOR: {
-      result = [board containsPasteboardTypes:UIPasteboardTypeListColor];
-      break;
-    }
-    case CLIPBOARD_UNKNOWN:
-    default: {
-      result = [board containsPasteboardTypes:[NSArray arrayWithObject:mimeTypeToUTType(mimeType)]];
-      break;
-    }
-    }
-  },
+        switch (dataType) {
+        case CLIPBOARD_TEXT: {
+          result = [board containsPasteboardTypes:UIPasteboardTypeListString];
+          break;
+        }
+        case CLIPBOARD_URI_LIST: {
+          result = [board containsPasteboardTypes:UIPasteboardTypeListURL];
+          break;
+        }
+        case CLIPBOARD_IMAGE: {
+          result = [board containsPasteboardTypes:UIPasteboardTypeListImage];
+          break;
+        }
+        case CLIPBOARD_COLOR: {
+          result = [board containsPasteboardTypes:UIPasteboardTypeListColor];
+          break;
+        }
+        case CLIPBOARD_UNKNOWN:
+        default: {
+          result = [board containsPasteboardTypes:[NSArray arrayWithObject:mimeTypeToUTType(mimeType)]];
+          break;
+        }
+        }
+      },
       YES);
   return NUMBOOL(result);
 }
@@ -307,14 +309,15 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     RELEASE_TO_NIL(newDict);
   }
 
-  TiThreadPerformOnMainThread(^{
-    if (options == nil) {
-      [[self pasteboard] setItems:result];
-    } else {
-      [[self pasteboard] setItems:result options:options];
-    }
-    RELEASE_TO_NIL(result);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (options == nil) {
+          [[self pasteboard] setItems:result];
+        } else {
+          [[self pasteboard] setItems:result options:options];
+        }
+        RELEASE_TO_NIL(result);
+      },
       YES);
 }
 
@@ -322,25 +325,26 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
   __block id items;
 
-  TiThreadPerformOnMainThread(^{
-    items = [[[self pasteboard] items] retain];
+  TiThreadPerformOnMainThread(
+      ^{
+        items = [[[self pasteboard] items] retain];
 
-    // Check for invalid UTI's / mime-types to prevent a runtime-crash
-    for (NSDictionary *item in items) {
-      for (NSString *key in [item allKeys]) {
-        if ([key hasPrefix:@"dyn."]) {
-          NSLog(@"[ERROR] Invalid mime-type specified to setItems() before. Returning an empty result ...");
+        // Check for invalid UTI's / mime-types to prevent a runtime-crash
+        for (NSDictionary *item in items) {
+          for (NSString *key in [item allKeys]) {
+            if ([key hasPrefix:@"dyn."]) {
+              NSLog(@"[ERROR] Invalid mime-type specified to setItems() before. Returning an empty result ...");
 
-          RELEASE_TO_NIL(items);
-          items = @[];
-          break;
+              RELEASE_TO_NIL(items);
+              items = @[];
+              break;
+            }
+          }
+          if ([items count] == 0) {
+            break;
+          }
         }
-      }
-      if ([items count] == 0) {
-        break;
-      }
-    }
-  },
+      },
       YES);
 
   return [items autorelease];

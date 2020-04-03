@@ -126,9 +126,10 @@
   }
 
   [[[TiApp app] controller] dismissKeyboard];
-  TiThreadPerformOnMainThread(^{
-    [self pushOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self pushOnUIThread:args];
+      },
       YES);
 }
 
@@ -140,9 +141,10 @@
     DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
     return;
   }
-  TiThreadPerformOnMainThread(^{
-    [self popOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self popOnUIThread:args];
+      },
       YES);
 }
 
@@ -150,9 +152,10 @@
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  TiThreadPerformOnMainThread(^{
-    [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+      },
       YES);
 }
 
@@ -335,24 +338,25 @@
 
 - (void)cleanNavStack
 {
-  TiThreadPerformOnMainThread(^{
-    if (navController != nil) {
-      [navController setDelegate:nil];
-      NSArray *currentControllers = [navController viewControllers];
-      [navController setViewControllers:[NSArray array]];
+  TiThreadPerformOnMainThread(
+      ^{
+        if (navController != nil) {
+          [navController setDelegate:nil];
+          NSArray *currentControllers = [navController viewControllers];
+          [navController setViewControllers:[NSArray array]];
 
-      for (UIViewController *viewController in currentControllers) {
-        TiWindowProxy *win = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-        [win setTab:nil];
-        [win setParentOrientationController:nil];
-        [win close:nil];
-      }
-      [navController.view removeFromSuperview];
-      RELEASE_TO_NIL(navController);
-      RELEASE_TO_NIL(rootWindow);
-      RELEASE_TO_NIL(current);
-    }
-  },
+          for (UIViewController *viewController in currentControllers) {
+            TiWindowProxy *win = (TiWindowProxy *)[(TiViewController *)viewController proxy];
+            [win setTab:nil];
+            [win setParentOrientationController:nil];
+            [win close:nil];
+          }
+          [navController.view removeFromSuperview];
+          RELEASE_TO_NIL(navController);
+          RELEASE_TO_NIL(rootWindow);
+          RELEASE_TO_NIL(current);
+        }
+      },
       YES);
 }
 
