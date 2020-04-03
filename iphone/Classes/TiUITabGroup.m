@@ -161,10 +161,10 @@ DEFINE_EXCEPTIONS
   BOOL translucent = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"translucent"] def:YES];
 
   // Update the UINavigationBar appearance
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setBarStyle:navBarStyle];
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setTitleTextAttributes:theAttributes];
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setBarTintColor:theColor];
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setTintColor:nTintColor];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setBarStyle:navBarStyle];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setTitleTextAttributes:theAttributes];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setBarTintColor:theColor];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setTintColor:nTintColor];
 
   if ([[moreController viewControllers] count] != 1) {
     return;

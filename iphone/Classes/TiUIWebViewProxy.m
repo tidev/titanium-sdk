@@ -345,7 +345,7 @@ static NSArray *webViewKeySequence;
 
   NSDictionary *params = @{ @"username" : username,
     @"password" : password,
-    @"persistence" : @(persistence)};
+    @"persistence" : @(persistence) };
   [self replaceValue:params forKey:@"basicAuthentication" notification:NO];
 }
 

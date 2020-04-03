@@ -297,14 +297,14 @@ static NSArray *popoverSequence;
 #ifndef TI_USE_AUTOLAYOUT
   CGSize screenSize = [[UIScreen mainScreen] bounds].size;
   if (poWidth.type != TiDimensionTypeUndefined) {
-    [contentViewProxy layoutProperties] -> width.type = poWidth.type;
-    [contentViewProxy layoutProperties] -> width.value = poWidth.value;
+    [contentViewProxy layoutProperties]->width.type = poWidth.type;
+    [contentViewProxy layoutProperties]->width.value = poWidth.value;
     poWidth = TiDimensionUndefined;
   }
 
   if (poHeight.type != TiDimensionTypeUndefined) {
-    [contentViewProxy layoutProperties] -> height.type = poHeight.type;
-    [contentViewProxy layoutProperties] -> height.value = poHeight.value;
+    [contentViewProxy layoutProperties]->height.type = poHeight.type;
+    [contentViewProxy layoutProperties]->height.value = poHeight.value;
     poHeight = TiDimensionUndefined;
   }
 
