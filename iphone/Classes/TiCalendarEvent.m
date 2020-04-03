@@ -78,9 +78,10 @@
   {                                                            \
     if (![NSThread isMainThread]) {                            \
       __block TYPE result;                                     \
-      TiThreadPerformOnMainThread(^{                           \
-        result = [self NAME];                                  \
-      },                                                       \
+      TiThreadPerformOnMainThread(                             \
+          ^{                                                   \
+            result = [self NAME];                              \
+          },                                                   \
           YES);                                                \
       return result;                                           \
     }                                                          \
@@ -96,9 +97,10 @@
   -(void)set##UPPER_PROP_NAME : (TYPE)value                  \
   {                                                          \
     if (![NSThread isMainThread]) {                          \
-      TiThreadPerformOnMainThread(^{                         \
-        [self set##UPPER_PROP_NAME:value];                   \
-      },                                                     \
+      TiThreadPerformOnMainThread(                           \
+          ^{                                                 \
+            [self set##UPPER_PROP_NAME:value];               \
+          },                                                 \
           YES);                                              \
       return;                                                \
     }                                                        \
@@ -116,9 +118,10 @@
   {                                         \
     if (![NSThread isMainThread]) {         \
       __block TYPE result;                  \
-      TiThreadPerformOnMainThread(^{        \
-        result = [[self NAME] retain];      \
-      },                                    \
+      TiThreadPerformOnMainThread(          \
+          ^{                                \
+            result = [[self NAME] retain];  \
+          },                                \
           YES);                             \
       return [result autorelease];          \
     }                                       \
@@ -212,9 +215,10 @@ READWRITE_IMPL(NSArray<TiCalendarAlert *> *, alerts, Alerts);
 - (void)setRecurrenceRules:(NSArray<TiCalendarRecurrenceRule *> *)recurrenceRules
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self setRecurrenceRules:recurrenceRules];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setRecurrenceRules:recurrenceRules];
+        },
         YES);
     return;
   }
@@ -237,9 +241,10 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createAlert:props] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createAlert:props] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -412,9 +417,10 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
 - (void)addRecurrenceRule:(TiCalendarRecurrenceRule *)ruleProxy
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self addRecurrenceRule:ruleProxy];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self addRecurrenceRule:ruleProxy];
+        },
         YES);
     return;
   }
@@ -433,9 +439,10 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
 - (void)removeRecurrenceRule:(TiCalendarRecurrenceRule *)ruleProxy
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self removeRecurrenceRule:ruleProxy];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self removeRecurrenceRule:ruleProxy];
+        },
         YES);
     return;
   }
@@ -468,9 +475,10 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
   }
   __block NSError *error = nil;
   __block BOOL result;
-  TiThreadPerformOnMainThread(^{
-    result = [ourStore saveEvent:currEvent span:span error:&error];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [ourStore saveEvent:currEvent span:span error:&error];
+      },
       YES);
 
   if (!result || error != nil) {
@@ -489,9 +497,10 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
   EKEventStore *ourStore = [module store];
   __block NSError *error = nil;
   __block BOOL result;
-  TiThreadPerformOnMainThread(^{
-    result = [ourStore removeEvent:[self event] span:span error:&error];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [ourStore removeEvent:[self event] span:span error:&error];
+      },
       YES);
 
   if (!result || error != nil) {
@@ -505,9 +514,10 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
 - (BOOL)refresh
 {
   __block BOOL result;
-  TiThreadPerformOnMainThread(^{
-    result = [[self event] refresh];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[self event] refresh];
+      },
       YES);
   return result;
 }

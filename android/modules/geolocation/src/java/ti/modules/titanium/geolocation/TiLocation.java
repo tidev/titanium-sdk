@@ -23,7 +23,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +56,7 @@ public class TiLocation implements Handler.Callback
 	private Handler runtimeHandler;
 
 	public interface GeocodeResponseHandler {
-		public abstract void handleGeocodeResponse(KrollDict geocodeResponse);
+		void handleGeocodeResponse(KrollDict geocodeResponse);
 	}
 
 	public TiLocation()

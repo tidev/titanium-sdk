@@ -23,7 +23,6 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
@@ -160,12 +159,10 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@SuppressLint("NewApi")
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		if (shortcut != null) {
 			return shortcut.getId();
@@ -173,11 +170,9 @@ public class ShortcutItemProxy extends KrollProxy
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getVisible()
-	// clang-format on
 	{
 		if (shortcut != null) {
 			return shortcuts.contains(shortcut);

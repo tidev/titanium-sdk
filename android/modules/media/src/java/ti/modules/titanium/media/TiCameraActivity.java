@@ -36,7 +36,6 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.hardware.Camera.Size;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
 
@@ -584,7 +583,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	/**
 	 * Computes the optimal preview size given the target display size and aspect ratio.
-	 * 
+	 *
 	 * @param supportPreviewSizes
 	 *            a list of preview sizes the camera supports
 	 * @param targetSize
@@ -628,9 +627,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	}
 
 	/**
-	 * Computes the optimal picture size given the preview size. 
+	 * Computes the optimal picture size given the preview size.
 	 * This returns the maximum resolution size.
-	 * 
+	 *
 	 * @param sizes
 	 *            a list of picture sizes the camera supports
 	 * @return the optimal size of the picture
@@ -703,23 +702,28 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 						public void onAutoFocus(boolean success, Camera camera)
 						{
 							if (takingPicture) {
-								try {
-									camera.takePicture(shutterCallback, null, jpegCallback);
-								} catch (Exception e) {
-									Log.w(TAG, "could not take picture: " + e.toString());
-									takingPicture = false;
-								}
-								if (!success) {
+								if (success) {
+									try {
+										camera.takePicture(shutterCallback, null, jpegCallback);
+									} catch (Exception e) {
+										Log.w(TAG, "Could not take picture: " + e.toString());
+										takingPicture = false;
+									}
+
+									// This is required in order to continue auto-focus after taking a picture.
+									// Calling 'cancelAutofocus' may cause issues on Android M. (TIMOB-20260)
+									// Which is why this requires an exception handler.
+									// NOTE: We should really update to Camera2 API.
+									try {
+										camera.cancelAutoFocus();
+										camera.autoFocus(null);
+									} catch (Exception e) {
+										Log.w(TAG, "Failed to cancel auto focus: " + e.toString());
+									}
+								} else {
 									Log.w(TAG, "Unable to focus.");
 								}
 							}
-							// This is a Hotfix for TIMOB-20260
-							// "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera)
-							// We need to move to android.hardware.camera2 APIs as soon as we can.
-							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-								camera.cancelAutoFocus();
-							}
-							camera.autoFocus(null);
 						}
 					};
 					camera.autoFocus(focusCallback);
@@ -727,7 +731,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					camera.takePicture(shutterCallback, null, jpegCallback);
 				}
 			} catch (Exception e) {
-				Log.w(TAG, "could not take picture: " + e.toString());
+				Log.w(TAG, "Could not take picture: " + e.toString());
 				if (camera != null) {
 					camera.release();
 				}
@@ -868,10 +872,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				camera = Camera.open(cameraId);
 			}
 		} catch (Exception e) {
-			Log.e(
-				TAG,
-				"Could not open camera. Camera may be in use by another process or device policy manager has disabled the camera.",
-				e);
+			String errorMessage
+				= "Could not open camera. "
+				+ "Camera may be in use by another process or device policy manager has disabled the camera.";
+			Log.e(TAG, errorMessage, e);
 		}
 
 		if (camera == null) {

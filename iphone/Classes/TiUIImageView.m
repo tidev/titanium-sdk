@@ -363,52 +363,53 @@ DEFINE_EXCEPTIONS
     autoHeight = imageToUse.size.height;
   }
 
-  TiThreadPerformOnMainThread(^{
-    UIView *view = [[container subviews] objectAtIndex:position];
-    UIImageView *newImageView = [[UIImageView alloc] initWithFrame:[view bounds]];
-    newImageView.image = imageToUse;
-    newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    newImageView.contentMode = [self contentModeForImageView];
+  TiThreadPerformOnMainThread(
+      ^{
+        UIView *view = [[container subviews] objectAtIndex:position];
+        UIImageView *newImageView = [[UIImageView alloc] initWithFrame:[view bounds]];
+        newImageView.image = imageToUse;
+        newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        newImageView.contentMode = [self contentModeForImageView];
 
-    // remove the spinner now that we've loaded our image
-    UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
-    if (spinner != nil && [spinner isKindOfClass:[UIActivityIndicatorView class]]) {
-      [spinner removeFromSuperview];
-    }
-    [view addSubview:newImageView];
-    view.clipsToBounds = YES;
-    [newImageView release];
-    view.hidden = YES;
+        // remove the spinner now that we've loaded our image
+        UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
+        if (spinner != nil && [spinner isKindOfClass:[UIActivityIndicatorView class]]) {
+          [spinner removeFromSuperview];
+        }
+        [view addSubview:newImageView];
+        view.clipsToBounds = YES;
+        [newImageView release];
+        view.hidden = YES;
 
 #if IMAGEVIEW_DEBUG == 1
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
-    label.text = [NSString stringWithFormat:@"%d", position];
-    label.font = [UIFont boldSystemFontOfSize:28];
-    label.textColor = [UIColor redColor];
-    label.backgroundColor = [UIColor clearColor];
-    [view addSubview:label];
-    [view bringSubviewToFront:label];
-    [label release];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
+        label.text = [NSString stringWithFormat:@"%d", position];
+        label.font = [UIFont boldSystemFontOfSize:28];
+        label.textColor = [UIColor redColor];
+        label.backgroundColor = [UIColor clearColor];
+        [view addSubview:label];
+        [view bringSubviewToFront:label];
+        [label release];
 #endif
 
-    loadCount++;
-    if (loadCount == loadTotal) {
-      [self fireLoadEventWithState:@"images"];
-    }
+        loadCount++;
+        if (loadCount == loadTotal) {
+          [self fireLoadEventWithState:@"images"];
+        }
 
-    if (ready) {
-      //NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
-      //but in the future we may want to be more sophisticated
-      int min = 1;
-      readyCount++;
-      if (readyCount >= min) {
-        readyCount = 0;
-        ready = NO;
+        if (ready) {
+          //NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
+          //but in the future we may want to be more sophisticated
+          int min = 1;
+          readyCount++;
+          if (readyCount >= min) {
+            readyCount = 0;
+            ready = NO;
 
-        [self startTimerWithEvent:@"start"];
-      }
-    }
-  },
+            [self startTimerWithEvent:@"start"];
+          }
+        }
+      },
       NO);
 }
 
@@ -774,9 +775,10 @@ DEFINE_EXCEPTIONS
     autoHeight = autoHeight / 2;
   }
 
-  TiThreadPerformOnMainThread(^{
-    [self setURLImageOnUIThread:imageToUse];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self setURLImageOnUIThread:imageToUse];
+      },
       NO);
 }
 

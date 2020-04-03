@@ -28,29 +28,23 @@ public class LocaleModule extends KrollModule
 		super("Locale");
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getCurrentLanguage()
-	// clang-format on
 	{
 		return Locale.getDefault().getLanguage();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getCurrentCountry()
-	// clang-format on
 	{
 		return Locale.getDefault().getCountry();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getCurrentLocale()
-	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
@@ -88,11 +82,9 @@ public class LocaleModule extends KrollModule
 		return PhoneNumberUtils.formatNumber(telephoneNumber);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setLanguage(String language)
-	// clang-format on
 	{
 		try {
 			String[] parts = language.split("-");
@@ -111,11 +103,9 @@ public class LocaleModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.topLevel("L")
 	public String getString(String key, @Kroll.argument(optional = true) String defaultValue)
-	// clang-format on
 	{
 		if (defaultValue == null) {
 			defaultValue = key;

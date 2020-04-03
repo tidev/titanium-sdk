@@ -254,11 +254,9 @@ public class MenuProxy extends KrollProxy
 		return menu.size();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public MenuItemProxy[] getItems()
-	// clang-format on
 	{
 		int len = menu.size();
 		MenuItemProxy[] proxies = new MenuItemProxy[len];
@@ -284,10 +282,6 @@ public class MenuProxy extends KrollProxy
 		}
 		this.menu = menu;
 	}
-
-	//	public ArrayList<MenuItemProxy> getMenuItems() {
-	//		return menuItems;
-	//	}
 
 	public void release()
 	{
