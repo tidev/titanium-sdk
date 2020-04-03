@@ -173,7 +173,7 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self _hasListeners:@"focus"]) {
     // on an open, make sure we send the focus event to focused tab
-    NSDictionary *event = [((TiUITabGroup *)self.view)focusEvent];
+    NSDictionary *event = [((TiUITabGroup *)self.view) focusEvent];
     [self fireEvent:@"focus" withObject:event];
   }
 }
