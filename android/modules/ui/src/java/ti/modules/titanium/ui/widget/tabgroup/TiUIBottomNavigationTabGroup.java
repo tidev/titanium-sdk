@@ -172,12 +172,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		int index = this.mMenuItemsArray.size() - 1;
 		updateDrawablesAfterNewItem(index);
 		// Handle shift mode.
-		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
-			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
-			} else {
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_SELECTED);
-			}
+		if (proxy.getProperties().optBoolean(TiC.PROPERTY_SHIFT_MODE, true)) {
+			this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_AUTO);
+		} else {
+			this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
 		}
 	}
 
