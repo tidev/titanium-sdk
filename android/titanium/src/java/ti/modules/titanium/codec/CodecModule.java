@@ -76,11 +76,11 @@ public class CodecModule extends KrollModule
 			position = TiConvert.toInt(args, TiC.PROPERTY_POSITION);
 		}
 
-		byte buffer[] = dest.getBuffer();
+		byte[] buffer = dest.getBuffer();
 		return encodeNumber(src, type, buffer, position, byteOrder);
 	}
 
-	public static int encodeNumber(Number src, String type, byte dest[], int position, int byteOrder)
+	public static int encodeNumber(Number src, String type, byte[] dest, int position, int byteOrder)
 	{
 		long l = src.longValue();
 		if (type.equals(TYPE_BYTE)) {
@@ -136,7 +136,7 @@ public class CodecModule extends KrollModule
 			position = TiConvert.toInt(args, TiC.PROPERTY_POSITION);
 		}
 
-		byte src[] = buffer.getBuffer();
+		byte[] src = buffer.getBuffer();
 		if (type.equals(TYPE_BYTE)) {
 			return src[position];
 		} else if (type.equals(TYPE_SHORT)) {
@@ -203,7 +203,7 @@ public class CodecModule extends KrollModule
 		}
 
 		String charset = validateCharset(args);
-		byte destBuffer[] = dest.getBuffer();
+		byte[] destBuffer = dest.getBuffer();
 		validatePositionAndLength(srcPosition, srcLength, src.length());
 
 		if (srcPosition != 0 || srcLength != src.length()) {
@@ -211,7 +211,7 @@ public class CodecModule extends KrollModule
 		}
 
 		try {
-			byte encoded[] = src.getBytes(charset);
+			byte[] encoded = src.getBytes(charset);
 			System.arraycopy(encoded, 0, destBuffer, destPosition, encoded.length);
 
 			return destPosition + encoded.length;
@@ -229,7 +229,7 @@ public class CodecModule extends KrollModule
 		}
 
 		BufferProxy src = (BufferProxy) args.get(TiC.PROPERTY_SOURCE);
-		byte buffer[] = src.getBuffer();
+		byte[] buffer = src.getBuffer();
 
 		int position = 0;
 		if (args.containsKey(TiC.PROPERTY_POSITION)) {
@@ -251,11 +251,9 @@ public class CodecModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getNativeByteOrder()
-	// clang-format on
 	{
 		return getByteOrder(null);
 	}

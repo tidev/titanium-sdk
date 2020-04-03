@@ -16,7 +16,6 @@ import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 import android.app.Activity;
 import android.os.Message;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_MESSAGE,
@@ -28,7 +27,6 @@ import android.os.Message;
 })
 @Kroll.dynamicApis(methods = { "hide", "show" })
 public class ActivityIndicatorProxy extends TiViewProxy
-// clang-format on
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SHOW = MSG_FIRST_ID + 100;

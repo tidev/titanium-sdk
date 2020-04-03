@@ -192,9 +192,10 @@
 {
   if (![NSThread isMainThread]) {
     __block NSDictionary *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self formatUserNotificationSettings:notificationSettings] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self formatUserNotificationSettings:notificationSettings] retain];
+        },
         YES);
     return [result autorelease];
   }

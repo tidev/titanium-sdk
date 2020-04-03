@@ -53,9 +53,9 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	private Object locationCallback;
 
 	public interface LocationProviderListener {
-		public abstract void onLocationChanged(Location location);
-		public abstract void onProviderStateChanged(String providerName, int state);
-		public abstract void onProviderUpdated(LocationProviderProxy locationProvider);
+		void onLocationChanged(Location location);
+		void onProviderStateChanged(String providerName, int state);
+		void onProviderUpdated(LocationProviderProxy locationProvider);
 	}
 
 	/**
@@ -174,11 +174,9 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @return name associated with this provider
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		Object property = getProperty(TiC.PROPERTY_NAME);
 		if (property == null) {
@@ -195,11 +193,9 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @param value name to associate with this provider
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setName(String value)
-	// clang-format on
 	{
 		Log.e(TAG, "Not allowed to set the name of a provider after creation");
 	}
@@ -209,11 +205,9 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @return value minimum update distance for this provider
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getMinUpdateDistance()
-	// clang-format on
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE);
 
@@ -230,11 +224,9 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @param value minimum update distance to associate with this provider
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setMinUpdateDistance(double value)
-	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE, value);
 		providerListener.onProviderUpdated(this);
@@ -245,11 +237,9 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @return value minimum update time for this provider
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getMinUpdateTime()
-	// clang-format on
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_TIME);
 
@@ -266,11 +256,9 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @param value minimum update time to associate with this provider
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setMinUpdateTime(double value)
-	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, value);
 		providerListener.onProviderUpdated(this);

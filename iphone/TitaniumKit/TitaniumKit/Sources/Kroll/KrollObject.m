@@ -280,9 +280,10 @@ bool KrollSetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
     } else {
       [o forgetObjectForTiString:prop context:jsContext];
     }
-    TiThreadPerformOnMainThread(^{
-      [o setValue:v forKey:name];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [o setValue:v forKey:name];
+        },
         YES);
     return true;
   }

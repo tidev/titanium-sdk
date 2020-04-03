@@ -58,11 +58,9 @@ public class BigPictureStyleProxy extends StyleProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBigLargeIcon(Object icon)
-	// clang-format on
 	{
 		if (icon instanceof Number) {
 			Bitmap bigLargeIcon =
@@ -83,11 +81,9 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_LARGE_ICON, icon);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBigPicture(Object picture)
-	// clang-format on
 	{
 		TiDrawableReference source = TiDrawableReference.fromObject(this, picture);
 
@@ -102,21 +98,17 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_PICTURE, picture);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBigContentTitle(String title)
-	// clang-format on
 	{
 		((BigPictureStyle) style).setBigContentTitle(title);
 		setProperty(TiC.PROPERTY_BIG_CONTENT_TITLE, title);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setSummaryText(String text)
-	// clang-format on
 	{
 		((BigPictureStyle) style).setSummaryText(text);
 		setProperty(TiC.PROPERTY_SUMMARY_TEXT, text);

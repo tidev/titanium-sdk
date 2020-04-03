@@ -12,7 +12,6 @@ import java.util.Iterator;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.ImageViewProxy;
