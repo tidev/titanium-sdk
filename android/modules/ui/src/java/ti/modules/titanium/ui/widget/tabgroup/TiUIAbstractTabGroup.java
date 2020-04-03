@@ -34,6 +34,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -367,6 +368,18 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			{
 			}
 		});
+
+		// Set action bar color.
+		final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
+		if (actionBar != null) {
+			final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
+			final KrollDict windowProperties = windowProxy.getProperties();
+
+			if (windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
+				final int color = TiColorHelper.parseColor(windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
+				actionBar.setBackgroundDrawable(new ColorDrawable(color));
+			}
+		}
 	}
 
 	@Override
