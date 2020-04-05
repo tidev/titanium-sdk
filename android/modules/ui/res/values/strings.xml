@@ -2,4 +2,5 @@
 <resources>
 	<string name="drawer_layout_open">Open</string>
 	<string name="drawer_layout_close">Close</string>
+	<string name="headerTitleStyle">normal</string>
 </resources>

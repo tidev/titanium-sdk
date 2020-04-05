@@ -60,8 +60,9 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 									  / resources.getDisplayMetrics().density);
 				minRowHeight += (int) minRowHeight / 2;
 				TiUIHelper.styleText(textView, "", resources.getString(TiRHelper.getResource("dimen.headerTitleSize")),
-									 "normal"); // TODO font
-				textView.setBackgroundColor(resources.getColor(TiRHelper.getResource("color.headerTitleBackground")));
+									 resources.getString(TiRHelper.getResource("string.headerTitleStyle")));
+				textView.setBackground(
+					resources.getDrawable(TiRHelper.getResource("drawable.titantium_ui_header_title_background")));
 				textView.setTextColor(resources.getColor(TiRHelper.getResource("color.headerTitleColor")));
 			} catch (ResourceNotFoundException e) {
 				TiUIHelper.styleText(textView, "", "14sp", "normal");
