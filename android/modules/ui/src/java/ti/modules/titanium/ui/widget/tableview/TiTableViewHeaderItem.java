@@ -6,13 +6,15 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
 import android.view.Gravity;
@@ -21,11 +23,15 @@ import android.view.View.MeasureSpec;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+
 public class TiTableViewHeaderItem extends TiBaseTableViewItem
 {
 	private RowView rowView;
 	private TiUIView headerView;
 	private boolean isHeaderView = false;
+	private static final String TAG = "TiTableViewHeaderItem";
+	private int minRowHeight = 18;
 
 	class RowView extends RelativeLayout
 	{
@@ -47,11 +53,22 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			addView(textView, params);
 
 			setPadding(0, 0, 0, 0);
-			setMinimumHeight((int) TiUIHelper.getRawDIPSize(18, context));
 			setVerticalFadingEdgeEnabled(false);
-			TiUIHelper.styleText(textView, "", "14sp", "normal"); // TODO font
-			textView.setBackgroundColor(Color.rgb(169, 169, 169));
-			textView.setTextColor(Color.WHITE);
+			try {
+				Resources resources = context.getResources();
+				minRowHeight = (int) (resources.getDimension(TiRHelper.getResource("dimen.headerTitleSize"))
+									  / resources.getDisplayMetrics().density);
+				minRowHeight += (int) minRowHeight / 2;
+				TiUIHelper.styleText(textView, "", resources.getString(TiRHelper.getResource("dimen.headerTitleSize")),
+									 "normal"); // TODO font
+				textView.setBackgroundColor(resources.getColor(TiRHelper.getResource("color.headerTitleBackground")));
+				textView.setTextColor(resources.getColor(TiRHelper.getResource("color.headerTitleColor")));
+			} catch (ResourceNotFoundException e) {
+				TiUIHelper.styleText(textView, "", "14sp", "normal");
+				textView.setBackgroundColor(Color.rgb(169, 169, 169));
+				textView.setTextColor(Color.WHITE);
+			}
+			setMinimumHeight((int) TiUIHelper.getRawDIPSize(minRowHeight, context));
 			TiUIHelper.setTextViewDIPPadding(textView, 5, 0);
 		}
 
@@ -77,7 +94,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		this.handler = new Handler(this);
 		rowView = new RowView(activity);
 		this.addView(rowView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		setMinimumHeight((int) TiUIHelper.getRawDIPSize(18, activity));
+		setMinimumHeight((int) TiUIHelper.getRawDIPSize(minRowHeight, activity));
 	}
 
 	public TiTableViewHeaderItem(Activity activity, TiUIView headerView)
@@ -87,7 +104,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		this.handler = new Handler(this);
 		this.addView(headerView.getOuterView(), headerView.getOuterView().getLayoutParams());
 		this.setLayoutParams(headerView.getOuterView().getLayoutParams());
-		setMinimumHeight((int) TiUIHelper.getRawDIPSize(18, activity));
+		setMinimumHeight((int) TiUIHelper.getRawDIPSize(minRowHeight, activity));
 		this.headerView = headerView;
 		this.isHeaderView = true;
 	}
