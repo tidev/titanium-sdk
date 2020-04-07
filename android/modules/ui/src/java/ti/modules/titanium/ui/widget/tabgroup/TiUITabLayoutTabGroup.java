@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.content.res.Configuration;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import com.google.android.material.tabs.TabLayout;
@@ -20,7 +19,6 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -345,7 +343,9 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			final TiUITab tab = this.tabs.get(i);
 			if (tab.getProxy() != null) {
 				final TiViewProxy tabProxy = tab.getProxy();
-				final Drawable drawable = updateIconTint(tabProxy, this.mTabLayout.getTabAt(i).getIcon(), i == this.mTabLayout.getSelectedTabPosition());
+				final boolean selected = i == this.mTabLayout.getSelectedTabPosition();
+				Drawable drawable = this.mTabLayout.getTabAt(i).getIcon();
+				drawable = updateIconTint(tabProxy, drawable, selected);
 				this.mTabLayout.getTabAt(i).setIcon(drawable);
 			}
 		}

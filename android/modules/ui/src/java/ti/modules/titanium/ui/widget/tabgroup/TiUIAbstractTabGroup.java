@@ -261,12 +261,16 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
 
-		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR) || properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
-			final String colorString = tabProperties.optString(TiC.PROPERTY_TITLE_COLOR, properties.getString(TiC.PROPERTY_TITLE_COLOR));
+		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+			final String colorString = tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
+				properties.getString(TiC.PROPERTY_TITLE_COLOR));
 			textColors[0] = TiColorHelper.parseColor(colorString);
 		}
-		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR) || properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
-			final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR, properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
+		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+			final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+				properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
 			textColors[1] = TiColorHelper.parseColor(colorString);
 		}
 		return new ColorStateList(textColorStates, textColors);
@@ -383,8 +387,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			final KrollDict windowProperties = windowProxy.getProperties();
 			final KrollDict properties = getProxy().getProperties();
 
-			if (windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)|| properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
-				final String colorString = windowProperties.optString(TiC.PROPERTY_BAR_COLOR, properties.getString(TiC.PROPERTY_BAR_COLOR));
+			if (windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
+				final String colorString = windowProperties.optString(TiC.PROPERTY_BAR_COLOR,
+					properties.getString(TiC.PROPERTY_BAR_COLOR));
 				final int color = TiColorHelper.parseColor(colorString);
 				actionBar.setBackgroundDrawable(new ColorDrawable(color));
 			}
@@ -453,14 +459,18 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		final KrollDict properties = getProxy().getProperties();
 
 		if (selected) {
-			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR) || properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
-				final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR, properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+				final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+					properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
 				final int color = TiColorHelper.parseColor(colorString);
 				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 			}
 		} else {
-			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR) || properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
-				final String colorString = tabProperties.optString(TiC.PROPERTY_TITLE_COLOR, properties.getString(TiC.PROPERTY_TITLE_COLOR));
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+				final String colorString = tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
+					properties.getString(TiC.PROPERTY_TITLE_COLOR));
 				final int color = TiColorHelper.parseColor(colorString);
 				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 			}
