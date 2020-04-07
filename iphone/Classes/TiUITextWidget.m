@@ -74,10 +74,11 @@
 - (void)dealloc
 {
   //Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
-  TiThreadPerformOnMainThread(^{
-    [textWidgetView removeFromSuperview];
-    RELEASE_TO_NIL(textWidgetView);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [textWidgetView removeFromSuperview];
+        RELEASE_TO_NIL(textWidgetView);
+      },
       YES);
   [super dealloc];
 }

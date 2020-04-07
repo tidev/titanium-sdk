@@ -143,21 +143,17 @@ public class CalendarModule extends KrollModule
 			TiC.PERMISSION_CODE_CALENDAR);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getAllCalendars()
-	// clang-format on
 	{
 		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(null, null);
 		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getSelectableCalendars()
-	// clang-format on
 	{
 		ArrayList<CalendarProxy> calendars;
 		// selectable calendars are "visible"
@@ -189,11 +185,9 @@ public class CalendarModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public AlertProxy[] getAllAlerts()
-	// clang-format on
 	{
 		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(null, null, null);
 		return alerts.toArray(new AlertProxy[alerts.size()]);

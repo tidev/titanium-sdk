@@ -237,9 +237,10 @@
   }
   [bgImage release];
   bgImage = [newImage retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 
@@ -250,9 +251,10 @@
   }
   [bgColor release];
   bgColor = [newColor retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 

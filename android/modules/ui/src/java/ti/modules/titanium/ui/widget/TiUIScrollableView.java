@@ -8,7 +8,6 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.lang.Math;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;

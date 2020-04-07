@@ -25,9 +25,10 @@
 - (void)dealloc
 {
   if (controller != nil) {
-    TiThreadPerformOnMainThread(^{
-      RELEASE_TO_NIL(controller);
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          RELEASE_TO_NIL(controller);
+        },
         YES);
   }
 
@@ -268,9 +269,10 @@
   _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
 
   //GO ahead and call open on the UI thread
-  TiThreadPerformOnMainThread(^{
-    [self openOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self openOnUIThread:args];
+      },
       YES);
 }
 
@@ -280,9 +282,10 @@
   [self assignStatusBarStyle:theStyle];
   [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
   if (focussed) {
-    TiThreadPerformOnMainThread(^{
-      [[[TiApp app] controller] updateStatusBar];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[[TiApp app] controller] updateStatusBar];
+        },
         YES);
   }
 }
@@ -322,9 +325,10 @@
   [self rememberProxy:closeAnimation];
 
   //GO ahead and call close on UI thread
-  TiThreadPerformOnMainThread(^{
-    [self closeOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self closeOnUIThread:args];
+      },
       YES);
 }
 
@@ -444,9 +448,10 @@
     }
     [self processForSafeArea];
   }
-  TiThreadPerformOnMainThread(^{
-    [self forceNavBarFrame];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self forceNavBarFrame];
+      },
       NO);
 }
 

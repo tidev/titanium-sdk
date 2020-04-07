@@ -34,7 +34,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -72,11 +71,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private StateListDrawable selector;
 
 	public interface OnItemClickedListener {
-		public void onClick(KrollDict item);
+		void onClick(KrollDict item);
 	}
 
 	public interface OnItemLongClickedListener {
-		public boolean onLongClick(KrollDict item);
+		boolean onLongClick(KrollDict item);
 	}
 
 	class TTVListAdapter extends BaseAdapter

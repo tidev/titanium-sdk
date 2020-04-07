@@ -5,6 +5,7 @@ node_modules
 android/runtime/v8/tools/bootstrap.js
 android/dev
 android/modules/ui/assets/Resources/ti.internal/webview/*.js
+android/titanium/build
 
 iphone/Resources/app.js
 

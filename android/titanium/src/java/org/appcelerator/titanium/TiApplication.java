@@ -112,8 +112,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
-	public static interface ActivityTransitionListener {
-		public void onActivityTransition(boolean state);
+	public interface ActivityTransitionListener {
+		void onActivityTransition(boolean state);
 	}
 
 	public static void addActivityTransitionListener(ActivityTransitionListener a)

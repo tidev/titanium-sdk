@@ -137,7 +137,7 @@
     self.searchBar.searchTextField.attributedPlaceholder = placeholder;
 #endif
   } else {
-    [UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]].attributedPlaceholder = placeholder;
+    [UITextField appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]].attributedPlaceholder = placeholder;
   }
   RELEASE_TO_NIL(placeholder);
 }

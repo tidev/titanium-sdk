@@ -1054,13 +1054,14 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
       if ([[self proxy] _hasListeners:@"handleurl"]) {
-        TiThreadPerformOnMainThread(^{
-          [[self proxy] fireEvent:@"handleurl"
-                       withObject:@{
-                         @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
-                         @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
-                       }];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [[self proxy] fireEvent:@"handleurl"
+                           withObject:@{
+                             @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
+                             @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
+                           }];
+            },
             NO);
       } else {
         // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead

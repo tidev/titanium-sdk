@@ -12,7 +12,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIMaskedImage;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_IMAGE,
@@ -21,7 +20,6 @@ import ti.modules.titanium.ui.widget.TiUIMaskedImage;
 		TiC.PROPERTY_TINT,
 		TiC.PROPERTY_TINT_COLOR
 })
-// clang-format on
 public class MaskedImageProxy extends ViewProxy
 {
 	public MaskedImageProxy()
