@@ -573,6 +573,22 @@
     } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
       activeImage = [(TiBlob *)activeIcon image];
     }
+
+    TiColor *tintColor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
+    }
+    if (tintColor != nil) {
+      image = [image withTintColor:[tintColor color]];
+    }
+
+    TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTintColor"]];
+    }
+    if (activeTintColor != nil) {
+      activeImage = [activeImage withTintColor:[activeTintColor color]];
+    }
   }
   [rootController setTitle:title];
   UITabBarItem *ourItem = nil;
@@ -594,10 +610,16 @@
   ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
 
   TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
+  if (titleColor == nil) {
+    titleColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
+  }
   if (titleColor != nil) {
     [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
   }
   TiColor *activeTitleColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
+  if (activeTitleColor == nil) {
+    activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
+  }
   if (activeTitleColor != nil) {
     [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
   }
