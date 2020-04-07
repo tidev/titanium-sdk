@@ -52,6 +52,7 @@ static NSArray *popoverSequence;
     //This shouldn't happen because we clear it on hide.
     currentPopover = nil;
   }
+  [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
   RELEASE_TO_NIL(closingCondition);
@@ -247,6 +248,7 @@ static NSArray *popoverSequence;
   }
 
   [self forgetSelf];
+  [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
   [self performSelector:@selector(release) withObject:nil afterDelay:0.5];
@@ -358,12 +360,34 @@ static NSArray *popoverSequence;
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
       [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
       viewController = [[(TiWindowProxy *)contentViewProxy hostingController] retain];
-
+      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     } else {
       viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
+      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew context:nil];
     }
   }
   return viewController;
+}
+
+- (void)updateContentViewWithSafeAreaInsets:(UIEdgeInsets)edgeInsets
+{
+  CGFloat oldTop = [[contentViewProxy valueForKey:@"top"] floatValue];
+  CGFloat oldLeft = [[contentViewProxy valueForKey:@"left"] floatValue];
+  CGFloat oldRight = [[contentViewProxy valueForKey:@"right"] floatValue];
+  CGFloat oldBottom = [[contentViewProxy valueForKey:@"bottom"] floatValue];
+
+  if (oldTop != edgeInsets.top) {
+    [contentViewProxy setTop:NUMFLOAT(edgeInsets.top)];
+  }
+  if (oldBottom != edgeInsets.bottom) {
+    [contentViewProxy setBottom:NUMFLOAT(edgeInsets.bottom)];
+  }
+  if (oldLeft != edgeInsets.left) {
+    [contentViewProxy setLeft:NUMFLOAT(edgeInsets.left)];
+  }
+  if (oldRight != edgeInsets.right) {
+    [contentViewProxy setRight:NUMFLOAT(edgeInsets.right)];
+  }
 }
 
 #pragma mark Delegate methods
@@ -432,6 +456,17 @@ static NSArray *popoverSequence;
   }
 
   popoverPresentationController.sourceRect = *rect;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && object == viewController.view && [keyPath isEqualToString:@"safeAreaInsets"]) {
+    UIEdgeInsets newInsets = [[change objectForKey:@"new"] UIEdgeInsetsValue];
+    UIEdgeInsets oldInsets = [[change objectForKey:@"old"] UIEdgeInsetsValue];
+    if (!UIEdgeInsetsEqualToEdgeInsets(oldInsets, newInsets)) {
+      [self updateContentViewWithSafeAreaInsets:newInsets];
+    }
+  }
 }
 
 @end
