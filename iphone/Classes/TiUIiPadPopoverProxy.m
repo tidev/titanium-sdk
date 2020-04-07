@@ -363,7 +363,7 @@ static NSArray *popoverSequence;
       [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     } else {
       viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
-      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew context:nil];
+      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     }
   }
   return viewController;
