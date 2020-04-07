@@ -66,6 +66,10 @@ class Dependency {
 		this.directory = directory;
 	}
 
+	isRoot() {
+		return this.parent === null;
+	}
+
 	/**
 	 * @description Get directories that need to be copied to target.
 	 * @param {boolean} [includeOptional=true] - Include optional dependencies?
@@ -75,6 +79,9 @@ class Dependency {
 	async getDirectoriesToCopy(includeOptional = true, includePeers = true) {
 		const childrenNames = await this.gatherChildren(includeOptional, includePeers);
 		if (childrenNames.length === 0) {
+			if (this.isRoot()) {
+				return []; // if root has no children, return empty set of dirs!
+			}
 			return [ this.directory ]; // just need our own directory!
 		}
 
@@ -84,7 +91,7 @@ class Dependency {
 		const flattened = allDirs.reduce((acc, val) => acc.concat(val), []); // TODO: replace with flat() call once Node 11+
 
 		// if this isn't the "root" module...
-		if (this.parent !== null) {
+		if (!this.isRoot()) {
 			// ...prune any children directories that are underneath this one
 			const filtered = flattened.filter(dir => !dir.startsWith(this.directory + path.sep));
 			filtered.push(this.directory); // We need to include our own directory
@@ -100,31 +107,35 @@ class Dependency {
 	 * @returns {Promise<string[]>} Set of dependency names.
 	 */
 	async gatherChildren(includeOptional = true, includePeers = true) {
-		const packageJson = await fs.readJson(path.join(this.directory, 'package.json'));
+		try {
+			const packageJson = await fs.readJson(path.join(this.directory, 'package.json'));
 
-		// if package is specifically marked to be ignored or is a native module wrapped in a package, skip it
-		if (packageJson.titanium) {
-			if (packageJson.titanium.ignore) {
-				return; // ignore this module
+			// if package is specifically marked to be ignored or is a native module wrapped in a package, skip it
+			if (packageJson.titanium) {
+				if (packageJson.titanium.ignore) {
+					return []; // ignore this module
+				}
+
+				// native modules as npm packages are handled separately by CLI native module code
+				if (packageJson.titanium.type === 'native-module') {
+					return [];
+				}
 			}
 
-			// native modules as npm packages are handled separately by CLI native module code
-			if (packageJson.titanium.type === 'native-module') {
-				return;
+			const dependencies = Object.keys(packageJson.dependencies || {});
+			// include optional dependencies too?
+			if (includeOptional && packageJson.optionalDependencies) {
+				dependencies.push(...Object.keys(packageJson.optionalDependencies));
 			}
-		}
 
-		const dependencies = Object.keys(packageJson.dependencies || {});
-		// include optional dependencies too?
-		if (includeOptional && packageJson.optionalDependencies) {
-			dependencies.push(...Object.keys(packageJson.optionalDependencies));
-		}
+			if (includePeers && packageJson.peerDependencies) {
+				dependencies.push(...Object.keys(packageJson.peerDependencies));
+			}
 
-		if (includePeers && packageJson.peerDependencies) {
-			dependencies.push(...Object.keys(packageJson.peerDependencies));
+			return dependencies;
+		} catch (err) {
+			return [];
 		}
-
-		return dependencies;
 	}
 
 	/**
@@ -143,7 +154,7 @@ class Dependency {
 		} catch (err) {
 			// do nothing...
 		}
-		if (this.parent !== null) {
+		if (!this.isRoot()) {
 			return this.parent.resolve(subModule); // Try the parent (recursively)
 		}
 		return null;
