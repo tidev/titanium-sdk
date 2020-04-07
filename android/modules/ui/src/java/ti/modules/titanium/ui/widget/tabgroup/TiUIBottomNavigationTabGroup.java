@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.annotation.SuppressLint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -24,7 +23,6 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -350,7 +348,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			final TiUITab tab = this.tabs.get(i);
 			if (tab.getProxy() != null) {
 				final TiViewProxy tabProxy = tab.getProxy();
-				final Drawable drawable = updateIconTint(tabProxy, this.mBottomNavigationView.getMenu().getItem(i).getIcon(), i == currentlySelectedIndex);
+				final boolean selected = i == currentlySelectedIndex;
+				Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
+				drawable = updateIconTint(tabProxy, drawable, selected);
 				this.mBottomNavigationView.getMenu().getItem(i).setIcon(drawable);
 			}
 		}
