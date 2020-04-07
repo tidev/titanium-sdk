@@ -351,15 +351,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			final TiUITab tab = this.tabs.get(i);
 			if (tab.getProxy() != null) {
 				final TiViewProxy tabProxy = tab.getProxy();
-				final Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
-				final int activeTintColor = TiColorHelper.parseColor(tabProxy.getProperties().optString(
-					TiC.PROPERTY_ACTIVE_TINT_COLOR,
-					tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "white")));
-				final int tintColor =
-					TiColorHelper.parseColor(tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "gray"));
-				final int color = i == currentlySelectedIndex ? activeTintColor : tintColor;
-
-				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+				final Drawable drawable = updateIconTint(tabProxy, this.mBottomNavigationView.getMenu().getItem(i).getIcon(), i == currentlySelectedIndex);
 				this.mBottomNavigationView.getMenu().getItem(i).setIcon(drawable);
 			}
 		}

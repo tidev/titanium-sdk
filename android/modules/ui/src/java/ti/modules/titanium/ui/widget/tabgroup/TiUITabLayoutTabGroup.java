@@ -345,15 +345,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			final TiUITab tab = this.tabs.get(i);
 			if (tab.getProxy() != null) {
 				final TiViewProxy tabProxy = tab.getProxy();
-				final Drawable drawable = this.mTabLayout.getTabAt(i).getIcon();
-				final int activeTintColor = TiColorHelper.parseColor(tabProxy.getProperties().optString(
-					TiC.PROPERTY_ACTIVE_TINT_COLOR,
-					tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "white")));
-				final int tintColor =
-					TiColorHelper.parseColor(tabProxy.getProperties().optString(TiC.PROPERTY_TINT_COLOR, "gray"));
-				final int color = i == this.mTabLayout.getSelectedTabPosition() ? activeTintColor : tintColor;
-
-				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+				final Drawable drawable = updateIconTint(tabProxy, this.mTabLayout.getTabAt(i).getIcon(), i == this.mTabLayout.getSelectedTabPosition());
 				this.mTabLayout.getTabAt(i).setIcon(drawable);
 			}
 		}
