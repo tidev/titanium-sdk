@@ -266,7 +266,7 @@ properties:
     summary: Defines the color of the tab icon when it is active.
     type: String
     since: {android: "9.1.0"}
-    platforms: [android]
+    platforms: [iphone, ipad, android]
 
   - name: title
     summary: Title for this tab.
