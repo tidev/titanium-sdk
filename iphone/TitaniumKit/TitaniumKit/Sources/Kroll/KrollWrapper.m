@@ -100,7 +100,7 @@
   JSValueRef functionResult = JSObjectCallAsFunction(context, value, NULL, 1, callArgs, &callException);
 
   if (callException != NULL) {
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:callException inKrollContext:context];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:callException inKrollContext:self.bridge.krollContext];
   }
 
   return functionResult;
