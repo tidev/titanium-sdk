@@ -24,8 +24,11 @@ junit.*.xml
 junit_report.xml
 
 /android/.project
+/android/app/.classpath
 /android/app/.project
+/android/kroll-apt/.classpath
 /android/kroll-apt/.project
+/android/titanium/.classpath
 /android/titanium/.project
 
 /iphone/TitaniumKit/Carthage
