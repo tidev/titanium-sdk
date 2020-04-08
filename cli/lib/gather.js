@@ -6,6 +6,7 @@ const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
 
 // RegExps used to match against files
 const FILENAME_REGEXP = /^(.*)\.(\w+)$/;
+// iOS specific stuff
 const LAUNCH_IMAGE_REGEXP = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/;
 const LAUNCH_LOGO_REGEXP = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/;
 const BUNDLE_FILE_REGEXP = /.+\.bundle\/.+/;
@@ -43,14 +44,14 @@ class FileInfo {
 
 class Result {
 	constructor() {
-		this.appIcons = new Map();
-		this.cssFiles = new Map();
-		this.jsFiles = new Map();
-		this.launchImages = new Map();
-		this.launchLogos = new Map();
-		this.imageAssets = new Map();
-		this.resourcesToCopy = new Map();
-		this.htmlJsFiles = new Set();
+		this.appIcons = new Map(); // ios specific
+		this.cssFiles = new Map(); // css files to be processed (minified optionally)
+		this.jsFiles = new Map(); // js files to be processed (transpiled/sourcemapped/minified/etc)
+		this.launchImages = new Map(); // ios specific
+		this.launchLogos = new Map(); // ios specific
+		this.imageAssets = new Map(); // ios specific
+		this.resourcesToCopy = new Map(); // "plain" files to copy to the app
+		this.htmlJsFiles = new Set(); // used internally to track js files we shouldn't process (basically move from jsFiles to resourcesToCopy bucket)
 	}
 
 	/**
