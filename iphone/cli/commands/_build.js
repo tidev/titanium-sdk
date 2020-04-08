@@ -5025,7 +5025,7 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 
 iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	console.time('gathering resources');
-	const gather = require('../lib/gather');
+	const gather = require('../../../cli/lib/gather');
 	const walker = new gather.Walker({
 		ignoreDirs: this.ignoreDirs,
 		ignoreFiles: this.ignoreFiles,
@@ -5043,7 +5043,6 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	let combined = gather.mergeMaps(firstWave);
 
 	const moduleCopier = require('../../../cli/lib/module-copier');
-	console.log(this.projectDir);
 	const dirSet = await moduleCopier.gather(this.projectDir);
 	const nodeModuleDirs = Array.from(dirSet);
 	const secondWave = await Promise.all(nodeModuleDirs.map(async dir => {
@@ -6048,6 +6047,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					function copyResources() {
 						this.logger.debug(__('Copying resources'));
 						gatheredResults.resourcesToCopy.forEach((info, file) => {
+							// FIXME: We're doing unnecessary work here
+							// We shouldn't stat the file in advance/etc
+							// If the dest doesn't exist, we know we need to copy
 							const srcStat = fs.statSync(info.src),
 								srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
 								prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
