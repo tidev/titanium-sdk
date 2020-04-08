@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2019 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -23,6 +23,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	GradleWrapper = require('../lib/gradle-wrapper'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
 	Color = require('../../../common/lib/color'),
+	CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
@@ -2233,6 +2234,9 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 
 	// Make sure Titanium's "assets" directory exists. (This is not an APK "assets" directory.)
 	// We output transpiled/polyfilled JS files here via copyResources() method.
+	// This is a temporary output path for transpiled JS files
+	// If we encrypt, we expect the input files to be here and encrypted copies placed in this.buildAppMainAssetsResourcesDir
+	// IF we do not encrypt we copy from this path to this.buildAppMainAssetsResourcesDir
 	// Note: Do NOT delete this folder. We do our own incremental build handling on it.
 	await fs.ensureDir(this.buildAssetsDir);
 
@@ -2491,7 +2495,6 @@ AndroidBuilder.prototype.gatherResources = async function gatherResources() {
 	const categorized = await categorizer.run(combined);
 
 	console.timeEnd('gathering resources');
-	console.log(categorized);
 	return categorized;
 };
 
@@ -2504,7 +2507,7 @@ AndroidBuilder.prototype.copyCSSFiles = async function copyCSSFiles(cssFiles) {
 	this.logger.debug(__('Copying CSS files'));
 	// iOS impl
 	// FIXME: do async in parallel?
-	cssFiles.forEach((info, file) => {
+	cssFiles.forEach((info, _file) => {
 		if (this.minifyCSS) {
 			this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
 			const dir = path.dirname(info.dest);
@@ -2568,12 +2571,19 @@ AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesM
 	this.logger.info(__('Processing JavaScript files'));
 	const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources', 'android');
 	// For now, need to adapt our Map results to String[] and Object for ProcessJsTask
+	// Note that because we wipe build/android/app/src/main every build, we have to use a middleman
+	// directory to hold processed files for incremental builds!
+	// FIXME: Can we avoid emptying the directory each time?! see generateAppProject()
 	const jsFiles = {};
 	const inputFiles = [];
 	for (let [ key, value ] of jsFilesMap) {
-		jsFiles[key] = value;
+		jsFiles[key] = {
+			src: value.src,
+			dest: path.join(this.buildAssetsDir, key) // hijack destination to point to build/assets
+		};
 		inputFiles.push(value.src);
 	}
+
 	const jsBootstrapFiles = []; // modified by the task and then used after the fact to write our bootstrap.json file
 	const task = new ProcessJsTask({
 		inputFiles,
@@ -2605,6 +2615,24 @@ AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesM
 	} else {
 		this.tiSymbols = task.data.tiSymbols;  // record API usage for analytics
 	}
+
+	// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
+	const resourcesToCopy = new Map();
+	for (let [ key, value ] of jsFilesMap) {
+		resourcesToCopy.set(key, {
+			src: path.join(this.buildAssetsDir, key),
+			dest: value.dest
+		});
+		this.unmarkBuildDirFile(value.dest);
+	}
+	const copyTask = new CopyResourcesTask({
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
+		name: 'copy-processed-js',
+		logger: this.logger,
+		builder: this,
+		files: resourcesToCopy
+	});
+	await copyTask.run();
 
 	// then write the bootstrap json
 	return this.writeBootstrapJson(jsBootstrapFiles);
@@ -2690,51 +2718,13 @@ AndroidBuilder.prototype.copyResources = async function copyResources() {
  */
 AndroidBuilder.prototype.copyUnmodifiedResources = async function copyUnmodifiedResources(resourcesToCopy) {
 	this.logger.debug(__('Copying resources'));
-	const symlinkFiles = process.platform !== 'win32' && this.config.get('android.symlinkResources', true);
-
-	// FIXME: use p-limit to limit number of files in process?
-	// TODO: Can we move all of this into a task like the process JS task?
-	// Then it can handle the incremental build stuff and we don't have to worry about it
-	const tasks = [];
-	resourcesToCopy.forEach((info, file) => tasks.push(this.smartCopy(info, file, symlinkFiles)));
-	return Promise.all(tasks);
-};
-
-/**
- * @param {object} info file info
- * @param {string} file filepath (relative?)
- * @param {boolean} symlinkFiles shoudl we attempt to symlink files isntead of copying?
- * @returns {Promise<void>}
- */
-AndroidBuilder.prototype.smartCopy = async function smartCopy(info, file, symlinkFiles) {
-	// Dumb Android version
-	const to = info.dest;
-	const from = info.src;
-	this.unmarkBuildDirFile(to);
-
-	const exists = await fs.exists(to);
-	if (exists) {
-		this.logger.warn(__('Overwriting file %s', to.cyan));
-		// TODO: Avoid copying if file hasn't changed!
-	} else {
-		const d = path.dirname(to);
-		await fs.ensureDir(d);
-	}
-
-	if (symlinkFiles) {
-		// Remove prior symlink.
-		if (exists) {
-			await fs.unlink(to);
-			// Remove prior file. (if previously did not symlink)
-			// NOTE: Should we ever have to do this?
-			// fs.existsSync(to) && fs.removeSync(to);
-		}
-		this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
-		return fs.symlink(from, to);
-	}
-
-	this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-	return fs.copyFile(from, to);
+	const task = new CopyResourcesTask({
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-resources'),
+		logger: this.logger,
+		builder: this,
+		files: resourcesToCopy
+	});
+	return task.run();
 };
 
 /**
