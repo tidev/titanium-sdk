@@ -32,6 +32,7 @@ public class NavigationWindowProxy extends WindowProxy
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
 		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
 			opened = true;
+			fireEvent(TiC.EVENT_OPEN, null);
 			Object rootView = getProperties().get(TiC.PROPERTY_WINDOW);
 			if (rootView instanceof WindowProxy || rootView instanceof TabGroupProxy) {
 				openWindow(rootView, arg);
@@ -58,6 +59,7 @@ public class NavigationWindowProxy extends WindowProxy
 	{
 		popToRootWindow(arg);
 		closeWindow(windows.get(0), arg); // close the root window
+		fireEvent(TiC.EVENT_CLOSE, null);
 		super.close(arg);
 	}
 
