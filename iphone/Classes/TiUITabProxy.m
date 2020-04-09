@@ -56,6 +56,8 @@
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
+  [self replaceValue:nil forKey:@"tintColor" notification:NO];
+  [self replaceValue:nil forKey:@"activeTintColor" notification:NO];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didChangeTraitCollection:)
                                                name:kTiTraitCollectionChanged
@@ -361,7 +363,7 @@
     TiViewController *toViewController = (TiViewController *)viewController;
     if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
       TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
-      [((TiUITabGroup *)(tabGroup.view)) tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+      [((TiUITabGroup *)(tabGroup.view))tabController].view.backgroundColor = windowProxy.view.backgroundColor;
     }
   }
   [self handleWillShowViewController:viewController animated:animated];
@@ -532,6 +534,11 @@
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
+  if (badgeColor == nil) {
+    // Default badgeColor to tintColor.
+    badgeColor = [self valueForKey:@"tintColor"];
+  }
+
   // System-icons
   if ([icon isKindOfClass:[NSNumber class]]) {
     int value = [TiUtils intValue:icon];
@@ -577,12 +584,25 @@
       activeImage = [(TiBlob *)activeIcon image];
     }
 
+    if (image != nil) {
+      if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
+        NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+        image = [image imageWithRenderingMode:theMode];
+      }
+    }
+    if (activeImage != nil) {
+      if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
+        NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+        activeImage = [activeImage imageWithRenderingMode:theMode];
+      }
+    }
+
     TiColor *tintColor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
     if (tintColor == nil) {
       tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
     }
-    if (tintColor != nil) {
-      image = [image withTintColor:[tintColor color]];
+    if (tintColor != nil && image != nil) {
+      image = [image imageWithTintColor:[tintColor color] renderingMode:UIImageRenderingModeAlwaysOriginal];
     }
 
     TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
@@ -590,24 +610,15 @@
       activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTintColor"]];
     }
     if (activeTintColor != nil) {
-      activeImage = [activeImage withTintColor:[activeTintColor color]];
+      if (activeImage != nil) {
+        activeImage = [activeImage imageWithTintColor:[activeTintColor color] renderingMode:UIImageRenderingModeAlwaysOriginal];
+      } else if (image != nil) {
+        activeImage = [image imageWithTintColor:[activeTintColor color] renderingMode:UIImageRenderingModeAlwaysOriginal];
+      }
     }
   }
   [rootController setTitle:title];
   UITabBarItem *ourItem = nil;
-
-  if (image != nil) {
-    if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
-      NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-      image = [image imageWithRenderingMode:theMode];
-    }
-  }
-  if (activeImage != nil) {
-    if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
-      NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-      activeImage = [activeImage imageWithRenderingMode:theMode];
-    }
-  }
 
   systemTab = NO;
   ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
