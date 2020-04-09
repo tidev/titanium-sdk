@@ -3433,7 +3433,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				const handledBuildPhases = [ 'PBXSourcesBuildPhase', 'PBXFrameworksBuildPhase', 'PBXResourcesBuildPhase', 'PBXCopyFilesBuildPhase' ];
 
 				// add the build phases
-				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
+				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(phase => {
 					let type;
 
 					for (const handledBuildPhase of handledBuildPhases) {
