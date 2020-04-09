@@ -5,8 +5,8 @@
 			"integrity": "sha512-fyilD5d27RYZaq/s3XEWxJDzUSEjKiTeu+2W552q8JDk33kmTq3nA1yX6Q5k7Tyl3RFhkSPJ0cPgEzREvwCCzg=="
 		},
 		"facebook": {
-			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v7.0.1-iphone/facebook-iphone-7.0.1.zip",
-			"integrity": "sha512-fVtskrodL5ot2rUoxoU9Lf8CBXhduzx7lnDwVOzla2VahgNIlXCyvUZhZP0t6kLmolUD0rVbG0ly6v1g4UzDdQ=="
+			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v8.0.0-iphone/facebook-iphone-8.0.0.zip",
+			"integrity": "sha512-osUMFCqFyeI6YhDsA3XacRpWv5t2gNWWMmyzmKokljT9r4krcgLr9f/Xlxvbc2UAlXe02kLFd4XO5OcQ770TTQ=="
 		},
 		"ti.coremotion": {
 			"url": "https://github.com/appcelerator-modules/ti.coremotion/releases/download/v2.1.0/ti.coremotion-iphone-2.1.0.zip",
