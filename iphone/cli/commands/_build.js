@@ -17,7 +17,6 @@ const appc = require('node-appc'),
 	async = require('async'),
 	bufferEqual = require('buffer-equal'),
 	Builder = require('node-titanium-sdk/lib/builder'),
-	CleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	cyan = require('colors').cyan,
 	DOMParser = require('xmldom').DOMParser,
@@ -30,6 +29,7 @@ const appc = require('node-appc'),
 	PNG = require('pngjs').PNG,
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
 	Color = require('../../../common/lib/color'),
+	ProcessCSSTask = require('../../../cli/lib/tasks/process-css-task'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
@@ -6046,6 +6046,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					function copyResources() {
 						this.logger.debug(__('Copying resources'));
+						// FIXME: Use the copy resources task!
 						gatheredResults.resourcesToCopy.forEach((info, file) => {
 							// FIXME: We're doing unnecessary work here
 							// We shouldn't stat the file in advance/etc
@@ -6085,19 +6086,15 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				], next);
 			},
 
-			function copyCSSFiles() {
+			function copyCSSFiles(next) {
 				this.logger.debug(__('Copying CSS files'));
-				gatheredResults.cssFiles.forEach((info, file) => {
-					if (this.minifyCSS) {
-						this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
-						const dir = path.dirname(info.dest);
-						fs.ensureDirSync(dir);
-						fs.writeFileSync(info.dest, new CleanCSS({ processImport: false }).minify(fs.readFileSync(info.src).toString()).styles);
-					} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
-						this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-					}
-					this.unmarkBuildDirFile(info.dest);
+				const task = new ProcessCSSTask({
+					files: gatheredResults.cssFiles,
+					incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-css'),
+					logger: this.logger,
+					builder: this,
 				});
+				task.run().then(() => next()).catch(e => next(e));
 			},
 
 			function (next) {

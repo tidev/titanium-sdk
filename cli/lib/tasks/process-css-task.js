@@ -1,48 +1,41 @@
 const { IncrementalFileTask } = require('appc-tasks');
 const fs = require('fs-extra');
+const path = require('path');
 const pLimit = require('p-limit');
-const { promisify } = require('util');
+const CleanCSS = require('clean-css');
 
 const MAX_SIMULTANEOUS_FILES = 256;
 const limit = pLimit(MAX_SIMULTANEOUS_FILES);
 
 /**
- * Task that copies "plain" input files to a destination.
+ * Task that takes input CSS files and optionally minifes them before copying to destination.
  */
-class CopyResourcesTask extends IncrementalFileTask {
+class ProcessCSSTask extends IncrementalFileTask {
 
 	/**
 	 * Constructs a new processing task.
 	 *
 	 * @param {Object} options Configuration object for this task.
-	 * @param {String} [options.name='copy-resources'] Name for the task.
+	 * @param {String} [options.name='process-css'] Name for the task.
 	 * @param {String} options.incrementalDirectory Path to a folder where incremental task data will be stored.
 	 * @param {Map<string,FileInfo>} options.files Map of input files to file info
 	 * @param {Object} [options.logger] The logger instance used by this task.
 	 * @param {Object} options.builder Builder instance.
 	 */
 	constructor(options) {
-		options.name = options.name || 'copy-resources';
+		options.name = options.name || 'process-css';
 		options.inputFiles = [];
 		options.files.forEach((info, _file) => options.inputFiles.push(info.src));
 		super(options);
 
 		this.files = options.files;
 		this.builder = options.builder;
+		this.minifyCSS = this.builder.minifyCSS;
 		this.platform = this.builder.cli.argv.platform;
 		this.forceCleanBuildPropertyName = this.platform === 'ios' ? 'forceCleanBuild' : 'forceRebuild';
-
-		this.createHooks();
-	}
-
-	/**
-	 * Function that will be called after the task run finished.
-	 *
-	 * Used to tell iOS build not to wipe our incremental state files
-	 */
-	async afterTaskAction() {
-		await super.afterTaskAction();
-		this.builder.unmarkBuildDirFiles(this.incrementalDirectory);
+		// Save last build's minifyCSS value for comparison to this build
+		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
+		this.resetTaskData(); // sets this.data.minifyCSS = undefined
 	}
 
 	/**
@@ -65,6 +58,7 @@ class CopyResourcesTask extends IncrementalFileTask {
 	 * @return {Promise}
 	 */
 	doFullTaskRun() {
+		this.resetTaskData();
 		return Promise.all(Array.from(this.inputFiles).map(filePath => limit(() => this.processFile(filePath))));
 	}
 
@@ -74,8 +68,8 @@ class CopyResourcesTask extends IncrementalFileTask {
 	 * @param {Map.<String, String>} changedFiles Map of changed files and their state (created, changed, deleted)
 	 * @return {Promise}
 	 */
-	doIncrementalTaskRun(changedFiles) {
-		if (this.requiresFullBuild()) {
+	async doIncrementalTaskRun(changedFiles) {
+		if (await this.requiresFullBuild()) {
 			return this.doFullTaskRun();
 		}
 
@@ -89,14 +83,54 @@ class CopyResourcesTask extends IncrementalFileTask {
 	}
 
 	/**
+	 * Loads last run's task data if this task will be skipped entirely.
+	 *
+	 * Note that this function will be called when no input files changed. Since
+	 * we also depend on some config values from the builder this is used to
+	 * fallback to a full task run if required.
+	 *
+	 * @return {Promise}
+	 */
+	async loadResultAndSkip() {
+		// check if minifyCSS changed (but no files changed)
+		if (await this.requiresFullBuild()) {
+			return this.doFullTaskRun();
+		}
+	}
+
+	/**
+	 * Function that will be called after the task run finished.
+	 *
+	 * Used to update the task data before it gets written to disk.
+	 */
+	async afterTaskAction() {
+		await super.afterTaskAction();
+
+		this.data.minifyCSS = this.minifyCSS;
+		await this.saveTaskData();
+
+		this.builder.unmarkBuildDirFiles(this.incrementalDirectory);
+	}
+
+	/**
 	 * Performs some sanity checks if we can safely perform an incremental build
 	 * or need to fallback to a full build.
 	 *
-	 * @return {Boolean} True if a full build is required, false if not.
+	 * @return {Promise<Boolean>} True if a full build is required, false if not.
 	 */
-	requiresFullBuild() {
+	async requiresFullBuild() {
+		const loaded = await this.loadTaskData();
 		if (this.builder[this.forceCleanBuildPropertyName]) {
-			this.logger.trace('Full build required, force clean build flag is set.');
+			return true;
+		}
+
+		if (!loaded) { // no last build to load, or we couldn't compare state, so assume full build
+			return true;
+		}
+
+		// if the minifyCSS property has changed we need to rebuild!
+		if (this.data.minifyCSS !== this.minifyCSS) {
+			this.logger.trace('Full build required, CSS minification value changed.');
 			return true;
 		}
 
@@ -173,17 +207,53 @@ class CopyResourcesTask extends IncrementalFileTask {
 		}
 
 		const info = this.files.get(file);
-		return this.copyResourceHook(info.src, info.dest);
+		const dir = path.dirname(info.dest);
+		await fs.ensureDir(dir);
+
+		this.builder.unmarkBuildDirFile(info.dest);
+
+		if (this.minifyCSS) {
+			// this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
+			const css = new CleanCSS({ processImport: false, returnPromise: true });
+			const source = await fs.readFile(info.src, 'utf8');
+			const output = await css.minify(source);
+			return fs.writeFile(info.dest, output.styles);
+		}
+
+		return fs.copy(info.src, info.dest);
 	}
 
 	/**
-	 * Creates the hooks that are required during file processing.
+	 * Loads data from the previous task run.
+	 *
+	 * @return {Boolean} True if the data was sucessfully loaded, false if not.
 	 */
-	createHooks() {
-		// FIXME: Can we symlink nearly everything?
-		// TODO: Do we need to retain timestamps to make android/gradle happy that things actually didn't change since last build?
-		this.copyResourceHook = promisify(this.builder.cli.createHook(`build.${this.platform}.copyResource`, this.builder, fs.copy));
+	async loadTaskData() {
+		try {
+			this.data = await fs.readJson(this.dataFilePath);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Saves current task data for reuse on next run.
+	 *
+	 * @return {Promise}
+	 */
+	async saveTaskData() {
+		return fs.writeJson(this.dataFilePath, this.data);
+	}
+
+	/**
+	 * Resets the task's data object to an empty state.
+	 */
+	resetTaskData() {
+		this.data = {
+			minifyCSS: undefined
+		};
 	}
 }
 
-module.exports = CopyResourcesTask;
+module.exports = ProcessCSSTask;
