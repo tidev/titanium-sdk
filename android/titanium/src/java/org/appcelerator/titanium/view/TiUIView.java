@@ -892,12 +892,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				nativeView.postInvalidate();
 			}
 		} else if (key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) || key.equals(TiC.PROPERTY_TOUCH_FEEDBACK)) {
-			KrollDict d = proxy.getProperties();
 			if (nativeView != null) {
 				if (canApplyTouchFeedback(d)) {
-					int bgColor = TiColorHelper.parseColor(d.getString(TiC.PROPERTY_BACKGROUND_COLOR));
+					final int bgColor = TiColorHelper.parseColor(d.getString(TiC.PROPERTY_BACKGROUND_COLOR));
 					applyTouchFeedback(bgColor, background,
-									   d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
+									   d.containsKeyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
 										   ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
 										   : null);
 				}
