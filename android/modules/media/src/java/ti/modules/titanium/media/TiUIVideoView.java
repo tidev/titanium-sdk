@@ -343,14 +343,12 @@ public class TiUIVideoView
 	@Override
 	public void onCompletion(MediaPlayer mp)
 	{
-		mp.release();
 		getPlayerProxy().onPlaybackComplete();
 	}
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra)
 	{
-		mp.release();
 		getPlayerProxy().onPlaybackError(what);
 		return false; // Let completion listener run.
 	}
