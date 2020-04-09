@@ -682,6 +682,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+		final KrollDict d = proxy.getProperties();
+		
 		if (key.equals(TiC.PROPERTY_LEFT)) {
 			resetPostAnimationValues();
 			resetTranslationX();
@@ -807,8 +809,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				   || key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 			// Update first before querying.
 			proxy.setProperty(key, newValue);
-
-			KrollDict d = proxy.getProperties();
 
 			boolean hasImage = hasImage(d);
 			boolean hasRepeat = hasRepeat(d);
@@ -1024,7 +1024,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (canApplyTouchFeedback(d)) {
 			applyTouchFeedback(bgColor, background,
-							   d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
+							   d.containsKeyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
 								   ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
 								   : null);
 		}
