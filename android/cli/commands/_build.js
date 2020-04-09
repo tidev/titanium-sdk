@@ -23,8 +23,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	GradleWrapper = require('../lib/gradle-wrapper'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
 	Color = require('../../../common/lib/color'),
+	ProcessCSSTask = require('../../../cli/lib/tasks/process-css-task'),
 	CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task'),
-	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
@@ -2500,25 +2500,18 @@ AndroidBuilder.prototype.gatherResources = async function gatherResources() {
 
 /**
  * Optionally mifies the input css files and copies them to the app
- * @param {Map<string,object>} cssFiles map from filename to file info
+ * @param {Map<string,object>} files map from filename to file info
  * @returns {Promise<void>}
  */
-AndroidBuilder.prototype.copyCSSFiles = async function copyCSSFiles(cssFiles) {
+AndroidBuilder.prototype.copyCSSFiles = async function copyCSSFiles(files) {
 	this.logger.debug(__('Copying CSS files'));
-	// iOS impl
-	// FIXME: do async in parallel?
-	cssFiles.forEach((info, _file) => {
-		if (this.minifyCSS) {
-			this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
-			const dir = path.dirname(info.dest);
-			fs.ensureDirSync(dir);
-			// TODO: use Promise API of clean-css...
-			fs.writeFileSync(info.dest, new CleanCSS({ processImport: false }).minify(fs.readFileSync(info.src).toString()).styles);
-		} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: false })) {
-			this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-		}
-		this.unmarkBuildDirFile(info.dest);
+	const task = new ProcessCSSTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-css'),
+		logger: this.logger,
+		builder: this,
 	});
+	return task.run();
 };
 
 /**
