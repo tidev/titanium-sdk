@@ -387,10 +387,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			final KrollDict windowProperties = windowProxy.getProperties();
 			final KrollDict properties = getProxy().getProperties();
 
-			if (windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)
-				|| properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
-				final String colorString = windowProperties.optString(TiC.PROPERTY_BAR_COLOR,
-					properties.getString(TiC.PROPERTY_BAR_COLOR));
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR) ||
+				windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
+				final String colorString = properties.optString(TiC.PROPERTY_BAR_COLOR,
+				windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
 				final int color = TiColorHelper.parseColor(colorString);
 				actionBar.setBackgroundDrawable(new ColorDrawable(color));
 			}
