@@ -20,7 +20,7 @@
  * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * This is the api level 8 VideoView.java with Titanium-specific modifications.
  */
 
@@ -569,9 +569,6 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mOnCompletionListener != null) {
 				mOnCompletionListener.onCompletion(mMediaPlayer);
 			}
-			if (mp != null) {
-				mp.release();
-			}
 		}
 	};
 
@@ -610,7 +607,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	/**
 	 * Register a callback to be invoked when the media file
 	 * is loaded and ready to go.
-	 * 
+	 *
 	 * @param l
 	 *            The callback that will be run
 	 */
@@ -622,7 +619,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	/**
 	 * Register a callback to be invoked when the end of a media file
 	 * has been reached during playback.
-	 * 
+	 *
 	 * @param l
 	 *            The callback that will be run
 	 */
@@ -636,7 +633,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	 * during playback or setup. If no listener is specified,
 	 * or if the listener returned false, VideoView will inform
 	 * the user of any errors.
-	 * 
+	 *
 	 * @param l
 	 *            The callback that will be run
 	 */
