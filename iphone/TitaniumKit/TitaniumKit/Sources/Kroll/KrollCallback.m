@@ -143,8 +143,7 @@ static NSLock *callbackLock;
   JSValueRef exception = NULL;
   JSValueRef retVal = JSObjectCallAsFunction(jsContext, function, tp, [args count], _args, &exception);
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
   }
   if (top != NULL) {
     JSValueUnprotect(jsContext, tp);
