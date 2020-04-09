@@ -131,9 +131,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if (count == 1 && [type isEqualToString:@"battery"]) {
-    TiThreadPerformOnMainThread(^{
-      [self registerListeners:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self registerListeners:nil];
+        },
         YES);
   }
 }
@@ -141,9 +142,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
   if (count == 0 && [type isEqualToString:@"battery"]) {
-    TiThreadPerformOnMainThread(^{
-      [self unregisterListeners:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self unregisterListeners:nil];
+        },
         YES);
   }
 }
@@ -309,17 +311,13 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
   }
 
   if (newUrl != nil) {
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[UIApplication sharedApplication] openURL:newUrl
-                                         options:optionsDict
-                               completionHandler:^(BOOL success) {
-                                 if (callback != nil) {
-                                   [callback callWithArguments:@[ @{ @"success" : @(success)} ]];
-                                 }
-                               }];
-    } else {
-      result = [[UIApplication sharedApplication] openURL:newUrl];
-    }
+    [[UIApplication sharedApplication] openURL:newUrl
+                                       options:optionsDict
+                             completionHandler:^(BOOL success) {
+                               if (callback != nil) {
+                                 [callback callWithArguments:@[ @{@"success" : @(success)} ]];
+                               }
+                             }];
   }
 
   return [NSNumber numberWithBool:result];
@@ -344,9 +342,10 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
 - (void)setBatteryMonitoring:(BOOL)yn
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self setBatteryMonitoring:yn];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setBatteryMonitoring:yn];
+        },
         YES);
   }
   [[UIDevice currentDevice] setBatteryMonitoringEnabled:yn];
@@ -356,9 +355,10 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
 {
   if (![NSThread isMainThread]) {
     __block BOOL result = NO;
-    TiThreadPerformOnMainThread(^{
-      result = [self batteryMonitoring];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [self batteryMonitoring];
+        },
         YES);
     return result;
   }
@@ -370,9 +370,10 @@ READWRITE_IMPL(BOOL, batteryMonitoring, BatteryMonitoring);
 {
   if (![NSThread isMainThread]) {
     __block NSNumber *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self batteryState] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self batteryState] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -384,9 +385,10 @@ GETTER_IMPL(NSNumber *, batteryState, BatteryState);
 {
   if (![NSThread isMainThread]) {
     __block NSNumber *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self batteryLevel] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self batteryLevel] retain];
+        },
         YES);
     return [result autorelease];
   }

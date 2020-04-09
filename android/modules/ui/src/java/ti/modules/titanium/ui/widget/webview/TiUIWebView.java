@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -691,7 +691,7 @@ public class TiUIWebView extends TiUIView
 		return getWebView().getUrl();
 	}
 
-	private static final char escapeChars[] = new char[] { '%', '#', '\'', '?' };
+	private static final char[] escapeChars = new char[] { '%', '#', '\'', '?' };
 
 	private String escapeContent(String content)
 	{
@@ -1041,7 +1041,7 @@ public class TiUIWebView extends TiUIView
 				break;
 
 			case HTML:
-				if (reloadData == null || (reloadData instanceof HashMap<?, ?>) ) {
+				if (reloadData == null || (reloadData instanceof HashMap<?, ?>)) {
 					setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
 							(HashMap<String, Object>) reloadData);
 				} else {

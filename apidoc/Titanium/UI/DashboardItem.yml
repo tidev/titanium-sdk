@@ -14,7 +14,7 @@ events:
     properties:
       - name: location
         summary: Coordinates `x` and `y` of the event from the parent view's coordinate system.
-        type: Dictionary
+        type: Point
         
       - name: item
         summary: Item that was clicked.

@@ -44,6 +44,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   RELEASE_TO_NIL(_pageToken);
   RELEASE_TO_NIL(_loadingIndicator);
+  RELEASE_TO_NIL(self.reloadData);
   [super dealloc];
 }
 
@@ -75,13 +76,11 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     [config setUserContentController:controller];
 
-#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
         [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
       }
     }
-#endif
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
@@ -140,7 +139,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([path hasPrefix:@"/"]) {
     path = [path substringFromIndex:1];
   }
-  return [NSURL URLWithString:[[NSString stringWithFormat:@"app://%@/%@", TI_APPLICATION_ID, path] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+  return [NSURL URLWithString:[[NSString stringWithFormat:@"app://%@/%@", TI_APPLICATION_ID, path] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
 }
 
 + (BOOL)isLocalURL:(NSURL *)url
@@ -174,6 +173,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setUrl_:(id)value
 {
+  ignoreNextRequest = YES;
+  self.reloadData = value;
+  reloadMethod = @selector(setUrl_:);
+
   ENSURE_TYPE(value, NSString);
   [[self proxy] replaceValue:value forKey:@"url" notification:NO];
 
@@ -201,8 +204,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[self webView] setBackgroundColor:[[TiUtils colorValue:value] color]];
 }
 
+- (void)setAssetsDirectory_:(id)value
+{
+  ENSURE_TYPE_OR_NIL(value, NSString);
+  assetsDirectory = value;
+}
+
 - (void)setData_:(id)value
 {
+  ignoreNextRequest = YES;
+  self.reloadData = value;
+  reloadMethod = @selector(setData_:);
+
   [[self proxy] replaceValue:value forKey:@"data" notification:NO];
 
   if ([[self webView] isLoading]) {
@@ -243,6 +256,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setHtml_:(id)args
 {
+  ignoreNextRequest = YES;
+  self.reloadData = args;
+  reloadMethod = @selector(setHtml_:);
+
   NSString *content = nil;
   NSDictionary *options = nil;
 
@@ -349,6 +366,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   [self _setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value]];
   [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+}
+
+- (void)reload
+{
+  if (_webView == nil) {
+    return;
+  }
+  if (self.reloadData != nil) {
+    [self performSelector:reloadMethod withObject:self.reloadData];
+    return;
+  }
+  [[self webView] reload];
 }
 
 #pragma mark Utilities
@@ -674,51 +703,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)loadLocalURL:(NSURL *)url
 {
-  NSStringEncoding encoding = NSUTF8StringEncoding;
   NSString *path = [url path];
-  NSString *mimeType = [Mimetypes mimeTypeForExtension:path];
-  NSError *error = nil;
   NSURL *baseURL = [[url copy] autorelease];
 
   // first check to see if we're attempting to load a file from the
   // filesystem and if so, and it exists, use that
   if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-    // per the Apple docs on what to do when you don't know the encoding ahead of a
-    // file read:
-    // step 1: read and attempt to have system determine
-    NSString *html = [NSString stringWithContentsOfFile:path usedEncoding:&encoding error:&error];
-    if (html == nil && error != nil) {
-      //step 2: if unknown encoding, try UTF-8
-      error = nil;
-      html = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-      if (html == nil && error != nil) {
-        //step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
-        //at this point we're just going to fail
-        //This is assuming, of course, that this just isn't a pdf or some other non-HTML file.
-        if ([[path pathExtension] hasPrefix:@"htm"]) {
-          DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.", [path lastPathComponent]);
-        }
-      } else {
-        // if we get here, it succeeded using UTF8
-        encoding = NSUTF8StringEncoding;
-      }
-    } else {
-      error = nil;
-    }
-    if ((error != nil && [error code] == 261) || [mimeType isEqualToString:(NSString *)svgMimeType]) {
-      //TODO: Shouldn't we be checking for an HTML mime type before trying to read? This is right now rather inefficient, but it
-      //Gets the job done, with minimal reliance on extensions.
-      // this is a different encoding than specified, just send it to the webview to load
-
-      NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-      [self loadRequestWithURL:url];
-      return;
-    } else if (error != nil) {
-      DebugLog(@"[DEBUG] Cannot load file: %@. Error message was: %@", path, error);
-      return;
-    }
     NSURL *requestURL = [NSURL fileURLWithPath:path];
-    [self loadRequestWithURL:requestURL];
+    NSString *readAccessDirectory = assetsDirectory ?: [[url URLByDeletingLastPathComponent] absoluteString];
+
+    [[self webView] loadFileURL:requestURL
+        allowingReadAccessToURL:[NSURL URLWithString:readAccessDirectory]];
+
   } else {
     // convert it into a app:// relative path to load the resource
     // from our application
@@ -726,7 +722,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     NSData *data = [TiUtils loadAppResource:url];
     NSString *html = nil;
     if (data != nil) {
-      html = [[[NSString alloc] initWithData:data encoding:encoding] autorelease];
+      html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
     }
     if (html != nil) {
       //Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
@@ -891,9 +887,24 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [self _cleanupLoadingIndicator];
   [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    // TO DO: Once TIMOB-26915 done, remove this
+    __block BOOL finishedEvaluation = NO;
+    [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+      for (NSHTTPCookie *cookie in cookies) {
+        [NSHTTPCookieStorage.sharedHTTPCookieStorage setCookie:cookie];
+      }
+      finishedEvaluation = YES;
+    }];
+    while (!finishedEvaluation) {
+      [NSRunLoop.currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:NSDate.distantFuture];
+    }
+  }
+
   if ([[self proxy] _hasListeners:@"load"]) {
     [[self proxy] fireEvent:@"load" withObject:@{ @"url" : webView.URL.absoluteString, @"title" : webView.title }];
   }
+  ignoreNextRequest = NO;
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error
@@ -979,6 +990,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[TiApp app] showModalController:alertController animated:YES];
 }
 
+- (void)fireBeforeLoad:(nonnull WKNavigationAction *)navigationAction
+{
+  if ([[self proxy] _hasListeners:@"beforeload"]) {
+    [[self proxy] fireEvent:@"beforeload"
+                 withObject:@{
+                   @"url" : navigationAction.request.URL.absoluteString,
+                   @"navigationType" : @(navigationAction.navigationType),
+                   @"isMainFrame" : NUMBOOL(navigationAction.targetFrame.isMainFrame),
+                 }];
+  }
+}
+
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(nonnull WKNavigationAction *)navigationAction decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler
 {
   if (_isViewDetached) {
@@ -1008,20 +1031,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
-  if ([[self proxy] _hasListeners:@"beforeload"]) {
-    [[self proxy] fireEvent:@"beforeload"
-                 withObject:@{
-                   @"url" : navigationAction.request.URL.absoluteString,
-                   @"navigationType" : @(navigationAction.navigationType)
-                 }];
-  }
-
   // Use "onlink" callback property to decide the navigation policy
   KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
-  if (onLink != nil) {
+  if (onLink != nil && navigationAction.navigationType == WKNavigationTypeLinkActivated) {
     JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : navigationAction.request.URL.absoluteString } ]];
     if (functionResult != NULL && JSValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
       if (JSValueToBoolean([onLink.bridge.krollContext context], functionResult)) {
+        [self fireBeforeLoad:navigationAction];
         decisionHandler(WKNavigationActionPolicyAllow);
       } else {
         decisionHandler(WKNavigationActionPolicyCancel);
@@ -1030,53 +1046,49 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }
   }
 
+  [self fireBeforeLoad:navigationAction];
+
   NSString *scheme = [navigationAction.request.URL.scheme lowercaseString];
 
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
       if ([[self proxy] _hasListeners:@"handleurl"]) {
-        TiThreadPerformOnMainThread(^{
-          [[self proxy] fireEvent:@"handleurl"
-                       withObject:@{
-                         @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
-                         @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
-                       }];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [[self proxy] fireEvent:@"handleurl"
+                           withObject:@{
+                             @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
+                             @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
+                           }];
+            },
             NO);
       } else {
         // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
         DebugLog(@"[WARN] In iOS, please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
         DebugLog(@"[WARN] In iOS, it returns both the \"url\" and \"handler\" property to open a URL and invoke the decision-handler.");
 
-        [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+        [UIApplication.sharedApplication openURL:navigationAction.request.URL options:@{} completionHandler:nil];
         decisionHandler(WKNavigationActionPolicyCancel);
       }
     }
   } else if (!([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"] || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) && [[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
     // Support tel: protocol
-    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    [UIApplication.sharedApplication openURL:navigationAction.request.URL options:@{} completionHandler:nil];
     decisionHandler(WKNavigationActionPolicyCancel);
   } else {
+    BOOL valid = !ignoreNextRequest;
+    if ([scheme hasPrefix:@"http"]) {
+      //UIWebViewNavigationTypeOther means we are either in a META redirect
+      //or it is a js request from within the page
+      valid = valid && (navigationAction.navigationType != WKNavigationTypeOther);
+    }
+    if (valid) {
+      self.reloadData = navigationAction.request.URL.absoluteString;
+      reloadMethod = @selector(setUrl_:);
+    }
     decisionHandler(WKNavigationActionPolicyAllow);
   }
-}
-
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
-{
-  NSDictionary<NSString *, id> *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
-  NSURL *requestedURL = navigationResponse.response.URL;
-
-  // If we have request headers set, we do a little hack to persist them across different URL's,
-  // which is not officially supported by iOS.
-  if (requestHeaders != nil && requestedURL != nil && ![requestedURL.absoluteString isEqualToString:_currentURL.absoluteString]) {
-    _currentURL = requestedURL;
-    decisionHandler(WKNavigationResponsePolicyCancel);
-    [self loadRequestWithURL:_currentURL];
-    return;
-  }
-
-  decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
@@ -1365,7 +1377,6 @@ static NSString *UIKitLocalizedString(NSString *string)
 
 @end
 
-#if IS_SDK_IOS_11
 @implementation WebAppProtocolHandler
 
 + (NSString *)specialProtocolScheme
@@ -1416,6 +1427,5 @@ static NSString *UIKitLocalizedString(NSString *string)
 }
 
 @end
-#endif
 
 #endif

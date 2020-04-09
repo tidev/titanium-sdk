@@ -14,7 +14,6 @@ import javax.net.ssl.X509TrustManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
@@ -22,7 +21,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import ti.modules.titanium.xml.DocumentProxy;
 import android.os.Build;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = NetworkModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_FILE,
@@ -32,7 +30,6 @@ import android.os.Build;
 		TiC.PROPERTY_ONREADYSTATECHANGE,
 		TiC.PROPERTY_ONDATASTREAM
 })
-// clang-format on
 public class HTTPClientProxy extends KrollProxy
 {
 	@Kroll.constant
@@ -88,7 +85,8 @@ public class HTTPClientProxy extends KrollProxy
 					this.client.securityManager = (SecurityManagerProtocol) prop;
 				} else {
 					throw new IllegalArgumentException(
-						"Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
+						"Invalid argument passed to securityManager property."
+						+ " Does not conform to SecurityManagerProtocol");
 				}
 			}
 		}
@@ -102,38 +100,30 @@ public class HTTPClientProxy extends KrollProxy
 		client.abort();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getAllResponseHeaders()
-	// clang-format on
 	{
 		return client.getAllResponseHeaders();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getReadyState()
-	// clang-format on
 	{
 		return client.getReadyState();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiBlob getResponseData()
-	// clang-format on
 	{
 		return client.getResponseData();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getResponseDictionary()
-	// clang-format on
 	{
 		return client.getResponseDict();
 	}
@@ -144,38 +134,30 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getResponseHeader(header);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getResponseText()
-	// clang-format on
 	{
 		return client.getResponseText();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public DocumentProxy getResponseXML()
-	// clang-format on
 	{
 		return client.getResponseXML();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getStatus()
-	// clang-format on
 	{
 		return client.getStatus();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getStatusText()
-	// clang-format on
 	{
 		return client.getStatusText();
 	}
@@ -204,110 +186,86 @@ public class HTTPClientProxy extends KrollProxy
 		client.setRequestHeader(header, value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setTimeout(int millis)
-	// clang-format on
 	{
 		client.setTimeout(millis);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getLocation()
-	// clang-format on
 	{
 		return client.getLocation();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getConnectionType()
-	// clang-format on
 	{
 		return client.getConnectionType();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getConnected()
-	// clang-format on
 	{
 		return client.isConnected();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAutoEncodeUrl()
-	// clang-format on
 	{
 		return client.getAutoEncodeUrl();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setAutoEncodeUrl(boolean value)
-	// clang-format on
 	{
 		client.setAutoEncodeUrl(value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAutoRedirect()
-	// clang-format on
 	{
 		return client.getAutoRedirect();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setAutoRedirect(boolean value)
-	// clang-format on
 	{
 		client.setAutoRedirect(value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getValidatesSecureCertificate()
-	// clang-format on
 	{
 		return client.validatesSecureCertificate();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setValidatesSecureCertificate(boolean value)
-	// clang-format on
 	{
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setUsername(String value)
-	// clang-format on
 	{
 		this.setProperty(TiC.PROPERTY_USERNAME, value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
-	// clang-format on
 	{
 		if (this.hasProperty(TiC.PROPERTY_USERNAME)) {
 			return TiConvert.toString(this.getProperty(TiC.PROPERTY_USERNAME));
@@ -315,20 +273,16 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setPassword(String value)
-	// clang-format on
 	{
 		this.setProperty(TiC.PROPERTY_PASSWORD, value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getPassword()
-	// clang-format on
 	{
 		if (this.hasProperty(TiC.PROPERTY_PASSWORD)) {
 			return TiConvert.toString(this.getProperty(TiC.PROPERTY_PASSWORD));
@@ -336,20 +290,16 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setDomain(String value)
-	// clang-format on
 	{
 		this.setProperty(TiC.PROPERTY_DOMAIN, value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getDomain()
-	// clang-format on
 	{
 		if (this.hasProperty(TiC.PROPERTY_DOMAIN)) {
 			return TiConvert.toString(this.getProperty(TiC.PROPERTY_DOMAIN));
@@ -387,20 +337,16 @@ public class HTTPClientProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setTlsVersion(int tlsVersion)
-	// clang-format on
 	{
 		client.setTlsVersion(tlsVersion);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getTlsVersion()
-	// clang-format on
 	{
 		int tlsVersion;
 

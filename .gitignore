@@ -23,19 +23,13 @@ retirejs.output.json
 junit.*.xml
 junit_report.xml
 
-# intelliJ Android User-specific configurations
-/android/.idea/libraries/
-/android/.idea/workspace.xml
-/android/.idea/tasks.xml
-/android/.idea/.name
-/android/.idea/compiler.xml
-/android/.idea/copyright/profiles_settings.xml
-/android/.idea/encodings.xml
-/android/.idea/misc.xml
-/android/.idea/modules.xml
-/android/.idea/scopes/scope_settings.xml
-/android/.idea/vcs.xml
-*.iml
+/android/.project
+/android/app/.classpath
+/android/app/.project
+/android/kroll-apt/.classpath
+/android/kroll-apt/.project
+/android/titanium/.classpath
+/android/titanium/.project
 
 /iphone/TitaniumKit/Carthage
 /iphone/TitaniumKit/docs

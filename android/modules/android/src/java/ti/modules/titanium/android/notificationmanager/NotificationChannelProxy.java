@@ -12,8 +12,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 
-import ti.modules.titanium.android.AndroidModule;
-
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.media.AudioAttributes;
@@ -78,210 +76,164 @@ public class NotificationChannelProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return channel.getId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableLights()
-	// clang-format on
 	{
 		return channel.shouldShowLights();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setEnableLights(boolean lights)
-	// clang-format on
 	{
 		channel.enableLights(lights);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableVibration()
-	// clang-format on
 	{
 		return channel.shouldVibrate();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setEnableVibration(boolean vibration)
-	// clang-format on
 	{
 		channel.enableVibration(vibration);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBypassDnd()
-	// clang-format on
 	{
 		return channel.canBypassDnd();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBypassDnd(boolean bypassDnd)
-	// clang-format on
 	{
 		channel.setBypassDnd(bypassDnd);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getDescription()
-	// clang-format on
 	{
 		return channel.getDescription();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setDescription(String description)
-	// clang-format on
 	{
 		channel.setDescription(description);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getGroupId()
-	// clang-format on
 	{
 		return channel.getGroup();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupId(String groupId)
-	// clang-format on
 	{
 		channel.setGroup(groupId);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getImportance()
-	// clang-format on
 	{
 		return channel.getImportance();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setImportance(int importance)
-	// clang-format on
 	{
 		channel.setImportance(importance);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLightColor()
-	// clang-format on
 	{
 		return channel.getLightColor();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setLightColor(int argb)
-	// clang-format on
 	{
 		channel.setLightColor(argb);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLockscreenVisibility()
-	// clang-format on
 	{
 		return channel.getLockscreenVisibility();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setLockscreenVisibility(int lockscreenVisibility)
-	// clang-format on
 	{
 		channel.setLockscreenVisibility(lockscreenVisibility);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return channel.getName().toString();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setName(String name)
-	// clang-format on
 	{
 		channel.setName(name);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getShowBadge()
-	// clang-format on
 	{
 		return channel.canShowBadge();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setShowBadge(boolean showBadge)
-	// clang-format on
 	{
 		channel.setShowBadge(showBadge);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSound()
-	// clang-format on
 	{
 		Uri uri = channel.getSound();
 		return (uri != null) ? uri.toString() : null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setSound(String path)
-	// clang-format on
 	{
 		AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
 		attributesBuilder.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
@@ -289,11 +241,9 @@ public class NotificationChannelProxy extends KrollProxy
 		channel.setSound(Uri.parse(resolveUrl(null, path)), attributesBuilder.build());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public Object getVibrationPattern()
-	// clang-format on
 	{
 		long[] pattern = channel.getVibrationPattern();
 		Object[] patternArray = new Object[pattern.length];
@@ -303,11 +253,9 @@ public class NotificationChannelProxy extends KrollProxy
 		return patternArray;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setVibrationPattern(Object patternObj)
-	// clang-format on
 	{
 		if (patternObj instanceof Object[]) {
 			Object[] patternArray = (Object[]) patternObj;

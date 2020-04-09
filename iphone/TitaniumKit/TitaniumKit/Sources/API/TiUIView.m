@@ -196,9 +196,10 @@ DEFINE_EXCEPTIONS
   if ([NSThread isMainThread]) {
     [super removeFromSuperview];
   } else {
-    TiThreadPerformOnMainThread(^{
-      [super removeFromSuperview];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [super removeFromSuperview];
+        },
         YES);
   }
 }
@@ -532,9 +533,10 @@ DEFINE_EXCEPTIONS
 - (void)renderRepeatedBackground:(id)image
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self renderRepeatedBackground:image];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self renderRepeatedBackground:image];
+        },
         NO);
     return;
   }
@@ -736,7 +738,7 @@ DEFINE_EXCEPTIONS
       //If borderWidth > 0, or borderRadius > 0 enable clipping
       self.clipsToBounds = YES;
     } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]) {
-      self.clipsToBounds = ([[((TiViewProxy *)self.proxy)children] count] > 0);
+      self.clipsToBounds = ([[((TiViewProxy *)self.proxy) children] count] > 0);
     } else {
       DeveloperLog(@"[WARN] Proxy is nil or not of kind TiViewProxy. Check");
       self.clipsToBounds = NO;

@@ -36,8 +36,15 @@
 
 - (UIFont *)font
 {
+  // TO DO: Refactor this function
   if (font == nil) {
-    if (textStyle != nil && [textStyle isKindOfClass:[NSString class]]) {
+    if (textStyle != nil && [textStyle isKindOfClass:[NSString class]] && family != nil && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      UIFont *tempFont = [UIFont fontWithName:family size:self.size];
+      if (tempFont) {
+        UIFontMetrics *fontMetrics = [UIFontMetrics metricsForTextStyle:textStyle];
+        font = [[fontMetrics scaledFontForFont:tempFont] retain];
+      }
+    } else if (textStyle != nil && [textStyle isKindOfClass:[NSString class]]) {
       font = [[UIFont preferredFontForTextStyle:textStyle] retain];
     } else {
       if (family != nil) {
@@ -126,7 +133,7 @@
       if (font == nil) {
         //NO valid family specified. Just check for characteristics. Semi bold is ignored here.
         if (self.isBoldWeight) {
-          UIFont *theFont = ([TiUtils isIOSVersionOrGreater:@"8.2"]) ? [UIFont systemFontOfSize:self.size weight:UIFontWeightBold] : [UIFont boldSystemFontOfSize:self.size];
+          UIFont *theFont = [UIFont systemFontOfSize:self.size weight:UIFontWeightBold];
           if (self.isItalicStyle) {
             NSString *fontFamily = [theFont familyName];
             NSArray *fontNames = [UIFont fontNamesForFamilyName:fontFamily];
@@ -153,7 +160,7 @@
           }
         } else if (self.isItalicStyle) {
           font = [[UIFont italicSystemFontOfSize:self.size] retain];
-        } else if ([TiUtils isIOSVersionOrGreater:@"8.2"]) {
+        } else {
           if (self.isSemiboldWeight) {
             font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightSemibold] retain];
           } else if (self.isThinWeight) {
@@ -165,8 +172,6 @@
           } else {
             font = [[UIFont systemFontOfSize:self.size] retain];
           }
-        } else {
-          font = [[UIFont systemFontOfSize:self.size] retain];
         }
       }
     }

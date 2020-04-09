@@ -9,6 +9,12 @@ if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
 	const buffer = Ti.createBuffer({ value: '' });
 	const blob = buffer.toBlob();
 	blob.constructor.prototype.toString = function () {
-		return this.text;
+		const value = this.text;
+		return (value === undefined) ? '[object TiBlob]' :  value;
 	};
+
+	if ((parseInt(Ti.Platform.version.split('.')[0]) < 11)) {
+		// This is hack to fix TIMOB-27707. Remove it after minimum target set iOS 11+
+		setTimeout(function () {}, Infinity);
+	}
 }

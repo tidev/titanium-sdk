@@ -132,7 +132,7 @@ GETTER_IMPL(NSUInteger, size, Size);
   if (self = [super init]) {
     image = [image_ retain];
     type = TiBlobTypeImage;
-    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
@@ -148,7 +148,7 @@ GETTER_IMPL(NSUInteger, size, Size);
     image = [[UIImage systemImageNamed:imageName] retain];
     type = TiBlobTypeSystemImage;
     systemImageName = [imageName retain];
-    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
@@ -165,6 +165,17 @@ GETTER_IMPL(NSUInteger, size, Size);
     data = [data_ retain];
     type = TiBlobTypeData;
     mimetype = [mimetype_ copy];
+  }
+  return self;
+}
+
+- (id)initWithData:(NSData *)data_ andPath:(NSString *)path_
+{
+  if (self = [super init]) {
+    data = [data_ retain];
+    type = TiBlobTypeData;
+    path = [path_ retain];
+    mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
   }
   return self;
 }

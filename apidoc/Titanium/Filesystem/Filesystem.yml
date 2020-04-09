@@ -69,6 +69,7 @@ methods:
         summary: One or more path components. Path arguments are joined together using
             the platform specific path separator to form the full path.
         type: [String, Array<String>]
+        repeatable: true
 
   - name: getAsset
     summary: Returns a `Blob` object representing the asset catalog image identified by the path
@@ -104,6 +105,7 @@ methods:
         summary: One or more path components. Path arguments are joined together using
             the platform specific path separator to form the full path.
         type: String
+        repeatable: true
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
     since: "5.4.0"

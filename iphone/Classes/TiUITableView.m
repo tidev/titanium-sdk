@@ -517,9 +517,10 @@
   // way, meaning that we have to explicitly reload the whole visible table to get
   // the "right" behavior.
   if (animation == UITableViewRowAnimationNone) {
-    TiThreadPerformOnMainThread(^{
-      [table reloadData];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [table reloadData];
+        },
         YES);
     return;
   }
@@ -1688,17 +1689,18 @@
 
 - (void)proxyDidRelayout:(id)sender
 {
-  TiThreadPerformOnMainThread(^{
-    if ((sender == headerViewProxy) && (headerViewProxy != nil)) {
-      UIView *headerView = [[self tableView] tableHeaderView];
-      [headerView setFrame:[headerView bounds]];
-      [[self tableView] setTableHeaderView:headerView];
-    } else if ((sender == footerViewProxy) && (footerViewProxy != nil)) {
-      UIView *footerView = [[self tableView] tableFooterView];
-      [footerView setFrame:[footerView bounds]];
-      [[self tableView] setTableFooterView:footerView];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ((sender == headerViewProxy) && (headerViewProxy != nil)) {
+          UIView *headerView = [[self tableView] tableHeaderView];
+          [headerView setFrame:[headerView bounds]];
+          [[self tableView] setTableHeaderView:headerView];
+        } else if ((sender == footerViewProxy) && (footerViewProxy != nil)) {
+          UIView *footerView = [[self tableView] tableFooterView];
+          [footerView setFrame:[footerView bounds]];
+          [[self tableView] setTableFooterView:footerView];
+        }
+      },
       NO);
 }
 
@@ -1903,9 +1905,10 @@
 
   // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
   // has been regenerated, we can assume it's okay to just reload the whole dataset.
-  TiThreadPerformOnMainThread(^{
-    [[self tableView] reloadData];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self tableView] reloadData];
+      },
       NO);
 }
 
@@ -1982,12 +1985,7 @@
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[self tableView] setRefreshControl:_refreshControlProxy.control];
-    } else {
-      [[self tableView] addSubview:[_refreshControlProxy control]];
-    }
+    [[self tableView] setRefreshControl:_refreshControlProxy.control];
   }
 #endif
 }
@@ -2390,7 +2388,6 @@
 
 - (void)viewGetFocus
 {
-#if IS_SDK_IOS_11
   if (isSearchBarInNavigation) {
     id proxy = [(TiViewProxy *)self.proxy parent];
     while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
@@ -2406,7 +2403,6 @@
       controller.navigationItem.searchController = searchController;
     }
   }
-#endif
   if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
     searchController.searchBar.text = self.searchedString;

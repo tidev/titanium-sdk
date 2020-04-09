@@ -25,10 +25,9 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
-// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_SUPPORT_TOOLBAR,
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
@@ -41,7 +40,6 @@ import android.support.v7.widget.Toolbar;
 	TiC.PROPERTY_ON_STOP,
 	TiC.PROPERTY_ON_DESTROY
 })
-// clang-format on
 /**
  * This is a proxy representation of the Android Activity type.
  * Refer to <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity</a>
@@ -196,20 +194,16 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return application.getString(resId, formatArgs);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getIntent()
-	// clang-format on
 	{
 		return intentProxy;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestedOrientation(int orientation)
-	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -253,11 +247,9 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getWindow()
-	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (!(activity instanceof TiBaseActivity)) {
@@ -268,11 +260,9 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return tiActivity.getWindowProxy();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ActionBarProxy getActionBar()
-	// clang-format on
 	{
 		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
 		if (actionBarProxy == null && activity != null) {

@@ -16,6 +16,18 @@
 
 @implementation TiUIWebViewProxy
 
+static NSArray *webViewKeySequence;
+
+#pragma mark Internal
+
+- (NSArray *)keySequence
+{
+  if (webViewKeySequence == nil) {
+    webViewKeySequence = [[NSArray arrayWithObjects:@"assetsDirectory", @"url", nil] retain];
+  }
+  return webViewKeySequence;
+}
+
 - (id)_initWithPageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
@@ -38,9 +50,10 @@
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-  TiThreadPerformOnMainThread(^{
-    [[self webView] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self webView] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
+      },
       NO);
 }
 
@@ -313,6 +326,29 @@
   _allowedURLSchemes = [[NSArray arrayWithArray:schemes] retain];
 }
 
+- (void)setBasicAuthentication:(id)value
+{
+  // This was a regression between 7.x and 8.0.0. It should be removed in later versions
+  if ([value isKindOfClass:[NSDictionary class]]) {
+    NSLog(@"[WARN] Please pass the basicAuthentication parameters as function arguments, e.g. \"webView.setBasicAuthentication(username, password, persistence)\"");
+    [self replaceValue:value forKey:@"basicAuthentication" notification:NO];
+    return;
+  }
+
+  NSString *username = value[0];
+  NSString *password = value[1];
+  NSURLCredentialPersistence persistence = NSURLCredentialPersistenceNone;
+
+  if ([value count] == 3) {
+    persistence = [TiUtils intValue:value[2] def:NSURLCredentialPersistenceNone];
+  }
+
+  NSDictionary *params = @{ @"username" : username,
+    @"password" : password,
+    @"persistence" : @(persistence) };
+  [self replaceValue:params forKey:@"basicAuthentication" notification:NO];
+}
+
 - (void)setHtml:(id)args
 {
   [[self webView] setHtml_:args];
@@ -362,7 +398,11 @@
 
 - (void)reload:(id)unused
 {
-  [[[self webView] webView] reload];
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self webView] reload];
+      },
+      NO);
 }
 
 - (void)repaint:(id)unused
@@ -439,23 +479,25 @@
   // If no argument is passed, return in sync (NOT recommended)
   if (callback == nil) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self evalJSSync:@[ code ]] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self evalJSSync:@[ code ]] retain];
+        },
         YES);
     return [result autorelease];
   }
 
-  TiThreadPerformOnMainThread(^{
-    [[[self webView] webView] evaluateJavaScript:code
-                               completionHandler:^(id result, NSError *error) {
-                                 if (!callback) {
-                                   return;
-                                 }
-                                 result = result ?: [NSNull null];
-                                 [callback call:@[ result ] thisObject:self];
-                               }];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[[self webView] webView] evaluateJavaScript:code
+                                   completionHandler:^(id result, NSError *error) {
+                                     if (!callback) {
+                                       return;
+                                     }
+                                     result = result ?: [NSNull null];
+                                     [callback call:@[ result ] thisObject:self];
+                                   }];
+      },
       NO);
   return nil;
 }

@@ -20,7 +20,7 @@ public interface TiStream {
 	 * @return number of bytes read, -1 if no data is available.
 	 * @throws Exception on error.
 	 */
-	int read(Object args[]) throws Exception;
+	int read(Object[] args) throws Exception;
 
 	/**
 	 * [readSync description]
@@ -39,7 +39,7 @@ public interface TiStream {
 	 * @return number of bytes written, -1 if no data is available.
 	 * @throws Exception on error.
 	 */
-	int write(Object args[]) throws Exception;
+	int write(Object[] args) throws Exception;
 
 	/**
 	 * [writeSync description]

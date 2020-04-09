@@ -237,9 +237,10 @@
   }
   [bgImage release];
   bgImage = [newImage retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 
@@ -250,9 +251,10 @@
   }
   [bgColor release];
   bgColor = [newColor retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 
@@ -825,7 +827,7 @@
     }
   }
   [self dismissKeyboard];
-  if ([theController isKindOfClass:[TiViewController class]]) {
+  if ([theController isKindOfClass:[TiViewController class]] && theController.popoverPresentationController == nil) {
     TiViewController *controller = (TiViewController *)theController;
     controller.presentationController.delegate = controller;
   }

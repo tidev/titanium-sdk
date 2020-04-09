@@ -44,7 +44,9 @@ async function runTests(zipfile, platforms, program) {
 	const test = promisify(tests.test);
 
 	// Run the tests
-	return test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, undefined, undefined);
+	const cleanup = undefined;
+	const architecture = undefined;
+	return test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, cleanup, architecture, program.deployType, program.deviceFamily);
 }
 
 async function outputResults(results) {

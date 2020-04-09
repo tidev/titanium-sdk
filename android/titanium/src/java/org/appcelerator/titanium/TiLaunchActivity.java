@@ -8,9 +8,7 @@ package org.appcelerator.titanium;
 
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
@@ -95,20 +93,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 	protected void loadScript()
 	{
-		try {
-			String fullUrl = resolveUrl(this.url);
-			if (KrollAssetHelper.assetExists(fullUrl)) {
-				KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(fullUrl), fullUrl,
-														  activityProxy);
-
-				// launch script does not exist, must be using snapshot
-				// execute startup method baked in snapshot
-			} else {
-				KrollRuntime.getInstance().runModule("global.startSnapshot(global)", fullUrl, activityProxy);
-			}
-		} finally {
-			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
-		}
+		TiApplication.launch();
 	}
 
 	@Override
@@ -193,6 +178,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			Log.d(TAG, "Launched in " + (SystemClock.uptimeMillis() - TiApplication.START_TIME_MS) + " ms");
 		}
 		super.onResume();
+
+		// Prevent duplicate launch animation.
+		// Windows opened before TiRootActivity has animated may cause an unwanted stutter animation.
+		if (TiApplication.firstOnActivityStack()) {
+			overridePendingTransition(0, 0);
+		}
 	}
 
 	@Override

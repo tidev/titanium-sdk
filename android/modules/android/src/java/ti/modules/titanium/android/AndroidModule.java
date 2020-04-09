@@ -35,9 +35,9 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.ActionBar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.appcompat.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -613,11 +613,9 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getCurrentActivity()
-	// clang-format on
 	{
 		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity instanceof TiBaseActivity) {
@@ -626,11 +624,9 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getRootActivity()
-	// clang-format on
 	{
 		TiBaseActivity activity = TiApplication.getInstance().getRootActivity();
 		if (activity != null) {

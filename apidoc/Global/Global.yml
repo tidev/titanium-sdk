@@ -4,10 +4,6 @@ summary: The APIs that reside in the global scope, which may be called without a
 description: |
     Titanium provides a number of global built-in objects, detailed below.
 
-    #### JSON
-
-    Titanium provides a built-in [JSON](Global.JSON) object two functions, `parse` and `stringify`.
-
     #### String Utilities
 
     Titanium includes several extra utility functions for formatting text, attached to the
@@ -65,6 +61,7 @@ methods:
       - name: timerId
         summary: Unique timer identifier returned by [setInterval](Global.setInterval).
         type: Number
+        optional: true
 
   - name: clearTimeout
     summary: Cancels a one-time timer.
@@ -72,6 +69,7 @@ methods:
       - name: timerId
         summary: Unique timer identifier returned by [setTimeout](Global.setTimeout).
         type: Number
+        optional: true
 
   - name: decodeURIComponent
     summary: |
@@ -240,6 +238,7 @@ methods:
       - name: delay
         summary: Time in milliseconds to wait between calls to function.
         type: Number
+        optional: true
     examples:
       - title: Update a label once every second, and stop at 10 seconds
         example: |
@@ -275,6 +274,7 @@ methods:
       - name: delay
         summary: Time in milliseconds to wait before the function is called.
         type: Number
+        optional: true
     examples:
       - title: Execute a function in 500 milliseconds
         example: |
@@ -282,3 +282,10 @@ methods:
                 setTimeout(function(){
                     Ti.API.debug('Called using setTimeout');
                 }, 500);
+
+
+properties:
+  - name: console
+    summary: Console logging facilities.
+    type: Console
+    accessors: false

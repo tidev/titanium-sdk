@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "KrollTimerManager.h"
+#import "TiBindingTiValue.h"
 #import "TiExceptionHandler.h"
 #import "TiUtils.h"
 
@@ -45,6 +46,12 @@
 - (void)timerFired:(NSTimer *_Nonnull)timer
 {
   [self.callback callWithArguments:self.arguments];
+  // handle an uncaught exception
+  JSContext *context = self.callback.context;
+  JSValue *exception = context.exception;
+  if (exception != nil) {
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
+  }
 }
 
 @end

@@ -31,7 +31,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -195,7 +195,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			Object newValue = newProps.get(name);
 
 			if (!(oldValue == null && newValue == null)) {
-				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+				if ((oldValue == null && newValue != null)
+					|| (newValue == null && oldValue != null)
+					|| (!oldValue.equals(newValue))) {
 					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
 					propertyChanges.add(pch);
 				}
@@ -288,7 +290,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	protected void applyChildProperties(TiViewProxy viewProxy, TiUIView view)
 	{
 		int i = 0;
-		TiViewProxy childProxies[] = viewProxy.getChildren();
+		TiViewProxy[] childProxies = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
 			TiViewProxy oldProxy = childView.getProxy();
@@ -552,10 +554,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				// Make sure the height is greater than 1 (not 0 since image views default to 1)
-				if (hasChildView && h > 1) {
-					content.getLayoutParams().height = h;
-				}
 
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
@@ -614,9 +612,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 	}
 
-	private static String[] filteredProperties =
-		new String[] { TiC.PROPERTY_BACKGROUND_IMAGE, TiC.PROPERTY_BACKGROUND_COLOR,
-					   TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, TiC.PROPERTY_BACKGROUND_SELECTED_COLOR };
+	private static String[] filteredProperties = new String[] {
+		TiC.PROPERTY_BACKGROUND_IMAGE,
+		TiC.PROPERTY_BACKGROUND_COLOR,
+		TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE,
+		TiC.PROPERTY_BACKGROUND_SELECTED_COLOR
+	};
+
 	private KrollDict filterProperties(KrollDict d)
 	{
 		if (d == null)
@@ -654,6 +656,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 		return selectorDrawable;
+	}
+
+	public TiCompositeLayout getContentView()
+	{
+		return this.content;
 	}
 
 	@Override
