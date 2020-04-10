@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -27,6 +27,7 @@ const appc = require('node-appc'),
 	moment = require('moment'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
+	CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
 	Color = require('../../../common/lib/color'),
 	ProcessCSSTask = require('../../../cli/lib/tasks/process-css-task'),
@@ -6392,51 +6393,13 @@ iOSBuilder.prototype.writeAppIconSet = async function writeAppIconSet(lookup, ap
  */
 iOSBuilder.prototype.copyUnmodifiedResources = async function copyUnmodifiedResources(resourcesToCopy) {
 	this.logger.debug(__('Copying resources'));
-	// const task = new CopyResourcesTask({
-	// 	incrementalDirectory: path.join(this.buildDir, 'incremental', 'copy-resources'),
-	// 	logger: this.logger,
-	// 	builder: this,
-	// 	files: resourcesToCopy
-	// });
-	// return task.run();
-
-	// FIXME: Use the copy resources task!
-	const unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/;
-	resourcesToCopy.forEach((info, file) => {
-		// FIXME: We're doing unnecessary work here
-		// We shouldn't stat the file in advance/etc
-		// If the dest doesn't exist, we know we need to copy
-		const srcStat = fs.statSync(info.src),
-			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
-			prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
-			destExists = fs.existsSync(info.dest),
-			unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file));
-		let contents = info.contents || null,
-			hash = null;
-		const fileChanged = !destExists || !prev
-			|| prev.size !== srcStat.size
-			|| prev.mtime !== srcMtime
-			|| prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src)));
-
-		if (!fileChanged) {
-			this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-		} else if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
-			if (this.useAppThinning && info.isImage && !this.forceRebuild) {
-				this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
-				this.forceRebuild = true;
-			}
-		} else {
-			this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-		}
-
-		this.currentBuildManifest.files[file] = {
-			hash:  contents === null && prev ? prev.hash  : hash || this.hash(contents || ''),
-			mtime: contents === null && prev ? prev.mtime : srcMtime,
-			size:  contents === null && prev ? prev.size  : srcStat.size
-		};
-
-		this.unmarkBuildDirFile(info.dest);
+	const task = new CopyResourcesTask({
+		incrementalDirectory: path.join(this.buildDir, 'incremental', 'copy-resources'),
+		logger: this.logger,
+		builder: this,
+		files: resourcesToCopy
 	});
+	return task.run();
 };
 
 iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
