@@ -8,9 +8,7 @@ package org.appcelerator.titanium;
 
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;

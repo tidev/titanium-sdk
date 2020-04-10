@@ -584,9 +584,10 @@ DEFINE_EXCEPTIONS
 
   UIImage *image = [[self entryForKey:url] imageForSize:[request imageSize]];
   if (image != nil) {
-    TiThreadPerformOnMainThread(^{
-      [self notifyRequest:request imageCompleted:image];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self notifyRequest:request imageCompleted:image];
+        },
         NO);
     return;
   }

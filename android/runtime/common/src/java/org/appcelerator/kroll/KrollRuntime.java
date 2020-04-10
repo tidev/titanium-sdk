@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 
 import android.content.Context;

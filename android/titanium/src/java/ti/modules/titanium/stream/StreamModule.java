@@ -62,7 +62,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void read(TiStream sourceStream, BufferProxy buffer, KrollFunction resultsCallback)
 	//public void read(TiStream sourceStream, BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
-	public void read(Object args[]) throws Exception
+	public void read(Object[] args) throws Exception
 	{
 		if (args.length == 0) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -82,7 +82,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public BufferProxy readAll(TiStream sourceStream) throws IOException
 	//public void readAll(final TiStream sourceStream, final BufferProxy buffer, final KrollFunction resultsCallback)
-	public Object readAll(Object args[]) throws IOException
+	public Object readAll(Object[] args) throws IOException
 	{
 		if (args.length != 1 && args.length != 3) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -175,7 +175,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void write(TiStream outputStream, BufferProxy buffer, KrollFunction resultsCallback)
 	//public void write(TiStream outputStream, BufferProxy buffer, int offset, int length, KrollFunction resultsCallback)
-	public void write(Object args[]) throws Exception
+	public void write(Object[] args) throws Exception
 	{
 		if (args.length == 0) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -197,7 +197,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize) throws IOException
 	//public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize, KrollFunction resultsCallback)
-	public int writeStream(Object args[]) throws IOException
+	public int writeStream(Object[] args) throws IOException
 	{
 		if (args.length < 3 || args.length > 4) {
 			throw new IllegalArgumentException("Invalid number of arguments");
@@ -289,7 +289,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void pump(TiStream inputStream, KrollFunction handler, int maxChunkSize)
 	//public void pump(TiStream inputStream, KrollFunction handler, int maxChunkSize, boolean isAsync)
-	public void pump(Object args[])
+	public void pump(Object[] args)
 	{
 		if (args.length != 3 && args.length != 4) {
 			throw new IllegalArgumentException("Invalid number of arguments");

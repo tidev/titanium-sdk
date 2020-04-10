@@ -26,7 +26,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -52,7 +51,6 @@ import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ArgbEvaluator;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.view.animation.AnimatorProxy;
 
 /**
  * Builds and starts animations. When possible, Honeycomb+ animations
@@ -470,8 +468,8 @@ public class TiAnimationBuilder
 				optionCenterY = new TiDimension(centerY, TiDimension.TYPE_CENTER_Y);
 			}
 
-			int horizontal[] = new int[2];
-			int vertical[] = new int[2];
+			int[] horizontal = new int[2];
+			int[] vertical = new int[2];
 			ViewParent parent = view.getParent();
 			View parentView = null;
 
@@ -843,8 +841,8 @@ public class TiAnimationBuilder
 				optionCenterY = new TiDimension(centerY, TiDimension.TYPE_CENTER_Y);
 			}
 
-			int horizontal[] = new int[2];
-			int vertical[] = new int[2];
+			int[] horizontal = new int[2];
+			int[] vertical = new int[2];
 			ViewParent parent = view.getParent();
 			View parentView = null;
 

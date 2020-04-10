@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -17,7 +16,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import ti.modules.titanium.ui.widget.TiUIScrollView;
 import android.app.Activity;
 import java.util.HashMap;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_CONTENT_HEIGHT,
@@ -30,7 +29,6 @@ import java.util.HashMap;
 		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_REFRESH_CONTROL
 })
-// clang-format on
 public class ScrollViewProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
@@ -67,20 +65,16 @@ public class ScrollViewProxy extends TiViewProxy
 		handleScrollTo(x, y, animated);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setScrollingEnabled(Object enabled)
-	// clang-format on
 	{
 		getScrollView().setScrollingEnabled(enabled);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getScrollingEnabled()
-	// clang-format on
 	{
 		return getScrollView().getScrollingEnabled();
 	}

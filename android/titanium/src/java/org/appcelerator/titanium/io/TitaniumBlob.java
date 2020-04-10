@@ -8,7 +8,6 @@
 package org.appcelerator.titanium.io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,8 +15,6 @@ import java.io.OutputStream;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -54,8 +51,11 @@ public class TitaniumBlob extends TiBaseFile
 		}
 
 		// Get ready to fetch URL's description, path, and file size via content provider.
-		String[] projection = { MediaStore.Images.ImageColumns.DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA,
-								MediaStore.Images.ImageColumns.SIZE };
+		String[] projection = {
+			MediaStore.Images.ImageColumns.DISPLAY_NAME,
+			MediaStore.Images.ImageColumns.DATA,
+			MediaStore.Images.ImageColumns.SIZE
+		};
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		// First, attempt to fetch an absolute path to the file, if publicly available.

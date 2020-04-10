@@ -764,20 +764,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		krollObject.setProperty(name, value);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBubbleParent()
-	// clang-format on
 	{
 		return bubbleParent;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBubbleParent(Object value)
-	// clang-format on
 	{
 		bubbleParent = TiConvert.toBoolean(value);
 	}
@@ -926,37 +922,43 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 						krollData.remove(TiC.PROPERTY_SUCCESS);
 						krollData.remove(TiC.PROPERTY_CODE);
 					} else {
-						Log.w(
-							TAG,
-							"DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-							Log.DEBUG_MODE);
+						String warningMessage
+							= "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true"
+							+ " if and only if code is nonzero. For java modules, consider the putCodeAndMessage()"
+							+ " method to do this for you. The capability to use other types will be removed in a"
+							+ " future version.";
+						Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 					}
 				} else if (successValue) {
-					Log.w(
-						TAG,
-						"DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-						Log.DEBUG_MODE);
+					String warningMessage
+						= "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property"
+						+ " that is 0. For java modules, consider the putCodeAndMessage() method to do this for you."
+						+ " The capability to use other types will be removed in a future version.";
+					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				} else {
-					Log.w(
-						TAG,
-						"DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-						Log.DEBUG_MODE);
+					String warningMessage
+						= "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property"
+						+ " that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for"
+						+ " you. The capability to use other types will be removed in a future version.";
+					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				}
 			} else if (hashValue != null) {
-				Log.w(
-					TAG,
-					"DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-					Log.DEBUG_MODE);
+				String warningMessage
+					= "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java"
+					+ " modules, consider the putCodeAndMessage() method to do this for you. The capability to use"
+					+ " other types will be removed in a future version.";
+				Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
 			if (hashValue instanceof String) {
 				message = (String) hashValue;
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
 			} else if (hashValue != null) {
-				Log.w(
-					TAG,
-					"DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-					Log.DEBUG_MODE);
+				String warningMessage
+					= "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules,"
+					+ " consider the putCodeAndMessage() method to do this for you. The capability to use other types"
+					+ " will be removed in a future version.";
+				Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (hashValue instanceof KrollProxy) {
@@ -1433,11 +1435,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	// For subclasses to override
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getApiName()
-	// clang-format on
 	{
 		return "Ti.Proxy";
 	}

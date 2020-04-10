@@ -90,9 +90,10 @@
     [self rememberProxy:args];
     [_items addObject:args];
     if (_pushBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_pushBehavior addItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_pushBehavior addItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
   }
@@ -103,9 +104,10 @@
   ENSURE_SINGLE_ARG(args, TiViewProxy);
   if ([_items containsObject:args]) {
     if (_pushBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_pushBehavior removeItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_pushBehavior removeItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
     [_items removeObject:args];
@@ -123,9 +125,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _angle = [TiUtils floatValue:args def:0];
   if (_pushBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_pushBehavior setAngle:_angle];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_pushBehavior setAngle:_angle];
+        },
         YES);
   }
 }
@@ -133,9 +136,10 @@
 - (NSNumber *)angle
 {
   if (_pushBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      _angle = [_pushBehavior angle];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _angle = [_pushBehavior angle];
+        },
         YES);
   }
   return NUMFLOAT(_angle);
@@ -146,9 +150,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _magnitude = [TiUtils floatValue:args def:0];
   if (_pushBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_pushBehavior setMagnitude:_magnitude];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_pushBehavior setMagnitude:_magnitude];
+        },
         YES);
   }
 }
@@ -156,9 +161,10 @@
 - (NSNumber *)magnitude
 {
   if (_pushBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      _magnitude = [_pushBehavior magnitude];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _magnitude = [_pushBehavior magnitude];
+        },
         YES);
   }
   return NUMFLOAT(_magnitude);
@@ -173,9 +179,10 @@
     _vector.dx = newPoint.x;
     _vector.dy = newPoint.y;
     if (_pushBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_pushBehavior setPushDirection:_vector];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_pushBehavior setPushDirection:_vector];
+          },
           YES);
     }
   }
@@ -184,9 +191,10 @@
 - (NSDictionary *)pushDirection
 {
   if (_pushBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      _vector = [_pushBehavior pushDirection];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _vector = [_pushBehavior pushDirection];
+        },
         YES);
   }
   return [TiUtils pointToDictionary:CGPointMake(_vector.dx, _vector.dy)];
@@ -203,13 +211,14 @@
   }
   _needsRefresh = (_pushBehavior != nil);
   if (_needsRefresh) {
-    TiThreadPerformOnMainThread(^{
-      UIDynamicAnimator *theAnimator = _pushBehavior.dynamicAnimator;
-      if (theAnimator != nil) {
-        [theAnimator removeBehavior:_pushBehavior];
-        [theAnimator addBehavior:[self behaviorObject]];
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          UIDynamicAnimator *theAnimator = _pushBehavior.dynamicAnimator;
+          if (theAnimator != nil) {
+            [theAnimator removeBehavior:_pushBehavior];
+            [theAnimator addBehavior:[self behaviorObject]];
+          }
+        },
         YES);
   }
 }
@@ -224,9 +233,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _active = [TiUtils boolValue:args def:YES];
   if (_pushBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_pushBehavior setActive:_active];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_pushBehavior setActive:_active];
+        },
         YES);
   }
 }

@@ -523,6 +523,8 @@ typedef enum {
 
 + (TiScriptError *)scriptErrorValue:(id)value;
 
++ (TiScriptError *)scriptErrorFromValueRef:(JSValueRef)valueRef inContext:(JSGlobalContextRef)contextRef;
+
 + (NSTextAlignment)textAlignmentValue:(id)alignment;
 
 + (NSString *)jsonStringify:(id)value;

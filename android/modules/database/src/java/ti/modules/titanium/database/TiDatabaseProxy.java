@@ -7,7 +7,6 @@
 package ti.modules.titanium.database;
 
 import org.appcelerator.kroll.JSError;
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -24,7 +23,6 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 
-import java.lang.Exception;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -200,7 +198,7 @@ public class TiDatabaseProxy extends KrollProxy
 			}
 
 			// Query parameters must be strings.
-			String parameters[] = new String[parameterObjects.length];
+			String[] parameters = new String[parameterObjects.length];
 			if (parameterObjects.length > 0) {
 				for (int i = 0; i < parameterObjects.length; i++) {
 					parameters[i] = TiConvert.toString(parameterObjects[i]);
@@ -278,7 +276,7 @@ public class TiDatabaseProxy extends KrollProxy
 		final KrollFunction callback = (KrollFunction) lastParameter;
 
 		// Reconstruct parameters array without `callback` element.
-		final Object parameters[] = new Object[parameterObjects.length - 1];
+		final Object[] parameters = new Object[parameterObjects.length - 1];
 		System.arraycopy(parameterObjects, 0, parameters, 0, parameterObjects.length - 1);
 
 		executingQueue.set(true);
@@ -368,11 +366,9 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get database name.
 	 * @return Database name.
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return name;
 	}
@@ -381,11 +377,9 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get last inserted row identifier.
 	 * @return Row identifier.
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLastInsertRowId()
-	// clang-format on
 	{
 		// lock on db proxy instance
 		dbLock.lock();
@@ -403,11 +397,9 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get number of rows affected by last query.
 	 * @return Number of rows.
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getRowsAffected()
-	// clang-format on
 	{
 		// lock on db proxy instance
 		dbLock.lock();
@@ -443,11 +435,9 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get database file.
 	 * @return `Ti.File` reference of SQLiteDatabase.
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getFile()
-	// clang-format on
 	{
 		String path = TiApplication.getInstance().getApplicationContext().getDatabasePath(this.name).getAbsolutePath();
 		return new TiFileProxy(TiFileFactory.createTitaniumFile(path, false));

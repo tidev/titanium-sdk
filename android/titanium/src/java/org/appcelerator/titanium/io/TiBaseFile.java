@@ -153,7 +153,7 @@ public abstract class TiBaseFile
 			if (is == null)
 				return false;
 
-			String parts[] = { destination };
+			String[] parts = { destination };
 			TiBaseFile bf = TiFileFactory.createTitaniumFile(parts, false);
 			if (bf == null)
 				return false;
@@ -291,7 +291,7 @@ public abstract class TiBaseFile
 		boolean moved = false;
 
 		if (destination != null) {
-			String parts[] = { destination };
+			String[] parts = { destination };
 			TiBaseFile bf = TiFileFactory.createTitaniumFile(parts, false);
 			if (bf != null) {
 				if (bf.exists()) {

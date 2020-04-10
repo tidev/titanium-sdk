@@ -271,9 +271,10 @@ static NSDictionary *iOS9propertyKeys;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self fullName] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self fullName] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -322,9 +323,10 @@ static NSDictionary *iOS9propertyKeys;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self image] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self image] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -353,9 +355,10 @@ static NSDictionary *iOS9propertyKeys;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self valueForUndefinedKey:key] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self valueForUndefinedKey:key] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -402,9 +405,10 @@ static NSDictionary *iOS9propertyKeys;
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self setValue:value forUndefinedKey:key];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setValue:value forUndefinedKey:key];
+        },
         YES);
     return;
   }

@@ -613,11 +613,9 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getCurrentActivity()
-	// clang-format on
 	{
 		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity instanceof TiBaseActivity) {
@@ -626,11 +624,9 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getRootActivity()
-	// clang-format on
 	{
 		TiBaseActivity activity = TiApplication.getInstance().getRootActivity();
 		if (activity != null) {

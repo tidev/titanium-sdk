@@ -254,8 +254,8 @@ public class TiFileHelper
 	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
 	 * if checkForNinePatch param is true.
-	 * @param path  the path/url of the Drawable 
-	 * @param report  this is not being used. 
+	 * @param path  the path/url of the Drawable
+	 * @param report  this is not being used.
 	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
 	 * @param densityScaled  a boolean to determine whether the returning Drawable is scaled based on device density.
 	 * @return  a Drawable instance.
@@ -688,7 +688,7 @@ public class TiFileHelper
 
 	private boolean titaniumPath(String path)
 	{
-		return path == "" || path.equals("tiapp.xml") || path.startsWith("Resources");
+		return path.isEmpty() || path.equals("tiapp.xml") || path.startsWith("Resources");
 	}
 
 	private ZipInputStream getZipInputStream(InputStream is) throws FileNotFoundException, IOException

@@ -15,9 +15,10 @@
 
 - (void)dealloc
 {
-  TiThreadPerformOnMainThread(^{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+      },
       YES);
   self.defaultsObject = nil;
   RELEASE_TO_NIL(_defaultsNull);
@@ -32,9 +33,10 @@
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if (count == 1 && [type isEqual:@"change"]) {
-    TiThreadPerformOnMainThread(^{
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(NSUserDefaultsDidChange:) name:NSUserDefaultsDidChangeNotification object:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(NSUserDefaultsDidChange:) name:NSUserDefaultsDidChangeNotification object:nil];
+        },
         YES);
   }
 }
@@ -42,9 +44,10 @@
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
   if (count == 0 && [type isEqual:@"change"]) {
-    TiThreadPerformOnMainThread(^{
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
+        },
         YES);
   }
 }
