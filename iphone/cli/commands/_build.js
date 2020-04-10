@@ -2293,102 +2293,210 @@ iOSBuilder.prototype.scrubbedModuleId = function (moduleId) {
  * @param {Object} cli - The Titanium CLI instance.
  * @param {Function} finished - A function to call when the build has finished or errored.
  */
-iOSBuilder.prototype.run = function (logger, config, cli, finished) {
-	Builder.prototype.run.apply(this, arguments);
+iOSBuilder.prototype.run = async function run(logger, config, cli, finished) {
+	try {
+		Builder.prototype.run.apply(this, arguments);
 
-	// force the platform to "ios" just in case it was "iphone" so that plugins can reference it
-	cli.argv.platform = 'ios';
+		// force the platform to "ios" just in case it was "iphone" so that plugins can reference it
+		cli.argv.platform = 'ios';
 
-	series(this, [
-		function (next) {
-			cli.emit('build.pre.construct', this, next);
-		},
+		// Notify plugins that we're about to begin.
+		await new Promise((resolve, reject) => {
+			cli.emit('build.pre.construct', this, e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
 
-		// initialization
-		'doAnalytics',
-		'initialize',
-		'determineLogServerPort',
-		'loginfo',
-		'readBuildManifest',
-		'checkIfNeedToRecompile',
-		'initBuildDir',
+		// Post build anlytics.
+		await this.doAnalytics();
 
-		function (next) {
-			cli.emit('build.pre.compile', this, next);
-		},
+		// Initialize build system. Checks if we need to do a clean or incremental build.
+		await this.initialize(); // sets a lot of fields/properties
+		await this.determineLogServerPort(); // needs to be run before loginfo and createXcodeProject (sets this.tiLogServerPort)
+		await this.loginfo(); // spits out fields to CLI
+		await this.readBuildManifest(); // sets this.previousBuildManifest and needs to be run before checkIfNeedToRecompile
+		await this.checkIfNeedToRecompile(); // compares various properties/fields versus last build
+		await this.initBuildDir(); // wipe or re-create build dir
 
-		function () {
-			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
-			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
-			// that build.pre.compile was fired.
-			ti.validateAppJsExists(this.projectDir, this.logger, [ 'iphone', 'ios' ]);
-		},
+		// Notify plugins that we're prepping to compile.
+		await new Promise((resolve, reject) => {
+			cli.emit('build.pre.compile', this, e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+
+		// Make sure we have an "app.js" script. Will exit with a build failure if not found.
+		// Note: This used to be validated by the validate() method, but Alloy plugin
+		//       generates the "app.js" script via the "build.pre.compile" hook event above.
+		ti.validateAppJsExists(this.projectDir, this.logger, [ 'iphone', 'ios' ]);
 
 		// xcode related tasks
-		'createXcodeProject',
-		'writeEntitlementsPlist',
-		'writeInfoPlist',
-		'writeMain',
-		'copyTitaniumiOSFiles',
-		'copyExtensionFiles',
-		'cleanXcodeDerivedData',
+		// TODO: Can we use util.promisify(this.whatever).bind(this)()?
+		// Or just bite the bullet and move from callbacks to async impls for each...
+		await new Promise((resolve, reject) => {
+			this.createXcodeProject(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+		await new Promise((resolve, reject) => {
+			this.writeEntitlementsPlist(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+		this.writeInfoPlist();
+		await this.writeMain();
+		this.copyTitaniumiOSFiles();
+		await new Promise((resolve, reject) => {
+			this.copyExtensionFiles(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+		await new Promise((resolve, reject) => {
+			this.cleanXcodeDerivedData(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
 
 		// titanium related tasks
-		'writeDebugProfilePlists',
-		'copyResources',
-		'encryptJSFiles',
-		'writeI18NFiles',
-		'processTiSymbols',
+		this.writeDebugProfilePlists();
+		await this.copyResources();
+		await new Promise((resolve, reject) => {
+			this.encryptJSFiles(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+		this.writeI18NFiles();
+		this.processTiSymbols();
 
 		// preprocessor macros writting
-		'writeXcodeConfigFiles',
+		this.writeXcodeConfigFiles();
 
 		// cleanup and optimization
-		'removeFiles',
-		'optimizeFiles',
+		await new Promise((resolve, reject) => {
+			this.removeFiles(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+		await new Promise((resolve, reject) => {
+			this.optimizeFiles(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
 
+		// Build the app.
 		// provide a hook event before xcodebuild
-		function (next) {
-			cli.emit('build.pre.build', this, next);
-		},
-
-		'generateRequireIndex', // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
-
+		await new Promise((resolve, reject) => {
+			cli.emit('build.pre.build', this, e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+		await this.generateRequireIndex(); // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
 		// build baby, build
-		'invokeXcodeBuild',
-
+		await new Promise((resolve, reject) => {
+			this.invokeXcodeBuild(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
 		// provide a hook event after xcodebuild
-		function (next) {
-			cli.emit('build.post.build', this, next);
-		},
+		await new Promise((resolve, reject) => {
+			cli.emit('build.post.build', this, e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
 
-		// finalize
-		'writeBuildManifest',
+		// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
+		await new Promise((resolve, reject) => {
+			this.writeBuildManifest(e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
 
-		function (next) {
-			if (!this.buildOnly && (this.target === 'simulator' || this.target === 'device')) {
-				const delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
-				this.logger.info(__('Finished building the application in %s', delta.cyan));
-			}
-
-			cli.emit('build.post.compile', this, next);
-		},
-
-		function (next) {
-			if (!this.buildOnly && (this.target === 'dist-appstore' || this.target === 'dist-adhoc')) {
-				const delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
-				this.logger.info(__('Finished building the application in %s', delta.cyan));
-			}
-
-			cli.emit('build.finalize', this, next);
+		// Log how long the build took.
+		if (!this.buildOnly) {
+			const delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
+			logger.info(__('Finished building the application in %s', delta.cyan));
 		}
-	], finished);
+
+		// Notify plugins that the build is done.
+		await new Promise((resolve, reject) => {
+			cli.emit('build.post.compile', this, e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+		await new Promise((resolve, reject) => {
+			cli.emit('build.finalize', this, e => {
+				if (e) {
+					return reject(e);
+				}
+				resolve();
+			});
+		});
+	} catch (err) {
+		// TODO: call finished callback with error?
+		// Failed to build app. Print the error message and stack trace (if possible), then exit out.
+		// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
+		if (err instanceof Error) {
+			this.logger.error(err.stack || err.message);
+		} else if ((typeof err === 'string') && (err.length > 0)) {
+			this.logger.error(err);
+		} else {
+			this.logger.error('Build failed. Reason: Unknown');
+		}
+		process.exit(1);
+	}
+
+	// We're done. Invoke optional callback if provided.
+	if (finished) {
+		finished();
+	}
 };
 
 /**
  * Creates and adds the analytics event for the build.
  */
-iOSBuilder.prototype.doAnalytics = function doAnalytics() {
+iOSBuilder.prototype.doAnalytics = async function doAnalytics() {
 	const cli = this.cli;
 	let eventName = this.deviceFamily + '.' + cli.argv.target;
 
@@ -2417,7 +2525,7 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics() {
 	});
 };
 
-iOSBuilder.prototype.initialize = function initialize() {
+iOSBuilder.prototype.initialize = async function initialize() {
 	const argv = this.cli.argv;
 
 	// populate the build manifest object
@@ -2575,13 +2683,13 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 	}
 };
 
-iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
+iOSBuilder.prototype.determineLogServerPort = async function determineLogServerPort() {
 	this.tiLogServerPort = 0;
 
 	// We only turn the log server on for a device
 	if (this.target !== 'device') {
 		// we don't allow the log server in production
-		return next();
+		return;
 	}
 
 	// if there's not an explicit <log-server-port> in the <ios> section of
@@ -2589,10 +2697,9 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 	// the app's id. this is VERY prone to collisions, but we will show an
 	// error if two different apps have been assigned the same port.
 	this.tiLogServerPort = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
-	next();
 };
 
-iOSBuilder.prototype.loginfo = function loginfo() {
+iOSBuilder.prototype.loginfo = async function loginfo() {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', cyan(this.platformPath)));
 	this.logger.info(__('Deploy type: %s', cyan(this.deployType)));
 	this.logger.info(__('Building for target: %s', cyan(this.target)));
@@ -2663,25 +2770,24 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 	this.logger.info(__('Generate source maps: %s', (this.sourceMaps ? 'true' : 'false').cyan));
 };
 
-iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
+iOSBuilder.prototype.readBuildManifest = async function readBuildManifest() {
 	// read the build manifest from the last build, if exists, so we
 	// can determine if we need to do a full rebuild
-	if (fs.existsSync(this.buildManifestFile)) {
+	if (await fs.exists(this.buildManifestFile)) {
 		try {
-			this.previousBuildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
+			this.previousBuildManifest = (await fs.readJSON(this.buildManifestFile)) || {};
 		} catch (e) {
 			// ignore
 		}
+		// now that we've read the build manifest, delete it so if this build
+		// becomes incomplete, the next build will be a full rebuild
+		await fs.unlink(this.buildManifestFile);
 	}
-
-	// now that we've read the build manifest, delete it so if this build
-	// becomes incomplete, the next build will be a full rebuild
-	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 
 	this.unmarkBuildDirFile(this.buildManifestFile);
 };
 
-iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() {
+iOSBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecompile() {
 	const manifest = this.previousBuildManifest;
 
 	// check if we need to clean the build directory
@@ -2902,21 +3008,21 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 	}.call(this);
 };
 
-iOSBuilder.prototype.initBuildDir = function initBuildDir() {
+iOSBuilder.prototype.initBuildDir = async function initBuildDir() {
 	this.logger.info(__('Initializing the build directory'));
 
-	const buildDirExists = fs.existsSync(this.buildDir);
+	const buildDirExists = await fs.exists(this.buildDir);
 
 	if (this.forceCleanBuild && buildDirExists) {
 		this.logger.debug(__('Recreating %s', cyan(this.buildDir)));
-		fs.emptyDirSync(this.buildDir);
+		await fs.emptyDir(this.buildDir);
 	} else if (!buildDirExists) {
 		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
-		fs.ensureDirSync(this.buildDir);
+		await fs.ensureDir(this.buildDir);
 		this.forceCleanBuild = true;
 	}
 
-	fs.ensureDirSync(this.xcodeAppDir);
+	return fs.ensureDir(this.xcodeAppDir);
 };
 
 iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject) {
@@ -2933,6 +3039,7 @@ iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject
 	}
 };
 
+// FIXME: Make async and not use callback!
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
@@ -4440,39 +4547,43 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	this.unmarkBuildDirFile(dest);
 };
 
-iOSBuilder.prototype.writeMain = function writeMain() {
+iOSBuilder.prototype.writeMain = async function writeMain() {
 	this.logger.info(__('Creating main.m'));
 
-	const consts = {
-			__PROJECT_NAME__:     this.tiapp.name,
-			__PROJECT_ID__:       this.tiapp.id,
-			__DEPLOYTYPE__:       this.deployType,
-			__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
-			__APP_ID__:           this.tiapp.id,
-			__APP_ANALYTICS__:    String(Object.prototype.hasOwnProperty.call(this.tiapp, 'analytics') ? !!this.tiapp.analytics : true),
-			__APP_PUBLISHER__:    this.tiapp.publisher,
-			__APP_URL__:          this.tiapp.url,
-			__APP_NAME__:         this.tiapp.name,
-			__APP_VERSION__:      this.tiapp.version,
-			__APP_DESCRIPTION__:  this.tiapp.description,
-			__APP_COPYRIGHT__:    this.tiapp.copyright,
-			__APP_GUID__:         this.tiapp.guid,
-			__APP_RESOURCE_DIR__: '',
-			__APP_DEPLOY_TYPE__:  this.buildType
-		},
-		contents = fs.readFileSync(path.join(this.platformPath, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
-			const s = Object.prototype.hasOwnProperty.call(consts, key) ? consts[key] : key;
-			return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
-		}),
-		dest = path.join(this.buildDir, 'main.m');
+	const srcFile = path.join(this.platformPath, 'main.m');
+	const origSrc = await fs.readFile(srcFile, 'utf8');
 
-	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+	// replace templated values
+	const consts = {
+		__PROJECT_NAME__:     this.tiapp.name,
+		__PROJECT_ID__:       this.tiapp.id,
+		__DEPLOYTYPE__:       this.deployType,
+		__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
+		__APP_ID__:           this.tiapp.id,
+		__APP_ANALYTICS__:    String(Object.prototype.hasOwnProperty.call(this.tiapp, 'analytics') ? !!this.tiapp.analytics : true),
+		__APP_PUBLISHER__:    this.tiapp.publisher,
+		__APP_URL__:          this.tiapp.url,
+		__APP_NAME__:         this.tiapp.name,
+		__APP_VERSION__:      this.tiapp.version,
+		__APP_DESCRIPTION__:  this.tiapp.description,
+		__APP_COPYRIGHT__:    this.tiapp.copyright,
+		__APP_GUID__:         this.tiapp.guid,
+		__APP_RESOURCE_DIR__: '',
+		__APP_DEPLOY_TYPE__:  this.buildType
+	};
+	const contents = origSrc.replace(/(__.+?__)/g, function (match, key) {
+		const s = Object.prototype.hasOwnProperty.call(consts, key) ? consts[key] : key;
+		return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
+	});
+
+	const dest = path.join(this.buildDir, 'main.m');
+	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest, 'utf8')) {
 		if (!this.forceRebuild) {
 			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'main.m'));
 			this.forceRebuild = true;
 		}
 		this.logger.debug(__('Writing %s', dest.cyan));
-		fs.writeFileSync(dest, contents);
+		await fs.writeFile(dest, contents);
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
@@ -5023,6 +5134,25 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 	processPlist.call(this, 'profiler.plist', this.profilerHost);
 };
 
+iOSBuilder.prototype.copyResources = async function copyResources() {
+	const gatheredResults = await this.gatherResources();
+
+	// ok we now have them organized into broad categories
+	// we can schedule tasks to happen in parallel:
+	return Promise.all([
+		this.copyCSSFiles(gatheredResults.cssFiles),
+		this.processJSFiles(gatheredResults.jsFiles),
+		this.writeAppProps(), // writes _app_props_.json for Ti.Properties
+		this.writeEnvironmentVariables(), // writes _env_.json for process.env
+		(async () => {
+			// processing assets alters the list of resources to copy...
+			await this.processAssets(gatheredResults.imageAssets, gatheredResults.launchImages, gatheredResults.launchLogos, gatheredResults.appIcons, gatheredResults.resourcesToCopy);
+			// copies any other files that don't require special handling (like JS/CSS do)
+			return this.copyUnmodifiedResources(gatheredResults.resourcesToCopy);
+		})(),
+	]);
+};
+
 iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	console.time('gathering resources');
 	const gather = require('../../../cli/lib/gather');
@@ -5083,6 +5213,7 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 
 	this.logger.info(__('Analyzing CommonJS modules'));
 	const commonJsResults = await Promise.all(this.commonJsModules.map(async module => {
+		this.logger.info(__('Analyzing CommonJS module: %s', module.id));
 		const dest = path.join(this.xcodeAppDir, path.basename(module.id));
 		// Pass in the relative path prefix we should give because we aren't copying direct to the root here.
 		// Otherwise index.js in one module "overwrites" index.js in another (because they're at same relative path inside module)
@@ -5120,1118 +5251,1191 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	return categorized;
 };
 
-iOSBuilder.prototype.copyResources = function copyResources(next) {
-	const unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/;
+iOSBuilder.prototype.copyCSSFiles = async function copyCSSFiles(files) {
+	this.logger.debug(__('Copying CSS files'));
+	const task = new ProcessCSSTask({
+		files,
+		incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-css'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
 
-	// What we need to do in general terms is:
-	// - gather together all the input files (this is done via the old "walk" method, now extracted to gatherResources())
-	// - categorize/filter the input files (currently also done in walk/gatherResources())
-	// - Then process the categorized files by "bucket":
-	//   - js files to transpile/minify/encyrpt/source maps/copy
-	//   - css files (possibly minify, copy)
-	//   - "resources"/misc (copy)
-	//   - images/assets/launch logos/etc - create asset catalog, image sets, app icons/itunes artwork
-	// - We also write out some generated files for app properties, require index, environment variables, bootstrap files
-	util.callbackify(this.gatherResources.bind(this))((err, gatheredResults) => {
-		if (err) {
-			return next(err);
+/**
+ * This may modify this.jsFilesToEncrypt
+ * @param {Map<string, FileInfo>} jsFilesMap map from filename to file info
+ * @returns {Promise<void>}
+ */
+iOSBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesMap) {
+	this.logger.info(__('Processing JavaScript files'));
+	const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios');
+	// For now, need to adapt our Map results to String[] and Object for ProcessJsTask
+	const jsFiles = {};
+	const inputFiles = [];
+	for (let [ key, value ] of jsFilesMap) {
+		jsFiles[key] = value;
+		inputFiles.push(value.src);
+	}
+	const jsBootstrapFiles = []; // modified by the task and then used after the fact to write our bootstrap.json file
+	const task = new ProcessJsTask({
+		inputFiles,
+		incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
+		logger: this.logger,
+		builder: this,
+		jsFiles,
+		jsBootstrapFiles,
+		sdkCommonFolder,
+		defaultAnalyzeOptions: {
+			minify: this.minifyJS,
+			transpile: this.transpile,
+			sourceMap: this.sourceMaps,
+			resourcesDir: this.xcodeAppDir,
+			logger: this.logger,
+			targets: {
+				ios: this.minIosVersion
+			}
 		}
-		function writeAssetContentsFile(dest, json) {
-			const parent = path.dirname(dest),
-				contents = JSON.stringify(json, null, '  ');
+	});
+	await task.run();
+	if (this.useWebpack) {
+		// Merge Ti symbols from Webpack with the ones from legacy js processing
+		Object.keys(task.data.tiSymbols).forEach(file => {
+			const existingSymbols = this.tiSymbols[file] || [];
+			const additionalSymbols = task.data.tiSymbols[file];
+			this.tiSymbols[file] = Array.from(new Set(existingSymbols.concat(additionalSymbols)));
+		});
+	} else {
+		this.tiSymbols = task.data.tiSymbols; // record API usage for analytics
+	}
+
+	// then write the bootstrap json
+	return this.writeBootstrapJson(jsBootstrapFiles);
+};
+
+/**
+ * @param {string[]} jsBootstrapFiles list of bootstrap js files to add to listing we generate
+ * @returns {Promise<void>}
+ */
+iOSBuilder.prototype.writeBootstrapJson = async function writeBootstrapJson(jsBootstrapFiles) {
+	this.logger.info(__('Writing bootstrap json'));
+
+	const originalBootstrapJsonName = path.join('ti.internal', 'bootstrap.json');
+	const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : originalBootstrapJsonName;
+	const bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath);
+	const bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
+
+	if (this.encryptJS) {
+		this.jsFilesEncrypted.push(originalBootstrapJsonName); // original name
+		this.jsFilesToEncrypt.push(bootstrapJsonRelativePath); // encrypted name
+	}
+
+	if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath, 'utf8'))) {
+		this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
+
+		await fs.ensureDir(path.dirname(bootstrapJsonAbsolutePath));
+		await fs.writeFile(bootstrapJsonAbsolutePath, bootstrapJsonString);
+	} else {
+		this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
+	}
+
+	this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
+};
+
+iOSBuilder.prototype.writeAppProps = async function writeAppProps() {
+	this.logger.info(__('Writing app properties'));
+
+	const appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json');
+	const props = {};
+
+	if (this.encryptJS) {
+		this.jsFilesEncrypted.push('_app_props_.json'); // original name
+		this.jsFilesToEncrypt.push('_app_props__json'); // encrypted name
+	}
+
+	this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(prop => {
+		props[prop] = this.tiapp.properties[prop].value;
+	});
+
+	const contents = JSON.stringify(props);
+	if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile, 'utf8')) {
+		this.logger.debug(__('Writing %s', appPropsFile.cyan));
+
+		if (this.encryptJS) {
+			await fs.ensureDir(this.buildAssetsDir);
+		}
+		await fs.writeFile(appPropsFile, contents);
+	} else {
+		this.logger.trace(__('No change, skipping %s', appPropsFile.cyan));
+	}
+
+	this.unmarkBuildDirFile(appPropsFile);
+};
+
+iOSBuilder.prototype.writeEnvironmentVariables = async function writeEnvironmentVariables() {
+	this.logger.debug(__('Writing ENV variables'));
+
+	const envVarsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_env__json') : path.join(this.xcodeAppDir, '_env_.json');
+
+	if (this.encryptJS) {
+		this.jsFilesEncrypted.push('_env_.json'); // original name
+		this.jsFilesToEncrypt.push('_env__json'); // encrypted name
+	}
+
+	// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
+	const contents = this.writeEnvVars ? JSON.stringify(process.env) : {};
+	if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile, 'utf8')) {
+		this.logger.debug(__('Writing %s', envVarsFile.cyan));
+
+		if (this.encryptJS) {
+			await fs.ensureDir(this.buildAssetsDir);
+		}
+		await fs.writeFile(envVarsFile, contents);
+	} else {
+		this.logger.trace(__('No change, skipping %s', envVarsFile.cyan));
+	}
+
+	this.unmarkBuildDirFile(envVarsFile);
+};
+
+/**
+ * This may modify the list of resources to copy!
+ * @param {Map.<string,FileInfo>} imageAssets image assets to handle
+ * @param {Map.<string,FileInfo>} launchImages launch image assets to handle
+ * @param {Map.<string,FileInfo>} launchLogos launch logos to handle
+ * @param {Map.<string,FileInfo>} appIcons icon assets to handle
+ * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
+ */
+iOSBuilder.prototype.processAssets = async function processAssets(imageAssets, launchImages, launchLogos, appIcons, resourcesToCopy) {
+	this.logger.info(__('Creating asset catalog'));
+	await this.writeAssetContentsFile(path.join(this.buildDir, 'Assets.xcassets', 'Contents.json'), {
+		info: {
+			version: 1,
+			author: 'xcode'
+		}
+	});
+
+	return Promise.all([
+		this.generateSemanticColors(), // really just needs the Assets.xcassets folder to be created first
+		this.createAssetImageSets(imageAssets, resourcesToCopy), // needs same folder, modifies the resources to copy
+		this.createLaunchImageSet(launchImages, resourcesToCopy), // needs same folder, modifies the resources to copy
+		this.createAppIconSetAndiTunesArtwork(appIcons, launchLogos, resourcesToCopy), // needs same folder, modifies the resources to copy
+	]);
+};
+
+/**
+ * @param {string} dest destination filepath
+ * @param {object} json json to write to file
+ */
+iOSBuilder.prototype.writeAssetContentsFile = async function writeAssetContentsFile(dest, json) {
+	const contents = JSON.stringify(json, null, '  ');
+
+	this.unmarkBuildDirFile(dest);
+
+	if (!(await fs.exists(dest)) || contents !== (await fs.readFile(dest, 'utf8'))) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
+			this.forceRebuild = true;
+		}
+		this.logger.debug(__('Writing %s', dest.cyan));
+		const parent = path.dirname(dest);
+		await fs.ensureDir(parent);
+		return fs.writeFile(dest, contents);
+	} else {
+		this.logger.trace(__('No change, skipping %s', dest.cyan));
+	}
+};
+
+iOSBuilder.prototype.generateSemanticColors = async function generateSemanticColors() {
+	let colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
+	if (!(await fs.exists(colorsFile))) {
+		// Fallback to root of Resources folder for Classic applications
+		colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
+		if (!(await fs.exists(colorsFile))) {
+			this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
+			return;
+		}
+	}
+
+	const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
+	const colors = await fs.readJson(colorsFile);
+
+	// FIXME: Do them in parallel
+	for (const [ color, colorValue ] of Object.entries(colors)) {
+		const colorDir = path.join(assetCatalog, `${color}.colorset`);
+
+		if (!colorValue.light) {
+			this.logger.warn(`Skipping ${color} as it does not include a light value`);
+			continue;
+		}
+
+		if (!colorValue.dark) {
+			this.logger.warn(`Skipping ${color} as it does not include a dark value`);
+			continue;
+		}
+
+		const defaultRGB = Color.fromSemanticColorsEntry(colorValue.default || colorValue.light);
+		const lightRGB = Color.fromSemanticColorsEntry(colorValue.light);
+		const darkRGB = Color.fromSemanticColorsEntry(colorValue.dark);
+
+		const colorSource = {
+			info: {
+				version: 1,
+				author: 'xcode'
+			},
+			colors: []
+		};
+
+		// Contents.json can hold string or numeric values for colors. 0-255 integers or 0-1 floats.
+
+		// Default
+		colorSource.colors.push({
+			idiom: 'universal',
+			color: {
+				'color-space': 'srgb',
+				components: {
+					red: `${defaultRGB.r}`,
+					green: `${defaultRGB.g}`,
+					blue: `${defaultRGB.b}`,
+					alpha: defaultRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
+				}
+			}
+		});
+
+		// Light
+		colorSource.colors.push({
+			idiom: 'universal',
+			appearances: [ {
+				appearance: 'luminosity',
+				value: 'light'
+			} ],
+			color: {
+				'color-space': 'srgb',
+				components: {
+					red: `${lightRGB.r}`,
+					green: `${lightRGB.g}`,
+					blue: `${lightRGB.b}`,
+					alpha: lightRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
+				}
+			}
+		});
+
+		// Dark
+		colorSource.colors.push({
+			idiom: 'universal',
+			appearances: [ {
+				appearance: 'luminosity',
+				value: 'dark'
+			} ],
+			color: {
+				'color-space': 'srgb',
+				components: {
+					red: `${darkRGB.r}`,
+					green: `${darkRGB.g}`,
+					blue: `${darkRGB.b}`,
+					alpha: darkRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
+				}
+			}
+		});
+
+		await fs.ensureDir(colorDir);
+		await fs.writeJson(path.join(colorDir, 'Contents.json'), colorSource);
+		this.unmarkBuildDirFile(path.join(colorDir, 'Contents.json'));
+	}
+};
+
+/**
+ * This may modify the list of resources to copy!
+ * @param {Map.<string,FileInfo>} imageAssets image assets to handle
+ * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
+ */
+iOSBuilder.prototype.createAssetImageSets = async function createAssetImageSets(imageAssets, resourcesToCopy) {
+	if (!this.useAppThinning) {
+		this.logger.info(__('App thinning disabled, skipping asset image sets'));
+		return;
+	}
+
+	this.logger.info(__('Creating assets image set'));
+	const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
+	const imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
+
+	const imageSets = {};
+	for (let [ file, info ] of imageAssets) {
+		const directories = file.split('/');
+		let newPath = '';
+		for (let i = 0; i < directories.length - 1; i++) {
+			newPath = newPath + '/' + directories[i];
+
+			await this.writeAssetContentsFile(path.join(assetCatalog, newPath, 'Contents.json'), {
+				info: {
+					version: 1,
+					author: 'xcode'
+				},
+				properties: {
+					'provides-namespace': true
+				},
+			});
+		}
+
+		const match = file.match(imageNameRegExp);
+		if (match) {
+			const imageExt = info.ext;
+			const imageSetName = match[1];
+			const imageSetRelPath = imageSetName + '.imageset';
+
+			// update image file's destination
+			const imageName = info.name;
+			const dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
+			info.dest = dest;
 
 			this.unmarkBuildDirFile(dest);
 
-			if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
-				if (!this.forceRebuild) {
-					this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
-					this.forceRebuild = true;
+			if (!imageSets[imageSetRelPath]) {
+				imageSets[imageSetRelPath] = {
+					images: [],
+					name: imageSetName
+				};
+			}
+
+			const imageSet = {
+				idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
+				filename: imageName + '.' + imageExt,
+				scale: !match[3] ? '1x' : match[3].replace('@', '')
+			};
+
+			if (match[2]) {
+				imageSet.appearances = [ {
+					appearance: 'luminosity',
+					value: 'dark'
+				} ];
+			}
+
+			imageSets[imageSetRelPath].images.push(imageSet);
+		}
+		resourcesToCopy.set(file, imageAssets.get(file));
+		resourcesToCopy.get(file).isImage = true;
+	}
+
+	// finally create all the Content.json files
+	return Promise.all(Object.keys(imageSets).map(async set => {
+		return this.writeAssetContentsFile(path.join(assetCatalog, set, 'Contents.json'), {
+			images: imageSets[set].images,
+			info: {
+				version: 1,
+				author: 'xcode'
+			}
+		});
+	}));
+};
+
+/**
+ * This may modify the list of resources to copy!
+ * @param {Map.<String,FileInfo>} launchImages launch image assets to handle
+ * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
+ */
+iOSBuilder.prototype.createLaunchImageSet = async function createLaunchImageSet(launchImages, resourcesToCopy) {
+	this.logger.info(__('Creating launch image set'));
+
+	const launchImageDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchImage.launchimage');
+	await fs.ensureDir(launchImageDir);
+
+	const launchImageSet = {
+		images: [],
+		info: {
+			version: 1,
+			author: 'xcode'
+		}
+	};
+	const lookup = {
+		// iPhone Portrait - iOS 7-9 - 2x (640x960)
+		'Default@2x.png':                { idiom: 'iphone', extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 640, height: 960, scale: 2 },
+		// iPhone Portrait - iOS 7-9 - Retina 4 (640x1136)
+		'Default-568h@2x.png':           { idiom: 'iphone', extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 640, height: 1136, scale: 2, subtype: 'retina4' },
+		// iPhone Portrait - iOS 8,9 - Retina HD 4.7 (750x1334) iPhone 6
+		'Default-667h@2x.png':           { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 750, height: 1334, scale: 2, subtype: '667h' },
+
+		// iPad Landscape - iOS 7-9 - 1x (1024x768)
+		'Default-Landscape.png':         { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'landscape', width: 1024, height: 768, scale: 1 },
+		// iPad Landscape - iOS 7-9 - 2x (2048x1536)
+		'Default-Landscape@2x.png':      { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'landscape', width: 2048, height: 1536, scale: 2 },
+		// iPhone Landscape - iOS 8,9 - Retina HD 5.5 (2208x1242)
+		'Default-Landscape-736h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'landscape', width: 2208, height: 1242, scale: 3, subtype: '736h' },
+		// iPhone Landscape - iOS 11 - Retina HD iPhone X (2436x1125)
+		'Default-Landscape-2436h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'landscape', width: 2436, height: 1125, scale: 3, subtype: '2436h' },
+		// iPhone Landscape - iOS 12 - Retina HD iPhone X Max (2688x1242)
+		'Default-Landscape-2688h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 2688, height: 1242, scale: 3, subtype: '2688h' },
+		// iPhone Landscape - iOS 12 - Retina iPhone XR (1792x828)
+		'Default-Landscape-1792h@2x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 1792, height: 828, scale: 2, subtype: '1792h' },
+
+		// iPad Portrait - iOS 7-9 - 1x (????)
+		'Default-Portrait.png':          { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 768, height: 1024, scale: 1 },
+		// iPad Portrait - iOS 7-9 - 2x (????)
+		'Default-Portrait@2x.png':       { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 1536, height: 2048, scale: 2 },
+		// iPhone Portrait - iOS 8,9 - Retina HD 5.5 (1242x2208)
+		'Default-Portrait-736h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 1242, height: 2208, scale: 3, subtype: '736h' },
+		// iPhone Portrait - iOS 11 - Retina HD iPhone X (1125x2436)
+		'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' },
+		// iPhone Portrait - iOS 12 - Retina HD iPhone X Max (1242x2688)
+		'Default-Portrait-2688h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 1242, height: 2688, scale: 3, subtype: '2688h' },
+		// iPhone Portrait - iOS 12 - Retina iPhone XR (828x1792)
+		'Default-Portrait-1792h@2x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 828, height: 1792, scale: 2, subtype: '1792h' }
+	};
+	const found = {};
+	launchImages.forEach((info, filename) => {
+		let meta = lookup[filename];
+
+		if (info.i18n) {
+			meta = lookup[path.basename(filename)];
+		}
+
+		if (!meta) {
+			// we don't care about this image
+			this.logger.debug(__('Unsupported launch image %s, skipping', path.relative(this.projectDir, info.src).cyan));
+			return;
+		}
+
+		// skip device specific launch images
+		if (this.deviceFamily === 'iphone' && meta.idiom !== 'iphone') {
+			this.logger.debug(__('Skipping iPad launch image: %s', path.relative(this.projectDir, info.src).cyan));
+			return;
+		}
+
+		if (this.deviceFamily === 'ipad' && meta.idiom !== 'ipad') {
+			this.logger.debug(__('Skipping iPhone launch image: %s', path.relative(this.projectDir, info.src).cyan));
+			return;
+		}
+
+		if (!info.i18n) {
+			const img = {
+				extent: meta.extent,
+				idiom: meta.idiom,
+				filename: filename,
+				'minimum-system-version': meta.minSysVer,
+				orientation: meta.orientation,
+				scale: meta.scale + 'x'
+			};
+			meta.subtype && (img.subtype = meta.subtype);
+			launchImageSet.images.push(img);
+
+			// only override the dest if this is NOT an i18n image
+			info.dest = path.join(launchImageDir, filename);
+		}
+
+		found[info.i18n || '_'] || (found[info.i18n || '_'] = {});
+		found[info.i18n || '_'][path.basename(filename)] = 1;
+
+		resourcesToCopy.set(filename, info);
+	});
+
+	// determine if we're missing any launch images
+	const missing = {};
+	let totalMissing = 0;
+	Object.keys(found).forEach(lang => {
+		Object.keys(lookup).forEach(filename => {
+			if (!found[lang][filename] && (this.deviceFamily !== 'ipad' || lookup[filename].idiom === 'ipad') && (this.deviceFamily !== 'iphone' || lookup[filename].idiom === 'iphone')) {
+				missing[lang] || (missing[lang] = {});
+				missing[lang][filename] = 1;
+				totalMissing++;
+			}
+		});
+	});
+
+	if (totalMissing) {
+		// we have missing launch images :(
+		this.logger.warn(__n('Missing a launch image:', 'Missing %s launch images:', totalMissing));
+		Object.keys(missing).forEach(lang => {
+			this.logger.warn('  ' + (lang === '_' ? __('Default') : 'i18n/' + lang));
+			Object.keys(missing[lang]).forEach(filename => {
+				const meta = lookup[filename];
+				this.logger.warn('    '
+					+ __('%s - Used for %s - dimensions: %sx%s, orientation: %s',
+						filename,
+						meta.idiom === 'ipad' ? 'iPad' : 'iPhone',
+						meta.width,
+						meta.height,
+						meta.orientation
+					)
+				);
+			});
+		});
+	}
+
+	return this.writeAssetContentsFile(path.join(launchImageDir, 'Contents.json'), launchImageSet);
+};
+
+/**
+ * This may modify the list of resources to copy!
+ * @param {Map.<String,FileInfo>} appIcons app icons to handle
+ * @param {Map.<String,FileInfo>} launchLogos launch logos to process
+ * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
+ */
+iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createAppIconSetAndiTunesArtwork(appIcons, launchLogos, resourcesToCopy) {
+	this.logger.info(__('Creating app icon set'));
+
+	// check for default icon
+	let defaultIconChanged = false;
+	let defaultIconHasAlpha = false;
+	const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
+	if (defaultIcon) {
+		const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
+			defaultIconContents = fs.readFileSync(defaultIcon),
+			defaultIconInfo = appc.image.pngInfo(defaultIconContents),
+			defaultIconExists = !defaultIconInfo.alpha || fs.existsSync(flattenedDefaultIconDest),
+			defaultIconStat = defaultIconExists && fs.statSync(defaultIconInfo.alpha ? flattenedDefaultIconDest : defaultIcon),
+			defaultIconMtime = defaultIconExists && JSON.parse(JSON.stringify(defaultIconStat.mtime)),
+			defaultIconHash = this.hash(defaultIconContents);
+
+		if (!defaultIconExists
+			|| !defaultIconPrev
+			|| defaultIconPrev.size !== defaultIconStat.size
+			|| defaultIconPrev.mtime !== defaultIconMtime
+			|| defaultIconPrev.hash !== defaultIconHash) {
+			defaultIconChanged = true;
+		}
+
+		defaultIconHasAlpha = defaultIconInfo.alpha;
+
+		this.currentBuildManifest.files['DefaultIcon.png'] = {
+			hash: defaultIconHash,
+			mtime: defaultIconMtime,
+			size: defaultIconStat.size
+		};
+	}
+
+	// The original list of icons we may need (we trim this down as we match them)
+	const lookup = {
+		'-Small':       { height: 29,   width: 29,   scale: 1, idioms: [ 'ipad' ] },
+		'-Small@2x':    { height: 29,   width: 29,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
+		'-Small@3x':    { height: 29,   width: 29,   scale: 3, idioms: [ 'iphone' ] },
+		'-Small-40':    { height: 40,   width: 40,   scale: 1, idioms: [ 'ipad' ] },
+		'-Small-40@2x': { height: 40,   width: 40,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
+		'-Small-40@3x': { height: 40,   width: 40,   scale: 3, idioms: [ 'iphone' ] },
+		'-60@2x':       { height: 60,   width: 60,   scale: 2, idioms: [ 'iphone' ], required: true },
+		'-60@3x':       { height: 60,   width: 60,   scale: 3, idioms: [ 'iphone' ], required: true },
+		'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
+		'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
+		'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
+		'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
+	};
+	// Add macOS icons if target is macOS
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		Object.assign(lookup, {
+			'-16':    		{ height: 16, width: 16, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-16@2x':    	{ height: 16, width: 16, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-32':    		{ height: 32, width: 32, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-32@2x':    	{ height: 32, width: 32, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-128':    		{ height: 128, width: 128, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-128@2x':    	{ height: 128, width: 128, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-256':    		{ height: 256, width: 256, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-256@2x':    	{ height: 256, width: 256, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-AppStore':    { height: 512, width: 512, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+			'-AppStore@2x': { height: 512, width: 512, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' }
+		});
+	}
+	const deviceFamily = this.deviceFamily;
+	// filter out ones we don't need for our target
+	Object.keys(lookup).forEach(key => {
+		if (deviceFamily === 'iphone' && !lookup[key].idioms.includes('iphone') && !lookup[key].idioms.includes('ios-marketing')) {
+			// remove ipad only
+			delete lookup[key];
+		} else if (deviceFamily === 'ipad' && !lookup[key].idioms.includes('ipad') && !lookup[key].idioms.includes('ios-marketing')) {
+			// remove iphone only
+			delete lookup[key];
+		} else if (lookup[key].minXcodeVer && appc.version.lt(this.xcodeEnv.version, lookup[key].minXcodeVer)) {
+			// remove unsupported
+			delete lookup[key];
+		}
+	});
+
+	const appIconSetDir = path.join(this.buildDir, 'Assets.xcassets', 'AppIcon.appiconset');
+	await fs.ensureDir(appIconSetDir);
+
+	// Generate the app icon set
+	const appIconSet = {
+		images: [],
+		info: {
+			version: 1,
+			author: 'xcode'
+		}
+	};
+	const flattenIcons = []; // icons with alpha channel to "flatten" with white bg
+	// FIXME: Do these in parallel
+	// This goes through the app icons and tries to:
+	// validate it matches one of the ones we need
+	// its height/width matches what we need
+	// it's square
+	// check if it has alpha and needs to be "flattened"
+	// if not, we can copy as-is
+	// so for each icon we need to know: is it valid/usable? if usable, does it need to be flattened?
+	// if usable, we expand out into appIconSet and remove from lookup map (this is how we keep track of what's missing)
+	// if we don't need to flatten, we add to resources to copy (after chnaging dest to iconset asset catalog)
+	// if we do need to flatten we eventually merge over top white bg
+	appIcons.forEach((info, filename) => {
+		if (!info.tag) {
+			// probably appicon.png, we don't care so skip it
+			return;
+		}
+
+		if (!lookup[info.tag]) {
+			// we don't care about this image
+			this.logger.debug(__('Unsupported app icon %s, skipping', info.src.replace(this.projectDir + '/', '').cyan));
+			return;
+		}
+
+		const contents = fs.readFileSync(info.src);
+		const pngInfo = appc.image.pngInfo(contents);
+
+		// check that the app icon is square
+		if (pngInfo.width !== pngInfo.height) {
+			this.logger.warn(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', ''), pngInfo.width, pngInfo.height));
+			return;
+		}
+
+		// validate the app icon meets the requirements
+		const meta = lookup[info.tag];
+		const w = meta.width * meta.scale;
+		if (pngInfo.width !== w) { // we enforce it's square above, so no need to check height too
+			const h = meta.height * meta.scale;
+			this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', ''), w, h, pngInfo.width, pngInfo.height));
+			return;
+		}
+
+		let flatten = false;
+		if (pngInfo.alpha) {
+			if (defaultIcon && !defaultIconHasAlpha) {
+				this.logger.warn(__('Skipping %s because it has an alpha channel and generating one from %s', info.src.replace(this.projectDir + '/', ''), defaultIcon.replace(this.projectDir + '/', '')));
+				return;
+			}
+
+			this.logger.warn(__('%s contains an alpha channel and will be flattened against a white background', info.src.replace(this.projectDir + '/', '')));
+			flatten = true;
+			flattenIcons.push(info);
+		}
+
+		// inject images into the app icon set
+		meta.idioms.forEach(function (idiom) {
+			appIconSet.images.push({
+				size:     meta.width + 'x' + meta.height,
+				idiom:    idiom,
+				filename: filename,
+				scale:    meta.scale + 'x'
+			});
+		});
+
+		delete lookup[info.tag];
+
+		info.dest = path.join(appIconSetDir, filename);
+
+		if (!flatten) {
+			this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
+			info.contents = contents;
+			resourcesToCopy.set(filename, info);
+		}
+	});
+
+	let missingIcons = [];
+	if (this.target === 'dist-adhoc') {
+		missingIcons = missingIcons.concat(await this.copyiTunesArtwork());
+	}
+	missingIcons = missingIcons.concat(await this.writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged));
+	// we may punt and generate launch logos from the default icon if there's no logo to resize...
+	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
+
+	// Do we need to flatten the default icon?
+	const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
+	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+		this.defaultIcons = [ flattenedDefaultIconDest ];
+		flattenIcons.push({
+			name: path.basename(defaultIcon),
+			src: defaultIcon,
+			dest: flattenedDefaultIconDest
+		});
+		this.logger.warn(__('The default icon "%s" contains an alpha channel and will be flattened against a white background', defaultIcon.replace(this.projectDir + '/', '')));
+		this.logger.warn(__('You may create an image named "DefaultIcon-ios.png" that does not have an alpha channel in the root of your project'));
+		this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
+	}
+
+	// FIXME: use-plimit to limit 5 at a time again?
+	// Can we flatten and generate app icons in parallel? I think not because we may be flattening the default icon!
+	await Promise.all(flattenIcons.map(icon => this.flattenIcon(icon)));
+
+	// If there are no missing icons we're done!
+	if (!missingIcons.length) {
+		return;
+	}
+
+	// Turn callback api to promise...
+	const boundGenerateAppIcons = util.promisify(this.generateAppIcons).bind(this);
+	if (!defaultIcon) {
+		// we're going to fail, but we let generateAppIcons() do the dirty work
+		return boundGenerateAppIcons(missingIcons);
+	}
+
+	if (!defaultIconChanged) {
+		// we have missing icons, but the default icon hasn't changed
+		// call generateAppIcons() and have it deal with determining if the icons need
+		// to be generated or if it needs to error out
+		return boundGenerateAppIcons(missingIcons);
+	}
+
+	if (!this.forceRebuild) {
+		this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon.replace(this.projectDir + '/', '')));
+		this.forceRebuild = true;
+	}
+
+	return boundGenerateAppIcons(missingIcons);
+};
+
+/**
+ * "Flattens" an icon with an alpha channel over top a white background
+ * If it was the default icon we update the build manifest
+ * @param {FileInfo} icon icon metadata with alpha to flatten over white
+ * @param {string} flattenedDefaultIconDest filepath to flattened default icon (used to determine if we're flattening the default icon)
+ * @returns {Promise<void>}
+ */
+iOSBuilder.prototype.flattenIcon = function flattenIcon(icon, flattenedDefaultIconDest) {
+	return new Promise((resolve, reject) => {
+		this.logger.debug(__('Stripping alpha channel: %s => %s', icon.src.cyan, icon.dest.cyan));
+		const _t = this;
+		fs.createReadStream(icon.src)
+			.pipe(new PNG({
+				colorType: 2,
+				bgColor: {
+					red: 255,
+					green: 255,
+					blue: 255
 				}
-				this.logger.debug(__('Writing %s', dest.cyan));
-				fs.ensureDirSync(parent);
-				fs.writeFileSync(dest, contents);
-			} else {
-				this.logger.trace(__('No change, skipping %s', dest.cyan));
+			}))
+			.on('parsed', function () {
+				if (icon.dest === flattenedDefaultIconDest) {
+					// if the icon we just flattened is the DefaultIcon, then we need to
+					// update the currentBuildManifest which means we can't just pipe the
+					// the flattened icon to disk, we need to compute the hash and stat it
+					const buf = [];
+					this.pack()
+						.on('data', function (bytes) {
+							buf.push(Buffer.from(bytes));
+						})
+						.on('end', function (err) {
+							if (err) {
+								return reject(err);
+							}
+
+							const contents = Buffer.concat(buf);
+							fs.writeFileSync(icon.dest, contents);
+
+							const stat = fs.statSync(icon.dest);
+							_t.currentBuildManifest.files['DefaultIcon.png'] = {
+								hash: _t.hash(contents),
+								mtime: JSON.parse(JSON.stringify(stat.mtime)),
+								size: stat.size
+							};
+
+							resolve();
+						});
+					return;
+				}
+
+				this.pack()
+					.on('end', err => {
+						if (err) {
+							return reject(err);
+						}
+						resolve();
+					})
+					.pipe(fs.createWriteStream(icon.dest));
+			});
+	});
+};
+
+/**
+ * This may modify the list of resources to copy!
+ * @param {Map.<String,FileInfo>} launchLogos logos to handle
+ * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
+ * @param {string} defaultIcon filepath the the default icon
+ * @param {boolean} defaultIconChanged did the default icon change this build?
+ * @returns {object[]} missing launch logos to generate from default icon
+ */
+iOSBuilder.prototype.processLaunchLogos = async function processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged) {
+	if (!this.enableLaunchScreenStoryboard || !this.defaultLaunchScreenStoryboard) {
+		return [];
+	}
+
+	this.logger.info(__('Creating launch logo image set'));
+
+	const assetCatalogDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchLogo.imageset');
+	await fs.ensureDir(assetCatalogDir);
+
+	const lookup = {
+		'LaunchLogo~iphone':    { idiom: 'iphone', scale: 1, size: 320 },
+		'LaunchLogo@2x~iphone': { idiom: 'iphone', scale: 2, size: 374 },
+		'LaunchLogo@3x~iphone': { idiom: 'iphone', scale: 3, size: 621 },
+		'LaunchLogo~ipad':      { idiom: 'ipad', scale: 1, size: 384 },
+		'LaunchLogo@2x~ipad':   { idiom: 'ipad', scale: 2, size: 1024 }
+	};
+	// loop over each of the launch logos that we found, then for each remove it from the lookup
+	// anything left in the lookup will be considered missing
+	let launchLogo = null;
+	const images = [];
+	if (launchLogos.size !== 0) {
+		launchLogos.forEach((img, file) => {
+			if (img.name === 'LaunchLogo') {
+				launchLogo = img;
+				return;
+			}
+
+			if (!lookup[img.name]) {
+				return;
+			}
+			delete lookup[img.name];
+
+			images.push({
+				// size?
+				idiom: img.device || 'universal',
+				filename: img.name + '.' + img.ext,
+				scale: (img.scale || 1) + 'x'
+			});
+
+			const dest = path.join(assetCatalogDir, img.name + '.' + img.ext);
+			img.dest = dest;
+			resourcesToCopy.set(file, img);
+		});
+	}
+
+	// if there's anything left in the `lookup`, then they are missing
+	const missingCount = Object.keys(lookup).length;
+	const missingLaunchLogos = [];
+	if (missingCount !== 0) {
+		// We have no LaunchLogo.png or DefaultIcon.png, copy our template logos and move on
+		if (!launchLogo && !defaultIcon) {
+			await this.copyDefaultLaunchLogos(assetCatalogDir, resourcesToCopy);
+			// Don't generate any logos from icon (because there was none and we're copying default set of launch logos)
+			return [];
+		}
+
+		let changed = false;
+		const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['LaunchLogo.png'];
+
+		if (launchLogo) {
+			// sanity check that LaunchLogo is usable
+			const stat = fs.statSync(launchLogo.src),
+				mtime = JSON.parse(JSON.stringify(stat.mtime)),
+				launchLogoContents = fs.readFileSync(launchLogo.src),
+				hash = this.hash(launchLogoContents);
+
+			changed = !prev || prev.size !== stat.size || prev.mtime !== mtime || prev.hash !== hash;
+
+			this.currentBuildManifest.files['LaunchLogo.png'] = {
+				hash: hash,
+				mtime: mtime,
+				size: stat.size
+			};
+
+			if (changed) {
+				const launchLogoInfo = appc.image.pngInfo(launchLogoContents);
+				if (launchLogoInfo.width !== 1024 || launchLogoInfo.height !== 1024) {
+					this.logger.warn(__('Found LaunchLogo.png that is %sx%s, however the size must be 1024x1024', launchLogoInfo.width, launchLogoInfo.height));
+					launchLogo = null;
+				}
+			}
+		} else {
+			// using the DefaultIcon.png
+			const cur = this.currentBuildManifest.files['LaunchLogo.png'] = this.currentBuildManifest.files['DefaultIcon.png'];
+			if (defaultIconChanged || !prev || prev.size !== cur.size || prev.mtime !== cur.mtime || prev.hash !== cur.hash) {
+				changed = true;
 			}
 		}
 
-		const jsBootstrapFiles = []; // NOTE: ProcessJsTask modifies this array and it is then looked at by writeBootstrapJson() below!
-		parallel(this, [
-			function (next) {
-				series(this, [
-					function initAssetCatalog() {
-						this.logger.info(__('Creating asset catalog'));
-						writeAssetContentsFile.call(this, path.join(this.buildDir, 'Assets.xcassets', 'Contents.json'), {
-							info: {
-								version: 1,
-								author: 'xcode'
-							}
-						});
-					},
-
-					function createAppIconSetAndiTunesArtwork(next) {
-						this.logger.info(__('Creating app icon set'));
-
-						const appIconSetDir = path.join(this.buildDir, 'Assets.xcassets', 'AppIcon.appiconset'),
-							appIconSet = {
-								images: [],
-								info: {
-									version: 1,
-									author: 'xcode'
-								}
-							},
-							lookup = {
-								'-Small':       { height: 29,   width: 29,   scale: 1, idioms: [ 'ipad' ] },
-								'-Small@2x':    { height: 29,   width: 29,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
-								'-Small@3x':    { height: 29,   width: 29,   scale: 3, idioms: [ 'iphone' ] },
-								'-Small-40':    { height: 40,   width: 40,   scale: 1, idioms: [ 'ipad' ] },
-								'-Small-40@2x': { height: 40,   width: 40,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
-								'-Small-40@3x': { height: 40,   width: 40,   scale: 3, idioms: [ 'iphone' ] },
-								'-60@2x':       { height: 60,   width: 60,   scale: 2, idioms: [ 'iphone' ], required: true },
-								'-60@3x':       { height: 60,   width: 60,   scale: 3, idioms: [ 'iphone' ], required: true },
-								'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
-								'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
-								'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
-								'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
-							},
-							deviceFamily = this.deviceFamily,
-							flattenIcons = [],
-							flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png'),
-							missingIcons = [];
-						let defaultIconChanged = false,
-							defaultIconHasAlpha = false;
-
-						// Add macOS icons if target is macOS
-						if (this.target === 'macos' || this.target === 'dist-macappstore') {
-							Object.assign(lookup, {
-								'-16':    		{ height: 16, width: 16, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-16@2x':    	{ height: 16, width: 16, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-32':    		{ height: 32, width: 32, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-32@2x':    	{ height: 32, width: 32, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-128':    		{ height: 128, width: 128, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-128@2x':    	{ height: 128, width: 128, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-256':    		{ height: 256, width: 256, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-256@2x':    	{ height: 256, width: 256, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-AppStore':    { height: 512, width: 512, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
-								'-AppStore@2x': { height: 512, width: 512, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' }
-							});
-						}
-
-						const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
-
-						if (defaultIcon) {
-							const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
-								defaultIconContents = fs.readFileSync(defaultIcon),
-								defaultIconInfo = appc.image.pngInfo(defaultIconContents),
-								defaultIconExists = !defaultIconInfo.alpha || fs.existsSync(flattenedDefaultIconDest),
-								defaultIconStat = defaultIconExists && fs.statSync(defaultIconInfo.alpha ? flattenedDefaultIconDest : defaultIcon),
-								defaultIconMtime = defaultIconExists && JSON.parse(JSON.stringify(defaultIconStat.mtime)),
-								defaultIconHash = this.hash(defaultIconContents);
-
-							if (!defaultIconExists
-								|| !defaultIconPrev
-								|| defaultIconPrev.size !== defaultIconStat.size
-								|| defaultIconPrev.mtime !== defaultIconMtime
-								|| defaultIconPrev.hash !== defaultIconHash) {
-								defaultIconChanged = true;
-							}
-
-							defaultIconHasAlpha = defaultIconInfo.alpha;
-
-							this.currentBuildManifest.files['DefaultIcon.png'] = {
-								hash: defaultIconHash,
-								mtime: defaultIconMtime,
-								size: defaultIconStat.size
-							};
-						}
-
-						// remove all unnecessary icons from the lookup
-						Object.keys(lookup).forEach(function (key) {
-							if (deviceFamily === 'iphone' && lookup[key].idioms.indexOf('iphone') === -1 && lookup[key].idioms.indexOf('ios-marketing') === -1) {
-								// remove ipad only
-								delete lookup[key];
-							} else if (deviceFamily === 'ipad' && lookup[key].idioms.indexOf('ipad') === -1 && lookup[key].idioms.indexOf('ios-marketing') === -1) {
-								// remove iphone only
-								delete lookup[key];
-							} else if (lookup[key].minXcodeVer && appc.version.lt(this.xcodeEnv.version, lookup[key].minXcodeVer)) {
-								// remove unsupported
-								delete lookup[key];
-							}
-						}, this);
-
-						fs.ensureDirSync(appIconSetDir);
-
-						// FIXME: Don't use keys here, iterate over keys and values
-						gatheredResults.appIcons.forEach((info, filename) => {
-							if (!info.tag) {
-								// probably appicon.png, we don't care so skip it
-								return;
-							}
-
-							if (!lookup[info.tag]) {
-								// we don't care about this image
-								this.logger.debug(__('Unsupported app icon %s, skipping', info.src.replace(this.projectDir + '/', '').cyan));
-								return;
-							}
-
-							const meta = lookup[info.tag],
-								contents = fs.readFileSync(info.src),
-								pngInfo = appc.image.pngInfo(contents),
-								w = meta.width * meta.scale,
-								h = meta.height * meta.scale;
-							let flatten = false;
-
-							// check that the app icon is square
-							if (pngInfo.width !== pngInfo.height) {
-								this.logger.warn(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', ''), pngInfo.width, pngInfo.height));
-								return;
-							}
-
-							// validate the app icon meets the requirements
-							if (pngInfo.width !== w) {
-								this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', ''), w, h, pngInfo.width, pngInfo.height));
-								return;
-							}
-
-							if (pngInfo.alpha) {
-								if (defaultIcon && !defaultIconHasAlpha) {
-									this.logger.warn(__('Skipping %s because it has an alpha channel and generating one from %s', info.src.replace(this.projectDir + '/', ''), defaultIcon.replace(this.projectDir + '/', '')));
-									return;
-								}
-
-								this.logger.warn(__('%s contains an alpha channel and will be flattened against a white background', info.src.replace(this.projectDir + '/', '')));
-								flatten = true;
-								flattenIcons.push(info);
-							}
-
-							// inject images into the app icon set
-							meta.idioms.forEach(function (idiom) {
-								appIconSet.images.push({
-									size:     meta.width + 'x' + meta.height,
-									idiom:    idiom,
-									filename: filename,
-									scale:    meta.scale + 'x'
-								});
-							});
-
-							delete lookup[info.tag];
-
-							info.dest = path.join(appIconSetDir, filename);
-
-							if (!flatten) {
-								this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
-								info.contents = contents;
-								gatheredResults.resourcesToCopy.set(filename, info);
-							}
-						});
-
-						if (this.target === 'dist-adhoc') {
-							this.logger.info(__('Copying iTunes artwork'));
-
-							const artworkFiles = [
-								{ filename: 'iTunesArtwork', size: 512 },
-								{ filename: 'iTunesArtwork@2x', size: 1024 }
-							];
-
-							artworkFiles.forEach(function (artwork) {
-								const src = path.join(this.projectDir, artwork.filename),
-									dest = path.join(this.xcodeAppDir, artwork.filename);
-
-								this.unmarkBuildDirFile(dest);
-
-								try {
-									if (!fs.existsSync(src)) {
-										throw new Error();
-									}
-
-									const contents = fs.readFileSync(src),
-										pngInfo = appc.image.pngInfo(contents);
-
-									if (pngInfo.width !== artwork.size || pngInfo.height !== artwork.size) {
-										this.logger.warn(__('Skipping %s because dimensions (%sx%s) are wrong; should be %sx%s', artwork.filename, pngInfo.width, pngInfo.height, artwork.size, artwork.size));
-										throw new Error();
-									}
-
-									if (pngInfo.alpha) {
-										this.logger.warn(__('Skipping %s because iTunesArtwork must not have an alpha channel', artwork.filename));
-										throw new Error();
-									}
-
-									if (!this.copyFileSync(src, dest, { contents: contents })) {
-										this.logger.trace(__('No change, skipping %s', dest.cyan));
-									}
-								} catch (ex) {
-									missingIcons.push({
-										description: __('%s - Used for Ad Hoc dist', artwork.filename),
-										file: dest,
-										width: artwork.size,
-										height: artwork.size,
-										required: false
-									});
-								}
-							}, this);
-						}
-
-						series(this, [
-							function (next) {
-								if (!Object.keys(lookup).length) {
-									// wow, we had all of the icons! amazing!
-									if (this.target === 'dist-adhoc') {
-										this.logger.debug(__('All app icons and iTunes artwork are present and are correct'));
-									} else {
-										this.logger.debug(__('All app icons are present and are correct'));
-									}
-									writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
-									return next();
-								}
-
-								Object.keys(lookup).forEach(function (key) {
-									const meta = lookup[key],
-										width = meta.width * meta.scale,
-										height = meta.height * meta.scale,
-										filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
-										dest = path.join(appIconSetDir, filename);
-
-									this.unmarkBuildDirFile(dest);
-
-									// inject images into the app icon set
-									meta.idioms.forEach(function (idiom) {
-										appIconSet.images.push({
-											size:     meta.width + 'x' + meta.height,
-											idiom:    idiom,
-											filename: filename,
-											scale:    meta.scale + 'x'
-										});
-									});
-
-									// check if the icon was previously resized
-									if (!defaultIconChanged && fs.existsSync(dest)) {
-										const contents = fs.readFileSync(dest),
-											pngInfo = appc.image.pngInfo(contents);
-
-										if (pngInfo.width === width && pngInfo.height === height) {
-											this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
-											// icon looks good, no need to generate it!
-											return;
-										}
-									}
-
-									missingIcons.push({
-										description: __('%s - Used for %s',
-											filename,
-											meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', ')
-										),
-										file: dest,
-										width: width,
-										height: height,
-										required: !!meta.required
-									});
-								}, this);
-
-								writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
-
-								next();
-							},
-
-							function processLaunchLogos(next) {
-								if (!this.enableLaunchScreenStoryboard || !this.defaultLaunchScreenStoryboard) {
-									return next();
-								}
-
-								this.logger.info(__('Creating launch logo image set'));
-
-								const assetCatalogDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchLogo.imageset'),
-									images = [],
-									lookup = {
-										'LaunchLogo~iphone':    { idiom: 'iphone', scale: 1, size: 320 },
-										'LaunchLogo@2x~iphone': { idiom: 'iphone', scale: 2, size: 374 },
-										'LaunchLogo@3x~iphone': { idiom: 'iphone', scale: 3, size: 621 },
-										'LaunchLogo~ipad':      { idiom: 'ipad', scale: 1, size: 384 },
-										'LaunchLogo@2x~ipad':   { idiom: 'ipad', scale: 2, size: 1024 }
-									};
-								let launchLogo = null;
-
-								fs.ensureDirSync(assetCatalogDir);
-
-								// loop over each of the launch logos that we found, then for each remove it from the lookup
-								// anything left in the lookup will be considered missing
-								if (gatheredResults.launchLogos.size !== 0) {
-									gatheredResults.launchLogos.forEach((img, file) => {
-										if (img.name === 'LaunchLogo') {
-											launchLogo = img;
-											return;
-										}
-
-										if (!lookup[img.name]) {
-											return;
-										}
-										delete lookup[img.name];
-
-										images.push({
-											// size?
-											idiom: img.device || 'universal',
-											filename: img.name + '.' + img.ext,
-											scale: (img.scale || 1) + 'x'
-										});
-
-										const dest = path.join(assetCatalogDir, img.name + '.' + img.ext);
-										img.dest = dest;
-										gatheredResults.resourcesToCopy.set(file, img);
-									});
-								}
-
-								const missingCount = Object.keys(lookup).length,
-									missingLaunchLogos = [];
-
-								// if there's anything left in the `lookup`, then they are missing
-								if (missingCount) {
-									if (!launchLogo && !defaultIcon) {
-										this.logger.warn(__('No DefaultIcon.png found, copying default Titanium LaunchLogo images'));
-
-										// copy the default launch logos
-										const defaultLaunchLogosDir = path.join(this.platformPath, 'iphone', 'Assets.xcassets', 'LaunchLogo.imageset'),
-											defaultFilesRegExp = /\.(json|png)$/;
-										fs.readdirSync(defaultLaunchLogosDir).forEach(function (filename) {
-											const file = path.join(defaultLaunchLogosDir, filename);
-											if (fs.statSync(file).isFile() && defaultFilesRegExp.test(filename)) {
-												gatheredResults.resourcesToCopy.set(filename, {
-													src: path.join(defaultLaunchLogosDir, filename),
-													dest: path.join(assetCatalogDir, filename)
-												});
-											}
-										});
-										return next();
-									}
-
-									let changed = false;
-									const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['LaunchLogo.png'];
-
-									if (launchLogo) {
-										// sanity check that LaunchLogo is usable
-										const stat = fs.statSync(launchLogo.src),
-											mtime = JSON.parse(JSON.stringify(stat.mtime)),
-											launchLogoContents = fs.readFileSync(launchLogo.src),
-											hash = this.hash(launchLogoContents);
-
-										changed = !prev || prev.size !== stat.size || prev.mtime !== mtime || prev.hash !== hash;
-
-										this.currentBuildManifest.files['LaunchLogo.png'] = {
-											hash: hash,
-											mtime: mtime,
-											size: stat.size
-										};
-
-										if (changed) {
-											const launchLogoInfo = appc.image.pngInfo(launchLogoContents);
-											if (launchLogoInfo.width !== 1024 || launchLogoInfo.height !== 1024) {
-												this.logger.warn(__('Found LaunchLogo.png that is %sx%s, however the size must be 1024x1024', launchLogoInfo.width, launchLogoInfo.height));
-												launchLogo = null;
-											}
-										}
-									} else {
-										// using the DefaultIcon.png
-										const cur = this.currentBuildManifest.files['LaunchLogo.png'] = this.currentBuildManifest.files['DefaultIcon.png'];
-										if (defaultIconChanged || !prev || prev.size !== cur.size || prev.mtime !== cur.mtime || prev.hash !== cur.hash) {
-											changed = true;
-										}
-									}
-
-									let logged = false;
-
-									// build the list of images to be generated
-									Object.keys(lookup).forEach(function (name) {
-										const spec = lookup[name],
-											filename = name + '.png',
-											dest = path.join(assetCatalogDir, filename),
-											desc = __('%s - Used for %s - size: %sx%s',
-												name,
-												spec.idiom,
-												spec.size,
-												spec.size
-											);
-
-										images.push({
-											idiom: spec.idiom,
-											filename: filename,
-											scale: spec.scale + 'x'
-										});
-
-										this.unmarkBuildDirFile(dest);
-
-										// if the source image hasn't changed, then don't need to regenerate the missing launch logos
-										if (!changed && fs.existsSync(dest)) {
-											this.logger.trace(__('Found generated %sx%s launch logo: %s', spec.size, spec.size, dest.cyan));
-											return;
-										}
-
-										missingLaunchLogos.push({
-											description: desc,
-											file: dest,
-											width: spec.size,
-											height: spec.size,
-											required: false
-										});
-
-										if (!logged) {
-											logged = true;
-											this.logger.info(__n(
-												'Missing %s launch logo, generating missing launch logo from %%s',
-												'Missing %s launch logos, generating missing launch logos from %%s',
-												missingCount,
-												launchLogo ? 'LaunchLogo.png' : 'DefaultIcon.png'
-											));
-										}
-
-										if (launchLogo) {
-											this.logger.info('  ' + desc);
-										}
-									}, this);
-								}
-
-								writeAssetContentsFile.call(this, path.join(assetCatalogDir, 'Contents.json'), {
-									images: images,
-									info: {
-										version: 1,
-										author: 'xcode'
-									}
-								});
-
-								if (!missingLaunchLogos.length) {
-									return next();
-								}
-
-								if (!this.forceRebuild) {
-									this.logger.info(__('Forcing rebuild: launch logos changed since last build'));
-									this.forceRebuild = true;
-								}
-
-								if (!this.buildOnly && (this.target === 'device' || this.target === 'simulator')) {
-									this.logger.warn(__('If this app has been previously installed on this %s, you may need restart it to see the latest launch logo', this.target));
-									this.logger.warn(__('iOS renders and caches the launch screen to a PNG image that seems to only be invalidated by restarting iOS'));
-								}
-
-								if (!launchLogo) {
-									// just use the DefaultIcon.png to generate the missing LaunchLogos
-									Array.prototype.push.apply(missingIcons, missingLaunchLogos);
-									return next();
-								}
-
-								appc.image.resize(launchLogo.src, missingLaunchLogos, function (error) {
-									if (error) {
-										this.logger.error(error);
-										this.logger.log();
-										process.exit(1);
-									}
-									next();
-								}.bind(this), this.logger);
-							}
-						], function () {
-							if (missingIcons.length && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
-								this.defaultIcons = [ flattenedDefaultIconDest ];
-								flattenIcons.push({
-									name: path.basename(defaultIcon),
-									src: defaultIcon,
-									dest: flattenedDefaultIconDest
-								});
-								this.logger.warn(__('The default icon "%s" contains an alpha channel and will be flattened against a white background', defaultIcon.replace(this.projectDir + '/', '')));
-								this.logger.warn(__('You may create an image named "DefaultIcon-ios.png" that does not have an alpha channel in the root of your project'));
-								this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
-							}
-
-							async.eachLimit(flattenIcons, 5, function (icon, next) {
-								this.logger.debug(__('Stripping alpha channel: %s => %s', icon.src.cyan, icon.dest.cyan));
-								const _t = this;
-								fs.createReadStream(icon.src)
-									.pipe(new PNG({
-										colorType: 2,
-										bgColor: {
-											red: 255,
-											green: 255,
-											blue: 255
-										}
-									}))
-									.on('parsed', function () {
-										if (icon.dest === flattenedDefaultIconDest) {
-											// if the icon we just flattened is the DefaultIcon, then we need to
-											// update the currentBuildManifest which means we can't just pipe the
-											// the flattened icon to disk, we need to compute the hash and stat it
-											const buf = [];
-											this.pack()
-												.on('data', function (bytes) {
-													buf.push(Buffer.from(bytes));
-												})
-												.on('end', function (err) {
-													if (err) {
-														return next(err);
-													}
-
-													const contents = Buffer.concat(buf);
-													fs.writeFileSync(icon.dest, contents);
-
-													const stat = fs.statSync(icon.dest);
-													_t.currentBuildManifest.files['DefaultIcon.png'] = {
-														hash: _t.hash(contents),
-														mtime: JSON.parse(JSON.stringify(stat.mtime)),
-														size: stat.size
-													};
-
-													next();
-												});
-											return;
-										}
-
-										this.pack()
-											.on('end', next)
-											.pipe(fs.createWriteStream(icon.dest));
-									});
-							}.bind(this), function () {
-								if (!missingIcons.length) {
-									return next();
-								}
-
-								if (!defaultIcon) {
-									// we're going to fail, but we let generateAppIcons() do the dirty work
-									this.generateAppIcons(missingIcons, next);
-									return;
-								}
-
-								if (!defaultIconChanged) {
-									// we have missing icons, but the default icon hasn't changed
-									// call generateAppIcons() and have it deal with determining if the icons need
-									// to be generated or if it needs to error out
-									this.generateAppIcons(missingIcons, next);
-									return;
-								}
-
-								if (!this.forceRebuild) {
-									this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon.replace(this.projectDir + '/', '')));
-									this.forceRebuild = true;
-								}
-
-								this.generateAppIcons(missingIcons, next);
-							}.bind(this));
-						});
-					},
-
-					function createLaunchImageSet() {
-						this.logger.info(__('Creating launch image set'));
-
-						const launchImageDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchImage.launchimage'),
-							launchImageSet = {
-								images: [],
-								info: {
-									version: 1,
-									author: 'xcode'
-								}
-							},
-							lookup = {
-								// iPhone Portrait - iOS 7-9 - 2x (640x960)
-								'Default@2x.png':                { idiom: 'iphone', extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 640, height: 960, scale: 2 },
-								// iPhone Portrait - iOS 7-9 - Retina 4 (640x1136)
-								'Default-568h@2x.png':           { idiom: 'iphone', extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 640, height: 1136, scale: 2, subtype: 'retina4' },
-								// iPhone Portrait - iOS 8,9 - Retina HD 4.7 (750x1334) iPhone 6
-								'Default-667h@2x.png':           { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 750, height: 1334, scale: 2, subtype: '667h' },
-
-								// iPad Landscape - iOS 7-9 - 1x (1024x768)
-								'Default-Landscape.png':         { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'landscape', width: 1024, height: 768, scale: 1 },
-								// iPad Landscape - iOS 7-9 - 2x (2048x1536)
-								'Default-Landscape@2x.png':      { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'landscape', width: 2048, height: 1536, scale: 2 },
-								// iPhone Landscape - iOS 8,9 - Retina HD 5.5 (2208x1242)
-								'Default-Landscape-736h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'landscape', width: 2208, height: 1242, scale: 3, subtype: '736h' },
-								// iPhone Landscape - iOS 11 - Retina HD iPhone X (2436x1125)
-								'Default-Landscape-2436h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'landscape', width: 2436, height: 1125, scale: 3, subtype: '2436h' },
-								// iPhone Landscape - iOS 12 - Retina HD iPhone X Max (2688x1242)
-								'Default-Landscape-2688h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 2688, height: 1242, scale: 3, subtype: '2688h' },
-								// iPhone Landscape - iOS 12 - Retina iPhone XR (1792x828)
-								'Default-Landscape-1792h@2x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 1792, height: 828, scale: 2, subtype: '1792h' },
-
-								// iPad Portrait - iOS 7-9 - 1x (????)
-								'Default-Portrait.png':          { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 768, height: 1024, scale: 1 },
-								// iPad Portrait - iOS 7-9 - 2x (????)
-								'Default-Portrait@2x.png':       { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 1536, height: 2048, scale: 2 },
-								// iPhone Portrait - iOS 8,9 - Retina HD 5.5 (1242x2208)
-								'Default-Portrait-736h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 1242, height: 2208, scale: 3, subtype: '736h' },
-								// iPhone Portrait - iOS 11 - Retina HD iPhone X (1125x2436)
-								'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' },
-								// iPhone Portrait - iOS 12 - Retina HD iPhone X Max (1242x2688)
-								'Default-Portrait-2688h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 1242, height: 2688, scale: 3, subtype: '2688h' },
-								// iPhone Portrait - iOS 12 - Retina iPhone XR (828x1792)
-								'Default-Portrait-1792h@2x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 828, height: 1792, scale: 2, subtype: '1792h' }
-							},
-							found = {};
-
-						fs.ensureDirSync(launchImageDir);
-
-						gatheredResults.launchImages.forEach((info, filename) => {
-							let meta = lookup[filename];
-
-							if (info.i18n) {
-								meta = lookup[path.basename(filename)];
-							}
-
-							if (!meta) {
-								// we don't care about this image
-								this.logger.debug(__('Unsupported launch image %s, skipping', path.relative(this.projectDir, info.src).cyan));
-								return;
-							}
-
-							// skip device specific launch images
-							if (this.deviceFamily === 'iphone' && meta.idiom !== 'iphone') {
-								this.logger.debug(__('Skipping iPad launch image: %s', path.relative(this.projectDir, info.src).cyan));
-								return;
-							}
-
-							if (this.deviceFamily === 'ipad' && meta.idiom !== 'ipad') {
-								this.logger.debug(__('Skipping iPhone launch image: %s', path.relative(this.projectDir, info.src).cyan));
-								return;
-							}
-
-							if (!info.i18n) {
-								const img = {
-									extent: meta.extent,
-									idiom: meta.idiom,
-									filename: filename,
-									'minimum-system-version': meta.minSysVer,
-									orientation: meta.orientation,
-									scale: meta.scale + 'x'
-								};
-								meta.subtype && (img.subtype = meta.subtype);
-								launchImageSet.images.push(img);
-
-								// only override the dest if this is NOT an i18n image
-								info.dest = path.join(launchImageDir, filename);
-							}
-
-							found[info.i18n || '_'] || (found[info.i18n || '_'] = {});
-							found[info.i18n || '_'][path.basename(filename)] = 1;
-
-							gatheredResults.resourcesToCopy.set(filename, info);
-						});
-
-						// determine if we're missing any launch images
-						const missing = {};
-						let totalMissing = 0;
-						Object.keys(found).forEach(function (lang) {
-							Object.keys(lookup).forEach(function (filename) {
-								if (!found[lang][filename] && (this.deviceFamily !== 'ipad' || lookup[filename].idiom === 'ipad') && (this.deviceFamily !== 'iphone' || lookup[filename].idiom === 'iphone')) {
-									missing[lang] || (missing[lang] = {});
-									missing[lang][filename] = 1;
-									totalMissing++;
-								}
-							}, this);
-						}, this);
-
-						if (totalMissing) {
-							// we have missing launch images :(
-							this.logger.warn(__n('Missing a launch image:', 'Missing %s launch images:', totalMissing));
-							Object.keys(missing).forEach(function (lang) {
-								this.logger.warn('  ' + (lang === '_' ? __('Default') : 'i18n/' + lang));
-								Object.keys(missing[lang]).forEach(function (filename) {
-									const meta = lookup[filename];
-									this.logger.warn('    '
-										+ __('%s - Used for %s - dimensions: %sx%s, orientation: %s',
-											filename,
-											meta.idiom === 'ipad' ? 'iPad' : 'iPhone',
-											meta.width,
-											meta.height,
-											meta.orientation
-										)
-									);
-								}, this);
-							}, this);
-						}
-
-						writeAssetContentsFile.call(this, path.join(launchImageDir, 'Contents.json'), launchImageSet);
-					},
-
-					function createAssetImageSets() {
-						if (!this.useAppThinning) {
-							this.logger.info(__('App thinning disabled, skipping asset image sets'));
-							return;
-						}
-
-						this.logger.info(__('Creating assets image set'));
-						const assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
-							imageSets = {},
-							imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
-
-						gatheredResults.imageAssets.forEach((info, file) => {
-							const directories = file.split('/');
-							let newPath = '';
-							for (let i = 0; i < directories.length - 1; i++) {
-								newPath = newPath + '/' + directories[i];
-
-								writeAssetContentsFile.call(this, path.join(assetCatalog, newPath, 'Contents.json'), {
-									info: {
-										version: 1,
-										author: 'xcode'
-									},
-									properties: {
-										'provides-namespace': true
-									},
-								});
-							}
-
-							const imageName = info.name,
-								match = file.match(imageNameRegExp);
-
-							if (match) {
-								const imageExt = info.ext;
-								const imageSetName = match[1];
-								const imageSetRelPath = imageSetName + '.imageset';
-
-								// update image file's destination
-								const dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
-								info.dest = dest;
-
-								this.unmarkBuildDirFile(dest);
-
-								if (!imageSets[imageSetRelPath]) {
-									imageSets[imageSetRelPath] = {
-										images: [],
-										name: imageSetName
-									};
-								}
-
-								const imageSet = {
-									idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
-									filename: imageName + '.' + imageExt,
-									scale: !match[3] ? '1x' : match[3].replace('@', '')
-								};
-
-								if (match[2]) {
-									imageSet.appearances = [ {
-										appearance: 'luminosity',
-										value: 'dark'
-									} ];
-								}
-
-								imageSets[imageSetRelPath].images.push(imageSet);
-							}
-							gatheredResults.resourcesToCopy.set(file, gatheredResults.imageAssets.get(file));
-							gatheredResults.resourcesToCopy.get(file).isImage = true;
-						});
-
-						// finally create all the Content.json files
-						Object.keys(imageSets).forEach(function (set) {
-							writeAssetContentsFile.call(this, path.join(assetCatalog, set, 'Contents.json'), {
-								images: imageSets[set].images,
-								info: {
-									version: 1,
-									author: 'xcode'
-								}
-							});
-						}, this);
-					},
-
-					function generateSemanticColors() {
-						let colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
-
-						if (!fs.existsSync(colorsFile)) {
-							// Fallback to root of Resources folder for Classic applications
-							colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
-						}
-
-						if (!fs.existsSync(colorsFile)) {
-							this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
-							return;
-						}
-
-						const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
-						const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-
-						function hexToRgb(hex) {
-							let alpha = 1;
-							let color = hex;
-							if (hex.color) {
-								alpha = hex.alpha / 100; // convert from 0-100 range to 0-1 range
-								color = hex.color;
-							}
-							// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-							color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-
-							var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
-							return result ? {
-								r: parseInt(result[1], 16),
-								g: parseInt(result[2], 16),
-								b: parseInt(result[3], 16),
-								alpha: alpha.toFixed(3)
-							} : null;
-						}
-
-						const colors = fs.readJSONSync(colorsFile);
-
-						for (const [ color, colorValue ] of Object.entries(colors)) {
-							const colorDir = path.join(assetCatalog, `${color}.colorset`);
-
-							if (!colorValue.light) {
-								this.logger.warn(`Skipping ${color} as it does not include a light value`);
-								continue;
-							}
-
-							if (!colorValue.dark) {
-								this.logger.warn(`Skipping ${color} as it does not include a dark value`);
-								continue;
-							}
-
-							const defaultRGB = Color.fromSemanticColorsEntry(colorValue.default || colorValue.light);
-							const lightRGB = Color.fromSemanticColorsEntry(colorValue.light);
-							const darkRGB = Color.fromSemanticColorsEntry(colorValue.dark);
-
-							const colorSource = {
-								info: {
-									version: 1,
-									author: 'xcode'
-								},
-								colors: []
-							};
-
-							// Contents.json can hold string or numeric values for colors. 0-255 integers or 0-1 floats.
-
-							// Default
-							colorSource.colors.push({
-								idiom: 'universal',
-								color: {
-									'color-space': 'srgb',
-									components: {
-										red: `${defaultRGB.r}`,
-										green: `${defaultRGB.g}`,
-										blue: `${defaultRGB.b}`,
-										alpha: defaultRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
-									}
-								}
-							});
-
-							// Light
-							colorSource.colors.push({
-								idiom: 'universal',
-								appearances: [ {
-									appearance: 'luminosity',
-									value: 'light'
-								} ],
-								color: {
-									'color-space': 'srgb',
-									components: {
-										red: `${lightRGB.r}`,
-										green: `${lightRGB.g}`,
-										blue: `${lightRGB.b}`,
-										alpha: lightRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
-									}
-								}
-							});
-
-							// Dark
-							colorSource.colors.push({
-								idiom: 'universal',
-								appearances: [ {
-									appearance: 'luminosity',
-									value: 'dark'
-								} ],
-								color: {
-									'color-space': 'srgb',
-									components: {
-										red: `${darkRGB.r}`,
-										green: `${darkRGB.g}`,
-										blue: `${darkRGB.b}`,
-										alpha: darkRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
-									}
-								}
-							});
-
-							fs.ensureDirSync(colorDir);
-							fs.writeJsonSync(path.join(colorDir, 'Contents.json'), colorSource);
-							this.unmarkBuildDirFile(path.join(colorDir, 'Contents.json'));
-						}
-					},
-
-					function copyResources() {
-						this.logger.debug(__('Copying resources'));
-						// FIXME: Use the copy resources task!
-						gatheredResults.resourcesToCopy.forEach((info, file) => {
-							// FIXME: We're doing unnecessary work here
-							// We shouldn't stat the file in advance/etc
-							// If the dest doesn't exist, we know we need to copy
-							const srcStat = fs.statSync(info.src),
-								srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
-								prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
-								destExists = fs.existsSync(info.dest),
-								unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file));
-							let contents = info.contents || null,
-								hash = null;
-							const fileChanged = !destExists || !prev
-								|| prev.size !== srcStat.size
-								|| prev.mtime !== srcMtime
-								|| prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src)));
-
-							if (!fileChanged) {
-								this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-							} else if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
-								if (this.useAppThinning && info.isImage && !this.forceRebuild) {
-									this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
-									this.forceRebuild = true;
-								}
-							} else {
-								this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-							}
-
-							this.currentBuildManifest.files[file] = {
-								hash:  contents === null && prev ? prev.hash  : hash || this.hash(contents || ''),
-								mtime: contents === null && prev ? prev.mtime : srcMtime,
-								size:  contents === null && prev ? prev.size  : srcStat.size
-							};
-
-							this.unmarkBuildDirFile(info.dest);
-						}, this);
-					},
-				], next);
-			},
-
-			function copyCSSFiles(next) {
-				this.logger.debug(__('Copying CSS files'));
-				const task = new ProcessCSSTask({
-					files: gatheredResults.cssFiles,
-					incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-css'),
-					logger: this.logger,
-					builder: this,
-				});
-				task.run().then(() => next()).catch(e => next(e));
-			},
-
-			function (next) {
-				series(this, [
-					function processJSFiles(next) {
-						this.logger.info(__('Processing JavaScript files'));
-						const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios');
-						// For now, need to adapt our Map results to String[] and Object for ProcessJsTask
-						const jsFiles = {};
-						const inputFiles = [];
-						for (let [ key, value ] of gatheredResults.jsFiles) {
-							jsFiles[key] = value;
-							inputFiles.push(value.src);
-						}
-						const task = new ProcessJsTask({
-							inputFiles,
-							incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
-							logger: this.logger,
-							builder: this,
-							jsFiles,
-							jsBootstrapFiles,
-							sdkCommonFolder,
-							defaultAnalyzeOptions: {
-								minify: this.minifyJS,
-								transpile: this.transpile,
-								sourceMap: this.sourceMaps,
-								resourcesDir: this.xcodeAppDir,
-								logger: this.logger,
-								targets: {
-									ios: this.minIosVersion
-								}
-							}
-						});
-						task.run()
-							.then(() => {
-								if (this.useWebpack) {
-									// Merge Ti symbols from Webpack with the ones from legacy js processing
-									Object.keys(task.data.tiSymbols).forEach(file => {
-										const existingSymbols = this.tiSymbols[file] || [];
-										const additionalSymbols = task.data.tiSymbols[file];
-										this.tiSymbols[file] = Array.from(new Set(existingSymbols.concat(additionalSymbols)));
-									});
-								} else {
-									this.tiSymbols = task.data.tiSymbols;
-								}
-
-								return next(); // eslint-disable-line promise/no-callback-in-promise
-							})
-							.catch(e => {
-								this.logger.error(e);
-								process.exit(1);
-							});
-					},
-
-					function writeBootstrapJson() {
-						this.logger.info(__('Writing bootstrap json'));
-
-						const originalBootstrapJsonName = path.join('ti.internal', 'bootstrap.json');
-						const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : originalBootstrapJsonName;
-						const bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath);
-						const bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
-
-						if (this.encryptJS) {
-							this.jsFilesEncrypted.push(originalBootstrapJsonName); // original name
-							this.jsFilesToEncrypt.push(bootstrapJsonRelativePath); // encrypted name
-						}
-
-						if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
-							this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
-
-							fs.ensureDirSync(path.dirname(bootstrapJsonAbsolutePath));
-							fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
-						} else {
-							this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
-						}
-
-						this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
-					},
-				], next);
-			},
-
-			function writeAppProps() {
-				this.logger.info(__('Writing app properties'));
-
-				const appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json');
-				const props = {};
-
-				if (this.encryptJS) {
-					this.jsFilesEncrypted.push('_app_props_.json'); // original name
-					this.jsFilesToEncrypt.push('_app_props__json'); // encrypted name
-				}
-
-				this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(prop => {
-					props[prop] = this.tiapp.properties[prop].value;
-				});
-
-				const contents = JSON.stringify(props);
-				if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile).toString()) {
-					this.logger.debug(__('Writing %s', appPropsFile.cyan));
-
-					if (this.encryptJS) {
-						fs.ensureDirSync(this.buildAssetsDir);
-					}
-					fs.writeFileSync(appPropsFile, contents);
-				} else {
-					this.logger.trace(__('No change, skipping %s', appPropsFile.cyan));
-				}
-
-				this.unmarkBuildDirFile(appPropsFile);
-			},
-
-			function writeEnvironmentVariables() {
-				this.logger.debug(__('Writing ENV variables'));
-
-				const envVarsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_env__json') : path.join(this.xcodeAppDir, '_env_.json');
-
-				if (this.encryptJS) {
-					this.jsFilesEncrypted.push('_env_.json'); // original name
-					this.jsFilesToEncrypt.push('_env__json'); // encrypted name
-				}
-
-				// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-				const contents = this.writeEnvVars ? JSON.stringify(process.env) : {};
-				if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile).toString()) {
-					this.logger.debug(__('Writing %s', envVarsFile.cyan));
-
-					if (this.encryptJS) {
-						fs.ensureDirSync(this.buildAssetsDir);
-					}
-					fs.writeFileSync(envVarsFile, contents);
-				} else {
-					this.logger.trace(__('No change, skipping %s', envVarsFile.cyan));
-				}
-
-				this.unmarkBuildDirFile(envVarsFile);
+		let logged = false;
+
+		// build the list of images to be generated
+		Object.keys(lookup).forEach(name => {
+			const spec = lookup[name],
+				filename = name + '.png',
+				dest = path.join(assetCatalogDir, filename),
+				desc = __('%s - Used for %s - size: %sx%s',
+					name,
+					spec.idiom,
+					spec.size,
+					spec.size
+				);
+
+			images.push({
+				idiom: spec.idiom,
+				filename: filename,
+				scale: spec.scale + 'x'
+			});
+
+			this.unmarkBuildDirFile(dest);
+
+			// if the source image hasn't changed, then don't need to regenerate the missing launch logos
+			if (!changed && fs.existsSync(dest)) {
+				this.logger.trace(__('Found generated %sx%s launch logo: %s', spec.size, spec.size, dest.cyan));
+				return;
 			}
-		], next);
+
+			missingLaunchLogos.push({
+				description: desc,
+				file: dest,
+				width: spec.size,
+				height: spec.size,
+				required: false
+			});
+
+			if (!logged) {
+				logged = true;
+				this.logger.info(__n(
+					'Missing %s launch logo, generating missing launch logo from %%s',
+					'Missing %s launch logos, generating missing launch logos from %%s',
+					missingCount,
+					launchLogo ? 'LaunchLogo.png' : 'DefaultIcon.png'
+				));
+			}
+
+			if (launchLogo) {
+				this.logger.info('  ' + desc);
+			}
+		});
+	}
+
+	await this.writeAssetContentsFile(path.join(assetCatalogDir, 'Contents.json'), {
+		images: images,
+		info: {
+			version: 1,
+			author: 'xcode'
+		}
+	});
+
+	// If there are no missing launch logos, we're done
+	if (!missingLaunchLogos.length) {
+		return [];
+	}
+
+	if (!this.forceRebuild) {
+		this.logger.info(__('Forcing rebuild: launch logos changed since last build'));
+		this.forceRebuild = true;
+	}
+
+	if (!this.buildOnly && (this.target === 'device' || this.target === 'simulator')) {
+		this.logger.warn(__('If this app has been previously installed on this %s, you may need restart it to see the latest launch logo', this.target));
+		this.logger.warn(__('iOS renders and caches the launch screen to a PNG image that seems to only be invalidated by restarting iOS'));
+	}
+
+	if (!launchLogo) {
+		// just use the DefaultIcon.png to generate the missing LaunchLogos
+		return missingLaunchLogos;
+	}
+
+	// Resize the launch logo to the other dimensions needed
+	await new Promise((resolve, reject) => {
+		appc.image.resize(launchLogo.src, missingLaunchLogos, error => {
+			if (error) {
+				this.logger.error(error);
+				this.logger.log();
+				process.exit(1);
+				// TODO: Instead call reject?
+			}
+			resolve();
+		}, this.logger);
+	});
+	// we generated the launch logos ourselves, so return none left to generate (from default icon)!
+	return [];
+};
+
+/**
+ * This modifies the input map to add files to queue up to copy
+ * @param {string} assetCatalogDir filepath to asset catalog
+ * @param {Map.<String,FileInfo>} resourcesToCopy plain resources to copy
+ */
+iOSBuilder.prototype.copyDefaultLaunchLogos = async function copyDefaultLaunchLogos(assetCatalogDir, resourcesToCopy) {
+	this.logger.warn(__('No DefaultIcon.png found, copying default Titanium LaunchLogo images'));
+
+	// copy the default launch logos (by queueing them up in our resourcesToCopy map)
+	const defaultLaunchLogosDir = path.join(this.platformPath, 'iphone', 'Assets.xcassets', 'LaunchLogo.imageset');
+	const defaultFilesRegExp = /\.(json|png)$/;
+	const dirs = await fs.readdir(defaultLaunchLogosDir);
+	dirs.forEach(filename => {
+		const file = path.join(defaultLaunchLogosDir, filename);
+		if (defaultFilesRegExp.test(filename) && fs.statSync(file).isFile()) {
+			resourcesToCopy.set(filename, {
+				src: file,
+				dest: path.join(assetCatalogDir, filename)
+			});
+		}
+	});
+};
+
+/**
+ * @returns {Promise<object[]>} missing icons
+ */
+iOSBuilder.prototype.copyiTunesArtwork = async function copyiTunesArtwork() {
+	this.logger.info(__('Copying iTunes artwork'));
+
+	const missingIcons = [];
+
+	const artworkFiles = [
+		{ filename: 'iTunesArtwork', size: 512 },
+		{ filename: 'iTunesArtwork@2x', size: 1024 }
+	];
+
+	await Promise.all(artworkFiles.map(async artwork => {
+		const dest = path.join(this.xcodeAppDir, artwork.filename);
+
+		this.unmarkBuildDirFile(dest);
+
+		try {
+			const src = path.join(this.projectDir, artwork.filename);
+			if (!(await fs.exists(src))) { // TODO: just try and read it, it should throw if it doesn't exist
+				throw new Error();
+			}
+
+			const contents = await fs.readFile(src);
+			const pngInfo = appc.image.pngInfo(contents);
+
+			if (pngInfo.width !== artwork.size || pngInfo.height !== artwork.size) {
+				this.logger.warn(__('Skipping %s because dimensions (%sx%s) are wrong; should be %sx%s', artwork.filename, pngInfo.width, pngInfo.height, artwork.size, artwork.size));
+				throw new Error();
+			}
+
+			if (pngInfo.alpha) {
+				this.logger.warn(__('Skipping %s because iTunesArtwork must not have an alpha channel', artwork.filename));
+				throw new Error();
+			}
+
+			if (!this.copyFileSync(src, dest, { contents: contents })) {
+				this.logger.trace(__('No change, skipping %s', dest.cyan));
+			}
+		} catch (ex) {
+			missingIcons.push({
+				description: __('%s - Used for Ad Hoc dist', artwork.filename),
+				file: dest,
+				width: artwork.size,
+				height: artwork.size,
+				required: false
+			});
+		}
+	}));
+	return missingIcons;
+};
+
+/**
+ * write the app icon set, and gather up missing icons we should try to generate
+ * @param {object} lookup icons we don't have
+ * @param {string} appIconSetDir filepath to dir we're writing our app icon set
+ * @param {object} appIconSet app icon set we're building/writing (we will modify this)
+ * @param {boolean} defaultIconChanged did the default icon change this build?
+ * @returns {Promise<object[]>} missing icons
+ */
+iOSBuilder.prototype.writeAppIconSet = async function writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged) {
+	if (Object.keys(lookup).length === 0) {
+		// wow, we had all of the icons! amazing!
+		if (this.target === 'dist-adhoc') {
+			this.logger.debug(__('All app icons and iTunes artwork are present and are correct'));
+		} else {
+			this.logger.debug(__('All app icons are present and are correct'));
+		}
+		await this.writeAssetContentsFile(path.join(appIconSetDir, 'Contents.json'), appIconSet);
+		return [];
+	}
+
+	const missingIcons = [];
+	Object.keys(lookup).forEach(key => {
+		const filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png';
+		const dest = path.join(appIconSetDir, filename);
+		this.unmarkBuildDirFile(dest);
+
+		// inject images into the app icon set
+		const meta = lookup[key];
+		meta.idioms.forEach(function (idiom) {
+			appIconSet.images.push({
+				size:     meta.width + 'x' + meta.height,
+				idiom:    idiom,
+				filename: filename,
+				scale:    meta.scale + 'x'
+			});
+		});
+
+		// check if the icon was previously resized
+		const width = meta.width * meta.scale;
+		const height = meta.height * meta.scale;
+		if (!defaultIconChanged && fs.existsSync(dest)) {
+			const contents = fs.readFileSync(dest),
+				pngInfo = appc.image.pngInfo(contents);
+
+			if (pngInfo.width === width && pngInfo.height === height) {
+				this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
+				// icon looks good, no need to generate it!
+				return;
+			}
+		}
+
+		missingIcons.push({
+			description: __('%s - Used for %s',
+				filename,
+				meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', ')
+			),
+			file: dest,
+			width: width,
+			height: height,
+			required: !!meta.required
+		});
+	});
+
+	await this.writeAssetContentsFile(path.join(appIconSetDir, 'Contents.json'), appIconSet);
+	return missingIcons;
+};
+
+/**
+ * Copies all the rest of the files that need no extra processing.
+ * @param {Map<string, object>} resourcesToCopy filepaths to file info
+ * @returns {Promise<void>}
+ */
+iOSBuilder.prototype.copyUnmodifiedResources = async function copyUnmodifiedResources(resourcesToCopy) {
+	this.logger.debug(__('Copying resources'));
+	// const task = new CopyResourcesTask({
+	// 	incrementalDirectory: path.join(this.buildDir, 'incremental', 'copy-resources'),
+	// 	logger: this.logger,
+	// 	builder: this,
+	// 	files: resourcesToCopy
+	// });
+	// return task.run();
+
+	// FIXME: Use the copy resources task!
+	const unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/;
+	resourcesToCopy.forEach((info, file) => {
+		// FIXME: We're doing unnecessary work here
+		// We shouldn't stat the file in advance/etc
+		// If the dest doesn't exist, we know we need to copy
+		const srcStat = fs.statSync(info.src),
+			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+			prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
+			destExists = fs.existsSync(info.dest),
+			unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file));
+		let contents = info.contents || null,
+			hash = null;
+		const fileChanged = !destExists || !prev
+			|| prev.size !== srcStat.size
+			|| prev.mtime !== srcMtime
+			|| prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src)));
+
+		if (!fileChanged) {
+			this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+		} else if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
+			if (this.useAppThinning && info.isImage && !this.forceRebuild) {
+				this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
+				this.forceRebuild = true;
+			}
+		} else {
+			this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+		}
+
+		this.currentBuildManifest.files[file] = {
+			hash:  contents === null && prev ? prev.hash  : hash || this.hash(contents || ''),
+			mtime: contents === null && prev ? prev.mtime : srcMtime,
+			size:  contents === null && prev ? prev.size  : srcStat.size
+		};
+
+		this.unmarkBuildDirFile(info.dest);
 	});
 };
 
@@ -6365,16 +6569,16 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 	);
 };
 
-iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
+iOSBuilder.prototype.generateRequireIndex = async function generateRequireIndex() {
 	this.logger.info(__('Writing index.json with listing of JS/JSON files'));
-	const index = {};
+	const index = {}; // TODO: use a Map
 	const binAssetsDir = this.xcodeAppDir.replace(/\\/g, '/');
 
 	// Write _index_.json file with our JS/JSON file listing. This may also be encrypted
-	const destFilename = '_index_.json';
-	const destFile = path.join(this.xcodeAppDir, destFilename);
+	const destFile = path.join(this.xcodeAppDir, '_index_.json');
 
 	// Grab unencrypted JS/JSON files
+	// FIXME: use async calls
 	(function walk(dir) {
 		fs.readdirSync(dir).forEach(filename => {
 			const file = path.join(dir, filename);
@@ -6397,8 +6601,7 @@ iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callba
 	delete index['Resources/_app_props_.json'];
 	index['Resources/_index_.json'] = 1;
 
-	fs.existsSync(destFile) && fs.unlinkSync(destFile);
-	fs.writeFile(destFile, JSON.stringify(index), callback);
+	return fs.writeFile(destFile, JSON.stringify(index));
 };
 
 iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
