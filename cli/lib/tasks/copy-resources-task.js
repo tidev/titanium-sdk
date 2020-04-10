@@ -1,7 +1,10 @@
+const appc = require('node-appc');
 const { IncrementalFileTask } = require('appc-tasks');
 const fs = require('fs-extra');
+const path = require('path');
 const pLimit = require('p-limit');
-const { promisify } = require('util');
+const i18n = appc.i18n(__dirname);
+const __ = i18n.__;
 
 const MAX_SIMULTANEOUS_FILES = 256;
 const limit = pLimit(MAX_SIMULTANEOUS_FILES);
@@ -30,9 +33,15 @@ class CopyResourcesTask extends IncrementalFileTask {
 		this.files = options.files;
 		this.builder = options.builder;
 		this.platform = this.builder.cli.argv.platform;
-		this.forceCleanBuildPropertyName = this.platform === 'ios' ? 'forceCleanBuild' : 'forceRebuild';
-
-		this.createHooks();
+		if (this.platform === 'ios') {
+			this.forceCleanBuildPropertyName = 'forceCleanBuild';
+			this.symlinkFiles = this.builder.symlinkFilesOnCopy; // NOTE: That this is always false!
+			// We also would check this regexp below, but since symlinking was always false, it was useless to do that
+			// const unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/;
+		} else {
+			this.forceCleanBuildPropertyName = 'forceRebuild';
+			this.symlinkFiles = process.platform !== 'win32' && this.builder.config.get('android.symlinkResources', true);
+		}
 	}
 
 	/**
@@ -42,7 +51,10 @@ class CopyResourcesTask extends IncrementalFileTask {
 	 */
 	async afterTaskAction() {
 		await super.afterTaskAction();
+		// don't let iOS build delete our incremental state files!
 		this.builder.unmarkBuildDirFiles(this.incrementalDirectory);
+		// don't let iOS build delete any of the output files
+		this.files.forEach((info, _file) => this.builder.unmarkBuildDirFile(info.dest));
 	}
 
 	/**
@@ -131,7 +143,7 @@ class CopyResourcesTask extends IncrementalFileTask {
 	async handleDeletedFile(filePathAndName) {
 		this.logger.info(`DELETED ${filePathAndName}`);
 		// FIXME: If the file is deleted, how do we know the destination path to remove?
-		// Either we need to track the src -> dest map ourselevs, or appc-tasks needs to supply the last output state so we can find the matching file somehow
+		// Either we need to track the src -> dest map ourselves, or appc-tasks needs to supply the last output state so we can find the matching file somehow
 		// i.e. same sha/size?
 		const relativePathKey = this.resolveRelativePath(filePathAndName);
 		const info = this.files.get(relativePathKey);
@@ -173,16 +185,58 @@ class CopyResourcesTask extends IncrementalFileTask {
 		}
 
 		const info = this.files.get(file);
-		return this.copyResourceHook(info.src, info.dest);
+		// NOTE: That we used to fire a build.platform.copyResource for each file
+		// - but that ultimately iOS never did fire it
+		// - we don't use it for hyperloop anymore so no need for Android to do so
+		return this.copyFile(info);
 	}
 
 	/**
-	 * Creates the hooks that are required during file processing.
+	 * Note that this is a heavily modified async rewrite of Builder.copyFileSync from node-titanium-sdk!
+	 * @param {FileInfo} info information about the file being copied
 	 */
-	createHooks() {
-		// FIXME: Can we symlink nearly everything?
-		// TODO: Do we need to retain timestamps to make android/gradle happy that things actually didn't change since last build?
-		this.copyResourceHook = promisify(this.builder.cli.createHook(`build.${this.platform}.copyResource`, this.builder, fs.copy));
+	async copyFile(info) {
+		const dest = info.dest;
+		const src = info.src;
+
+		// iOS specific logic here!
+		if (this.platform === 'ios' && this.builder.useAppThinning && info.isImage && !this.builder.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
+			this.builder.forceRebuild = true;
+		}
+
+		const exists = await fs.exists(dest);
+		if (!exists) {
+			const parent = path.dirname(dest);
+			await fs.ensureDir(parent);
+		}
+
+		// copy files
+		if (!this.symlinkFiles) {
+			if (exists) {
+				this.logger.debug(__('Overwriting %s => %s', src.cyan, dest.cyan));
+				await fs.unlink(dest);
+			} else {
+				this.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
+			}
+			return fs.copyFile(src, dest);
+		}
+
+		// Try to symlink files!
+		// destination doesn't exist or symbolic link isn't pointing at src
+		if (!exists) {
+			this.logger.debug(__('Symlinking %s => %s', src.cyan, dest.cyan));
+			return fs.symlink(src, dest);
+		}
+
+		const symlinkOutdated = (await fs.realpath(dest)) !== src;
+		// I don't think we need to check if it's a symbolic link first, do we?
+		// const symlinkOutdated = (fs.lstatSync(dest).isSymbolicLink() && fs.realpathSync(dest) !== src);
+		if (symlinkOutdated) {
+			await fs.unlink(dest);
+			this.logger.debug(__('Symlinking %s => %s', src.cyan, dest.cyan));
+			return fs.symlink(src, dest);
+		}
 	}
 }
 
