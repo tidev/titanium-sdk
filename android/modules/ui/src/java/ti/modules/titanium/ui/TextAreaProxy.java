@@ -16,7 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ATTRIBUTED_STRING,
@@ -45,7 +45,6 @@ import android.app.Activity;
 		TiC.PROPERTY_PADDING,
 		TiC.PROPERTY_RETURN_KEY_TYPE
 })
-// clang-format on
 public class TextAreaProxy extends TiViewProxy
 {
 	public TextAreaProxy()
@@ -88,11 +87,9 @@ public class TextAreaProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSelection()
-	// clang-format on
 	{
 		TiUIView v = peekView();
 		if (v instanceof TiUIText) {

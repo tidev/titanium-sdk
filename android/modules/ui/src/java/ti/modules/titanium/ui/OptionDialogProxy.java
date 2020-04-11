@@ -13,7 +13,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIDialog;
 import android.app.Activity;
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ANDROID_VIEW,
@@ -24,7 +23,6 @@ import android.app.Activity;
 		TiC.PROPERTY_TITLEID,
 		TiC.PROPERTY_PERSISTENT
 })
-// clang-format on
 public class OptionDialogProxy extends TiDialogProxy
 {
 	public OptionDialogProxy()

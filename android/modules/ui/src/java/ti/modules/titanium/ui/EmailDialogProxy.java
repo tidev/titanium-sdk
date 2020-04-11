@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +38,6 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.text.Html;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		"bccRecipients",
@@ -49,7 +47,6 @@ import android.text.Html;
 		"subject",
 		"toRecipients"
 })
-// clang-format on
 public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionListener
 {
 

@@ -86,16 +86,18 @@
                    createIfNeeded:NO
                     waitUntilDone:NO];
 #else
-    TiThreadPerformOnMainThread(^{
-      [[oldViewProxy view] removeFromSuperview];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[oldViewProxy view] removeFromSuperview];
+        },
         YES);
 #endif
     if (![args containsObject:oldViewProxy]) {
       [oldViewProxy setParent:nil];
-      TiThreadPerformOnMainThread(^{
-        [oldViewProxy detachView];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [oldViewProxy detachView];
+          },
           YES);
       [self forgetProxy:oldViewProxy];
     }
@@ -191,9 +193,10 @@
 #ifdef TI_USE_AUTOLAYOUT
   args = doomedView;
 #endif
-  TiThreadPerformOnMainThread(^{
-    [doomedView detachView];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [doomedView detachView];
+      },
       NO);
   [self forgetProxy:doomedView];
   [viewProxies removeObject:doomedView];
@@ -221,9 +224,10 @@
   NSInteger index = [self indexFromArg:args];
   if (index >= 0 && index < [self viewCount]) {
     if ([self viewAttached]) {
-      TiThreadPerformOnMainThread(^{
-        [((TiUIScrollableView *)self.view) setCurrentPage:NUMINTEGER(index) animated:NUMBOOL(YES)];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [((TiUIScrollableView *)self.view) setCurrentPage:NUMINTEGER(index) animated:NUMBOOL(YES)];
+          },
           NO);
     } else {
       [self replaceValue:NUMINTEGER(index) forKey:@"currentPage" notification:NO];

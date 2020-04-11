@@ -1170,7 +1170,7 @@ DEFINE_EXCEPTIONS
     [self removeConstraintFromChild:curr attribute:NSLayoutAttributeTop];
 
     if (tempView != nil) {
-      [self addConstraints:TI_CONSTR(TI_STRING(@"V:[tempView]-(%f)-[curr]", topValue + TiDimensionCalculateValue([tempView tiLayoutConstraint] -> bottom, 0)), TI_VIEWS(tempView, curr))];
+      [self addConstraints:TI_CONSTR(TI_STRING(@"V:[tempView]-(%f)-[curr]", topValue + TiDimensionCalculateValue([tempView tiLayoutConstraint]->bottom, 0)), TI_VIEWS(tempView, curr))];
     } else {
       [self addConstraints:TI_CONSTR(TI_STRING(@"V:|-(%f)-[curr]", topValue), TI_VIEWS(curr))];
     }
@@ -1317,7 +1317,7 @@ DEFINE_EXCEPTIONS
   TiLayoutView *parent = (TiLayoutView *)[self superview];
   if (parent != nil) {
     if ([parent isKindOfClass:[TiLayoutView class]]) {
-      if (TiLayoutRuleIsAbsolute([parent tiLayoutConstraint] -> layoutStyle)) {
+      if (TiLayoutRuleIsAbsolute([parent tiLayoutConstraint]->layoutStyle)) {
         [parent updateMarginsForAbsoluteLayout:self];
       } else {
         [parent layoutChildren];

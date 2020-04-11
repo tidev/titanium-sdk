@@ -7,7 +7,6 @@
 package ti.modules.titanium.calendar;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollException;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -276,83 +275,65 @@ public class RecurrenceRuleProxy extends KrollProxy
 	//endregion
 
 	//region kroll proxy methods
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public String getCalendarID()
-	// clang-format on
 	{
 		return this.calendarID;
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public int[] getDaysOfTheMonth()
-	// clang-format on
 	{
 		return this.daysOfTheMonth;
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public KrollDict[] getDaysOfTheWeek()
-	// clang-format on
 	{
 		return this.daysOfTheWeek;
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public int[] getDaysOfTheYear()
-	// clang-format on
 	{
 		return this.daysOfTheYear;
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public KrollDict getEnd()
-	// clang-format on
 	{
 		return this.endDictionary;
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public int getFrequency()
-	// clang-format on
 	{
 		return this.frequency.toTiIntId();
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public int getInterval()
-	// clang-format on
 	{
 		return this.interval;
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public int[] monthsOfTheYear()
-	// clang-format on
 	{
 		return this.monthsOfTheYear;
 	}
 
-	// clang-format off
 	@Kroll.getProperty
 	@Kroll.method
 	public int[] getWeeksOfTheYear()
-	// clang-format on
 	{
 		return this.weeksOfTheYear;
 	}

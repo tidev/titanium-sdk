@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +24,6 @@ import org.appcelerator.kroll.common.TiDeployData;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.os.MessageQueue.IdleHandler;
 
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
@@ -58,6 +56,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			|| Build.MANUFACTURER.contains("Genymotion")
 			|| (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
 			|| "google_sdk".equals(Build.PRODUCT);
+	}
+
+	@Override
+	public void forceGC()
+	{
+		nativeIdle();
 	}
 
 	@Override

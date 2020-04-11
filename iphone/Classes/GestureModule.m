@@ -63,14 +63,16 @@
 {
   if (count == 1 && [type isEqualToString:@"shake"]) {
     lastShakeTime = 0;
-    TiThreadPerformOnMainThread(^{
-      [self registerForShake];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self registerForShake];
+        },
         NO);
   } else if (count == 1 && [type isEqualToString:@"orientationchange"]) {
-    TiThreadPerformOnMainThread(^{
-      [self registerForOrientation];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self registerForOrientation];
+        },
         NO);
   }
 }
@@ -84,14 +86,16 @@
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
   if (count == 0 && [type isEqualToString:@"shake"]) {
-    TiThreadPerformOnMainThread(^{
-      [self unregisterForNotificationNamed:kTiGestureShakeNotification];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self unregisterForNotificationNamed:kTiGestureShakeNotification];
+        },
         NO);
   } else if (count == 0 && [type isEqualToString:@"orientationchange"]) {
-    TiThreadPerformOnMainThread(^{
-      [self unregisterForNotificationNamed:UIDeviceOrientationDidChangeNotification];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self unregisterForNotificationNamed:UIDeviceOrientationDidChangeNotification];
+        },
         NO);
   }
 }

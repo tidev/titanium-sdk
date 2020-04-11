@@ -16,9 +16,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
@@ -116,9 +114,10 @@ public class CalendarProxy extends KrollProxy
 	@Kroll.method
 	public EventProxy[] getEventsInYear(int year)
 	{
-		Log.w(
-			TAG,
-			"getEventsInYear(year) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+		String warningMessage
+			= "getEventsInYear(year) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) "
+			+ "to avoid platform-differences of the month-index between iOS and Android";
+		Log.w(TAG, warningMessage);
 
 		Calendar jan1 = Calendar.getInstance();
 		jan1.clear();
@@ -133,9 +132,11 @@ public class CalendarProxy extends KrollProxy
 	@Kroll.method
 	public EventProxy[] getEventsInMonth(int year, int month)
 	{
-		Log.w(
-			TAG,
-			"getEventsInMonth(year, month) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+		String warningMessage
+			= "getEventsInMonth(year, month) has been deprecated in 7.0.0 in favor of "
+			+ "getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index "
+			+ "between iOS and Android";
+		Log.w(TAG, warningMessage);
 
 		Calendar firstOfTheMonth = Calendar.getInstance();
 		firstOfTheMonth.clear();
@@ -205,38 +206,30 @@ public class CalendarProxy extends KrollProxy
 		return EventProxy.createEvent(this, data);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return name;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return id;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSelected()
-	// clang-format on
 	{
 		return selected;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHidden()
-	// clang-format on
 	{
 		return hidden;
 	}

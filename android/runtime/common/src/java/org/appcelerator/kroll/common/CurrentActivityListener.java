@@ -17,5 +17,5 @@ public interface CurrentActivityListener {
 	 * Refer to {@link org.appcelerator.titanium.util.TiUIHelper#waitForCurrentActivity(CurrentActivityListener)} for an example use case.
 	 * @param activity the associated activity.
 	 */
-	public void onCurrentActivityReady(Activity activity);
+	void onCurrentActivityReady(Activity activity);
 }

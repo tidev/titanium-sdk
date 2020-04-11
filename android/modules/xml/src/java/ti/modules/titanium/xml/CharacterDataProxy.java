@@ -33,29 +33,23 @@ public class CharacterDataProxy extends NodeProxy
 		data.deleteData(offset, count);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getData() throws DOMException
-	// clang-format on
 	{
 		return data.getData();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setData(String data) throws DOMException
-	// clang-format on
 	{
 		this.data.setData(data);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
-	// clang-format on
 	{
 		return data.getLength();
 	}

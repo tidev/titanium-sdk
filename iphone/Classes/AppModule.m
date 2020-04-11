@@ -36,9 +36,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)_restart:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [[[TiApp app] controller] shutdownUi:self];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[[TiApp app] controller] shutdownUi:self];
+      },
       NO);
 }
 
