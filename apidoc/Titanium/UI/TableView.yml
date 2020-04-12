@@ -1280,20 +1280,26 @@ properties:
 
         and drawable/titantium_ui_header_title_background.xml:
             <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-            	<item>
-            		<shape android:shape="rectangle">
-            			<!-- border bottom -->
-            			<solid android:color="#33000000"/>
-            		</shape>
-            	</item>
-            	<item android:bottom="1dp">
+                <item>
+                    <shape android:shape="rectangle">
+                        <!-- border bottom -->
+                        <solid android:color="#33000000"/>
+                    </shape>
+                </item>
+                <item android:bottom="1dp">
                         <!-- background color -->
-            		<shape android:shape="rectangle">
-            			<solid android:color="#ffff"/>
-            		</shape>
-            	</item>
+                        <shape android:shape="rectangle">
+                        <solid android:color="#ffff"/>
+                    </shape>
+                    </item>
             </layer-list>
 
+        Inside a theme you can override it like this:
+            <style name="MyTheme" parent="@style/Theme.AppCompat">
+                <item name="headerTitleBackground">@drawable/titantium_ui_header_title_background2</item>
+                <item name="headerTitleColor">@color/headerTitleColor2</item>
+            </style>
+        and then define `headerTitleColor2` and `titantium_ui_header_title_background2` as described above
 
     type: String
 
