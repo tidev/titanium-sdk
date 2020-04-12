@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="headerTitleBackground">#a9a9a9</color>
     <color name="headerTitleColor">#ffffff</color>
 </resources>

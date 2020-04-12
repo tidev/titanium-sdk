@@ -1,0 +1,4 @@
+<resources>
+    <attr name="headerTitleBackground" format="reference" />
+    <attr name="headerTitleColor" format="color" />
+</resources>

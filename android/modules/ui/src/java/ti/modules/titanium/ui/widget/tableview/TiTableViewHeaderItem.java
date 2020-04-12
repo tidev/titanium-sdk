@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -54,21 +55,41 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 
 			setPadding(0, 0, 0, 0);
 			setVerticalFadingEdgeEnabled(false);
+			Resources resources = context.getResources();
+			TypedValue typedValue = new TypedValue();
 			try {
-				Resources resources = context.getResources();
 				minRowHeight = (int) (resources.getDimension(TiRHelper.getResource("dimen.headerTitleSize"))
 									  / resources.getDisplayMetrics().density);
 				minRowHeight += (int) minRowHeight / 2;
 				TiUIHelper.styleText(textView, "", resources.getString(TiRHelper.getResource("dimen.headerTitleSize")),
 									 resources.getString(TiRHelper.getResource("string.headerTitleStyle")));
-				textView.setBackground(
-					resources.getDrawable(TiRHelper.getResource("drawable.titantium_ui_header_title_background")));
-				textView.setTextColor(resources.getColor(TiRHelper.getResource("color.headerTitleColor")));
 			} catch (ResourceNotFoundException e) {
 				TiUIHelper.styleText(textView, "", "14sp", "normal");
+			}
+
+			try {
+				context.getTheme().resolveAttribute(TiRHelper.getResource("attr.headerTitleBackground"), typedValue,
+													true);
+				if (typedValue.resourceId != 0) {
+					textView.setBackground(resources.getDrawable(typedValue.resourceId, context.getTheme()));
+				} else {
+					textView.setBackgroundColor(Color.rgb(169, 169, 169));
+				}
+			} catch (ResourceNotFoundException e) {
 				textView.setBackgroundColor(Color.rgb(169, 169, 169));
+			}
+
+			try {
+				context.getTheme().resolveAttribute(TiRHelper.getResource("attr.headerTitleColor"), typedValue, true);
+				if (typedValue.resourceId != 0) {
+					textView.setTextColor(resources.getColor(typedValue.resourceId, context.getTheme()));
+				} else {
+					textView.setTextColor(Color.WHITE);
+				}
+			} catch (ResourceNotFoundException e) {
 				textView.setTextColor(Color.WHITE);
 			}
+
 			setMinimumHeight((int) TiUIHelper.getRawDIPSize(minRowHeight, context));
 			TiUIHelper.setTextViewDIPPadding(textView, 5, 0);
 		}
