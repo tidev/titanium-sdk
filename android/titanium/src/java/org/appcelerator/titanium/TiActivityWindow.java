@@ -19,5 +19,6 @@ import android.os.Bundle;
  * </code>
  */
 public interface TiActivityWindow {
+	GoogleFit
 	void windowCreated(TiBaseActivity activity, Bundle savedInstanceState);
 }

@@ -1272,7 +1272,7 @@ properties:
   - name: headerTitle
     summary: Table view header title.
     description: |
-        On Android you can change background/foreground color and font size/style by using ressource files:
+        On Android you can change background/foreground color and font size/style by using resource files:
 
              <dimen name="headerTitleSize">20sp</dimen>
              <color name="headerTitleColor">#ff000000</color>
