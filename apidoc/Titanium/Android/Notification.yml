@@ -193,6 +193,13 @@ properties:
     since: "3.6.0"
     osver: {android: {min: "5.0"}}
 
+  - name: channelId
+    summary: The channel id specified for the notification.
+    type: String
+    since: "7.0.0"
+    osver: {android: {min: "8.0"}}
+    platforms: [android]
+
   - name: contentIntent
     summary: The `PendingIntent` to execute when the expanded status entry is clicked.
     type: Titanium.Android.PendingIntent

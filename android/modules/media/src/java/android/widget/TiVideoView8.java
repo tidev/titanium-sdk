@@ -20,13 +20,14 @@
  * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * This is the api level 8 VideoView.java with Titanium-specific modifications.
  */
 
 package android.widget;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
@@ -368,13 +369,14 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	}
 
-	// TITANIUM Added to detect HTTP redirects before we hand off to MediaPlayer
-	// See: http://code.google.com/p/android/issues/detail?id=10810
 	private void setDataSource()
 	{
 		try {
-			mUri = TiUIHelper.getRedirectUri(mUri);
-			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
+			// TIMOB-27493: disable caching, which would otherwise introduce a delay.
+			Map<String, String> headers = new HashMap<>();
+			headers.put("Cache-Control", "no-cache");
+
+			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
 		}
@@ -580,6 +582,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mMediaController != null) {
 				mMediaController.hide();
 			}
+			if (mp != null) {
+				mp.release();
+			}
 
 			/* If an error handler has been supplied, use it and finish. */
 			if (mOnErrorListener != null) {
@@ -603,7 +608,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	/**
 	 * Register a callback to be invoked when the media file
 	 * is loaded and ready to go.
-	 * 
+	 *
 	 * @param l
 	 *            The callback that will be run
 	 */
@@ -615,7 +620,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	/**
 	 * Register a callback to be invoked when the end of a media file
 	 * has been reached during playback.
-	 * 
+	 *
 	 * @param l
 	 *            The callback that will be run
 	 */
@@ -629,7 +634,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	 * during playback or setup. If no listener is specified,
 	 * or if the listener returned false, VideoView will inform
 	 * the user of any errors.
-	 * 
+	 *
 	 * @param l
 	 *            The callback that will be run
 	 */

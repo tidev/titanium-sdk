@@ -50,8 +50,7 @@
   JSContext *context = self.callback.context;
   JSValue *exception = context.exception;
   if (exception != nil) {
-    NSDictionary *exceptionDict = TiBindingTiValueToNSObject(context.JSGlobalContextRef, exception.JSValueRef);
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exceptionDict]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
   }
 }
 

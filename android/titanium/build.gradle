@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,11 +8,44 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
+// Fetch Titanium version info to be applied to generated "BuildConfig" Java class and published AAR.
+// Prefer environment variables assigned via build/package scripts under "titanium_mobile/build" folder.
+def tiBuildVersionString = System.env.TI_SDK_BUILD_VERSION
+if (tiBuildVersionString == null) {
+	def packageJson = new groovy.json.JsonSlurper().parse(file("${projectDir}/../../package.json"))
+	tiBuildVersionString = packageJson.version
+	if (tiBuildVersionString == null) {
+		tiBuildVersionString = '1.0.0'
+	}
+}
+def tiBuildHashString = System.env.TI_SDK_BUILD_GIT_HASH
+if (tiBuildHashString == null) {
+	tiBuildHashString = 'HEAD'
+}
+def tiBuildTimeString = System.env.TI_SDK_BUILD_TIMESTAMP
+if (tiBuildTimeString == null) {
+	tiBuildTimeString = (new Date()).format('MM/dd/yyyy HH:mm', TimeZone.getTimeZone("UTC"))
+}
+def tiBuildVersionCode = 0
+for (nextString in tiBuildVersionString.split('\\.')) {
+	def intValue = Math.max(Integer.parseInt(nextString), 0)
+	if (tiBuildVersionCode <= 0) {
+		tiBuildVersionCode = intValue
+	} else {
+		tiBuildVersionCode *= 100
+		tiBuildVersionCode += Math.min(intValue, 99)
+	}
+}
+
 android {
 	compileSdkVersion 29
 	defaultConfig {
 		minSdkVersion 19
 		targetSdkVersion 29
+		versionName tiBuildVersionString
+		versionCode tiBuildVersionCode
+		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
+		buildConfigField('String', 'TI_BUILD_TIME_STRING', '"' + tiBuildTimeString + '"')
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		javaCompileOptions {
 			annotationProcessorOptions {
@@ -155,8 +188,15 @@ task snapshotTiCommonFiles() {
 	}
 }
 
+// Set up project to compile Java side before compiling the C/C++ side.
+// We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
+project.afterEvaluate {
+	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
+	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+}
+
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
-// This downloads the V8 library, generates C/C++ files, and generates some asset files.
+// Generates C/C++ files providing our Android-only JS files via byte arrays.
 tasks.withType(JavaCompile) {
 	dependsOn snapshotTiCommonFiles
 	doLast {
@@ -221,18 +261,10 @@ dependencies {
 publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
-			// Use the base version string (such as "9.0.0") without the ".RC" or ".GA" appended to it.
-			// Note: Ideally, we should use the full "versionTag" string, but our Jenkins build system
-			//       currently appends the ".RC" or ".GA" part after the "node scons package" process.
-			def versionString = '1.0.0'
-			if (System.env.TI_SDK_BUILD_VERSION != null) {
-				versionString = System.env.TI_SDK_BUILD_VERSION
-			}
-
 			// Set up maven repo info.
 			groupId 'org.appcelerator'
 			artifactId 'titanium'
-			version versionString
+			version tiBuildVersionString
 			artifact file("${buildDir}/outputs/aar/titanium-release.aar")
 
 			// Generates the "*.pom" XML file containing all of Titanium's above dependencies,

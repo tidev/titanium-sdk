@@ -283,8 +283,7 @@
     // handle an uncaught exception
     JSValue *exception = listener.context.exception;
     if (exception != nil) {
-      NSDictionary *exceptionDict = [self JSValueToNative:exception];
-      [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exceptionDict]];
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:listener.context];
     }
   }
 }
