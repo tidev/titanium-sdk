@@ -15,7 +15,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_HEADER_TITLE,
@@ -23,7 +23,6 @@ import android.app.Activity;
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW
 })
-// clang-format on
 public class TableViewSectionProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewSectionProxy";
@@ -52,20 +51,16 @@ public class TableViewSectionProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TableViewRowProxy[] getRows()
-	// clang-format on
 	{
 		return rows.toArray(new TableViewRowProxy[rows.size()]);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getRowCount()
-	// clang-format on
 	{
 		return rows.size();
 	}

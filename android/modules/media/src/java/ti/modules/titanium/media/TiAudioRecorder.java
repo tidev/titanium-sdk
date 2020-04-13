@@ -167,7 +167,6 @@ public class TiAudioRecorder
 	private void writeWaveFileHeader(FileOutputStream out, long totalAudioLen, long totalDataLen, long longSampleRate,
 									 int channels, long byteRate) throws IOException
 	{
-		// clang-format off
 		byte[] header = {
 			'R', 'I', 'F', 'F', // RIFF/WAVE header
 			(byte) (totalDataLen & 0xff),
@@ -199,7 +198,6 @@ public class TiAudioRecorder
 			(byte) ((totalAudioLen >> 16) & 0xff),
 			(byte) ((totalAudioLen >> 24) & 0xff)
 		};
-		// clang-format on
 
 		out.write(header, 0, header.length);
 	}

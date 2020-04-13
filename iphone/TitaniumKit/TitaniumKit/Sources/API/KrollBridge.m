@@ -8,7 +8,6 @@
 #import "APSAnalytics.h"
 #import "KrollCallback.h"
 #import "TiApp.h"
-#import "TiConsole.h"
 #import "TiExceptionHandler.h"
 #import "TiHost.h"
 #import "TiSharedConfig.h"
@@ -109,9 +108,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
     OSSpinLockLock(&krollBridgeRegistryLock);
     CFSetAddValue(krollBridgeRegistry, self);
     OSSpinLockUnlock(&krollBridgeRegistryLock);
-    TiThreadPerformOnMainThread(^{
-      [self registerForMemoryWarning];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self registerForMemoryWarning];
+        },
         NO);
   }
   return self;
@@ -315,9 +315,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
     }
   }
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
     evaluationError = YES;
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
   }
 
   JSStringRelease(jsCode);
@@ -523,9 +522,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
     [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
   }
 
-  // Load the "console" object into the global scope
-  objcJSContext[@"console"] = [[TiConsole alloc] init];
-
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
     for (NSString *name in preload) {
@@ -586,9 +582,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)didStopNewContext:(KrollContext *)kroll
 {
-  TiThreadPerformOnMainThread(^{
-    [self unregisterForMemoryWarning];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self unregisterForMemoryWarning];
+      },
       NO);
   [self removeProxies];
   RELEASE_TO_NIL(console);
@@ -696,8 +693,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   [eval release];
 
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     return nil;
   }
   /*

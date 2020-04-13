@@ -32,9 +32,7 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
 {
   JSObjectRef obj = JSValueToObject(jsContext, objRef, NULL);
   JSPropertyNameArrayRef props = JSObjectCopyPropertyNames(jsContext, obj);
-
   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-
   size_t count = JSPropertyNameArrayGetCount(props);
   for (size_t i = 0; i < count; i++) {
     JSStringRef jsString = JSPropertyNameArrayGetNameAtIndex(props, i);
@@ -46,23 +44,30 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
     }
     [jsonkey release];
   }
+  JSPropertyNameArrayRelease(props);
 
-  // if this looks like a JS Error object, get the message
-  if ([dict objectForKey:@"line"] != nil && [dict objectForKey:@"column"] != nil) {
-    JSStringRef messageKeyRef = JSStringCreateWithUTF8CString("message");
-    JSStringRef stackKeyRef = JSStringCreateWithUTF8CString("stack");
-    JSValueRef messageRef = JSObjectGetProperty(jsContext, obj, messageKeyRef, NULL);
-    JSValueRef stackRef = JSObjectGetProperty(jsContext, obj, stackKeyRef, NULL);
-
-    id message = TiBindingTiValueToNSObject(jsContext, messageRef);
-    if (message && ![message isEqual:[NSNull null]]) {
+  // if this looks like a JS Error object, get related non-enumerable properties
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:JSContextGetGlobalContext(jsContext)];
+  JSValue *value = [JSValue valueWithJSValueRef:objRef inContext:context];
+  if ([value hasProperty:@"line"] && [value hasProperty:@"column"]) {
+    if ([dict objectForKey:@"message"] == nil && [value hasProperty:@"message"]) {
+      NSString *message = [value[@"message"] toString];
       [dict setObject:message forKey:@"message"];
     }
-    JSStringRelease(messageKeyRef);
-
-    id stack = TiBindingTiValueToNSObject(jsContext, stackRef);
-    if (stack && ![stack isEqual:[NSNull null]]) {
-
+    if ([dict objectForKey:@"line"] == nil && [value hasProperty:@"line"]) {
+      NSNumber *line = [value[@"line"] toNumber];
+      [dict setObject:line forKey:@"line"];
+    }
+    if ([dict objectForKey:@"column"] == nil && [value hasProperty:@"column"]) {
+      NSNumber *column = [value[@"column"] toNumber];
+      [dict setObject:column forKey:@"column"];
+    }
+    if ([dict objectForKey:@"sourceURL"] == nil && [value hasProperty:@"sourceURL"]) {
+      NSString *sourceURL = [value[@"sourceURL"] toString];
+      [dict setObject:sourceURL forKey:@"sourceURL"];
+    }
+    if ([dict objectForKey:@"stack"] == nil && [value hasProperty:@"stack"]) {
+      NSString *stack = [value[@"stack"] toString];
       // lets re-format the stack similar to node.js
       stack = [stack stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle] bundlePath]] withString:@"("];
       stack = [stack stringByReplacingOccurrencesOfString:@"\n" withString:@")\n    at "];
@@ -72,10 +77,7 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
 
       [dict setObject:stack forKey:@"stack"];
     }
-    JSStringRelease(stackKeyRef);
   }
-
-  JSPropertyNameArrayRelease(props);
 
   return [dict autorelease];
 }

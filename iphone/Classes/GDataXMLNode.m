@@ -402,8 +402,8 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
 
   if (xmlNode_ != NULL
       && (xmlNode_->type == XML_ELEMENT_NODE
-             || xmlNode_->type == XML_ATTRIBUTE_NODE
-             || xmlNode_->type == XML_TEXT_NODE)) {
+          || xmlNode_->type == XML_ATTRIBUTE_NODE
+          || xmlNode_->type == XML_TEXT_NODE)) {
     // there is no xmlDocPtr in XML_NAMESPACE_DECL nodes,
     // so we can't cache the text of those
 
@@ -962,8 +962,8 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
 
   return [self XMLNode] == [other XMLNode]
       || ([self kind] == [other kind]
-             && AreEqualOrBothNilPrivate([self name], [other name])
-             && [[self children] count] == [[other children] count]);
+          && AreEqualOrBothNilPrivate([self name], [other name])
+          && [[self children] count] == [[other children] count]);
 }
 
 - (NSUInteger)hash

@@ -100,9 +100,10 @@ static NSLock *callbackLock;
 
 - (void)callAsync:(NSArray *)args thisObject:(id)thisObject_
 {
-  TiThreadPerformOnMainThread(^{
-    [self call:args thisObject:thisObject_];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self call:args thisObject:thisObject_];
+      },
       [NSThread isMainThread]);
 }
 - (id)call:(NSArray *)args thisObject:(id)thisObject_
@@ -113,9 +114,10 @@ static NSLock *callbackLock;
 
   if (!NSThread.isMainThread) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [self call:args thisObject:thisObject_];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [self call:args thisObject:thisObject_];
+        },
         YES);
     return result;
   }
@@ -143,8 +145,7 @@ static NSLock *callbackLock;
   JSValueRef exception = NULL;
   JSValueRef retVal = JSObjectCallAsFunction(jsContext, function, tp, [args count], _args, &exception);
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
   }
   if (top != NULL) {
     JSValueUnprotect(jsContext, tp);

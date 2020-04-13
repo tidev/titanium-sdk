@@ -52,6 +52,7 @@ static NSArray *popoverSequence;
     //This shouldn't happen because we clear it on hide.
     currentPopover = nil;
   }
+  [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
   RELEASE_TO_NIL(closingCondition);
@@ -122,9 +123,10 @@ static NSArray *popoverSequence;
   [self replaceValue:actualArgs forKey:@"passthroughViews" notification:NO];
 
   if (popoverInitialized) {
-    TiThreadPerformOnMainThread(^{
-      [self updatePassThroughViews];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updatePassThroughViews];
+        },
         NO);
   }
 }
@@ -179,9 +181,10 @@ static NSArray *popoverSequence;
   [popOverCondition unlock];
   popoverInitialized = YES;
 
-  TiThreadPerformOnMainThread(^{
-    [self initAndShowPopOver];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self initAndShowPopOver];
+      },
       YES);
 }
 
@@ -197,14 +200,15 @@ static NSArray *popoverSequence;
   isDismissing = YES;
   [closingCondition unlock];
 
-  TiThreadPerformOnMainThread(^{
-    [contentViewProxy windowWillClose];
-    animated = [TiUtils boolValue:@"animated" properties:args def:NO];
-    [[self viewController] dismissViewControllerAnimated:animated
-                                              completion:^{
-                                                [self cleanup];
-                                              }];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [contentViewProxy windowWillClose];
+        animated = [TiUtils boolValue:@"animated" properties:args def:NO];
+        [[self viewController] dismissViewControllerAnimated:animated
+                                                  completion:^{
+                                                    [self cleanup];
+                                                  }];
+      },
       NO);
 }
 
@@ -247,6 +251,7 @@ static NSArray *popoverSequence;
   }
 
   [self forgetSelf];
+  [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
   [self performSelector:@selector(release) withObject:nil afterDelay:0.5];
@@ -294,14 +299,14 @@ static NSArray *popoverSequence;
 #ifndef TI_USE_AUTOLAYOUT
   CGSize screenSize = [[UIScreen mainScreen] bounds].size;
   if (poWidth.type != TiDimensionTypeUndefined) {
-    [contentViewProxy layoutProperties] -> width.type = poWidth.type;
-    [contentViewProxy layoutProperties] -> width.value = poWidth.value;
+    [contentViewProxy layoutProperties]->width.type = poWidth.type;
+    [contentViewProxy layoutProperties]->width.value = poWidth.value;
     poWidth = TiDimensionUndefined;
   }
 
   if (poHeight.type != TiDimensionTypeUndefined) {
-    [contentViewProxy layoutProperties] -> height.type = poHeight.type;
-    [contentViewProxy layoutProperties] -> height.value = poHeight.value;
+    [contentViewProxy layoutProperties]->height.type = poHeight.type;
+    [contentViewProxy layoutProperties]->height.value = poHeight.value;
     poHeight = TiDimensionUndefined;
   }
 
@@ -358,12 +363,34 @@ static NSArray *popoverSequence;
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
       [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
       viewController = [[(TiWindowProxy *)contentViewProxy hostingController] retain];
-
+      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     } else {
       viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
+      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     }
   }
   return viewController;
+}
+
+- (void)updateContentViewWithSafeAreaInsets:(UIEdgeInsets)edgeInsets
+{
+  CGFloat oldTop = [[contentViewProxy valueForKey:@"top"] floatValue];
+  CGFloat oldLeft = [[contentViewProxy valueForKey:@"left"] floatValue];
+  CGFloat oldRight = [[contentViewProxy valueForKey:@"right"] floatValue];
+  CGFloat oldBottom = [[contentViewProxy valueForKey:@"bottom"] floatValue];
+
+  if (oldTop != edgeInsets.top) {
+    [contentViewProxy setTop:NUMFLOAT(edgeInsets.top)];
+  }
+  if (oldBottom != edgeInsets.bottom) {
+    [contentViewProxy setBottom:NUMFLOAT(edgeInsets.bottom)];
+  }
+  if (oldLeft != edgeInsets.left) {
+    [contentViewProxy setLeft:NUMFLOAT(edgeInsets.left)];
+  }
+  if (oldRight != edgeInsets.right) {
+    [contentViewProxy setRight:NUMFLOAT(edgeInsets.right)];
+  }
 }
 
 #pragma mark Delegate methods
@@ -432,6 +459,17 @@ static NSArray *popoverSequence;
   }
 
   popoverPresentationController.sourceRect = *rect;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && object == viewController.view && [keyPath isEqualToString:@"safeAreaInsets"]) {
+    UIEdgeInsets newInsets = [[change objectForKey:@"new"] UIEdgeInsetsValue];
+    UIEdgeInsets oldInsets = [[change objectForKey:@"old"] UIEdgeInsetsValue];
+    if (!UIEdgeInsetsEqualToEdgeInsets(oldInsets, newInsets)) {
+      [self updateContentViewWithSafeAreaInsets:newInsets];
+    }
+  }
 }
 
 @end
