@@ -6,6 +6,11 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JSValueRef.h>
+
+@class KrollContext;
+@class JSValue;
+@class JSContext;
 
 #pragma mark - TiScriptError
 
@@ -106,5 +111,9 @@
 + (TiExceptionHandler *)defaultExceptionHandler;
 
 - (void)reportScriptError:(TiScriptError *)error;
+
+- (void)reportScriptError:(JSValueRef)errorRef inKrollContext:(KrollContext *)krollContext;
+
+- (void)reportScriptError:(JSValue *)error inJSContext:(JSContext *)context;
 
 @end
