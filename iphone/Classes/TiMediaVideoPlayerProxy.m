@@ -902,7 +902,7 @@ NSArray *moviePlayerKeys = nil;
   _playbackState = TiVideoPlayerPlaybackStatePlaying;
 
   if ([self _hasListeners:@"playing"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
+    NSDictionary *event = [NSDictionary dictionaryWithObject:NULL_IF_NIL([self url]) forKey:@"url"];
     [self fireEvent:@"playing" withObject:event];
   }
 }
@@ -985,8 +985,11 @@ NSArray *moviePlayerKeys = nil;
     [self handleLoadStateChangeNotification:nil];
   }
   if ([keyPath isEqualToString:@"player.currentItem.presentationSize"]) {
-    CGSize size = [[change objectForKey:@"new"] CGSizeValue];
-    [self handleNaturalSizeAvailableNotification:size];
+    id sizeObject = [change objectForKey:@"new"];
+    if (![sizeObject isKindOfClass:[NSNull class]]) {
+      CGSize size = [sizeObject CGSizeValue];
+      [self handleNaturalSizeAvailableNotification:size];
+    }
   }
   if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
     [self handleTimeControlStatusNotification:nil];
