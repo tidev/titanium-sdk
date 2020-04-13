@@ -65,9 +65,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self ourStore] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self ourStore] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -83,9 +84,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self _fetchAllEventsbetweenDate:date1 andDate:date2] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self _fetchAllEventsbetweenDate:date1 andDate:date2] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -105,9 +107,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createEvent:properties] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createEvent:properties] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -136,13 +139,14 @@
 - (TiCalendarEvent *)getEventById:(NSString *)eventId
 {
   __block id result = NULL;
-  TiThreadPerformOnMainThread(^{
-    EKEventStore *ourStore = [self ourStore];
-    if (ourStore == nil) {
-      return;
-    }
-    result = [ourStore eventWithIdentifier:eventId];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        EKEventStore *ourStore = [self ourStore];
+        if (ourStore == nil) {
+          return;
+        }
+        result = [ourStore eventWithIdentifier:eventId];
+      },
       YES);
   if (result != NULL) {
     EKEvent *event_ = [[self ourStore] eventWithIdentifier:eventId];
@@ -179,9 +183,10 @@ GETTER_IMPL(NSString *, id, Id);
 {
   if (![NSThread isMainThread]) {
     __block BOOL result;
-    TiThreadPerformOnMainThread(^{
-      result = [self hidden];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [self hidden];
+        },
         YES);
     return result;
   }
@@ -194,9 +199,10 @@ GETTER_IMPL(BOOL, hidden, Hidden);
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self name] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self name] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -207,9 +213,10 @@ GETTER_IMPL(NSString *, name, Name);
 - (NSString *)sourceTitle
 {
   __block NSString *result;
-  TiThreadPerformOnMainThread(^{
-    result = [[[self calendar] source] title];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[[self calendar] source] title];
+      },
       YES);
 
   return result;
@@ -219,9 +226,10 @@ GETTER_IMPL(NSString *, sourceTitle, SourceTitle);
 - (EKSourceType)sourceType
 {
   __block EKSourceType result;
-  TiThreadPerformOnMainThread(^{
-    result = [[[self calendar] source] sourceType];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[[self calendar] source] sourceType];
+      },
       YES);
 
   return result;
@@ -231,9 +239,10 @@ GETTER_IMPL(EKSourceType, sourceType, SourceType);
 - (NSString *)sourceIdentifier
 {
   __block NSString *result;
-  TiThreadPerformOnMainThread(^{
-    result = [[[self calendar] source] sourceIdentifier];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[[self calendar] source] sourceIdentifier];
+      },
       YES);
 
   return result;
