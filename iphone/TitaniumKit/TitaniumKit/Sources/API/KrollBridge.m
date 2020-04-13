@@ -315,9 +315,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
     }
   }
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
     evaluationError = YES;
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
   }
 
   JSStringRelease(jsCode);
@@ -694,8 +693,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   [eval release];
 
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     return nil;
   }
   /*
