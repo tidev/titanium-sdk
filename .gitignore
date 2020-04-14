@@ -41,5 +41,3 @@ junit_report.xml
 
 .nyc_output/
 coverage/
-
-!/.idea/inspectionProfiles/
