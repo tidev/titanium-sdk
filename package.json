@@ -108,7 +108,7 @@
     "markdown": "0.5.0",
     "moment": "^2.22.2",
     "node-appc": "^0.3.4",
-    "node-titanium-sdk": "^4.3.1",
+    "node-titanium-sdk": "^4.4.0",
     "node-uuid": "1.4.8",
     "nodeify": "^1.0.1",
     "p-limit": "^2.2.0",
