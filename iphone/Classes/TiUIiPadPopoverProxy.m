@@ -43,6 +43,10 @@ static NSArray *popoverSequence;
     poWidth = TiDimensionUndefined;
     poHeight = TiDimensionUndefined;
   }
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(deviceRotated:)
+                                               name:UIDeviceOrientationDidChangeNotification
+                                             object:nil];
   return self;
 }
 
@@ -52,6 +56,7 @@ static NSArray *popoverSequence;
     //This shouldn't happen because we clear it on hide.
     currentPopover = nil;
   }
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
@@ -260,6 +265,7 @@ static NSArray *popoverSequence;
 
 - (void)initAndShowPopOver
 {
+  deviceRotated = NO;
   currentPopover = self;
   [contentViewProxy setProxyObserver:self];
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
@@ -366,28 +372,20 @@ static NSArray *popoverSequence;
       [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     }
   }
+  viewController.view.clipsToBounds = YES;
   return viewController;
 }
 
-- (void)updateContentViewWithSafeAreaInsets:(UIEdgeInsets)edgeInsets
+- (void)updateContentViewWithSafeAreaInsets:(NSValue *)insetsValue
 {
-  CGFloat oldTop = [[contentViewProxy valueForKey:@"top"] floatValue];
-  CGFloat oldLeft = [[contentViewProxy valueForKey:@"left"] floatValue];
-  CGFloat oldRight = [[contentViewProxy valueForKey:@"right"] floatValue];
-  CGFloat oldBottom = [[contentViewProxy valueForKey:@"bottom"] floatValue];
-
-  if (oldTop != edgeInsets.top) {
-    [contentViewProxy setTop:NUMFLOAT(edgeInsets.top)];
-  }
-  if (oldBottom != edgeInsets.bottom) {
-    [contentViewProxy setBottom:NUMFLOAT(edgeInsets.bottom)];
-  }
-  if (oldLeft != edgeInsets.left) {
-    [contentViewProxy setLeft:NUMFLOAT(edgeInsets.left)];
-  }
-  if (oldRight != edgeInsets.right) {
-    [contentViewProxy setRight:NUMFLOAT(edgeInsets.right)];
-  }
+  TiThreadPerformOnMainThread(
+      ^{
+        UIViewController *viewController = [self viewController];
+        contentViewProxy.view.frame = viewController.view.frame;
+        UIEdgeInsets edgeInsets = [insetsValue UIEdgeInsetsValue];
+        viewController.view.frame = CGRectMake(viewController.view.frame.origin.x + edgeInsets.left, viewController.view.frame.origin.y + edgeInsets.top, viewController.view.frame.size.width - edgeInsets.left - edgeInsets.right, viewController.view.frame.size.height - edgeInsets.top - edgeInsets.bottom);
+      },
+      NO);
 }
 
 #pragma mark Delegate methods
@@ -463,10 +461,22 @@ static NSArray *popoverSequence;
   if ([TiUtils isIOSVersionOrGreater:@"13.0"] && object == viewController.view && [keyPath isEqualToString:@"safeAreaInsets"]) {
     UIEdgeInsets newInsets = [[change objectForKey:@"new"] UIEdgeInsetsValue];
     UIEdgeInsets oldInsets = [[change objectForKey:@"old"] UIEdgeInsetsValue];
+    NSValue *insetsValue = [NSValue valueWithUIEdgeInsets:newInsets];
+
     if (!UIEdgeInsetsEqualToEdgeInsets(oldInsets, newInsets)) {
-      [self updateContentViewWithSafeAreaInsets:newInsets];
+      deviceRotated = NO;
+      [self updateContentViewWithSafeAreaInsets:insetsValue];
+    } else if (deviceRotated) {
+      // [self viewController]  need a bit of time to set its frame while rotating
+      deviceRotated = NO;
+      [self performSelector:@selector(updateContentViewWithSafeAreaInsets:) withObject:insetsValue afterDelay:.05];
     }
   }
+}
+
+- (void)deviceRotated:(NSNotification *)sender
+{
+  deviceRotated = YES;
 }
 
 @end
