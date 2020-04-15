@@ -39,9 +39,13 @@ function determineBabelOptions(babelOptions) {
 		useBuiltIns: 'entry',
 		corejs: 3
 	};
+	// extract out options.transform used by babel-plugin-transform-titanium
+	const transform = options.transform || {};
+	delete options.transform;
 
 	return {
 		presets: [ [ '@babel/env', options ] ],
+		plugins: [ [ require.resolve('babel-plugin-transform-titanium'), transform ] ],
 		exclude: 'node_modules/**'
 	};
 }

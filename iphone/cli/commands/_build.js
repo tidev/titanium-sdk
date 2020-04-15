@@ -3433,7 +3433,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				const handledBuildPhases = [ 'PBXSourcesBuildPhase', 'PBXFrameworksBuildPhase', 'PBXResourcesBuildPhase', 'PBXCopyFilesBuildPhase' ];
 
 				// add the build phases
-				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
+				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(phase => {
 					let type;
 
 					for (const handledBuildPhase of handledBuildPhases) {
@@ -4679,7 +4679,8 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles(next) {
 			beforeCopy: function (srcFile, destFile, srcStat) {
 				this.unmarkBuildDirFile(destFile);
 
-				if (path.basename(srcFile) === 'Info.plist') {
+				// Only check source Info.plist files, not compiled framework Info.plist files
+				if (path.basename(srcFile) === 'Info.plist' && !srcFile.includes('.framework')) {
 					// validate the info.plist
 					const infoPlist = new appc.plist(srcFile);
 					if (infoPlist.WKWatchKitApp) {
@@ -5768,14 +5769,29 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 					Object.keys(imageAssets).forEach(function (file) {
+						const directories = file.split('/');
+						let newPath = '';
+						for (let i = 0; i < directories.length - 1; i++) {
+							newPath = newPath + '/' + directories[i];
+
+							writeAssetContentsFile.call(this, path.join(assetCatalog, newPath, 'Contents.json'), {
+								info: {
+									version: 1,
+									author: 'xcode'
+								},
+								properties: {
+									'provides-namespace': true
+								},
+							});
+						}
+
 						const imageName = imageAssets[file].name,
 							match = file.match(imageNameRegExp);
 
 						if (match) {
 							const imageExt = imageAssets[file].ext;
 							const imageSetName = match[1];
-							const imageSetNameSHA = sha1(imageSetName + '.' + imageExt);
-							const imageSetRelPath = imageSetNameSHA + '.imageset';
+							const imageSetRelPath = imageSetName + '.imageset';
 
 							// update image file's destination
 							const dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);

@@ -11,7 +11,22 @@ platforms: [android]
 properties:
   - name: R
     summary: The `R` namespace for application resources.
-    type: Titanium.App.Android.R
+    description: |
+        The properties and sub-properties of this object relate directly to the
+        native application resources `R` class, and thus have the same syntax.
+        For more information, refer to the official documentation on the
+        Android Developer website about
+        [accessing application resources](https://developer.android.com/guide/topics/resources/accessing-resources.html).
+
+        For example, if the file `platform/android/res/drawable/icon.png`
+        exists in the project, it can be accessed using its resource name,
+        as follows.
+
+            var resid = Titanium.App.Android.R.drawable.icon;
+
+        To access system-wide resources, rather than application resources, use
+        <Titanium.Android.R> instead.
+    type: Titanium.Android.R
     permission: read-only
 
   - name: appVersionCode

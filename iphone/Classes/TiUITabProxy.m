@@ -77,30 +77,31 @@
 
 - (void)cleanNavStack:(BOOL)removeTab
 {
-  TiThreadPerformOnMainThread(^{
-    UIViewController *rootController = [self rootController];
-    [controller setDelegate:nil];
-    if ([[controller viewControllers] count] > 1) {
-      NSMutableArray *doomedVcs = [[controller viewControllers] mutableCopy];
-      [doomedVcs removeObject:rootController];
-      [controller setViewControllers:[NSArray arrayWithObject:rootController]];
-      if (current != nil) {
-        RELEASE_TO_NIL(current);
-        current = [(TiWindowProxy *)[(TiViewController *)rootController proxy] retain];
-      }
-      for (TiViewController *doomedVc in doomedVcs) {
-        [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
-      }
-      RELEASE_TO_NIL(doomedVcs);
-    }
-    if (removeTab) {
-      [self closeWindowProxy:rootWindow animated:NO];
-      RELEASE_TO_NIL(controller);
-      RELEASE_TO_NIL(current);
-    } else {
-      [controller setDelegate:self];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        UIViewController *rootController = [self rootController];
+        [controller setDelegate:nil];
+        if ([[controller viewControllers] count] > 1) {
+          NSMutableArray *doomedVcs = [[controller viewControllers] mutableCopy];
+          [doomedVcs removeObject:rootController];
+          [controller setViewControllers:[NSArray arrayWithObject:rootController]];
+          if (current != nil) {
+            RELEASE_TO_NIL(current);
+            current = [(TiWindowProxy *)[(TiViewController *)rootController proxy] retain];
+          }
+          for (TiViewController *doomedVc in doomedVcs) {
+            [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+          }
+          RELEASE_TO_NIL(doomedVcs);
+        }
+        if (removeTab) {
+          [self closeWindowProxy:rootWindow animated:NO];
+          RELEASE_TO_NIL(controller);
+          RELEASE_TO_NIL(current);
+        } else {
+          [controller setDelegate:self];
+        }
+      },
       YES);
 }
 
@@ -294,9 +295,10 @@
   }
 
   [[[TiApp app] controller] dismissKeyboard];
-  TiThreadPerformOnMainThread(^{
-    [self openOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self openOnUIThread:args];
+      },
       YES);
 }
 
@@ -309,9 +311,10 @@
     DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
     return;
   }
-  TiThreadPerformOnMainThread(^{
-    [self closeOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self closeOnUIThread:args];
+      },
       YES);
 }
 
@@ -358,7 +361,7 @@
     TiViewController *toViewController = (TiViewController *)viewController;
     if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
       TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
-      [((TiUITabGroup *)(tabGroup.view))tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+      [((TiUITabGroup *)(tabGroup.view)) tabController].view.backgroundColor = windowProxy.view.backgroundColor;
     }
   }
   [self handleWillShowViewController:viewController animated:animated];
@@ -746,9 +749,10 @@
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  TiThreadPerformOnMainThread(^{
-    [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+      },
       YES);
 }
 

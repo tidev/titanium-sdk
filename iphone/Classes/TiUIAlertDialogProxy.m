@@ -205,10 +205,11 @@ static BOOL alertShowing = NO;
         [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:([theField isSecureTextEntry] ? @"password" : @"login")];
       }
     }
-    TiThreadPerformOnMainThread(^{
-      [self fireEvent:@"click" withObject:event];
-      [self cleanup];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self fireEvent:@"click" withObject:event];
+          [self cleanup];
+        },
         YES);
   } else {
     [self cleanup];

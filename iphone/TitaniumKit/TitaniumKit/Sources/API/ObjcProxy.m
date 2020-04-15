@@ -7,6 +7,7 @@
 #import "ObjcProxy.h"
 #import "KrollBridge.h"
 #import "TiBindingTiValue.h"
+#import "TiExceptionHandler.h"
 #import "TiHost.h"
 
 @implementation ObjcProxy
@@ -279,6 +280,11 @@
 
   if (listener != nil) {
     [listener callWithArguments:@[ eventObject ]];
+    // handle an uncaught exception
+    JSValue *exception = listener.context.exception;
+    if (exception != nil) {
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:listener.context];
+    }
   }
 }
 

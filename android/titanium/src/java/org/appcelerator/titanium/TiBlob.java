@@ -17,11 +17,11 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
@@ -136,7 +136,7 @@ public class TiBlob extends KrollProxy
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		String mimeType = "image/bitmap";
-		byte data[] = new byte[0];
+		byte[] data = new byte[0];
 		if (image.hasAlpha()) {
 			if (image.compress(CompressFormat.PNG, 100, bos)) {
 				data = bos.toByteArray();
@@ -332,11 +332,9 @@ public class TiBlob extends KrollProxy
 		return bytes;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
-	// clang-format on
 	{
 		switch (type) {
 			case TYPE_FILE:
@@ -400,11 +398,9 @@ public class TiBlob extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getText()
-	// clang-format on
 	{
 		String result = null;
 
@@ -425,11 +421,9 @@ public class TiBlob extends KrollProxy
 		return result;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getMimeType()
-	// clang-format on
 	{
 		return mimetype;
 	}
@@ -452,29 +446,23 @@ public class TiBlob extends KrollProxy
 	 * @see TiBlob#TYPE_STREAM
 	 * @module.api
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getType()
-	// clang-format on
 	{
 		return type;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getWidth()
-	// clang-format on
 	{
 		return width;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getSize()
-	// clang-format on
 	{
 		// if it's an image, return number of pixels (width * height)
 		if (width != 0) {
@@ -484,11 +472,9 @@ public class TiBlob extends KrollProxy
 		return getLength();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getHeight()
-	// clang-format on
 	{
 		return height;
 	}
@@ -519,11 +505,9 @@ public class TiBlob extends KrollProxy
 		return text;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNativePath()
-	// clang-format on
 	{
 		if (data == null) {
 			return null;
@@ -549,11 +533,9 @@ public class TiBlob extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getFile()
-	// clang-format on
 	{
 		if (data == null) {
 			return null;
@@ -688,14 +670,18 @@ public class TiBlob extends KrollProxy
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
-			return null;
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to crop the image. Illegal Argument: " + e.getMessage(), e);
-			return null;
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to crop the image. Unknown exception: " + t.getMessage(), t);
-			return null;
+		} finally {
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
+		return null;
 	}
 
 	@Kroll.method
@@ -786,14 +772,18 @@ public class TiBlob extends KrollProxy
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to resize the image. Not enough memory: " + e.getMessage(), e);
-			return null;
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to resize the image. Illegal Argument: " + e.getMessage(), e);
-			return null;
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to resize the image. Unknown exception: " + t.getMessage(), t);
-			return null;
+		} finally {
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
+		return null;
 	}
 
 	@Kroll.method
@@ -826,13 +816,10 @@ public class TiBlob extends KrollProxy
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
-			return null;
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the thumbnail image. Illegal Argument: " + e.getMessage(), e);
-			return null;
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the thumbnail image. Unknown exception: " + t.getMessage(), t);
-			return null;
 		} finally {
 			// [MOD-309] Free up memory to work around issue in Android
 			if (img != null) {
@@ -840,6 +827,12 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			bos = null;
+
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
 
 		return result;
@@ -923,14 +916,18 @@ public class TiBlob extends KrollProxy
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
-			return null;
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the thumbnail image. Illegal Argument: " + e.getMessage(), e);
-			return null;
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the thumbnail image. Unknown exception: " + t.getMessage(), t);
-			return null;
+		} finally {
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
+		return null;
 	}
 
 	@Kroll.method
@@ -975,14 +972,18 @@ public class TiBlob extends KrollProxy
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with alpha. Not enough memory: " + e.getMessage(), e);
-			return null;
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the image with alpha. Illegal Argument: " + e.getMessage(), e);
-			return null;
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the image with alpha. Unknown exception: " + t.getMessage(), t);
-			return null;
+		} finally {
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
+		return null;
 	}
 
 	@Kroll.method
@@ -1035,14 +1036,18 @@ public class TiBlob extends KrollProxy
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with rounded corner. Not enough memory: " + e.getMessage(), e);
-			return null;
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the image with rounded corner. Illegal Argument: " + e.getMessage(), e);
-			return null;
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the image with rounded corner. Unknown exception: " + t.getMessage(), t);
-			return null;
+		} finally {
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
+		return null;
 	}
 
 	@Kroll.method
@@ -1090,14 +1095,18 @@ public class TiBlob extends KrollProxy
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with transparent border. Not enough memory: " + e.getMessage(), e);
-			return null;
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the image with transparent border. Illegal Argument: " + e.getMessage(), e);
-			return null;
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the image with transparent border. Unknown exception: " + t.getMessage(), t);
-			return null;
+		} finally {
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
+		return null;
 	}
 
 	@Override

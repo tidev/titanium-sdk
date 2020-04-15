@@ -23,14 +23,12 @@ import ti.modules.titanium.codec.CodecModule;
 /**
  * A proxy that wraps a primitive byte array buffer
  */
-// clang-format off
 @Kroll.proxy(creatableInModule = TitaniumModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_BYTE_ORDER,
 		TiC.PROPERTY_TYPE,
 		TiC.PROPERTY_VALUE
 })
-// clang-format on
 public class BufferProxy extends KrollProxy
 {
 	private static final String TAG = "BufferProxy";
@@ -113,7 +111,7 @@ public class BufferProxy extends KrollProxy
 
 		String charset = CodecModule.getCharset(type);
 		try {
-			byte bytes[] = value.getBytes(charset);
+			byte[] bytes = value.getBytes(charset);
 			if (buffer.length == 0) {
 				buffer = bytes;
 			} else {
@@ -152,7 +150,7 @@ public class BufferProxy extends KrollProxy
 
 	protected byte[] copyOf(byte[] array, int newLength)
 	{
-		byte newArray[] = new byte[newLength];
+		byte[] newArray = new byte[newLength];
 		int length = newLength;
 		if (length > array.length) {
 			length = array.length;
@@ -164,7 +162,7 @@ public class BufferProxy extends KrollProxy
 	protected byte[] copyOfRange(byte[] array, int from, int to)
 	{
 		int length = to - from;
-		byte newArray[] = new byte[length];
+		byte[] newArray = new byte[length];
 		System.arraycopy(array, from, newArray, 0, length);
 		return newArray;
 	}
@@ -368,11 +366,9 @@ public class BufferProxy extends KrollProxy
 	 * @return The length of this buffer in bytes
 	 * @module.api
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
-	// clang-format on
 	{
 		return buffer.length;
 	}
@@ -383,11 +379,9 @@ public class BufferProxy extends KrollProxy
 	 * @param length The new length of this buffer proxy in bytes
 	 * @module.api
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setLength(int length)
-	// clang-format on
 	{
 		resize(length);
 	}

@@ -1,9 +1,16 @@
+.classpath/
+.cxx/
 .externalNativeBuild/
 .gradle/
-.idea/
+.idea/*
+!/.idea/codeStyles/
+!/.idea/inspectionProfiles/
+.project/
+.settings/
 build/
 !/templates/build/
 *.iml
 
-/titanium/assets/Resources/ti.internal/build.properties
+/kroll-apt/bin/
 /local.properties
+/titanium/assets/Resources/ti.internal/build.properties

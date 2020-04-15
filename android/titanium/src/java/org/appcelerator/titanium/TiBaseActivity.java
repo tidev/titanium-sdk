@@ -208,8 +208,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	public static interface ConfigurationChangedListener {
-		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
+	public interface ConfigurationChangedListener {
+		void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
 	/**
@@ -401,7 +401,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
 		if (!callbackDataByPermission.isEmpty()) {
 			handlePermissionRequestResult(requestCode, permissions, grantResults);
@@ -771,12 +771,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
 						 .getToolbarInstance()));
 			} catch (RuntimeException e) {
-				Log.e(
-					TAG,
-					"Attempting to use Toolbar as ActionBar without disabling the default ActionBar in the current theme.\n"
-						+ "You must set 'windowActionBar' to false in your current theme. Or use one of the following themes:\n"
-						+ " - Theme.Titanium\n - Theme.AppCompat.Translucent.NoTitleBar\n - Theme.AppCompat.NoTitleBar\n"
-						+ "Which have ActionBar disabled by default.");
+				String message
+					= "You cannot use a Toolbar as an ActionBar if the current theme has an ActionBar.\n"
+					+ "You must set 'windowActionBar' to false in your theme or use one of the following themes:\n"
+					+ "- Theme.Titanium\n"
+					+ "- Theme.AppCompat.Translucent.NoTitleBar\n"
+					+ "- Theme.AppCompat.NoTitleBar";
+				Log.e(TAG, message);
 				TiApplication.terminateActivityStack();
 				finish();
 			}

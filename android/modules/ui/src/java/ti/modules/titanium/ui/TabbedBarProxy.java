@@ -16,13 +16,11 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiUITabbedBar;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_INDEX,
 	TiC.PROPERTY_LABELS,
 	TiC.PROPERTY_STYLE,
 })
-// clang-format on
 public class TabbedBarProxy extends TiViewProxy
 {
 	private static final String TAG = "TabbedBarProxy";

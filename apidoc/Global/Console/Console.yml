@@ -1,5 +1,5 @@
 ---
-name: Global.console
+name: Console
 summary: Console logging facilities.
 description: |
     The toplevel `console` support is intended to supplement <Titanium.API>
@@ -25,6 +25,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
 
   - name: info
     summary: Log a message at the `info` level.
@@ -36,6 +37,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
 
   - name: warn
     summary: Log a message at the `warn` level.
@@ -47,6 +49,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
             
   - name: error
     summary: Log a message at the `error` level.
@@ -58,6 +61,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
         
   - name: debug
     summary: Log a message at the `debug` level.
@@ -69,6 +73,7 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+        repeatable: true
 
   - name: time
     summary: Start a timer to track duration of an operation.
@@ -88,7 +93,7 @@ methods:
   - name: timeEnd
     summary: Stop a timer that was previously started.
     description: |
-          Stop a timer that was started by calling [console.time](Global.console.time), and
+          Stop a timer that was started by calling [console.time](Console.time), and
           output the time since the timer was begun to the console in milliseconds.
           If no timer exists a warning will be logged to the console.
     parameters:
@@ -103,7 +108,7 @@ methods:
     summary: Log duration taken so far for an operation.
     description: |
           Output the time since a timer was started by calling
-          [console.time](Global.console.time) to the console, as well as any
+          [console.time](Console.time) to the console, as well as any
           other `data` arguments provided. To log extra data a label must
           be provided. If no timer exists a warning will be logged to the
           console.
@@ -117,4 +122,5 @@ methods:
         summary: Extra log data to be provided when logging, can be a single argument or any number of arguments.
         type: Object
         optional: true
+        repeatable: true
     since: 7.5.0

@@ -48,7 +48,71 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
-		this.defaultAnalyzeOptions = options.defaultAnalyzeOptions;
+
+		// set up the object used by babel-plugin-transform-titanium to inline statics/etc
+		const transform = {
+			platform: this.platform,
+			deploytype: this.builder.deployType,
+			target: this.builder.target,
+			Ti: {
+				version: this.builder.cli.tiapp['sdk-version'],
+				// TODO: add buildHash
+				// TODO: add buildDate
+				App: {
+					copyright: this.builder.cli.tiapp.copyright,
+					deployType: this.builder.deployType,
+					description: this.builder.cli.tiapp.description,
+					guid: this.builder.cli.tiapp.guid,
+					id: this.builder.cli.tiapp.id,
+					name: this.builder.cli.tiapp.name,
+					publisher: this.builder.cli.tiapp.publisher,
+					url: this.builder.cli.tiapp.url,
+					version: this.builder.cli.tiapp.version,
+				},
+				Platform: {
+					runtime: 'javascriptcore', // overridden below for android
+				},
+				Filesystem: {
+					// overridden below for windows
+					lineEnding: '\n',
+					separator: '/',
+				}
+			}
+		};
+		switch (this.platform) {
+			case 'android':
+				transform.Ti.Platform.osname = 'android';
+				transform.Ti.Platform.name = 'android';
+				transform.Ti.Platform.runtime = 'v8'; // override
+				break;
+			case 'ios':
+				// if not 'universal' it is 'ipad' or 'iphone'
+				if (this.builder.deviceFamily !== 'universal') {
+					transform.Ti.Platform.osname = this.builder.deviceFamily;
+				}
+				transform.Ti.Platform.manufacturer = 'apple';
+				break;
+			case 'windows':
+				// override Ti.Filesystem property values
+				transform.Ti.Filesystem.separator = '\\';
+				transform.Ti.Filesystem.lineEnding = '\r\n';
+				switch (this.builder.target) {
+					// windows store targets
+					case 'ws-simulator':
+					case 'ws-local':
+					case 'ws-remote':
+					case 'dist-winstore':
+						transform.Ti.Platform.osname = 'windowsstore';
+						break;
+					default:
+						transform.Ti.Platform.osname = 'windowsphone'; // TODO: no longer support windows phones on SDK 9+!
+						break;
+				}
+				transform.Ti.Platform.name = 'windows';
+				break;
+		}
+
+		this.defaultAnalyzeOptions = Object.assign({}, options.defaultAnalyzeOptions, { transform });
 
 		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
 

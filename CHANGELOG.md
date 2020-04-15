@@ -1,3 +1,264 @@
+## [9.0.1](https://github.com/appcelerator/titanium_mobile/compare/9_0_0_GA...9.0.1) (2020-04-15)
+
+## About this release
+
+Titanium SDK 9.0.1 is a patch release of the SDK, addressing high-priority issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release (9.0.0) is no longer supported. End of support for this version will be 2020-10-15 or until the next patch release. Note: major and minor releases continue to be supported according to their nominal lifetime.
+See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_deprecation_policy.html) and [Nominal Lifetimes](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_product_lifecycle.html#AxwayAppceleratorProductLifecycle-NominalLifetimes) documents for details.
+
+:warning: With the release of Titanium SDK 9.0.0, we no longer support Node.js 8.X. Node 10.13.0 is the new minimum supported version.
+
+## Bug Fixes
+
+### Android platform
+
+* [TIMOB-17203](https://jira.appcelerator.org/browse/TIMOB-17203) - TextField keyboardType: parity issues between iOS and Android
+* [TIMOB-26678](https://jira.appcelerator.org/browse/TIMOB-26678) - Unnecessary default notification channel created when using a custom one ([1652d08](https://github.com/appcelerator/titanium_mobile/commit/1652d0878f5735db2a1673d46af1254e91147937))
+* [TIMOB-27493](https://jira.appcelerator.org/browse/TIMOB-27493) - Videos do not play correctly on Android 5.1 (API 22) ([960d208](https://github.com/appcelerator/titanium_mobile/commit/960d208898939f37c9a11621e3e6a2ce267e50a8)) ([5a5c0f5](https://github.com/appcelerator/titanium_mobile/commit/5a5c0f5201d1d2209273196348968e3d94088f2c))
+* [TIMOB-27530](https://jira.appcelerator.org/browse/TIMOB-27530) - UI glitches out when using 'applyProperties' with Scroll View Touch Listeners
+* [TIMOB-27695](https://jira.appcelerator.org/browse/TIMOB-27695) - Heavy image processing methods do not trigger GC ([26982f3](https://github.com/appcelerator/titanium_mobile/commit/26982f304121cd235cc6b04b9dc3a3c87614a8bd))
+* [TIMOB-27741](https://jira.appcelerator.org/browse/TIMOB-27741) - fall through request permissions ([7bede6f](https://github.com/appcelerator/titanium_mobile/commit/7bede6f7cf52ca78bec65d514ec3e930cc9428c3))
+* [TIMOB-27742](https://jira.appcelerator.org/browse/TIMOB-27742) - Minor camera focus issues ([ab3d8c6](https://github.com/appcelerator/titanium_mobile/commit/ab3d8c6083d549d42a1b48ca401086fa074e0374))
+* [TIMOB-27777](https://jira.appcelerator.org/browse/TIMOB-27777) - Obtain holder for module references ([764f024](https://github.com/appcelerator/titanium_mobile/commit/764f024daf5b95a288104d5e374c2eb35b80d641))
+* [TIMOB-27780](https://jira.appcelerator.org/browse/TIMOB-27780) - Hyperloop builds fail if JDK 12 or higher is installed  ([#11510](https://github.com/appcelerator/titanium_mobile/pull/11510))
+* [TIMOB-27781](https://jira.appcelerator.org/browse/TIMOB-27781) - App/Module builds fail with JDK 13 as of 9.0.0 ([caaaa04](https://github.com/appcelerator/titanium_mobile/commit/caaaa0480d3d2ad52e637b34b92e36f0d2195c3e))
+* [TIMOB-27784](https://jira.appcelerator.org/browse/TIMOB-27784) - Running "clean" on a module will error if "libs" folder does not exist ([e90b8af](https://github.com/appcelerator/titanium_mobile/commit/e90b8af9304a4911edc50fed3b325f7d2504bdc7))
+* [TIMOB-27823](https://jira.appcelerator.org/browse/TIMOB-27823) - javascript files/content assumed to be binary for Ti.Blob on apilevel 29+ ([efa3c64](https://github.com/appcelerator/titanium_mobile/commit/efa3c64e75752ea3b1ea082a41e78584df838462))
+* [TIMOB-27837](https://jira.appcelerator.org/browse/TIMOB-27837) - Custom theme ignored by modal/translucent windows as of 9.0.0 ([8e3ce4d](https://github.com/appcelerator/titanium_mobile/commit/8e3ce4da0d1f83ac7f258cb9e1c9092250191951))
+
+### iOS platform
+
+* [TIMOB-27751](https://jira.appcelerator.org/browse/TIMOB-27751) - WKWebView cookies issue ([aab53e7](https://github.com/appcelerator/titanium_mobile/commit/aab53e701ad1f4d50698283ffdb3e2f161624585))
+* [TIMOB-27754](https://jira.appcelerator.org/browse/TIMOB-27754) - SearchBar text color and hinTextColor does not work properly. ([f881591](https://github.com/appcelerator/titanium_mobile/commit/f88159142a52a8acf6b6b933fd7e5bd8789d40ab))
+* [TIMOB-27768](https://jira.appcelerator.org/browse/TIMOB-27768) - TypeError: Cannot read property 'logger' of undefined ([1c0d85f](https://github.com/appcelerator/titanium_mobile/commit/1c0d85f865a11b935ed86e49e963da54274be823))
+* [TIMOB-27799](https://jira.appcelerator.org/browse/TIMOB-27799) - App crashes when setting video player url to null ([01e5798](https://github.com/appcelerator/titanium_mobile/commit/01e57985826b7552e1e23c63f4a31c61b622156e))
+* [TIMOB-27820](https://jira.appcelerator.org/browse/TIMOB-27820) - iOS 10: SearchBar color property does not work with showCancel property ([e013135](https://github.com/appcelerator/titanium_mobile/commit/e013135988dc00436c5da9cfc690bd965240306e))
+* [TIMOB-27822](https://jira.appcelerator.org/browse/TIMOB-27822) - Ti.UI.iPad.Popover including arrow in content view on iOS 13 ([9b349fb](https://github.com/appcelerator/titanium_mobile/commit/9b349fbe312774a5f25d6f11aac85db36d41bf15))
+* [TIMOB-27824](https://jira.appcelerator.org/browse/TIMOB-27824) - Hyperloop: iOS - build fails after updating XCode to 11.4 ([14f7bb5](https://github.com/appcelerator/titanium_mobile/commit/14f7bb5b666534342aa5c8afefab53e61d7b5729))
+* [TIMOB-27827](https://jira.appcelerator.org/browse/TIMOB-27827) - Error reporting is broken after updating to Xcode 11.4 / iOS 13.4 ([3e06680](https://github.com/appcelerator/titanium_mobile/commit/3e0668000ef1baac5dff3570cf2a36c61ee91d8e))
+
+## Improvements
+
+### Android platform
+
+* [TIMOB-27574](https://jira.appcelerator.org/browse/TIMOB-27574) - Replace SDK "build.properties" with gradle generated "BuildConfig" class
+* [TIMOB-27745](https://jira.appcelerator.org/browse/TIMOB-27745) - Add "google-services.json" support for Firebase ([5422e25](https://github.com/appcelerator/titanium_mobile/commit/5422e25d415f77e62486d1fde839ebdffb6de523))
+* [TIMOB-27755](https://jira.appcelerator.org/browse/TIMOB-27755) - Add NDK side-by-side support ([0935163](https://github.com/appcelerator/titanium_mobile/commit/0935163c97cd247e35b6a6546c49aa4084f9e3ed))
+* [TIMOB-27778](https://jira.appcelerator.org/browse/TIMOB-27778) - Update gradle build tools to 3.6.x
+* improve sdk kroll-apt incremental build times ([558b6ed](https://github.com/appcelerator/titanium_mobile/commit/558b6ed670dc376811ecda6d26d1aaeffaccadfd))
+* build should auto-download NDK if not installed ([6c1a206](https://github.com/appcelerator/titanium_mobile/commit/6c1a206c6b66de3bf53578be3f0547e2956944c7))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 9.0.0 | 7.0.1 |
+| ti.cloudpush | 7.0.0 | n/a |
+| ti.map | 5.0.1 | 3.3.0 |
+| ti.webdialog | 2.0.0 | 1.1.0 |
+| ti.playservices | 17.1.1 | n/a |
+| ti.identity | 3.0.1 | 1.1.0 |
+| urlSession | n/a | 2.2.0 |
+| ti.coremotion | n/a | 2.1.0 |
+| ti.applesignin | n/a | 1.1.1 |
+| ti.cloud | 3.2.11 | 3.2.11 |
+| hyperloop | 5.0.3 | 5.0.3 |
+
+
+# [9.0.0](https://github.com/appcelerator/titanium_mobile/compare/8_3_X...9.0.0) (2020-02-07)
+
+## About this release
+
+Titanium SDK 9.0.0 is a major release of the SDK, addressing high-priority issues from previous releases; introducing some breaking changes; and removing a number of long-deprecated APIs.
+
+As of this release, Titanium SDK 8.x will not be supported one calendar year (2021-02-07) from 9.0.0's release date.
+See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_deprecation_policy.html) and [Nominal Lifetimes](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_product_lifecycle.html#AxwayAppceleratorProductLifecycle-NominalLifetimes) documents for details.
+
+:warning: With the release of Titanium SDK 9.0.0, we will no longer support Node.js 8.X. Node 10.2.0 will be the new minimum supported version with SDK 9.0.0.
+
+## Community Credits
+
+* Sergey Volkov
+    * fix optional parameters on "timers" methods ([8a00014](https://github.com/appcelerator/titanium_mobile/commit/8a0001478a94c9714f8b9b68e96c96ad1b5db50b))
+    * split interface and property definition for console and JSON ([958a6a3](https://github.com/appcelerator/titanium_mobile/commit/958a6a3dcc086b835ed2c887512bd65c1c9e3ea5))
+    * fix Ti.UI.TableView.setData argument ([70c16f7](https://github.com/appcelerator/titanium_mobile/commit/70c16f7ca213f39791330758489be4f951dfa1ab))
+    * fix PickerColumn parent class ([0a55a4b](https://github.com/appcelerator/titanium_mobile/commit/0a55a4bf37c78fbbac90029acb2941f0a65f74a2))
+    * remove duplicate events from Ti.UI.Tab ([f618aeb](https://github.com/appcelerator/titanium_mobile/commit/f618aeba79bcaae680ccc9adcfcc07c23f8e2f92))
+    * fix Ti.UI.iOS.ApplicationShortcuts.getDynamicShortcut ([a841846](https://github.com/appcelerator/titanium_mobile/commit/a8418468355e9e12393426dfba51c7062625aec4))
+    * fix Ti.Platform.openURL parameters ([17f258d](https://github.com/appcelerator/titanium_mobile/commit/17f258d651b7d0ead72c195f0a35a4a1d67703b5))
+    * fix Ti.UI.Slider.value type ([2663d7d](https://github.com/appcelerator/titanium_mobile/commit/2663d7d052891bf0a72978e2d476e187e3c2c7ba))
+    * fix Ti.Media.audioSessionCategory type ([21bca1d](https://github.com/appcelerator/titanium_mobile/commit/21bca1db38af27deb0199e56322e185b872cefb2))
+    * fix type of "services" property ([410aee2](https://github.com/appcelerator/titanium_mobile/commit/410aee28f9cd33f68f36d19f545f3bb161edfd1f))
+    * add missing types for events properties ([5b7732f](https://github.com/appcelerator/titanium_mobile/commit/5b7732f71a7b50c0572c07abf1df08a74cba0f5a))
+    * remove "optional" key from event property ([b1c0967](https://github.com/appcelerator/titanium_mobile/commit/b1c09673123bd08c2248dba05735623a13f7e060))
+    * add missing types for events properties ([76cd92a](https://github.com/appcelerator/titanium_mobile/commit/76cd92aaa2676ea7568f63e717b56d675fa06b9d))
+    * add Ti.UI.View.id property ([b295e63](https://github.com/appcelerator/titanium_mobile/commit/b295e6321ba38e29612b51d93c1518e87e6fffee))
+    * mark as optional property "animated" of AnimationOption ([aee1bdd](https://github.com/appcelerator/titanium_mobile/commit/aee1bdda2de633df07013e0102aacfbb3c77d6cb))
+    * remove duplicate prop "category" from "localnotificationaction" ([163065a](https://github.com/appcelerator/titanium_mobile/commit/163065a7496702b9e705f7a9f74b84b5e981220b))
+
+* Hans Knöchel
+  *  add generated .cxx directory to .gitignore ([37b446c](https://github.com/appcelerator/titanium_mobile/commit/37b446cbdb439d0d911f403a8514ca6aa562c748))
+    * [TIMOB-27441](https://jira.appcelerator.org/browse/TIMOB-27441) - do not log Ti.App events ([2c84e30](https://github.com/appcelerator/titanium_mobile/commit/2c84e3070a8870edb9b1bc1645468d4f82174fe1))
+
+* Giorgio Mandolini
+    * webview onlink is now called only on link activated ([aedd2aa](https://github.com/appcelerator/titanium_mobile/commit/aedd2aa87d4fa2800bb3ed79fa2aeed9cbbd3568))
+  
+* Michael Gangolf
+    * optimize all pngs (#11321) ([e563e28](https://github.com/appcelerator/titanium_mobile/commit/e563e28d1d2cc558dbfe924c38f5df764fb3fea8))
+    * [TIMOB-13286](https://jira.appcelerator.org/browse/TIMOB-13286) - add single/doubletap to scrollview ([0326b7e](https://github.com/appcelerator/titanium_mobile/commit/0326b7eaf2a7c9f003f955cdad10b2b156dff75c))
+
+* David Bankier
+    * [TIMOB-23281](https://jira.appcelerator.org/browse/TIMOB-23281) - search bar color ignored on ios 13+ ([0aa9b36](https://github.com/appcelerator/titanium_mobile/commit/0aa9b36065fe63585208412f8f1818253df65778))
+
+* Mathias Lykkegaard Lorenzen
+    * make event argument in fireEvent optional ([0250df0](https://github.com/appcelerator/titanium_mobile/commit/0250df08784e6e9a86a375882de1bf4d675a3bef))
+
+
+
+## Bug Fixes
+
+### Android platform
+
+* add extension to encrypted assets ([bf8a6bf](https://github.com/appcelerator/titanium_mobile/commit/bf8a6bfd3ca17d3389cb6c8fc775886638226093))
+* [TIMOB-27606](https://jira.appcelerator.org/browse/TIMOB-27606) - amend load app info order ([38ea44b](https://github.com/appcelerator/titanium_mobile/commit/38ea44b6d577d8836e0a463032598651a6232a01))
+* avoid infinite recursion in tab/tabgroup toJSON() ([7280fcc](https://github.com/appcelerator/titanium_mobile/commit/7280fcc4f187a10ee41a8fa67d9933c9a8217248))
+* avoid recursion, properties beginning with _ in toJSON() ([f5b6561](https://github.com/appcelerator/titanium_mobile/commit/f5b65613add7357ec4b8fccc663ba24cb84dbfb1))
+* [TIMOB-27706](https://jira.appcelerator.org/browse/TIMOB-27706) - build with uppercase module JAR on case-sensitive system ([8a906c7](https://github.com/appcelerator/titanium_mobile/commit/8a906c74d46025247e69179699384c983c09020f))
+* can't set versionCode in manifest as of 9.0.0 ([a69f6b6](https://github.com/appcelerator/titanium_mobile/commit/a69f6b6df5bd433306be51b3d86f283573918a32))
+* [TIMOB-27633](https://jira.appcelerator.org/browse/TIMOB-27633) - clean up module/require code ([612afd7](https://github.com/appcelerator/titanium_mobile/commit/612afd7e40dc2469d6e35d5fcea65b44d583b0e0))
+* [TIMOB-27747](https://jira.appcelerator.org/browse/TIMOB-27747) - crash with old "ti.playservices" in 9.0.0 ([c194ecf](https://github.com/appcelerator/titanium_mobile/commit/c194ecfe06b5fd42b66131d5809f4bee45aaa9f9))
+* [TIMOB-27694](https://jira.appcelerator.org/browse/TIMOB-27694) - default Ti.Ui.TextField.editable is true in #focus() ([99d08f6](https://github.com/appcelerator/titanium_mobile/commit/99d08f6ad81b6caa07a43ecbbbfeca45df4a3ed9))
+* [TIMOB-27496](https://jira.appcelerator.org/browse/TIMOB-27496) - do not modify original ListView proxy ([e75b514](https://github.com/appcelerator/titanium_mobile/commit/e75b514c1ea0f14a8f1e2e6e91a33502b921e164))
+* [TIMOB-25945](https://jira.appcelerator.org/browse/TIMOB-25945) - fix losing elevation effect after dimensions change ([f46784b](https://github.com/appcelerator/titanium_mobile/commit/f46784bb83bf630de23a89e3c53fea4b5940729e))
+* fix scroll view's layout resizing with children ([5723b11](https://github.com/appcelerator/titanium_mobile/commit/5723b11146548fb759092b0db5567b12a151efe4))
+* fix support for Java 8 in Kotlin ([2287e83](https://github.com/appcelerator/titanium_mobile/commit/2287e8379091bc4c492d33245f0e48e4bfc61b8a))
+* getCurrentPosition() compatibility with some Samsung devices ([fa5866a](https://github.com/appcelerator/titanium_mobile/commit/fa5866aa371e7b34e02e4463abf309946eeb2105))
+* improve reliability of fused location lib detection ([b8cc24a](https://github.com/appcelerator/titanium_mobile/commit/b8cc24a7c4974e886d3dc088edf8a8a88d65a6fd))
+* location permission not auto-added as of 9.0.0 ([db56070](https://github.com/appcelerator/titanium_mobile/commit/db56070cd4366142205b9b0b5d9b783fedb313c0))
+* [TIMOB-27684](https://jira.appcelerator.org/browse/TIMOB-27684) - prevent duplicate launch animation ([135e3dc](https://github.com/appcelerator/titanium_mobile/commit/135e3dc35e99b0c1f5ced6c91b1fb3b453a25815))
+* prevent snapshots from failing build ([40bd1d9](https://github.com/appcelerator/titanium_mobile/commit/40bd1d92749857a37ebea2fa87c2f064d1775a51))
+* remove deprecated contacts methods ([7e0a46a](https://github.com/appcelerator/titanium_mobile/commit/7e0a46af3bb795193152f2421e5ea924871365f7))
+* remove deprecated contacts methods ([7caecb8](https://github.com/appcelerator/titanium_mobile/commit/7caecb878cf76e89377c55517a7504c72e732925))
+* [TIMOB-27602](https://jira.appcelerator.org/browse/TIMOB-27602) - softRestart() must account for snapshots ([62a603d](https://github.com/appcelerator/titanium_mobile/commit/62a603d4edc74109234306ef00b48dfcacdc3c5e))
+* specify default inspector context ([c29960d](https://github.com/appcelerator/titanium_mobile/commit/c29960d41b18923a497ac0468ff0c9e5a216bcc1))
+* [TIMOB-27746](https://jira.appcelerator.org/browse/TIMOB-27746) [TIMOB-27746](https://jira.appcelerator.org/browse/TIMOB-27746) - strip xmlns definitions from child elements in AndroidManifest.xml ([476ac79](https://github.com/appcelerator/titanium_mobile/commit/476ac79f4d1d090f6b3399ce35adb0cdb2f1c868))
+* [TIMOB-27406](https://jira.appcelerator.org/browse/TIMOB-27406) - support raw document identifiers ([c2d89d4](https://github.com/appcelerator/titanium_mobile/commit/c2d89d48cb652b2426e93176d037661487015f4e))
+* use correct blob for toImage() ([f07e012](https://github.com/appcelerator/titanium_mobile/commit/f07e012dd25a626415fe56c339fed803af0ff281))
+
+### iOS platform
+
+* [TIMOB-27623](https://jira.appcelerator.org/browse/TIMOB-27623) -  server is receiving two consecutive calls for the same url ([8cdac18](https://github.com/appcelerator/titanium_mobile/commit/8cdac1898091dd7020d458c4ef66a8d36cb41e7e))
+* [TIMOB-27158](https://jira.appcelerator.org/browse/TIMOB-27158) -  ui glitch in lazyloading fixed ([c00da08](https://github.com/appcelerator/titanium_mobile/commit/c00da0812ba07ed6265f999dc397506687d9698f))
+* added proper condtion to import MediaPlayer ([3943012](https://github.com/appcelerator/titanium_mobile/commit/3943012eca4abf9515c6290548203f68f6754fc6))
+* [TIMOB-27159](https://jira.appcelerator.org/browse/TIMOB-27159) - allow changing WebView read access when loading local file ([dd7b319](https://github.com/appcelerator/titanium_mobile/commit/dd7b319207277494fb87731a0d0b0232845d7312))
+* behaviour of toString function of TiBlob fixed ([e63b30e](https://github.com/appcelerator/titanium_mobile/commit/e63b30e41d89f23556a48c6a50d5a6635ff5ef89))
+* cookies updated while reloading webview ([fc11337](https://github.com/appcelerator/titanium_mobile/commit/fc1133732d1d33405e0cf693a74e61d5ef7783a3))
+* expose TiApp singleton accessor to swift ([495d76c](https://github.com/appcelerator/titanium_mobile/commit/495d76ce367551e52f0b2779ed856ec0955e3f52))
+* [TIMOB-27350](https://jira.appcelerator.org/browse/TIMOB-27350) - fix toString() for binary blobs ([c95ddb3](https://github.com/appcelerator/titanium_mobile/commit/c95ddb3b45b536f193d60065f7c1cef1ebd44491))
+* handle when new proxies are created with dictionary arguments ([2c8e2ac](https://github.com/appcelerator/titanium_mobile/commit/2c8e2ac07e07a49434bded23324d8e7f9492ae8a))
+* handle when throwing new obj-c proxy error without subreason ([3e2934b](https://github.com/appcelerator/titanium_mobile/commit/3e2934bbe5bd74626e0b6e12fd28583373f6bcb4))
+* navBar properties not working properly with extendEdges set to Ti.UI.EXTEND_EDGE_TOP ([d673c36](https://github.com/appcelerator/titanium_mobile/commit/d673c362888de7d0ceda6509ab2a222231d399c8))
+* proper macro used for wrapping code ([5bb63c5](https://github.com/appcelerator/titanium_mobile/commit/5bb63c55229ba1088a3e9d5c5e2e5819ddc70e24))
+* remove deprecated contacts methods ([207b4ab](https://github.com/appcelerator/titanium_mobile/commit/207b4ab2f59c2852c5e0ba1a5068031fe62fb076))
+* remove deprecated contacts methods ([e8c4b43](https://github.com/appcelerator/titanium_mobile/commit/e8c4b436098883767747acf7cb08add04af5d0cc))
+* remove deprecated tab blur/focus events ([f5d0bbe](https://github.com/appcelerator/titanium_mobile/commit/f5d0bbe4b681a26259ee206ce420ece9dcda0730))
+* remove deprecated tabgroup unselected/selected events ([74f1134](https://github.com/appcelerator/titanium_mobile/commit/74f1134424d825204b9f445499c783711ceb07a7))
+* remove deprecated TextField padding properties ([337ee8f](https://github.com/appcelerator/titanium_mobile/commit/337ee8fb67110a06ce56e37b0617a196dc9377a5))
+* remove deprecated Ti.Media methods ([e8fff19](https://github.com/appcelerator/titanium_mobile/commit/e8fff19fd1cd4b07498e8cdd39b481e70f3a1662))
+* remove deprecated Ti.Media methods ([b3bd05e](https://github.com/appcelerator/titanium_mobile/commit/b3bd05ea6fb2d60ce2591f0bbf7714442384344d))
+* remove deprecated UI appearance properties ([b8c1f84](https://github.com/appcelerator/titanium_mobile/commit/b8c1f845e964a03b3fbb0c6236bc6411efba616a))
+* remove references to Ti.Contacts methods that are removed ([440e9cc](https://github.com/appcelerator/titanium_mobile/commit/440e9ccb720be9ac5096749ad13d44a09107e5cf))
+* [TIMOB-27480](https://jira.appcelerator.org/browse/TIMOB-27480) - setting last index of tabbedBar after initialization not work ([5fbe782](https://github.com/appcelerator/titanium_mobile/commit/5fbe78276e04049874e13bcc0a3874593f27254e))
+* status bar background color crash fix ios13 ([b999f27](https://github.com/appcelerator/titanium_mobile/commit/b999f2716088d221bc9e146233cbb559776ad4df))
+* statusbar ui issue fixed ([6a5664b](https://github.com/appcelerator/titanium_mobile/commit/6a5664bf92657ee31d478529ab42df67471abc7c))
+* tintColor not working for TabbedBar in  iOS 13 ([ec6fbf6](https://github.com/appcelerator/titanium_mobile/commit/ec6fbf624e27ac4f7c798bf7d93966ff74a930d7))
+* [TIMOB-27484](https://jira.appcelerator.org/browse/TIMOB-27484) - update to core-js 3 ([ffa4cef](https://github.com/appcelerator/titanium_mobile/commit/ffa4cefa7c6f3ec1b33963cbee3eecd3e6b07ab0))
+* [TIMOB-27630](https://jira.appcelerator.org/browse/TIMOB-27630) - use correct target for transpiling on ios ([c4a998a](https://github.com/appcelerator/titanium_mobile/commit/c4a998ad8442737afa957deee4e1cc2e938fca57))
+* when firing events to new proxies, fill in type/source ([e56abfc](https://github.com/appcelerator/titanium_mobile/commit/e56abfca2705c71e88acbd2ff946a176a4df4e38))
+
+
+## Features
+
+### Multiple platforms
+
+* use babel-plugin-transform-titanium when transpiling ([c21f77c](https://github.com/appcelerator/titanium_mobile/commit/c21f77cec7773b8d925fd801235ce87531c7af9b))
+
+### Android platform
+
+* [TIMOB-26434](https://jira.appcelerator.org/browse/TIMOB-26434) - added app-bundle support ([5d93fea](https://github.com/appcelerator/titanium_mobile/commit/5d93fea7d73b59c510e730167508f789932f3fa2))
+* [TIMOB-27686](https://jira.appcelerator.org/browse/TIMOB-27686) - allow gradle to automatically download missing dependencies ([57a6b49](https://github.com/appcelerator/titanium_mobile/commit/57a6b4952a192b6b52f4f8bddef43c126c52a5e3))
+* [TIMOB-27718](https://jira.appcelerator.org/browse/TIMOB-27718) - log build warnings if res files have invalid names ([e7df669](https://github.com/appcelerator/titanium_mobile/commit/e7df669db667e1aaf22b57d84b0a2bad8750783b))
+* [TIMOB-27696](https://jira.appcelerator.org/browse/TIMOB-27696) - replace Support libraries with AndroidX ([0558c28](https://github.com/appcelerator/titanium_mobile/commit/0558c28b54dfb195d7a5c22851060e416e9811f8))
+* target Java8 and Kotlin support for native modules ([5ce5e72](https://github.com/appcelerator/titanium_mobile/commit/5ce5e72b3a90803fc4b54555cd0e8b900c756d9e))
+* [TIMOB-27685](https://jira.appcelerator.org/browse/TIMOB-27685) [TIMOB-27298](https://jira.appcelerator.org/browse/TIMOB-27298) [TIMOB-27297](https://jira.appcelerator.org/browse/TIMOB-27297) - update hyperloop for gradle ([13f78c4](https://github.com/appcelerator/titanium_mobile/commit/13f78c4a3023ba997e55267b70c039e1331af682))
+* Update V8 to 7.8.279.23 ([9006b4d](https://github.com/appcelerator/titanium_mobile/commit/9006b4d58b8fc827545e7fcbc5ff740bf49fe939))
+
+### iOS platform
+
+* [TIMOB-25847](https://jira.appcelerator.org/browse/TIMOB-25847) - support font scaling for custom fonts ([8045620](https://github.com/appcelerator/titanium_mobile/commit/8045620c933c007d77079e87beeeadddcc0f93f6))
+
+
+## BREAKING CHANGES
+
+### Multiple platforms
+
+* [TIMOB-27605](https://jira.appcelerator.org/browse/TIMOB-27605) - Removal of Node 8 support, move to Node 10.13+ ([f35cf0e](https://github.com/appcelerator/titanium_mobile/commit/f35cf0ebfc880d0161f65ca075fdd275a2ecb824))
+* [TIMOB-27650](https://jira.appcelerator.org/browse/TIMOB-27650) - Remove ti.touchid and ti.safaridialog from the SDK distribution
+* [TIMOB-25578](https://jira.appcelerator.org/browse/TIMOB-25578) - Ti.Geoclocation.reverseGeocoder now uses consistent properties postalCode (in place of zipcode) and countryCode (in place of country_code) ([3d32e33](https://github.com/appcelerator/titanium_mobile/commit/3d32e334987e67967c9ef0b513fe88b220ac9e19))
+
+
+### Android platform
+
+* Removed Ti.Contacts requestAuthorization method (in favor of requestContactsPermissions)
+* Removed Ti.Contacts getPersonByID method (in favor of getPersonByIdentifier)
+* Removed the create, destroy, pause, restart, resume, start, and stop events on Ti.Android.Activity (use callback properties) ([0221467](https://github.com/appcelerator/titanium_mobile/commit/02214671f1897371b12894e6e8e5654b67697e6d))
+* Removed the Ti.UI.Webview onStopBlacklistedUrl event. Please use blacklisturl event instead ([85b32d8](https://github.com/appcelerator/titanium_mobile/commit/85b32d8b110b56e1d6d8b14276a9f254a8d5f00d))
+* Removed deprecated Ti.UI.Window.android:* events ([f01055c](https://github.com/appcelerator/titanium_mobile/commit/f01055c5038b2da748e3aaecc5819ebcc09abb98))
+* Removed deprecated webview error event properties: errorCode and message ([5144ac9](https://github.com/appcelerator/titanium_mobile/commit/5144ac9646fd9b4ce4e9685238cbcd8de793943f))
+* Removed deprecated tcp error callback errorCode property ([7e405aa](https://github.com/appcelerator/titanium_mobile/commit/7e405aa9449554c81d1014666c57d8497541161a))
+* Removed deprecated stream callback properties ([4b48db8](https://github.com/appcelerator/titanium_mobile/commit/4b48db872f7389218072a07c8734781cc41e7bcb))
+* Removed the LINKIFY_* constants living in Android namespace ([7c88912](https://github.com/appcelerator/titanium_mobile/commit/7c88912487fbc9aa84b73e324f8eda25540aa148))
+
+
+### iOS platform
+
+* [TIMOB-27497](https://jira.appcelerator.org/browse/TIMOB-27497) -  Drops support for Xcode 8. Please use Xcode 9+ ([d5ede39](https://github.com/appcelerator/titanium_mobile/commit/d5ede39dfb7023c86bd24932166cb390c8e97b69))
+* Removed Ti.UI.TextField paddingLeft and paddingRight properties (in favor of padding.left and padding.right)
+* Removed Ti.Media requestAudioPermissions method (in favor of requestAudioRecorderPermissions)
+* Removed Ti.Media requestAuthorization and requestCameraAccess methods (in favor of requestAudioRecorderPermissions and requestCameraPermissions)
+* Removed Ti.Contacts requestAuthorization method (in favor of requestContactsPermissions)
+* Removed Ti.Contacts getGroupByID and getPersonByID methods (in favor of getGroupByIdentifier and getPersonByIdentifier)
+* Removed Ti.UI.Tab blur/focus events in favor of selected/unselected
+* Removed Ti.UI.TabGroup selected/unselected events in favor of focus/blur
+* Removed the BLEND_MODE_* constants on Ti.UI.iOS namespace (use constants on Ti.UI namespace) ([3c2a0ec](https://github.com/appcelerator/titanium_mobile/commit/3c2a0ec5c9b45c30b918c3a116b252ee3077b9bd))
+* Removed Ti.UI.TextArea, Ti.UI.TextField appearance property (in favor of keyboardAppearance)
+* Removed deprecated Ti.Media.cameraAuthorizationStatus property ([cbf994e](https://github.com/appcelerator/titanium_mobile/commit/cbf994e09f30a18afebd5607695d157e88d9caf0))
+* Removed deprecated ipad popover properties: height, width, leftNavButton and rightNavButton ([14cd341](https://github.com/appcelerator/titanium_mobile/commit/14cd341a3922a26d8279e66d8e41aa0ac2686dd4))
+* Removed deprecated tcp error callback errorCode property ([6f4814d](https://github.com/appcelerator/titanium_mobile/commit/6f4814d563b4aa2c854ef5938746b7792e5c01ad))
+* Removed deprecated stream callback properties ([f4de7a9](https://github.com/appcelerator/titanium_mobile/commit/f4de7a9017dab69c0ec92e3b1bd7a675085c7c4a))
+* Ti.Network.TCPSocket has been removed, use Ti.Network.Socket.TCP in it's place. ([9647181](https://github.com/appcelerator/titanium_mobile/commit/9647181250f984db9a70b833486191b9fa52c2ca))
+* [TIMOB-27619](https://jira.appcelerator.org/browse/TIMOB-27619), [TIMOB-27076](https://jira.appcelerator.org/browse/TIMOB-27076) -  Ti.Network.BonjourService methods have become asynchronous. Use optional callback arguments or event listeners to react to results.
+* Removed the updateLayout(), startLayout() and finishLayout() methods on Ti.UI.View ([54e2eeb](https://github.com/appcelerator/titanium_mobile/commit/54e2eeb3ce8a309312efcd9cecd2190493b7704c))
+
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 9.0.0 | 7.0.1 |
+| ti.cloudpush | 6.0.1 | n/a |
+| ti.map | 5.0.0 | 3.3.0 |
+| ti.webdialog | 2.0.0 | 1.1.0 |
+| ti.playservices | 17.1.0 | n/a |
+| ti.identity | 3.0.1 | 1.1.0 |
+| urlSession | n/a | 2.2.0 |
+| ti.coremotion | n/a | 2.0.1 |
+| ti.applesignin | n/a | 1.1.1 |
+| ti.cloud | 3.2.11 | 3.2.11 |
+| hyperloop | 5.0.0 | 5.0.0 |
+
+
 ## [8.3.1](https://github.com/appcelerator/titanium_mobile/compare/8_3_0_GA...8.3.1) (2020-01-16)
 
 ## About this release
