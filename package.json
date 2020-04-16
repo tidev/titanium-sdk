@@ -21,7 +21,7 @@
     "build": "./build/scons build",
     "build:android": "npm run build -- android",
     "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
-    "build:docs": "docgen apidoc",
+    "build:docs": "docgen apidoc -o ./dist",
     "build:ios": "npm run build -- ios",
     "clean": "./build/scons clean",
     "clean:android": "npm run clean -- android",
