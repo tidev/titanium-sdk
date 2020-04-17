@@ -37,6 +37,7 @@ using namespace v8;
 <#assign className = Proxy.className(proxyClassName)>
 
 Persistent<FunctionTemplate> ${className}::proxyTemplate;
+Persistent<Object> ${className}::moduleInstance;
 jclass ${className}::javaClass = NULL;
 
 ${className}::${className}() : titanium::Proxy()
@@ -60,12 +61,13 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	Local<String> nameSymbol = NEW_SYMBOL(isolate, "${proxyAttrs.name}"); // use symbol over string for efficiency
 	<#if isModule>
 	MaybeLocal<Object> maybeInstance = constructor->NewInstance(context);
-	Local<Object> moduleInstance;
-	if (!maybeInstance.ToLocal(&moduleInstance)) {
+	Local<Object> instance;
+	if (!maybeInstance.ToLocal(&instance)) {
 		titanium::V8Util::fatalException(isolate, tryCatch);
 		return;
 	}
-	exports->Set(context, nameSymbol, moduleInstance);
+	exports->Set(context, nameSymbol, instance);
+	moduleInstance.Reset(isolate, instance);
 	<#else>
 	exports->Set(context, nameSymbol, constructor);
 	</#if>
@@ -76,6 +78,9 @@ void ${className}::dispose(Isolate* isolate)
 	LOGD(TAG, "dispose()");
 	if (!proxyTemplate.IsEmpty()) {
 		proxyTemplate.Reset();
+	}
+	if (!moduleInstance.IsEmpty()) {
+	    moduleInstance.Reset();
 	}
 
 	<#if superProxyClassName??>
