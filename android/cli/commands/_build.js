@@ -3689,7 +3689,17 @@ AndroidBuilder.prototype.buildAppProject = async function buildAppProject() {
 
 		// Set path to the app-bundle file that was built up above.
 		// Our "package.js" event hook will later copy it to the developer's chosen destination directory.
-		this.aabFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'bundle', 'release', 'app.aab');
+		this.aabFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'bundle', 'release', 'app-release.aab');
+	}
+
+	// Verify that we can find the above built file(s).
+	if (!await fs.exists(this.apkFile)) {
+		this.logger.error(`Failed to find built APK file: ${this.apkFile}`);
+		process.exit(1);
+	}
+	if (this.aabFile && !await fs.exists(this.aabFile)) {
+		this.logger.error(`Failed to find built AAB file: ${this.aabFile}`);
+		process.exit(1);
 	}
 };
 
