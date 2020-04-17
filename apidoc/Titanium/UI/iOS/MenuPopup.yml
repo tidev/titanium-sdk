@@ -36,7 +36,7 @@ methods:
         summary: |
             Includes options how the menu popup should be hidden. Introduced in SDK 5.2.0.
         
-            Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimationOptions> is false)
+            Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimatedOptions> is false)
         type: AnimatedOptions
         optional: true
         default: "{ animated: true }"

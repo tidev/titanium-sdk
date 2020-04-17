@@ -16,6 +16,7 @@ description: |
     adding methods to a Titanium object. (Adding a simple property such as an ID value is
     generally OK.)
 since: "0.1"
+createable: false
 
 methods:
   - name: addEventListener
