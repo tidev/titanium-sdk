@@ -889,14 +889,7 @@ public class TiAnimationBuilder
 				}
 
 				if (animationProxy != null) {
-					// In versions prior to Honeycomb, don't fire the event
-					// until the message queue is empty. There appears to be
-					// a bug in versions before Honeycomb where this
-					// onAnimationEnd listener can be called even before the
-					// animation is really complete.
-					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-						animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
-					}
+					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
 				}
 			}
 		}
@@ -965,14 +958,7 @@ public class TiAnimationBuilder
 				}
 
 				if (animationProxy != null) {
-					// In versions prior to Honeycomb, don't fire the event
-					// until the message queue is empty. There appears to be
-					// a bug in versions before Honeycomb where this
-					// onAnimationEnd listener can be called even before the
-					// animation is really complete.
-					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-						animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
-					}
+					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
 				}
 			}
 		}
