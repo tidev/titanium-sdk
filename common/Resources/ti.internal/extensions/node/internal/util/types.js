@@ -31,11 +31,15 @@ const TypedArrayPrototype = Object.getPrototypeOf(Uint8Array.prototype);
 const TypedArrayProto_toStringTag = uncurryThis(
 	Object.getOwnPropertyDescriptor(TypedArrayPrototype, Symbol.toStringTag).get);
 
-function checkPrototype(value, name) {
-	if (typeof value !== 'object') {
-		return false;
-	}
+function isObject(value) {
+	return typeof value === 'object';
+}
 
+function isFunction(value) {
+	return typeof value === 'function';
+}
+
+function checkPrototype(value, name) {
 	return Object.prototype.toString.call(value) === `[object ${name}]`;
 }
 
@@ -48,18 +52,18 @@ export function isAnyArrayBuffer(value) {
 }
 
 export function isArgumentsObject(value) {
-	return checkPrototype(value, 'Arguments');
+	return isObject(value) && checkPrototype(value, 'Arguments');
 }
 
 export function isArrayBuffer(value) {
-	return checkPrototype(value, 'ArrayBuffer');
+	return isObject(value) && checkPrototype(value, 'ArrayBuffer');
 }
 
 // Cached to make sure no userland code can tamper with it.
 export const isArrayBufferView = ArrayBuffer.isView;
 
 export function isAsyncFunction(value) {
-	return checkPrototype(value, 'AsyncFunction');
+	return isFunction(value) && checkPrototype(value, 'AsyncFunction');
 }
 
 export function isBigInt64Array(value) {
@@ -71,11 +75,11 @@ export function isBigUint64Array(value) {
 }
 
 export function isBooleanObject(value) {
-	return checkPrototype(value, 'Boolean');
+	return isObject(value) && checkPrototype(value, 'Boolean');
 }
 
 export function isBoxedPrimitive(value) {
-	if (typeof value !== 'object') {
+	if (!isObject(value)) {
 		return false;
 	}
 
@@ -87,11 +91,11 @@ export function isBoxedPrimitive(value) {
 }
 
 export function isDataView(value) {
-	return checkPrototype(value, 'DataView');
+	return isObject(value) && checkPrototype(value, 'DataView');
 }
 
 export function isDate(value) {
-	return checkPrototype(value, 'Date');
+	return isObject(value) && checkPrototype(value, 'Date');
 }
 
 // @todo isExternal
@@ -105,11 +109,11 @@ export function isFloat64Array(value) {
 }
 
 export function isGeneratorFunction(value) {
-	return checkPrototype(value, 'GeneratorFunction');
+	return isFunction(value) && checkPrototype(value, 'GeneratorFunction');
 }
 
 export function isGeneratorObject(value) {
-	return checkPrototype(value, 'GeneratorObject');
+	return isObject(value) && checkPrototype(value, 'Generator');
 }
 
 export function isInt8Array(value) {
@@ -125,7 +129,7 @@ export function isInt32Array(value) {
 }
 
 export function isMap(value) {
-	return checkPrototype(value, 'Map');
+	return isObject(value) && checkPrototype(value, 'Map');
 }
 
 export function isMapIterator(value) {
@@ -159,21 +163,21 @@ export function isNativeError(value) {
 }
 
 export function isNumberObject(value) {
-	return checkPrototype(value, 'Number');
+	return isObject(value) && checkPrototype(value, 'Number');
 }
 
 export function isPromise(value) {
-	return checkPrototype(value, 'Promise');
+	return isObject(value) && checkPrototype(value, 'Promise');
 }
 
 // @todo isProxy
 
 export function isRegExp(value) {
-	return checkPrototype(value, 'RegExp');
+	return isObject(value) && checkPrototype(value, 'RegExp');
 }
 
 export function isSet(value) {
-	return checkPrototype(value, 'Set');
+	return isObject(value) && checkPrototype(value, 'Set');
 }
 
 export function isSetIterator(value) {
@@ -190,15 +194,15 @@ export function isSharedArrayBuffer(value) {
 		return false;
 	}
 
-	return checkPrototype(value, 'SharedArrayBuffer');
+	return isObject(value) && checkPrototype(value, 'SharedArrayBuffer');
 }
 
 export function isStringObject(value) {
-	return checkPrototype(value, 'String');
+	return isObject(value) && checkPrototype(value, 'String');
 }
 
 export function isSymbolObject(value) {
-	return checkPrototype(value, 'Symbol');
+	return isObject(value) && checkPrototype(value, 'Symbol');
 }
 
 export function isTypedArray(value) {
@@ -227,11 +231,11 @@ export function isUint32Array(value) {
 }
 
 export function isWeakMap(value) {
-	return checkPrototype(value, 'WeakMap');
+	return isObject(value) && checkPrototype(value, 'WeakMap');
 }
 
 export function isWeakSet(value) {
-	return checkPrototype(value, 'WeakSet');
+	return isObject(value) && checkPrototype(value, 'WeakSet');
 }
 
 // @todo isWebAssemblyCompiledModule
