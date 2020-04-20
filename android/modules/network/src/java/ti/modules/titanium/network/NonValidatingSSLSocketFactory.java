@@ -3,7 +3,7 @@
  * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * connectSocket partially copied from Apache's HTTPClient implementation (APL2 license):
  *  - org.apache.http.conn.ssl.SSLSocketFactory.connectSocket
  */
@@ -30,7 +30,7 @@ public class NonValidatingSSLSocketFactory extends SSLSocketFactory
 	{
 		try {
 			SSLContext context = SSLContext.getInstance("TLS");
-			TrustManager managers[] = new TrustManager[] { new NonValidatingTrustManager() };
+			TrustManager[] managers = new TrustManager[] { new NonValidatingTrustManager() };
 			context.init(null, managers, new SecureRandom());
 			sslFactory = context.getSocketFactory();
 		} catch (Exception e) {

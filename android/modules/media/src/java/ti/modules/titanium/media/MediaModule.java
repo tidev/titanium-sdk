@@ -268,7 +268,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			// Attempt to find existing media.
 			final String[] projection =
 				new String[] { MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME,
-							   MediaStore.MediaColumns.RELATIVE_PATH };
+					MediaStore.MediaColumns.RELATIVE_PATH };
 			final Uri contentUri =
 				isMovie ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 			try (Cursor cursor = contentResolver.query(contentUri, projection, null, null, null)) {
@@ -542,7 +542,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return;
 		}
 		KrollDict cameraOptions = null;
-		if ((options == null) || !(options instanceof HashMap<?, ?>) ) {
+		if ((options == null) || !(options instanceof HashMap<?, ?>)) {
 			if (Log.isDebugModeEnabled()) {
 				Log.d(TAG, "showCamera called with invalid options", Log.DEBUG_MODE);
 			}
@@ -572,13 +572,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		String[] permissions = null;
 		if (!hasCameraPermission() && !hasStoragePermission()) {
-			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
-										 Manifest.permission.WRITE_EXTERNAL_STORAGE };
+			permissions = new String[] {
+				Manifest.permission.CAMERA,
+				Manifest.permission.READ_EXTERNAL_STORAGE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
+			};
 		} else if (!hasCameraPermission()) {
 			permissions = new String[] { Manifest.permission.CAMERA };
 		} else {
-			permissions =
-				new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE };
+			permissions = new String[] {
+				Manifest.permission.READ_EXTERNAL_STORAGE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
+			};
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionCallback,
@@ -858,20 +863,16 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setCameraFlashMode(int flashMode)
-	// clang-format on
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getCameraFlashMode()
-	// clang-format on
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
@@ -1442,20 +1443,16 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		activity.switchCamera(whichCamera);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getIsCameraSupported()
-	// clang-format on
 	{
 		return Camera.getNumberOfCameras() > 0;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int[] getAvailableCameras()
-	// clang-format on
 	{
 		int cameraCount = Camera.getNumberOfCameras();
 		if (cameraCount == 0) {
@@ -1485,11 +1482,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return result;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getCanRecord()
-	// clang-format on
 	{
 		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
 	}

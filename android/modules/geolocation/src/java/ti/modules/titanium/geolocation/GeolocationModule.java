@@ -429,11 +429,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 *
 	 * @return			<code>true</code> if the device has a compass, <code>false</code> if not
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHasCompass()
-	// clang-format on
 	{
 		return tiCompass.getHasCompass();
 	}
@@ -454,11 +452,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 *
 	 * @return			String representing the last geolocation event
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getLastGeolocation()
-	// clang-format on
 	{
 		JSONObject result = new JSONObject();
 
@@ -654,11 +650,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * @return			<code>true</code> if a valid location service is available on the device,
 	 * 					<code>false</code> if not
 	 */
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getLocationServicesEnabled()
-	// clang-format on
 	{
 		return tiLocation.getLocationServicesEnabled();
 	}

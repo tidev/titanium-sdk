@@ -694,7 +694,7 @@ public class TiUIWebView extends TiUIView
 		return getWebView().getUrl();
 	}
 
-	private static final char escapeChars[] = new char[] { '%', '#', '\'', '?' };
+	private static final char[] escapeChars = new char[] { '%', '#', '\'', '?' };
 
 	private String escapeContent(String content)
 	{
@@ -1044,7 +1044,7 @@ public class TiUIWebView extends TiUIView
 				break;
 
 			case HTML:
-				if (reloadData == null || (reloadData instanceof HashMap<?, ?>) ) {
+				if (reloadData == null || (reloadData instanceof HashMap<?, ?>)) {
 					setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
 							(HashMap<String, Object>) reloadData);
 				} else {

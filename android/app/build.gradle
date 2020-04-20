@@ -7,6 +7,7 @@
 
 apply plugin: 'com.android.application'
 
+// Set up Android app project.
 android {
 	compileSdkVersion 29
 	defaultConfig {
@@ -35,6 +36,18 @@ android {
 	}
 }
 
+// Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
+// Will trigger a build failure if any violations have been detected.
+task checkJavaStyle(type: Checkstyle) {
+	source android.sourceSets.main.java.srcDirs
+	include '**/*.java'
+	classpath = files()
+}
+tasks.withType(JavaCompile) {
+	dependsOn checkJavaStyle
+}
+
+// Define library dependencies used by this app.
 dependencies {
 	implementation(project(':titanium')) {
 // Uncomment the below to exclude Google Play Services from app.

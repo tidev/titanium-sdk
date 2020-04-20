@@ -18,7 +18,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ACTIVE_TITLE_COLOR,
@@ -27,7 +27,6 @@ import android.app.Activity;
 		TiC.PROPERTY_TITLE_COLOR,
 		TiC.PROPERTY_TITLEID
 	})
-// clang-format on
 public class TabProxy extends TiViewProxy
 {
 	@SuppressWarnings("unused")
@@ -67,11 +66,9 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getActive()
-	// clang-format on
 	{
 		if (tabGroupProxy != null) {
 			return tabGroupProxy.getActiveTab() == this;
@@ -80,11 +77,9 @@ public class TabProxy extends TiViewProxy
 		return false;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setActive(boolean active)
-	// clang-format on
 	{
 		if (tabGroupProxy != null) {
 			tabGroupProxy.setActiveTab(this);
@@ -123,11 +118,9 @@ public class TabProxy extends TiViewProxy
 		return this.window;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TabGroupProxy getTabGroup()
-	// clang-format on
 	{
 		return this.tabGroupProxy;
 	}

@@ -195,7 +195,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			Object newValue = newProps.get(name);
 
 			if (!(oldValue == null && newValue == null)) {
-				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+				if ((oldValue == null && newValue != null)
+					|| (newValue == null && oldValue != null)
+					|| (!oldValue.equals(newValue))) {
 					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
 					propertyChanges.add(pch);
 				}
@@ -288,7 +290,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	protected void applyChildProperties(TiViewProxy viewProxy, TiUIView view)
 	{
 		int i = 0;
-		TiViewProxy childProxies[] = viewProxy.getChildren();
+		TiViewProxy[] childProxies = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
 			TiViewProxy oldProxy = childView.getProxy();
@@ -610,9 +612,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 	}
 
-	private static String[] filteredProperties =
-		new String[] { TiC.PROPERTY_BACKGROUND_IMAGE, TiC.PROPERTY_BACKGROUND_COLOR,
-					   TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, TiC.PROPERTY_BACKGROUND_SELECTED_COLOR };
+	private static String[] filteredProperties = new String[] {
+		TiC.PROPERTY_BACKGROUND_IMAGE,
+		TiC.PROPERTY_BACKGROUND_COLOR,
+		TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE,
+		TiC.PROPERTY_BACKGROUND_SELECTED_COLOR
+	};
+
 	private KrollDict filterProperties(KrollDict d)
 	{
 		if (d == null)

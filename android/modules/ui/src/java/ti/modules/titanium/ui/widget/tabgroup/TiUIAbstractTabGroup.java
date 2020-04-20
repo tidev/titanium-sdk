@@ -254,15 +254,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected ColorStateList textColorStateList(TiViewProxy tabProxy, int stateToUse)
 	{
 		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
-		int[] textColors = { tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
-								 ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString())
-								 : this.textColorInt,
-							 tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
-								 ? TiColorHelper.parseColor(
-									   tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString())
-								 : this.textColorInt };
-		ColorStateList stateListDrawable = new ColorStateList(textColorStates, textColors);
-		return stateListDrawable;
+		int[] textColors = { this.textColorInt, this.textColorInt };
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+			textColors[0] = TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString());
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+			textColors[1] = TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString());
+		}
+		return new ColorStateList(textColorStates, textColors);
 	}
 
 	/**

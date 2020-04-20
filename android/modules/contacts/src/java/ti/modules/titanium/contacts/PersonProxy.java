@@ -20,7 +20,6 @@ import org.appcelerator.titanium.TiC;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-// clang-format off
 @Kroll.proxy(parentModule = ContactsModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_LASTNAME,
@@ -46,7 +45,6 @@ import android.util.Log;
 		TiC.PROPERTY_JOBTITLE,
 		TiC.PROPERTY_DEPARTMENT
 })
-// clang-format on
 public class PersonProxy extends KrollProxy
 {
 	private static final String TAG = "Person";
@@ -74,11 +72,9 @@ public class PersonProxy extends KrollProxy
 		modified.clear();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getFullName()
-	// clang-format on
 	{
 		return fullName;
 	}
@@ -88,11 +84,9 @@ public class PersonProxy extends KrollProxy
 		fullName = fname;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public long getId()
-	// clang-format on
 	{
 		return (Long) getProperty(TiC.PROPERTY_ID);
 	}
@@ -102,11 +96,9 @@ public class PersonProxy extends KrollProxy
 		return (modified.containsKey(field) && modified.get(field));
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiBlob getImage()
-	// clang-format on
 	{
 		if (this.image != null) {
 			return this.image;
@@ -121,11 +113,9 @@ public class PersonProxy extends KrollProxy
 		return this.image;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setImage(TiBlob blob)
-	// clang-format on
 	{
 		image = blob;
 		hasImage = true;

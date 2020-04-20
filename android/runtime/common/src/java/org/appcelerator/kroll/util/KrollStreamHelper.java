@@ -29,7 +29,7 @@ public class KrollStreamHelper
 
 	public static void pump(InputStream in, OutputStream out, int bufferSize)
 	{
-		byte buffer[] = new byte[bufferSize];
+		byte[] buffer = new byte[bufferSize];
 		int count = 0;
 		try {
 			while ((count = in.read(buffer)) != -1) {
@@ -49,7 +49,7 @@ public class KrollStreamHelper
 
 	public static void pumpCount(InputStream in, OutputStream out, int byteCount, int bufferSize)
 	{
-		byte buffer[] = new byte[bufferSize];
+		byte[] buffer = new byte[bufferSize];
 		int totalCount = 0;
 		try {
 			while (totalCount < byteCount) {

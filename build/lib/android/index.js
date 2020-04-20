@@ -3,7 +3,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const utils = require('../utils');
-const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
+const { spawn } = require('child_process'); // eslint-disable-line security/detect-child-process
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
 const copyAndModifyFile = utils.copyAndModifyFile;
@@ -16,6 +16,9 @@ const ROOT_DIR = path.join(__dirname, '..', '..', '..');
 const TITANIUM_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'android');
 const DIST_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'dist', 'android');
 const GRADLEW_FILE_PATH = path.join(TITANIUM_ANDROID_PATH, isWindows ? 'gradlew.bat' : 'gradlew');
+// On CI server, use plain output to avoid nasty progress bars filling up logs
+// But on local dev, use the nice UI
+const GRADLE_CONSOLE_MODE = (process.env.TRAVIS || process.env.JENKINS || process.env.CI) ? 'plain' : 'rich';
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 class Android {
@@ -165,12 +168,10 @@ class Android {
 	}
 }
 
-async function gradlew(argsString) {
+async function gradlew(task) {
 	await new Promise((resolve, reject) => {
-		const commandLineString = `"${GRADLEW_FILE_PATH}" ${argsString} --console plain --warning-mode all`;
-		const childProcess = exec(commandLineString, { cwd: TITANIUM_ANDROID_PATH });
-		childProcess.stdout.pipe(process.stdout);
-		childProcess.stderr.pipe(process.stderr);
+		const args = [ task, '--console', GRADLE_CONSOLE_MODE, '--warning-mode', 'all' ];
+		const childProcess = spawn(GRADLEW_FILE_PATH, args, { cwd: TITANIUM_ANDROID_PATH, stdio: 'inherit' });
 		childProcess.on('error', reject);
 		childProcess.on('exit', (exitCode) => {
 			if (exitCode === 0) {
@@ -253,6 +254,7 @@ async function createLocalPropertiesFile(sdkPath, ndkPath) {
 	const ndkTestPaths = [
 		ndkPath,                            // Prefer given argument's path 1st if provided and it exists.
 		process.env.ANDROID_NDK,            // Titanium's preferred environment variable for setting the path.
+		process.env.ANDROID_NDK_HOME,       // Google's officially supported environment variable.
 		ndkSideBySidePath,                  // Google installs multiple NDK versions under Android SDK folder as of 2019.
 		path.join(sdkPath, 'ndk-bundle')    // Google installed only one NDK version under Android SDK before 2019.
 	];
