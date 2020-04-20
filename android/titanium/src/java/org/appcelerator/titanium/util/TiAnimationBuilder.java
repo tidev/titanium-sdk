@@ -233,7 +233,7 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ELEVATION)) {
-			elevation = TiConvert.toFloat(options, TiC.PROPERTY_ELEVATION);
+			elevation = TiConvert.toFloat(options, TiC.PROPERTY_ELEVATION, -1);
 		}
 
 		this.options = options;
