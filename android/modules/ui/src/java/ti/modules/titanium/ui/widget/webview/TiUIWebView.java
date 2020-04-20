@@ -6,6 +6,22 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.FeatureInfo;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.net.Uri;
+import android.os.Build;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewParent;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import androidx.annotation.StringRes;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.StringRes;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.ViewParent;
+import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -38,22 +49,8 @@ import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.WebViewProxy;
 import ti.modules.titanium.ui.android.AndroidModule;
-import android.content.Context;
-import android.content.pm.FeatureInfo;
-import android.content.pm.ApplicationInfo;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Build;
-import android.view.MotionEvent;
-import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-
-import javax.crypto.CipherInputStream;
 
 @SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
@@ -603,14 +600,15 @@ public class TiUIWebView extends TiUIView
 		final Uri uri = Uri.parse(url);
 
 		// Extract URL query parameters.
-		final String query = uri.getQuery() != null ? "?" + uri.getQuery() : null;
+		final String query = uri.getQuery() != null ? "?" + uri.getQuery() : "";
+		final String fragment = uri.getFragment();
 
 		// Resolve URL path.
 		// The scheme is processed by `resolveUrl()`.
 		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
 
 		// Reconstruct URL, ommiting any query parameters.
-		final String finalUrl = finalUri.getScheme() + TiUrl.SCHEME_SUFFIX + finalUri.getPath();
+		final String finalUrl = finalUri.toString().replace(query, "");
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
