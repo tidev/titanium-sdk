@@ -295,7 +295,7 @@ public class TiAnimationBuilder
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "alpha", toOpacity.floatValue()));
 		}
 
-		if (elevation != -1) {
+		if (elevation >= 0) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "elevation", elevation));
 		}
 
