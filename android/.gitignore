@@ -4,6 +4,7 @@
 .gradle/
 .idea/*
 !/.idea/codeStyles/
+!/.idea/inspectionProfiles/
 .project/
 .settings/
 build/
