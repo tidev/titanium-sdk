@@ -297,17 +297,17 @@ GETTER_IMPL(NSString *, id, Id);
 }
 GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
 
-- (BOOL)openURL:(NSString *)url withOptions:(id)options andCallback:(JSValue *)callback
+- (BOOL)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
 {
   NSURL *newUrl = [TiUtils toURL:url proxy:self];
   BOOL result = NO;
 
-  // iOS 10+
   NSMutableDictionary *optionsDict = [NSMutableDictionary dictionary];
-  if ([options isKindOfClass:[NSDictionary class]]) {
-    optionsDict = (NSMutableDictionary *)options;
-  } else if ([options isKindOfClass:[JSValue class]]) {
-    callback = (JSValue *)options;
+  NSDictionary *dictionary = [options toDictionary];
+  if (dictionary.allKeys.count > 0) {
+    optionsDict = (NSMutableDictionary *)dictionary;
+  } else if ([callback isUndefined]) {
+    callback = options;
   }
 
   if (newUrl != nil) {
