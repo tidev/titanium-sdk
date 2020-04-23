@@ -12,8 +12,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-
-import java.util.Map;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -28,7 +26,6 @@ import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -427,6 +424,17 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		TiUIView v = peekView();
 		if (v != null) {
 			((TiUIWebView) v).zoomBy(value);
+		}
+	}
+
+	@Kroll.getProperty
+	public double getProgress()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return (double) ((TiUIWebView) v).getProgress() / 100.0d;
+		} else {
+			return 0.0d;
 		}
 	}
 
