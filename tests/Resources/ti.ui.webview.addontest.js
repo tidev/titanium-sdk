@@ -58,12 +58,8 @@ describe('Titanium.UI.WebView', function () {
 				// webview.progress may have updated before we got this event fired, so can't compare
 
 				should(e).have.a.property('url').which.is.a.String();
-				// not sure why, but ios adds a trailing slash here!
-				if (isIOS) {
-					should(e.url).be.eql('https://www.google.com/');
-				} else {
-					should(e.url).be.eql('https://www.google.com');
-				}
+				// depending on os and version it may have a trailing slash
+				should(e.url).be.equalOneOf([ 'https://www.google.com/', 'https://www.google.com' ]);
 			} catch (err) {
 				return finish(err);
 			}
