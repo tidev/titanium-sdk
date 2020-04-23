@@ -6,25 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiUIHelper;
-
-import ti.modules.titanium.ui.WebViewProxy;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -44,6 +25,23 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
+import ti.modules.titanium.ui.WebViewProxy;
 
 @SuppressWarnings("deprecation")
 public class TiWebChromeClient extends WebChromeClient
@@ -105,7 +103,8 @@ public class TiWebChromeClient extends WebChromeClient
 		WebViewProxy proxy = (WebViewProxy) tiWebView.getProxy();
 		if (proxy != null) {
 			KrollDict data = new KrollDict();
-			data.put("progress", progress);
+			data.put(TiC.PROPERTY_VALUE, (double) progress / 100.0d); // docs state 0.0 to 1.0
+			data.put(TiC.EVENT_PROPERTY_URL, proxy.getProperty(TiC.PROPERTY_URL));
 			proxy.fireEvent("progress", data);
 		}
 	}
