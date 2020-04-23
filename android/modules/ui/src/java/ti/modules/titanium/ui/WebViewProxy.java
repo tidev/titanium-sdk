@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,7 @@ import android.os.Message;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
