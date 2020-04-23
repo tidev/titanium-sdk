@@ -55,7 +55,7 @@ describe('Titanium.UI.WebView', function () {
 				should(e).have.a.property('value').which.is.a.Number();
 				should(e.value).be.within(0, 1);
 
-				should(webView.progress).be.eql(e.value); // webview property should match value in event
+				// webview.progress may have updated before we got this event fired, so can't compare
 
 				should(e).have.a.property('url').which.is.a.String();
 				// not sure why, but ios adds a trailing slash here!
