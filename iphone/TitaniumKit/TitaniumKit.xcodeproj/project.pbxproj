@@ -25,6 +25,8 @@
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
 		4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */; };
 		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
+		B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */ = {isa = PBXBuildFile; fileRef = B106A6FB24535CB800B1305E /* JSValue+Addons.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = B106A6FC24535CB800B1305E /* JSValue+Addons.m */; };
 		B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B7624B6A216663C7000C365A /* ObjcProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B7624B6B216663C7000C365A /* ObjcProxy.m */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
@@ -179,6 +181,8 @@
 /* Begin PBXFileReference section */
 		4A175274218B64E70094C7B6 /* KrollTimerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollTimerManager.h; sourceTree = "<group>"; };
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
+		B106A6FB24535CB800B1305E /* JSValue+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JSValue+Addons.h"; sourceTree = "<group>"; };
+		B106A6FC24535CB800B1305E /* JSValue+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "JSValue+Addons.m"; sourceTree = "<group>"; };
 		B7624B6A216663C7000C365A /* ObjcProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcProxy.h; sourceTree = "<group>"; };
 		B7624B6B216663C7000C365A /* ObjcProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcProxy.m; sourceTree = "<group>"; };
 		DB1596572075389000292B19 /* APIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIModule.m; sourceTree = "<group>"; };
@@ -548,6 +552,8 @@
 				DB15FC5E1F0A84C900A82C45 /* Webcolor.m */,
 				DB15FC471F0A83A700A82C45 /* WebFont.h */,
 				DB15FC481F0A83A700A82C45 /* WebFont.m */,
+				B106A6FB24535CB800B1305E /* JSValue+Addons.h */,
+				B106A6FC24535CB800B1305E /* JSValue+Addons.m */,
 			);
 			name = API;
 			path = Sources/API;
@@ -684,6 +690,7 @@
 				DB15FCA81F0A866300A82C45 /* TiRect.h in Headers */,
 				DB15FC891F0A859800A82C45 /* TiExceptionHandler.h in Headers */,
 				DB15FD281F0A93A900A82C45 /* TiFilesystemFileStreamProxy.h in Headers */,
+				B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */,
 				DB15FCB81F0A874F00A82C45 /* TopTiModule.h in Headers */,
 				DB15FC3B1F0A833100A82C45 /* KrollMethodDelegate.h in Headers */,
 				DB15FC391F0A833100A82C45 /* KrollMethod.h in Headers */,
@@ -811,6 +818,7 @@
 				DB15FC701F0A84FD00A82C45 /* TiBlob.m in Sources */,
 				DB15FD0D1F0A894000A82C45 /* TiWindowProxy.m in Sources */,
 				DB15FC991F0A862000A82C45 /* TiPoint.m in Sources */,
+				B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */,
 				DB1596632075461400292B19 /* SBJSON.m in Sources */,
 				DB15FCA11F0A863B00A82C45 /* LayoutConstraint.m in Sources */,
 				DB15FC9D1F0A862D00A82C45 /* ListenerEntry.m in Sources */,
