@@ -13,11 +13,11 @@ var should = require('./utilities/assertions'),
 describe('Titanium.Platform', function () {
 
 	it.ios('#openURL(url, callback)', function (finish) {
-		Ti.Platform.openURL("randomapp://", e => finish());
+		Ti.Platform.openURL('randomapp://', e => finish());
 	});
 
 	it.ios('#openURL(url, options, callback)', function (finish) {
-		Ti.Platform.openURL("randomapp://", {}, e => finish());
+		Ti.Platform.openURL('randomapp://', {}, e => finish());
 	});
 
 });
