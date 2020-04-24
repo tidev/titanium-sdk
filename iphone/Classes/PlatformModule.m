@@ -9,6 +9,7 @@
 #import "PlatformModule.h"
 #import "TiPlatformDisplayCaps.h"
 #import "TiUtils+Addons.h"
+#import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/TiApp.h>
 
 #import <mach/mach.h>
@@ -300,12 +301,11 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
   NSURL *newUrl = [TiUtils toURL:url proxy:self];
   BOOL result = NO;
 
-  NSMutableDictionary *optionsDict = [NSMutableDictionary dictionary];
-  NSDictionary *dictionary = [options toDictionary];
-  if (dictionary.allKeys.count > 0) {
-    optionsDict = (NSMutableDictionary *)dictionary;
-  } else if ([callback isUndefined]) {
+  NSDictionary *optionsDict = @{};
+  if ([options isFunction]) {
     callback = options;
+  } else if ([options isObject]) {
+    optionsDict = [options toDictionary];
   }
 
   if (newUrl != nil) {
