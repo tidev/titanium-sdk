@@ -206,9 +206,10 @@
 - (void)setUrl:(id)url
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self setUrl:url];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setUrl:url];
+        },
         YES);
     return;
   }
@@ -267,9 +268,10 @@
   }
 
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self start:unused];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self start:unused];
+        },
         YES);
     return;
   }
@@ -300,9 +302,10 @@
 - (void)stop:(id)unused
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self stop:unused];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self stop:unused];
+        },
         YES);
     return;
   }
@@ -320,9 +323,10 @@
 - (void)pause:(id)unused
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self pause:unused];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self pause:unused];
+        },
         YES);
     return;
   }

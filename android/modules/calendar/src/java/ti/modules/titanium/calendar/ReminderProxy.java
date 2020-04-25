@@ -93,29 +93,23 @@ public class ReminderProxy extends KrollProxy
 		return reminder;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return id;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getMinutes()
-	// clang-format on
 	{
 		return minutes;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getMethod()
-	// clang-format on
 	{
 		return method;
 	}

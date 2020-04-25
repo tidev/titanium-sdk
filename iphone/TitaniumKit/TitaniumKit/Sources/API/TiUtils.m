@@ -1272,6 +1272,49 @@ If the new path starts with / and the base url is app://..., we have to massage 
   return [self fontValue:value def:[WebFont defaultFont]];
 }
 
++ (TiScriptError *)scriptErrorFromValueRef:(JSValueRef)valueRef inContext:(JSGlobalContextRef)contextRef
+{
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:contextRef];
+  JSValue *error = [JSValue valueWithJSValueRef:valueRef inContext:context];
+  NSMutableDictionary *errorDict = [NSMutableDictionary new];
+
+  if ([error hasProperty:@"constructor"]) {
+    [errorDict setObject:[error[@"constructor"][@"name"] toString] forKey:@"type"];
+  }
+
+  // error message
+  if ([error hasProperty:@"message"]) {
+    [errorDict setObject:[error[@"message"] toString] forKey:@"message"];
+  }
+  if ([error hasProperty:@"nativeReason"]) {
+    [errorDict setObject:[error[@"nativeReason"] toString] forKey:@"nativeReason"];
+  }
+
+  // error location
+  if ([error hasProperty:@"sourceURL"]) {
+    [errorDict setObject:[error[@"sourceURL"] toString] forKey:@"sourceURL"];
+  }
+  if ([error hasProperty:@"line"]) {
+    [errorDict setObject:[error[@"line"] toNumber] forKey:@"line"];
+  }
+  if ([error hasProperty:@"column"]) {
+    [errorDict setObject:[error[@"column"] toNumber] forKey:@"column"];
+  }
+
+  // stack trace
+  if ([error hasProperty:@"backtrace"]) {
+    [errorDict setObject:[error[@"backtrace"] toString] forKey:@"backtrace"];
+  }
+  if ([error hasProperty:@"stack"]) {
+    [errorDict setObject:[error[@"stack"] toString] forKey:@"stack"];
+  }
+  if ([error hasProperty:@"nativeStack"]) {
+    [errorDict setObject:[error[@"nativeStack"] toString] forKey:@"nativeStack"];
+  }
+
+  return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];
+}
+
 + (TiScriptError *)scriptErrorValue:(id)value;
 {
   if ((value == nil) || (value == [NSNull null])) {

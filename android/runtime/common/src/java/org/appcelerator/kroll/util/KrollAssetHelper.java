@@ -155,7 +155,7 @@ public class KrollAssetHelper
 	public static ByteArrayOutputStream readInputStream(InputStream in) throws IOException
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte buffer[] = new byte[4096];
+		byte[] buffer = new byte[4096];
 		int count = 0;
 		while ((count = in.read(buffer)) != -1) {
 			out.write(buffer, 0, count);

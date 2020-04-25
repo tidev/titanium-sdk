@@ -259,9 +259,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createSearchableItem:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createSearchableItem:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -289,9 +290,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createSearchableItemAttributeSet:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createSearchableItemAttributeSet:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -313,9 +315,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createSearchQuery:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createSearchQuery:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -331,9 +334,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createUserActivity:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createUserActivity:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -511,10 +515,11 @@
   DebugLog(@"[ERROR] Please use Ti.App.iOS.UserNotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
 
   __block NSDictionary *returnVal = nil;
-  TiThreadPerformOnMainThread(^{
-    UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-    returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
+      },
       YES);
 
   return [returnVal autorelease];
@@ -553,9 +558,10 @@
 {
   if (![NSThread isMainThread]) {
     __block NSDictionary *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self formatUserNotificationSettings:notificationSettings] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self formatUserNotificationSettings:notificationSettings] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -785,14 +791,15 @@
                                                                         content:content
                                                                         trigger:trigger];
 
-  TiThreadPerformOnMainThread(^{
-    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                           withCompletionHandler:^(NSError *error) {
-                                                             if (error) {
-                                                               DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
-                                                             }
-                                                           }];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
+                                                               withCompletionHandler:^(NSError *error) {
+                                                                 if (error) {
+                                                                   DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+                                                                 }
+                                                               }];
+      },
       NO);
 
   notification.notification = content;

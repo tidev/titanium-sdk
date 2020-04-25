@@ -11,7 +11,6 @@ import java.util.LinkedList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollExceptionHandler;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
@@ -60,14 +59,14 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public static final String ERROR_JS_STACK = "javascriptStack";
 	public static final String ERROR_JAVA_STACK = "javaStack";
 
-	private static final String fill(int count)
+	private static String fill(int count)
 	{
 		char[] string = new char[count];
 		Arrays.fill(string, ' ');
 		return new String(string);
 	}
 
-	public static final KrollDict getErrorDict(ExceptionMessage error)
+	public static KrollDict getErrorDict(ExceptionMessage error)
 	{
 		final KrollDict dict = new KrollDict();
 		dict.put(ERROR_TITLE, error.title);

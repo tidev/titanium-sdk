@@ -29,38 +29,30 @@ public class PickerRowProxy extends TiViewProxy
 		super();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getColor()
-	// clang-format on
 	{
 		return (String) getProperty(TiC.PROPERTY_COLOR);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setColor(String color)
-	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_COLOR, color);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
-	// clang-format on
 	{
 		return toString();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setTitle(String value)
-	// clang-format on
 	{
 		title = value;
 		if (rowListener != null) {

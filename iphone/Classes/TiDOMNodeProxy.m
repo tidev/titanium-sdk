@@ -359,7 +359,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)parentNode
 {
-  xmlNodePtr p = [node XMLNode] -> parent;
+  xmlNodePtr p = [node XMLNode]->parent;
   if (p == NULL)
     return [NSNull null];
 
@@ -399,7 +399,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)previousSibling
 {
-  xmlNodePtr p = [node XMLNode] -> prev;
+  xmlNodePtr p = [node XMLNode]->prev;
   if (p == NULL) {
     return [NSNull null];
   }
@@ -410,7 +410,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)nextSibling
 {
-  xmlNodePtr p = [node XMLNode] -> next;
+  xmlNodePtr p = [node XMLNode]->next;
   if (p == NULL) {
     return [NSNull null];
   }
@@ -426,7 +426,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)ownerDocument
 {
-  xmlDocPtr p = [node XMLNode] -> doc;
+  xmlDocPtr p = [node XMLNode]->doc;
   if (p == NULL) {
     if ([self document] != nil) {
       p = [[self document] docNode];

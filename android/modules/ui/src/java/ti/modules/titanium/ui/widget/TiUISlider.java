@@ -213,8 +213,10 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 				ld = new LayerDrawable(lda);
 				ld.setId(0, android.R.id.secondaryProgress);
 			} else {
-				Drawable[] lda = { rightDrawable,
-								   new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL) };
+				Drawable[] lda = {
+					rightDrawable,
+					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
+				};
 				ld = new LayerDrawable(lda);
 				ld.setId(0, android.R.id.background);
 				ld.setId(1, android.R.id.progress);
@@ -301,9 +303,10 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
-			Log.i(
-				TAG,
-				"Dynamically changing leftTrackImage or rightTrackImage is not yet supported. Native control doesn't draw");
+			String infoMessage
+				= "Dynamically changing leftTrackImage or rightTrackImage is not yet supported. "
+				+ "Native control doesn't draw.";
+			Log.i(TAG, infoMessage);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

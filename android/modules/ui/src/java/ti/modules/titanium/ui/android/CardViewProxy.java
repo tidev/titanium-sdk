@@ -13,7 +13,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUICardView;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_BORDER_RADIUS,
@@ -27,7 +27,6 @@ import android.app.Activity;
 		TiC.PROPERTY_PADDING_RIGHT,
 		TiC.PROPERTY_PADDING_TOP
 })
-// clang-format on
 public class CardViewProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
