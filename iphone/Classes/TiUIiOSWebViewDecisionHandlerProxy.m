@@ -29,9 +29,10 @@
 - (void)invoke:(id)value
 {
   ENSURE_SINGLE_ARG(value, NSNumber);
-  TiThreadPerformOnMainThread(^{
-    _decisionHandler([TiUtils intValue:value]);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        _decisionHandler([TiUtils intValue:value]);
+      },
       NO);
 }
 

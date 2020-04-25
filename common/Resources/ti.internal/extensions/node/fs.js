@@ -269,6 +269,9 @@ fs.appendFileSync = (file, data, options) => {
 fs.chmod = (path, mode, callback) => asyncUnsupportedNoop('fs', 'chmod', callback);
 fs.chmodSync = unsupportedNoop('fs', 'chmodSync');
 
+fs.chown = (path, uid, gid, callback) => asyncUnsupportedNoop('fs', 'chown', callback);
+fs.chownSync = unsupportedNoop('fs', 'chownSync');
+
 /**
  * Callback for functions that can only throw errors
  *

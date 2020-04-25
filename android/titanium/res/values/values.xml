@@ -36,14 +36,14 @@
 	<style name="Theme.Titanium" parent="@style/Base.Theme.Titanium.Splash"/>
 
 	<!-- Theme to be used by Titanium's translucent windows and modal windows. -->
-	<style name="Theme.Titanium.Translucent" parent="@style/Base.Theme.Titanium.Basic">
+	<style name="Theme.Titanium.Translucent" parent="@style/Base.Theme.Titanium.Customizable">
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:colorBackgroundCacheHint">@null</item>
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:windowAnimationStyle">@android:style/Animation</item>
 	</style>
 
-	<style name="Theme.AppCompat.Translucent" parent="@style/Base.Theme.Titanium.Customizable">
+	<style name="Theme.AppCompat.Translucent" parent="@style/Base.Theme.Titanium.Basic">
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:colorBackgroundCacheHint">@null</item>
 		<item name="android:windowIsTranslucent">true</item>

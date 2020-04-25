@@ -11,5 +11,5 @@ package org.appcelerator.kroll;
  *
  */
 public interface KrollExternalModule {
-	public void bootstrap();
+	void bootstrap();
 }

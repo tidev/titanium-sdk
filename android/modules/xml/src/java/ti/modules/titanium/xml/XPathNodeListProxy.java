@@ -23,11 +23,9 @@ public class XPathNodeListProxy extends KrollProxy
 		this.nodeList = nodeList;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
-	// clang-format on
 	{
 		return nodeList.size();
 	}

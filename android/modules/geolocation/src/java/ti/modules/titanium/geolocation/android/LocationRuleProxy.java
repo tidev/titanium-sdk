@@ -28,14 +28,12 @@ import android.location.Location;
  * 		since the last good location update</li>
  * </ul>
  */
-// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_PROVIDER,
 	TiC.PROPERTY_ACCURACY,
 	TiC.PROPERTY_MIN_AGE,
 	TiC.PROPERTY_MAX_AGE
 })
-// clang-format on
 public class LocationRuleProxy extends KrollProxy
 {
 	/**

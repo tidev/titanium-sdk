@@ -14,7 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TiDialogProxy;
 import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_MESSAGE,
@@ -29,7 +29,6 @@ import android.app.Activity;
 })
 @Kroll.dynamicApis(methods = { "hide", "show" })
 public class ProgressIndicatorProxy extends TiDialogProxy
-// clang-format on
 {
 	public ProgressIndicatorProxy()
 	{

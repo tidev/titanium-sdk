@@ -38,7 +38,7 @@ public class TiUISearchBar extends TiUIText
 	private TextView promptText;
 
 	public interface OnSearchChangeListener {
-		public void filterBy(String text);
+		void filterBy(String text);
 	}
 
 	protected OnSearchChangeListener searchChangeListener;

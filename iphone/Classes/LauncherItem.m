@@ -59,9 +59,10 @@
 - (void)repaint
 {
   if (button != nil) {
-    TiThreadPerformOnMainThread(^{
-      [button setNeedsLayout];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [button setNeedsLayout];
+        },
         NO);
   }
 }

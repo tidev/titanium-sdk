@@ -640,15 +640,21 @@ public class TiUIHelper
 		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
 	}
 
-	public static final int[] BACKGROUND_DEFAULT_STATE_1 = { android.R.attr.state_window_focused,
-															 android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_DEFAULT_STATE_1 = {
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled
+	};
 	public static final int[] BACKGROUND_DEFAULT_STATE_2 = { android.R.attr.state_enabled };
-	public static final int[] BACKGROUND_SELECTED_STATE = { android.R.attr.state_window_focused,
-															android.R.attr.state_enabled,
-															android.R.attr.state_pressed };
-	public static final int[] BACKGROUND_FOCUSED_STATE = { android.R.attr.state_focused,
-														   android.R.attr.state_window_focused,
-														   android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_SELECTED_STATE = {
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled,
+		android.R.attr.state_pressed
+	};
+	public static final int[] BACKGROUND_FOCUSED_STATE = {
+		android.R.attr.state_focused,
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled
+	};
 	public static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
 
 	public static StateListDrawable buildBackgroundDrawable(String image, boolean tileImage, String color,
@@ -1073,14 +1079,12 @@ public class TiUIHelper
 	public static ColorFilter createColorFilterForOpacity(float opacity)
 	{
 		// 5x4 identity color matrix + fade the alpha to achieve opacity
-		// clang-format off
 		float[] matrix = {
 			1, 0, 0, 0, 0,
 			0, 1, 0, 0, 0,
 			0, 0, 1, 0, 0,
 			0, 0, 0, opacity, 0
 		};
-		// clang-format on
 
 		return new ColorMatrixColorFilter(new ColorMatrix(matrix));
 	}
