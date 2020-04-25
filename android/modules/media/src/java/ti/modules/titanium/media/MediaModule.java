@@ -6,42 +6,15 @@
  */
 package ti.modules.titanium.media;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
-import android.media.CamcorderProfile;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.os.ParcelFileDescriptor;
-import android.os.Vibrator;
-import android.provider.MediaStore;
-import android.view.Window;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -55,8 +28,6 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -70,11 +41,11 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -295,7 +266,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			// Attempt to find existing media.
 			final String[] projection =
 				new String[] { MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME,
-					MediaStore.MediaColumns.RELATIVE_PATH };
+							  MediaStore.MediaColumns.RELATIVE_PATH };
 			final Uri contentUri =
 				isMovie ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 			try (Cursor cursor = contentResolver.query(contentUri, projection, null, null, null)) {
@@ -604,18 +575,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		String[] permissions = null;
 		if (!hasCameraPermission() && !hasStoragePermission()) {
-			permissions = new String[] {
-				Manifest.permission.CAMERA,
-				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
-			};
+			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
+										Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		} else if (!hasCameraPermission()) {
 			permissions = new String[] { Manifest.permission.CAMERA };
 		} else {
-			permissions = new String[] {
-				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
-			};
+			permissions =
+				new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionCallback,
@@ -895,16 +861,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	@Kroll.method
-	@Kroll.setProperty
-	public void setCameraFlashMode(int flashMode)
+	@Kroll
+		.method
+		@Kroll.setProperty
+		public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public int getCameraFlashMode()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public int getCameraFlashMode()
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
@@ -1475,16 +1443,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		activity.switchCamera(whichCamera);
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public boolean getIsCameraSupported()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public boolean getIsCameraSupported()
 	{
 		return Camera.getNumberOfCameras() > 0;
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public int[] getAvailableCameras()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public int[] getAvailableCameras()
 	{
 		int cameraCount = Camera.getNumberOfCameras();
 		if (cameraCount == 0) {
@@ -1514,9 +1484,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return result;
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public boolean getCanRecord()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public boolean getCanRecord()
 	{
 		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
 	}

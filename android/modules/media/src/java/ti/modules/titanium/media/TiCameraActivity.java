@@ -38,8 +38,6 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.appcompat.app.ActionBar;
-
 import android.os.Environment;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -51,20 +49,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.List;
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.io.TiFile;
-import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.proxy.TiViewProxy;
+import androidx.appcompat.app.ActionBar;
 
 @SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
@@ -886,8 +871,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				camera = Camera.open(cameraId);
 			}
 		} catch (Exception e) {
-			String errorMessage
-				= "Could not open camera. "
+			String errorMessage =
+				"Could not open camera. "
 				+ "Camera may be in use by another process or device policy manager has disabled the camera.";
 			Log.e(TAG, errorMessage, e);
 		}
