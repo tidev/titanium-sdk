@@ -55,9 +55,10 @@ class ProcessJsTask extends IncrementalFileTask {
 			deploytype: this.builder.deployType,
 			target: this.builder.target,
 			Ti: {
-				version: this.builder.cli.tiapp['sdk-version'],
-				// TODO: add buildHash
-				// TODO: add buildDate
+				version: this.builder.titaniumSdkVersion, // use the shortened version number, i.e. 9.1.0
+				// TODO: Do these work?
+				// buildHash: ti.manifest.githash,
+				// buildDate: ti.manifest.timestamp,
 				App: {
 					copyright: this.builder.cli.tiapp.copyright,
 					deployType: this.builder.deployType,
@@ -73,7 +74,6 @@ class ProcessJsTask extends IncrementalFileTask {
 					runtime: 'javascriptcore', // overridden below for android
 				},
 				Filesystem: {
-					// overridden below for windows
 					lineEnding: '\n',
 					separator: '/',
 				}
@@ -91,24 +91,6 @@ class ProcessJsTask extends IncrementalFileTask {
 					transform.Ti.Platform.osname = this.builder.deviceFamily;
 				}
 				transform.Ti.Platform.manufacturer = 'apple';
-				break;
-			case 'windows':
-				// override Ti.Filesystem property values
-				transform.Ti.Filesystem.separator = '\\';
-				transform.Ti.Filesystem.lineEnding = '\r\n';
-				switch (this.builder.target) {
-					// windows store targets
-					case 'ws-simulator':
-					case 'ws-local':
-					case 'ws-remote':
-					case 'dist-winstore':
-						transform.Ti.Platform.osname = 'windowsstore';
-						break;
-					default:
-						transform.Ti.Platform.osname = 'windowsphone'; // TODO: no longer support windows phones on SDK 9+!
-						break;
-				}
-				transform.Ti.Platform.name = 'windows';
 				break;
 		}
 
