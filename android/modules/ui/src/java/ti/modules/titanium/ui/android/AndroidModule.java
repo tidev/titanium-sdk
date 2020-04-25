@@ -23,12 +23,11 @@ import android.view.Gravity;
 import androidx.core.view.GravityCompat;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
-// clang-format off
+
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)
 @Kroll.dynamicApis(properties = { "currentActivity" })
 public class AndroidModule extends KrollModule
-// clang-format on
 {
 	private static final String TAG = "UIAndroidModule";
 

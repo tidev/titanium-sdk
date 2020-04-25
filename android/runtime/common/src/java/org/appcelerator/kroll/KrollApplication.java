@@ -18,33 +18,33 @@ import android.app.Activity;
 public interface KrollApplication {
 	boolean DEFAULT_RUN_ON_MAIN_THREAD = false;
 
-	public int getThreadStackSize();
+	int getThreadStackSize();
 
-	public Activity getCurrentActivity();
+	Activity getCurrentActivity();
 
-	public void waitForCurrentActivity(CurrentActivityListener l);
+	void waitForCurrentActivity(CurrentActivityListener l);
 
-	public TiTempFileHelper getTempFileHelper();
+	TiTempFileHelper getTempFileHelper();
 
-	public TiDeployData getDeployData();
+	TiDeployData getDeployData();
 
-	public boolean isFastDevMode();
+	boolean isFastDevMode();
 
-	public String getAppGUID();
+	String getAppGUID();
 
-	public boolean isDebuggerEnabled();
+	boolean isDebuggerEnabled();
 
-	public boolean runOnMainThread();
+	boolean runOnMainThread();
 
-	public void dispose();
+	void dispose();
 
-	public String getDeployType();
+	String getDeployType();
 
-	public String getDefaultUnit();
+	String getDefaultUnit();
 
-	public String getSDKVersion();
+	String getSDKVersion();
 
-	public void cancelTimers();
+	void cancelTimers();
 
-	public void loadAppProperties();
+	void loadAppProperties();
 }

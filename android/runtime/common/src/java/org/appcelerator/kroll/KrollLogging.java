@@ -35,7 +35,7 @@ public class KrollLogging
 	}
 
 	public interface LogListener {
-		public void onLog(int severity, String msg);
+		void onLog(int severity, String msg);
 	}
 
 	private KrollLogging(String tag)

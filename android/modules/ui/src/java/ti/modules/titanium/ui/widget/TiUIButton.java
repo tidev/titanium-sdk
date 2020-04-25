@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.lang.CharSequence;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;

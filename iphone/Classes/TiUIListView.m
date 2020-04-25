@@ -257,7 +257,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       CGFloat rowWidth = [self computeRowWidth:_tableView];
       if (rowWidth > 0) {
         CGFloat right = _tableView.bounds.size.width - rowWidth;
-        [_searchWrapper layoutProperties] -> right = TiDimensionDip(right);
+        [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
       }
     }
 #endif
@@ -319,21 +319,22 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)proxyDidRelayout:(id)sender
 {
-  TiThreadPerformOnMainThread(^{
-    if (sender == _headerViewProxy) {
-      UIView *headerView = [[self tableView] tableHeaderView];
-      [headerView setFrame:[headerView bounds]];
-      [[self tableView] setTableHeaderView:headerView];
-      [((TiUIListViewProxy *)[self proxy])contentsWillChange];
-    } else if (sender == _footerViewProxy) {
-      UIView *footerView = [[self tableView] tableFooterView];
-      [footerView setFrame:[footerView bounds]];
-      [[self tableView] setTableFooterView:footerView];
-      [((TiUIListViewProxy *)[self proxy])contentsWillChange];
-    } else if (sender == _pullViewProxy) {
-      pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (sender == _headerViewProxy) {
+          UIView *headerView = [[self tableView] tableHeaderView];
+          [headerView setFrame:[headerView bounds]];
+          [[self tableView] setTableHeaderView:headerView];
+          [((TiUIListViewProxy *)[self proxy]) contentsWillChange];
+        } else if (sender == _footerViewProxy) {
+          UIView *footerView = [[self tableView] tableFooterView];
+          [footerView setFrame:[footerView bounds]];
+          [[self tableView] setTableFooterView:footerView];
+          [((TiUIListViewProxy *)[self proxy]) contentsWillChange];
+        } else if (sender == _pullViewProxy) {
+          pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+        }
+      },
       NO);
 }
 
@@ -716,7 +717,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self.tableView setTableFooterView:nil];
     [_footerViewProxy windowDidClose];
     RELEASE_TO_NIL(_footerViewProxy);
-    [((TiUIListViewProxy *)[self proxy])contentsWillChange];
+    [((TiUIListViewProxy *)[self proxy]) contentsWillChange];
   } else {
     [self configureFooter];
     [_footerViewProxy removeAllChildren:nil];
@@ -744,7 +745,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self.tableView setTableFooterView:nil];
     [_footerViewProxy windowDidClose];
     RELEASE_TO_NIL(_footerViewProxy);
-    [((TiUIListViewProxy *)[self proxy])contentsWillChange];
+    [((TiUIListViewProxy *)[self proxy]) contentsWillChange];
   } else {
     [self configureFooter];
     [_footerViewProxy removeAllChildren:nil];
@@ -1850,8 +1851,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           if (maxWidth > 0) {
             TiUIListItemProxy *theProxy = [theCell proxy];
 #ifndef TI_USE_AUTOLAYOUT
-            [theProxy layoutProperties] -> height = TiDimensionAutoSize;
-            [theProxy layoutProperties] -> width = TiDimensionAutoFill;
+            [theProxy layoutProperties]->height = TiDimensionAutoSize;
+            [theProxy layoutProperties]->width = TiDimensionAutoFill;
 #endif
             CGFloat result = [theProxy minimumParentHeightForSize:CGSizeMake(maxWidth, self.bounds.size.height)];
             return result;
@@ -2046,7 +2047,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   if (_searchWrapper != nil) {
 #ifndef TI_USE_AUTOLAYOUT
-    [_searchWrapper layoutProperties] -> right = TiDimensionDip(0);
+    [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
 #endif
     [_searchWrapper refreshView:nil];
   }
@@ -2173,7 +2174,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     return;
   }
 
-  UIBarButtonItem *searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]];
+  UIBarButtonItem *searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]];
   [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
   [_tableView setEditing:NO];
 }

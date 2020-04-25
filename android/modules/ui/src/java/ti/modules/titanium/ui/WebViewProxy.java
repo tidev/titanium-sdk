@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,21 +12,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-
-import java.util.Map;
 import java.util.HashMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -34,9 +27,8 @@ import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_BLACKLISTED_URLS,
@@ -50,7 +42,6 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 		TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
 		TiC.PROPERTY_ON_LINK
 })
-// clang-format on
 public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
 	private static final String TAG = "WebViewProxy";
@@ -166,11 +157,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getHtml()
-	// clang-format on
 	{
 		if (hasProperty(TiC.PROPERTY_HTML)) {
 			return TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
@@ -247,11 +236,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getWebView().setBasicAuthentication(username, password);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setUserAgent(String userAgent)
-	// clang-format on
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
@@ -259,11 +246,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getUserAgent()
-	// clang-format on
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
@@ -272,11 +257,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return "";
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestHeaders(HashMap params)
-	// clang-format on
 	{
 		if (params != null) {
 			TiUIWebView currWebView = getWebView();
@@ -286,11 +269,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public HashMap getRequestHeaders()
-	// clang-format on
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
@@ -341,11 +322,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getPluginState()
-	// clang-format on
 	{
 		int pluginState = TiUIWebView.PLUGIN_STATE_OFF;
 
@@ -356,20 +335,16 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return pluginState;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setDisableContextMenu(boolean disableContextMenu)
-	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getDisableContextMenu()
-	// clang-format on
 	{
 		if (hasPropertyAndNotNull(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
 			return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
@@ -377,11 +352,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return false;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setPluginState(int pluginState)
-	// clang-format on
 	{
 		switch (pluginState) {
 			case TiUIWebView.PLUGIN_STATE_OFF:
@@ -410,20 +383,16 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	// clang-format off
 	@Kroll.method(runOnUiThread = true)
 	@Kroll.setProperty(runOnUiThread = true)
 	public void setEnableZoomControls(boolean enabled)
-	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableZoomControls()
-	// clang-format on
 	{
 		boolean enabled = true;
 
@@ -433,11 +402,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return enabled;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public float getZoomLevel()
-	// clang-format on
 	{
 		TiUIView v = peekView();
 		if (v != null) {
@@ -447,11 +414,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setZoomLevel(float value)
-	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
 
@@ -460,6 +425,17 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		TiUIView v = peekView();
 		if (v != null) {
 			((TiUIWebView) v).zoomBy(value);
+		}
+	}
+
+	@Kroll.getProperty
+	public double getProgress()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return (double) ((TiUIWebView) v).getProgress() / 100.0d;
+		} else {
+			return 0.0d;
 		}
 	}
 

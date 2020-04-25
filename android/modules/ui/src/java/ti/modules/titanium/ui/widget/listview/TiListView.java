@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -44,9 +43,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
-import android.util.AttributeSet;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

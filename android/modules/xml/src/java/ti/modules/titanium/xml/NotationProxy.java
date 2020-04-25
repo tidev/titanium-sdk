@@ -21,20 +21,16 @@ public class NotationProxy extends NodeProxy
 		this.notation = notation;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getPublicId()
-	// clang-format on
 	{
 		return notation.getPublicId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSystemId()
-	// clang-format on
 	{
 		return notation.getSystemId();
 	}

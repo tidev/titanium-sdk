@@ -252,9 +252,10 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       [_queuedApplicationSelectors removeAllObjects];
     }
 
-    TiThreadPerformOnMainThread(^{
-      [self validator];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self validator];
+        },
         YES);
   }
 }
@@ -1070,12 +1071,13 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
     // Synchronize the cleanup call on the main thread in case
     // the task actually finishes at around the same time.
-    TiThreadPerformOnMainThread(^{
-      if (bgTask != UIBackgroundTaskInvalid) {
-        [app endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [app endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
         NO);
   }];
   // Start the long-running task and return immediately.
@@ -1338,12 +1340,13 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   if ([runningServices count] == 0) {
     // Synchronize the cleanup call on the main thread in case
     // the expiration handler is fired at the same time.
-    TiThreadPerformOnMainThread(^{
-      if (bgTask != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
         NO);
   }
 }

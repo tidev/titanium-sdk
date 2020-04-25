@@ -45,14 +45,12 @@ import org.json.JSONObject;
 import ti.modules.titanium.TitaniumModule;
 
 import java.io.File;
-import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -93,7 +91,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private TiProperties appProperties;
 	private WeakReference<Activity> currentActivity;
 	private String density;
-	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	private String defaultUnit;
 	private TiResponseCache responseCache;
 	private BroadcastReceiver localeReceiver;
@@ -112,8 +109,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
-	public static interface ActivityTransitionListener {
-		public void onActivityTransition(boolean state);
+	public interface ActivityTransitionListener {
+		void onActivityTransition(boolean state);
 	}
 
 	public static void addActivityTransitionListener(ActivityTransitionListener a)
@@ -309,26 +306,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return null;
 	}
 
-	protected void loadBuildProperties()
-	{
-		// Initialize build property member variables.
-		this.buildVersion = "1.0.0";
-		this.buildTimestamp = "N/A";
-		this.buildHash = "N/A";
-
-		// Attempt to read the "build.properties" file.
-		try (InputStream stream = getAssets().open("Resources/ti.internal/build.properties")) {
-			if (stream != null) {
-				Properties properties = new Properties();
-				properties.load(stream);
-				this.buildVersion = properties.getProperty("build.version", this.buildVersion);
-				this.buildTimestamp = properties.getProperty("build.timestamp", this.buildTimestamp);
-				this.buildHash = properties.getProperty("build.githash", this.buildHash);
-			}
-		} catch (Exception e) {
-		}
-	}
-
 	@Override
 	public void loadAppProperties()
 	{
@@ -355,8 +332,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
-
-		loadBuildProperties();
 
 		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -425,6 +400,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// Release all the cached images
 		TiBlobLruCache.getInstance().evictAll();
 		TiImageLruCache.getInstance().evictAll();
+
+		// Perform hard garbage collection to reclaim memory.
+		KrollRuntime instance = KrollRuntime.getInstance();
+		if (instance != null) {
+			instance.hardGC();
+		}
+
 		super.onLowMemory();
 	}
 
@@ -436,6 +418,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			// Release all the cached images
 			TiBlobLruCache.getInstance().evictAll();
 			TiImageLruCache.getInstance().evictAll();
+
+			// Perform soft garbage collection to reclaim memory.
+			KrollRuntime instance = KrollRuntime.getInstance();
+			if (instance != null) {
+				instance.softGC();
+			}
 		}
 		super.onTrimMemory(level);
 	}
@@ -706,7 +694,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public String getTiBuildVersion()
 	{
-		return buildVersion;
+		return BuildConfig.VERSION_NAME;
 	}
 
 	@Override
@@ -717,12 +705,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public String getTiBuildTimestamp()
 	{
-		return buildTimestamp;
+		return BuildConfig.TI_BUILD_TIME_STRING;
 	}
 
 	public String getTiBuildHash()
 	{
-		return buildHash;
+		return BuildConfig.TI_BUILD_HASH_STRING;
 	}
 
 	@Override

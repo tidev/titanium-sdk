@@ -82,7 +82,6 @@ import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {
@@ -291,9 +290,10 @@ public class TiHTTPClient
 				responseFile = null;
 				tiFile = null;
 				if (Log.isDebugModeEnabled()) {
-					Log.e(
-						TAG,
-						"Unable to create / write to the response file. Will write the response data to the internal data directory.");
+					String errorMessage
+						= "Unable to create / write to the response file. "
+						+ "Will write the response data to the internal data directory.";
+					Log.e(TAG, errorMessage);
 				}
 			}
 		}
@@ -391,7 +391,7 @@ public class TiHTTPClient
 	}
 
 	private interface ProgressListener {
-		public void progress(int progress);
+		void progress(int progress);
 	}
 
 	private class ProgressOutputStream extends FilterOutputStream
@@ -1047,7 +1047,7 @@ public class TiHTTPClient
 					sslSocketFactory = null;
 				}
 			} else if (!validating) {
-				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+				TrustManager[] trustManagerArray = new TrustManager[] { new NonValidatingTrustManager() };
 				try {
 					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
 				} catch (Exception e) {
@@ -1598,10 +1598,10 @@ public class TiHTTPClient
 	protected void addKeyManager(X509KeyManager manager)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(
-				TAG,
-				"addKeyManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
-				Log.DEBUG_MODE);
+			String message
+				= "addKeyManager() method is deprecated. "
+				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
+			Log.d(TAG, message, Log.DEBUG_MODE);
 		}
 		keyManagers.add(manager);
 	}
@@ -1609,10 +1609,10 @@ public class TiHTTPClient
 	protected void addTrustManager(X509TrustManager manager)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(
-				TAG,
-				"addTrustManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
-				Log.DEBUG_MODE);
+			String message
+				= "addTrustManager() method is deprecated. "
+				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
+			Log.d(TAG, message, Log.DEBUG_MODE);
 		}
 		trustManagers.add(manager);
 	}

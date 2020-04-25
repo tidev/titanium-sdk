@@ -151,7 +151,7 @@
     return NUMUINTEGER([[self watchSession] remainingComplicationUserInfoTransfers]);
   }
 
-  return NUMBOOL(0);
+  return NUMUINTEGER(0);
 }
 
 - (NSNumber *)activationState

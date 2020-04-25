@@ -27,12 +27,10 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -58,7 +56,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	private static Class<?> Contacts;
 	private static Uri ContactsUri;
 	private static Uri DataUri;
-	// clang-format off
+
 	private static String[] DATA_PROJECTION = new String[] {
 		"contact_id",
 		"mimetype",
@@ -75,7 +73,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		"data9",
 		"data10"
 	};
-	// clang-format on
+
 	protected static int DATA_COLUMN_CONTACT_ID = 0;
 	protected static int DATA_COLUMN_MIMETYPE = 1;
 	protected static int DATA_COLUMN_PHOTO_ID = 2;
