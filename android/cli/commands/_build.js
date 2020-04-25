@@ -2251,6 +2251,13 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		}
 	}
 
+	const googleServicesFile = path.join(this.projectDir, 'platform', 'android', 'google-services.json');
+	if (await fs.exists(googleServicesFile)) {
+		afs.copyFileSync(googleServicesFile, path.join(this.buildAppDir, 'google-services.json'), {
+			logger: this.logger.debug
+		});
+	}
+
 	// Copy Titanium project's "./platform/android" directory tree to "app" project's "./src/main".
 	// Android build tools auto-grabs folders named "assets", "res", "aidl", etc. in this folder.
 	// Note: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by hyperloop.)

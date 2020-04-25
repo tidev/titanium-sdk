@@ -27,6 +27,7 @@ public:
 
 private:
 	static v8::Persistent<v8::FunctionTemplate> proxyTemplate;
+	static v8::Persistent<v8::Object> moduleInstance;
 
 	// Methods -----------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method>
