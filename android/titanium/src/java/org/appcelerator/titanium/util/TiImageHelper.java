@@ -30,7 +30,7 @@ public class TiImageHelper
 
 	/**
 	 * Add an alpha channel to the given image if it does not already have one.
-	 * 
+	 *
 	 * @param image
 	 *            the image to add an alpha channel to.
 	 * @return a copy of the given image with an alpha channel. If the image already have the alpha channel, return the
@@ -49,7 +49,7 @@ public class TiImageHelper
 
 	/**
 	 * Create a copy of the given image with rounded corners and a transparent border around its edges.
-	 * 
+	 *
 	 * @param image
 	 *            the image to add rounded corners to.
 	 * @param cornerRadius
@@ -78,7 +78,7 @@ public class TiImageHelper
 		Path clipPath = new Path();
 		RectF imgRect = new RectF(borderSize, borderSize, width + borderSize, height + borderSize);
 
-		float radii[] = new float[8];
+		float[] radii = new float[8];
 		Arrays.fill(radii, cornerRadius);
 		clipPath.addRoundRect(imgRect, radii, Direction.CW);
 
@@ -100,7 +100,7 @@ public class TiImageHelper
 
 	/**
 	 * Add a transparent border to the given image around its edges.
-	 * 
+	 *
 	 * @param image
 	 *            the image to add a transparent border to.
 	 * @param borderSize

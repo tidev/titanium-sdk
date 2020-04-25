@@ -7,5 +7,5 @@
 package org.appcelerator.kroll;
 
 public interface KrollEventCallback {
-	public void call(Object data);
+	void call(Object data);
 }

@@ -7,9 +7,11 @@
 
 #import "TiExceptionHandler.h"
 #import "APSAnalytics.h"
+#import "KrollContext.h"
 #import "TiApp.h"
 #import "TiBase.h"
 
+#include <JavaScriptCore/JavaScriptCore.h>
 #include <execinfo.h>
 #include <signal.h>
 
@@ -78,6 +80,16 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     currentDelegate = self;
   }
   [currentDelegate handleScriptError:scriptError];
+}
+
+- (void)reportScriptError:(JSValueRef)errorRef inKrollContext:(KrollContext *)krollContext
+{
+  [self reportScriptError:[TiUtils scriptErrorFromValueRef:errorRef inContext:krollContext.context]];
+}
+
+- (void)reportScriptError:(JSValue *)error inJSContext:(JSContext *)context
+{
+  [self reportScriptError:[TiUtils scriptErrorFromValueRef:error.JSValueRef inContext:context.JSGlobalContextRef]];
 }
 
 - (void)showScriptError:(TiScriptError *)error

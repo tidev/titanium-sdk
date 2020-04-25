@@ -30,11 +30,10 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+
 // clang-format off
 @Kroll.module
-
 public class UIModule extends KrollModule
-// clang-format on
 {
 	private static final String TAG = "TiUIModule";
 
@@ -395,11 +394,9 @@ public class UIModule extends KrollModule
 		super();
 	}
 
-	// clang-format off
 	@Kroll.setProperty(runOnUiThread = true)
 	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundColor(String color)
-	// clang-format off
 	{
 		doSetBackgroundColor(color);
 	}
@@ -412,11 +409,9 @@ public class UIModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.setProperty(runOnUiThread = true)
 	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundImage(Object image)
-	// clang-format on
 	{
 		doSetBackgroundImage(image);
 	}
@@ -431,9 +426,10 @@ public class UIModule extends KrollModule
 				try {
 					imageDrawable = TiUIHelper.getResourceDrawable((Integer) image);
 				} catch (Resources.NotFoundException e) {
-					Log.w(
-						TAG,
-						"Unable to set background drawable for root window.  An integer id was provided but no such drawable resource exists.");
+					String warningMessage
+						= "Unable to set background drawable for root window. "
+						+ "An integer id was provided but no such drawable resource exists.";
+					Log.w(TAG, warningMessage);
 				}
 			} else {
 				imageDrawable = TiUIHelper.getResourceDrawable(image);

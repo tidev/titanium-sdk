@@ -34,7 +34,6 @@
 - (void)save:(id)unusued;
 - (void)revert:(id)unused;
 - (void)showContacts:(id)args;
-- (TiContactsPerson *)getPersonByID:(id)arg;
 - (NSArray *)getPeopleWithName:(id)arg;
 - (NSArray *)getAllPeople:(id)unused;
 - (TiContactsPerson *)createPerson:(id)arg;

@@ -46,20 +46,16 @@ public class BroadcastReceiverProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setUrl(String url)
-	// clang-format on
 	{
 		receiver.setUrl(url);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setOnReceived(Object callback)
-	// clang-format on
 	{
 		if (callback instanceof KrollFunction) {
 			receiver.setCallback((KrollFunction) callback);

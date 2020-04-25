@@ -13,7 +13,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(parentModule = UIModule.class,
 	propertyAccessors = {
 		"title",
@@ -25,7 +25,6 @@ import android.app.Activity;
 		"selectedIndex",
 		"cancel"
 })
-// clang-format on
 public abstract class TiDialogProxy extends TiViewProxy
 {
 	protected boolean showing = false;

@@ -29,10 +29,10 @@ import java.lang.annotation.Target;
  */
 @Documented
 public @interface Kroll {
-	public static final String DEFAULT_NAME = "__default_name__";
-	public static final class DEFAULT
+	String DEFAULT_NAME = "__default_name__";
+	final class DEFAULT
 	{
-	};
+	}
 
 	/**
 	 * An optional annotation for arguments of a {@link method Kroll method}.
@@ -49,7 +49,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.PARAMETER)
-	public static @interface argument {
+	@interface argument {
 		/**
 		 * The argument's name used in error messages and source code generation.<br>
 		 * @default The argument's name from Java source
@@ -61,7 +61,7 @@ public @interface Kroll {
 		 * The default value for the argument is pulled from the argument's {@link argument#defaultValueProvider() default value provider}.<br>
 		 * <p>
 		 * <b>Warning</b>: Make sure that <i>all</i> optional arguments are annotated in your {@link method}, or source code generation / binding may fail.
-		 * If the {@link method} has an optional argument in the middle of it's argument list, then all the methods after it should also be annotated as optional. 
+		 * If the {@link method} has an optional argument in the middle of it's argument list, then all the methods after it should also be annotated as optional.
 		 * </p>
 		 * @module.api
 		 */
@@ -78,7 +78,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
-	public static @interface constant {
+	@interface constant {
 		/**
 		 * The name that this constant is bound to.<br>
 		 * @default The name in Java source.
@@ -96,7 +96,7 @@ public @interface Kroll {
 	 * <b>Examples</b>:<br>
 	 * <pre>&#064;Kroll.inject protected KrollInvocation currentInvocation;</pre>
 	 * <pre>&#064;Kroll.inject protected void setCurrentInvocation(KrollInvocation currentInvocation) { }</pre>
-	 * 
+	 *
 	 * @see inject#name()
 	 * @see inject#type()
 	 * @see org.appcelerator.kroll.KrollInvocation
@@ -128,7 +128,7 @@ public @interface Kroll {
 	 * public void execute(String action, &#064;Kroll.argument(optional=true) KrollDict options) {
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @see method#name()
 	 * @see method#runOnUiThread()
 	 * @see argument @Kroll.argument
@@ -136,7 +136,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public static @interface method {
+	@interface method {
 		/**
 		 * The method's name in the API.<br>
 		 * @default The method's name in Java source.
@@ -182,7 +182,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
-	public static @interface module {
+	@interface module {
 		/**
 		 * <p>The name of this module in the API.
 		 * If this module has a {@link module#parentModule parent module}, this name will be relative to the parent.
@@ -231,7 +231,7 @@ public @interface Kroll {
 	 * <pre>
 	 * &#064;Kroll.property protected String username;
 	 * </pre>
-	 * 
+	 *
 	 * @see property#get()
 	 * @see property#set()
 	 * @see property#name()
@@ -242,7 +242,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
-	public static @interface property {
+	@interface property {
 		/**
 		 * Whether or not this property has "get" or read access
 		 */
@@ -262,7 +262,7 @@ public @interface Kroll {
 	 * Declares a method as a property getter of this {@link proxy} or {@link module}.<br>
 	 * <p>Getter methods must return a value, and may optionally have a {@link org.appcelerator.kroll.KrollInvocation} as the first argument,
 	 * and {@link argument#optional() optional arguments} when they are also exposed as {@link method methods}</p>
-	 * 
+	 *
 	 * @see getProperty#name()
 	 * @see getProperty#runOnUiThread()
 	 * @see org.appcelerator.kroll.KrollInvocation
@@ -272,7 +272,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public static @interface getProperty {
+	@interface getProperty {
 		/**
 		 * The name of this property in the API.
 		 * @default The method name stripped of "get", and lower-camel-cased or the method name itself.
@@ -290,7 +290,7 @@ public @interface Kroll {
 	 * <p>Setter methods must have at least one argument: The value to set. Optionally, setter methods may also have a
 	 * {@link org.appcelerator.kroll.KrollInvocation} object as the first argument (with the value as the second), and may also have as many
 	 * {@link argument#optional() optional arguments} as necessary after the value when exposed as a {@link method}.
-	 * 
+	 *
 	 * @see setProperty#name()
 	 * @see setProperty#retain()
 	 * @see setProperty#runOnUiThread()
@@ -302,7 +302,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public static @interface setProperty {
+	@interface setProperty {
 		/**
 		 * The name of this property in the API.<br>
 		 * @default The method name stripped of "set", and lower-camel-cased or the method name itself.
@@ -329,7 +329,7 @@ public @interface Kroll {
 	 * <li>The proxy constructor must take 0 arguments</li>
 	 * </ul>
 	 * To expose a "create" method for this proxy, see {@link proxy#creatableInModule()}
-	 * 
+	 *
 	 * @see proxy#name()
 	 * @see proxy#creatableInModule()
 	 * @see proxy#propertyAccessors()
@@ -340,7 +340,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
-	public static @interface proxy {
+	@interface proxy {
 		/**
 		 * The name of this proxy. Used in debugging, toString(), and {@link proxy#creatableInModule()}.<br>
 		 * @default The name of the proxy class with the "Proxy" suffix removed.
@@ -353,7 +353,7 @@ public @interface Kroll {
 		 * This will generate a "create" method that follows the pattern "create" + {@link proxy#name() name of this proxy}.
 		 * For instance, if the name of your proxy class is LabelProxy, the create method would be named "createLabel".
 		 * </p>
-		 * 
+		 *
 		 * @default None (don't generate a create method)
 		 * @see org.appcelerator.kroll.KrollProxy#handleCreationArgs(org.appcelerator.kroll.KrollModule, Object[])
 		 * @see org.appcelerator.kroll.KrollProxy#handleCreationDict(org.appcelerator.kroll.KrollDict)
@@ -390,10 +390,10 @@ public @interface Kroll {
 	 * <pre>
 	 * &#064;Kroll.topLevel("setTimeout") &#064;Kroll.method
 	 * public void setTimeout(KrollCallback fn, long timeout) { }
-	 * 
+	 *
 	 * &#064;Kroll.topLevel("Ti") &#064;Kroll.module
 	 * public class TitaniumModule extends KrollModule { }
-	 * 
+	 *
 	 * &#064;Kroll.topLevel("String.format") &#064;Kroll.method
 	 * public void stringFormat(String format, String[] arguments) { }
 	 * </pre>
@@ -401,7 +401,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD, ElementType.TYPE })
-	public static @interface topLevel {
+	@interface topLevel {
 		/**
 		 * An array of top level names to expose this {@link method} or {@link module} as.<br>
 		 * @default The method name or module name
@@ -412,10 +412,10 @@ public @interface Kroll {
 	/**
 	 * Declare dynamic APIs that have some sort of specialized
 	 * binding outside of Kroll source generation.<br>
-	 * 
+	 *
 	 * This annotation is mostly a marker that's used
 	 * to generate more accurate data in the Kroll binding JSON.<br>
-	 * 
+	 *
 	 * <b>Examples</b>:<br>
 	 * <pre>
 	 * &#064;Kroll.dynamicApis(properties = { "title" })
@@ -431,7 +431,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.TYPE })
-	public static @interface dynamicApis {
+	@interface dynamicApis {
 		String[] properties() default DEFAULT_NAME;
 		String[] methods() default DEFAULT_NAME;
 	}
@@ -439,10 +439,10 @@ public @interface Kroll {
 	/**
 	 * A special module method that gets called when the application's
 	 * onCreate is called (before the first Activity is started).
-	 * 
+	 *
 	 * Methods with this annotation must be public, static, and accept
 	 * a single argument of the type TiApplication.
-	 * 
+	 *
 	 * <b>Examples</b>:<br>
 	 * <pre>
 	 * &#064;Kroll.onAppCreate
@@ -456,18 +456,18 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD })
-	public static @interface onAppCreate {
+	@interface onAppCreate {
 	}
 
 	/**
 	 * Intercepts all property gets on a specific proxy.
 	 * Be <b>very careful</b> with this annotation, as it can slow your code down significantly.
-	 * 
+	 *
 	 * To revert to the object's default behavior, return KrollRuntime.DONT_INTERCEPT
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD })
-	public static @interface interceptor {
+	@interface interceptor {
 	}
-	}
+}

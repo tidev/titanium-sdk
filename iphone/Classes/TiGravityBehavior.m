@@ -88,9 +88,10 @@
     [self rememberProxy:args];
     [_items addObject:args];
     if (_gravityBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_gravityBehavior addItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_gravityBehavior addItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
   }
@@ -101,9 +102,10 @@
   ENSURE_SINGLE_ARG(args, TiViewProxy);
   if ([_items containsObject:args]) {
     if (_gravityBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_gravityBehavior removeItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_gravityBehavior removeItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
     [_items removeObject:args];
@@ -121,9 +123,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _angle = [TiUtils floatValue:args def:0];
   if (_gravityBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_gravityBehavior setAngle:_angle];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_gravityBehavior setAngle:_angle];
+        },
         YES);
   }
 }
@@ -131,9 +134,10 @@
 - (NSNumber *)angle
 {
   if (_gravityBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      _angle = [_gravityBehavior angle];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _angle = [_gravityBehavior angle];
+        },
         YES);
   }
   return NUMFLOAT(_angle);
@@ -144,9 +148,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _magnitude = [TiUtils floatValue:args def:0];
   if (_gravityBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_gravityBehavior setMagnitude:_magnitude];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_gravityBehavior setMagnitude:_magnitude];
+        },
         YES);
   }
 }
@@ -154,9 +159,10 @@
 - (NSNumber *)magnitude
 {
   if (_gravityBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      _magnitude = [_gravityBehavior magnitude];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _magnitude = [_gravityBehavior magnitude];
+        },
         YES);
   }
   return NUMFLOAT(_magnitude);
@@ -171,9 +177,10 @@
     _vector.dx = newPoint.x;
     _vector.dy = newPoint.y;
     if (_gravityBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_gravityBehavior setGravityDirection:_vector];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_gravityBehavior setGravityDirection:_vector];
+          },
           YES);
     }
   }
@@ -182,9 +189,10 @@
 - (NSDictionary *)gravityDirection
 {
   if (_gravityBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      _vector = [_gravityBehavior gravityDirection];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _vector = [_gravityBehavior gravityDirection];
+        },
         YES);
   }
   return [TiUtils pointToDictionary:CGPointMake(_vector.dx, _vector.dy)];

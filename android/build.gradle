@@ -13,7 +13,8 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:3.4.2'
+		classpath 'com.google.gms:google-services:4.3.3'
+		classpath 'com.android.tools.build:gradle:3.6.0'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 	}
 }
@@ -23,6 +24,17 @@ allprojects {
 		google()
 		jcenter()
 	}
+
+	// Load plugin used to enforce our Java coding style guidelines.
+	project.apply plugin: 'checkstyle'
+	checkstyle {
+		toolVersion = '8.30'
+		configFile file("${rootDir}/checkstyle.xml");
+		ignoreFailures false
+		showViolations true
+	}
+
+	// Include Titanium's gradle constants in all gradle sub-projects.
 	project.apply from: "${rootDir}/templates/build/ti.constants.gradle"
 }
 

@@ -216,11 +216,9 @@ public class TiResultSetProxy extends KrollProxy
 		return result;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getFieldCount()
-	// clang-format on
 	{
 		if (rs != null) {
 			try {
@@ -254,11 +252,9 @@ public class TiResultSetProxy extends KrollProxy
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
-	// clang-format on
 	{
 		if (rs != null) {
 			return rs.getCount();
@@ -267,11 +263,9 @@ public class TiResultSetProxy extends KrollProxy
 		return 0;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isValidRow()
-	// clang-format on
 	{
 		boolean valid = false;
 		if (rs != null && !rs.isClosed() && !rs.isAfterLast()) {
@@ -300,10 +294,8 @@ public class TiResultSetProxy extends KrollProxy
 	@Override
 	public void release()
 	{
-
 		// Close ResultSet on cleanup.
 		this.close();
-
 		super.release();
 	}
 }

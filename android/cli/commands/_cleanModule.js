@@ -17,8 +17,6 @@ const fs = require('fs-extra');
 const appc = require('node-appc');
 const __ = appc.i18n(__dirname).__;
 
-// TODO Do we need a validate function?
-
 exports.run = function run(logger, config, cli, finished) {
 	const projectDir = cli.argv['project-dir'];
 
@@ -34,17 +32,20 @@ exports.run = function run(logger, config, cli, finished) {
 	});
 
 	// remove only the libraries we generate
-	const moduleid = cli.manifest.moduleid;
-	const arches = fs.readdirSync(path.join(projectDir, 'libs'));
-	arches.forEach(arch => {
-		const target = path.join(projectDir, 'libs', arch, `lib${moduleid}.so`);
-		if (appc.fs.exists(target)) {
-			logger.debug(__('Deleting %s', target.cyan));
-			fs.removeSync(target);
-		} else {
-			logger.debug(__('File does not exist %s', target.cyan));
-		}
-	});
+	const libsDir = path.join(projectDir, 'libs');
+	if (appc.fs.exists(libsDir)) {
+		const moduleid = cli.manifest.moduleid;
+		const arches = fs.readdirSync(libsDir);
+		arches.forEach(arch => {
+			const target = path.join(projectDir, 'libs', arch, `lib${moduleid}.so`);
+			if (appc.fs.exists(target)) {
+				logger.debug(__('Deleting %s', target.cyan));
+				fs.removeSync(target);
+			} else {
+				logger.debug(__('File does not exist %s', target.cyan));
+			}
+		});
+	}
 
 	finished();
 };

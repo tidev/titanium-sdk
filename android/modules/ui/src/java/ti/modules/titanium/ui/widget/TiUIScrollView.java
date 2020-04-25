@@ -902,9 +902,11 @@ public class TiUIScrollView extends TiUIView
 							   + "' is invalid. Only 'vertical' and 'horizontal' are supported.");
 			}
 		} else if (!deduced && type == TYPE_VERTICAL) {
-			Log.w(
-				TAG,
-				"Scroll direction could not be determined based on the provided view properties. Default VERTICAL scroll direction being used. Use the 'scrollType' property to explicitly set the scrolling direction.");
+			String warningMessage
+				= "Scroll direction could not be determined based on the provided view properties. "
+				+ "Default VERTICAL scroll direction being used. Use the 'scrollType' property to explicitly "
+				+ "set the scrolling direction.";
+			Log.w(TAG, warningMessage);
 		}
 
 		// we create the view here since we now know the potential widget type
