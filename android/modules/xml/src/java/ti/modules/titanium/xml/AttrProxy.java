@@ -27,29 +27,23 @@ public class AttrProxy extends NodeProxy
 		return attr;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return attr.getName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ElementProxy getOwnerElement()
-	// clang-format on
 	{
 		return getProxy(attr.getOwnerElement());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSpecified()
-	// clang-format on
 	{
 		// Harmony will return false even when ownerElement is null, whereas
 		// spec says: "If the ownerElement attribute is null (i.e. because it
@@ -61,20 +55,16 @@ public class AttrProxy extends NodeProxy
 		return attr.getSpecified();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getValue()
-	// clang-format on
 	{
 		return attr.getValue();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setValue(String value) throws DOMException
-	// clang-format on
 	{
 		attr.setValue(value);
 	}

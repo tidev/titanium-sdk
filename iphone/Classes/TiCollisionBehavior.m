@@ -122,9 +122,10 @@
     [self rememberProxy:args];
     [_items addObject:args];
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior addItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior addItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
   }
@@ -135,9 +136,10 @@
   ENSURE_SINGLE_ARG(args, TiViewProxy);
   if ([_items containsObject:args]) {
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior removeItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior removeItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
     [_items removeObject:args];
@@ -170,9 +172,10 @@
           [_boundaries addObject:boundary];
           [_identifiers addObject:identifier];
           if (_collisionBehavior != nil) {
-            TiThreadPerformOnMainThread(^{
-              [_collisionBehavior addBoundaryWithIdentifier:identifier fromPoint:p1 toPoint:p2];
-            },
+            TiThreadPerformOnMainThread(
+                ^{
+                  [_collisionBehavior addBoundaryWithIdentifier:identifier fromPoint:p1 toPoint:p2];
+                },
                 YES);
           }
           [boundary release];
@@ -198,9 +201,10 @@
     [_boundaries removeObjectAtIndex:index];
     [_identifiers removeObjectAtIndex:index];
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior removeBoundaryWithIdentifier:args];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior removeBoundaryWithIdentifier:args];
+          },
           YES);
     }
   }
@@ -211,9 +215,10 @@
   [_identifiers removeAllObjects];
   [_boundaries removeAllObjects];
   if (_collisionBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_collisionBehavior removeAllBoundaries];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_collisionBehavior removeAllBoundaries];
+        },
         YES);
   }
 }
@@ -225,13 +230,14 @@
   if (newVal != _treatReferenceAsBoundary) {
     _treatReferenceAsBoundary = newVal;
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        if (_treatReferenceAsBoundary) {
-          [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
-        } else {
-          [_collisionBehavior setTranslatesReferenceBoundsIntoBoundary:NO];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            if (_treatReferenceAsBoundary) {
+              [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
+            } else {
+              [_collisionBehavior setTranslatesReferenceBoundsIntoBoundary:NO];
+            }
+          },
           YES);
     }
   }
@@ -249,9 +255,10 @@
   if (!UIEdgeInsetsEqualToEdgeInsets(newInsets, _insets)) {
     _insets = newInsets;
     if (_treatReferenceAsBoundary && _collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
+          },
           YES);
     }
   }
@@ -281,9 +288,10 @@
   if (newMode != _mode) {
     _mode = newMode;
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior setCollisionMode:_mode];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior setCollisionMode:_mode];
+          },
           YES);
     }
   }

@@ -46,31 +46,25 @@ public class BigTextStyleProxy extends StyleProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBigText(String text)
-	// clang-format on
 	{
 		((BigTextStyle) style).bigText(text);
 		setProperty(TiC.PROPERTY_BIG_TEXT, text);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBigContentTitle(String title)
-	// clang-format on
 	{
 		((BigTextStyle) style).setBigContentTitle(title);
 		setProperty(TiC.PROPERTY_BIG_CONTENT_TITLE, title);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setSummaryText(String text)
-	// clang-format on
 	{
 		((BigTextStyle) style).setSummaryText(text);
 		setProperty(TiC.PROPERTY_SUMMARY_TEXT, text);

@@ -12,7 +12,6 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashSet;
 
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -68,7 +67,7 @@ public class TiFileFactory
 
 	/**
 	 * Creates a TiBaseFile object given the path. If the URI scheme portion of the passed path is not a member of:
-	 * {"app://" , "appdata://" , "appdata-private://" , "file://", "content://", "android.resource://" }, 
+	 * {"app://" , "appdata://" , "appdata-private://" , "file://", "content://", "android.resource://" },
 	 * the file will be created in "appdata-private://" + path, where path is the given path.
 	 * @param parts A String Array containing parts of a file path.
 	 * @param stream this is not being used.
@@ -149,7 +148,7 @@ public class TiFileFactory
 		return null;
 	}
 
-	private static String joinPathSegments(String parts[])
+	private static String joinPathSegments(String[] parts)
 	{
 		if (parts.length == 1) {
 			return parts[0]; // common base case

@@ -1278,7 +1278,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "Group has: " + vg.getChildCount(), Log.DEBUG_MODE);
 				}
-				if (!(vg instanceof AdapterView<?>) ) {
+				if (!(vg instanceof AdapterView<?>)) {
 					vg.removeAllViews();
 				}
 			}

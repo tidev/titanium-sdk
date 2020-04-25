@@ -44,7 +44,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.ViewParent;
 
-// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_FULLSCREEN,
@@ -53,7 +52,6 @@ import android.view.ViewParent;
 	TiC.PROPERTY_TITLEID,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
-// clang-format on
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String TAG = "TiWindowProxy";
@@ -76,8 +74,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected List<Pair<View, String>> sharedElementPairs;
 	public TiWindowProxy navigationWindow;
 
-	public static interface PostOpenListener {
-		public void onPostOpen(TiWindowProxy window);
+	public interface PostOpenListener {
+		void onPostOpen(TiWindowProxy window);
 	}
 
 	public static TiWindowProxy getWaitingForOpen()
@@ -193,39 +191,31 @@ public abstract class TiWindowProxy extends TiViewProxy
 		releaseViews();
 	}
 
-	// clang-format off
 	@Kroll.method(name = "setTab")
 	@Kroll.setProperty(name = "tab")
 	public void setTabProxy(TiViewProxy tabProxy)
-	// clang-format on
 	{
 		setParent(tabProxy);
 		this.tab = tabProxy;
 	}
 
-	// clang-format off
 	@Kroll.method(name = "getTab")
 	@Kroll.getProperty(name = "tab")
 	public TiViewProxy getTabProxy()
-	// clang-format on
 	{
 		return this.tab;
 	}
 
-	// clang-format off
 	@Kroll.method(name = "setTabGroup")
 	@Kroll.setProperty(name = "tabGroup")
 	public void setTabGroupProxy(TiViewProxy tabGroupProxy)
-	// clang-format on
 	{
 		this.tabGroup = tabGroupProxy;
 	}
 
-	// clang-format off
 	@Kroll.method(name = "getTabGroup")
 	@Kroll.getProperty(name = "tabGroup")
 	public TiViewProxy getTabGroupProxy()
-	// clang-format on
 	{
 		return this.tabGroup;
 	}
@@ -284,20 +274,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiUIHelper.firePostLayoutEvent(this);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setLeftNavButton(Object button)
-	// clang-format on
 	{
 		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setOrientationModes(int[] modes)
-	// clang-format on
 	{
 		int activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 		boolean hasPortrait = false;
@@ -374,21 +360,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int[] getOrientationModes()
-	// clang-format on
 	{
 		return orientationModes;
 	}
 
 	// Expose the method and property here, instead of in KrollProxy
-	// clang-format off
 	@Kroll.method(name = "getActivity")
 	@Kroll.getProperty(name = "_internalActivity")
 	public ActivityProxy getActivityProxy()
-	// clang-format on
 	{
 		return super.getActivityProxy();
 	}
@@ -403,11 +385,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSafeAreaPadding()
-	// clang-format on
 	{
 		// Initialize safe-area padding to zero. (ie: no padding)
 		double paddingLeft = 0;
@@ -576,11 +556,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getOrientation()
-	// clang-format on
 	{
 		return TiDeviceOrientation.fromDefaultDisplay().toTiIntId();
 	}
@@ -615,11 +593,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getNavigationWindow()
-	// clang-format on
 	{
 		return navigationWindow;
 	}

@@ -98,12 +98,13 @@
   // because -[TiViewProxy add:] could exit early if it's not on the main thread.
   // On the other hand, blocking this to execute on the main thread only doesn't appear to work right.
 
-  TiThreadPerformOnMainThread(^{
-    LauncherItem *item_ = [self ensureItem];
-    if (item_.view == nil) {
-      [item_ setView:[self view]];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        LauncherItem *item_ = [self ensureItem];
+        if (item_.view == nil) {
+          [item_ setView:[self view]];
+        }
+      },
       NO);
 }
 

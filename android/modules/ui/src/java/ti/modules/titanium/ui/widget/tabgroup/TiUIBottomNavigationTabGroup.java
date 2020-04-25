@@ -26,7 +26,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -321,6 +320,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
+		// Guard for clicking on the currently selected tab.
+		// This is required to have parity with the default style tab.
+		if (index == this.currentlySelectedIndex) {
+			return true;
+		}
 		if ((index != currentlySelectedIndex) && (getProxy() != null)) {
 			if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size())) {
 				TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();

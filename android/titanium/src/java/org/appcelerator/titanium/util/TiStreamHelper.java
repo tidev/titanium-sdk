@@ -82,9 +82,11 @@ public class TiStreamHelper
 			return 0;
 		}
 
-		Log.w(
-			TAG,
-			"Synchronous invocation of read will cause performance issues under the main thread. This will no longer be supported in SDK 9.0.0. Please invoke with a final callback function to receive the result.");
+		String warningMessage
+			= "Synchronous invocation of read will cause performance issues under the main thread."
+			+ " This will no longer be supported in SDK 10.0.0."
+			+ " Please invoke with a final callback function to receive the result.";
+		Log.w(TAG, warningMessage);
 		final BufferProxy finalBufferProxy = bufferProxy;
 		final int finalOffset = offset;
 		final int finalLength = length;
@@ -181,9 +183,11 @@ public class TiStreamHelper
 			return 0;
 		}
 
-		Log.w(
-			TAG,
-			"Synchronous invocation of write will cause performance issues under the main thread. This will no longer be supported in SDK 9.0.0. Please invoke with a final callback function to receive the result.");
+		String warningMessage
+			= "Synchronous invocation of write will cause performance issues under the main thread."
+			+ " This will no longer be supported in SDK 10.0.0."
+			+ " Please invoke with a final callback function to receive the result.";
+		Log.w(TAG, warningMessage);
 		final BufferProxy finalBufferProxy = bufferProxy;
 		final int finalOffset = offset;
 		final int finalLength = length;
