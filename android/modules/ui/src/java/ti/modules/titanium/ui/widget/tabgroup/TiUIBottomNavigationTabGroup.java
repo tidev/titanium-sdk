@@ -293,12 +293,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 
 		int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+		BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 		if (tabProxy.getProperty(TiC.PROPERTY_BADGE) != null) {
-			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setVisible(true);
 			badgeDrawable.setNumber(TiConvert.toInt(tabProxy.getProperty(TiC.PROPERTY_BADGE), 0));
 		} else {
-			this.mBottomNavigationView.removeBadge(menuItemId);
+			badgeDrawable.setVisible(false);
 		}
 	}
 
@@ -315,7 +315,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 
 		int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
-		Log.i("COL", "" + tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR));
 		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
