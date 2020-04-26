@@ -6,17 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.annotation.SuppressLint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
-
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewParent;
+import java.util.ArrayList;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -27,7 +17,18 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import java.util.ArrayList;
+import android.annotation.SuppressLint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewParent;
+
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -160,7 +161,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 		// Create a new item with id representing its index in mMenuItemsArray.
-		MenuItem menuItem = this.mBottomNavigationView.getMenu().add(null);
+		MenuItem menuItem = this.mBottomNavigationView.getMenu().add(0, this.mMenuItemsArray.size(), 0, "");
 		// Set the click listener.
 		menuItem.setOnMenuItemClickListener(this);
 		// Add the MenuItem to the menu of BottomNavigationView.
@@ -190,6 +191,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		updateTabTitle(index);
 		// Set the icon.
 		updateTabIcon(index);
+		// Set the badge
+		updateBadge(index);
+		// Set the badge color
+		updateBadgeColor(index);
 		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
 			// Set the title text color.
 			updateTabTitleColor(i);
@@ -275,6 +280,49 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	}
 
 	@SuppressLint("RestrictedApi")
+	@Override
+	public void updateBadge(int index)
+	{
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+		if (tabProxy.getProperty(TiC.PROPERTY_BADGE) != null) {
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setVisible(true);
+			badgeDrawable.setNumber(TiConvert.toInt(tabProxy.getProperty(TiC.PROPERTY_BADGE), 0));
+		} else {
+			this.mBottomNavigationView.removeBadge(menuItemId);
+		}
+	}
+
+	@Override
+	public void updateBadgeColor(int index)
+	{
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+		Log.i("COL", "" + tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR));
+		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
+		}
+	}
+
 	@Override
 	public void updateTabTitleColor(int index)
 	{

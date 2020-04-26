@@ -6,15 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import com.google.android.material.tabs.TabLayout;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -23,6 +14,17 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.tabs.TabLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 
@@ -161,6 +163,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		updateTabBackgroundDrawable(tabIndex);
 		// Set the icon.
 		updateTabIcon(tabIndex);
+		// Set the badge.
+		updateBadge(tabIndex);
+		// Set the badge.color
+		updateBadgeColor(tabIndex);
 	}
 
 	/**
@@ -258,6 +264,47 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+		}
+	}
+
+	@Override
+	public void updateBadge(int index)
+	{
+		// Validate index input.
+		if (index < 0 || index >= tabs.size()) {
+			return;
+		}
+		TiViewProxy tabProxy = tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+		if (tabProxy.getProperty(TiC.PROPERTY_BADGE) != null) {
+			badgeDrawable.setVisible(true);
+			badgeDrawable.setNumber(TiConvert.toInt(tabProxy.getProperty(TiC.PROPERTY_BADGE), 0));
+		} else {
+			this.mTabLayout.getTabAt(index).removeBadge();
+		}
+	}
+
+	@Override
+	public void updateBadgeColor(int index)
+	{
+		// Validate index input.
+		if (index < 0 || index >= tabs.size()) {
+			return;
+		}
+		TiViewProxy tabProxy = tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+			badgeDrawable.setVisible(true);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
 		}
 	}
 
