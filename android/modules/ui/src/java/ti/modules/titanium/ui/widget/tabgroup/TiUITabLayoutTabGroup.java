@@ -284,7 +284,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			badgeDrawable.setVisible(true);
 			badgeDrawable.setNumber(TiConvert.toInt(tabProxy.getProperty(TiC.PROPERTY_BADGE), 0));
 		} else {
-			this.mTabLayout.getTabAt(index).removeBadge();
+			badgeDrawable.setVisible(false);
 		}
 	}
 
