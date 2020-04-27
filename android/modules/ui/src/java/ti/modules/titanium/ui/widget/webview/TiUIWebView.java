@@ -1096,6 +1096,11 @@ public class TiUIWebView extends TiUIView
 		return chromeClient.interceptOnBackPressed();
 	}
 
+	public int getProgress()
+	{
+		return getWebView().getProgress();
+	}
+
 	@Override
 	protected void disableHWAcceleration()
 	{
