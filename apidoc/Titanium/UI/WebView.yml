@@ -584,8 +584,8 @@ events:
     description: |
         Provides a normalized value between 0.0 and 1.0, where 0.0 indicates nothing was downloaded and 
         1.0 means the page and all of its resources has finished downloading.
-    platforms: [ipad, iphone]
-    since: "8.0.0"
+    platforms: [android, ipad, iphone]
+    since: {android: "9.1.0", iphone: "8.0.0", ipad: "8.0.0"}
     properties:
       - name: value
         summary: An estimate of what fraction of the current navigation has been loaded.
@@ -1030,8 +1030,8 @@ properties:
         After loading completes, the progress remains at 1.0 until a new download starts, 
         at which point progress is reset to 0.0.
     type: Number
-    platforms: [iphone, ipad]
-    since: "8.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "9.1.0", iphone: "8.0.0", ipad: "8.0.0"}
     permission: read-only
 
   - name: cachePolicy
