@@ -39,7 +39,7 @@ describe('Titanium.UI.Label', function () {
 		}
 	});
 
-	it.iosBroken('animate font color', function (finish) {
+	it('animate font color', function (finish) {
 		win = Ti.UI.createWindow();
 
 		const label = Ti.UI.createLabel({
@@ -51,10 +51,10 @@ describe('Titanium.UI.Label', function () {
 			duration: 1000
 		});
 		animation.addEventListener('complete', function () {
-			// FIXME: iOS appears to be firing this event immediately, not when the animation is actually done!
-			// test takes 206 ms, but fastest it could run is 1200ms due to 1s animation value
+			// FIXME: iOS fires right away because text color doesn't transition over time, it just changes immediately.
+			// See https://stackoverflow.com/questions/2426614/how-to-animate-the-textcolor-property-of-an-uilabel
 			try {
-				should(label.color).be.eql('#fff'); // iOS also doesn't update properties post-animation
+				should(label.color).be.eql('#fff');
 			} catch (err) {
 				return finish(err);
 			}

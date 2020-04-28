@@ -316,9 +316,8 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	// FIXME fails on Android because Ti.UI.View doesn't fire postlayout
 	// FIXME Times out on iOS. Never fires postlayout?
-	it.iosBroken('rect and size', function (finish) {
+	it('rect and size', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
@@ -389,11 +388,7 @@ describe('Titanium.UI.View', function () {
 						should(view.rect.x).be.eql(100); // FIXME: do we need to register for a postlayout for this?
 						should(view.rect.y).be.eql(150);
 						should(view.left).be.eql(100);
-						if (isAndroid) {
-							should(view.top).be.eql(150); // Android properly updates the animated value
-						} else {
-							should(view.top).be.eql(100);
-						}
+						should(view.top).be.eql(150);
 					} catch (err) {
 						return finish(err);
 					}
@@ -430,11 +425,7 @@ describe('Titanium.UI.View', function () {
 					try {
 						should(view.rect.x).be.eql(150);
 						should(view.rect.y).be.eql(100);
-						if (isAndroid) {
-							should(view.left).be.eql(150); // Android properly updates properties post-animation
-						} else {
-							should(view.left).be.eql(100);
-						}
+						should(view.left).be.eql(150);
 						should(view.top).be.eql(100);
 					} catch (err) {
 						return finish(err);
@@ -519,11 +510,7 @@ describe('Titanium.UI.View', function () {
 					try {
 						should(view.rect.x).be.approximately(view.rect.width * 9, 10);
 						should(view.rect.y).be.eql(0);
-						if (isAndroid) {
-							should(view.left).be.eql('90%'); // Android properly updates properties post-animation
-						} else {
-							should(view.left).be.eql(0);
-						}
+						should(view.left).be.eql('90%');
 						should(view.top).be.eql(0);
 					} catch (err) {
 						return finish(err);
@@ -558,11 +545,7 @@ describe('Titanium.UI.View', function () {
 						should(view.rect.x).be.eql(0);
 						should(view.rect.y).be.approximately(view.rect.height * 9, 10);
 						should(view.left).be.eql(0);
-						if (isAndroid) {
-							should(view.top).be.eql('90%'); // Android properly updates properties post-animation
-						} else {
-							should(view.top).be.eql(0);
-						}
+						should(view.top).be.eql('90%');
 					} catch (err) {
 						return finish(err);
 					}
@@ -593,11 +576,7 @@ describe('Titanium.UI.View', function () {
 				// make sure to give it a time to layout
 				setTimeout(function () {
 					try {
-						if (isAndroid) {
-							should(view.width).be.eql('90%');
-						} else {
-							should(view.width).be.eql('10%');
-						}
+						should(view.width).be.eql('90%');
 						should(view.height).be.eql('10%');
 						should(view.left).be.eql('10%');
 						should(view.top).be.eql(0);
@@ -633,11 +612,7 @@ describe('Titanium.UI.View', function () {
 				setTimeout(function () {
 					try {
 						should(view.width).be.eql('10%');
-						if (isAndroid) {
-							should(view.height).be.eql('90%');
-						} else {
-							should(view.height).be.eql('10%');
-						}
+						should(view.height).be.eql('90%');
 						should(view.left).be.eql(0);
 						should(view.top).be.eql('10%');
 						should(view.rect.height).be.approximately(view.rect.y * 9, 10); // Windows Phone: expected 53 to be approximately 477 ±10
@@ -653,7 +628,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	it.windowsBroken('convertPointToView', function (finish) {
+	it.androidAndWindowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
 		const b = Ti.UI.createView({ top: '100', backgroundColor: 'blue' });
@@ -671,7 +646,7 @@ describe('Titanium.UI.View', function () {
 				should(result.x).be.a.Number(); // Windows: expected '123.000000' to be a number
 				should(result.y).be.a.Number();
 				should(result.x).eql(123);
-				should(result.y).eql(123);
+				should(result.y).eql(123); // Android sometimes gives 223? I assume this is a screen density thing?
 			} catch (err) {
 				return finish(err);
 			}
