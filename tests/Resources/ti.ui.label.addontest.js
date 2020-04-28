@@ -54,8 +54,7 @@ describe('Titanium.UI.Label', function () {
 			// FIXME: iOS appears to be firing this event immediately, not when the animation is actually done!
 			// test takes 206 ms, but fastest it could run is 1200ms due to 1s animation value
 			try {
-				should(label.color).be.eql('#fff'); // FIXME: animations don't update the view's properties when they complete!
-				// This is a longstanding issue and should be addressed
+				should(label.color).be.eql('#fff'); // iOS also doesn't update properties post-animation
 			} catch (err) {
 				return finish(err);
 			}
