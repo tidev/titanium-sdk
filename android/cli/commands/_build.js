@@ -3694,12 +3694,10 @@ AndroidBuilder.prototype.buildAppProject = async function buildAppProject() {
 
 	// Verify that we can find the above built file(s).
 	if (!await fs.exists(this.apkFile)) {
-		this.logger.error(`Failed to find built APK file: ${this.apkFile}`);
-		process.exit(1);
+		throw new Error(`Failed to find built APK file: ${this.apkFile}`);
 	}
 	if (this.aabFile && !await fs.exists(this.aabFile)) {
-		this.logger.error(`Failed to find built AAB file: ${this.aabFile}`);
-		process.exit(1);
+		throw new Error(`Failed to find built AAB file: ${this.aabFile}`);
 	}
 };
 
