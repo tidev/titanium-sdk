@@ -27,7 +27,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.AttributedStringProxy;
 import ti.modules.titanium.ui.UIModule;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -43,7 +42,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
-import android.text.method.ArrowKeyMovementMethod;
 import android.text.method.DigitsKeyListener;
 import android.text.method.KeyListener;
 import android.text.method.LinkMovementMethod;
