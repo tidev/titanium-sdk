@@ -8,10 +8,10 @@
 @import CoreLocation;
 
 /** Constant indicating development deployment */
-extern NSString *const APSDeployTypeDevelopment;
+extern NSString *_Nonnull const APSDeployTypeDevelopment;
 
 /** Constant indicating production deployment */
-extern NSString *const APSDeployTypeProduction;
+extern NSString *_Nonnull const APSDeployTypeProduction;
 
 /**
  * The APSAnalytics class configures the application to use the APS analytic services
@@ -25,28 +25,28 @@ extern NSString *const APSDeployTypeProduction;
 /**
  * Return the singleton instance to the real-time analytics service.
  */
-+ (instancetype)sharedInstance;
++ (instancetype _Nonnull)sharedInstance;
 
 /**
  * Retrieves the current session identifier.
  *
  * @return {NSString*} session identifier.
  */
-- (NSString *)getCurrentSessionId;
+- (NSString *_Nullable)getCurrentSessionId;
 
 /**
  * Retrieves the last event sent.
  *
  * @return {NSDictionary *} the last event stored, otherwise null if none have been stored.
  */
-- (NSDictionary *)getLastEvent;
+- (NSDictionary *_Nullable)getLastEvent;
 
 /**
  * Retrieves the derived machine identifier.
  *
  * @return {NSString *} machine identifier.
  */
-- (NSString *)getMachineId;
+- (NSString *_Nonnull)getMachineId;
 
 /**
  * Obtains machine identifier.
@@ -134,6 +134,13 @@ extern NSString *const APSDeployTypeProduction;
                    data:(NSDictionary *_Nullable)data;
 
 /**
+ * Sends an event payload.
+ *
+ * @param payload the event payload to send.
+ */
+- (void)sendPayload:(NSDictionary *_Nullable)payload;
+
+/**
  * Sends a crash report as a custom event.
  *
  * @deprecated use sendCrashReport(JSONObject) instead.
@@ -159,49 +166,49 @@ extern NSString *const APSDeployTypeProduction;
  *
  * @deprecated use setSdkVersion() instead.
  */
-- (void)setSDKVersion:(NSString *)version;
+- (void)setSDKVersion:(NSString *_Nullable)version;
 
 /**
  * @deprecated NOT USED, only defined for backwards compatibility.
  */
-- (void)setBuildType:(NSString *)type;
+- (void)setBuildType:(NSString *_Nullable)type;
 
 /**
  * Enables Analytics with a given app-key and deploy-type.
  * @param appKey The APSAnalytics app-key.
  * @param deployTime The deploy-type of the application.
  */
-- (void)enableWithAppKey:(NSString *)appKey andDeployType:(NSString *)deployType;
+- (void)enableWithAppKey:(NSString *_Nonnull)appKey andDeployType:(NSString *_Nonnull)deployType;
 
 /**
  * Get analytics endpoint url
  */
-- (NSString *)getAnalyticsUrl;
+- (NSString *_Nullable)getAnalyticsUrl;
 
 /**
  * Get device architecture
  */
-- (NSString *)getArchitecture;
+- (NSString *_Nonnull)getArchitecture;
 
 /**
  * Get application id
  */
-- (NSString *)getAppId;
+- (NSString *_Nonnull)getAppId;
 
 /**
  * Get application name
  */
-- (NSString *)getAppName;
+- (NSString *_Nonnull)getAppName;
 
 /**
  * Get application version
  */
-- (NSString *)getAppVersion;
+- (NSString *_Nonnull)getAppVersion;
 
 /**
  * Get application deployment type (production, development)
  */
-- (NSString *)getDeployType;
+- (NSString *_Nonnull)getDeployType;
 
 /**
  * Get analytics flush interval
@@ -216,27 +223,27 @@ extern NSString *const APSDeployTypeProduction;
 /**
  * Get device model
  */
-- (NSString *)getModel;
+- (NSString *_Nonnull)getModel;
 
 /**
  * Get network type
  */
-- (NSString *)getNetworkType;
+- (NSString *_Nullable)getNetworkType;
 
 /**
  * Get OS type (32bit, 64bit)
  */
-- (NSString *)getOsType;
+- (NSString *_Nonnull)getOsType;
 
 /**
  * Get OS version
  */
-- (NSString *)getOsVersion;
+- (NSString *_Nonnull)getOsVersion;
 
 /**
  * Get current platform
  */
-- (NSString *)getPlatform;
+- (NSString *_Nonnull)getPlatform;
 
 /**
  * Get device processor count
@@ -246,37 +253,37 @@ extern NSString *const APSDeployTypeProduction;
 /**
  * Get SDK version
  */
-- (NSString *)getSdkVersion;
+- (NSString *_Nullable)getSdkVersion;
 
 /**
  * Set analytics endpoint url
  */
-- (void)setAnalyticsUrl:(NSString *)url;
+- (void)setAnalyticsUrl:(NSString *_Nonnull)url;
 
 /**
  * Set application id
  */
-- (void)setAppId:(NSString *)appId;
+- (void)setAppId:(NSString *_Nonnull)appId;
 
 /**
  * Set application name
  */
-- (void)setAppName:(NSString *)appName;
+- (void)setAppName:(NSString *_Nonnull)appName;
 
 /**
  * Set application version
  */
-- (void)setAppVersion:(NSString *)appVersion;
+- (void)setAppVersion:(NSString *_Nonnull)appVersion;
 
 /**
  * Set application deployment type
  */
-- (void)setDeployType:(NSString *)deployType;
+- (void)setDeployType:(NSString *_Nonnull)deployType;
 
 /**
  * Set SDK version
  */
-- (void)setSdkVersion:(NSString *)sdkVersion;
+- (void)setSdkVersion:(NSString *_Nonnull)sdkVersion;
 
 /**
  * Set analytics flush interval
