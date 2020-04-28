@@ -813,9 +813,11 @@ methods:
         The [Animation](Titanium.UI.Animation) object or dictionary passed to this method defines
         the end state for the animation, the duration of the animation, and other properties.
 
-        Note that if you use `animate` to move a view, the view's actual *position* is changed, but
+        Note that on SDKs older than 9.1.0 - if you use `animate` to move a view, the view's actual *position* is changed, but
         its layout properties, such as `top`, `left`, `center` and so on are not changed--these
         reflect the original values set by the user, not the actual position of the view.
+
+        As of SDK 9.1.0, the final values of the animation will be set on the view just before the `complete` event and/or the callback is fired.
 
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual size and
         position of the view.
@@ -829,7 +831,7 @@ methods:
 
       - name: callback
         summary: Function to be invoked upon completion of the animation.
-        type: Callback<Object> # FIXME: iOS appears to fire with the Ti.UI.Animation object, whiel Android fires with an empty object
+        type: Callback<Object> # FIXME: iOS appears to fire with the Ti.UI.Animation object, while Android fires with an empty object
         optional: true
 
   - name: clearMotionEffects
