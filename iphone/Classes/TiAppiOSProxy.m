@@ -133,6 +133,13 @@
                                                  name:kTiTraitCollectionChanged
                                                object:nil];
   }
+
+  if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didTakeScreenshot:)
+                                                 name:UIApplicationUserDidTakeScreenshotNotification
+                                               object:nil];
+  }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -189,6 +196,9 @@
   if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
   }
+  if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+  }
 }
 
 #pragma mark Public
@@ -203,6 +213,11 @@
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
   [self fireEvent:@"traitcollectionchange"];
+}
+
+- (void)didTakeScreenshot:(NSNotification *)info
+{
+  [self fireEvent:@"screenshotcaptured"];
 }
 
 - (void)didReceiveApplicationShortcutNotification:(NSNotification *)info
