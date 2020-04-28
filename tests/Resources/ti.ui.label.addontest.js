@@ -39,7 +39,7 @@ describe('Titanium.UI.Label', function () {
 		}
 	});
 
-	it.allBroken('animate font color', function (finish) {
+	it.iosBroken('animate font color', function (finish) {
 		win = Ti.UI.createWindow();
 
 		const label = Ti.UI.createLabel({

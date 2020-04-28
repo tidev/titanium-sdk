@@ -901,9 +901,15 @@ public class TiAnimationBuilder
 		@SuppressWarnings("unchecked")
 		public void onAnimationEnd(Animator animator)
 		{
-
 			if (animator instanceof AnimatorSet) {
 				setAnimationRunningFor(view, false);
+				// Update the underlying properties post-animation!
+				// FIXME: is this the right way to go about it?
+				for (Object key : options.keySet()) {
+					String name = TiConvert.toString(key);
+					Object value = options.get(key);
+					viewProxy.setProperty(name, value);
+				}
 				if (callback != null) {
 					callback.callAsync(viewProxy.getKrollObject(), new Object[] { new KrollDict() });
 				}
