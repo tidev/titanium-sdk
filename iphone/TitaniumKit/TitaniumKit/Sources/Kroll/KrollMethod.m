@@ -38,9 +38,9 @@ JSValueRef KrollCallAsFunction(JSContextRef jsContext, JSObjectRef func, JSObjec
 #endif
 
     __block id result = nil;
-    TiThreadPerformOnMainThread(
-        ^{
-          result = [o call:args];
+    TiPerformBlock(
+        o.context, ^{
+          [o call:args];
         },
         YES);
 #if KMETHOD_DEBUG == 1

@@ -6,17 +6,13 @@
  * to trigger a log that is displayed in the Xcode console.
  */
 
-var win = Ti.UI.createWindow({
-    backgroundColor: '#fff'
+Ti.App.iOS.registerBackgroundTask({
+    type: 'refresh',
+    identifier: 'com.appc.test',
+    interval: 15 * 60,
+    url: './task.js'
 });
 
-var btn = Ti.UI.createButton({
-    title: 'Trigger'
-});
-
-btn.addEventListener('click', function() {
-    Ti.API.info('Hello world!');
-});
-
-win.add(btn);
-win.open();
+global.foo = 'test';
+Ti.API.debug(console);
+Ti.API.debug(global.foo);

@@ -135,6 +135,11 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 @property (nonatomic, readonly) BOOL willTerminate;
 
 /**
+ List of background tasks of this app.
+ */
+@property (nonatomic, retain) NSMutableDictionary *backgroundTasks;
+
+/**
  Returns singleton instance of TiApp application object.
  */
 + (TiApp *)app NS_SWIFT_NAME(sharedApp());

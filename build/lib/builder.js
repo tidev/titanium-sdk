@@ -7,6 +7,7 @@ const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
+const { terser } = require('rollup-plugin-terser');
 
 const git = require('./git');
 const utils = require('./utils');
@@ -104,34 +105,41 @@ class Builder {
 		this.program.gitHash = hash || 'n/a';
 	}
 
-	async transpile(platform, babelOptions, outFile) {
+	async transpile(platform, babelOptions, outPath) {
 		// Copy over common dir, into some temp dir
 		// Then run rollup/babel on it, then just copy the resulting bundle to our real destination!
 		// The temporary location we'll assembled the transpiled bundle
 		const TMP_COMMON_DIR = path.join(TMP_DIR, '_common');
 		const TMP_COMMON_PLAFORM_DIR = path.join(TMP_DIR, '_common', platform);
+		if (!outPath) {
+			outPath = path.join(TMP_DIR, 'common', platform);
+		}
 
 		console.log(`Creating temporary 'common' directory...`); // eslint-disable-line quotes
 		await fs.copy(path.join(ROOT_DIR, 'common'), TMP_COMMON_PLAFORM_DIR);
 
 		// create a bundle
 		console.log('Transpile and run rollup...');
-		const bundle = await rollup({
-			input: `${TMP_COMMON_PLAFORM_DIR}/Resources/ti.main.js`,
-			plugins: [
-				resolve(),
-				commonjs(),
-				babel(determineBabelOptions(babelOptions))
-			],
-			external: [ './app', 'com.appcelerator.aca' ]
-		});
-
-		if (!outFile) {
-			outFile = path.join(TMP_DIR, 'common', platform, 'ti.main.js');
-		}
-
-		console.log(`Writing 'common' bundle to ${outFile} ...`); // eslint-disable-line quotes
-		await bundle.write({ format: 'cjs', file: outFile });
+		const configs = [
+			{ entry: 'ti.main.js' },
+			{ entry: 'ti.task.js', plugins: [ terser() ] }
+		];
+		await Promise.all(configs.map(async (config) => {
+			const { entry, plugins = [] } = config;
+			const bundle = await rollup({
+				input: `${TMP_COMMON_PLAFORM_DIR}/Resources/${entry}`,
+				plugins: [
+					resolve(),
+					commonjs(),
+					babel(determineBabelOptions(babelOptions)),
+					...plugins
+				],
+				external: [ './app', 'com.appcelerator.aca' ]
+			});
+			const outFile = path.join(outPath, entry);
+			console.log(`Writing '${entry}' bundle to ${outFile} ...`); // eslint-disable-line quotes
+			await bundle.write({ format: 'cjs', file: outFile });
+		}));
 
 		// We used to have to copy over ti.internal, but it is now bundled into ti.main.js
 		// if we ever have files there that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.

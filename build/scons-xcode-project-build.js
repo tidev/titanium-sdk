@@ -49,7 +49,7 @@ async function generateBundle(outputDir) {
 	const builder = new Builder({ args: [ 'ios' ] });
 	const ios = new IOS({ });
 
-	await builder.transpile('ios', ios.babelOptions, path.join(outputDir, 'ti.main.js'));
+	await builder.transpile('ios', ios.babelOptions(), outputDir);
 }
 
 async function main(tmpBundleDir) {

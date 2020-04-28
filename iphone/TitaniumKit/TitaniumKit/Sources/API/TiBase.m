@@ -176,3 +176,16 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish)
     dispatch_async(dispatch_get_main_queue(), mainBlock);
   }
 }
+
+void TiPerformBlock(KrollContext *ctx, void (^mainBlock)(void), BOOL waitUntilDone)
+{
+  if (ctx.jsThread.isMainThread) {
+    // If KrollContext was started on the main thread maintain old behavior
+    TiThreadPerformOnMainThread(mainBlock, waitUntilDone);
+  } else {
+    // Our KrollContext was NOT started on the main so we don't really care where
+    // the block is run. Since we cannot guarantee that the runloop is being run
+    // on a regular basis, we don't support scheduling the block async in this case.
+    mainBlock();
+  }
+}

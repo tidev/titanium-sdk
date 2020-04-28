@@ -280,8 +280,8 @@ bool KrollSetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
     } else {
       [o forgetObjectForTiString:prop context:jsContext];
     }
-    TiThreadPerformOnMainThread(
-        ^{
+    TiPerformBlock(
+        o.context, ^{
           [o setValue:v forKey:name];
         },
         YES);
@@ -1051,7 +1051,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
       block(TiValueToId(context, result));
     };
   };
-  TiThreadPerformOnMainThread(mainBlock, NO);
+  TiPerformBlock(thisObject.context, mainBlock, NO);
 }
 
 - (void)noteKrollObject:(KrollObject *)value forKey:(NSString *)key

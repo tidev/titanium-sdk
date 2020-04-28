@@ -1062,29 +1062,37 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
 
-  if (backgroundServices == nil) {
-    return;
+  if (backgroundServices != nil) {
+    UIApplication *app = [UIApplication sharedApplication];
+    TiApp *tiapp = self;
+    bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+      // Synchronize the cleanup call on the main thread in case
+      // the task actually finishes at around the same time.
+      TiThreadPerformOnMainThread(
+          ^{
+            if (bgTask != UIBackgroundTaskInvalid) {
+              [app endBackgroundTask:bgTask];
+              bgTask = UIBackgroundTaskInvalid;
+            }
+          },
+          NO);
+    }];
+    // Start the long-running task and return immediately.
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      // Do the work associated with the task.
+      [tiapp beginBackgrounding];
+    });
   }
 
-  UIApplication *app = [UIApplication sharedApplication];
-  TiApp *tiapp = self;
-  bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
-    // Synchronize the cleanup call on the main thread in case
-    // the task actually finishes at around the same time.
-    TiThreadPerformOnMainThread(
-        ^{
-          if (bgTask != UIBackgroundTaskInvalid) {
-            [app endBackgroundTask:bgTask];
-            bgTask = UIBackgroundTaskInvalid;
-          }
-        },
-        NO);
-  }];
-  // Start the long-running task and return immediately.
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    // Do the work associated with the task.
-    [tiapp beginBackgrounding];
-  });
+  if (self.backgroundTasks != nil) {
+    // Schedule iOS 13 background tasks
+    for (NSString *taskIdentfier in self.backgroundTasks.allKeys) {
+      TiProxy *taskProxy = self.backgroundTasks[taskIdentfier];
+      if ([taskProxy respondsToSelector:@selector(schedule)]) {
+        [taskProxy performSelector:@selector(schedule)];
+      }
+    }
+  }
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application

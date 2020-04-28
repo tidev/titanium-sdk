@@ -44,6 +44,7 @@
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
+@property (nonatomic, strong, readonly) NSThread *jsThread;
 
 - (void)start;
 - (void)stop;

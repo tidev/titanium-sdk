@@ -620,11 +620,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (NSString *)threadName
 {
-#ifdef TI_USE_KROLL_THREAD
-  return [NSString stringWithFormat:@"KrollContext<%@>", krollContextId];
-#else
-  return @"KrollContext<MainThread>";
-#endif
+  return [NSString stringWithFormat:@"KrollContext<%@>", self.jsThread];
 }
 
 - (id)init
@@ -635,6 +631,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 #endif
     stopped = YES;
     KrollContextCount++;
+    _jsThread = NSThread.currentThread;
 
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
   }
@@ -689,8 +686,8 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
                                  userInfo:nil];
   }
   stopped = NO;
-  TiThreadPerformOnMainThread(
-      ^{
+  TiPerformBlock(
+      self, ^{
         [self main];
       },
       NO);
@@ -715,7 +712,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (BOOL)isKJSThread
 {
-  return [NSThread isMainThread];
+  return self.jsThread == NSThread.currentThread;
 }
 
 - (void)invoke:(id)object
@@ -733,10 +730,11 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)enqueue:(id)obj
 {
-  dispatch_block_t block = ^{
-    [self invoke:obj];
-  };
-  TiThreadPerformOnMainThread(block, [NSThread isMainThread]);
+  TiPerformBlock(
+      self, ^{
+        [self invoke:obj];
+      },
+      self.isKJSThread);
 }
 
 - (void)evalJS:(NSString *)code
