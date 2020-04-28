@@ -96,7 +96,8 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "9.1.0" }
 
   - name: curve
     summary: Animation curve or easing function to apply to the animation.

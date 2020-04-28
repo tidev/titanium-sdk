@@ -38,12 +38,15 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.Transformation;
+import android.widget.TextView;
 
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ArgbEvaluator;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
+
+import ti.modules.titanium.ui.widget.TiUILabel;
 
 /**
  * Builds and starts animations. When possible, Honeycomb+ animations
@@ -116,6 +119,7 @@ public class TiAnimationBuilder
 	protected String centerX = null, centerY = null;
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
+	protected Integer color = null;
 	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
@@ -232,6 +236,10 @@ public class TiAnimationBuilder
 			backgroundColor = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR);
 		}
 
+		if (options.containsKey(TiC.PROPERTY_COLOR)) {
+			color = TiConvert.toColor(options, TiC.PROPERTY_COLOR);
+		}
+
 		if (options.containsKey(TiC.PROPERTY_ELEVATION)) {
 			elevation = TiConvert.toFloat(options, TiC.PROPERTY_ELEVATION, -1);
 		}
@@ -311,6 +319,18 @@ public class TiAnimationBuilder
 				ObjectAnimator.ofInt(bgView, "backgroundColor", currentBackgroundColor, backgroundColor);
 			bgAnimator.setEvaluator(new ArgbEvaluator());
 			addAnimator(animators, bgAnimator);
+		}
+
+		if (color != null) {
+			if (viewProxy.peekView() instanceof TiUILabel) {
+				TiUILabel lblView = (TiUILabel) viewProxy.peekView();
+
+				int currentColor = lblView.getColor();
+				ObjectAnimator colAnimator =
+					ObjectAnimator.ofInt((TextView) lblView.getNativeView(), "textColor", currentColor, color);
+				colAnimator.setEvaluator(new ArgbEvaluator());
+				addAnimator(animators, colAnimator);
+			}
 		}
 
 		if (tdm != null) {
