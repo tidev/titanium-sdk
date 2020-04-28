@@ -1847,8 +1847,15 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_ASCII
-    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji. Defaults to English letters layout on iOS.
     description: |
+        This keyboard type allows the end-user to enter numbers, symbols, and non-English letters too.
+        It just launches with the English letters keyboard layout when shown.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        Android keyboards will typically ignore this setting and show the default language keyboard instead,
+        but will still not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -1860,7 +1867,7 @@ properties:
         notes: Use [Titanium.UI.KEYBOARD_TYPE_ASCII](Titanium.UI.KEYBOARD_TYPE_ASCII) instead.
 
   - name: KEYBOARD_DECIMAL_PAD
-    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout showing only numbers, decimal separator, and sign character.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
@@ -1912,8 +1919,15 @@ properties:
         notes: Use [Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD) instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
-    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji, defaulting to numbers layout on iOS.
     description: |
+        On iOS, this will default to showing the "Numbers and Punctuation" side of the keyboard,
+        but still allows the end-user to switch to other keyboards for entering letters as well.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        On Android, this type displays a normal keyboard defaulting to the letter side,
+        but will not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -1925,7 +1939,7 @@ properties:
         notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION) instead.
 
   - name: KEYBOARD_NUMBER_PAD
-    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout only showing numbers for entering positive integers.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
@@ -1966,7 +1980,7 @@ properties:
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number
-    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout showing only numbers, decimal separator, and sign character.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
@@ -1978,8 +1992,15 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_ASCII
-    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji. Defaults to English letters layout on iOS.
     description: |
+        This keyboard type allows the end-user to enter numbers, symbols, and non-English letters too.
+        It just launches with the English letters keyboard layout when shown.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        Android keyboards will typically ignore this setting and show the default language keyboard instead,
+        but will still not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -2016,8 +2037,15 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
-    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji, defaulting to numbers layout on iOS.
     description: |
+        On iOS, this will default to showing the "Numbers and Punctuation" side of the keyboard,
+        but still allows the end-user to switch to other keyboards for entering letters as well.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        On Android, this type displays a normal keyboard defaulting to the letter side,
+        but will not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -2026,7 +2054,7 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBER_PAD
-    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout only showing numbers for entering positive integers.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
