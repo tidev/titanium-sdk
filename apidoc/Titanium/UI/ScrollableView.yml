@@ -430,6 +430,39 @@ examples:
             });
             win.add(photosView);
 
+  - title: Scrollable View with multiple visible views
+    example: |
+      Create three views and assign them as pages to a scrollable view. Each page is narrower than
+      a scrollable view, so multiple views are visible at the same time.
+
+          var win = Ti.UI.createWindow();
+
+          var view1 = Ti.UI.createView({ backgroundColor:'#123' });
+          var view2 = Ti.UI.createView({ backgroundColor:'#246' });
+          var view3 = Ti.UI.createView({ backgroundColor:'#48b' });
+
+          // Common params
+          var params = {
+            views:[view1,view2,view3],
+            clipViews:false,
+            showPagingControl:false,
+            top: 0
+          };
+
+          if (Ti.Platform.name === 'android') {
+            // Android specific params
+            params.padding = {
+              left:40,
+              right:40
+            };
+          } else {
+            // iOS specific params
+            params.width = '90%';
+          }
+
+          win.add(scrollableView);
+          win.open();
+
   - title: Alloy XML Markup
     example: |
        First example as an Alloy view.
