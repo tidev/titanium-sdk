@@ -403,6 +403,43 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	it('animate (top) - autoreverse', function (finish) {
+		win = Ti.UI.createWindow();
+		const view = Ti.UI.createView({
+			backgroundColor: 'red',
+			width: 100, height: 100,
+			left: 100,  top: 100
+		});
+
+		win.addEventListener('open', function () {
+			const animation = Ti.UI.createAnimation({
+				top: 150,
+				duration: 1000,
+				autoreverse: true
+			});
+
+			animation.addEventListener('complete', function () {
+				// make sure to give it a time to layout
+				setTimeout(function () {
+					try {
+						should(view.rect.x).be.eql(100);
+						should(view.rect.y).be.eql(100);
+						should(view.left).be.eql(100);
+						should(view.top).be.eql(100);
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				}, 1);
+			});
+
+			view.animate(animation);
+
+		});
+		win.add(view);
+		win.open();
+	});
+
 	// FIXME: Windows 10 Store app fails for this...need to figure out why.
 	it.windowsBroken('animate (left)', function (finish) {
 		win = Ti.UI.createWindow();
@@ -628,6 +665,11 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	// FIXME: I think there's a parity issue here!
+	// Android returns x/y values as pixels *always*. while the input '100' uses the default unit (dip)
+	// which may vary based on screen density (Ti.Platform.DisplayCaps.ydpi) - so may be 100 or 200 pixels!
+	// But iOS *always* returns 123 for our value, so it must report the convertPointToView results in the default units too!
+	// So I think iOS always reports back dip values here and Android always reports back pixels
 	it.androidAndWindowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
