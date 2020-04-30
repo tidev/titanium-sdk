@@ -24,13 +24,6 @@ exports.init = function (logger, config, cli) {
 				return finished();
 			}
 
-			// Fetch a path to the built APK file.
-			let sourceFilePath = builder.apkFile;
-			if (!sourceFilePath || !fs.existsSync(sourceFilePath)) {
-				logger.error(__('No APK file to deploy, skipping'));
-				return finished();
-			}
-
 			// Do not continue if developer did not provide a destination directory.
 			const outputDir = builder.outputDir;
 			if (!outputDir) {
@@ -38,26 +31,25 @@ exports.init = function (logger, config, cli) {
 				return finished();
 			}
 
-			// Copy built app file(s) to destination directory.
-			if (outputDir !== path.dirname(sourceFilePath)) {
-				// Create the destination directory.
-				fs.ensureDirSync(outputDir);
+			// Create the destination directory.
+			fs.ensureDirSync(outputDir);
 
-				// Copy built APK to destination.
-				let outputFilePath = path.join(outputDir, builder.tiapp.name + '.apk');
+			// Copy built APK to destination, if available.
+			if (builder.apkFile && fs.existsSync(builder.apkFile)) {
+				const outputFilePath = path.join(outputDir, builder.tiapp.name + '.apk');
 				if (fs.existsSync(outputFilePath)) {
 					fs.unlinkSync(outputFilePath);
 				}
-				appc.fs.copyFileSync(sourceFilePath, outputFilePath, { logger: logger.debug });
+				appc.fs.copyFileSync(builder.apkFile, outputFilePath, { logger: logger.debug });
+			}
 
-				// Copy built app-bundle to destination, if available.
-				if (builder.aabFile && fs.existsSync(builder.aabFile)) {
-					outputFilePath = path.join(outputDir, builder.tiapp.name + '.aab');
-					if (fs.existsSync(outputFilePath)) {
-						fs.unlinkSync(outputFilePath);
-					}
-					appc.fs.copyFileSync(builder.aabFile, outputFilePath, { logger: logger.debug });
+			// Copy built app-bundle to destination, if available.
+			if (builder.aabFile && fs.existsSync(builder.aabFile)) {
+				const outputFilePath = path.join(outputDir, builder.tiapp.name + '.aab');
+				if (fs.existsSync(outputFilePath)) {
+					fs.unlinkSync(outputFilePath);
 				}
+				appc.fs.copyFileSync(builder.aabFile, outputFilePath, { logger: logger.debug });
 			}
 
 			logger.info(__('Packaging complete'));
