@@ -1,0 +1,17 @@
+{
+  "name": "__PROJECT_NAME__",
+  "version": "1.0.0",
+  "description": "Webpack Titanium Mobile Project",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@titanium-sdk/webpack-plugin-babel": "0.1.2",
+    "@titanium-sdk/webpack-plugin-classic": "^0.1.0",
+    "babel-eslint": "10.1.0",
+    "eslint": "^7.5.0",
+    "eslint-config-axway": "4.7.0",
+    "webpack": "4.44.0"
+  }
+}
