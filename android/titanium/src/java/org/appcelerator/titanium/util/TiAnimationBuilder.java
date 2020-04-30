@@ -903,12 +903,13 @@ public class TiAnimationBuilder
 		{
 			if (animator instanceof AnimatorSet) {
 				setAnimationRunningFor(view, false);
-				// Update the underlying properties post-animation!
-				// FIXME: is this the right way to go about it?
-				for (Object key : options.keySet()) {
-					String name = TiConvert.toString(key);
-					Object value = options.get(key);
-					viewProxy.setProperty(name, value);
+				if (autoreverse == null || !autoreverse.booleanValue()) {
+					// Update the underlying properties post-animation if not auto-reversing
+					for (Object key : options.keySet()) {
+						String name = TiConvert.toString(key);
+						Object value = options.get(key);
+						viewProxy.setProperty(name, value);
+					}
 				}
 				if (callback != null) {
 					callback.callAsync(viewProxy.getKrollObject(), new Object[] { new KrollDict() });
