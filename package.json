@@ -103,7 +103,7 @@
     "liveview": "^1.5.0",
     "lodash.defaultsdeep": "^4.6.1",
     "markdown": "0.5.0",
-    "moment": "^2.24.0",
+    "moment": "^2.25.0",
     "node-appc": "^1.0.1",
     "node-titanium-sdk": "^5.1.0",
     "node-uuid": "1.4.8",
