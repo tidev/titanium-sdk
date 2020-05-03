@@ -272,7 +272,7 @@ events:
 
   - name: itemsselected
     summary: |
-      Fired when user stops two-pan gesture interaction for selecting multiple items.
+      Fired when user stops two-pan gesture interaction for selecting multiple items. 
       It is used with <Titanium.UI.ListView.allowsMultipleSelectionInteraction>.
     properties:
       - name: selectedItems
@@ -755,9 +755,9 @@ properties:
   - name: allowsMultipleSelectionInteraction
     summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
     description: |
-        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture.
-        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along
-        the edge of the table that contains editing controls (checkboxes). In order to support this behavior,
+        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
         you must also set <Titanium.UI.ListView.allowsMultipleSelectionDuringEditing> to true.
         Once user interaction stops the <Titanium.UI.ListView.itemsselected> event is fired.
     type: Boolean
@@ -898,15 +898,6 @@ properties:
     type: Titanium.UI.RefreshControl
     platforms: [android, iphone, ipad]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
-
-  - name: scrollDamping
-    summary: Minimum distance where a scoll direction change is detected.
-    description: |
-        A higher value will prevent the `direction` in the `scolling` event to change too quickly.
-    type: Number
-    platforms: [android]
-    default: 5
-    since: { android: "9.1.0" }
 
   - name: searchView
     summary: Search field to use for the list view.
@@ -1135,8 +1126,8 @@ properties:
   - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
-          If you want to show the search bar in navigation bar, set this property `true` during creation.
-          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the
+          If you want to show the search bar in navigation bar, set this property `true` during creation. 
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
           searchbar when scrolling.
     type: Boolean
     default: false

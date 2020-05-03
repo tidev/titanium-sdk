@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.util.TypedValue;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -29,13 +30,20 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.RefreshControlProxy;
+import ti.modules.titanium.ui.SearchBarProxy;
+import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.android.SearchViewProxy;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
+import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,15 +54,6 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import ti.modules.titanium.ui.RefreshControlProxy;
-import ti.modules.titanium.ui.SearchBarProxy;
-import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.android.SearchViewProxy;
-import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
-import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener
 {
@@ -76,7 +75,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 	public LayoutInflater inflater;
 	private int titleId;
 	private int dividerHeight;
-	private int scrollDamping = 5;
 	private ArrayList<Pair<Integer, Integer>> markers = new ArrayList<Pair<Integer, Integer>>();
 	private View headerView;
 	private View footerView;
@@ -405,7 +403,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 				_firstVisibleItem = firstVisibleItem;
 				_visibleItemCount = visibleItemCount;
 				int scrolledOffset = listView.getVerticalScrollOffset();
-				if (Math.abs(mInitialScroll - scrolledOffset) > scrollDamping) {
+				if (scrolledOffset != mInitialScroll) {
 					if (scrolledOffset > mInitialScroll) {
 						scrollUp = 1;
 					} else {
@@ -648,10 +646,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			this.listView.setTouchScrollable(TiConvert.toBoolean(d.get(TiC.PROPERTY_CAN_SCROLL), true));
 		}
 
-		if (d.containsKeyAndNotNull(TiC.PROPERTY_SCROLL_DAMPING)) {
-			scrollDamping = TiConvert.toInt(d.get(TiC.PROPERTY_SCROLL_DAMPING), 0);
-		}
-
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_FAST_SCROLL)) {
 			listView.setFastScrollEnabled(TiConvert.toBoolean(d.get(TiC.PROPERTY_FAST_SCROLL), false));
 		}
@@ -810,8 +804,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			this.listView.setTouchScrollable(TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_FAST_SCROLL)) {
 			listView.setFastScrollEnabled(TiConvert.toBoolean(newValue, false));
-		} else if (key.equals(TiC.PROPERTY_SCROLL_DAMPING)) {
-			scrollDamping = TiConvert.toInt(newValue, 0);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
