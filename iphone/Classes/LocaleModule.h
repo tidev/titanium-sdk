@@ -23,9 +23,9 @@ JSExportAs(getString,
            : (NSString *)key withHint
            : (id)hint);
 JSExportAs(parseDecimal,
-		   -(NSNumber *)parseDecimal
-		   : (NSString *)text withLocaleId
-		   : (id)localeId);
+           -(NSNumber *)parseDecimal
+           : (NSString *)text withLocaleId
+           : (id)localeId);
 - (void)setLanguage:(NSString *)language;
 
 @end

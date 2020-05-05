@@ -167,7 +167,7 @@ methods:
     summary: Parses a number from the given string using the current or given locale.
     platforms: [android, iphone, ipad]
     returns:
-        type: number
+        type: Number
         summary: Returns the parsed number. Returns `NaN` (Not-a-Number) if given string is invalid.
     parameters:
       - name: text
