@@ -151,6 +151,15 @@ preBuild.doFirst {
 	}
 }
 
+// If Titanium failed to set Android NDK path in "local.properties", then assume NDK is not installed.
+// Have gradle auto-download NDK by setting the version we want below. (Will fail if a different version is installed.)
+// Must be set to a stable release version listed here: https://developer.android.com/ndk/downloads
+def localProperties = new Properties()
+localProperties.load(file("${rootDir}/local.properties").newDataInputStream())
+if (localProperties.get('ndk.dir') == null) {
+	android.ndkVersion '20.1.5948944'
+}
+
 // Set up project to compile Java side before compiling the C/C++ side.
 // We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
 project.afterEvaluate {
