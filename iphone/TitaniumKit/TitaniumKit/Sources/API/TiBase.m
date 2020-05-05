@@ -162,6 +162,51 @@ NSString *JavascriptNameForClass(Class c)
   return NSStringFromClass(c);
 }
 
+@implementation NSThread (MCSMNSThreadCategory)
+
++ (void)MCSM_performBlockOnMainThread:(void (^)())block
+{
+  [[NSThread mainThread] MCSM_performBlock:block];
+}
+
++ (void)MCSM_performBlockInBackground:(void (^)())block
+{
+  [NSThread performSelectorInBackground:@selector(MCSM_runBlock:)
+                             withObject:[[block copy] autorelease]];
+}
+
++ (void)MCSM_runBlock:(void (^)())block
+{
+  block();
+}
+
+- (void)MCSM_performBlock:(void (^)())block
+{
+  if ([[NSThread currentThread] isEqual:self]) {
+    block();
+  } else {
+    [self MCSM_performBlock:block waitUntilDone:NO];
+  }
+}
+- (void)MCSM_performBlock:(void (^)())block waitUntilDone:(BOOL)wait
+{
+
+  [NSThread performSelector:@selector(MCSM_runBlock:)
+                   onThread:self
+                 withObject:[[block copy] autorelease]
+              waitUntilDone:wait];
+}
+
+- (void)MCSM_performBlock:(void (^)())block afterDelay:(NSTimeInterval)delay
+{
+
+  [self performSelector:@selector(MCSM_performBlock:)
+             withObject:[[block copy] autorelease]
+             afterDelay:delay];
+}
+
+@end
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish)
 {
   BOOL alreadyOnMainThread = [NSThread isMainThread];
@@ -179,13 +224,20 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish)
 
 void TiPerformBlock(KrollContext *ctx, void (^mainBlock)(void), BOOL waitUntilDone)
 {
-  if (ctx.jsThread.isMainThread) {
-    // If KrollContext was started on the main thread maintain old behavior
-    TiThreadPerformOnMainThread(mainBlock, waitUntilDone);
+  // We want to force the block to run on the context's js thread
+  if (!ctx.isKJSThread) {
+    // mismatched threads, so run on the thread the KrollContext was started on
+    if (ctx.jsThread.isMainThread) {
+      TiThreadPerformOnMainThread(mainBlock, waitUntilDone);
+    } else {
+      [ctx.jsThread MCSM_performBlock:mainBlock];
+    }
   } else {
-    // Our KrollContext was NOT started on the main so we don't really care where
-    // the block is run. Since we cannot guarantee that the runloop is being run
-    // on a regular basis, we don't support scheduling the block async in this case.
-    mainBlock();
+    // We're already on the correct thread
+    if (waitUntilDone) {
+      mainBlock();
+    } else {
+      [ctx.jsThread MCSM_performBlock:mainBlock waitUntilDone:waitUntilDone];
+    }
   }
 }

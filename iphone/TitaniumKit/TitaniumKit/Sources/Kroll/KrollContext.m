@@ -686,11 +686,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
                                  userInfo:nil];
   }
   stopped = NO;
-  TiPerformBlock(
-      self, ^{
-        [self main];
-      },
-      NO);
+  [self main];
 }
 
 - (void)stop
