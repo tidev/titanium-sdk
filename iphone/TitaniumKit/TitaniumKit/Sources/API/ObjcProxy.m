@@ -162,6 +162,8 @@
     if (listenersForType == nil) {
       listenersForType = [[NSMutableArray alloc] init];
     }
+    // TIMOB-27839. Instead of using JSManagedValue we are using JSValue to force a retain cycle
+    // between the module/proxy and the event listeners to keep both alive so long as there were any listeners
     [listenersForType addObject:callback];
     ourCallbackCount = [listenersForType count];
     [_listeners setObject:listenersForType forKey:name];
