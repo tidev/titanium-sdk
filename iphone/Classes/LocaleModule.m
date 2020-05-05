@@ -85,7 +85,7 @@ GETTER_IMPL(NSString *, currentLocale, CurrentLocale);
   // Remove localized thousands separators from string if they exist. NSScanner fails to parse them.
   NSString *thousandsSeparator = [locale objectForKey:NSLocaleGroupingSeparator];
   text = [text stringByReplacingOccurrencesOfString:thousandsSeparator withString:@""];
-  
+
   // Attempt to parse a number from given text. Return not-a-number if failed.
   NSScanner *scanner = [NSScanner localizedScannerWithString:text];
   [scanner setLocale:locale];
