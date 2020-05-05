@@ -69,6 +69,9 @@ methods:
     summary: |
         Formats a number into the decimal format, including decimal symbol, of the locale 
         configured for the system.
+    description: |
+        The localized string created by this method can be parsed be parsed back to a number
+        via the <Titanium.Locale.parseDecimal> method.
     returns:
         type: String
         summary: |
