@@ -365,6 +365,12 @@
     UINavigationBar *navBar = [[controller navigationController] navigationBar];
     [navBar setBarStyle:navBarStyle];
     [navBar setBarTintColor:barColor];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if ([self shouldUseNavBarApperance]) {
+      navBar.standardAppearance.backgroundColor = barColor;
+      navBar.scrollEdgeAppearance.backgroundColor = barColor;
+    }
+#endif
     [self refreshBackButton];
   }
 }

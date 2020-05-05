@@ -381,18 +381,9 @@ methods:
     platforms: [iphone, ipad]
     since: "8.0.0"
     parameters:
-      - name: source
-        summary: A script that can be injected into a webpage.
-        type: String
-      - name: injectionTime
-        summary: The time when the script should be injected into the webpage.
-        type: Number
-        constants: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_*
-      - name: mainFrameOnly
-        summary: |
-            A Boolean value indicating whether the script should be injected only into the 
-            main frame (true) or into all frames (false).
-        type: Boolean
+      - name: params
+        summary: Properties required to create user script.
+        type: UserScriptParams
 
   - name: removeAllUserScripts
     summary: Removes all associated user scripts.
@@ -1184,3 +1175,26 @@ properties:
   - name: url
     summary: The url of the link that should be navigated to.
     type: String
+
+---
+name: UserScriptParams
+summary: Dictionary of options for the <Titanium.UI.WebView.addUserScript> method.
+platforms: [iphone, ipad]
+since: "8.0.0"
+properties:
+  - name: source
+    summary: A script that can be injected into a webpage.
+    type: String
+  - name: injectionTime
+    summary: The time when the script should be injected into the webpage.
+    type: Number
+    constants: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_*
+    default: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_START
+    optional: true
+  - name: mainFrameOnly
+    summary: |
+        A Boolean value indicating whether the script should be injected only into the 
+        main frame (true) or into all frames (false).
+    type: Boolean
+    default: false
+    optional: true

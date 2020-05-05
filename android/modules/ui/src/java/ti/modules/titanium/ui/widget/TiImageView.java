@@ -493,7 +493,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		if (this.tintColor == 0) {
 			imageView.clearColorFilter();
 		} else {
-			imageView.setColorFilter(this.tintColor, Mode.MULTIPLY);
+			imageView.setColorFilter(this.tintColor, Mode.SRC_ATOP);
 		}
 	}
 
