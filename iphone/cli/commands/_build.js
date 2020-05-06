@@ -2956,6 +2956,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.entitlements"';
 			} else if (obj.path === 'Titanium.app') {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
+			}	else if (obj.path === 'Titanium-Bridging-Header.h') {
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + scrubbedAppName + '-Bridging-Header.h"';
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
 			} else if (obj.path === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
@@ -2994,6 +2996,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						child.comment = '"' + appName + '.entitlements"';
 					} else if (child.comment === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
 						obj.children.splice(i--, 1);
+					} else if (child.comment === 'Titanium-Bridging-Header.h') {
+						child.comment = '"' + scrubbedAppName + '-Bridging-Header.h"';
 					}
 				}
 			}
@@ -3035,6 +3039,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			}
 			if (obj.buildSettings.PRODUCT_NAME === 'Titanium') {
 				obj.buildSettings.PRODUCT_NAME = '"' + appName + '"';
+			}
+			if (obj.buildSettings.SWIFT_OBJC_BRIDGING_HEADER === '"Titanium-Bridging-Header.h"') {
+				obj.buildSettings.SWIFT_OBJC_BRIDGING_HEADER = `"${scrubbedAppName}-Bridging-Header.h"`;
 			}
 			if (Array.isArray(obj.buildSettings.LIBRARY_SEARCH_PATHS)) {
 				obj.buildSettings.LIBRARY_SEARCH_PATHS.forEach(function (item, i, arr) {
@@ -4607,6 +4614,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		this,
 		path.join(this.platformPath, 'iphone', 'Titanium_Prefix.pch'),
 		path.join(this.buildDir, name + '_Prefix.pch')
+	);
+	copyAndReplaceFile.call(
+		this,
+		path.join(this.platformPath, 'iphone', 'Titanium-Bridging-Header.h'),
+		path.join(this.buildDir, name + '-Bridging-Header.h')
 	);
 	copyAndReplaceFile.call(
 		this,

@@ -637,7 +637,7 @@
 		3ABA85AA1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchQueryProxy.m; sourceTree = "<group>"; };
 		4A4D3A8E22C0CE6A003D2DB7 /* TiUtils+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TiUtils+Addons.h"; sourceTree = "<group>"; };
 		4A4D3A8F22C0CE6A003D2DB7 /* TiUtils+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "TiUtils+Addons.m"; sourceTree = "<group>"; };
-		4A6C799B24536734000784A2 /* Titanium-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Titanium-Bridging-Header.h"; path = "../Classes/Titanium-Bridging-Header.h"; sourceTree = "<group>"; };
+		4A6C799B24536734000784A2 /* Titanium-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Titanium-Bridging-Header.h"; sourceTree = "<group>"; };
 		4A6C799C24536735000784A2 /* TiAppiOSBackgroundTaskProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiAppiOSBackgroundTaskProxy.swift; sourceTree = "<group>"; };
 		4A890839245371AD00AD91B4 /* RunScriptOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunScriptOperation.swift; sourceTree = "<group>"; };
 		50115A9315D5DE0500122055 /* ThirdpartyNS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThirdpartyNS.h; path = ../Classes/ThirdpartyNS.h; sourceTree = SOURCE_ROOT; };
@@ -2404,7 +2404,7 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
-				SWIFT_OBJC_BRIDGING_HEADER = "../Classes/Titanium-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2449,7 +2449,7 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
-				SWIFT_OBJC_BRIDGING_HEADER = "../Classes/Titanium-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WARNING_CFLAGS = "-Wno-arc-performSelector-leaks";
