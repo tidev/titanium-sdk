@@ -7,7 +7,6 @@ const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
-const { terser } = require('rollup-plugin-terser');
 
 const git = require('./git');
 const utils = require('./utils');
@@ -122,7 +121,7 @@ class Builder {
 		console.log('Transpile and run rollup...');
 		const configs = [
 			{ entry: 'ti.main.js' },
-			{ entry: 'ti.task.js', plugins: [ terser() ] }
+			{ entry: 'ti.task.js' }
 		];
 		await Promise.all(configs.map(async (config) => {
 			const { entry, plugins = [] } = config;
