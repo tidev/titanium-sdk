@@ -392,7 +392,7 @@
 
 #pragma mark - Background Services & Tasks
 
-- (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
+- (TiProxy *)registerBackgroundService:(id)args
 {
   NSDictionary *a = nil;
   ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
@@ -403,35 +403,31 @@
     return nil;
   }
 
-  if (backgroundServices == nil) {
-    backgroundServices = [[NSMutableDictionary alloc] init];
+  NSString *identifier = [a objectForKey:@"identifier"];
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && identifier != nil) {
+    if (self.backgroundTasks == nil) {
+      self.backgroundTasks = [NSMutableDictionary dictionary];
+    }
+
+    TiAppiOSBackgroundTaskProxy *task = [[[TiAppiOSBackgroundTaskProxy alloc] _initWithPageContext:self.executionContext args:args] autorelease];
+    [TiApp.app registerBackgroundTask:task];
+
+    return task;
+  } else {
+    if (backgroundServices == nil) {
+      backgroundServices = [[NSMutableDictionary alloc] init];
+    }
+
+    TiAppiOSBackgroundServiceProxy *proxy = [backgroundServices objectForKey:urlString];
+
+    if (proxy == nil) {
+      proxy = [[[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+      [backgroundServices setValue:proxy forKey:urlString];
+    }
+
+    [[TiApp app] registerBackgroundService:proxy];
+    return proxy;
   }
-
-  TiAppiOSBackgroundServiceProxy *proxy = [backgroundServices objectForKey:urlString];
-
-  if (proxy == nil) {
-    proxy = [[[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-    [backgroundServices setValue:proxy forKey:urlString];
-  }
-
-  [[TiApp app] registerBackgroundService:proxy];
-  return proxy;
-}
-
-- (TiAppiOSBackgroundTaskProxy *)registerBackgroundTask:(id)args API_AVAILABLE(ios(13))
-{
-  NSDictionary *options = nil;
-  ENSURE_ARG_AT_INDEX(options, args, 0, NSDictionary);
-  NSString *identifier = options[@"identifier"];
-
-  if (self.backgroundTasks == nil) {
-    self.backgroundTasks = [NSMutableDictionary dictionary];
-  }
-
-  TiAppiOSBackgroundTaskProxy *task = [[[TiAppiOSBackgroundTaskProxy alloc] _initWithPageContext:self.executionContext args:args] autorelease];
-  [TiApp.app registerBackgroundTask:task];
-
-  return task;
 }
 
 - (void)registerUserNotificationSettings:(id)args

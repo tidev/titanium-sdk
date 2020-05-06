@@ -1164,6 +1164,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   RELEASE_TO_NIL(remoteNotification);
   RELEASE_TO_NIL(splashScreenView);
   RELEASE_TO_NIL(backgroundServices);
+  RELEASE_TO_NIL(_backgroundTasks);
   RELEASE_TO_NIL(localNotification);
   RELEASE_TO_NIL(uploadTaskResponses);
   RELEASE_TO_NIL(queuedBootEvents);

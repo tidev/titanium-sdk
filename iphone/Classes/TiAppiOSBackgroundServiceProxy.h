@@ -7,10 +7,11 @@
 
 #ifdef USE_TI_APPIOS
 
+#import "Titanium-Swift.h"
 #import <TitaniumKit/KrollBridge.h>
 #import <TitaniumKit/TiProxy.h>
 
-@interface TiAppiOSBackgroundServiceProxy : TiProxy {
+@interface TiAppiOSBackgroundServiceProxy : TiProxy <BackgroundTaskProxy> {
 
   @private
   KrollBridge *bridge;

@@ -9,10 +9,18 @@ import TitaniumKit
 import Foundation.NSOperation
 import BackgroundTasks
 
+@objc
+public protocol BackgroundTaskProxy {
+  @objc(stop:)
+  func stop(args: Any)
+  
+  @objc(unregister:)
+  func unregister(args: Any)
+}
+
 @available(iOS 13.0, *)
 @objc
-public class TiAppiOSBackgroundTaskProxy : TiProxy {
-  
+public class TiAppiOSBackgroundTaskProxy : TiProxy, BackgroundTaskProxy {
   @objc
   public var type: String!
   
@@ -23,7 +31,7 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
   public var url: String!
   
   @objc
-  public var interval: NSNumber!
+  public var interval: NSNumber?
   
   @objc
   public var `repeat`: NSNumber {
@@ -41,8 +49,8 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
   private var _repeat: Bool!
   
   public override func _init(withProperties properties: [AnyHashable : Any]!) {
-    guard let type = properties["type"] as? String else {
-      self.throwException("Invalid task", subreason: "No type specified", location: CODELOCATION)
+    guard let type = properties["type"] as? String, (type == "refresh" || type == "process") else {
+      self.throwException("Invalid task", subreason: "Missing or invalid type", location: CODELOCATION)
       return;
     }
     guard let identifier = properties["identifier"] as? String else {
@@ -53,19 +61,8 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
       self.throwException("Invalid task", subreason: "No url specified", location: CODELOCATION)
       return;
     }
-    guard let interval = properties["interval"] as? NSNumber else {
-      self.throwException("Invalid task", subreason: "No interval specified", location: CODELOCATION)
-      return;
-    } 
     
-    // TODO: validate type and options
-    if let options = properties["options"] as? [String] {
-      self.options = options
-    }
-    self.type = type
-    self.identifier = identifier
-    self.url = url;
-    self.interval = interval
+    super._init(withProperties: properties)
   }
   
   @objc
@@ -83,13 +80,23 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
       }
       request = processingRequest
     }
-    request.earliestBeginDate = Date(timeIntervalSinceNow: self.interval.doubleValue)
+    if let interval = self.interval {
+      request.earliestBeginDate = Date(timeIntervalSinceNow: interval.doubleValue)
+    }
     
     do {
       try BGTaskScheduler.shared.submit(request)
     } catch {
       NSLog("Could not schedule background task: \(error)")
     }
+  }
+  
+  public func stop(args: Any) {
+    BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: self.identifier)
+  }
+  
+  public func unregister(args: Any) {
+    TiApp.sharedApp()?.unregisterBackgroundTask(self)
   }
 }
 
@@ -100,14 +107,20 @@ extension TiApp {
     if (self.backgroundTasks == nil) {
       self.backgroundTasks = NSMutableDictionary()
     }
-    self.backgroundTasks.setObject(taskProxy, forKey: taskProxy.identifier as NSString);
+    self.backgroundTasks.setObject(taskProxy, forKey: taskProxy.identifier! as NSCopying);
     BGTaskScheduler.shared.register(forTaskWithIdentifier: taskProxy.identifier, using: nil) { (task) in
       self.handleBackgroundTask(task)
     }
   }
   
+  @objc(unregisterBackgroundTask:)
+  func unregisterBackgroundTask(_ taskProxy: TiAppiOSBackgroundTaskProxy) {
+    self.backgroundTasks.removeObject(forKey: taskProxy.identifier!);
+  }
+  
   func handleBackgroundTask(_ task: BGTask) {
     let taskProxy = self.backgroundTasks[task.identifier] as! TiAppiOSBackgroundTaskProxy
+    taskProxy.schedule()
     let url = taskProxy.url!
     let queue = Foundation.OperationQueue()
     
