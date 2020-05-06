@@ -164,17 +164,6 @@ NSString *JavascriptNameForClass(Class c)
 
 @implementation NSThread (MCSMNSThreadCategory)
 
-+ (void)MCSM_performBlockOnMainThread:(void (^)())block
-{
-  [[NSThread mainThread] MCSM_performBlock:block];
-}
-
-+ (void)MCSM_performBlockInBackground:(void (^)())block
-{
-  [NSThread performSelectorInBackground:@selector(MCSM_runBlock:)
-                             withObject:[[block copy] autorelease]];
-}
-
 + (void)MCSM_runBlock:(void (^)())block
 {
   block();
@@ -195,14 +184,6 @@ NSString *JavascriptNameForClass(Class c)
                    onThread:self
                  withObject:[[block copy] autorelease]
               waitUntilDone:wait];
-}
-
-- (void)MCSM_performBlock:(void (^)())block afterDelay:(NSTimeInterval)delay
-{
-
-  [self performSelector:@selector(MCSM_performBlock:)
-             withObject:[[block copy] autorelease]
-             afterDelay:delay];
 }
 
 @end
@@ -230,14 +211,10 @@ void TiPerformBlock(KrollContext *ctx, void (^mainBlock)(void), BOOL waitUntilDo
     if (ctx.jsThread.isMainThread) {
       TiThreadPerformOnMainThread(mainBlock, waitUntilDone);
     } else {
-      [ctx.jsThread MCSM_performBlock:mainBlock];
+      [ctx.jsThread MCSM_performBlock:mainBlock]; // FIXME: waiting until done causes tasks to not work!
     }
   } else {
     // We're already on the correct thread
-    if (waitUntilDone) {
-      mainBlock();
-    } else {
-      [ctx.jsThread MCSM_performBlock:mainBlock waitUntilDone:waitUntilDone];
-    }
+    mainBlock(); // just run sync - I don't know how we can properly run it async
   }
 }

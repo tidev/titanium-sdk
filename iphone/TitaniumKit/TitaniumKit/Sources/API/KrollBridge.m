@@ -108,11 +108,14 @@ CFMutableSetRef krollBridgeRegistry = nil;
     OSSpinLockLock(&krollBridgeRegistryLock);
     CFSetAddValue(krollBridgeRegistry, self);
     OSSpinLockUnlock(&krollBridgeRegistryLock);
-    TiThreadPerformOnMainThread(
-        ^{
-          [self registerForMemoryWarning];
-        },
-        NO);
+    // If not the main thread, don't do this for bg tasks
+    if ([NSThread isMainThread]) {
+      TiThreadPerformOnMainThread(
+          ^{
+            [self registerForMemoryWarning];
+          },
+          NO);
+    }
   }
   return self;
 }
@@ -406,6 +409,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
   JSGlobalContextRef jsContext = [kroll context];
   JSContext *objcJSContext = [JSContext contextWithJSGlobalContextRef:jsContext];
   JSValue *global = [objcJSContext globalObject];
+  // TODO: Can we re-use/share the global from the main thread/context?!
+
   // Make the global object itself available under the name "global"
   [global defineProperty:@"global"
               descriptor:@{
@@ -457,11 +462,13 @@ CFMutableSetRef krollBridgeRegistry = nil;
     JSValue * (^lazyLoad)(void) = ^() {
       JSValue *result;
       TiModule *mod = [host moduleNamed:name context:self];
+      JSContext *curContext = [JSContext currentContext];
       if (mod != nil) {
         KrollObject *ko = [self registerProxy:mod];
-        result = [JSValue valueWithJSValueRef:[ko jsobject] inContext:[JSContext currentContext]];
-      } else {
-        result = [JSValue valueWithUndefinedInContext:[JSContext currentContext]];
+        result = [JSValue valueWithJSValueRef:[ko jsobject] inContext:curContext];
+      }
+      if (result == nil) {
+        result = [JSValue valueWithUndefinedInContext:curContext];
       }
       [[JSContext currentThis] defineProperty:name
                                    descriptor:@{
@@ -488,10 +495,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
     JSValue * (^lazyLoad)(void) = ^() {
       JSValue *result;
       Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", name]);
+      JSContext *curContext = [JSContext currentContext];
       if (moduleClass != nil) {
-        result = [JSValue valueWithObject:[[moduleClass alloc] init] inContext:[JSContext currentContext]];
-      } else {
-        result = [JSValue valueWithUndefinedInContext:[JSContext currentContext]];
+        result = [JSValue valueWithObject:[[moduleClass alloc] init] inContext:curContext];
+      }
+      if (result == nil) {
+        result = [JSValue valueWithUndefinedInContext:curContext];
       }
       [[JSContext currentThis] defineProperty:name
                                    descriptor:@{
@@ -509,17 +518,19 @@ CFMutableSetRef krollBridgeRegistry = nil;
                   }];
   }
 
-  // FIXME Re-enable analytics setters here
-  if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
-    APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
-    NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
-    NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
-    NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
-    if (buildType != nil || buildType.length > 0) {
-      [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
+  // Don't re-set analytics vars in a bg task, only on main app boot
+  if ([NSThread isMainThread]) {
+    if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
+      APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
+      NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
+      NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
+      NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
+      if (buildType != nil || buildType.length > 0) {
+        [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
+      }
+      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
+      [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
     }
-    [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
-    [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
   }
 
   //if we have a preload dictionary, register those static key/values into our namespace

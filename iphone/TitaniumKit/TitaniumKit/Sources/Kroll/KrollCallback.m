@@ -100,11 +100,11 @@ static NSLock *callbackLock;
 
 - (void)callAsync:(NSArray *)args thisObject:(id)thisObject_
 {
-  TiThreadPerformOnMainThread(
-      ^{
+  TiPerformBlock(
+      context, ^{
         [self call:args thisObject:thisObject_];
       },
-      [NSThread isMainThread]);
+      NO);
 }
 - (id)call:(NSArray *)args thisObject:(id)thisObject_
 {
