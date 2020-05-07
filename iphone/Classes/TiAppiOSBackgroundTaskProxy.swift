@@ -6,43 +6,72 @@
 //
 
 import TitaniumKit
-import Foundation.NSOperation
 import BackgroundTasks
 
 @available(iOS 13.0, *)
 @objc
 public class TiAppiOSBackgroundTaskProxy : TiProxy {
   
-  @objc
-  public var type: String!
-  
-  @objc
-  public var identifier: String!
-  
-  @objc
-  public var url: String!
-  
-  @objc
-  public var interval: NSNumber!
-  
-  @objc
-  public var `repeat`: NSNumber {
+  var type: String {
     get {
-      return NSNumber.init(booleanLiteral: self._repeat)
-    }
-    set {
-      self._repeat = newValue.boolValue
+      return self.value(forUndefinedKey: "type") as! String
     }
   }
   
-  @objc
-  public var options = [String]()
+  var identifier: String {
+    get {
+      return self.value(forUndefinedKey: "identifier") as! String
+    }
+  }
   
-  private var _repeat: Bool!
+  var url: String {
+    get {
+      return self.value(forUndefinedKey: "url") as! String
+    }
+  }
+  
+  var interval: Double? {
+    if let interval = self.value(forUndefinedKey: "interval") as? NSNumber {
+      return interval.doubleValue
+    } else {
+      return nil
+    }
+  }
+  
+  var options: [String] {
+    get {
+      return self.value(forUndefinedKey: "options") as? [String] ?? []
+    }
+  }
+  
+  private var _repeat: JSValue {
+    get {
+      guard let rawValue = self.value(forUndefinedKey: "repeat") else {
+        return JSValue(bool: true, in: self.context)
+      }
+      if let number = rawValue as? NSNumber {
+        return JSValue(bool: number.boolValue, in: self.context)
+      } else if let function = rawValue as? KrollCallback {
+        return JSValue(jsValueRef: function.function(), in: self.context)
+      } else {
+        return JSValue(bool: true, in: self.context)
+      }
+    }
+  }
+  
+  private var context: JSContext!
+  
+  public override func _init(withPageContext context: TiEvaluator!) -> Self? {
+    if let self = super._init(withPageContext: context) as! Self? {
+      self.context = JSContext(jsGlobalContextRef: context.krollContext()?.context())
+    }
+    
+    return self
+  }
   
   public override func _init(withProperties properties: [AnyHashable : Any]!) {
-    guard let type = properties["type"] as? String else {
-      self.throwException("Invalid task", subreason: "No type specified", location: CODELOCATION)
+    guard let type = properties["type"] as? String, (type == "refresh" || type == "processing") else {
+      self.throwException("Invalid task", subreason: "Missing or invalid type", location: CODELOCATION)
       return;
     }
     guard let identifier = properties["identifier"] as? String else {
@@ -53,19 +82,8 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
       self.throwException("Invalid task", subreason: "No url specified", location: CODELOCATION)
       return;
     }
-    guard let interval = properties["interval"] as? NSNumber else {
-      self.throwException("Invalid task", subreason: "No interval specified", location: CODELOCATION)
-      return;
-    } 
     
-    // TODO: validate type and options
-    if let options = properties["options"] as? [String] {
-      self.options = options
-    }
-    self.type = type
-    self.identifier = identifier
-    self.url = url;
-    self.interval = interval
+    super._init(withProperties: properties)
   }
   
   @objc
@@ -83,12 +101,24 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
       }
       request = processingRequest
     }
-    request.earliestBeginDate = Date(timeIntervalSinceNow: self.interval.doubleValue)
+    if let interval = self.interval {
+      request.earliestBeginDate = Date(timeIntervalSinceNow: interval)
+    }
     
     do {
       try BGTaskScheduler.shared.submit(request)
     } catch {
       NSLog("Could not schedule background task: \(error)")
+    }
+  }
+  
+  func shouldRepeat() -> Bool {
+    if (self._repeat.isBoolean) {
+      return self._repeat.toBool()
+    } else if (self._repeat.isFunction) {
+      return self._repeat.call(withArguments: [])?.toBool() ?? false
+    } else {
+      return true
     }
   }
 }
@@ -108,7 +138,10 @@ extension TiApp {
   
   func handleBackgroundTask(_ task: BGTask) {
     let taskProxy = self.backgroundTasks[task.identifier] as! TiAppiOSBackgroundTaskProxy
-    let url = taskProxy.url!
+    if (taskProxy.shouldRepeat()) {
+        taskProxy.schedule()
+    }
+    let url = taskProxy.url
     let queue = Foundation.OperationQueue()
     
     let operation = RunScriptOperation(url: url, host: taskProxy._host())
