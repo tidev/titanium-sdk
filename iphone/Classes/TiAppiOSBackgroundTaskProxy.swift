@@ -47,14 +47,14 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
   private var _repeat: JSValue {
     get {
       guard let rawValue = self.value(forUndefinedKey: "repeat") else {
-        return JSValue(bool: true, in: self.context)
+        return JSValue(bool: false, in: self.context)
       }
       if let number = rawValue as? NSNumber {
         return JSValue(bool: number.boolValue, in: self.context)
       } else if let function = rawValue as? KrollCallback {
         return JSValue(jsValueRef: function.function(), in: self.context)
       } else {
-        return JSValue(bool: true, in: self.context)
+        return JSValue(bool: false, in: self.context)
       }
     }
   }
@@ -118,7 +118,7 @@ public class TiAppiOSBackgroundTaskProxy : TiProxy {
     } else if (self._repeat.isFunction) {
       return self._repeat.call(withArguments: [])?.toBool() ?? false
     } else {
-      return true
+      return false
     }
   }
 }
