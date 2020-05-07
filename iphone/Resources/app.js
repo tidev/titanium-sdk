@@ -6,7 +6,7 @@
  * to trigger a log that is displayed in the Xcode console.
  */
 
-Ti.App.iOS.registerBackgroundService({
+Ti.App.iOS.registerBackgroundTask({
     type: 'refresh',
     identifier: 'com.appc.test',
     interval: 15 * 60,
