@@ -1014,7 +1014,7 @@ properties:
         To make the line invisible, set this property to `transparent`, or the same value as the
         [backgroundColor](Titanium.UI.ListView.backgroundColor) property.
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: platform-specific default color
     since: 3.2.0
     platforms: [android, iphone, ipad]
@@ -1142,7 +1142,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
         Note: A transparent background-color is not officially supported by Apple to
         prevent that the list of results overlaps with the list view below it.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as white)
     since: 6.1.0
     platforms: [iphone, ipad]
@@ -1156,7 +1156,7 @@ properties:
         To make the line invisible, set this property to `transparent`, or the same value as the
         [backgroundColor](Titanium.UI.ListView.backgroundColor) property.
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as gray)
     since: 6.1.0
     platforms: [iphone, ipad]

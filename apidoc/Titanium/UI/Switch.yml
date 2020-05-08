@@ -47,8 +47,8 @@ properties:
   - name: color
     summary: Color to use for switch text, as a color name or hex triplet.
     description: For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    default: black
+    type: [String, Titanium.UI.Color]
+    default: "black"
     platforms: [android]
 
   - name: enabled
@@ -126,21 +126,21 @@ properties:
 
   - name: tintColor
     summary: The color used to tint the outline of the switch when it is turned off.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined
     platforms: [iphone, ipad]
     since: "3.3.0"
 
   - name: onTintColor
     summary: The color used to tint the appearance of the switch when it is turned on.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined
     platforms: [iphone, ipad]
     since: "3.3.0"
 
   - name: thumbTintColor
     summary: The color used to tint the appearance of the thumb.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined
     platforms: [iphone, ipad]
     since: "3.3.0"

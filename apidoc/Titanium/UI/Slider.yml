@@ -192,7 +192,6 @@ events:
         type: Boolean
 
 properties:
-
   - name: disabledLeftTrackImage
     summary: Image URL of the slider left track when in the disabled state.
     type: String
@@ -395,12 +394,13 @@ properties:
 
   - name: tintColor
     summary: The color shown for the portion of the progress bar that is filled.
+    type: [String, Titanium.UI.Color]
     since: {iphone: "3.1.3", ipad: "3.1.3", android: "8.3.0"}
     osver: {android: {min: "5.0"}}
 
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android]
     since: {iphone: "8.3.0", ipad: "8.3.0", android: "8.3.0"}
     osver: {android: {min: "5.0"}}
