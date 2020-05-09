@@ -122,19 +122,43 @@ public class NumberFormatProxy extends KrollProxy
 		// Set up exponent notation if configured. Can only be done via a pattern string.
 		// Note: Exponent notation does not support thousands separators. Will throw an exception if enabled.
 		String notationStringId = TiConvert.toString(options.get("notation"), null);
-		if (notationStringId != null) {
+		if ((notationStringId != null) && (this.numberFormat instanceof DecimalFormat)) {
+			boolean isEngineering = false;
+			StringBuilder patternBuilder = new StringBuilder();
 			switch (notationStringId) {
-				case "scientific":
 				case "engineering":
+					isEngineering = true;
+				case "scientific": {
+					if (isEngineering) {
+						patternBuilder.append("##0.");
+					} else {
+						patternBuilder.append("0.");
+					}
+					for (int index = this.numberFormat.getMinimumFractionDigits(); index > 0; index--) {
+						patternBuilder.append('0');
+					}
+					int remainingDigits = this.numberFormat.getMaximumFractionDigits();
+					remainingDigits -= this.numberFormat.getMinimumFractionDigits();
+					if (isEngineering) {
+						remainingDigits += 2; // We must add 2 out of the 3 integer digits: "##0."
+					}
+					for (int index = remainingDigits; index > 0; index--) {
+						patternBuilder.append('#');
+					}
+					if (patternBuilder.charAt(patternBuilder.length() - 1) == '.') {
+						patternBuilder.append("###");
+					}
+				}
 				case "compact":
-					if (this.numberFormat instanceof DecimalFormat) {
-						try {
-							this.numberFormat.setGroupingUsed(false);
-							String pattern = ((DecimalFormat) this.numberFormat).toLocalizedPattern();
-							((DecimalFormat) this.numberFormat).applyLocalizedPattern(pattern + "E0");
-						} catch (Exception ex) {
-							Log.e(TAG, "Failed to apply exponent notation.", ex);
+					try {
+						this.numberFormat.setGroupingUsed(false);
+						if (patternBuilder.length() <= 0) {
+							patternBuilder.append(((DecimalFormat) this.numberFormat).toPattern());
 						}
+						patternBuilder.append("E0");
+						((DecimalFormat) this.numberFormat).applyPattern(patternBuilder.toString());
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to apply exponent notation.", ex);
 					}
 					break;
 			}

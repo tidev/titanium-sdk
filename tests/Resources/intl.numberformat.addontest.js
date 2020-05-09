@@ -47,7 +47,7 @@ describe('Intl.NumberFormat', function () {
 			should(formatter.format(numericValue)).be.eql('1.234.567,8');
 		});
 
-		it.android('maximumSignificantDigits', () => {
+		it('maximumSignificantDigits', () => {
 			const formatter = Intl.NumberFormat('en-US', {
 				maximumSignificantDigits: 3,
 				useGrouping: false
@@ -60,7 +60,7 @@ describe('Intl.NumberFormat', function () {
 			should(formatter.format(-5555.55)).be.eql('-5560');
 		});
 
-		it.android('minimumIntegerDigits', () => {
+		it('minimumIntegerDigits', () => {
 			const formatter = Intl.NumberFormat('en-US', {
 				minimumIntegerDigits: 3,
 				useGrouping: false
@@ -70,7 +70,7 @@ describe('Intl.NumberFormat', function () {
 			should(formatter.format(12345)).be.eql('12345');
 		});
 
-		it.android('maximumFractionDigits', () => {
+		it('maximumFractionDigits', () => {
 			const formatter = Intl.NumberFormat('en-US', {
 				maximumFractionDigits: 3,
 				useGrouping: false
@@ -81,7 +81,7 @@ describe('Intl.NumberFormat', function () {
 			should(formatter.format(0.1)).be.eql('0.1');
 		});
 
-		it.android('minimumFractionDigits', () => {
+		it('minimumFractionDigits', () => {
 			const formatter = Intl.NumberFormat('en-US', {
 				minimumFractionDigits: 3,
 				useGrouping: false
@@ -90,24 +90,24 @@ describe('Intl.NumberFormat', function () {
 			should(formatter.format(0.1)).be.eql('0.100');
 		});
 
-		it.android('currency', () => {
+		it('currency', () => {
 			const options = {
 				style: 'currency',
 				maximumFractionDigits: 2,
 				minimumFractionDigits: 2,
 				useGrouping: true
 			};
-			let formatter = Intl.NumberFormat('en-US', options);
+			let formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'USD' }, options));
 			should(formatter.format(1000)).be.eql('$1,000.00');
-			formatter = Intl.NumberFormat('de-DE', options);
-			should(formatter.format(1000)).be.eql('1.000,00\u00A0€');
 			formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'EUR' }, options));
 			should(formatter.format(1000)).be.eql('€1,000.00');
+			formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'EUR' }, options));
+			should(formatter.format(1000)).be.eql('1.000,00\u00A0€');
 			formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'USD' }, options));
 			should(formatter.format(1000)).be.eql('1.000,00\u00A0$');
 		});
 
-		it.android('percent', () => {
+		it('percent', () => {
 			const formatter = Intl.NumberFormat('en-US', {
 				style: 'percent',
 				maximumFractionDigits: 1,
@@ -121,12 +121,20 @@ describe('Intl.NumberFormat', function () {
 			should(formatter.format(-12.3456)).be.eql('-1234.6%');
 		});
 
+		it.android('engineering notation', () => {
+			const numericValue = 123456.7;
+			let formatter = Intl.NumberFormat('en-US', { notation: 'engineering' });
+			should(formatter.format(numericValue)).be.eql('123.457E3');
+			formatter = Intl.NumberFormat('de-DE', { notation: 'engineering' });
+			should(formatter.format(numericValue)).be.eql('123,457E3');
+		});
+
 		it.android('scientific notation', () => {
-			const numericValue = 1234567.8;
+			const numericValue = 123456.7;
 			let formatter = Intl.NumberFormat('en-US', { notation: 'scientific' });
-			should(formatter.format(numericValue)).be.eql('1.235E6');
+			should(formatter.format(numericValue)).be.eql('1.235E5');
 			formatter = Intl.NumberFormat('de-DE', { notation: 'scientific' });
-			should(formatter.format(numericValue)).be.eql('1,235E6');
+			should(formatter.format(numericValue)).be.eql('1,235E5');
 		});
 	});
 
