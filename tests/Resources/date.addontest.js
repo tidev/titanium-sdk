@@ -63,7 +63,6 @@ describe('Date', function () {
 		should(date.toLocaleDateString('ja-JP', options)).be.eql('2020/3/1');
 	});
 
-
 	it('#toLocaleTimeString()', () => {
 		// 2020-Jan-1st 08:02:05 PM
 		const date = new Date(Date.UTC(2020, 0, 1, 20, 2, 5));
