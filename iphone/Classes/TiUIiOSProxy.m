@@ -750,6 +750,7 @@ MAKE_SYSTEM_STR(TABLEVIEW_INDEX_SEARCH, UITableViewIndexSearch);
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args
 {
+  DEPRECATED_REPLACED(@"UI.iOS.ApplicationShortcuts", @"9.1.0", @"UI.Shortcut");
   return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
