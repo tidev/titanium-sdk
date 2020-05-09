@@ -1077,7 +1077,7 @@ properties:
     summary: Background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: transparent on non-iOS platforms, white on the iOS platform
 
   - name: data
@@ -1242,7 +1242,6 @@ properties:
     since: 8.2.0
     platforms: [iphone, ipad]
 
-
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     description: |
@@ -1260,7 +1259,6 @@ properties:
 
     type: Titanium.UI.View
 
-
   - name: headerDividersEnabled
     summary: When set to false, the ListView will not draw the divider after the header view.
     type: Boolean
@@ -1272,7 +1270,6 @@ properties:
   - name: headerTitle
     summary: Table view header title.
     type: String
-
 
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
@@ -1291,7 +1288,6 @@ properties:
 
     type: Titanium.UI.View
 
-
   - name: index
     summary: Array of objects (with `title` and `index` properties) to control the table view index.
     description: |
@@ -1306,11 +1302,9 @@ properties:
     summary: Maximum row height for table view rows.
     type: Number
 
-
   - name: minRowHeight
     summary: Minimum row height for table view rows.
     type: Number
-
 
   - name: moveable
     summary: |
@@ -1351,7 +1345,6 @@ properties:
   - name: rowHeight
     summary: Default row height for table view rows.
     type: Number
-
 
   - name: scrollable
     summary: If `true`, the tableview can be scrolled.
@@ -1462,7 +1455,7 @@ properties:
         [backgroundColor](Titanium.UI.TableView.backgroundColor) property.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: platform-specific default color
 
   - name: separatorInsets
@@ -1556,7 +1549,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
         Note: A transparent background-color is not officially supported by Apple to
         prevent that the list of results overlaps with the list view below it.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as white)
     since: 7.3.0
     platforms: [iphone, ipad]
@@ -1570,7 +1563,7 @@ properties:
         To make the line invisible, set this property to `transparent`, or the same value as the
         [backgroundColor](Titanium.UI.TableView.backgroundColor) property.
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as gray)
     since: 7.3.0
     platforms: [iphone, ipad]
