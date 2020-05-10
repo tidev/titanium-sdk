@@ -71,6 +71,12 @@ public class TiColorHelper
 				color = Color.argb(
 					Math.round(Float.valueOf(m.group(4)) * 255f), Math.round(Float.valueOf(m.group(1)) * 255f),
 					Math.round(Float.valueOf(m.group(2)) * 255f), Math.round(Float.valueOf(m.group(3)) * 255f));
+			} else if (TiRHelper.hasResource("color." + value)) {
+				try {
+					color = TiRHelper.getResource("color." + value);
+				} catch (TiRHelper.ResourceNotFoundException e) {
+					Log.e(TAG, "Cannot find named color: " + value);
+				}
 			} else {
 				// Try the parser, will throw illegalArgument if it can't parse it.
 				try {
