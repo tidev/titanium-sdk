@@ -860,7 +860,7 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocum
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
 
-- (NSString *)fetchSemanticColor:(id)color
+- (TiColor *)fetchSemanticColor:(id)color
 {
   ENSURE_SINGLE_ARG(color, NSString);
 
