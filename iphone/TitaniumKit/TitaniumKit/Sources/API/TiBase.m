@@ -162,6 +162,32 @@ NSString *JavascriptNameForClass(Class c)
   return NSStringFromClass(c);
 }
 
+@implementation NSThread (MCSMNSThreadCategory)
+
++ (void)MCSM_runBlock:(void (^)())block
+{
+  block();
+}
+
+- (void)MCSM_performBlock:(void (^)())block
+{
+  if ([[NSThread currentThread] isEqual:self]) {
+    block();
+  } else {
+    [self MCSM_performBlock:block waitUntilDone:NO];
+  }
+}
+- (void)MCSM_performBlock:(void (^)())block waitUntilDone:(BOOL)wait
+{
+
+  [NSThread performSelector:@selector(MCSM_runBlock:)
+                   onThread:self
+                 withObject:[[block copy] autorelease]
+              waitUntilDone:wait];
+}
+
+@end
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish)
 {
   BOOL alreadyOnMainThread = [NSThread isMainThread];
@@ -174,5 +200,21 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish)
     }
   } else {
     dispatch_async(dispatch_get_main_queue(), mainBlock);
+  }
+}
+
+void TiPerformBlock(KrollContext *ctx, void (^mainBlock)(void), BOOL waitUntilDone)
+{
+  // We want to force the block to run on the context's js thread
+  if (!ctx.isKJSThread) {
+    // mismatched threads, so run on the thread the KrollContext was started on
+    if (ctx.jsThread.isMainThread) {
+      TiThreadPerformOnMainThread(mainBlock, waitUntilDone);
+    } else {
+      [ctx.jsThread MCSM_performBlock:mainBlock]; // FIXME: waiting until done causes tasks to not work!
+    }
+  } else {
+    // We're already on the correct thread
+    mainBlock(); // just run sync - I don't know how we can properly run it async
   }
 }

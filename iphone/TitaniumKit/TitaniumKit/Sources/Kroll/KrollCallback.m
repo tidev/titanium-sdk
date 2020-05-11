@@ -100,11 +100,11 @@ static NSLock *callbackLock;
 
 - (void)callAsync:(NSArray *)args thisObject:(id)thisObject_
 {
-  TiThreadPerformOnMainThread(
-      ^{
+  TiPerformBlock(
+      context, ^{
         [self call:args thisObject:thisObject_];
       },
-      [NSThread isMainThread]);
+      NO);
 }
 - (id)call:(NSArray *)args thisObject:(id)thisObject_
 {
@@ -112,10 +112,10 @@ static NSLock *callbackLock;
     return nil;
   }
 
-  if (!NSThread.isMainThread) {
+  if (!context.isKJSThread) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(
-        ^{
+    TiPerformBlock(
+        context, ^{
           result = [self call:args thisObject:thisObject_];
         },
         YES);

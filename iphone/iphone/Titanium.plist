@@ -49,10 +49,10 @@
 	<string>Can we use your camera?</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Can we use to your contacts?</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Can we always access your location</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Can we access your location?</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Can we always access your location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Can we access your location when using the app?</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -63,6 +63,11 @@
 	<array>
 		<string>comic_zine_ot.otf</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiresFullScreen</key>
@@ -70,6 +75,10 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.appc.test</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

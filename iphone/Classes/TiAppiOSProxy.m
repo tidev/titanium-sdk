@@ -33,6 +33,15 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <UserNotifications/UserNotifications.h>
 
+#import "Titanium-Swift.h"
+@import BackgroundTasks;
+
+@interface TiAppiOSProxy ()
+
+@property (nonatomic, strong) NSMutableDictionary *backgroundTasks;
+
+@end
+
 @implementation TiAppiOSProxy
 
 - (void)dealloc
@@ -382,6 +391,8 @@
   return userDefaultsProxy;
 }
 
+#pragma mark - Background Services & Tasks
+
 - (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
 {
   NSDictionary *a = nil;
@@ -406,6 +417,22 @@
 
   [[TiApp app] registerBackgroundService:proxy];
   return proxy;
+}
+
+- (TiAppiOSBackgroundTaskProxy *)registerBackgroundTask:(id)args API_AVAILABLE(ios(13))
+{
+  NSDictionary *options = nil;
+  ENSURE_ARG_AT_INDEX(options, args, 0, NSDictionary);
+  NSString *identifier = options[@"identifier"];
+
+  if (self.backgroundTasks == nil) {
+    self.backgroundTasks = [NSMutableDictionary dictionary];
+  }
+
+  TiAppiOSBackgroundTaskProxy *task = [[[TiAppiOSBackgroundTaskProxy alloc] _initWithPageContext:self.executionContext args:args] autorelease];
+  [TiApp.app registerBackgroundTask:task];
+
+  return task;
 }
 
 - (void)registerUserNotificationSettings:(id)args
