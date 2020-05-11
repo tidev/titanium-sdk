@@ -48,7 +48,7 @@ properties:
     summary: The tint color for the refresh control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 

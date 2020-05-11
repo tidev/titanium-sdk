@@ -54,7 +54,7 @@ properties:
         *and* the the [translucent](Titanium.UI.Toolbar.translucent) property must be `true`.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android]
 
   - name: items

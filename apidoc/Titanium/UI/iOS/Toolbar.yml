@@ -59,7 +59,7 @@ properties:
         *and* the the [translucent](Titanium.UI.iOS.Toolbar.translucent) property must be `true`.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.

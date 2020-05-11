@@ -254,7 +254,7 @@ properties:
     summary: Color for the current page of the paging control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (system-default white)
     platforms: [iphone, ipad]
     since: "5.4.0"
@@ -277,8 +277,8 @@ properties:
     summary: Color of the paging control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    default: black
+    type: [String, Titanium.UI.Color]
+    default: "black"
     platforms: [iphone,ipad]
 
   - name: pagingControlHeight
@@ -291,7 +291,7 @@ properties:
     summary: Color of the paging control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (system-default gray)
     platforms: [iphone, ipad]
     since: "5.4.0"
