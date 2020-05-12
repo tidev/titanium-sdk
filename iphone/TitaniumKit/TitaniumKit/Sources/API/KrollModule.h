@@ -15,7 +15,10 @@
 
 @end
 
-@interface KrollModule : ObjcModule <KrollExports>
+@interface KrollModule : ObjcModule <KrollExports> {
+  @private
+  NSSet<NSString *> *_coreModules;
+}
 
 /**
  * @param moduleID is assumed to be the module name (classname with the "Module" suffix stripped off) - i.e. "UI", "App", "Media"

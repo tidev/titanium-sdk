@@ -44,4 +44,9 @@
   // no-op
 }
 
+- (NSData *)loadModuleAsset:(NSString *)fromPath
+{
+  return nil;
+}
+
 @end

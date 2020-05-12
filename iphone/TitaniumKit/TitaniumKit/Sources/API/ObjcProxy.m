@@ -105,7 +105,7 @@
       NSString *basePath = [TiHost resourcePath];
       baseURL = [[NSURL fileURLWithPath:basePath] retain];
     } else {
-      JSValue *filename = [context evaluateScript:@"__filename"];
+      JSValue *filename = [context evaluateScript:@"__filename"]; // FIXME: This may not be defined!
       NSString *asString = [filename toString];
       NSString *base;
       [TiHost resourceBasedURL:asString baseURL:&base];

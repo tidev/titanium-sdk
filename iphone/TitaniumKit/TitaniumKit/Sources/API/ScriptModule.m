@@ -18,15 +18,15 @@
 
 - (JSValue *)runInThisContext:(NSString *)source withFilename:(NSString *)filename displayError:(BOOL)displayError
 {
-  JSContext *curContext = [JSContext currentContext];
+  JSContext *curContext = JSContext.currentContext;
   [curContext setExceptionHandler:^(JSContext *context, JSValue *exception) {
     // set a property on the KrollBridge, used by TiUiWindowProxy somehow?
-    KrollContext *krollContext = GetKrollContext([[JSContext currentContext] JSGlobalContextRef]);
+    KrollContext *krollContext = GetKrollContext(context.JSGlobalContextRef);
     KrollBridge *bridge = (KrollBridge *)[krollContext delegate];
     bridge.evaluationError = YES;
     [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
   }];
-  return [curContext evaluateScript:source withSourceURL:[NSURL fileURLWithPath:filename]];
+  return [curContext evaluateScript:source withSourceURL:[NSURL URLWithString:filename relativeToURL:[self _baseURL]]];
 }
 
 @end
