@@ -116,8 +116,11 @@ class Packager {
 	async copyCommon() {
 		await fs.emptyDir(this.commonDir);
 		return Promise.all([
+			// copy common/lib from src to SDK (needed by CLI)
 			fs.copy(path.join(ROOT_DIR, 'common/lib'), path.join(this.commonDir, 'lib')),
-			fs.copy(path.join(TMP_DIR, 'common/Resources'), path.join(this.commonDir, 'Resources')),
+			// copy dist/tmp/common to SDK as common/Resources
+			// (under platform-specific sub-folders there are the ti.kernel.js and ti.main.js bundled files)
+			fs.copy(path.join(TMP_DIR, 'common'), path.join(this.commonDir, 'Resources')),
 		]);
 	}
 
