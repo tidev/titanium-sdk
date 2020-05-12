@@ -17,5 +17,6 @@
 - (NSData *)moduleJS;
 - (BOOL)destroyed;
 - (void)release;
+- (NSData *)loadModuleAsset:(NSString *)fromPath;
 
 @end

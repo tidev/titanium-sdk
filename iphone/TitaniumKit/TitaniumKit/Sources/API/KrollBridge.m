@@ -6,6 +6,7 @@
  */
 #import "KrollBridge.h"
 #import "APSAnalytics.h"
+#import "AssetsModule.h"
 #import "JSValue+Addons.h"
 #import "KrollCallback.h"
 #import "KrollModule.h"
@@ -220,66 +221,36 @@ CFMutableSetRef krollBridgeRegistry = nil;
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-  NSError *error = nil;
-  JSValueRef exception = NULL;
-
-  JSContextRef jsContext = [context_ context];
-
   NSURL *url_ = [path hasPrefix:@"file:"] ? [NSURL URLWithString:path] : [NSURL fileURLWithPath:path];
-
   if (![path hasPrefix:@"/"] && ![path hasPrefix:@"file:"]) {
     url_ = [NSURL URLWithString:path relativeToURL:url];
   }
 
-  NSString *jcode = nil;
-
-  if ([url_ isFileURL]) {
-    NSData *data = [TiUtils loadAppResource:url_];
-    if (data == nil) {
-      jcode = [NSString stringWithContentsOfFile:[url_ path] encoding:NSUTF8StringEncoding error:&error];
-    } else {
-      jcode = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
-    }
-  } else {
-    jcode = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:&error];
-  }
-
-  if (error != nil) {
-    NSLog(@"[ERROR] Error loading path: %@, %@", path, error);
-
+  NSString *jcode = [AssetsModule readURL:url_];
+  if (jcode == nil) {
+    NSLog(@"[ERROR] Error loading path: %@", path);
     evaluationError = YES;
-    TiScriptError *scriptError = nil;
-    // check for file not found a give a friendlier message
-    if ([error code] == 260 && [error domain] == NSCocoaErrorDomain) {
-      scriptError = [[TiScriptError alloc] initWithMessage:[NSString stringWithFormat:@"Could not find the file %@", [path lastPathComponent]] sourceURL:nil lineNo:0];
-    } else {
-      scriptError = [[TiScriptError alloc] initWithMessage:[NSString stringWithFormat:@"Error loading script %@. %@", [path lastPathComponent], [error description]] sourceURL:nil lineNo:0];
-    }
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+    TiScriptError *scriptError = [[TiScriptError alloc] initWithMessage:[NSString stringWithFormat:@"Error loading script %@.", [path lastPathComponent]] sourceURL:nil lineNo:0];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:scriptError];
     [scriptError release];
     return;
   }
 
-  const char *urlCString = [[url_ absoluteString] UTF8String];
+  // When we run a file as the entry point of the app or a service:
+  // we bootstrap, then Module.runModule(source, filename, service)
+  JSGlobalContextRef jsContext = context_.context;
+  JSContext *objCContext = [JSContext contextWithJSGlobalContextRef:jsContext];
+  JSValue *moduleGlobal = objCContext.globalObject[@"Module"];
+  // make the path relative to the resources Dir!
+  NSString *relativePath = [TiHost resourceRelativePath:url_];
+  // FIXME: If the entry point is a service, we should pass that in here as last arg instead of null!
+  [moduleGlobal invokeMethod:@"runModule" withArguments:@[ jcode, relativePath, [NSNull null] ]];
 
-  JSStringRef jsCode = JSStringCreateWithCFString((CFStringRef)jcode);
-  JSStringRef jsURL = JSStringCreateWithUTF8CString(urlCString);
-
-  if (exception == NULL) {
-    JSEvaluateScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-    if (exception == NULL) {
-      evaluationError = NO;
-    } else {
-      evaluationError = YES;
-    }
-  }
-  if (exception != NULL) {
+  if (objCContext.exception != nil) {
     evaluationError = YES;
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:objCContext.exception inJSContext:objCContext];
   }
 
-  JSStringRelease(jsCode);
-  JSStringRelease(jsURL);
   [pool release];
 }
 
@@ -362,102 +333,35 @@ CFMutableSetRef krollBridgeRegistry = nil;
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-  JSGlobalContextRef jsContext = [kroll context];
+  JSGlobalContextRef jsContext = kroll.context;
   JSContext *objcJSContext = [JSContext contextWithJSGlobalContextRef:jsContext];
   JSValue *global = [objcJSContext globalObject];
-
-  // Make the global object itself available under the name "global"
-  [global defineReadOnlyProperty:@"global" withValue:global];
-
-  // define a "kroll" module
-  [global defineReadOnlyProperty:@"kroll" withValue:[[KrollModule alloc] init]];
 
   // TODO: Move to real paths for __dirname/__filename, but that affects Android and may break users/debugging?
   //  NSString *dirname = [[TiHost resourcePath] stringByStandardizingPath];
   // Set the __dirname and __filename for the app.js.
-  // For other files, it will be injected via the `TitaniumModuleRequireFormat` property
+  // For other files, it will be injected via require
   [global defineReadOnlyProperty:@"__dirname" withValue:@"/"];
-  //  NSString *filename = [dirname stringByAppendingString:@"/app.js"];
-  [global defineReadOnlyProperty:@"__filename" withValue:@"/app.js"];
+  //  NSString *filename = [dirname stringByAppendingString:@"/ti.kernel.js"];
+  [global defineReadOnlyProperty:@"__filename" withValue:@"/ti.kernel.js"];
 
-  // TODO: Move all this logic into JS code to set up lazy bindings?
-  // We should be able to create a lazy global.Ti/global.Titanium using global.kroll.binding()
+  // Load ti.kernel.js (kroll.js equivalent)
+  NSURL *bootstrapURL = [TiHost resourceBasedURL:@"ti.kernel.js" baseURL:NULL];
+  NSString *source = [AssetsModule readURL:bootstrapURL];
 
-  // Now define "Ti" and "Titanium" on the global
-  TopTiModule *module = [[TopTiModule alloc] init];
-  JSValue *titanium = [JSValue valueWithObject:module inContext:objcJSContext];
-  NSDictionary *dictionary = @{
-    JSPropertyDescriptorEnumerableKey : @NO,
-    JSPropertyDescriptorWritableKey : @YES,
-    JSPropertyDescriptorConfigurableKey : @NO,
-    JSPropertyDescriptorValueKey : titanium
-  };
-  [global defineProperty:@"Titanium" descriptor:dictionary];
-  [global defineProperty:@"Ti" descriptor:dictionary];
-
-  // Hack the old-school way of doing a module here
-  NSArray *legacyModuleNames = @[ @"App",
-    @"Contacts",
-    @"Media",
-    @"Network",
-    @"Stream",
-    @"UI",
-    @"WatchSession",
-    @"XML" ];
-  for (NSString *name in legacyModuleNames) {
-    // We must generate the block and copy it to put it into heap or else every instance of the block shares
-    // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
-    JSValue * (^lazyLoad)(void) = ^() {
-      JSValue *result;
-      // TODO: Replace with KrollModule.binding()? Does same thing!
-      JSContext *currentContext = JSContext.currentContext;
-      id<Module> mod = [KrollModule loadCoreModule:name inContext:currentContext];
-      if (mod != nil) {
-        KrollObject *ko = [self registerProxy:mod]; // This basically retains the module for the lifetime of the bridge
-        result = [JSValue valueWithJSValueRef:[ko jsobject] inContext:currentContext];
-      } else {
-        result = [JSValue valueWithUndefinedInContext:currentContext];
-      }
-      [JSContext.currentThis defineReadOnlyProperty:name
-                                          withValue:result];
-      return result;
-    };
-    [titanium defineProperty:name
-                  descriptor:@{
-                    JSPropertyDescriptorConfigurableKey : @YES,
-                    JSPropertyDescriptorGetKey : [[lazyLoad copy] autorelease]
-                  }];
+  JSValue *bootstrapFunc = [objcJSContext evaluateScript:source withSourceURL:bootstrapURL];
+  if (objcJSContext.exception != nil) {
+    evaluationError = YES;
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:objcJSContext.exception inJSContext:objcJSContext];
+  }
+  [bootstrapFunc callWithArguments:@[ global, [[KrollModule alloc] init] ]];
+  if (objcJSContext.exception != nil) {
+    evaluationError = YES;
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:objcJSContext.exception inJSContext:objcJSContext];
   }
 
-  // New JSExport based modules
-  // Basically a whitelist of Ti.* modules to load lazily
-  NSArray *moduleNames = @[ @"Accelerometer", @"Analytics", @"API", @"Calendar", @"Codec", @"Database", @"Filesystem", @"Geolocation", @"Gesture", @"Locale", @"Platform", @"Utils" ];
-  for (NSString *name in moduleNames) {
-    // We must generate the block and copy it to put it into heap or else every instance of the block shares
-    // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
-    JSValue * (^lazyLoad)(void) = ^() {
-      // TODO: Align with and replace with kroll.binding()
-      // Note that with legacy moduels we call registerProxy, while with new we do not...
-      // We've forced a retain cycle between proxies and event listeners in ObjcProxy, so maybe that's the better route to go anyways?
-      JSContext *currentContext = JSContext.currentContext;
-      id<Module> mod = [KrollModule loadCoreModule:name inContext:currentContext];
-      JSValue *result;
-      if (mod != nil) {
-        result = [JSValue valueWithObject:mod inContext:currentContext];
-      } else {
-        result = [JSValue valueWithUndefinedInContext:currentContext];
-      }
-      [JSContext.currentThis defineReadOnlyProperty:name
-                                          withValue:result];
-      return result;
-    };
-    [titanium defineProperty:name
-                  descriptor:@{
-                    JSPropertyDescriptorConfigurableKey : @YES,
-                    JSPropertyDescriptorGetKey : [[lazyLoad copy] autorelease]
-                  }];
-  }
-
+  JSValue *titanium = global[@"Ti"];
+  TopTiModule *module = [titanium toObject];
   if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
     APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
     NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
@@ -470,10 +374,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
   }
 
-  // FIXME: Android does a "bootstrap" which effectively loads some JS code up, and *then* it uses Module.runModule() to execute ti.main.js
-  // But we're defining Module.runModule in ti.main.js
-  // How can we hijack the requires to go through Module.runModule?
-
+  NSURL *startURL = nil;
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
     for (NSString *name in preload) {
@@ -490,16 +391,14 @@ CFMutableSetRef krollBridgeRegistry = nil;
         [ti setStaticValue:ko forKey:key purgable:NO];
       }
     }
-    // We need to run this before the app.js, which means it has to be here.
-    TiBindingRunLoopAnnounceStart(kroll);
-    [self evalFile:[url path] callback:self selector:@selector(booted)];
+    startURL = [url copy]; // should be the entry point of the background service js file
   } else {
-    // now load the app.js file and get started
-    NSURL *startURL = [host startURL];
-    // We need to run this before the app.js, which means it has to be here.
-    TiBindingRunLoopAnnounceStart(kroll);
-    [self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
+    startURL = [host startURL]; // should be ti.main.js
   }
+
+  // We need to run this before the entry js file, which means it has to be here.
+  TiBindingRunLoopAnnounceStart(kroll);
+  [self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
 
   if (TiUtils.isHyperloopAvailable) {
     Class cls = NSClassFromString(@"Hyperloop");

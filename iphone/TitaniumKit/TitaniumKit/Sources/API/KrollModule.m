@@ -17,6 +17,23 @@
   return @"Kroll";
 }
 
+- (instancetype)init
+{
+  self = [super init];
+  if (self) {
+    _coreModules = [[NSSet setWithArray:@[ @"Accelerometer", @"Analytics", @"App", @"API", @"Calendar", @"Codec", @"Contacts", @"Database", @"Filesystem", @"Geolocation", @"Gesture", @"Locale", @"Media", @"Network", @"Platform", @"Stream", @"Utils", @"UI",
+      @"WatchSession",
+      @"XML" ]] retain];
+  }
+  return self;
+}
+
+- (void)_destroy
+{
+  RELEASE_TO_NIL(_coreModules);
+  [super _destroy];
+}
+
 - (BOOL)isExternalCommonJsModule:(NSString *)moduleID
 {
   id<Module> module = [KrollModule loadCoreModule:moduleID inContext:JSContext.currentContext];
@@ -37,20 +54,20 @@
 
 - (JSValue *)binding:(NSString *)moduleID
 {
-  // NOTE that this codepath assumes the native module uses the old TiProxy/TiModule style *NOT* the new Obj-c JSC APIs!
   JSContext *context = JSContext.currentContext;
   id<Module> module = [KrollModule loadCoreModule:moduleID inContext:context];
   if (module == nil) {
     return [JSValue valueWithUndefinedInContext:context];
   }
-  // TODO: Can we move this to common codepath and make it smart enough to know when to set the name or not (or to handle setting name if no Ti prefix?)
   // For native modules outside the core, we need to set the name!
   // This affects how createWhatever() style proxy factory method are handled
   // if the name is set, then we do <name-minus-Module>Proxy: TiMapModule + "Map.createAnnotation" -> "TiMapAnnotationProxy"
   // if not set, we do Ti<name-minus-Module>Proxy: UIModule + "UI.createWindow" -> "TiUIWindowProxy"
-  // See TiModule createProxy:
-  NSString *moduleClassName = [KrollModule pathToModuleClassName:moduleID];
-  [module _setName:moduleClassName];
+  // See [TiModule createProxy:]
+  if (![_coreModules containsObject:moduleID]) {
+    NSString *moduleClassName = [KrollModule pathToModuleClassName:moduleID];
+    [module _setName:moduleClassName];
+  }
 
   // If there is a JS file that collides with the given path,
   // warn the user of the collision, but prefer the native/core module

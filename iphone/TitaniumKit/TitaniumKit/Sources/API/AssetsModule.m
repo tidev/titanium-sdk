@@ -7,7 +7,6 @@
 #import "AssetsModule.h"
 #import "KrollModule.h"
 #import "TiHost.h"
-#import "TiModule.h"
 #import "TiUtils.h"
 
 typedef NS_ENUM(NSInteger, FileStatus) {
@@ -31,38 +30,15 @@ typedef NS_ENUM(NSInteger, FileStatus) {
 {
   NSData *data;
   if ([path hasPrefix:@"/"]) {
-    // drop leading '/' to actually make relative to base url/root dir
-    path = [self pathByStandarizingPath:[path substringFromIndex:1]];
+    // drop leading '/' to actually make relative to resources dir
+    NSURL *url = [TiHost resourceBasedURL:[path substringFromIndex:1] baseURL:NULL];
+    data = [AssetsModule loadURL:url];
   } else if (![path hasPrefix:@"."]) {
     // no leading '.' or '/', check if it's a core module's assets
     data = [self loadCoreModuleAsset:path];
   }
   if (data == nil) {
-    // check if file exists by using cheat index.json which tells us if on disk or encrypted.
-    FileStatus status = [self fileStatus:path];
-    NSURL *url_ = [NSURL URLWithString:path relativeToURL:[self _baseURL]];
-
-    switch (status) {
-    case FileStatusExistsOnDisk:
-      data = [NSData dataWithContentsOfURL:url_]; // load from disk
-      break;
-
-    case FileStatusExistsEncrypted:
-      data = [TiUtils loadAppResource:url_]; // try to load encrypted file
-      break;
-
-    case FileStatusUnknown:
-      // There was no index.json so fallback to just trying to read from disk/encryption the slow way
-      data = [NSData dataWithContentsOfURL:url_];
-      if (data == nil) {
-        data = [TiUtils loadAppResource:url_];
-      }
-      break;
-
-    case FileStatusDoesntExist:
-    default:
-      return nil;
-    }
+    data = [AssetsModule loadFile:path baseURL:[self _baseURL]];
   }
 
   if (data != nil) {
@@ -71,25 +47,73 @@ typedef NS_ENUM(NSInteger, FileStatus) {
   return nil;
 }
 
-- (NSString *)pathByStandarizingPath:(NSString *)relativePath
+// TODO: Move all the logic for loading app resources into TiUtils or TiHost so we can centralize calls and not expose AssetsModule everywhere
+
++ (NSString *)readURL:(NSURL *)url
+{
+  NSData *data = [AssetsModule loadURL:url];
+  if (data != nil) {
+    return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+  }
+  return nil;
+}
+
++ (NSData *)loadURL:(NSURL *)url
+{
+  FileStatus status = FileStatusUnknown;
+  // This assumes it's a js or json file already!
+  if (url.isFileURL) { // if it's a resource, check index.json listing for status
+    status = [AssetsModule fileStatus:[TiHost resourceRelativePath:url]];
+  }
+  NSData *data;
+  switch (status) {
+  case FileStatusExistsOnDisk:
+    return [NSData dataWithContentsOfURL:url]; // load from disk
+
+  case FileStatusExistsEncrypted:
+    return [TiUtils loadAppResource:url]; // try to load encrypted file
+
+  case FileStatusUnknown:
+    // There was no index.json so fallback to just trying to read from disk/encryption the slow way
+    data = [NSData dataWithContentsOfURL:url];
+    if (data == nil) {
+      return [TiUtils loadAppResource:url];
+    }
+    return data;
+
+  case FileStatusDoesntExist:
+  default:
+    return nil;
+  }
+}
+
++ (NSData *)loadFile:(NSString *)path baseURL:(NSURL *)baseURL
 {
   // Calling [relativePath stringByStandardizingPath]; does not resolve '..' segments because the path isn't absolute!
   // so we hack around it here by making an URL that does point to absolute location...
-  NSURL *url_ = [NSURL URLWithString:relativePath relativeToURL:[self _baseURL]];
+  NSURL *url_ = [NSURL URLWithString:path relativeToURL:baseURL];
   // "standardizing" it (i.e. removing '.' and '..' segments properly...
-  NSURL *standardizedURL = [url_ standardizedURL];
-  // Then asking for the relative path again
-  return [[standardizedURL relativePath] stringByStandardizingPath];
+  return [AssetsModule loadURL:[url_ standardizedURL]];
 }
 
-- (FileStatus)fileStatus:(NSString *)path
++ (FileStatus)fileStatus:(NSString *)path
 {
+  // if it's not a js or json file, status is unknown!
+  NSString *extension = path.pathExtension;
+  if (![extension isEqual:@"js"] && ![extension isEqual:@"json"]) {
+    return FileStatusUnknown;
+  }
   NSDictionary *files = [AssetsModule loadIndexJSON];
   if (files.count == 0) {
     // there was no index.json! status is unknown!
     return FileStatusUnknown;
   }
-  path = [@"Resources/" stringByAppendingString:path];
+  if ([path isEqualToString:@"/_index_.json"]) { // we know it exists! we loaded it
+    return FileStatusUnknown; // treat as "unknown" since we didn't record if we loaded in normal or encrypted...
+  }
+  // Initial path is assuemd to be of form: "/ti.main.js", "/app.js" or "/ti.kernel.js"
+  // Basically a path that looks absolute but is relative to Resources dir (app root)
+  path = [@"Resources" stringByAppendingString:path];
   NSNumber *type = files[path];
   if (type == nil) {
     return FileStatusDoesntExist;
@@ -103,7 +127,7 @@ typedef NS_ENUM(NSInteger, FileStatus) {
   NSArray<NSString *> *pathComponents = [path pathComponents];
   NSString *moduleID = [pathComponents objectAtIndex:0];
 
-  id module = [KrollModule loadCoreModule:moduleID inContext:JSContext.currentContext];
+  id<Module> module = [KrollModule loadCoreModule:moduleID inContext:JSContext.currentContext];
   if (module == nil) {
     return nil;
   }

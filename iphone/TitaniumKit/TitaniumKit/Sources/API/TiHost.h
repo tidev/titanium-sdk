@@ -26,6 +26,11 @@
 - (NSURL *)baseURL;
 - (NSURL *)startURL;
 + (NSString *)resourcePath;
+/**
+ * Get path relative to resources dir.
+ * @param url a file URL
+ */
++ (NSString *)resourceRelativePath:(NSURL *)url;
 
 - (TiStylesheet *)stylesheet;
 

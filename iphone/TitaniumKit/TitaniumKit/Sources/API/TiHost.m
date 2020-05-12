@@ -37,6 +37,13 @@
   return resourcePath;
 }
 
++ (NSString *)resourceRelativePath:(NSURL *)url
+{
+  // Get path relative to resources dir...
+  // FIXME: This leaves a leading '/'
+  return [[url path] stringByReplacingOccurrencesOfString:[TiHost resourcePath] withString:@""];
+}
+
 + (NSURL *)resolveFilePathForAppUrl:(NSURL *)appUrl
 {
   if (![[appUrl scheme] isEqualToString:@"app"]) { //Whoops! We don't need to translate!

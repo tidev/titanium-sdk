@@ -14,4 +14,8 @@
 @end
 
 @interface AssetsModule : ObjcModule <AssetsExports>
+
++ (NSData *)loadURL:(NSURL *)url;
++ (NSString *)readURL:(NSURL *)url;
+
 @end
