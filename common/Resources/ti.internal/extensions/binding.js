@@ -6,28 +6,6 @@
  * implementation. We then intercept require calls to handle requests for these modules
  * and lazily load the file.
  */
-import Module from './node/module';
-const isAndroid = Ti.Platform.osname === 'android';
-const isIOS = !isAndroid && (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
-
-if (!isAndroid) {
-	// Hack in our own Module impl for iOS/Windows!
-	global.Module = Module;
-
-	if (!Module.main) {
-		const main = new Module('.', null, {});
-		main.filename = '/ti.main.js';
-		main.path = '/';
-		main.paths = main.nodeModulesPaths(main.path);
-		Module.cache[main.filename] = main;
-		main.loaded = true;
-		Module.main = main;
-	}
-
-	global.require = function (moduleId) {
-		return Module.main.require(moduleId);
-	};
-}
 
 /**
  * Used by @function bindObjectToCoreModuleId
@@ -69,21 +47,19 @@ global.require = function (moduleId) {
 	return originalRequire(moduleId);
 };
 
-if (isAndroid || isIOS) {
-	// ... but we still need to hack it when requiring from other files for Android/iOS (due to module.js impl)
-	const originalModuleRequire = global.Module.prototype.require;
-	global.Module.prototype.require = function (path, context) {
+// ... but we still need to hack it when requiring from other files for Android/iOS (due to module.js impl)
+const originalModuleRequire = global.Module.prototype.require;
+global.Module.prototype.require = function (path, context) {
 
-		if (bindings.has(path)) {
-			return bindings.get(path);
-		}
-		if (redirects.has(path)) {
-			path = redirects.get(path);
-		}
+	if (bindings.has(path)) {
+		return bindings.get(path);
+	}
+	if (redirects.has(path)) {
+		path = redirects.get(path);
+	}
 
-		return originalModuleRequire.call(this, path, context);
-	};
-}
+	return originalModuleRequire.call(this, path, context);
+};
 
 /**
  * Registers a binding from a short module id to an already loaded/constructed object/value to export for that core module id
