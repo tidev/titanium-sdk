@@ -30,12 +30,12 @@ public class NavigationWindowProxy extends WindowProxy
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
+		if (!opened && getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
 			opened = true;
-			fireEvent(TiC.EVENT_OPEN, null);
 			Object rootView = getProperties().get(TiC.PROPERTY_WINDOW);
 			if (rootView instanceof WindowProxy || rootView instanceof TabGroupProxy) {
 				openWindow(rootView, arg);
+				fireEvent(TiC.EVENT_OPEN, null);
 			}
 			return;
 		}
@@ -57,9 +57,12 @@ public class NavigationWindowProxy extends WindowProxy
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-		popToRootWindow(arg);
-		closeWindow(windows.get(0), arg); // close the root window
-		fireEvent(TiC.EVENT_CLOSE, null);
+		if (opened) {
+			opened = false;
+			popToRootWindow(arg);
+			closeWindow(windows.get(0), arg); // close the root window
+			fireEvent(TiC.EVENT_CLOSE, null);
+		}
 		super.close(arg);
 	}
 
