@@ -30,22 +30,11 @@ export default function bootstrap(global, kroll) {
 		// within a script execution scope.
 		function TitaniumWrapper(context) {
 			const sourceUrl = this.sourceUrl = context.sourceUrl;
-
-			// The "context" specific global object
-			this.global = context.global;
-
-			this.Android = new AndroidWrapper(context);
-
-			const scopeVars = new kroll.ScopeVars({ sourceUrl, currentService: this.Android.currentService });
+			const scopeVars = new kroll.ScopeVars({ sourceUrl });
 			Ti.bindInvocationAPIs(this, scopeVars);
 		}
 		TitaniumWrapper.prototype = Ti;
 		Ti.Wrapper = TitaniumWrapper;
-
-		function AndroidWrapper(context) {
-			this.currentService = context.currentService;
-		}
-		AndroidWrapper.prototype = Ti.Android;
 
 		// -----------------------------------------------------------------------
 
