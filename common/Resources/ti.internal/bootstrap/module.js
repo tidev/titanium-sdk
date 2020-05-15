@@ -191,7 +191,7 @@ function bootstrap (global, kroll) {
 				return wrapper;
 			}
 
-			const sourceUrl = `app://${this.filename}`;
+			const sourceUrl = `app://${this.filename}`; // FIXME: If this.filename starts with '/', we need to drop it, I think?
 			Ti.API.info(sourceUrl);
 			wrapper = this.createModuleWrapper(externalModule, sourceUrl);
 
@@ -604,8 +604,9 @@ function bootstrap (global, kroll) {
 		// FIXME: I don't know why instanceof for Titanium.Service works here!
 		// On Android, it's an apiname of Ti.Android.Service
 		// On iOS, we don't yet pass in the value, but we do set Ti.App.currentService property beforehand!
-		module.isService = OS_ANDROID ? (activityOrService instanceof Titanium.Service) : false;
-		if (module.isService) {
+		// Can we remove the preload stuff in KrollBridge.m to pass along the service instance into this like we do on Andorid?
+		module.isService = OS_ANDROID ? (activityOrService instanceof Titanium.Service) : Ti.App.currentService !== null;
+		if (OS_ANDROID && module.isService) {
 			Object.defineProperty(Ti.Android, 'currentService', {
 				value: activityOrService,
 				writable: false,
@@ -619,7 +620,7 @@ function bootstrap (global, kroll) {
 		filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
 		module.load(filename, source);
 
-		if (module.isService) {
+		if (OS_ANDROID && module.isService) {
 			Object.defineProperty(Ti.Android, 'currentService', {
 				value: undefined,
 				writable: false,
