@@ -17,10 +17,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_IOS,OS_ANDROID */
 // We must wrap and export a bootstrap function to be able to delay access to kroll/global
 // We're basically baking in the require wrapper function stuff in the code explicitly
 import ModuleBootstrap from './ti.internal/bootstrap/module';
 import TitaniumBootstrap from './ti.internal/bootstrap/titanium';
+import invoker from './ti.internal/bootstrap/invoker';
 
 /**
  * main bootstrapping function
@@ -79,7 +81,7 @@ function bootstrap(global, kroll) {
 		kroll.ScopeVars = ScopeVars;
 		kroll.NativeModule = NativeModule; // So external module bootstrap.js can call NativeModule.require directly.
 
-		// NativeModule.require('events');
+		OS_ANDROID && NativeModule.require('events');
 		// TODO: This is a hack around NativeModule.require
 		// Android bakes this stuff into native code bound to 'natives'
 		// Then does fairly typical require wrapping of the source to load it
@@ -87,13 +89,15 @@ function bootstrap(global, kroll) {
 		// so we don't even use NativeModule - we expect everything to be bundled here and pass the relevant variables into exported functions
 		// I don't know if there's a way to match Android, or which is better!
 		// It may make sense to steal the notion of baking the js code into raw byte array in the obj-c to load from?
+		// FIXME: Android has a lot of stuff it does in it's titanium.js that we likley need to port over!
 		global.Ti = global.Titanium = TitaniumBootstrap(global, kroll);
 		global.Module = ModuleBootstrap(global, kroll);
 	};
 
 	startup.runMain = function () {};
 
-	const runInThisContext = kroll.binding('Script').runInThisContext;
+	const Script = OS_ANDROID ? kroll.binding('evals').Script : kroll.binding('Script');
+	const runInThisContext = Script.runInThisContext;
 
 	function NativeModule(id) {
 		this.filename = id + '.js';
@@ -111,6 +115,9 @@ function bootstrap(global, kroll) {
 	NativeModule.require = function (id) {
 		if (id === 'native_module') {
 			return NativeModule;
+		}
+		if (id === 'invoker') {
+			return invoker; // Android native modules use a bootstrap.js file that assumes there's a builtin 'invoker'
 		}
 
 		const cached = NativeModule.getCached(id);

@@ -143,7 +143,7 @@ async function createSnapshot() {
 		gitHash: program.gitHash,
 		timestamp: program.timestamp
 	});
-	await mainBuilder.transpile('android', androidBuilder.babelOptions(), rollupOutputDirPath);
+	await mainBuilder.generateTiMain('android', androidBuilder.babelOptions(), rollupOutputDirPath);
 	const rollupFileContent = (await fs.readFile(rollupOutputFilePath)).toString();
 
 	// Create the C++ directory we'll be generating the snapshot header file to.

@@ -25,14 +25,16 @@ function bootstrap (global, kroll) {
 	 */
 	let fileIndex;
 	// FIXME: fix file name parity between platforms
-	const INDEX_JSON = OS_ANDROID ? '/index.json' : '/_index_.json';
+	const INDEX_JSON = OS_ANDROID ? 'index.json' : '/_index_.json';
 
 	class Module {
 		/**
 		 * [Module description]
-		 * @param {String} id      module id
+		 * @param {string} id      module id
 		 * @param {Module} parent  parent module
-		 * @param {Object} context context object
+		 * @param {object} [context] context object
+		 * @param {string} context.sourceUrl source URL of the requiring file
+		 * @param {object} [context.currentActivity] current Titanium.Android.Activity
 		 */
 		constructor(id, parent, context) {
 			this.id = id;

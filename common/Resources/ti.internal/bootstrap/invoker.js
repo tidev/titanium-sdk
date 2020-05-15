@@ -35,49 +35,52 @@
  * scopeVars: A map that is passed into each invoker
  */
 
+/**
+ * @param {object} wrapperAPI e.g. TitaniumWrapper
+ * @param {object} realAPI e.g. Titanium
+ * @param {string} apiName e.g. 'Titanium'
+ * @param {object} invocationAPI details on the api we're wrapping
+ * @param {string} invocationAPI.namespace the namespace of the proxy where method hangs (w/o 'Ti.' prefix) e.g. 'Filesystem' or 'UI.Android'
+ * @param {string} invocationAPI.api the method name e.g. 'openFile' or 'createSearchView'
+ * @param {object} scopeVars holder for context specific values (basically just wraps sourceUrl)
+ * @param {string} scopeVars.sourceUrl source URL of js file entry point
+ * @param {object} [scopeVars.currentService] possible current Ti.Android.Service
+ */
 function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
-	var namespace = invocationAPI.namespace;
-	var names = namespace.split('.');
-	var length = names.length;
-	if (namespace === apiName) {
-		length = 0;
-	}
+	let apiNamespace = wrapperAPI;
+	const namespace = invocationAPI.namespace;
+	if (namespace !== apiName) {
+		const names = namespace.split('.');
+		for (const name of names) {
+			let api;
+			// Create a module wrapper only if it hasn't been wrapped already.
+			if (Object.prototype.hasOwnProperty.call(apiNamespace, name)) {
+				api = apiNamespace[name];
+			} else {
+				function SandboxAPI() {
+					// FIXME: Use non-deprecated way to get prototype!
+					var proto = this.__proto__; // eslint-disable-line no-proto
+					Object.defineProperty(this, '_events', {
+						get: function () {
+							return proto._events;
+						},
+						set: function (value) {
+							proto._events = value;
+						}
+					});
+				}
+				SandboxAPI.prototype = apiNamespace[name];
 
-	var apiNamespace = wrapperAPI;
-
-	for (var j = 0, namesLen = length; j < namesLen; ++j) {
-		var name = names[j];
-		var api;
-
-		// Create a module wrapper only if it hasn't been wrapped already.
-		if (Object.prototype.hasOwnProperty.call(apiNamespace, name)) {
-			api = apiNamespace[name];
-
-		} else {
-			function SandboxAPI() {
-				// FIXME: Use non-deprecated way to get prototype!
-				var proto = this.__proto__; // eslint-disable-line no-proto
-				Object.defineProperty(this, '_events', {
-					get: function () {
-						return proto._events;
-					},
-					set: function (value) {
-						proto._events = value;
-					}
-				});
+				api = new SandboxAPI();
+				apiNamespace[name] = api;
 			}
-			SandboxAPI.prototype = apiNamespace[name];
 
-			api = new SandboxAPI();
-			apiNamespace[name] = api;
+			apiNamespace = api;
+			realAPI = realAPI[name];
 		}
-
-		apiNamespace = api;
-		realAPI = realAPI[name];
 	}
 
-	var delegate = realAPI[invocationAPI.api];
-
+	let delegate = realAPI[invocationAPI.api];
 	// These invokers form a call hierarchy so we need to
 	// provide a way back to the actual root Titanium / actual impl.
 	while (delegate.__delegate__) {
@@ -94,11 +97,11 @@ exports.genInvoker = genInvoker;
  * @param {object} thisObj The `this` object to use when invoking the `delegate` function
  * @param {function} delegate The function to wrap/delegate to under the hood
  * @param {object} scopeVars The scope variables to splice into the arguments when calling the delegate
+ * @param {string} scopeVars.sourceUrl the only real relevent scope variable!
  * @return {function}
  */
 function createInvoker(thisObj, delegate, scopeVars) {
-	var urlInvoker = function invoker() { // eslint-disable-line func-style
-		var args = Array.prototype.slice.call(arguments);
+	const urlInvoker = function invoker(...args) { // eslint-disable-line func-style
 		args.splice(0, 0, invoker.__scopeVars__);
 
 		return delegate.apply(invoker.__thisObj__, args);

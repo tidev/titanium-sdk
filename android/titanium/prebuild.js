@@ -143,6 +143,21 @@ async function generateBootstrapAndKrollGeneratedBindings(outDir) {
 	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
+async function generateTiKernel(outputDir) {
+	const Builder = require('../../build/lib/builder');
+	const Android = require('../../build/lib/android');
+	const program = { args: [ 'android' ] };
+	const builder = new Builder(program);
+	builder.ensureGitHash();
+	const android = new Android({
+		sdkVersion: require('../../package.json').version,
+		gitHash: program.gitHash,
+		timestamp: program.timestamp
+	});
+
+	return builder.generateKernelBundle('android', android.babelOptions(), outputDir);
+}
+
 /** Generates C/C++ source files containing internal JS files and from gperf templates. */
 async function generateSourceCode() {
 	const outDir = path.join(runtimeV8DirPath, 'generated');
@@ -152,15 +167,18 @@ async function generateSourceCode() {
 		generateBootstrapAndKrollGeneratedBindings(outDir),
 	]);
 
-	// Fetch all JS file paths under directory: "./runtime/common/src/js"
-	const runtimeCommonDirPath = path.join(__dirname, '..', 'runtime', 'common');
-	let filePaths = await glob(
-		'*.js',
-		{
-			cwd: path.join(runtimeCommonDirPath, 'src', 'js'),
-			realpath: true
-		}
-	);
+	// Generate a rolled up bundle of ti.kernel.js
+	const kernelOutDir = '/tmp/android-titanium'; // FIXME: Not Windows friendly!
+	await generateTiKernel(kernelOutDir);
+
+	// Fetch the rollup bundled ti.kernel.js, rename to kroll.js, bake it in
+	const krollJs = path.join(kernelOutDir, 'kroll.js');
+	if (await fs.exists(krollJs)) {
+		await fs.remove(krollJs);
+	}
+	await fs.move(path.join(kernelOutDir, 'ti.kernel.js'), krollJs);
+	// FIXME: Handle porting events.js
+	let filePaths = [ krollJs, path.join(__dirname, '../runtime/common/src/js/events.js') ];
 
 	// Fetch all JS file paths under each module directory: "./modules/<ModuleName>/src/js"
 	filePaths = filePaths.concat(await glob(
