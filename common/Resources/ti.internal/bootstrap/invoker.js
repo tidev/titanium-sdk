@@ -44,7 +44,7 @@
  * @param {string} invocationAPI.api the method name e.g. 'openFile' or 'createSearchView'
  * @param {object} scopeVars holder for context specific values (basically just wraps sourceUrl)
  * @param {string} scopeVars.sourceUrl source URL of js file entry point
- * @param {object} [scopeVars.currentService] possible current Ti.Android.Service
+ * @param {Module} [scopeVars.module] module
  */
 function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 	let apiNamespace = wrapperAPI;

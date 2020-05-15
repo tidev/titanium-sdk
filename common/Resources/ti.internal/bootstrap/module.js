@@ -32,21 +32,18 @@ function bootstrap (global, kroll) {
 		 * [Module description]
 		 * @param {string} id      module id
 		 * @param {Module} parent  parent module
-		 * @param {object} [context] context object
-		 * @param {string} context.sourceUrl source URL of the requiring file
-		 * @param {object} [context.currentActivity] current Titanium.Android.Activity
 		 */
-		constructor(id, parent, context) {
+		constructor(id, parent) {
 			this.id = id;
 			this.exports = {};
 			this.parent = parent;
-			this.context = context;
 
 			this.filename = null;
 			this.loaded = false;
-			this.exited = false;
-			this.children = [];
+			// this.exited = false; // unused
+			// this.children = []; // unused
 			this.wrapperCache = {};
+			this.isService = false; // toggled on if this module is the service entry point
 		}
 
 		/**
@@ -86,9 +83,9 @@ function bootstrap (global, kroll) {
 		 * Generates a context-specific module wrapper, and wraps
 		 * each invocation API in an external (3rd party) module
 		 * See invoker.js for more info
-		 * @param  {[type]} externalModule [description]
-		 * @param  {[type]} sourceUrl      [description]
-		 * @return {[type]}                [description]
+		 * @param  {object} externalModule native module proxy
+		 * @param  {string} sourceUrl      the current js file url
+		 * @return {object}                wrapper around the externalModule
 		 */
 		createModuleWrapper (externalModule, sourceUrl) {
 
@@ -102,30 +99,25 @@ function bootstrap (global, kroll) {
 			// and effectively lazily hook them
 			// NOTE: That invocationAPIs will be undefined on iOS, so defaults to empty array (no-op)
 			const invocationAPIs = externalModule.invocationAPIs || [];
-			const invocationsLen = invocationAPIs.length;
-			for (let j = 0; j < invocationsLen; ++j) {
-				const api = invocationAPIs[j].api;
+			for (const api of invocationAPIs) {
 				const delegate = externalModule[api];
 				if (!delegate) {
 					continue;
 				}
 
-				wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars({
-					sourceUrl: sourceUrl,
-					module: this
-				}));
+				wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars({ sourceUrl }));
 			}
 
-			wrapper.addEventListener = function () {
-				externalModule.addEventListener.apply(externalModule, arguments);
+			wrapper.addEventListener = function (...args) {
+				externalModule.addEventListener.apply(externalModule, args);
 			};
 
-			wrapper.removeEventListener = function () {
-				externalModule.removeEventListener.apply(externalModule, arguments);
+			wrapper.removeEventListener = function (...args) {
+				externalModule.removeEventListener.apply(externalModule, args);
 			};
 
-			wrapper.fireEvent = function () {
-				externalModule.fireEvent.apply(externalModule, arguments);
+			wrapper.fireEvent = function (...args) {
+				externalModule.fireEvent.apply(externalModule, args);
 			};
 
 			return wrapper;
@@ -135,9 +127,8 @@ function bootstrap (global, kroll) {
 		 * Takes a CommonJS module and uses it to extend an existing external/native module. The exports are added to the external module.
 		 * @param  {Object} externalModule The external/native module we're extending
 		 * @param  {String} id             module id
-		 * @param  {Object} context        context object
 		 */
-		extendModuleWithCommonJs(externalModule, id, context) {
+		extendModuleWithCommonJs(externalModule, id) {
 			if (!kroll.isExternalCommonJsModule(id)) {
 				return;
 			}
@@ -145,7 +136,7 @@ function bootstrap (global, kroll) {
 			// Load under fake name, or the commonjs side of the native module gets cached in place of the native module!
 			// See TIMOB-24932
 			const fakeId = `${id}.commonjs`;
-			const jsModule = new Module(fakeId, this, context);
+			const jsModule = new Module(fakeId, this);
 			jsModule.load(fakeId, kroll.getExternalCommonJsModule(id));
 			if (jsModule.exports) {
 				console.trace(`Extending native module '${id}' with the CommonJS module that was packaged with it.`);
@@ -157,10 +148,9 @@ function bootstrap (global, kroll) {
 		 * Loads a native / external (3rd party) module
 		 * @param  {String} id              module id
 		 * @param  {object} externalBinding external binding object
-		 * @param  {Object} context         context object
 		 * @return {Object}                 The exported module
 		 */
-		loadExternalModule (id, externalBinding, context) {
+		loadExternalModule (id, externalBinding) {
 			// try to get the cached module...
 			let externalModule = Module.cache[id];
 			if (!externalModule) {
@@ -175,7 +165,7 @@ function bootstrap (global, kroll) {
 					const source = externalBinding.bootstrap;
 
 					// Load the native module's bootstrap JS
-					const module = new Module(id, this, context);
+					const module = new Module(id, this);
 					module.load(`${id}/bootstrap.js`, source);
 
 					// Bootstrap and load the module using the native bindings
@@ -201,11 +191,12 @@ function bootstrap (global, kroll) {
 				return wrapper;
 			}
 
-			const sourceUrl = (context === undefined) ? 'app://ti.main.js' : context.sourceUrl;
+			const sourceUrl = `app://${this.filename}`;
+			Ti.API.info(sourceUrl);
 			wrapper = this.createModuleWrapper(externalModule, sourceUrl);
 
 			// Then we "extend" the API/module using any shipped JS code (assets/<module.id>.js)
-			this.extendModuleWithCommonJs(wrapper, id, context);
+			this.extendModuleWithCommonJs(wrapper, id);
 			this.wrapperCache[id] = wrapper;
 			return wrapper;
 		}
@@ -219,20 +210,19 @@ function bootstrap (global, kroll) {
 		 * of the child module.
 		 *
 		 * @param  {String} request  The path to the requested module
-		 * @param  {Object} context  context object
 		 * @return {Object}          The loaded module
 		 */
-		require (request, context) {
+		require (request) {
 			// 2. If X begins with './' or '/' or '../'
 			const start = request.substring(0, 2); // hack up the start of the string to check relative/absolute/"naked" module id
 			if (start === './' || start === '..') {
-				const loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request), context);
+				const loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request));
 				if (loaded) {
 					return loaded.exports;
 				}
 			// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
 			} else if (request.substring(0, 1) === '/') {
-				const loaded = this.loadAsFileOrDirectory(path.normalize(request), context);
+				const loaded = this.loadAsFileOrDirectory(path.normalize(request));
 				if (loaded) {
 					return loaded.exports;
 				}
@@ -241,7 +231,7 @@ function bootstrap (global, kroll) {
 				// to start with './', '..' or '/' - so this avoids a lot of misses on requires starting that way
 
 				// 1. If X is a core module,
-				let loaded = this.loadCoreModule(request, context);
+				let loaded = this.loadCoreModule(request);
 				if (loaded) {
 					// a. return the core module
 					// b. STOP
@@ -254,14 +244,14 @@ function bootstrap (global, kroll) {
 					const filename = `/${request}/${request}.js`;
 					// Only look for this _exact file_. DO NOT APPEND .js or .json to it!
 					if (this.filenameExists(filename)) {
-						loaded = this.loadJavascriptText(filename, context);
+						loaded = this.loadJavascriptText(filename);
 						if (loaded) {
 							return loaded.exports;
 						}
 					}
 
 					// Then try module.id as directory
-					loaded = this.loadAsDirectory(`/${request}`, context);
+					loaded = this.loadAsDirectory(`/${request}`);
 					if (loaded) {
 						return loaded.exports;
 					}
@@ -269,7 +259,7 @@ function bootstrap (global, kroll) {
 
 				// Allow looking through node_modules
 				// 3. LOAD_NODE_MODULES(X, dirname(Y))
-				loaded = this.loadNodeModules(request, this.paths, context);
+				loaded = this.loadNodeModules(request, this.paths);
 				if (loaded) {
 					return loaded.exports;
 				}
@@ -281,7 +271,7 @@ function bootstrap (global, kroll) {
 				// eslint-disable-next-line max-len
 				// console.warn(`require called with un-prefixed module id: ${request}, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /${request}`);
 
-				loaded = this.loadAsFileOrDirectory(path.normalize(`/${request}`), context);
+				loaded = this.loadAsFileOrDirectory(path.normalize(`/${request}`));
 				if (loaded) {
 					return loaded.exports;
 				}
@@ -295,10 +285,9 @@ function bootstrap (global, kroll) {
 		 * Loads the core module if it exists. If not, returns null.
 		 *
 		 * @param  {String}  id The request module id
-		 * @param  {Object}  context The context object
 		 * @return {Object}    true if the module id matches a native or CommonJS module id, (or it's first path segment does).
 		 */
-		loadCoreModule (id, context) {
+		loadCoreModule (id) {
 			// skip bad ids, relative ids, absolute ids. "native"/"core" modules should be of form "module.id" or "module.id/sub.file.js"
 			if (!id || id.startsWith('.') || id.startsWith('/')) {
 				return null;
@@ -316,7 +305,7 @@ function bootstrap (global, kroll) {
 					// This is the "root" of an external module. It can look like:
 					// request("com.example.mymodule")
 					// We can load and return it right away (caching occurs in the called function).
-					return this.loadExternalModule(parts[0], externalBinding, context);
+					return this.loadExternalModule(parts[0], externalBinding);
 				}
 
 				// Could be a sub-module (CommonJS) of an external native module.
@@ -326,7 +315,7 @@ function bootstrap (global, kroll) {
 					if (externalCommonJsContents) {
 						// found it
 						// FIXME Re-use loadAsJavaScriptText?
-						const module = new Module(id, this, context);
+						const module = new Module(id, this);
 						module.load(id, externalCommonJsContents);
 						return module.exports;
 					}
@@ -340,15 +329,14 @@ function bootstrap (global, kroll) {
 		 * Attempts to load a node module by id from the starting path
 		 * @param  {string} moduleId       The path of the module to load.
 		 * @param  {string[]} dirs       paths to search
-		 * @param  {object} context        context object
 		 * @return {Module|null}      The module, if loaded. null if not.
 		 */
-		loadNodeModules (moduleId, dirs, context) {
+		loadNodeModules (moduleId, dirs) {
 			// 2. for each DIR in DIRS:
 			for (const dir of dirs) {
 				// a. LOAD_AS_FILE(DIR/X)
 				// b. LOAD_AS_DIRECTORY(DIR/X)
-				const mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
+				const mod = this.loadAsFileOrDirectory(path.join(dir, moduleId));
 				if (mod) {
 					return mod;
 				}
@@ -400,17 +388,16 @@ function bootstrap (global, kroll) {
 		/**
 		 * Attempts to load a given path as a file or directory.
 		 * @param  {string} normalizedPath The path of the module to load.
-		 * @param  {object} context        context object
 		 * @return {Module|null} The loaded module. null if unable to load.
 		 */
-		loadAsFileOrDirectory (normalizedPath, context) {
+		loadAsFileOrDirectory (normalizedPath) {
 			// a. LOAD_AS_FILE(Y + X)
-			let loaded = this.loadAsFile(normalizedPath, context);
+			let loaded = this.loadAsFile(normalizedPath);
 			if (loaded) {
 				return loaded;
 			}
 			// b. LOAD_AS_DIRECTORY(Y + X)
-			loaded = this.loadAsDirectory(normalizedPath, context);
+			loaded = this.loadAsDirectory(normalizedPath);
 			if (loaded) {
 				return loaded;
 			}
@@ -421,16 +408,15 @@ function bootstrap (global, kroll) {
 		/**
 		 * Loads a given file as a Javascript file, returning the module.exports.
 		 * @param  {string} filename File we're attempting to load
-		 * @param  {object} context context object
 		 * @return {Module} the loaded module
 		 */
-		loadJavascriptText (filename, context) {
+		loadJavascriptText (filename) {
 			// Look in the cache!
 			if (Module.cache[filename]) {
 				return Module.cache[filename];
 			}
 
-			const module = new Module(filename, this, context);
+			const module = new Module(filename, this);
 			module.load(filename);
 
 			return module;
@@ -440,16 +426,15 @@ function bootstrap (global, kroll) {
 		 * Loads a JSON file by reading it's contents, doing a JSON.parse and returning the parsed object.
 		 *
 		 * @param  {String} filename File we're attempting to load
-		 * @param  {Object} context context object
 		 * @return {Module} The loaded module instance
 		 */
-		loadJavascriptObject (filename, context) {
+		loadJavascriptObject (filename) {
 			// Look in the cache!
 			if (Module.cache[filename]) {
 				return Module.cache[filename];
 			}
 
-			const module = new Module(filename, this, context);
+			const module = new Module(filename, this);
 			module.filename = filename;
 			module.path = path.dirname(filename);
 			const source = assets.readAsset(OS_ANDROID ? `Resources${filename}` : filename);
@@ -467,28 +452,27 @@ function bootstrap (global, kroll) {
 		 * Attempts to load a file by it's full filename according to NodeJS rules.
 		 *
 		 * @param  {string} id The filename
-		 * @param  {object} context context object
 		 * @return {Module|null} Module instance if loaded, null if not found.
 		 */
-		loadAsFile (id, context) {
+		loadAsFile (id) {
 			// 1. If X is a file, load X as JavaScript text.  STOP
 			let filename = id;
 			if (this.filenameExists(filename)) {
 				// If the file has a .json extension, load as JavascriptObject
 				if (filename.length > 5 && filename.slice(-4) === 'json') {
-					return this.loadJavascriptObject(filename, context);
+					return this.loadJavascriptObject(filename);
 				}
-				return this.loadJavascriptText(filename, context);
+				return this.loadJavascriptText(filename);
 			}
 			// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 			filename = id + '.js';
 			if (this.filenameExists(filename)) {
-				return this.loadJavascriptText(filename, context);
+				return this.loadJavascriptText(filename);
 			}
 			// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
 			filename = id + '.json';
 			if (this.filenameExists(filename)) {
-				return this.loadJavascriptObject(filename, context);
+				return this.loadJavascriptObject(filename);
 			}
 			// failed to load anything!
 			return null;
@@ -498,32 +482,31 @@ function bootstrap (global, kroll) {
 		 * Attempts to load a directory according to NodeJS rules.
 		 *
 		 * @param  {string} id The directory name
-		 * @param  {object} context context object
 		 * @return {Module|null} Loaded module, null if not found.
 		 */
-		loadAsDirectory (id, context) {
+		loadAsDirectory (id) {
 			// 1. If X/package.json is a file,
 			let filename = path.resolve(id, 'package.json');
 			if (this.filenameExists(filename)) {
 				// a. Parse X/package.json, and look for "main" field.
-				const object = this.loadJavascriptObject(filename, context);
+				const object = this.loadJavascriptObject(filename);
 				if (object && object.exports && object.exports.main) {
 					// b. let M = X + (json main field)
 					const m = path.resolve(id, object.exports.main);
 					// c. LOAD_AS_FILE(M)
-					return this.loadAsFileOrDirectory(m, context);
+					return this.loadAsFileOrDirectory(m);
 				}
 			}
 
 			// 2. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
 			filename = path.resolve(id, 'index.js');
 			if (this.filenameExists(filename)) {
-				return this.loadJavascriptText(filename, context);
+				return this.loadJavascriptText(filename);
 			}
 			// 3. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
 			filename = path.resolve(id, 'index.json');
 			if (this.filenameExists(filename)) {
-				return this.loadJavascriptObject(filename, context);
+				return this.loadJavascriptObject(filename);
 			}
 
 			return null;
@@ -539,20 +522,15 @@ function bootstrap (global, kroll) {
 		_runScript (source, filename) {
 			const self = this;
 
-			// Create context-bound modules
-			// inherit parent Module's context, override sourceUrl/module values
-			const context = self.context || {};
-			context.sourceUrl = `app://${filename}`;
-
 			function require(path) {
-				return self.require(path, context);
+				return self.require(path);
 			}
 			require.main = Module.main;
 
 			// This "first time" run is really only for app.js, AFAICT, and needs
 			// an activity. If app was restarted for Service only, we don't want
 			// to go this route. So added currentActivity check. (bill)
-			if (self.id === '.' && (OS_IOS || self.context.currentActivity)) {
+			if (self.id === '.' && !this.isService) {
 				global.require = require;
 
 				// check if we have an inspector binding...
@@ -613,7 +591,7 @@ function bootstrap (global, kroll) {
 	 * [runModule description]
 	 * @param  {String} source            JS Source code
 	 * @param  {String} filename          Filename of the module
-	 * @param  {object} activityOrService [description]
+	 * @param  {Titanium.Service|null|Titanium.Android.Activity} activityOrService [description]
 	 * @return {Module}                   The loaded Module
 	 */
 	Module.runModule = function (source, filename, activityOrService) {
@@ -622,19 +600,16 @@ function bootstrap (global, kroll) {
 			id = '.';
 		}
 
-		// FIXME: This service/activity is Android-specific stuff
-		const isService = OS_ANDROID ? (activityOrService instanceof Titanium.Service) : false;
-
-		let module;
-		if (isService) {
-			module = new Module(id, null, {
-				currentService: activityOrService,
-				currentActivity: null
-			});
-		} else {
-			module = new Module(id, null, {
-				currentService: null,
-				currentActivity: activityOrService
+		const module = new Module(id, null);
+		// FIXME: I don't know why instanceof for Titanium.Service works here!
+		// On Android, it's an apiname of Ti.Android.Service
+		// On iOS, we don't yet pass in the value, but we do set Ti.App.currentService property beforehand!
+		module.isService = OS_ANDROID ? (activityOrService instanceof Titanium.Service) : false;
+		if (module.isService) {
+			Object.defineProperty(Ti.Android, 'currentService', {
+				value: activityOrService,
+				writable: false,
+				configurable: true
 			});
 		}
 
@@ -643,6 +618,14 @@ function bootstrap (global, kroll) {
 		}
 		filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
 		module.load(filename, source);
+
+		if (module.isService) {
+			Object.defineProperty(Ti.Android, 'currentService', {
+				value: undefined,
+				writable: false,
+				configurable: true
+			});
+		}
 		return module;
 	};
 	return Module;
