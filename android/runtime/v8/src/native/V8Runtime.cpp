@@ -58,6 +58,7 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 
 Local<Object> V8Runtime::Global()
 {
+	// FIXME: This isn't the global, it's the global.kroll instance!
 	return krollGlobalObject.Get(v8_isolate);
 }
 
@@ -152,18 +153,14 @@ void V8Runtime::bootstrap(Local<Context> context)
 	// Add a reference to the global object
 	Local<Object> global = context->Global();
 
-	// Expose the global object as a property on itself
-	// (Allows you to set stuff on `global` from anywhere in JavaScript.)
-	global->Set(context, NEW_SYMBOL(isolate, "global"), global);
-
 	// Set the __dirname and __filename for the app.js.
 	// For other files, it will be injected via the `NativeModule` JavaScript class
 	global->Set(context, NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
 	global->Set(context, NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
 
 	Local<Function> mainFunction = result.As<Function>();
-	Local<Value> args[] = { kroll };
-	mainFunction->Call(context, global, 1, args);
+	Local<Value> args[] = { global, kroll };
+	mainFunction->Call(context, global, 2, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(isolate, tryCatch, true);
@@ -274,7 +271,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 		{
 			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
 			Local<Value> moduleValue;
-			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			MaybeLocal<Value> maybeModule = context->Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
 			if (!maybeModule.ToLocal(&moduleValue)) {
 				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
 				return;
@@ -326,7 +323,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 		{
 			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
 			Local<Value> moduleValue;
-			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			MaybeLocal<Value> maybeModule = context->Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
 			if (!maybeModule.ToLocal(&moduleValue)) {
 				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
 				return;
