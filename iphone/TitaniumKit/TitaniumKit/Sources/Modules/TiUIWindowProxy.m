@@ -364,6 +364,7 @@
     [navBar setBarTintColor:barColor];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if ([self shouldUseNavBarApperance]) {
+      barColor = barColor ?: self.view.backgroundColor;
       navBar.standardAppearance.backgroundColor = barColor;
       navBar.scrollEdgeAppearance.backgroundColor = barColor;
     }
