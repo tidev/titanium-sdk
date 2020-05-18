@@ -61,17 +61,14 @@
   [self forgetProxy:clipboard];
   RELEASE_TO_NIL(clipboard);
 #endif
+  RELEASE_TO_NIL(systemColors);
   [super dealloc];
 }
 
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      lastEmittedMode = self.userInterfaceStyle;
-    }
-#endif
+    lastEmittedMode = self.userInterfaceStyle;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didChangeTraitCollection:)
                                                  name:kTiTraitCollectionChanged
@@ -88,16 +85,12 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    NSNumber *currentMode = self.userInterfaceStyle;
-    if (currentMode == lastEmittedMode) {
-      return;
-    }
-    lastEmittedMode = currentMode;
-    [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
+  NSNumber *currentMode = self.userInterfaceStyle;
+  if (currentMode == lastEmittedMode) {
+    return;
   }
-#endif
+  lastEmittedMode = currentMode;
+  [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
 }
 
 - (NSString *)apiName
@@ -408,10 +401,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 - (UIColor *)getSystemColor:(NSString *)color
 {
   if (systemColors == nil) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    systemColors = [NSMutableDictionary dictionary];
-
-    [systemColors addEntriesFromDictionary:@{
+    systemColors = @{
       @"systemRedColor" : UIColor.systemRedColor,
       @"systemGreenColor" : UIColor.systemGreenColor,
       @"systemBlueColor" : UIColor.systemBlueColor,
@@ -420,38 +410,34 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
       @"systemPinkColor" : UIColor.systemPinkColor,
       @"systemPurpleColor" : UIColor.systemPurpleColor,
       @"systemTealColor" : UIColor.systemTealColor,
-      @"systemGrayColor" : UIColor.systemGrayColor
-    }];
-
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      [systemColors addEntriesFromDictionary:@{
-        @"systemIndigoColor" : UIColor.systemIndigoColor,
-        @"systemGray2Color" : UIColor.systemGray2Color,
-        @"systemGray3Color" : UIColor.systemGray3Color,
-        @"systemGray4Color" : UIColor.systemGray4Color,
-        @"systemGray5Color" : UIColor.systemGray5Color,
-        @"systemGray6Color" : UIColor.systemGray6Color,
-        @"labelColor" : UIColor.labelColor,
-        @"secondaryLabelColor" : UIColor.secondaryLabelColor,
-        @"tertiaryLabelColor" : UIColor.tertiaryLabelColor,
-        @"quaternaryLabelColor" : UIColor.quaternaryLabelColor,
-        @"linkColor" : UIColor.linkColor,
-        @"placeholderTextColor" : UIColor.placeholderTextColor,
-        @"separatorColor" : UIColor.separatorColor,
-        @"opaqueSeparatorColor" : UIColor.opaqueSeparatorColor,
-        @"systemBackgroundColor" : UIColor.systemBackgroundColor,
-        @"secondarySystemBackgroundColor" : UIColor.secondarySystemBackgroundColor,
-        @"tertiarySystemBackgroundColor" : UIColor.tertiarySystemBackgroundColor,
-        @"systemGroupedBackgroundColor" : UIColor.systemGroupedBackgroundColor,
-        @"secondarySystemGroupedBackgroundColor" : UIColor.secondarySystemGroupedBackgroundColor,
-        @"tertiarySystemGroupedBackgroundColor" : UIColor.tertiarySystemGroupedBackgroundColor,
-        @"systemFillColor" : UIColor.systemFillColor,
-        @"secondarySystemFillColor" : UIColor.secondarySystemFillColor,
-        @"tertiarySystemFillColor" : UIColor.tertiarySystemFillColor,
-        @"quaternarySystemFillColor" : UIColor.quaternarySystemFillColor
-      }];
-    }
+      @"systemIndigoColor" : UIColor.systemIndigoColor,
+      @"systemGrayColor" : UIColor.systemGrayColor,
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+      @"systemGray2Color" : UIColor.systemGray2Color,
+      @"systemGray3Color" : UIColor.systemGray3Color,
+      @"systemGray4Color" : UIColor.systemGray4Color,
+      @"systemGray5Color" : UIColor.systemGray5Color,
+      @"systemGray6Color" : UIColor.systemGray6Color,
+      @"labelColor" : UIColor.labelColor,
+      @"secondaryLabelColor" : UIColor.secondaryLabelColor,
+      @"tertiaryLabelColor" : UIColor.tertiaryLabelColor,
+      @"quaternaryLabelColor" : UIColor.quaternaryLabelColor,
+      @"linkColor" : UIColor.linkColor,
+      @"placeholderTextColor" : UIColor.placeholderTextColor,
+      @"separatorColor" : UIColor.separatorColor,
+      @"opaqueSeparatorColor" : UIColor.opaqueSeparatorColor,
+      @"systemBackgroundColor" : UIColor.systemBackgroundColor,
+      @"secondarySystemBackgroundColor" : UIColor.secondarySystemBackgroundColor,
+      @"tertiarySystemBackgroundColor" : UIColor.tertiarySystemBackgroundColor,
+      @"systemGroupedBackgroundColor" : UIColor.systemGroupedBackgroundColor,
+      @"secondarySystemGroupedBackgroundColor" : UIColor.secondarySystemGroupedBackgroundColor,
+      @"tertiarySystemGroupedBackgroundColor" : UIColor.tertiarySystemGroupedBackgroundColor,
+      @"systemFillColor" : UIColor.systemFillColor,
+      @"secondarySystemFillColor" : UIColor.secondarySystemFillColor,
+      @"tertiarySystemFillColor" : UIColor.tertiarySystemFillColor,
+      @"quaternarySystemFillColor" : UIColor.quaternarySystemFillColor
 #endif
+    };
   }
   return [systemColors objectForKey:color];
 }

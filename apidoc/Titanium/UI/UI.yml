@@ -183,7 +183,6 @@ events:
         type: Number
         constants: Titanium.UI.USER_INTERFACE_STYLE_*
     platforms: [android, iphone, ipad]
-    osver: {ios: {min: "13.0"}}
 
 methods:
   - name: create2DMatrix
