@@ -10,7 +10,6 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
-const glob = util.promisify(require('glob'));
 const path = require('path');
 const ejs = require('ejs');
 const generateBootstrap = require('./genBootstrap');
@@ -55,6 +54,24 @@ async function gperf(workingDirPath, inputFilePath, outputFilePath) {
 		throw new Error(`"gperf" failed to process file "${inputFilePath}". Reason: ${stderr}`);
 	}
 	await fs.writeFile(outputFilePath, stdout);
+}
+
+/**
+ * @param {string} outputDir directory to place the generated 'ti.kernel.js' file
+ */
+async function generateTiKernel(outputDir) {
+	const Builder = require('../../build/lib/builder');
+	const Android = require('../../build/lib/android');
+	const program = { args: [ 'android' ] };
+	const builder = new Builder(program);
+	await builder.ensureGitHash();
+	const android = new Android({
+		sdkVersion: require('../../package.json').version,
+		gitHash: program.gitHash,
+		timestamp: program.timestamp
+	});
+
+	return builder.generateKernelBundle('android', android.babelOptions(), outputDir);
 }
 
 /**
@@ -143,58 +160,21 @@ async function generateBootstrapAndKrollGeneratedBindings(outDir) {
 	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
-async function generateTiKernel(outputDir) {
-	const Builder = require('../../build/lib/builder');
-	const Android = require('../../build/lib/android');
-	const program = { args: [ 'android' ] };
-	const builder = new Builder(program);
-	builder.ensureGitHash();
-	const android = new Android({
-		sdkVersion: require('../../package.json').version,
-		gitHash: program.gitHash,
-		timestamp: program.timestamp
-	});
-
-	return builder.generateKernelBundle('android', android.babelOptions(), outputDir);
-}
-
 /** Generates C/C++ source files containing internal JS files and from gperf templates. */
 async function generateSourceCode() {
 	const outDir = path.join(runtimeV8DirPath, 'generated');
+	const kernelOutDir = path.join(__dirname, 'build/outputs/ti-assets/Resources');
 	await fs.mkdirs(outDir);
 	await Promise.all([
 		generateKrollNativeBindings(outDir),
 		generateBootstrapAndKrollGeneratedBindings(outDir),
+		// Generate a rolled up bundle of ti.kernel.js
+		generateTiKernel(kernelOutDir),
 	]);
-
-	// Generate a rolled up bundle of ti.kernel.js
-	const kernelOutDir = '/tmp/android-titanium'; // FIXME: Not Windows friendly!
-	await generateTiKernel(kernelOutDir);
-
-	// Fetch the rollup bundled ti.kernel.js, rename to kroll.js, bake it in
-	const krollJs = path.join(kernelOutDir, 'kroll.js');
-	if (await fs.exists(krollJs)) {
-		await fs.remove(krollJs);
-	}
-	await fs.move(path.join(kernelOutDir, 'ti.kernel.js'), krollJs);
-	// FIXME: Handle porting events.js
-	let filePaths = [ krollJs, path.join(__dirname, '../runtime/common/src/js/events.js') ];
-
-	// Fetch all JS file paths under each module directory: "./modules/<ModuleName>/src/js"
-	filePaths = filePaths.concat(await glob(
-		'*/src/js/*.js',
-		{
-			cwd: path.join(__dirname, '..', 'modules'),
-			realpath: true
-		}
-	));
-	filePaths.unshift(path.join(outDir, 'bootstrap.js'));
-
-	// Generate a "KrollJS.h" file containing bootstrap.js and all the other baked in js files
+	// Generate a "KrollJS.h" file containing bootstrap.js and ti.kernel.js (as "kroll")
 	const files = new Map();
-	for (const nextPath of filePaths) {
-		files.set(path.basename(nextPath, '.js'), nextPath);
-	}
+	files.set('bootstrap', path.join(outDir, 'bootstrap.js'));
+	files.set('kroll', path.join(kernelOutDir, 'ti.kernel.js'));
 	const headerFilePath = path.join(outDir, 'KrollJS.h');
 	const tempFilePath = headerFilePath + '.temp';
 	await js2c(tempFilePath, files);

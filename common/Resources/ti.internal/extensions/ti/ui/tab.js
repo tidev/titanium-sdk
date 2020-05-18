@@ -4,13 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-'use strict';
+/* globals OS_ANDROID */
+if (OS_ANDROID) {
+	const Tab = Titanium.UI.Tab;
 
-exports.bootstrap = function (Titanium) {
-	var Tab = Titanium.UI.Tab;
-
-	function createTab(scopeVars, options) {
-		var tab = new Tab(options);
+	function createTab(options) {
+		const tab = new Tab(options);
 		if (options) {
 			tab._window = options.window;
 		}
@@ -36,14 +35,14 @@ exports.bootstrap = function (Titanium) {
 	};
 
 	Tab.prototype.close = function (options) {
-		var window = this.getWindow();
+		const window = this.getWindow();
 		if (window) {
 			window.close(options);
 			this.setWindow(null);
 		}
 	};
 
-	var _setWindow = Tab.prototype.setWindow;
+	const _setWindow = Tab.prototype.setWindow;
 	Tab.prototype.setWindow = function (window) {
 		this._window = window;
 		_setWindow.call(this, window);
@@ -58,4 +57,4 @@ exports.bootstrap = function (Titanium) {
 		set: Tab.prototype.setWindow,
 		get: Tab.prototype.getWindow
 	});
-};
+}

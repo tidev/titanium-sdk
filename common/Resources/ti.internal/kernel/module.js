@@ -6,18 +6,11 @@
  */
 /* globals OS_IOS, OS_ANDROID */
 import path from '../extensions/node/path';
-import invoker from './invoker'; // FIXME: Hide this as it's Ti-specific?
+import invoker from './android/invoker';
 
 function bootstrap (global, kroll) {
 	const assets = kroll.binding('assets');
-
-	// FIXME: We can't really do platform sniffing here because Ti.Platform won't necessarily be set up!
-	// Obviously our babel-plugin-transform-titanium could save us here, but not sure we want to rely on that
 	const Script = OS_ANDROID ? kroll.binding('evals').Script : kroll.binding('Script');
-
-	if (OS_IOS) {
-		kroll.externalBinding = kroll.binding;
-	}
 
 	/**
 	 * The loaded index.json file from the app. Used to store the encrypted JS assets'
@@ -40,8 +33,6 @@ function bootstrap (global, kroll) {
 
 			this.filename = null;
 			this.loaded = false;
-			// this.exited = false; // unused
-			// this.children = []; // unused
 			this.wrapperCache = {};
 			this.isService = false; // toggled on if this module is the service entry point
 		}
@@ -94,18 +85,20 @@ function bootstrap (global, kroll) {
 			ModuleWrapper.prototype = externalModule;
 
 			const wrapper = new ModuleWrapper();
-			// Android-specific portion!
-			// Here we take the APIs defined in the bootstrap.js
-			// and effectively lazily hook them
-			// NOTE: That invocationAPIs will be undefined on iOS, so defaults to empty array (no-op)
-			const invocationAPIs = externalModule.invocationAPIs || [];
-			for (const api of invocationAPIs) {
-				const delegate = externalModule[api];
-				if (!delegate) {
-					continue;
-				}
+			if (OS_ANDROID) {
+				// Android-specific portion!
+				// Here we take the APIs defined in the bootstrap.js
+				// and effectively lazily hook them
+				// We explicitly guard the code so iOS doesn't even use/include the referenced invoker.js import
+				const invocationAPIs = externalModule.invocationAPIs || [];
+				for (const api of invocationAPIs) {
+					const delegate = externalModule[api];
+					if (!delegate) {
+						continue;
+					}
 
-				wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars({ sourceUrl }));
+					wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars({ sourceUrl }));
+				}
 			}
 
 			wrapper.addEventListener = function (...args) {
@@ -192,7 +185,6 @@ function bootstrap (global, kroll) {
 			}
 
 			const sourceUrl = `app://${this.filename}`; // FIXME: If this.filename starts with '/', we need to drop it, I think?
-			Ti.API.info(sourceUrl);
 			wrapper = this.createModuleWrapper(externalModule, sourceUrl);
 
 			// Then we "extend" the API/module using any shipped JS code (assets/<module.id>.js)
