@@ -30,7 +30,7 @@
   TiProxy *clipboard;
 #endif
   NSNumber *lastEmittedMode;
-  NSDictionary *systemColors;
+  NSMutableDictionary *systemColors;
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
