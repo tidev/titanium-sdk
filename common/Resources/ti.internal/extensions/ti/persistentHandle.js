@@ -1,13 +1,3 @@
-/**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013-Present by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Apache Public License
- * Please see the LICENSE included with this distribution for details.
- */
-'use strict';
-
-require('bootstrap');
-
 // Keeps an object alive until dispose() is called.
 // This is currently used to keep "top level" objects
 // (ex: windows, tab groups) alive until their lifecycle ends.
@@ -33,8 +23,4 @@ PersistentHandle.prototype.dispose = function () {
 	this.cell = -1;
 };
 
-exports.PersistentHandle = PersistentHandle;
-
-exports.bootstrap = function (Titanium) {
-	require('httpclient').bootstrap(Titanium);
-};
+export default PersistentHandle;

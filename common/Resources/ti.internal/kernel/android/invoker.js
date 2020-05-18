@@ -58,8 +58,7 @@ function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 				api = apiNamespace[name];
 			} else {
 				function SandboxAPI() {
-					// FIXME: Use non-deprecated way to get prototype!
-					var proto = this.__proto__; // eslint-disable-line no-proto
+					const proto = Object.getPrototypeOf(this);
 					Object.defineProperty(this, '_events', {
 						get: function () {
 							return proto._events;

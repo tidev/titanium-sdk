@@ -1,6 +1,5 @@
-'use strict';
-
-exports.bootstrap = function (Titanium) {
+/* globals OS_ANDROID */
+if (OS_ANDROID) {
 	const Locale = Titanium.Locale;
 	const wrappedGetString = Locale.getString;
 
@@ -13,4 +12,4 @@ exports.bootstrap = function (Titanium) {
 
 		return wrappedGetString.call(Locale, key, defaultValue);
 	};
-};
+}

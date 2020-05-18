@@ -17,12 +17,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_IOS,OS_ANDROID */
+/* globals OS_ANDROID,OS_IOS */
 // We must wrap and export a bootstrap function to be able to delay access to kroll/global
 // We're basically baking in the require wrapper function stuff in the code explicitly
-import ModuleBootstrap from './ti.internal/bootstrap/module';
-import TitaniumBootstrap from './ti.internal/bootstrap/titanium';
-import invoker from './ti.internal/bootstrap/invoker';
+import ModuleBootstrap from './ti.internal/kernel/module';
+import TitaniumBootstrap from './ti.internal/kernel/titanium';
+import EventEmitterBootstrap from './ti.internal/kernel/android/events';
+import NativeModuleBootstrap from './ti.internal/kernel/android/nativemodule';
 
 /**
  * main bootstrapping function
@@ -54,126 +55,47 @@ function bootstrap(global, kroll) {
 		return thisObject;
 	};
 
-	function startup() {
-		startup.globalVariables();
-		startup.runMain();
-	}
-
-	// Used just to differentiate scope vars on java side by
-	// using a unique constructor name
+	/**
+	 * This is used to shuttle the sourceUrl around to APIs that may need to
+	 * resolve relative paths based on the invoking file.
+	 * (see KrollInvocation.java for more)
+	 * @param {object} vars key/value pairs to store
+	 * @param {string} vars.sourceUrl the source URL of the file calling the API
+	 * @constructor
+	 * @returns {ScopeVars}
+	 */
 	function ScopeVars(vars) {
 		if (!vars) {
 			return this;
 		}
 
-		var keys = Object.keys(vars);
-		var length = keys.length;
-
+		const keys = Object.keys(vars);
+		const length = keys.length;
 		for (var i = 0; i < length; ++i) {
-			var key = keys[i];
+			const key = keys[i];
 			this[key] = vars[key];
 		}
 	}
 
-	startup.globalVariables = function () {
-		global.global = global;
-		global.kroll = kroll;
-		kroll.ScopeVars = ScopeVars;
-		kroll.NativeModule = NativeModule; // So external module bootstrap.js can call NativeModule.require directly.
-
-		OS_ANDROID && NativeModule.require('events');
-		// TODO: This is a hack around NativeModule.require
-		// Android bakes this stuff into native code bound to 'natives'
-		// Then does fairly typical require wrapping of the source to load it
-		// But for iOS I'm using rollup to bundle everything into one file
-		// so we don't even use NativeModule - we expect everything to be bundled here and pass the relevant variables into exported functions
-		// I don't know if there's a way to match Android, or which is better!
-		// It may make sense to steal the notion of baking the js code into raw byte array in the obj-c to load from?
-		// FIXME: Android has a lot of stuff it does in it's titanium.js that we likley need to port over!
+	function startup() {
+		global.global = global; // hang the global object off itself
+		global.kroll = kroll; // hang our special under the hood kroll object off the global
+		if (OS_ANDROID) {
+			kroll.ScopeVars = ScopeVars;
+			// external module bootstrap.js expects to call kroll.NativeModule.require directly to load in their own source
+			// and to refer to the baked in "bootstrap.js" for the SDK and "invoker.js" to hang lazy APIs/wrap api calls to pass in scope vars
+			kroll.NativeModule = NativeModuleBootstrap(global, kroll);
+			// Android uses it's own EventEmitter impl, and it's baked right into the proxy class chain
+			// It assumes it can call back into java proxies to alert when listeners are added/removed
+			// FIXME: Get it to use the events.js impl in the node extension, and get iOS to bake that into it's proxies as well!
+			EventEmitterBootstrap(global, kroll);
+		} else if (OS_IOS) {
+			// route kroll.externalBinding to same impl as binding - we treat 1st and 3rd party native modules the same
+			kroll.externalBinding = kroll.binding;
+		}
 		global.Ti = global.Titanium = TitaniumBootstrap(global, kroll);
 		global.Module = ModuleBootstrap(global, kroll);
-	};
-
-	startup.runMain = function () {};
-
-	const Script = OS_ANDROID ? kroll.binding('evals').Script : kroll.binding('Script');
-	const runInThisContext = Script.runInThisContext;
-
-	function NativeModule(id) {
-		this.filename = id + '.js';
-		this.id = id;
-		this.exports = {};
-		this.loaded = false;
 	}
-
-	/**
-	 * This should be an object with string keys (baked in module ids) -> string values (source of the baked in js code)
-	 */
-	NativeModule._source = kroll.binding('natives');
-	NativeModule._cache = {};
-
-	NativeModule.require = function (id) {
-		if (id === 'native_module') {
-			return NativeModule;
-		}
-		if (id === 'invoker') {
-			return invoker; // Android native modules use a bootstrap.js file that assumes there's a builtin 'invoker'
-		}
-
-		const cached = NativeModule.getCached(id);
-		if (cached) {
-			return cached.exports;
-		}
-
-		if (!NativeModule.exists(id)) {
-			throw new Error('No such native module ' + id);
-		}
-
-		const nativeModule = new NativeModule(id);
-
-		nativeModule.compile();
-		nativeModule.cache();
-
-		return nativeModule.exports;
-	};
-
-	NativeModule.getCached = function (id) {
-		return NativeModule._cache[id];
-	};
-
-	NativeModule.exists = function (id) {
-		return (id in NativeModule._source);
-	};
-
-	NativeModule.getSource = function (id) {
-		return NativeModule._source[id];
-	};
-
-	NativeModule.wrap = function (script) {
-		return NativeModule.wrapper[0] + script + NativeModule.wrapper[1];
-	};
-
-	NativeModule.wrapper = [
-		'(function (exports, require, module, __filename, __dirname, Titanium, Ti, global, kroll) {',
-		'\n});' ];
-
-	NativeModule.prototype.compile = function () {
-
-		let source = NativeModule.getSource(this.id);
-		source = NativeModule.wrap(source);
-
-		// All native modules have their filename prefixed with ti:/
-		const filename = `ti:/${this.filename}`;
-
-		const fn = runInThisContext(source, filename, true);
-		fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
-
-		this.loaded = true;
-	};
-
-	NativeModule.prototype.cache = function () {
-		NativeModule._cache[this.id] = this;
-	};
 
 	startup();
 }
