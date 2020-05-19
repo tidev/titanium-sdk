@@ -6,11 +6,7 @@
  */
 
 #import "Bridge.h"
-#import "KrollContext.h"
-#import "KrollObject.h"
 #import "TiEvaluator.h"
-#import "TiModule.h"
-#import "TiProxy.h"
 #import <os/lock.h>
 
 @import Foundation;
@@ -19,15 +15,16 @@
 
 extern NSString *TitaniumModuleRequireFormat;
 
+@class KrollObject;
+@class krollContext;
+@class TiProxy;
+
 @interface KrollBridge : Bridge <TiEvaluator, KrollDelegate> {
   @private
   NSURL *currentURL;
 
   KrollContext *context;
   NSDictionary *preload;
-  NSMutableDictionary *modules;
-  NSMutableDictionary *packageJSONMainCache;
-  NSMutableDictionary *pathCache;
   BOOL shutdown;
   BOOL evaluationError;
   //NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
@@ -40,6 +37,7 @@ extern NSString *TitaniumModuleRequireFormat;
 - (void)evalJSWithoutResult:(NSString *)code;
 - (id)evalJSAndWait:(NSString *)code;
 - (BOOL)evaluationError;
+- (void)setEvaluationError:(BOOL)value;
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy *)thisObject;
 - (id)preloadForKey:(id)key name:(id)name;
 - (KrollContext *)krollContext;

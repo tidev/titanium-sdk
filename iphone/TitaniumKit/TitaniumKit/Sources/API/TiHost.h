@@ -1,18 +1,19 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "Bridge.h"
+#import "Module.h"
 #import "TiEvaluator.h"
 #import "TiProxy.h"
 #import "TiStylesheet.h"
 
 @interface TiHost : NSObject {
-  NSMutableDictionary *modules;
-  NSMutableDictionary *contexts;
+  NSMutableDictionary<NSString *, id<Module>> *modules;
+  NSMutableDictionary<NSString *, id<TiEvaluator>> *contexts;
   NSURL *startURL;
   NSURL *baseURL;
   TiStylesheet *stylesheet;
@@ -30,7 +31,7 @@
 
 + (NSURL *)resourceBasedURL:(NSString *)fn baseURL:(NSString **)base;
 
-- (id)moduleNamed:(NSString *)name context:(id<TiEvaluator>)context;
+- (id<Module>)moduleNamed:(NSString *)name context:(id<TiEvaluator>)context;
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)remove context:(id<TiEvaluator>)context thisObject:(TiProxy *)thisObject_;
 - (void)removeListener:(id)listener context:(id<TiEvaluator>)context;

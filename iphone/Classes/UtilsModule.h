@@ -7,7 +7,7 @@
 #ifdef USE_TI_UTILS
 
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <TitaniumKit/ObjcProxy.h>
+#import <TitaniumKit/ObjcModule.h>
 
 @class TiBlob;
 
@@ -22,7 +22,7 @@
 
 @end
 
-@interface UtilsModule : ObjcProxy <UtilsExports>
+@interface UtilsModule : ObjcModule <UtilsExports>
 
 @end
 

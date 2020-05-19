@@ -132,28 +132,26 @@
   return nil;
 }
 
-- (id)moduleNamed:(NSString *)name context:(id<TiEvaluator>)context
+- (id<Module>)moduleNamed:(NSString *)name context:(id<TiEvaluator>)context
 {
-  TiModule *m = [modules objectForKey:name];
+  // May be be a TiModule* or an ObjcProxy*
+  id<Module> m = [modules objectForKey:name];
   if (m == nil || [m destroyed]) // Need to re-allocate any modules which have been destroyed
   {
     @synchronized(self) {
       m = [modules objectForKey:name];
       if (m == nil || [m destroyed]) {
-        Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", name]);
+        Class moduleClass = NSClassFromString(name);
         if (moduleClass != nil) {
-          m = [[moduleClass alloc] _initWithPageContext:context];
-          if ([m isKindOfClass:[TiModule class]] && ![m isJSModule]) {
-            [m setHost:self];
-            [modules setObject:m forKey:name];
-            [m release];
+          if ([moduleClass isSubclassOfClass:[TiModule class]]) {
+            m = [[moduleClass alloc] _initWithPageContext:context];
           } else {
-            [m release];
-            m = [[self krollBridge] require:context path:name];
-            if (m != nil) {
-              [modules setObject:m forKey:name];
-            }
+            // assume new obj-c style ObjcProxy
+            m = [[moduleClass alloc] init];
           }
+          [m setHost:self];
+          [modules setObject:m forKey:name];
+          [m release];
         }
       }
     }
