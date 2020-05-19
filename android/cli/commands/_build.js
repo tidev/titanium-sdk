@@ -1962,27 +1962,16 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRe
 	// Determine if we should do a "clean" build.
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 	if (this.forceRebuild) {
-		// First, make the gradle daemon release its file locks so that they can be deleted on Windows.
-		const gradlew = new GradleWrapper(this.buildDir);
-		if (await gradlew.hasWrapperFiles()) {
-			// Attempt to run the gradle "clean" task if possible. (This is the fastest solution.)
-			let wasCleaned = false;
+		// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+		if (process.platform === 'win32') {
 			try {
-				if (await gradlew.hasLocalPropertiesFile() && await gradlew.hasSettingsGradleFile()) {
-					await gradlew.clean('app');
-					wasCleaned = true;
+				const gradlew = new GradleWrapper(this.buildDir);
+				gradlew.logger = this.logger;
+				if (await gradlew.hasWrapperFiles()) {
+					await gradlew.stopDaemon();
 				}
 			} catch (err) {
-				this.logger.debug('Failed to run gradle "clean" task. Reason:\n' + err);
-			}
-
-			// If unable to clean project, then try to stop all gradle daemons.
-			if (!wasCleaned) {
-				try {
-					await gradlew.run('--stop --console plain');
-				} catch (err) {
-					this.logger.debug('Failed to stop gradle daemon. Reason:\n' + err);
-				}
+				this.logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
 			}
 		}
 
