@@ -19,7 +19,7 @@ exports.cliVersion = '>=3.2';
 exports.init = function (logger, config, cli) {
 	cli.on('build.ios.xcodebuild', {
 		pre: function (data, finished) {
-			if (this.target !== 'dist-appstore' && this.target !== 'dist-adhoc') {
+			if (this.target !== 'dist-appstore' && this.target !== 'dist-adhoc' && this.target !== 'dist-macappstore') {
 				return finished();
 			}
 
@@ -44,7 +44,7 @@ exports.init = function (logger, config, cli) {
 		post: function (builder, finished) {
 			const target = cli.argv.target;
 
-			if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
+			if (target !== 'dist-appstore' && target !== 'dist-adhoc' && target !== 'dist-macappstore') {
 				return finished();
 			}
 
@@ -81,6 +81,7 @@ exports.init = function (logger, config, cli) {
 
 			switch (target) {
 				case 'dist-appstore':
+				case 'dist-macappstore':
 					logger.info(__('Preparing xcarchive'));
 
 					const productsDir = path.join(builder.buildDir, 'build', 'Products');
@@ -131,10 +132,11 @@ exports.init = function (logger, config, cli) {
 
 					// move the finished archive directory into the correct location
 					fs.ensureDirSync(archivesDir);
-					appc.fs.copyDirSyncRecursive(stagingArchiveDir, dest, {
-						logger: logger.debug
-					});
-
+					try  {
+						fs.move(stagingArchiveDir, dest);
+					} catch (error){
+						logger.error(__('Failed to to move archive to correct location'));
+				    }
 					// if not build-only open xcode + organizer after packaging, otherwise finish
 					if (!cli.argv['build-only']) {
 						logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
@@ -193,7 +195,7 @@ exports.init = function (logger, config, cli) {
 		const pp = builder.provisioningProfile;
 
 		// Build the options plist file
-		if (target === 'dist-appstore') {
+		if (target === 'dist-appstore' || target === 'dist-macappstore') {
 			exportsOptions.method = 'app-store';
 		} else {
 			exportsOptions.method = 'ad-hoc';

@@ -5,6 +5,7 @@ const promisify = util.promisify;
 const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
+const spawn = require('child_process').spawn;
 
 const glob = promisify(require('glob'));
 const appc = require('node-appc');
@@ -288,19 +289,30 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 			// FIXME: What about modules? Can we symlink those in?
 			return fs.ensureSymlink(path.join(zipDir, 'mobilesdk', osName, versionTag), destDir);
 		}
-		await fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true });
+		await fs.copySync(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true });
 		return fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'));
 	}
 
 	// try the zip
 	const zipfile = path.join(distDir, `mobilesdk-${versionTag}-${osName}.zip`);
 	console.log('Installing %s...', zipfile);
+
 	return new Promise((resolve, reject) => {
-		appc.zip.unzip(zipfile, dest, {}, function (err) {
-			if (err) {
-				return reject(err);
+		console.log(`Unzipping ${zipfile} to ${dest}`);
+		const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/unzip') : 'unzip';
+		const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
+		let err = '';
+		child.stderr.on('data', buffer => {
+			err += buffer.toString();
+		});
+		child.on('error', err => {
+			reject(err);
+		});
+		child.on('close', code => {
+			if (code !== 0) {
+				return reject(new Error(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`));
 			}
-			return resolve();
+			resolve();
 		});
 	});
 };

@@ -22,7 +22,7 @@ exports.init = function (logger, config, cli) {
 	cli.addHook('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
-			if (cli.argv.target === 'mac') {
+			if (cli.argv.target === 'macos') {
 				// TO DO: Modify it to log messages
 				logger.info(__('Launching Mac'));
 				const command = 'open -a ' + builder.iosBuildDir + '/' + builder.tiapp.name + '.app/Contents/MacOS/' + builder.tiapp.name;

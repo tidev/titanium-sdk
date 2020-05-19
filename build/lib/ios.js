@@ -138,13 +138,13 @@ class IOS {
 			copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ]),
 
 			// Copy TitaniumKit
-			copyFiles(path.join(IOS_ROOT, 'TitaniumKit/build'), path.join(DEST_IOS, 'Frameworks'), [ 'TitaniumKit.xcframework' ]),
+			fs.copySync(path.join(IOS_ROOT, 'TitaniumKit/build/TitaniumKit.xcframework'), path.join(DEST_IOS, 'Frameworks/TitaniumKit.xcframework')),
 
 			// Copy and inject values for special source files
 			this.injectSDKConstants(path.join(DEST_IOS, 'main.m')),
 
-			// Copy Ti.Verify
-			copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a' ]),
+			// Copy tiverify.xcframework
+			copyFiles(IOS_LIB, path.join(DEST_IOS, 'Frameworks'), [ 'tiverify.xcframework' ]),
 
 			// Copy iphone/package.json, but replace __VERSION__ with our version!
 			copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { __VERSION__: this.sdkVersion }),
