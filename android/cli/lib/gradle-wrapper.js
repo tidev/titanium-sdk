@@ -153,6 +153,11 @@ class GradleWrapper {
 		await this.run(`${subprojectName}publish --console plain`);
 	}
 
+	/** Stops all gradle daemon processes on the system using the same gradle version this wrapper references. */
+	async stopDaemon() {
+		await this.run('--stop --console plain');
+	}
+
 	/**
 	 * Runs the "gradlew" command line tool with the given command line arguments string.
 	 * @param {String} [argsString]
