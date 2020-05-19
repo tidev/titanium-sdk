@@ -71,26 +71,35 @@
 // Conversion methods for interacting with "old" KrollObject style proxies
 - (id)JSValueToNative:(JSValue *)jsValue
 {
-  JSContext *context = [jsValue context];
-  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
-  JSValueRef valueRef = [jsValue JSValueRef];
-  id obj = TiBindingTiValueToNSObject(jsContext, valueRef);
-  return obj;
+  return TiBindingTiValueToNSObject(jsValue.context.JSGlobalContextRef, jsValue.JSValueRef);
 }
 
 - (JSValue *)NativeToJSValue:(id)native
 {
-  JSContext *context = [JSContext currentContext];
-  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
-  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, native);
+  return [self NativeToJSValue:native inContext:JSContext.currentContext];
+}
+
+- (JSValue *)NativeToJSValue:(id)native inContext:(JSContext *)context
+{
+  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(context.JSGlobalContextRef, native);
   return [JSValue valueWithJSValueRef:jsValueRef inContext:context];
+}
+
+- (JSValue *)JSValue
+{
+  return [self NativeToJSValue:self];
+}
+
+- (JSValue *)JSValueInContext:(JSContext *)context
+{
+  return [self NativeToJSValue:self inContext:context];
 }
 
 - (id)init
 {
   if (self = [super init]) {
     self.bubbleParent = YES;
-    JSContext *context = [JSContext currentContext];
+    JSContext *context = JSContext.currentContext;
     if (context == nil) { // from native code!
       // Ask KrollBridge for current URL?
       NSString *basePath = [TiHost resourcePath];
@@ -320,7 +329,12 @@ READWRITE_IMPL(BOOL, bubbleParent, BubbleParent);
 
 - (id<TiEvaluator>)executionContext
 {
-  KrollContext *context = GetKrollContext([self currentContext].JSGlobalContextRef);
+  return [ObjcProxy executionContext:[self currentContext]];
+}
+
++ (id<TiEvaluator>)executionContext:(JSContext *)jsContext
+{
+  KrollContext *context = GetKrollContext(jsContext.JSGlobalContextRef);
   return (KrollBridge *)[context delegate];
 }
 
