@@ -12,13 +12,27 @@
 */
 
 'use strict';
-const path = require('path');
-const fs = require('fs-extra');
+
 const appc = require('node-appc');
+const fs = require('fs-extra');
+const GradleWrapper = require('../lib/gradle-wrapper');
+const path = require('path');
 const __ = appc.i18n(__dirname).__;
 
-exports.run = function run(logger, config, cli, finished) {
+exports.run = async function run(logger, config, cli, finished) {
 	const projectDir = cli.argv['project-dir'];
+
+	// Run the gradle "clean" task if possible.
+	// This makes the gradle daemon release its file locks so that they can be deleted on Windows.
+	try {
+		const gradlew = new GradleWrapper(path.join(projectDir, 'build'));
+		gradlew.logger = logger;
+		if (await gradlew.hasWrapperFiles()) {
+			await gradlew.clean();
+		}
+	} catch (err) {
+		this.logger.error(`Failed to run gradle "clean" task. Reason:\n${err}`);
+	}
 
 	const toDelete = [ 'build', 'dist', 'java-sources.txt' ];
 	toDelete.forEach(f => {
