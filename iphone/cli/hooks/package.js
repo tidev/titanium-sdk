@@ -134,7 +134,7 @@ exports.init = function (logger, config, cli) {
 					fs.ensureDirSync(archivesDir);
 					try  {
 						fs.move(stagingArchiveDir, dest);
-					} catch (error){
+					} catch (error) {
 						logger.error(__('Failed to to move archive to correct location'));
 				    }
 					// if not build-only open xcode + organizer after packaging, otherwise finish

@@ -2309,7 +2309,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'writeInfoPlist',
 		'writeMain',
 		'writeXcodeConfigFiles',
-	//	'copyTitaniumLibraries',
+		//	'copyTitaniumLibraries',
 		'copyTitaniumiOSFiles',
 		'copyExtensionFiles',
 		'cleanXcodeDerivedData',
@@ -4743,7 +4743,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					}
 
 					if (dir === 'Frameworks' && copyFrameworks) {
-						// The content of Frameworks directory only change if we change SDK version. So it is safe to copy whole directory. 
+						// The content of Frameworks directory only change if we change SDK version. So it is safe to copy whole directory.
 						// Copy whole 'Frameworks' directory from SDK to build directory, to preserve symlink available in Titaniumkit.xcframework.
 						// TO DO: Is there any better way to do this?
 
