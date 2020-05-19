@@ -114,7 +114,7 @@
     "semver": "^7.3.2",
     "sprintf": "0.1.5",
     "temp": "0.9.1",
-    "xcode": "^3.0.0",
+    "xcode": "^3.0.1",
     "xmldom": "^0.3.0"
   },
   "devDependencies": {
