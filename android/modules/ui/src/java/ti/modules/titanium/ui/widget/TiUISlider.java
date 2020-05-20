@@ -243,7 +243,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			pos = TiConvert.toFloat(newValue);
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			seekBar.setProgress(curPos);
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("min")) {
 			min = TiConvert.toInt(newValue);
 			minRange = min;
@@ -253,7 +253,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("minRange")) {
 			minRange = TiConvert.toInt(newValue);
 			updateRange();
@@ -262,7 +262,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("max")) {
 			max = TiConvert.toInt(newValue);
 			maxRange = max;
@@ -272,7 +272,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("maxRange")) {
 			maxRange = TiConvert.toInt(newValue);
 			updateRange();
@@ -281,7 +281,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
 			String stringValue = TiConvert.toString(newValue);
 			if (stringValue != null) {
@@ -356,6 +356,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
+		data.put("fromUser", fromUser);
 		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
 
 		fireEvent(TiC.EVENT_CHANGE, data);
