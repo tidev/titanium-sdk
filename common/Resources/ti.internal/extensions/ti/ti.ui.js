@@ -4,15 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-const isAndroid = Ti.Platform.osname === 'android';
-const isIOS = !isAndroid && (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
-const isIOS13Plus = isIOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
+/* globals OS_ANDROID,OS_IOS */
+const isIOS13Plus = OS_IOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
 
 // As Android passes a new instance of Ti.UI to every JS file we can't just
 // Ti.UI within this file, we must call kroll.binding to get the Titanium
 // namespace that is passed in with require and that deal with the .UI
 // namespace that is on that directly.
-const UI = isAndroid ? kroll.binding('Titanium').Titanium.UI : Ti.UI;
+const UI = OS_ANDROID ? kroll.binding('Titanium').Titanium.UI : Ti.UI;
 
 // Make our read-only constants
 // TODO: Remove in SDK 10, DEPRECATED in 9.1.0
