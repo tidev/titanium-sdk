@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
 const spawn = require('child_process').spawn;
+const ROOT_DIR = path.join(__dirname, '../..');
 
 const glob = promisify(require('glob'));
 const appc = require('node-appc');

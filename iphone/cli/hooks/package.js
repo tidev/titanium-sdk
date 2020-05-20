@@ -136,7 +136,7 @@ exports.init = function (logger, config, cli) {
 						fs.move(stagingArchiveDir, dest);
 					} catch (error) {
 						logger.error(__('Failed to to move archive to correct location'));
-				    }
+					}
 					// if not build-only open xcode + organizer after packaging, otherwise finish
 					if (!cli.argv['build-only']) {
 						logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
