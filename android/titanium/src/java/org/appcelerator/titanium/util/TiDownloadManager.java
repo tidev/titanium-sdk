@@ -6,6 +6,9 @@
  */
 package org.appcelerator.titanium.util;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
@@ -18,18 +21,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.KrollStreamHelper;
-import org.appcelerator.titanium.io.TiInputStreamWrapper;
-import org.appcelerator.titanium.TiApplication;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-
+import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollStreamHelper;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.io.TiInputStreamWrapper;
 
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that
@@ -86,9 +84,9 @@ public class TiDownloadManager implements Handler.Callback
 	 * @return
 	 * Returns a stream to the file/content being downloaded.
 	 * <p>
-	 * Returns null if failed to download content or if given an invalid argument.
+	 * Throws exception if failed to download content.
 	 */
-	public InputStream blockingDownload(final URI uri)
+	public InputStream blockingDownload(final URI uri) throws Exception
 	{
 		// Validate.
 		if (uri == null) {
@@ -113,46 +111,36 @@ public class TiDownloadManager implements Handler.Callback
 		// Note: Using "HttpUrlConnection" on UI thread will cause a "NetworkOnMainThreadException" to be thrown.
 		if (TiApplication.isUIThread()) {
 			// Perform the blocking download on another thread.
-			// Downloaded content will be made available via Titanium's "TiResponseCache".
-			try {
-				Thread thread = new Thread(new Runnable() {
-					@Override
-					public void run()
-					{
-						try (InputStream stream = blockingDownload(uri)) {
-							if (stream != null) {
-								KrollStreamHelper.pump(stream, null);
-							}
-						} catch (Exception ex) {
-							Log.e(TAG, "Exception downloading from: " + uri.toString(), ex);
-						}
+			// Downloaded content will be made available via Titanium's "TiResponseCache"
+			AtomicReference<Exception> exception = new AtomicReference<>(null);
+			Thread thread = new Thread(() -> {
+				try (InputStream stream = blockingDownload(uri)) {
+					if (stream != null) {
+						KrollStreamHelper.pump(stream, null);
 					}
-				});
-				thread.start();
-				thread.join();
-			} catch (Exception ex) {
+				} catch (Exception ex) {
+					exception.set(ex);
+				}
+			});
+			thread.start();
+			thread.join();
+
+			// Handle download thread exception.
+			if (exception.get() != null) {
+				throw exception.get();
 			}
 
 			// Return a stream to the downloaded file/content via our response cache.
 			URI cachedUri = TiResponseCache.fetchEndpointFollowingRedirects(uri);
 			if (cachedUri != null) {
-				try {
-					inputStream = TiResponseCache.openCachedStream(cachedUri);
-				} catch (Exception ex) {
-				}
+				inputStream = TiResponseCache.openCachedStream(cachedUri);
 			}
 			return inputStream;
 		}
 
 		// Convert the given URI to a URL object.
 		// Note: This object will validate the string and throw an exception if malformed.
-		URL url = null;
-		try {
-			url = new URL(uri.toString());
-		} catch (Exception ex) {
-			Log.e(TAG, "Failed to parse URL: " + uri.toString(), ex);
-			return null;
-		}
+		URL url = new URL(uri.toString());
 
 		// Attempt to download the file.
 		URLConnection connection = null;
@@ -215,9 +203,6 @@ public class TiDownloadManager implements Handler.Callback
 				}
 				break;
 			}
-		} catch (Exception ex) {
-			// Failed to download file/content.
-			Log.e(TAG, "Failed to download from: " + uri.toString(), ex);
 		} finally {
 			// Close the connection if we don't have a stream to the response body. (Nothing to download.)
 			if ((inputStream == null) && (connection instanceof HttpURLConnection)) {
@@ -356,7 +341,7 @@ public class TiDownloadManager implements Handler.Callback
 
 				// fire a download fail event if we are unable to download
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
-				Log.e(TAG, "Exception downloading from: " + uri, e);
+				Log.e(TAG, "Exception downloading from: " + uri + "\n" + e.getMessage());
 			}
 		}
 	}

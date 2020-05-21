@@ -79,7 +79,7 @@ properties:
         or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
 
   - name: bottom
@@ -95,8 +95,9 @@ properties:
         Value of the `color` property at the end of the animation, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad]
+    since: { android: "9.1.0" }
 
   - name: curve
     summary: Animation curve or easing function to apply to the animation.
@@ -104,7 +105,7 @@ properties:
     constants: Titanium.UI.ANIMATION_CURVE_*
     platforms: [android, iphone, ipad]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
-  
+
   - name: dampingRatio
     summary: |
         The damping ratio for the spring animation as it approaches its quiescent state.
@@ -122,6 +123,12 @@ properties:
   - name: duration
     summary: Duration of the animation, in milliseconds.
     type: Number
+
+  - name: elevation
+    summary: Value of the `elevation` property at the end of the animation.
+    type: Number
+    platforms: [android]
+    since: { android: "9.1.0" }
 
   - name: height
     summary: Value of the `height` property at the end of the animation.
@@ -151,13 +158,13 @@ properties:
   - name: right
     summary: Value of the `right` property at the end of the animation.
     type: Number
-    
+
   - name: springVelocity
     summary: The initial spring velocity.
     description: |
         For smooth start to the animation, match this value to the velocity of view as it was prior to attachment.
-        A value of 1 corresponds to the total animation distance traversed in one second. 
-        For example, if the total animation distance is 200 points and you want the start of the 
+        A value of 1 corresponds to the total animation distance traversed in one second.
+        For example, if the total animation distance is 200 points and you want the start of the
         animation to match a view velocity of 100 pt/s, use a value of 0.5.
     type: Number
     platforms: [iphone, ipad]
@@ -175,7 +182,6 @@ properties:
 
         3D transforms are only supported on iOS.
     type: [Titanium.UI.Matrix2D, Titanium.UI.Matrix3D]
-
 
   - name: transition
     summary: Transition type to use during a transition animation.
@@ -260,7 +266,7 @@ examples:
               });
               box.animate(a);
             });
-            
+
             win.add(box);
 
   - title: Using an anchorPoint (Android and iOS)

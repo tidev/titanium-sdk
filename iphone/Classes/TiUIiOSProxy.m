@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -860,9 +860,11 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocum
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
 
-- (TiColor *)fetchSemanticColor:(id)color
+- (NSString *)fetchSemanticColor:(id)color
 {
   ENSURE_SINGLE_ARG(color, NSString);
+
+  DEPRECATED_REPLACED(@"UI.iOS.fetchSemanticColor", @"9.1.0", @"UI.fetchSemanticColor");
 
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];

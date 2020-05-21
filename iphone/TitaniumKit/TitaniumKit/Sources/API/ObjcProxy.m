@@ -158,13 +158,13 @@
     if (_listeners == nil) {
       _listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
     }
-    JSManagedValue *managedRef = [JSManagedValue managedValueWithValue:callback];
-    [callback.context.virtualMachine addManagedReference:managedRef withOwner:self];
     NSMutableArray *listenersForType = [_listeners objectForKey:name];
     if (listenersForType == nil) {
       listenersForType = [[NSMutableArray alloc] init];
     }
-    [listenersForType addObject:managedRef];
+    // TIMOB-27839. Instead of using JSManagedValue we are using JSValue to force a retain cycle
+    // between the module/proxy and the event listeners to keep both alive so long as there were any listeners
+    [listenersForType addObject:callback];
     ourCallbackCount = [listenersForType count];
     [_listeners setObject:listenersForType forKey:name];
   }
@@ -190,11 +190,9 @@
 
     NSUInteger count = [listenersForType count];
     for (NSUInteger i = 0; i < count; i++) {
-      JSManagedValue *storedCallback = (JSManagedValue *)[listenersForType objectAtIndex:i];
-      JSValue *actualCallback = [storedCallback value];
+      JSValue *actualCallback = (JSValue *)[listenersForType objectAtIndex:i];
       if ([actualCallback isEqualToObject:callback]) {
         // if the callback matches, remove the listener from our mapping and mark unmanaged
-        [actualCallback.context.virtualMachine removeManagedReference:storedCallback withOwner:self];
         [listenersForType removeObjectAtIndex:i];
         [_listeners setObject:listenersForType forKey:name];
         ourCallbackCount = count - 1;
@@ -251,9 +249,8 @@
       return;
     }
     // FIXME: looks like we need to handle bubble logic/etc. See other fireEvent impl
-    for (JSManagedValue *storedCallback in listenersForType) {
-      JSValue *function = [storedCallback value];
-      [self _fireEventToListener:name withObject:dict listener:function];
+    for (JSValue *storedCallback in listenersForType) {
+      [self _fireEventToListener:name withObject:dict listener:storedCallback];
     }
   }
   @finally {

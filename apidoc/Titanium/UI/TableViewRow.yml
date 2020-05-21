@@ -218,7 +218,7 @@ properties:
         On Android, the default text color is black if the background color is closer to white
         otherwise the default text color is white also `selectedColor` is not supported
         so the text is always displayed in this color.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: deleteButtonTitle
     summary: Text to display on the delete button when editable is enabled
@@ -261,7 +261,6 @@ properties:
         the row.
     type: Boolean
     default: false
-
 
   - name: hasChild
     summary: |
@@ -342,19 +341,17 @@ properties:
     summary: Background color to render when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-
+    type: [String, Titanium.UI.Color]
 
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
 
-
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone,ipad]
 
   - name: selectionStyle

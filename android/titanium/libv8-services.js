@@ -52,9 +52,16 @@ async function createSnapshot() {
 	const rollupOutputDirPath = path.join(__dirname, 'build', 'outputs', 'ti-assets', 'Resources');
 	const rollupOutputFilePath = path.join(rollupOutputDirPath, 'ti.main.js');
 	await fs.ensureDir(rollupOutputDirPath);
-	const mainBuilder = new Builder({ args: [ 'android' ] });
-	const androidBuilder = new AndroidBuilder({});
-	await mainBuilder.transpile('android', androidBuilder.babelOptions, rollupOutputFilePath);
+
+	const program = { args: [ 'ios' ] };
+	const mainBuilder = new Builder(program);
+	await mainBuilder.ensureGitHash();
+	const androidBuilder = new AndroidBuilder({
+		sdkVersion: require('../package.json').version,
+		gitHash: program.gitHash,
+		timestamp: program.timestamp
+	});
+	await mainBuilder.transpile('android', androidBuilder.babelOptions(), rollupOutputFilePath);
 	const rollupFileContent = (await fs.readFile(rollupOutputFilePath)).toString();
 
 	// Create the C++ directory we'll be generating the snapshot header file to.

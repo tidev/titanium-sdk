@@ -2251,6 +2251,13 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		}
 	}
 
+	const googleServicesFile = path.join(this.projectDir, 'platform', 'android', 'google-services.json');
+	if (await fs.exists(googleServicesFile)) {
+		afs.copyFileSync(googleServicesFile, path.join(this.buildAppDir, 'google-services.json'), {
+			logger: this.logger.debug
+		});
+	}
+
 	// Copy Titanium project's "./platform/android" directory tree to "app" project's "./src/main".
 	// Android build tools auto-grabs folders named "assets", "res", "aidl", etc. in this folder.
 	// Note: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by hyperloop.)
@@ -2296,7 +2303,10 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		this.generateI18N(),
 
 		// Generate a "res/values" styles XML file if a custom theme was assigned in app's "AndroidManifest.xml".
-		this.generateTheme()
+		this.generateTheme(),
+
+		// Generate "semantic.colors.xml" in "res/values" and "res/values-night"
+		this.generateSemanticColors()
 	]);
 
 	// Generate an "AndroidManifest.xml" for the app and copy in any custom manifest settings from "tiapp.xml".
@@ -3307,6 +3317,101 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 	}
 };
 
+AndroidBuilder.prototype.generateSemanticColors = async function generateSemanticColors() {
+	this.logger.info(__('Generating semantic colors resources'));
+	const _t = this;
+	const xmlFileName = 'ti.semantic.colors.xml';
+	const valuesDirPath = path.join(this.buildAppMainResDir, 'values');
+	const valuesNightDirPath = path.join(this.buildAppMainResDir, 'values-night');
+	await fs.ensureDir(valuesDirPath);
+	await fs.ensureDir(valuesNightDirPath);
+	const destLight = path.join(valuesDirPath, xmlFileName);
+	const destNight = path.join(valuesNightDirPath, xmlFileName);
+
+	let colorsFile = path.join(this.projectDir, 'Resources', 'android', 'semantic.colors.json');
+
+	if (!fs.existsSync(colorsFile)) {
+		// Fallback to root of Resources folder for Classic applications
+		colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
+	}
+
+	if (!fs.existsSync(colorsFile)) {
+		this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
+		return;
+	}
+
+	const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+
+	function hexToRgb(hex) {
+		let alphaHex = 'ff';
+		let color = hex;
+		if (hex.color) {
+			color = hex.color;
+			let alpha = Math.round(255 * parseFloat(hex.alpha) / 100);
+			if (alpha <= 255) {
+				alphaHex = alpha.toString(16);
+				if (alpha < 16) {
+					alphaHex = '0' + alphaHex;
+				}
+			}
+		}
+		// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+		color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+		if (alphaHex === 'ff') {
+			return `#${result[1]}${result[2]}${result[3]}`;
+		} else {
+			return `#${alphaHex}${result[1]}${result[2]}${result[3]}`;
+		}
+	}
+
+	function appendToXml(dom, root, color, colorValue) {
+		const appnameNode = dom.createElement('color');
+
+		appnameNode.setAttribute('name', `${color}`);
+		appnameNode.appendChild(dom.createTextNode(hexToRgb(colorValue)));
+		root.appendChild(dom.createTextNode('\n\t'));
+		root.appendChild(appnameNode);
+	}
+
+	function writeXml(dom, dest, mode) {
+		if (fs.existsSync(dest)) {
+			_t.logger.debug(__('Merging %s semantic colors => %s', mode.cyan, dest.cyan));
+		} else {
+			_t.logger.debug(__('Writing %s semantic colors => %s', mode.cyan, dest.cyan));
+		}
+		return fs.writeFile(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
+	}
+
+	const colors = fs.readJSONSync(colorsFile);
+	const domLight = new DOMParser().parseFromString('<resources/>', 'text/xml');
+	const domNight = new DOMParser().parseFromString('<resources/>', 'text/xml');
+
+	const rootLight = domLight.documentElement;
+	const rootNight = domNight.documentElement;
+
+	for (const [ color, colorValue ] of Object.entries(colors)) {
+		if (!colorValue.light) {
+			this.logger.warn(`Skipping ${color} as it does not include a light value`);
+			continue;
+		}
+
+		if (!colorValue.dark) {
+			this.logger.warn(`Skipping ${color} as it does not include a dark value`);
+			continue;
+		}
+
+		appendToXml(domLight, rootLight, color, colorValue.light);
+		appendToXml(domNight, rootNight, color, colorValue.dark);
+	}
+
+	return Promise.all([
+		writeXml(domLight, destLight, 'light'),
+		writeXml(domNight, destNight, 'night')
+	]);
+};
+
 AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	// Log the theme XML file we're about to generate.
 	const valuesDirPath = path.join(this.buildAppMainResDir, 'values');
@@ -3682,7 +3787,15 @@ AndroidBuilder.prototype.buildAppProject = async function buildAppProject() {
 
 		// Set path to the app-bundle file that was built up above.
 		// Our "package.js" event hook will later copy it to the developer's chosen destination directory.
-		this.aabFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'bundle', 'release', 'app.aab');
+		this.aabFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'bundle', 'release', 'app-release.aab');
+	}
+
+	// Verify that we can find the above built file(s).
+	if (!await fs.exists(this.apkFile)) {
+		throw new Error(`Failed to find built APK file: ${this.apkFile}`);
+	}
+	if (this.aabFile && !await fs.exists(this.aabFile)) {
+		throw new Error(`Failed to find built AAB file: ${this.aabFile}`);
 	}
 };
 
