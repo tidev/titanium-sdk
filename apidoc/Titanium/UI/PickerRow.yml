@@ -26,7 +26,7 @@ properties:
     summary: Color of the item text, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android]
     since:
         android: 5.4.0

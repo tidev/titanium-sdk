@@ -46,10 +46,15 @@ async function generateIndexJSON(dirToTraverse) {
 }
 
 async function generateBundle(outputDir) {
-	const builder = new Builder({ args: [ 'ios' ] });
-	const ios = new IOS({ });
-
-	await builder.transpile('ios', ios.babelOptions, path.join(outputDir, 'ti.main.js'));
+	const program = { args: [ 'ios' ] };
+	const builder = new Builder(program);
+	await builder.ensureGitHash();
+	const ios = new IOS({
+		sdkVersion: require('../package.json').version,
+		gitHash: program.gitHash,
+		timestamp: program.timestamp
+	});
+	await builder.transpile('ios', ios.babelOptions(), path.join(outputDir, 'ti.main.js'));
 }
 
 async function main(tmpBundleDir) {

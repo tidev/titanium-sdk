@@ -1,45 +1,44 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2019 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2019-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-let colorset;
-let osVersion;
+/* globals OS_ANDROID,OS_IOS */
+const isIOS13Plus = OS_IOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
 
 // As Android passes a new instance of Ti.UI to every JS file we can't just
 // Ti.UI within this file, we must call kroll.binding to get the Titanium
 // namespace that is passed in with require and that deal with the .UI
 // namespace that is on that directly.
-let uiModule = Ti.UI;
-if (Ti.Android) {
-	uiModule = kroll.binding('Titanium').Titanium.UI;
-}
+const UI = OS_ANDROID ? kroll.binding('Titanium').Titanium.UI : Ti.UI;
 
-uiModule.SEMANTIC_COLOR_TYPE_LIGHT = 'light';
-uiModule.SEMANTIC_COLOR_TYPE_DARK = 'dark';
-
-// We need to track this manually with a getter/setter
-// due to the same reasons we use uiModule instead of Ti.UI
-let currentColorType = uiModule.SEMANTIC_COLOR_TYPE_LIGHT;
-Object.defineProperty(uiModule, 'semanticColorType', {
+// Make our read-only constants
+// TODO: Remove in SDK 10, DEPRECATED in 9.1.0
+Object.defineProperty(UI, 'SEMANTIC_COLOR_TYPE_LIGHT', {
+	value: 'light',
+	writable: false
+});
+Object.defineProperty(UI, 'SEMANTIC_COLOR_TYPE_DARK', {
+	value: 'dark',
+	writable: false
+});
+Object.defineProperty(UI, 'semanticColorType', {
 	get: () => {
-		return currentColorType;
-	},
-	set: (colorType) => {
-		currentColorType = colorType;
+		// TODO: Guard against ios < 13 and Android api < 29?
+		// Assume "light" mode unless we explicitly know it's dark
+		if (Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_DARK) {
+			return UI.SEMANTIC_COLOR_TYPE_DARK;
+		}
+		return UI.SEMANTIC_COLOR_TYPE_LIGHT;
 	}
 });
 
-uiModule.fetchSemanticColor = function fetchSemanticColor (colorName) {
-	if (!osVersion) {
-		osVersion = parseInt(Ti.Platform.version.split('.')[0]);
-	}
-
-	if (Ti.App.iOS && osVersion >= 13) {
-		return Ti.UI.iOS.fetchSemanticColor(colorName);
-	} else {
+// on Android/iOS < 13, we need to roll our own fetchSemanticColor impl
+// on iOS 13+, we have a native version
+if (!isIOS13Plus) {
+	let colorset;
+	UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
 		if (!colorset) {
 			try {
 				const colorsetFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'semantic.colors.json');
@@ -47,14 +46,25 @@ uiModule.fetchSemanticColor = function fetchSemanticColor (colorName) {
 					colorset = JSON.parse(colorsetFile.read().text);
 				}
 			} catch (error) {
+				// We should probably throw an Error here (or return a fallback color!)
 				console.error('Failed to load colors file \'semantic.colors.json\'');
 				return;
 			}
 		}
+
 		try {
-			return colorset[colorName][uiModule.semanticColorType].color || colorset[colorName][uiModule.semanticColorType];
+			const entry = colorset[colorName][UI.semanticColorType];
+			const hex = entry.color || entry;
+			// For now, return a string on iOS < 13, Android so we can pass the result directly to the UI property we want to set
+			// Otherwise we need to modify the Android APIs to accept this faked Ti.UI.Color instance and convert it to it's own internal
+			// Color representation
+			return hex;
+			// return {
+			// 	toHex: () => hex,
+			// 	apiName: 'Ti.UI.Color'
+			// };
 		} catch (error) {
 			console.error(`Failed to lookup color for ${colorName}`);
 		}
-	}
-};
+	};
+}
