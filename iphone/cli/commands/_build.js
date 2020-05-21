@@ -4722,7 +4722,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 				if (extRegExp.test(srcFile)) {
 					// look up the file to see if the original source changed
 					const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
-					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash) {
+					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
 						// the original hasn't changed, so let's assume that there's nothing to do
 						return null;
 					}
@@ -4763,6 +4763,10 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 				}
 			}.bind(this)
 		});
+
+		if (dir === 'Frameworks') {
+			this.unmarkBuildDirFiles(path.join(this.buildDir, dir));
+		}
 	}, this);
 
 	function copyAndReplaceFile(src, dest, processContent) {
