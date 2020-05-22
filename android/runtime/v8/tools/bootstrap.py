@@ -63,8 +63,8 @@ JS_INVOCATION_API = \
 """
 
 JS_DEFINE_TOP_LEVEL = \
-"""	global.%(name)s = function() {
-		return %(namespace)s.%(mapping)s.apply(%(namespace)s, arguments);
+"""	global.%(name)s = function(...args) {
+		return %(namespace)s.%(mapping)s.apply(%(namespace)s, args);
 	}
 """
 
