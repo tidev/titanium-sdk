@@ -641,11 +641,21 @@ public class AndroidModule extends KrollModule
 		try {
 			TiApplication.getInstance().startService(intentProxy.getIntent());
 		} catch (Exception ex) {
-			String message = ex.getMessage();
-			if (message == null) {
-				message = "startService() failed. Reason unknown.";
+			Log.w(TAG, "startService() failed. Reason: " + ex.getMessage());
+		}
+	}
+
+	@Kroll.method
+	public void startForegroundService(IntentProxy intentProxy)
+	{
+		try {
+			if (Build.VERSION.SDK_INT >= 26) {
+				TiApplication.getInstance().startForegroundService(intentProxy.getIntent());
+			} else {
+				TiApplication.getInstance().startService(intentProxy.getIntent());
 			}
-			Log.w(TAG, message);
+		} catch (Exception ex) {
+			Log.w(TAG, "startForegroundService() failed. Reason: " + ex.getMessage());
 		}
 	}
 
