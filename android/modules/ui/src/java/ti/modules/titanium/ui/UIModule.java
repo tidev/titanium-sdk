@@ -395,7 +395,7 @@ public class UIModule extends KrollModule
 
 	public UIModule()
 	{
-		super();
+		super("UI");
 
 		// Register the module's broadcast receiver.
 		final UIModule.Receiver broadcastReceiver = new UIModule.Receiver(this);
@@ -513,6 +513,12 @@ public class UIModule extends KrollModule
 				windowProxy.setOrientationModes(orientationModes);
 			}
 		}
+	}
+
+	@Kroll.getProperty
+	public boolean getHasSession()
+	{
+		return (KrollRuntime.getActivityRefCount() > 0);
 	}
 
 	@Kroll.getProperty

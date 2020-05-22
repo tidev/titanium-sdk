@@ -364,6 +364,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return @"";
 }
 
+- (BOOL)hasSession
+{
+  return YES;
+}
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {

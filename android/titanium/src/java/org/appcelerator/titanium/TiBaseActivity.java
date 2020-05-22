@@ -1684,8 +1684,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			if (rootActivity != null) {
 				// Destroy the root activity. This in turn will destroy its child activities.
 				rootActivity.finish();
-			} else if (TiRootActivity.isScriptRunning()) {
-				// Root activity not found, but its script is still running.
+			} else if (TiApplication.isScriptRunning()) {
+				// Root activity not found, but script is still running.
 				// Can happen when "Don't keep activities" is enabled. Our only option is to terminate the task.
 				finishAffinity();
 				TiApplication.terminateActivityStack();

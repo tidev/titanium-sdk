@@ -9,6 +9,8 @@ package org.appcelerator.titanium;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
@@ -35,12 +37,13 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	/** JavaScript file URL to be loaded by loadScript() method. This URL is assigned in onCreate() method. */
 	private TiUrl url;
 
+	/** Determines if Titanium runtime has been launched by this activity or not. */
+	private boolean hasLaunched = false;
+
 	/**
 	 * @return The Javascript URL that this Activity should run
 	 */
 	public abstract String getUrl();
-
-	private boolean hasLoadedScript = false;
 
 	/**
 	 * The JavaScript URL that should be ran for the given TiJSActivity derived class name.
@@ -171,12 +174,29 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
-		// Prevent script from loading on future resumes
-		if (!hasLoadedScript) {
-			hasLoadedScript = true;
-			loadScript();
-			Log.d(TAG, "Launched in " + (SystemClock.uptimeMillis() - TiApplication.START_TIME_MS) + " ms");
+		// Launch the Titanium UI, if not done already.
+		if (!hasLaunched) {
+			if (KrollRuntime.isBoundToUI()) {
+				// JavaScript runtime is bound to the lifetime of this activity.
+				// Create the runtime and load the main Titanium script.
+				hasLaunched = true;
+				loadScript();
+			} else if (KrollRuntime.getInstance() != null) {
+				// JS runtime was backgrounded without UI. So, this is a new UI session.
+				// Fire a session begin event from the Ti.UI module signaling scripts to create its windows.
+				// Note: Our "bootstrap.loader.js" will handle event first so it can show bootstrap UI before app UI.
+				KrollModule uiModule = getTiApp().getModuleByName("UI");
+				if (uiModule != null) {
+					hasLaunched = true;
+					uiModule.fireEvent("bootstrapsessionbegin", null);
+				}
+			}
+			if (hasLaunched) {
+				Log.d(TAG, "Launched in " + (SystemClock.uptimeMillis() - TiApplication.START_TIME_MS) + " ms");
+			}
 		}
+
+		// Resume this activity.
 		super.onResume();
 
 		// Prevent duplicate launch animation.

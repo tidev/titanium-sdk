@@ -32,7 +32,7 @@ import './ti.internal/extensions';
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
 import loadAsync from './ti.internal/bootstrap.loader';
-loadAsync(function () {
+loadAsync().then(() => { // eslint-disable-line promise/catch-or-return,promise/always-return
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
 	require('./app');

@@ -199,6 +199,8 @@
 @property (nonatomic, readonly) NSString *TEXT_STYLE_CALLOUT;
 @property (nonatomic, readonly) NSString *TEXT_STYLE_LARGE_TITLE;
 
+@property (nonatomic, readonly) BOOL hasSession;
+
 - (id)createMatrix2D:(id)args;
 - (id)create2DMatrix:(id)args; // Deprecated since 8.0.0
 - (id)createMatrix3D:(id)args;

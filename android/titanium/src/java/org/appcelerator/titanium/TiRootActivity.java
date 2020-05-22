@@ -44,31 +44,12 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 	private static final String TAG = "TiRootActivity";
 
-	/**
-	 * Set true if Titanium "ti.main.js" script is currently loaded and running.
-	 * Set false if not loaded yet or if the JS runtime has been terminated after closing all activities.
-	 */
-	private static boolean isScriptRunning;
-
 	private ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
 	private LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
 	private Drawable[] backgroundLayers = { null, null };
 	private int runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
 	private boolean wasRuntimeStarted;
 	private boolean isDuplicateInstance;
-
-	static
-	{
-		// Set up a listener to be invoked every time the JavaScript runtime is being terminated.
-		// We want to hold on to this listener for the lifetime of the application.
-		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
-			@Override
-			public void onDisposing(KrollRuntime runtime)
-			{
-				TiRootActivity.isScriptRunning = false;
-			}
-		});
-	}
 
 	public void addOnNewIntentListener(TiRootActivity.OnNewIntentListener listener)
 	{
@@ -121,13 +102,18 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		}
 	}
 
-	@Override
-	public String getUrl()
+	public static String getDefaultUrl()
 	{
 		// The Titanium "ti.main.js" script is shared by all platforms.
 		// It will run the app developer's "app.js" script after loading all JS extensions.
 		// Script Location: titanium_mobile/common/Resources
 		return "ti.main.js";
+	}
+
+	@Override
+	public String getUrl()
+	{
+		return TiRootActivity.getDefaultUrl();
 	}
 
 	@Override
@@ -252,9 +238,10 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		// then make sure it was launched via main intent and the Titanium runtime is not still active.
 		if (!isActivityForResult) {
 			KrollRuntime krollRuntime = KrollRuntime.getInstance();
-			boolean isRuntimeActive = (krollRuntime != null) && TiRootActivity.isScriptRunning();
+			boolean isRuntimeBoundToUI = KrollRuntime.isBoundToUI();
+			boolean isRuntimeActive = (krollRuntime != null) && TiApplication.isScriptRunning();
 			boolean isNotMainIntent = (newIntent == null) || !newIntent.filterEquals(mainIntent);
-			if ((isRuntimeActive && isNotRestoringActivity) || isNotMainIntent) {
+			if ((isRuntimeActive && isRuntimeBoundToUI && isNotRestoringActivity) || isNotMainIntent) {
 				// Destroy this activity instance.
 				this.isDuplicateInstance = true;
 				activityOnCreate(savedInstanceState);
@@ -278,7 +265,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				}
 
 				// Re-launch this activity.
-				if (isRuntimeActive) {
+				if (isRuntimeActive && isRuntimeBoundToUI) {
 					// Wait for previous Titanium JavaScript runtime to be terminated before relaunching.
 					// Note: This happens if previous root activity is missing, but all child activities still exist.
 					//       Launching with FLAG_ACTIVITY_CLEAR_TOP while app is backgrounded will always do this.
@@ -305,6 +292,19 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 					} else {
 						krollRuntime.dispose();
 					}
+				} else if (isRuntimeActive && !isRuntimeBoundToUI) {
+					// Destroy previous activity stack.
+					Activity currentActvitiy = getTiApp().getCurrentActivity();
+					if (currentActvitiy != null) {
+						currentActvitiy.finishAffinity();
+					}
+					TiApplication.terminateActivityStack();
+
+					// Relaunch root activity.
+					// Note: If system setting "Don't keep activities" is on, then we need CLEAR_TOP flag
+					//       to "finish" any temporarily destroyed activities so that they won't be restored.
+					relaunchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(relaunchIntent);
 				} else {
 					// Immediately relaunch with main intent.
 					startActivity(relaunchIntent);
@@ -418,8 +418,8 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 	protected void loadScript()
 	{
-		// Do not continue if this activity's script has already been loaded.
-		if (TiRootActivity.isScriptRunning) {
+		// Do not continue if script has already been loaded.
+		if (TiApplication.isScriptRunning()) {
 			return;
 		}
 
@@ -478,7 +478,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 		// Load the main Titanium script.
 		super.loadScript();
-		TiRootActivity.isScriptRunning = true;
 	}
 
 	@Override
@@ -539,23 +538,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		if (tiApp.getRootActivity() == this) {
 			tiApp.setRootActivity(null);
 		}
-	}
-
-	/**
-	 * Determines if Titanium's main script has been loaded and currently running by this activity.
-	 * <p>
-	 * Note that this can be true after this root activity has been destroyed.
-	 * This can happen if we're in the middle of destroying the entire activity stack, which is the typical case.
-	 * Can also happen if Android developer option "Don't keep activities" is enabled which temporarily destroys
-	 * parent activities, but they'll be restored by the OS when back navigating.
-	 * @return
-	 * Returns true if Titanium's main script has been loaded by this activity and is actively running.
-	 * <p>
-	 * Returns false if script has never been loaded or has been terminated after all activities have been destroyed.
-	 */
-	public static boolean isScriptRunning()
-	{
-		return TiRootActivity.isScriptRunning;
 	}
 
 	/**

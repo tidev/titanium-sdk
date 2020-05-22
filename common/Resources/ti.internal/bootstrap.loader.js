@@ -15,6 +15,9 @@
  * - Ensure "Google Play Services" is installed/updated on app startup on Android.
  */
 
+/** Set true if this bootstrap loader has already added its own event listener to Ti.UI module. */
+let hasAddedUIEventListener = false;
+
 /**
  * Attempts to load all bootstraps from a "bootstrap.json" file created by the app build system.
  * This is an optional feature and is the fastest method of acquiring boostraps configured for the app.
@@ -80,64 +83,76 @@ function fetchScriptsFromResourcesDirectory() {
 }
 
 /**
- * Non-blocking function which loads and executes all bootstrap scripts configured for the app.
- * @param {function} finished Callback to be invoked once all bootstraps have finished executing. Cannot be null.
+ * Invokes a bootstrap's async execute() or showUI() function.
+ * @param {Function} callback Reference to the bootstrap's execute() or showUI() function.
  */
-function loadAsync(finished) {
+async function invokeAsyncCallback(callback) {
+	return new Promise((resolve, reject) => {
+		const promise = callback(resolve);
+		if (promise) {
+			promise.then(resolve).catch(reject);
+		}
+	});
+}
+
+/** Non-blocking function which loads and executes all bootstrap scripts configured for the app. */
+async function loadAsync() {
 	// Acquire an array of all bootstrap scripts included with the app.
 	// - For best performance, attempt to fetch scripts via an optional JSON file created by the build system.
 	// - If JSON file not found (will return null), then search "Resources" directory for bootstrap files.
 	let bootstrapScripts = fetchScriptsFromJson();
 	if (!bootstrapScripts) {
 		bootstrapScripts = fetchScriptsFromResourcesDirectory();
-	}
-
-	// Do not continue if no bootstraps were found.
-	if (!bootstrapScripts || (bootstrapScripts.length <= 0)) {
-		finished();
-		return;
+		if (!bootstrapScripts) {
+			bootstrapScripts = [];
+		}
 	}
 
 	// Sort the bootstraps so that they'll be loaded in a consistent order between platforms.
 	bootstrapScripts.sort();
 
-	// Loads all bootstrap scripts found.
-	function loadBootstrapScripts(finished) {
-		let bootstrapIndex = 0;
-		function doLoad() {
-			// Attempt to load all bootstrap scripts.
-			while (bootstrapIndex < bootstrapScripts.length) {
-				// Load the next bootstrap.
-				const fileName = bootstrapScripts[bootstrapIndex];
-				const bootstrap = require(fileName); // eslint-disable-line security/detect-non-literal-require
+	// Determine if the app can currently host UI or not.
+	const canAppShowUI = Ti.UI.hasSession;
 
-				// Invoke the bootstrap's execute() method if it has one. (This is optional.)
-				// We must wait for the given callback to be invoked before loading the next script.
-				// Note: This is expected to be used to display UI to the end-user.
-				if (bootstrap.execute) {
-					bootstrap.execute(onBootstrapExecutionFinished);
-					return;
-				}
+	// Load all bootstraps.
+	const bootstrapShowUIFunctions = [];
+	for (const nextScript of bootstrapScripts) {
+		// Load the next bootstrap.
+		const bootstrap = require(nextScript); // eslint-disable-line security/detect-non-literal-require
 
-				// We're done with the current bootstrap. Time to load the next one.
-				bootstrapIndex++;
+		// Invoke the bootstrap's async execute() method, if it exists.
+		if (bootstrap.execute) {
+			await invokeAsyncCallback(bootstrap.execute);
+		}
+
+		// Handle the bootstrap's showUI() method, if it exists.
+		if (bootstrap.showUI) {
+			// Add method to collection to be invoked the next time the UI is re-created by the system.
+			// Note: This only applies to apps that can be ran in the background.
+			bootstrapShowUIFunctions.push(bootstrap.showUI);
+
+			// If app can currently host UI (ie: not backgrounded), then show bootstrap's UI.
+			if (canAppShowUI) {
+				await invokeAsyncCallback(bootstrap.showUI);
+				await new Promise((resolve) => setTimeout(resolve, 1)); // Give UI time to close.
 			}
-
-			// Invoke given callback to inform caller that all loading is done.
-			finished();
 		}
-		function onBootstrapExecutionFinished() {
-			// Last bootstrap has finished execution. Time to load the next one.
-			// Note: Add a tiny delay so whatever UI the last bootstrap loaded has time to close.
-			bootstrapIndex++;
-			setTimeout(() => doLoad(), 1);
-		}
-		doLoad();
 	}
 
-	// We've finished loading/executing all bootstrap scripts.
-	// Inform caller by invoking the callback given to loadAsync().
-	loadBootstrapScripts(finished);
+	// Set up listener to show all bootstrap UI when a new app UI session has started.
+	if (!hasAddedUIEventListener) {
+		hasAddedUIEventListener = true;
+		Ti.UI.addEventListener('bootstrapsessionbegin', async () => {
+			// Show all bootstrap UI.
+			for (const nextFunction of bootstrapShowUIFunctions) {
+				await invokeAsyncCallback(nextFunction);
+				await new Promise((resolve) => setTimeout(resolve, 1)); // Give UI time to close.
+			}
+
+			// Fire an event signaling the app to create its root window for the new UI session.
+			Ti.UI.fireEvent('sessionbegin');
+		});
+	}
 }
 
 export default loadAsync;

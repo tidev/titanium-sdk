@@ -52,6 +52,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static ArrayList<OnDisposingListener> disposingListeners = new ArrayList<>();
 	private static int activityRefCount = 0;
 	private static int serviceReceiverRefCount = 0;
+	private static boolean isBoundToUI = false;
 
 	private WeakReference<KrollApplication> krollApplication;
 	private long threadId;
@@ -108,6 +109,18 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		// Initialize the given runtime.
 		runtime.doInit();
+	}
+
+	/**
+	 * Disposes the current runtime (if running) and re-initializes with last init() settings.
+	 * This method is used by LiveView to restart the runtime when code changes are made.
+	 */
+	public static void reinitialize()
+	{
+		if (instance != null) {
+			instance.dispose();
+			instance.doInit();
+		}
 	}
 
 	@Nullable
@@ -381,14 +394,16 @@ public abstract class KrollRuntime implements Handler.Callback
 		// Decrement the activity count.
 		activityRefCount--;
 
-		// Terminate the runtime if activity count is zero.
-		if (!willDisposeRuntime) {
-			return;
+		// Terminate runtime if bound to the lifetime of the UI and the activity count is now zero.
+		if (KrollRuntime.isBoundToUI) {
+			if (!willDisposeRuntime) {
+				return;
+			}
+			if ((activityRefCount > 0) || (instance == null)) {
+				return;
+			}
+			instance.dispose();
 		}
-		if ((activityRefCount > 0) || (instance == null)) {
-			return;
-		}
-		instance.dispose();
 	}
 
 	public static int getActivityRefCount()
@@ -477,6 +492,32 @@ public abstract class KrollRuntime implements Handler.Callback
 	public State getRuntimeState()
 	{
 		return runtimeState;
+	}
+
+	/**
+	 * Sets whether or not the runtime is bound to the lifetime of the UI.
+	 * <p/>
+	 * When set true (the default), the runtime will be automatically disposed when the
+	 * last activity window has been destroyed.
+	 * <p/>
+	 * When set false, the runtime will continue to run in the background and will only be terminated
+	 * if method KrollRuntime.dispose() has been called.
+	 * @param value Set true to bind the lifetime of the runtime to the UI. Set false to let it keep running.
+	 */
+	public static void setBoundToUI(boolean value)
+	{
+		KrollRuntime.isBoundToUI = value;
+	}
+
+	/**
+	 * Determines if the lifetime of the runtime is bound to the lifetime of the UI.
+	 * @return
+	 * Returns true (the default) if the runtime will be automatically disposed when the last activity
+	 * has been destroyed. Returns false if the runtime will continue running in the background.
+	 */
+	public static boolean isBoundToUI()
+	{
+		return KrollRuntime.isBoundToUI;
 	}
 
 	/**
