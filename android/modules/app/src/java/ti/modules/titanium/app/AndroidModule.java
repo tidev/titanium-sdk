@@ -75,14 +75,24 @@ public class AndroidModule extends KrollModule
 	@Kroll.getProperty
 	public IntentProxy getLaunchIntent()
 	{
+		Intent intent = null;
+
+		// First, attempt to fetch root activity's launch intent if currently open.
+		// Using this intent will bring the activity to the foreground instead of creating a new activity.
 		TiBaseActivity rootActivity = TiApplication.getInstance().getRootActivity();
 		if (rootActivity != null) {
-			Intent intent = rootActivity.getLaunchIntent();
-			if (intent != null) {
-				return new IntentProxy(intent);
-			}
+			intent = rootActivity.getLaunchIntent();
 		}
-		return null;
+
+		// If root activity is not available, then create main launcher intent from package manager.
+		if (intent == null) {
+			TiApplication context = TiApplication.getInstance();
+			intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+			intent.setPackage(null);
+		}
+
+		// Return the launch intent.
+		return new IntentProxy(intent);
 	}
 
 	@Kroll.method
