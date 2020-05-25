@@ -137,7 +137,7 @@
     "eslint": "^6.8.0",
     "eslint-config-axway": "^4.7.0",
     "eslint-plugin-mocha": "^6.3.0",
-    "folder-hash": "^3.3.0",
+    "folder-hash": "^3.3.1",
     "glob": "^7.1.6",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.4",
