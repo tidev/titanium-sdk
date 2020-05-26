@@ -23,6 +23,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	GradleWrapper = require('../lib/gradle-wrapper'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
+	Color = require('../../../common/lib/color'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
@@ -3333,37 +3334,11 @@ AndroidBuilder.prototype.generateSemanticColors = async function generateSemanti
 		return;
 	}
 
-	const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-
-	function hexToRgb(hex) {
-		let alphaHex = 'ff';
-		let color = hex;
-		if (hex.color) {
-			color = hex.color;
-			let alpha = Math.round(255 * parseFloat(hex.alpha) / 100);
-			if (alpha <= 255) {
-				alphaHex = alpha.toString(16);
-				if (alpha < 16) {
-					alphaHex = '0' + alphaHex;
-				}
-			}
-		}
-		// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-		color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-
-		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
-		if (alphaHex === 'ff') {
-			return `#${result[1]}${result[2]}${result[3]}`;
-		} else {
-			return `#${alphaHex}${result[1]}${result[2]}${result[3]}`;
-		}
-	}
-
 	function appendToXml(dom, root, color, colorValue) {
 		const appnameNode = dom.createElement('color');
-
 		appnameNode.setAttribute('name', `${color}`);
-		appnameNode.appendChild(dom.createTextNode(hexToRgb(colorValue)));
+		const colorObj = Color.fromSemanticColorsEntry(colorValue);
+		appnameNode.appendChild(dom.createTextNode(colorObj.toARGBHexString()));
 		root.appendChild(dom.createTextNode('\n\t'));
 		root.appendChild(appnameNode);
 	}
