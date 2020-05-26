@@ -4,7 +4,6 @@ const promisify = require('util').promisify;
 const path = require('path');
 const os = require('os');
 const exec = promisify(require('child_process').exec);  // eslint-disable-line security/detect-child-process
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
 const packageJSON = require('../../package.json');
 const utils = require('./utils');
@@ -44,30 +43,6 @@ async function zip(cwd, filename) {
 
 	const destFolder = path.dirname(filename);
 	return copyFile(outputFolder, destFolder, path.basename(filename));
-}
-
-/**
- * @param {string} zipfile zip file to unzip
- * @param {string} dest destination folder to unzip to
- * @returns {Promise<void>}
- */
-async function unzip(zipfile, dest) {
-	return new Promise((resolve, reject) => {
-		console.log(`Unzipping ${zipfile} to ${dest}`);
-		const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/unzip') : 'unzip';
-		const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
-		let err = '';
-		child.stderr.on('data', buffer => {
-			err += buffer.toString();
-		});
-		child.on('error', err => reject(err));
-		child.on('close', code => {
-			if (code !== 0) {
-				return reject(new Error(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`));
-			}
-			resolve();
-		});
-	});
 }
 
 class Packager {
@@ -170,7 +145,7 @@ class Packager {
 		}
 
 		// Include 'ti.cloak'
-		await unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
+		await utils.unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
 
 		// hack the fake titanium-sdk npm package in
 		return this.hackTitaniumSDKModule();
@@ -241,7 +216,7 @@ class Packager {
 	 * Includes the pre-packaged pre-built native modules. We now gather them from a JSON file listing URLs to download.
 	 */
 	async includePackagedModules() {
-		console.log('Zipping packaged modules');
+		console.log('Including pre-packaged native modules...');
 		// Unzip all the zipfiles in support/module/packaged
 		const supportedPlatforms = this.platforms.concat([ 'commonjs' ]); // we want a copy here...
 		// Include aliases for ios/iphone/ipad
@@ -268,24 +243,45 @@ class Packager {
 		// remove duplicates
 		modules = Array.from(new Set(modules));
 
-		// Fetch the listed modules from URLs...
-		const zipFiles = await Promise.all(modules.map(m => utils.downloadURL(m.url, m.integrity, { progress: false })));
+		// Fetch the listed modules from URLs, unzip to tmp dir, then copy to our ultimate build dir
+		const modulesDir = path.join(this.zipDir, 'modules');
 
-		// ...then unzip them
-		// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
-		const outDir = this.zipDir;
-		for (const zipFile of zipFiles) {
-			await unzip(zipFile, outDir);
+		// We have a race condition problem where where the top-level modules folder and the platform-specific
+		// sub-folders are trying to be created at the same time if we copy moduels in parallel
+		// How can we avoid? Pre-create the common folder structure in advance!
+		await fs.ensureDir(modulesDir);
+		const subDirs = this.platforms.concat([ 'commonjs' ]);
+		// Convert ios to iphone
+		const iosIndex = subDirs.indexOf('ios');
+		if (iosIndex !== -1) {
+			subDirs[iosIndex] = 'iphone';
 		}
+		await Promise.all(subDirs.map(d => fs.ensureDir(path.join(modulesDir, d))));
+		// Now download/extract/copy the modules
+		await Promise.all(modules.map(m => this.handleModule(m)));
 
 		// Need to wipe directories of multi-platform modules for platforms we don't need!
 		// i.e. modules/iphone on win32 builds (there because of hyperloop)
-		const subdirs = await fs.readdir(path.join(this.zipDir, 'modules'));
+		const subdirs = await fs.readdir(modulesDir);
 		for (const subDir of subdirs) {
 			if (!supportedPlatforms.includes(subDir)) {
-				await fs.remove(path.join(this.zipDir, 'modules', subDir));
+				await fs.remove(path.join(modulesDir, subDir));
 			}
 		}
+	}
+
+	async handleModule(m) {
+		// download (with caching based on integrity hash)
+		const zipFile = await utils.downloadURL(m.url, m.integrity, { progress: false });
+		// then unzip to temp dir (again with caching based on inut integrity hash)
+		const tmpZipPath = utils.cachedDownloadPath(m.url);
+		const tmpOutDir = tmpZipPath.substring(0, tmpZipPath.length - '.zip'.length); // drop .zip
+		console.log(`Unzipping ${zipFile} to ${tmpOutDir}`);
+		await utils.cacheUnzip(zipFile, m.integrity, tmpOutDir);
+		// then copy from tmp dir over to this.zipDir
+		// Might have to tweak this a bit! probably want to copy some subdir
+		console.log(`Copying ${tmpOutDir} to ${this.zipDir}`);
+		return fs.copy(tmpOutDir, this.zipDir);
 	}
 
 	async copySupportDir() {
