@@ -901,9 +901,16 @@ public class TiAnimationBuilder
 		@SuppressWarnings("unchecked")
 		public void onAnimationEnd(Animator animator)
 		{
-
 			if (animator instanceof AnimatorSet) {
 				setAnimationRunningFor(view, false);
+				if (autoreverse == null || !autoreverse.booleanValue()) {
+					// Update the underlying properties post-animation if not auto-reversing
+					for (Object key : options.keySet()) {
+						String name = TiConvert.toString(key);
+						Object value = options.get(key);
+						viewProxy.setProperty(name, value);
+					}
+				}
 				if (callback != null) {
 					callback.callAsync(viewProxy.getKrollObject(), new Object[] { new KrollDict() });
 				}
