@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
+/* eslint no-unused-vars: "off" */
 /* eslint no-unused-expressions: "off" */
 /* eslint max-len: "off" */
 /* eslint no-undef: "off" */
