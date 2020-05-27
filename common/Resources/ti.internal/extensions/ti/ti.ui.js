@@ -63,7 +63,7 @@ if (!isIOS13Plus) {
 			// For now, return a string on iOS < 13, Android so we can pass the result directly to the UI property we want to set
 			// Otherwise we need to modify the Android APIs to accept this faked Ti.UI.Color instance and convert it to it's own internal
 			// Color representation
-			return colorObj.toRGBAString(); // rgba is standard across iOS/Android. Hex on Android ia ARGB vs RGBA on iOS.
+			return colorObj.toRGBAString(); // rgba is standard across iOS/Android
 		} catch (error) {
 			console.error(`Failed to lookup color for ${colorName}`);
 		}
