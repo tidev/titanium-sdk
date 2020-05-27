@@ -100,14 +100,14 @@ description:  |
     identical, such as `'#000'`, `'#f00'`, `'#0f0#'`, `'#00f'` and `'#fff'` for the above colors,
     respectively.
 
-    An additional alpha channel is supported as a prefix to the hex triplet. So, to make
+    An additional alpha channel is supported as a prefix to the hex triplet (ARGB or AARRGGBB). So, to make
     the purple-like color `'#ff00ff'` semi-opaque, you could use an alpha value of `'55'`, giving,
-    `'#55ff00ff'` or `'#5f0f'`.
+    `'#55ff00ff'` or `'#5f0f'`. Please note that both iOS and Android use ARGB format, while typical CSS supports RGBA.
 
     Note that while the pound symbol, `#`, is not mandatory on iOS when using the hex triplet format,
     it is recommended to include it to provide compatibility with other platforms.
 
-    iOS also accepts colors specified in the form, `rgb(R,G,B)` and `rgba(R,G,B,A)`, with the color
+    iOS and Android also accept colors specified in the form, `rgb(R,G,B)` and `rgba(R,G,B,A)`, with the color
     channels inside the parethesis represented by integer numbers between `0` and `255` and the
     alpha channel by a float number between `0` and `1.0` (transparent to opaque, respectively).
     For example, an opaque purple could be obtained using `'rgb(255,0,255)'` and a semi-opaque purple
@@ -133,6 +133,8 @@ description:  |
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the
     color yellow is applied.
 
+    On iOS, you may use named system colors. See the <Titanium.UI.Color> documentation for more details.
+
     #### Dark Mode
 
     In iOS 13 Apple introduced support for users to adopt a system-wide Dark Mode setting where the screens, view, menus, and controls use a darker color palette. You can read more about this in the Apple Human Interface Guidelines.
@@ -148,14 +150,16 @@ description:  |
         "textColor": { // the name for your color
           "dark": {
             "color": "#ff85e2", // hex color code to be set
-            "alpha": "50.0" // can be set from a range of 0-100
+            "alpha": "50" // can be set from a range of 0.0-100.0, integer or float
           },
-          "light": "#ff1f1f"
+          "light": "#ff1f1f" // can be a hex color (with alpha via ARGB/AARRGGBB)
         }
       }
     ```
 
     To reference these colors in your application use the <Titanium.UI.fetchSemanticColor> API, this is a cross platform API that on iOS 13 and above will use the native method that checks the users system-wide setting, and in all other instances will check the <Titanium.UI.semanticColorType> property and return the correct color for the current setting.
+
+    You may also directly use the named of the colors as values to any color properties on UI elements.
 
     ##### Specifying Dark Mode images
 
