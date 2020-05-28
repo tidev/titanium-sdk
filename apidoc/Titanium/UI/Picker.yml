@@ -217,7 +217,7 @@ properties:
     summary: Background color of the picker, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android]
     since: { iphone: "5.2.0", ipad: "5.2.0", android: "0.9.0"}
     default: White (iOS), Transparent (Android)
@@ -263,10 +263,10 @@ properties:
         Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> picker types.
         The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the
         [UIKit User Interface Catalog](https://developer.apple.com/documentation/uikit/uidatepicker).
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad]
     since: "5.2.0"
-    default: Black
+    default: "black"
 
   - name: format24
     summary: |

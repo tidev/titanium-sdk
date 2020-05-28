@@ -493,6 +493,9 @@ properties:
     permission: read-only
     osver: {ios: {min: "13.0"}}
     since: "8.2.0"
+    deprecated:
+      since: "9.1.0"
+      notes: Use <Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED> instead, which is supported cross-platform.
 
   - name: USER_INTERFACE_STYLE_LIGHT
     summary: A light interface style.
@@ -501,6 +504,9 @@ properties:
     permission: read-only
     osver: {ios: {min: "13.0"}}
     since: "8.2.0"
+    deprecated:
+      since: "9.1.0"
+      notes: Use <Titanium.UI.USER_INTERFACE_STYLE_LIGHT> instead, which is supported cross-platform.
 
   - name: USER_INTERFACE_STYLE_DARK
     summary: A dark interface style.
@@ -509,6 +515,9 @@ properties:
     permission: read-only
     osver: {ios: {min: "13.0"}}
     since: "8.2.0"
+    deprecated:
+      since: "9.1.0"
+      notes: Use <Titanium.UI.USER_INTERFACE_STYLE_DARK> instead, which is supported cross-platform.
 
   - name: UTTYPE_TEXT
     summary: |
@@ -829,10 +838,14 @@ properties:
     description: |
         Use this property to determine whether your interface should be configured with a dark or light appearance.
         The default value of this trait is set to the corresponding appearance setting on the user's device.
-    type: Array<String>
+    type: Number
     permission: read-only
     osver: {ios: {min: "13.0"}}
     since: "8.2.0"
+    constants: Titanium.App.iOS.USER_INTERFACE_STYLE_*
+    deprecated:
+      since: "9.1.0"
+      notes: Use <Titanium.UI.userInterfaceStyle> instead, which is supported cross-platform.
 
 events:
   - name: notification
@@ -1394,6 +1407,11 @@ events:
     summary: Fired when the trait collection of the device changes, e.g. the user interface style.
     platforms: [iphone, ipad]
     since: "8.2.0"
+
+  - name: screenshotcaptured
+    summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.
+    platforms: [iphone, ipad]
+    since: "9.1.0"
 
 ---
 name: NotificationParams

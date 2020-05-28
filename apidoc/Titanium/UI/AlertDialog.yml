@@ -489,7 +489,8 @@ properties:
     description: |
         This property is a direct correspondant of the `tintColor` property of
         UIView on iOS. For a dialog, it will tint the color of it's buttons.
-    type: [String]
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [ String, Titanium.UI.Color ]
     since: "6.2.0"
     osver: {ios: {min: "8.0"}}
     platforms: [iphone, ipad]
