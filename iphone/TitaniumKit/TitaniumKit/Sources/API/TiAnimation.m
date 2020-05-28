@@ -26,9 +26,11 @@
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity;
 @synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
-- (id)initWithDictionary:(NSDictionary *)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
+- (id)initWithDictionary:(NSDictionary *)properties_ context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
 {
   if (self = [super _initWithPageContext:context_]) {
+    // store the properties until animation is done
+    properties = [properties_ copy];
 #define SET_FLOAT_PROP(p, d)                                      \
   {                                                               \
     id v = d == nil ? nil : [d objectForKey:@ #p];                \
@@ -157,6 +159,7 @@
   RELEASE_TO_NIL(view);
   RELEASE_TO_NIL(dampingRatio);
   RELEASE_TO_NIL(springVelocity);
+  RELEASE_TO_NIL(properties);
   [animatedViewProxy release];
   [super dealloc];
 }
@@ -275,6 +278,15 @@
 
   if (animation.delegate != nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)]) {
     [animation.delegate animationWillComplete:self];
+  }
+
+  // Update the modified properties on the view!
+  if (animatedViewProxy != nil) {
+    if (!isReverse && ![autoreverse boolValue] && properties != nil) {
+      [animatedViewProxy applyProperties:properties];
+    }
+    // TODO: What about center?
+    RELEASE_TO_NIL(properties);
   }
 
   // fire the event and call the callback
@@ -624,6 +636,7 @@
         [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
       }
     };
+
     if (dampingRatio != nil || springVelocity != nil) {
       [UIView animateWithDuration:animationDuration
                             delay:([delay doubleValue] / 1000)

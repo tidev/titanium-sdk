@@ -127,7 +127,7 @@ class Builder {
 		});
 
 		if (!outFile) {
-			outFile = path.join(TMP_DIR, 'common', platform, 'ti.main.js');
+			outFile = path.join(TMP_DIR, 'common/Resources', platform, 'ti.main.js');
 		}
 
 		console.log(`Writing 'common' bundle to ${outFile} ...`); // eslint-disable-line quotes
