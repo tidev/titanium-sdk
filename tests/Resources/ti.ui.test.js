@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI', function () {
 	let win;
@@ -228,60 +229,136 @@ describe('Titanium.UI', function () {
 		should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
 	});
 
-	it('#fetchSemanticColor()', () => {
+	describe('Semantic Colors', () => {
 		const isIOS = (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
 		const isIOS13Plus = isIOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
-		const semanticColors = require('./semantic.colors.json');
 
-		const result = Ti.UI.fetchSemanticColor('textColor');
-		if (isIOS13Plus) {
-			// We get a Ti.UI.Color proxy on iOS 13+
-			should(result).be.an.Object;
-			should(result.apiName).eql('Ti.UI.Color');
-			result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
-		} else {
-			// check alpha values
-			const green100 = Ti.UI.fetchSemanticColor('green_100.0');
-			const blue75 = Ti.UI.fetchSemanticColor('blue_75.0');
-			const cyan50 = Ti.UI.fetchSemanticColor('cyan_50.0');
-			const red25 = Ti.UI.fetchSemanticColor('red_25.0');
-			const magenta0 = Ti.UI.fetchSemanticColor('magenta_0');
-			const yellowNoAlpha = Ti.UI.fetchSemanticColor('yellow_noalpha');
-			const greenHex8 = Ti.UI.fetchSemanticColor('green_hex8');
-			if (Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_LIGHT) {
-				result.should.eql('rgba(255, 31, 31, 1.000)');
-				green100.should.eql('rgba(0, 255, 0, 1.000)');
-				blue75.should.eql('rgba(0, 0, 255, 0.750)');
-				cyan50.should.eql('rgba(0, 255, 255, 0.500)');
-				red25.should.eql('rgba(255, 0, 0, 0.250)');
-				magenta0.should.eql('rgba(255, 0, 255, 0.000)');
-				yellowNoAlpha.should.eql('rgba(255, 255, 0, 1.000)');
-				greenHex8.should.eql('rgba(0, 255, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+		it('#fetchSemanticColor() with user colors', () => {
+			const semanticColors = require('./semantic.colors.json');
+
+			const result = Ti.UI.fetchSemanticColor('textColor');
+			if (isIOS13Plus) {
+				// We get a Ti.UI.Color proxy on iOS 13+
+				should(result).be.an.Object;
+				should(result.apiName).eql('Ti.UI.Color');
+				result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
 			} else {
-				result.should.eql('rgba(255, 133, 226, 1.000)');
-				green100.should.eql('rgba(0, 128, 0, 1.000)');
-				blue75.should.eql('rgba(0, 0, 128, 0.750)');
-				cyan50.should.eql('rgba(0, 128, 128, 0.500)');
-				red25.should.eql('rgba(128, 0, 0, 0.250)');
-				magenta0.should.eql('rgba(128, 0, 128, 0.000)');
-				yellowNoAlpha.should.eql('rgba(128, 128, 0, 1.000)');
-				greenHex8.should.eql('rgba(0, 128, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+				// check alpha values
+				const green100 = Ti.UI.fetchSemanticColor('green_100.0');
+				const blue75 = Ti.UI.fetchSemanticColor('blue_75.0');
+				const cyan50 = Ti.UI.fetchSemanticColor('cyan_50.0');
+				const red25 = Ti.UI.fetchSemanticColor('red_25.0');
+				const magenta0 = Ti.UI.fetchSemanticColor('magenta_0');
+				const yellowNoAlpha = Ti.UI.fetchSemanticColor('yellow_noalpha');
+				const greenHex8 = Ti.UI.fetchSemanticColor('green_hex8');
+				if (Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_LIGHT) {
+					result.should.eql('rgba(255, 31, 31, 1.000)');
+					green100.should.eql('rgba(0, 255, 0, 1.000)');
+					blue75.should.eql('rgba(0, 0, 255, 0.750)');
+					cyan50.should.eql('rgba(0, 255, 255, 0.500)');
+					red25.should.eql('rgba(255, 0, 0, 0.250)');
+					magenta0.should.eql('rgba(255, 0, 255, 0.000)');
+					yellowNoAlpha.should.eql('rgba(255, 255, 0, 1.000)');
+					greenHex8.should.eql('rgba(0, 255, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+				} else {
+					result.should.eql('rgba(255, 133, 226, 1.000)');
+					green100.should.eql('rgba(0, 128, 0, 1.000)');
+					blue75.should.eql('rgba(0, 0, 128, 0.750)');
+					cyan50.should.eql('rgba(0, 128, 128, 0.500)');
+					red25.should.eql('rgba(128, 0, 0, 0.250)');
+					magenta0.should.eql('rgba(128, 0, 128, 0.000)');
+					yellowNoAlpha.should.eql('rgba(128, 128, 0, 1.000)');
+					greenHex8.should.eql('rgba(0, 128, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+				}
 			}
-		}
-	});
+		});
 
-	it('use semantic colors via color properties', function () {
-		should(function () {
-			const label = Ti.UI.createLabel({
-				color: 'textColor'
-			});
+		it('#fetchSemanticColor() with system colors', () => {
+			if (isIOS13Plus) {
+				const colors = [
+					'systemredcolor', 'systemgreencolor', 'systembluecolor',
+					'systemorangecolor', 'systemyellowcolor', 'systempinkcolor',
+					'systempurplecolor', 'systemtealcolor', 'systemgraycolor',
+					'systemindigocolor', 'systemgray2color', 'systemgray3color',
+					'systemgray4color',	'systemgray5color', 'systemgray6color',
+					'labelcolor',
+					'secondarylabelcolor',
+					'tertiarylabelcolor',
+					'quaternarylabelcolor',
+					'linkColor',
+					'placeholdertextcolor',
+					'separatorcolor',
+					'opaqueseparatorcolor',
+					'systembackgroundcolor',
+					'secondarysystembackgroundcolor',
+					'tertiarysystembackgroundcolor',
+					'systemgroupedbackgroundcolor',
+					'secondarysystemgroupedbackgroundcolor',
+					'tertiarysystemgroupedbackgroundcolor',
+					'systemfillcolor',
+					'secondarysystemfillcolor',
+					'tertiarysystemfillcolor',
+					'quaternarysystemfillcolor' ];
+				for (const color of colors) {
+					// TODO: Check against known values?
+					Ti.UI.fetchSemanticColor(color).toHex().should.not.eql('#000000');
+				}
+			} else if (utilities.isAndroid()) {
+				// https://developer.android.com/reference/android/R.color
+				const colors = new Map([
+					[ 'background_dark', '#ff000000' ],
+					[ 'background_light', '#ffffffff' ],
+					[ 'black', '#ff000000' ],
+					[ 'darker_gray', '#ffaaaaaa' ],
+					[ 'holo_blue_bright', '#ff00ddff' ],
+					[ 'holo_blue_dark', '#ff0099cc' ],
+					[ 'holo_blue_light', '#ff33b5e5' ],
+					[ 'holo_green_dark', '#ff669900' ],
+					[ 'holo_green_light', '#ff99cc00' ],
+					[ 'holo_orange_dark', '#ffff8800' ],
+					[ 'holo_orange_light', '#ffffbb33' ],
+					[ 'holo_purple', '#ffaa66cc' ],
+					[ 'holo_red_dark', '#ffcc0000' ],
+					[ 'holo_red_light', '#ffff4444' ],
+					[ 'primary_text_dark', '#ffffffff' ],
+					[ 'primary_text_dark_nodisable', '#ffffffff' ],
+					[ 'primary_text_light', '#ff000000' ],
+					[ 'primary_text_light_nodisable', '#ff000000' ],
+					[ 'secondary_text_dark', '#ffbebebe' ],
+					[ 'secondary_text_dark_nodisable', '#ffbebebe' ],
+					[ 'secondary_text_light', '#ff323232' ],
+					[ 'secondary_text_light_nodisable', '#ffbebebe' ],
+					[ 'tab_indicator_text', '#ff808080' ],
+					[ 'tertiary_text_dark', '#ff808080' ],
+					[ 'tertiary_text_light', '#ff808080' ],
+					[ 'transparent', '#00000000' ],
+					[ 'white', '#ffffffff' ],
+					[ 'widget_edittext_dark', '#ff000000' ],
+				]);
+				for (const [ colorName, hex ] of colors) {
+					const c = Ti.UI.fetchSemanticColor(colorName);
+					c.toLowerCase().should.eql(hex);
+				}
+			}
+		});
 
-			const view = Ti.UI.createView({
-				backgroundColor: '#fff'
-			});
+		it('use semantic colors via color properties', function () {
+			should(function () {
+				win = Ti.UI.createWindow();
+				const label = Ti.UI.createLabel({
+					color: 'holo_blue_bright',
+					text: 'Hiiiiiiiiiiiiiiiii'
+				});
 
-			view.add(label);
-		}).not.throw();
+				const view = Ti.UI.createView({
+					backgroundColor: '#fff'
+				});
+
+				view.add(label);
+				win.add(view);
+				win.open();
+			}).not.throw();
+		});
 	});
 
 	// TODO Write tests for Ti.UI.global properties below!
