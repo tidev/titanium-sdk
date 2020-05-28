@@ -70,7 +70,7 @@ properties:
         Color of the message text, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [ String, Titanium.UI.Color ]
 
   - name: font
     summary: Font used for the message text.
@@ -82,6 +82,14 @@ properties:
         display the message and to position the view correctly.
     type: String
     constants: Titanium.UI.SIZE
+
+  - name: indicatorColor
+    summary: Color of the animated indicator.
+    description: For information about color values, see the "Colors" section of <Titanium.UI>.
+    since: "2.1.0"
+    type: [ String, Titanium.UI.Color ]
+    default: "white"
+    platforms: [iphone,ipad,android]
 
   - name: left
     summary: Left position of the view.
@@ -117,13 +125,6 @@ properties:
     type: Number
     constants: Titanium.UI.ActivityIndicatorStyle.*
     default: <Titanium.UI.ActivityIndicatorStyle.PLAIN>
-
-  - name: indicatorColor
-    summary: Color of the animated indicator.
-    since: "2.1.0"
-    type: String
-    default: white
-    platforms: [iphone,ipad,android]
 
   - name: top
     summary: Top position of the view.

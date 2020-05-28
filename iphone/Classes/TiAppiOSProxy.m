@@ -133,6 +133,13 @@
                                                  name:kTiTraitCollectionChanged
                                                object:nil];
   }
+
+  if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didTakeScreenshot:)
+                                                 name:UIApplicationUserDidTakeScreenshotNotification
+                                               object:nil];
+  }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -189,6 +196,9 @@
   if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
   }
+  if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+  }
 }
 
 #pragma mark Public
@@ -196,6 +206,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {
+  DEPRECATED_REPLACED(@"App.iOS.userInterfaceStyle", @"9.1.0", @"UI.userInterfaceStyle");
   return @(TiApp.controller.traitCollection.userInterfaceStyle);
 }
 #endif
@@ -203,6 +214,11 @@
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
   [self fireEvent:@"traitcollectionchange"];
+}
+
+- (void)didTakeScreenshot:(NSNotification *)info
+{
+  [self fireEvent:@"screenshotcaptured"];
 }
 
 - (void)didReceiveApplicationShortcutNotification:(NSNotification *)info
@@ -1078,6 +1094,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
+  DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_UNSPECIFIED", @"9.1.0", @"UI.USER_INTERFACE_STYLE_UNSPECIFIED");
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleUnspecified);
   }
@@ -1087,6 +1104,7 @@
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
+  DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_LIGHT", @"9.1.0", @"UI.USER_INTERFACE_STYLE_LIGHT");
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleLight);
   }
@@ -1096,6 +1114,7 @@
 
 - (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
+  DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_DARK", @"9.1.0", @"UI.USER_INTERFACE_STYLE_DARK");
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleDark);
   }

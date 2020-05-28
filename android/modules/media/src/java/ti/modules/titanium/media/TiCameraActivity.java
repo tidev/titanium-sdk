@@ -25,6 +25,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -32,13 +33,11 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.Size;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.appcompat.app.ActionBar;
-
 import android.os.Environment;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -50,7 +49,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.content.pm.PackageManager;
+import androidx.appcompat.app.ActionBar;
 
 @SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
@@ -82,7 +81,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public static MediaModule mediaContext;
 	public static KrollObject callbackContext;
-	public static KrollFunction successCallback, errorCallback, cancelCallback;
+	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
@@ -872,8 +871,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				camera = Camera.open(cameraId);
 			}
 		} catch (Exception e) {
-			String errorMessage
-				= "Could not open camera. "
+			String errorMessage =
+				"Could not open camera. "
 				+ "Camera may be in use by another process or device policy manager has disabled the camera.";
 			Log.e(TAG, errorMessage, e);
 		}
@@ -936,12 +935,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onBackPressed()
 	{
-		if (cancelCallback != null) {
+		if (androidbackCallback != null) {
 			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, "User cancelled the request");
-			cancelCallback.callAsync(callbackContext, response);
+			response.putCodeAndMessage(-1, "User pressed androidback");
+			androidbackCallback.callAsync(callbackContext, response);
+		} else {
+			if (cancelCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(-1, "User cancelled the request");
+				cancelCallback.callAsync(callbackContext, response);
+			}
+			super.onBackPressed();
 		}
-		super.onBackPressed();
 	}
 
 	@Override
