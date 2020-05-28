@@ -112,7 +112,7 @@ properties:
           * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE>
 
         These can also be combined the same way as the underline styles.
-    type: Object
+    type: [String, Number, Titanium.UI.Color, Object, ParagraphAttribute ]
     constants: [ Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_*,
                  Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_*,
                  Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE ]

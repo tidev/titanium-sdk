@@ -98,7 +98,9 @@ methods:
         type: OpenURLOptions
         optional: true
       - name: callback
-        summary: The optional callback that is called once the URL is opened (iOS 10+).
+        summary: |
+            The optional callback that is called once the URL is opened (iOS 10+).
+            Also supported on Android as of Titanium 9.1.0.
         type: Callback
         optional: true
 
