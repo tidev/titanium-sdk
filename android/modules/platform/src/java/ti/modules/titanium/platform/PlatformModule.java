@@ -7,6 +7,7 @@
 package ti.modules.titanium.platform;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -295,8 +296,36 @@ public class PlatformModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean openURL(KrollInvocation invocation, String url)
+	public boolean openURL(KrollInvocation invocation, String url,
+						   @Kroll.argument(optional = true) Object arg2, @Kroll.argument(optional = true) Object arg3)
 	{
+		// If given an optional callback, then call this method recursively without the callback.
+		// Note: We might also receieve an optional KrollDict argument. This is iOS only and should be ignored.
+		KrollFunction callback = null;
+		if (arg2 instanceof KrollFunction) {
+			callback = (KrollFunction) arg2;
+		} else if (arg3 instanceof KrollFunction) {
+			callback = (KrollFunction) arg3;
+		}
+		if (callback != null) {
+			// Attempt to open the URL.
+			boolean wasOpened = false;
+			String errorMessage = null;
+			try {
+				wasOpened = openURL(invocation, url, null, null);
+			} catch (Exception ex) {
+				errorMessage = ex.getMessage();
+			}
+
+			// Invoke callback with the result on the next message pump. (Mimics iOS' behavior.)
+			KrollDict event = new KrollDict();
+			event.putCodeAndMessage(wasOpened ? 0 : 1, errorMessage);
+			callback.callAsync(getKrollObject(), event);
+
+			// Return the result immediately for backward compatibility.
+			return wasOpened;
+		}
+
 		Log.d(TAG, "Launching viewer for: " + url, Log.DEBUG_MODE);
 
 		// Validate argument.

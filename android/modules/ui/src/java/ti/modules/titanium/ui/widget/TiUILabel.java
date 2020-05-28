@@ -667,6 +667,12 @@ public class TiUILabel extends TiUIView
 		return false;
 	}
 
+	public int getColor()
+	{
+		TextView tv = (TextView) getNativeView();
+		return tv.getCurrentTextColor();
+	}
+
 	/**
 	 * Updates this object's Android "TextView" with the current member variable settings that affect
 	 * how text is displayed, which includes the single-line/multiline and ellipsize related settings.
