@@ -257,12 +257,14 @@ methods:
   - name: fetchSemanticColor
     summary: |
         Fetches the correct color to be used with a UI element dependent on the users current dark mode setting on iOS 13 and above, or the [Titanium.UI.semanticColorType](Titanium.UI.semanticColorType) setting in other instances.
+        Will return a valid string value to be used for color properties on Android. This may be a hex string or an `rgba()` function.
     parameters:
       - name: colorName
         summary: Name of the semantic color defined in the applications colorset.
         type: String
     returns:
       - type: Titanium.UI.Color
+      - type: String
     since: "8.2.0"
 
 properties:
