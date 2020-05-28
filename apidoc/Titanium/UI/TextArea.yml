@@ -238,7 +238,7 @@ properties:
     summary: Color of the text in this text area, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: editable
     summary: Determines whether this field can be edited.
@@ -351,7 +351,7 @@ properties:
     summary: Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone,ipad]
 
   - name: keyboardToolbarHeight
