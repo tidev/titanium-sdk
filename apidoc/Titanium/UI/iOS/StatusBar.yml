@@ -62,6 +62,9 @@ properties:
         [LIGHT_CONTENT](Titanium.UI.iOS.StatusBar.LIGHT_CONTENT),
     type: Number
     permission: read-only
+    deprecated:
+        since: "9.1.0"
+        notes: Use [Titanium.UI.iOS.StatusBar.DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT) instead.
 
   - name: GREY
     summary: Gray-colored status bar style.
@@ -77,6 +80,9 @@ properties:
         [LIGHT_CONTENT](Titanium.UI.iOS.StatusBar.LIGHT_CONTENT),
     type: Number
     permission: read-only
+    deprecated:
+        since: "9.1.0"
+        notes: Use [Titanium.UI.iOS.StatusBar.DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT) instead.
 
   - name: LIGHT_CONTENT
     summary: Status bar style to use with dark backgrounds.
@@ -91,3 +97,13 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
+
+  - name: DARK_CONTENT
+    summary: Status bar style to use with light backgrounds.
+    description: |
+        Use with the <Titanium.UI.Window.statusBarStyle> property.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+

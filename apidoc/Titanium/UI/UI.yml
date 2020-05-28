@@ -174,6 +174,17 @@ description:  |
 extends: Titanium.Module
 since: "0.4"
 
+events:
+  - name: userinterfacestyle
+    summary: Fired when the `userInterfaceStyle` changes.
+    properties:
+      - name: value
+        summary: The new userInterfaceStyle value.
+        type: Number
+        constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    platforms: [android, iphone, ipad]
+    osver: {ios: {min: "13.0"}}
+
 methods:
   - name: create2DMatrix
     summary: Creates and returns an instance of <Titanium.UI.2DMatrix>.
@@ -247,7 +258,7 @@ methods:
         summary: Name of the semantic color defined in the applications colorset.
         type: String
     returns:
-      - type: String
+      - type: Titanium.UI.Color
     since: "8.2.0"
 
 properties:
@@ -484,7 +495,7 @@ properties:
     summary: |
         Use with <Attribute.type> to apply a text effect.
     description: |
-        Set <Attribute.value> to `Titainium.UI.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
+        Set <Attribute.value> to `Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
         letterpress effect to the text.
 
         See <Attribute> for more information.
@@ -1751,13 +1762,11 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: INPUT_BORDERSTYLE_ROUNDED
     summary: Use a rounded-rectangle border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-
 
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
@@ -2360,7 +2369,6 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: RETURNKEY_SEND
     summary: Set the return key text to "Send".
     description: |
@@ -2379,22 +2387,33 @@ properties:
     permission: read-only
 
   - name: SEMANTIC_COLOR_TYPE_DARK
-    summary: Return the dark value from the applications colorset
+    summary: The value returned by <Titanium.UI.semanticColorType> when the device is in dark/night mode.
     type: String
     permission: read-only
     since: "8.2.0"
+    value: "dark"
+    deprecated:
+      since: "9.1.0"
+      notes: Use [USER_INTERFACE_STYLE_DARK](Titanium.UI.USER_INTERFACE_STYLE_DARK) instead.
 
   - name: SEMANTIC_COLOR_TYPE_LIGHT
-    summary: Return the light value from the applications colorset.
+    summary: The value returned by <Titanium.UI.semanticColorType> when the device is in light/normal mode.
     type: String
     permission: read-only
     since: "8.2.0"
+    value: "light"
+    deprecated:
+      since: "9.1.0"
+      notes: Use [USER_INTERFACE_STYLE_LIGHT](Titanium.UI.USER_INTERFACE_STYLE_LIGHT) instead.
 
   - name: semanticColorType
-    summary: When running on Android, iOS 10 or lower, or Windows the value to return form the applications colorset.
+    summary: The current mode for the device (corresponding to night/dark or light/normal)
     type: String
     constants: Titanium.UI.SEMANTIC_COLOR_TYPE_*
     since: "8.2.0"
+    deprecated:
+      since: "9.1.0"
+      notes: Use [userInterfaceStyle](Titanium.UI.userInterfaceStyle) instead.
 
   - name: SIZE
     summary: SIZE behavior for UI layout.
@@ -2615,7 +2634,6 @@ properties:
     type: [Number, String]
     permission: read-only
 
-
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     summary: Vertically align text to the center of the view.
     description: |
@@ -2625,7 +2643,6 @@ properties:
         This constant is a string on Android, and a number on iOS.
     type: [Number, String]
     permission: read-only
-
 
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     summary: Align text to the top of the view.
@@ -2637,13 +2654,11 @@ properties:
     type: [Number, String]
     permission: read-only
 
-
   - name: UNIT_CM
     summary: Unit constant representing units in centimeters.
     type: String
     permission: read-only
     since: "2.0.0"
-
 
   - name: UNIT_DIP
     summary: Unit constant representing units in density-independent pixels.
@@ -2651,13 +2666,11 @@ properties:
     permission: read-only
     since: "2.0.0"
 
-
   - name: UNIT_IN
     summary: Unit constant representing units in inches.
     type: String
     permission: read-only
     since: "2.0.0"
-
 
   - name: UNIT_MM
     summary: Unit constant representing units in millimeters.
@@ -2665,13 +2678,11 @@ properties:
     permission: read-only
     since: "2.0.0"
 
-
   - name: UNIT_PX
     summary: Unit constant representing units in pixels.
     type: String
     permission: read-only
     since: "2.0.0"
-
 
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.
@@ -2709,14 +2720,12 @@ properties:
     since: "3.0.0"
     permission: read-only
 
-
   - name: URL_ERROR_BAD_URL
     summary: Bad url error code reported via <Titanium.UI.WebView.error>.
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-
 
   - name: URL_ERROR_CONNECT
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to connect to host.
@@ -2733,14 +2742,12 @@ properties:
     since: "3.0.0"
     permission: read-only
 
-
   - name: URL_ERROR_FILE
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to access a file resource on a host, except "file not found", which has its own constant.
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-
 
   - name: URL_ERROR_FILE_NOT_FOUND
     summary: Error code reported via <Titanium.UI.WebView.error> when a requested file does not exist on the host.
@@ -2749,14 +2756,12 @@ properties:
     since: "3.0.0"
     permission: read-only
 
-
   - name: URL_ERROR_HOST_LOOKUP
     summary: Error code reported via <Titanium.UI.WebView.error> when a host name cannot be resolved, such as via a DNS lookup error.
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-
 
   - name: URL_ERROR_REDIRECT_LOOP
     summary: Error code reported via <Titanium.UI.WebView.error> when a redirect loop is detected.
@@ -2765,14 +2770,12 @@ properties:
     since: "3.0.0"
     permission: read-only
 
-
   - name: URL_ERROR_TIMEOUT
     summary: Error code reported via <Titanium.UI.WebView.error> when a timeout occurs.
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
-
 
   - name: URL_ERROR_UNKNOWN
     summary: Error code reported via <Titanium.UI.WebView.error> when an unknown error occurs.
@@ -2781,13 +2784,42 @@ properties:
     since: "3.0.0"
     permission: read-only
 
-
   - name: URL_ERROR_UNSUPPORTED_SCHEME
     summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
+
+  - name: USER_INTERFACE_STYLE_UNSPECIFIED
+    summary: An unspecified interface style.
+    description: |
+        Used in the `userInterfaceStyle` property. Value indicating that no mode has been set.
+        See [UI_MODE_NIGHT_UNDEFINED](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_UNDEFINED)
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "9.1.0"
+
+  - name: USER_INTERFACE_STYLE_LIGHT
+    summary: A light interface style.
+    description:  |
+        Used in the `userInterfaceStyle` property. Value indicating that light/normal mode has been set.
+        See [UI_MODE_NIGHT_NO](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_NO)
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "9.1.0"
+
+  - name: USER_INTERFACE_STYLE_DARK
+    summary: A dark interface style.
+    description: |
+        Used in the `userInterfaceStyle` property. Value indicating that night/dark mode has been set.
+        See [UI_MODE_NIGHT_YES](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_YES)
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: "9.1.0"
 
   - name: backgroundColor
     summary: |
@@ -2796,7 +2828,7 @@ properties:
     description: |
         The default background color may also show through if you use semi-transparent
         windows.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: backgroundImage
     summary: |
@@ -2842,9 +2874,22 @@ properties:
     summary: |
         Sets the global tint color of the application. It is inherited by the child views and can be
         overwritten by them using the `tintColor` property.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "6.0.0"
     platforms: [iphone, ipad]
+
+  - name: userInterfaceStyle
+    summary: The style associated with the user interface.
+    description: |
+        Use this property to determine whether your interface should be configured with a dark or light appearance.
+        The default value of this trait is set to the corresponding appearance setting on the user's device.
+
+        See [UI_MODE_NIGHT_MASK](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_MASK).
+    type: Number
+    permission: read-only
+    constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    osver: {ios: {min: "13.0"}}
+    since: "9.1.0"
 
 examples:
   - title: Color Demo

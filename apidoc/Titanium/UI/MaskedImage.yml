@@ -74,4 +74,4 @@ properties:
     summary: Color to combine with the image, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]

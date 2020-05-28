@@ -697,12 +697,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+	public static final String EVENT_USER_INTERACTION = "userinteraction";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_USER_INTERACTION = "userinteraction";
+	public static final String EVENT_USER_INTERFACE_STYLE = "userinterfacestyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 
 	/**
 	 * @module.api

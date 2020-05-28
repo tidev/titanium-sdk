@@ -55,7 +55,7 @@ READONLY_PROPERTY(NSString *, version, Version);
 JSExportAs(openURL,
            -(BOOL)openURL
            : (NSString *)url withOptions
-           : (id)options andCallback
+           : (JSValue *)options andCallback
            : (JSValue *)callback);
 
 @end
