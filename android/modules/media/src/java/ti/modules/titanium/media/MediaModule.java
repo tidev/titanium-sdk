@@ -10,12 +10,12 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -29,8 +29,8 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -43,11 +43,11 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -268,7 +268,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			// Attempt to find existing media.
 			final String[] projection =
 				new String[] { MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME,
-					MediaStore.MediaColumns.RELATIVE_PATH };
+							  MediaStore.MediaColumns.RELATIVE_PATH };
 			final Uri contentUri =
 				isMovie ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 			try (Cursor cursor = contentResolver.query(contentUri, projection, null, null, null)) {
@@ -407,6 +407,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
+		KrollFunction androidbackCallback = null;
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
@@ -424,6 +425,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
 			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ANDROID_BACK)) {
+			androidbackCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ANDROID_BACK);
 		}
 		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOSAVE)) {
 			saveToPhotoGallery = cameraOptions.getBoolean(PROP_AUTOSAVE);
@@ -464,6 +468,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraActivity.successCallback = successCallback;
 		TiCameraActivity.cancelCallback = cancelCallback;
 		TiCameraActivity.errorCallback = errorCallback;
+		TiCameraActivity.androidbackCallback = androidbackCallback;
 		TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
 		TiCameraActivity.autohide = autohide;
 		TiCameraActivity.overlayProxy = overLayProxy;
@@ -572,18 +577,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		String[] permissions = null;
 		if (!hasCameraPermission() && !hasStoragePermission()) {
-			permissions = new String[] {
-				Manifest.permission.CAMERA,
-				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
-			};
+			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
+										Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		} else if (!hasCameraPermission()) {
 			permissions = new String[] { Manifest.permission.CAMERA };
 		} else {
-			permissions = new String[] {
-				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
-			};
+			permissions =
+				new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE };
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionCallback,
@@ -863,16 +863,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	@Kroll.method
-	@Kroll.setProperty
-	public void setCameraFlashMode(int flashMode)
+	@Kroll
+		.method
+		@Kroll.setProperty
+		public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public int getCameraFlashMode()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public int getCameraFlashMode()
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
@@ -1443,16 +1445,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		activity.switchCamera(whichCamera);
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public boolean getIsCameraSupported()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public boolean getIsCameraSupported()
 	{
 		return Camera.getNumberOfCameras() > 0;
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public int[] getAvailableCameras()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public int[] getAvailableCameras()
 	{
 		int cameraCount = Camera.getNumberOfCameras();
 		if (cameraCount == 0) {
@@ -1482,9 +1486,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return result;
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public boolean getCanRecord()
+	@Kroll
+		.method
+		@Kroll.getProperty
+		public boolean getCanRecord()
 	{
 		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
 	}

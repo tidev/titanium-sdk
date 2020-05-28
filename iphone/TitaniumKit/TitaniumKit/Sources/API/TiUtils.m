@@ -585,12 +585,21 @@ static NSDictionary *sizeMap = nil;
 
 + (NSString *)hexColorValue:(UIColor *)color
 {
-  const CGFloat *components = CGColorGetComponents(color.CGColor);
-
-  return [NSString stringWithFormat:@"#%02lX%02lX%02lX",
-                   lroundf(components[0] * 255),
-                   lroundf(components[1] * 255),
-                   lroundf(components[2] * 255)];
+  CGFloat red;
+  CGFloat green;
+  CGFloat blue;
+  CGFloat alpha;
+  BOOL wasConverted = [color getRed:&red
+                              green:&green
+                               blue:&blue
+                              alpha:&alpha];
+  if (!wasConverted) {
+    return @"#000000";
+  }
+  if (lroundf(alpha * 255.0) != 255) {
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0), lroundf(alpha * 255.0)];
+  }
+  return [NSString stringWithFormat:@"#%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
 }
 
 + (TiDimension)dimensionValue:(id)value

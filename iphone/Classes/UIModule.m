@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -42,8 +42,8 @@
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/Webcolor.h>
 
 @implementation UIModule
 
@@ -62,6 +62,42 @@
   RELEASE_TO_NIL(clipboard);
 #endif
   [super dealloc];
+}
+
+- (void)_listenerAdded:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      lastEmittedMode = self.userInterfaceStyle;
+    }
+#endif
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeTraitCollection:)
+                                                 name:kTiTraitCollectionChanged
+                                               object:nil];
+  }
+}
+
+- (void)_listenerRemoved:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+  }
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    NSNumber *currentMode = self.userInterfaceStyle;
+    if (currentMode == lastEmittedMode) {
+      return;
+    }
+    lastEmittedMode = currentMode;
+    [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
+  }
+#endif
 }
 
 - (NSString *)apiName
@@ -334,6 +370,112 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
   return @"";
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)userInterfaceStyle
+{
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleUnspecified);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_LIGHT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleLight);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_DARK
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UIUserInterfaceStyleDark);
+  }
+
+  return NUMINT(0);
+}
+#endif
+
+- (UIColor *)getSystemColor:(NSString *)color
+{
+  if (systemColors == nil) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    systemColors = [NSMutableDictionary dictionary];
+
+    [systemColors addEntriesFromDictionary:@{
+      @"systemRedColor" : UIColor.systemRedColor,
+      @"systemGreenColor" : UIColor.systemGreenColor,
+      @"systemBlueColor" : UIColor.systemBlueColor,
+      @"systemOrangeColor" : UIColor.systemOrangeColor,
+      @"systemYellowColor" : UIColor.systemYellowColor,
+      @"systemPinkColor" : UIColor.systemPinkColor,
+      @"systemPurpleColor" : UIColor.systemPurpleColor,
+      @"systemTealColor" : UIColor.systemTealColor,
+      @"systemGrayColor" : UIColor.systemGrayColor
+    }];
+
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      [systemColors addEntriesFromDictionary:@{
+        @"systemIndigoColor" : UIColor.systemIndigoColor,
+        @"systemGray2Color" : UIColor.systemGray2Color,
+        @"systemGray3Color" : UIColor.systemGray3Color,
+        @"systemGray4Color" : UIColor.systemGray4Color,
+        @"systemGray5Color" : UIColor.systemGray5Color,
+        @"systemGray6Color" : UIColor.systemGray6Color,
+        @"labelColor" : UIColor.labelColor,
+        @"secondaryLabelColor" : UIColor.secondaryLabelColor,
+        @"tertiaryLabelColor" : UIColor.tertiaryLabelColor,
+        @"quaternaryLabelColor" : UIColor.quaternaryLabelColor,
+        @"linkColor" : UIColor.linkColor,
+        @"placeholderTextColor" : UIColor.placeholderTextColor,
+        @"separatorColor" : UIColor.separatorColor,
+        @"opaqueSeparatorColor" : UIColor.opaqueSeparatorColor,
+        @"systemBackgroundColor" : UIColor.systemBackgroundColor,
+        @"secondarySystemBackgroundColor" : UIColor.secondarySystemBackgroundColor,
+        @"tertiarySystemBackgroundColor" : UIColor.tertiarySystemBackgroundColor,
+        @"systemGroupedBackgroundColor" : UIColor.systemGroupedBackgroundColor,
+        @"secondarySystemGroupedBackgroundColor" : UIColor.secondarySystemGroupedBackgroundColor,
+        @"tertiarySystemGroupedBackgroundColor" : UIColor.tertiarySystemGroupedBackgroundColor,
+        @"systemFillColor" : UIColor.systemFillColor,
+        @"secondarySystemFillColor" : UIColor.secondarySystemFillColor,
+        @"tertiarySystemFillColor" : UIColor.tertiarySystemFillColor,
+        @"quaternarySystemFillColor" : UIColor.quaternarySystemFillColor
+      }];
+    }
+#endif
+  }
+  return [systemColors objectForKey:color];
+}
+
+- (TiColor *)fetchSemanticColor:(id)color
+{
+  ENSURE_SINGLE_ARG(color, NSString);
+
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    UIColor *colorObj = [UIColor colorNamed:color];
+    if (colorObj == nil) {
+      // not defined in user Assets
+      // See if it's a system color!
+      colorObj = [self getSystemColor:color];
+    }
+    if (colorObj != nil) {
+      return [[TiColor alloc] initWithColor:colorObj name:nil];
+    }
+    // not in our asset catalog *or* in system pre-defined colors. log a warning and return black
+    NSLog(@"[WARN] Unable to find color named %@, returning black", color);
+  }
+  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+}
+
 - (NSNumber *)isLandscape:(id)args
 {
   return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
