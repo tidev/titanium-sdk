@@ -127,7 +127,7 @@ properties:
     summary: Background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: Transparent
     accessors: false
 
@@ -152,7 +152,7 @@ properties:
     description: |
         On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: 3.2.0
     platforms: [android, iphone, ipad]
     default: Transparent
@@ -231,7 +231,7 @@ properties:
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
 
         Only applies to the built-in templates.
-    type: String
+    type: [String, Titanium.UI.Color]
     accessors: false
     
   - name: subtitleColor
@@ -240,7 +240,7 @@ properties:
         This property is only used on iOS and if the ListDataItem `template` property or ListView
         `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>, 
         <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
-    type: String
+    type: [String, Titanium.UI.Color]
     accessors: false
     platforms: [iphone, ipad]
     since: "6.1.0"
@@ -251,7 +251,7 @@ properties:
         This property is only used on iOS.
         
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "6.0.0"
     platforms: [iphone,ipad]    
     
@@ -263,7 +263,7 @@ properties:
         <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
 
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "6.1.0"
     platforms: [iphone,ipad]    
     

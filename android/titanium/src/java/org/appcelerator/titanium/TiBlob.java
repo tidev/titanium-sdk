@@ -614,6 +614,17 @@ public class TiBlob extends KrollProxy
 		return image;
 	}
 
+	private int getImageOrientation()
+	{
+		int rotation = 0;
+		try (InputStream stream = getInputStream()) {
+			rotation = TiImageHelper.getOrientation(stream);
+		} catch (Exception ex) {
+			Log.e(TAG, "Failed to fetch image EXIF orientation from blob.", ex);
+		}
+		return rotation;
+	}
+
 	@Kroll.method
 	public TiBlob imageAsCropped(Object params)
 	{
@@ -626,10 +637,7 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
-		int rotation = 0;
-		if (type == TYPE_FILE) {
-			rotation = TiImageHelper.getOrientation(getNativePath());
-		}
+		int rotation = getImageOrientation();
 
 		KrollDict options = new KrollDict((HashMap) params);
 		int widthCropped = options.optInt(TiC.PROPERTY_WIDTH, width);
@@ -718,13 +726,10 @@ public class TiBlob extends KrollProxy
 			opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		}
 
-		String nativePath = getNativePath();
-		int rotation = 0;
-		if (type == TYPE_FILE) {
-			rotation = TiImageHelper.getOrientation(nativePath);
-		}
+		int rotation = getImageOrientation();
 
 		String key = null;
+		String nativePath = getNativePath();
 		if (nativePath != null) {
 			key = nativePath + "_imageAsResized_" + rotation + "_" + dstWidth + "_" + dstHeight;
 			Bitmap bitmap = mMemoryCache.get(key);
@@ -747,6 +752,11 @@ public class TiBlob extends KrollProxy
 			imgWidth = img.getWidth();
 			imgHeight = img.getHeight();
 			if (rotation != 0) {
+				if ((rotation == 90) || (rotation == 270)) {
+					int value = dstWidth;
+					dstWidth = dstHeight;
+					dstHeight = value;
+				}
 				float scaleWidth = (float) dstWidth / imgWidth;
 				float scaleHeight = (float) dstHeight / imgHeight;
 				Matrix matrix = new Matrix();
@@ -848,10 +858,7 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
-		int rotation = 0;
-		if (type == TYPE_FILE) {
-			rotation = TiImageHelper.getOrientation(getNativePath());
-		}
+		int rotation = getImageOrientation();
 
 		int thumbnailSize = size.intValue();
 
@@ -938,10 +945,8 @@ public class TiBlob extends KrollProxy
 		if (img == null) {
 			return null;
 		}
-		int rotation = 0;
-		if (type == TYPE_FILE) {
-			rotation = TiImageHelper.getOrientation(getNativePath());
-		}
+
+		int rotation = getImageOrientation();
 
 		String nativePath = getNativePath();
 		String key = null;
@@ -995,10 +1000,7 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
-		int rotation = 0;
-		if (type == TYPE_FILE) {
-			rotation = TiImageHelper.getOrientation(getNativePath());
-		}
+		int rotation = getImageOrientation();
 
 		float radius = cornerRadius.floatValue();
 		float border = 1f;
@@ -1059,10 +1061,7 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 
-		int rotation = 0;
-		if (type == TYPE_FILE) {
-			rotation = TiImageHelper.getOrientation(getNativePath());
-		}
+		int rotation = getImageOrientation();
 
 		int borderSize = size.intValue();
 

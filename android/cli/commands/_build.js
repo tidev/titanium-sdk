@@ -23,6 +23,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	GradleWrapper = require('../lib/gradle-wrapper'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
+	Color = require('../../../common/lib/color'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
@@ -2303,7 +2304,10 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		this.generateI18N(),
 
 		// Generate a "res/values" styles XML file if a custom theme was assigned in app's "AndroidManifest.xml".
-		this.generateTheme()
+		this.generateTheme(),
+
+		// Generate "semantic.colors.xml" in "res/values" and "res/values-night"
+		this.generateSemanticColors()
 	]);
 
 	// Generate an "AndroidManifest.xml" for the app and copy in any custom manifest settings from "tiapp.xml".
@@ -3312,6 +3316,75 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 			process.exit(1);
 		}
 	}
+};
+
+AndroidBuilder.prototype.generateSemanticColors = async function generateSemanticColors() {
+	this.logger.info(__('Generating semantic colors resources'));
+	const _t = this;
+	const xmlFileName = 'ti.semantic.colors.xml';
+	const valuesDirPath = path.join(this.buildAppMainResDir, 'values');
+	const valuesNightDirPath = path.join(this.buildAppMainResDir, 'values-night');
+	await fs.ensureDir(valuesDirPath);
+	await fs.ensureDir(valuesNightDirPath);
+	const destLight = path.join(valuesDirPath, xmlFileName);
+	const destNight = path.join(valuesNightDirPath, xmlFileName);
+
+	let colorsFile = path.join(this.projectDir, 'Resources', 'android', 'semantic.colors.json');
+
+	if (!fs.existsSync(colorsFile)) {
+		// Fallback to root of Resources folder for Classic applications
+		colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
+	}
+
+	if (!fs.existsSync(colorsFile)) {
+		this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
+		return;
+	}
+
+	function appendToXml(dom, root, color, colorValue) {
+		const appnameNode = dom.createElement('color');
+		appnameNode.setAttribute('name', `${color}`);
+		const colorObj = Color.fromSemanticColorsEntry(colorValue);
+		appnameNode.appendChild(dom.createTextNode(colorObj.toARGBHexString()));
+		root.appendChild(dom.createTextNode('\n\t'));
+		root.appendChild(appnameNode);
+	}
+
+	function writeXml(dom, dest, mode) {
+		if (fs.existsSync(dest)) {
+			_t.logger.debug(__('Merging %s semantic colors => %s', mode.cyan, dest.cyan));
+		} else {
+			_t.logger.debug(__('Writing %s semantic colors => %s', mode.cyan, dest.cyan));
+		}
+		return fs.writeFile(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
+	}
+
+	const colors = fs.readJSONSync(colorsFile);
+	const domLight = new DOMParser().parseFromString('<resources/>', 'text/xml');
+	const domNight = new DOMParser().parseFromString('<resources/>', 'text/xml');
+
+	const rootLight = domLight.documentElement;
+	const rootNight = domNight.documentElement;
+
+	for (const [ color, colorValue ] of Object.entries(colors)) {
+		if (!colorValue.light) {
+			this.logger.warn(`Skipping ${color} as it does not include a light value`);
+			continue;
+		}
+
+		if (!colorValue.dark) {
+			this.logger.warn(`Skipping ${color} as it does not include a dark value`);
+			continue;
+		}
+
+		appendToXml(domLight, rootLight, color, colorValue.light);
+		appendToXml(domNight, rootNight, color, colorValue.dark);
+	}
+
+	return Promise.all([
+		writeXml(domLight, destLight, 'light'),
+		writeXml(domNight, destNight, 'night')
+	]);
 };
 
 AndroidBuilder.prototype.generateTheme = async function generateTheme() {
