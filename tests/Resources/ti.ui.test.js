@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
+/* globals OS_ANDROID,OS_IOS */
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
@@ -301,7 +302,7 @@ describe('Titanium.UI', function () {
 					'quaternarysystemfillcolor' ];
 				for (const color of colors) {
 					// TODO: Check against known values?
-					Ti.UI.fetchSemanticColor(color).toHex().should.not.eql('#000000');
+					Ti.UI.fetchSemanticColor(color).toHex().should.not.equal('#000000', color);
 				}
 			} else if (utilities.isAndroid()) {
 				// https://developer.android.com/reference/android/R.color
@@ -337,27 +338,83 @@ describe('Titanium.UI', function () {
 				]);
 				for (const [ colorName, hex ] of colors) {
 					const c = Ti.UI.fetchSemanticColor(colorName);
-					c.toLowerCase().should.eql(hex);
+					c.toLowerCase().should.equal(hex, colorName);
 				}
 			}
 		});
 
-		it('use semantic colors via color properties', function () {
-			should(function () {
-				win = Ti.UI.createWindow();
-				const label = Ti.UI.createLabel({
-					color: 'holo_blue_bright',
-					text: 'Hiiiiiiiiiiiiiiiii'
-				});
+		function compareViewToImage(view, imageFilePath) {
+			const blob = view.toImage();
+			const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
+			if (snapshot.exists()) {
+				const snapshotBlob = snapshot.read();
+				if (OS_IOS) {
+					// FIXME: Need to take scale into account on iOS. Original image reports 5x5 when it's 2x density while saved image is 10x10
+					// This is a bug in Ti.Blob on iOS. It should report in pixels, not points!
+					const scale = Ti.Platform.displayCaps.logicalDensityFactor;
+					should(blob.width * scale).equal(snapshotBlob.width, 'width');
+					should(blob.height * scale).equal(snapshotBlob.height, 'height');
+					should(blob.size * scale * scale).equal(snapshotBlob.size, 'size');
+				} else {
+					should(blob.width).equal(snapshotBlob.width, 'width');
+					should(blob.height).equal(snapshotBlob.height, 'height');
+					should(blob.size).equal(snapshotBlob.size, 'size');
+				}
+				should(blob.length).equal(snapshotBlob.length, 'length'); // byte count
+				// Compare bytes!
+				const snapshotBuffer = Ti.createBuffer({ length: 2048 }); // Compare up to 2Kb at a time
+				const actualBuffer = Ti.createBuffer({ length: 2048 });
+				// TODO: Use node buffer shim and call equals()?
+				const actualStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
+				const snapshotStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
 
-				const view = Ti.UI.createView({
-					backgroundColor: '#fff'
-				});
+				// read x bytes in to each buffer, compare all the bytes, move on to next chunk
+				const bytesRead = actualStream.read(actualBuffer);
+				if (bytesRead === -1) {
+					// done!
+					actualStream.close();
+					snapshotStream.close();
+					return;
+				} else {
+					snapshotStream.read(snapshotBuffer, 0, bytesRead);
+					// Now compare bytes 0 -> bytesRead in each buffer!
+					for (let i = 0; i < bytesRead; i++) {
+						should(snapshotBuffer[i]).eql(actualBuffer[i], `byte[${i}]`);
+					}
+				}
+			} else {
+				// No snapshot. Generate one, then fail test
+				const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, imageFilePath);
+				if (!file.parent.exists()) {
+					file.parent.createDirectory();
+				}
+				file.write(blob);
+				const msg = `No snapshot image to compare! Grab generated image, manually verify and then commit to test suite:\n\n
+				adb -e shell "run-as com.appcelerator.testApp.testing cat '${file.nativePath}'" > Resources/${imageFilePath}`;
+				console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
+				should.fail(msg);
+			}
+		}
 
-				view.add(label);
-				win.add(view);
-				win.open();
-			}).not.throw();
+		it('use semantic colors via color properties', function (finish) {
+			win = Ti.UI.createWindow();
+			const backgroundColor = OS_ANDROID ? 'holo_blue_bright' : 'systemredcolor';
+			const suffix = OS_IOS ? `_${Ti.UI.semanticColorType}` : '';
+			const view = Ti.UI.createView({
+				backgroundColor,
+				width: '10px',
+				height: '10px'
+			});
+			win.add(view);
+			win.addEventListener('postlayout', () => {
+				try {
+					compareViewToImage(view, `snapshots/${backgroundColor}${suffix}.png`);
+				} catch (e) {
+					return finish(e);
+				}
+				finish();
+			});
+			win.open();
 		});
 	});
 
