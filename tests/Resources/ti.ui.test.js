@@ -274,72 +274,88 @@ describe('Titanium.UI', function () {
 			}
 		});
 
-		it('#fetchSemanticColor() with system colors', () => {
-			if (isIOS13Plus) {
-				const colors = [
-					'systemredcolor', 'systemgreencolor', 'systembluecolor',
-					'systemorangecolor', 'systemyellowcolor', 'systempinkcolor',
-					'systempurplecolor', 'systemtealcolor', 'systemgraycolor',
-					'systemindigocolor', 'systemgray2color', 'systemgray3color',
-					'systemgray4color',	'systemgray5color', 'systemgray6color',
-					'labelcolor',
-					'secondarylabelcolor',
-					'tertiarylabelcolor',
-					'quaternarylabelcolor',
-					'linkColor',
-					'placeholdertextcolor',
-					'separatorcolor',
-					'opaqueseparatorcolor',
-					'systembackgroundcolor',
-					'secondarysystembackgroundcolor',
-					'tertiarysystembackgroundcolor',
-					'systemgroupedbackgroundcolor',
-					'secondarysystemgroupedbackgroundcolor',
-					'tertiarysystemgroupedbackgroundcolor',
-					'systemfillcolor',
-					'secondarysystemfillcolor',
-					'tertiarysystemfillcolor',
-					'quaternarysystemfillcolor' ];
-				for (const color of colors) {
-					// TODO: Check against known values?
-					Ti.UI.fetchSemanticColor(color).toHex().should.not.equal('#000000', color);
-				}
-			} else if (utilities.isAndroid()) {
-				// https://developer.android.com/reference/android/R.color
-				const colors = new Map([
-					[ 'background_dark', '#ff000000' ],
-					[ 'background_light', '#ffffffff' ],
-					[ 'black', '#ff000000' ],
-					[ 'darker_gray', '#ffaaaaaa' ],
-					[ 'holo_blue_bright', '#ff00ddff' ],
-					[ 'holo_blue_dark', '#ff0099cc' ],
-					[ 'holo_blue_light', '#ff33b5e5' ],
-					[ 'holo_green_dark', '#ff669900' ],
-					[ 'holo_green_light', '#ff99cc00' ],
-					[ 'holo_orange_dark', '#ffff8800' ],
-					[ 'holo_orange_light', '#ffffbb33' ],
-					[ 'holo_purple', '#ffaa66cc' ],
-					[ 'holo_red_dark', '#ffcc0000' ],
-					[ 'holo_red_light', '#ffff4444' ],
-					[ 'primary_text_dark', '#ffffffff' ],
-					[ 'primary_text_dark_nodisable', '#ffffffff' ],
-					[ 'primary_text_light', '#ff000000' ],
-					[ 'primary_text_light_nodisable', '#ff000000' ],
-					[ 'secondary_text_dark', '#ffbebebe' ],
-					[ 'secondary_text_dark_nodisable', '#ffbebebe' ],
-					[ 'secondary_text_light', '#ff323232' ],
-					[ 'secondary_text_light_nodisable', '#ffbebebe' ],
-					[ 'tab_indicator_text', '#ff808080' ],
-					[ 'tertiary_text_dark', '#ff808080' ],
-					[ 'tertiary_text_light', '#ff808080' ],
-					[ 'transparent', '#00000000' ],
-					[ 'white', '#ffffffff' ],
-					[ 'widget_edittext_dark', '#ff000000' ],
-				]);
-				for (const [ colorName, hex ] of colors) {
-					const c = Ti.UI.fetchSemanticColor(colorName);
-					c.toLowerCase().should.equal(hex, colorName);
-				}
+		it.ios('#fetchSemanticColor() with system colors', () => {
+			if (!isIOS13Plus) {
+				return;
+			}
+			const colors = new Map([
+				[ 'darkTextColor', { light: '#000000', dark: '#000000' } ],
+				[ 'labelColor', { light: '#000000', dark: '#ffffff' } ],
+				[ 'linkColor', { light: '#007aff', dark: '#0984ff' } ],
+				[ 'lightTextColor', { light: '#99ffffff', dark: '#99ffffff' } ],
+				[ 'opaqueSeparatorColor', { light: '#c6c6c8', dark: '#38383a' } ],
+				[ 'placeholderTextColor', { light: '#4d3c3c43', dark: '#4debebf5' } ],
+				[ 'quaternaryLabelColor', { light: '#2e3c3c43', dark: '#2eebebf5' } ],
+				[ 'quaternarySystemfillColor', { light: '#14747480', dark: '#2e767680' } ],
+				[ 'secondaryLabelColor', { light: '#993c3c43', dark: '#99ebebf5' } ],
+				[ 'secondarySystemBackgroundColor', { light: '#f2f2f7', dark: '#1c1c1e' } ],
+				[ 'secondarySystemFillColor', { light: '#29787880', dark: '#52787880' } ],
+				[ 'secondarySystemGroupedBackgroundColor', { light: '#ffffff', dark: '#1c1c1e' } ],
+				[ 'separatorColor', { light: '#4a3c3c43', dark: '#99545458' } ],
+				[ 'systemBackgroundColor', { light: '#ffffff', dark: '#000000' } ],
+				[ 'systemBlueColor', { light: '#007aff', dark: '#0a84ff' } ],
+				[ 'systemFillColor', { light: '#33787880', dark: '#5c787880' } ],
+				[ 'systemGrayColor', { light: '#8e8e93', dark: '#8e8e93' } ],
+				[ 'systemGray2Color', { light: '#aeaeb2', dark: '#636366' } ],
+				[ 'systemGray3Color', { light: '#c7c7cc', dark: '#48484a' } ],
+				[ 'systemGray4Color', { light: '#d1d1d6', dark: '#3a3a3c' } ],
+				[ 'systemGray5Color', { light: '#e5e5ea', dark: '#2c2c2e' } ],
+				[ 'systemGray6Color', { light: '#f2f2f7', dark: '#1c1c1e' } ],
+				[ 'systemGreenColor', { light: '#34c759', dark: '#30d158' } ],
+				[ 'systemGroupedBackgroundColor', { light: '#f2f2f7', dark: '#000000' } ],
+				[ 'systemIndigoColor', { light: '#5856d6', dark: '#5e5ce6' } ],
+				[ 'systemOrangeColor', { light: '#ff9500', dark: '#ff9f0a' } ],
+				[ 'systemPinkColor', { light: '#ff2d55', dark: '#ff375f' } ],
+				[ 'systemPurpleColor', { light: '#af52de', dark: '#bf5af2' } ],
+				[ 'systemRedColor', { light: '#ff3b30', dark: '#ff453a' } ],
+				[ 'systemTealColor', { light: '#5ac8fa', dark: '#64d2ff' } ],
+				[ 'systemYellowColor', { light: '#ffcc00', dark: '#ffd60a' } ],
+				[ 'tertiaryLabelColor', { light: '#4d3c3c43', dark: '#4debebf5' } ],
+				[ 'tertiarySystemBackgroundColor', { light: '#ffffff', dark: '#2c2c2e' } ],
+				[ 'tertiarySystemFillColor', { light: '#1f767680', dark: '#3d767680' } ],
+				[ 'tertiarySystemGroupedBackgroundColor', { light: '#f2f2f7', dark: '#2c2c2e' } ],
+			]);
+			const theme = Ti.UI.semanticColorType; // should be light or dark
+			for (const [ colorName, subcolors ] of colors) {
+				Ti.UI.fetchSemanticColor(colorName).toHex().toLowerCase().should.equal(subcolors[theme], colorName);
+			}
+		});
+
+		it.android('#fetchSemanticColor() with Android R.color names', () => {
+			// https://developer.android.com/reference/android/R.color
+			const colors = new Map([
+				[ 'background_dark', '#ff000000' ],
+				[ 'background_light', '#ffffffff' ],
+				[ 'black', '#ff000000' ],
+				[ 'darker_gray', '#ffaaaaaa' ],
+				[ 'holo_blue_bright', '#ff00ddff' ],
+				[ 'holo_blue_dark', '#ff0099cc' ],
+				[ 'holo_blue_light', '#ff33b5e5' ],
+				[ 'holo_green_dark', '#ff669900' ],
+				[ 'holo_green_light', '#ff99cc00' ],
+				[ 'holo_orange_dark', '#ffff8800' ],
+				[ 'holo_orange_light', '#ffffbb33' ],
+				[ 'holo_purple', '#ffaa66cc' ],
+				[ 'holo_red_dark', '#ffcc0000' ],
+				[ 'holo_red_light', '#ffff4444' ],
+				[ 'primary_text_dark', '#ffffffff' ],
+				[ 'primary_text_dark_nodisable', '#ffffffff' ],
+				[ 'primary_text_light', '#ff000000' ],
+				[ 'primary_text_light_nodisable', '#ff000000' ],
+				[ 'secondary_text_dark', '#ffbebebe' ],
+				[ 'secondary_text_dark_nodisable', '#ffbebebe' ],
+				[ 'secondary_text_light', '#ff323232' ],
+				[ 'secondary_text_light_nodisable', '#ffbebebe' ],
+				[ 'tab_indicator_text', '#ff808080' ],
+				[ 'tertiary_text_dark', '#ff808080' ],
+				[ 'tertiary_text_light', '#ff808080' ],
+				[ 'transparent', '#00000000' ],
+				[ 'white', '#ffffffff' ],
+				[ 'widget_edittext_dark', '#ff000000' ],
+			]);
+			for (const [ colorName, hex ] of colors) {
+				const c = Ti.UI.fetchSemanticColor(colorName);
+				c.toLowerCase().should.equal(hex, colorName);
 			}
 		});
 
