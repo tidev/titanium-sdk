@@ -775,6 +775,7 @@ static NSDictionary *sizeMap = nil;
     
     return tintedImage;
   }
+  return image;
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url
