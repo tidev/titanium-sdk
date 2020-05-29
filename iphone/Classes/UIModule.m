@@ -373,7 +373,16 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (BOOL)hasSession
 {
-  return YES;
+  BOOL result = YES;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    NSSet<UIScene *> *scenes = [[UIApplication sharedApplication] connectedScenes];
+    if (!scenes || (scenes.count <= 0)) {
+      result = NO;
+    }
+  }
+#endif
+  return result;
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
