@@ -359,14 +359,37 @@ describe('Titanium.UI', function () {
 			}
 		});
 
+		/**
+		 * @param {Ti.Blob} blob binary data to write
+		 * @param {string} imageFilePath relative file path to save image under
+		 * @returns {Ti.Filesystem.File}
+		 */
+		function saveImage(blob, imageFilePath) {
+			const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, imageFilePath);
+			if (!file.parent.exists()) {
+				file.parent.createDirectory();
+			}
+			file.write(blob);
+			return file;
+		}
+
 		function compareViewToImage(view, imageFilePath) {
 			const blob = view.toImage();
 			const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
-			if (snapshot.exists()) {
-				const snapshotBlob = snapshot.read();
+			if (!snapshot.exists()) {
+				// No snapshot. Generate one, then fail test
+				const file = saveImage(blob, imageFilePath);
+				console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
+				should.fail(`No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
+				return;
+			}
+
+			// Compare versus existing image
+			const snapshotBlob = snapshot.read();
+			try {
 				if (OS_IOS) {
-					// FIXME: Need to take scale into account on iOS. Original image reports 5x5 when it's 2x density while saved image is 10x10
-					// This is a bug in Ti.Blob on iOS. It should report in pixels, not points!
+					// Need to take scale into account on iOS. Original image reports 5x5 when it's 2x density while saved image is 10x10
+					// FIXME: This is a bug in Ti.Blob on iOS. It should report in pixels, not points!
 					const scale = Ti.Platform.displayCaps.logicalDensityFactor;
 					should(blob.width * scale).equal(snapshotBlob.width, 'width');
 					should(blob.height * scale).equal(snapshotBlob.height, 'height');
@@ -376,7 +399,7 @@ describe('Titanium.UI', function () {
 					should(blob.height).equal(snapshotBlob.height, 'height');
 					should(blob.size).equal(snapshotBlob.size, 'size');
 				}
-				should(blob.length).equal(snapshotBlob.length, 'length'); // byte count
+				should(blob.length).equal(snapshotBlob.length, 'length'); // byte count // FIXME: Android 9 gives 97 bytes, we expect 110 bytes
 				// Compare bytes!
 				const snapshotBuffer = Ti.createBuffer({ length: 2048 }); // Compare up to 2Kb at a time
 				const actualBuffer = Ti.createBuffer({ length: 2048 });
@@ -395,20 +418,15 @@ describe('Titanium.UI', function () {
 					snapshotStream.read(snapshotBuffer, 0, bytesRead);
 					// Now compare bytes 0 -> bytesRead in each buffer!
 					for (let i = 0; i < bytesRead; i++) {
-						should(snapshotBuffer[i]).eql(actualBuffer[i], `byte[${i}]`);
+						should(snapshotBuffer[i]).equal(actualBuffer[i], `byte[${i}]`);
 					}
 				}
-			} else {
-				// No snapshot. Generate one, then fail test
-				const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, imageFilePath);
-				if (!file.parent.exists()) {
-					file.parent.createDirectory();
-				}
-				file.write(blob);
-				const msg = `No snapshot image to compare! Grab generated image, manually verify and then commit to test suite:\n\n
-				adb -e shell "run-as com.appcelerator.testApp.testing cat '${file.nativePath}'" > Resources/${imageFilePath}`;
-				console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-				should.fail(msg);
+			} catch (e) {
+				// assume we failed some assertion, let's try and save the image for reference!
+				// The wrapping script should basically generate a "diffs" folder with actual vs expected PNGs in subdirectories
+				const file = saveImage(blob, imageFilePath);
+				console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
+				throw e;
 			}
 		}
 
