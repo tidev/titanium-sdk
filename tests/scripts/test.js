@@ -20,6 +20,14 @@ const APP_ID = 'com.appcelerator.testApp.testing';
 const PROJECT_DIR = path.join(__dirname, PROJECT_NAME);
 const JUNIT_TEMPLATE = path.join(__dirname, 'junit.xml.ejs');
 
+// The special magic strings we expect in the logs!
+const GENERATED_IMAGE_PREFIX = '!IMAGE: ';
+const DIFF_IMAGE_PREFIX = '!IMG_DIFF: ';
+const TEST_END_PREFIX = '!TEST_END: ';
+const TEST_START_PREFIX = '!TEST_START: ';
+const TEST_SUITE_STOP = '!TEST_RESULTS_STOP!';
+const OS_VERSION_PREFIX = 'OS_VERSION: ';
+
 async function clearPreviousApp() {
 	// If the project already exists, wipe it
 	if (await fs.exists(PROJECT_DIR)) {
@@ -402,7 +410,7 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 
 			// check for test start
-			if (token.includes('!TEST_START: ')) {
+			if (token.includes(TEST_START_PREFIX)) {
 				// grab out the JSON and add to our result set
 				output = '';
 				stderr = '';
@@ -410,31 +418,37 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 
 			// check for generated images
-			if (token.includes('!IMAGE: ')) {
+			if (token.includes(GENERATED_IMAGE_PREFIX)) {
 				snapshotPromises.push(grabGeneratedImage(token, target, snapshotDir));
 				return;
 			}
 
+			// check for mismatched images
+			if (token.includes(DIFF_IMAGE_PREFIX)) {
+				snapshotPromises.push(handleMismatchedImage(token, target, snapshotDir));
+				return;
+			}
+
 			// obtain os version
-			if (token.includes('OS_VERSION')) {
+			if (token.includes(OS_VERSION_PREFIX)) {
 				const device = getDeviceName(token);
 				devices[device] = {
-					version: token.slice(token.indexOf('OS_VERSION') + 12).trim(),
+					version: token.slice(token.indexOf(OS_VERSION_PREFIX) + OS_VERSION_PREFIX.length).trim(),
 					completed: false
 				};
 				return;
 			}
 
 			// check for test end
-			const testEndIndex = token.indexOf('!TEST_END: ');
+			const testEndIndex = token.indexOf(TEST_END_PREFIX);
 			if (testEndIndex !== -1) {
 				const device = getDeviceName(token);
-				tryParsingTestResult(token.slice(testEndIndex + 11).trim(), device, devices[device].version);
+				tryParsingTestResult(token.slice(testEndIndex + TEST_END_PREFIX.length).trim(), device, devices[device].version);
 				return;
 			}
 
 			// check for suite end
-			if (token.includes('!TEST_RESULTS_STOP!')) {
+			if (token.includes(TEST_SUITE_STOP)) {
 
 				// device completed tests
 				const device = getDeviceName(token);
@@ -505,17 +519,28 @@ function massageJSONString(testResults) {
  * @returns {Promise<string>}
  */
 async function grabGeneratedImage(token, target, snapshotDir) {
-	const imageIndex = token.indexOf('!IMAGE: ');
-	const trimmed = token.slice(imageIndex + 17).trim();
+	const imageIndex = token.indexOf(GENERATED_IMAGE_PREFIX);
+	const trimmed = token.slice(imageIndex + GENERATED_IMAGE_PREFIX.length).trim();
 	const details = JSON.parse(trimmed);
-	const dest = path.join(snapshotDir, details.platform, details.relativePath);
-	if (details.path.startsWith('file://')) {
-		details.path = details.path.slice(7);
-	}
 	if (target === 'device') {
 		// TODO: Give details on the current test that generated it?
 		console.error(`Cannot grab generated image ${details.relativePath} from a device. Please run locally on a simulator and add the image to the suite.`);
 		return;
+	}
+
+	const dest = path.join(snapshotDir, details.platform, details.relativePath);
+	return saveAppImage(details, dest);
+}
+
+/**
+ * @param {object} details json from test output about image
+ * @param {string} details.path path to generated image file
+ * @param {string} details.platform name of the platform
+ * @param {string} dest destination filepath
+ */
+async function saveAppImage(details, dest) {
+	if (details.path.startsWith('file://')) {
+		details.path = details.path.slice(7);
 	}
 
 	if (details.platform === 'android') {
@@ -525,12 +550,40 @@ async function grabGeneratedImage(token, target, snapshotDir) {
 		// TODO: handle device(s) vs emulator(s)
 		return dest;
 	} else {
+		// copy the expected image to some location
 		// iOS - How do we grab the image?
 		// For ios sim, we should just be able to do a file copy
 		// FIXME: iOS device isn't (and may not be able to be) handled!
 		await fs.copy(details.path, dest);
 		return dest;
 	}
+}
+
+/**
+ * Attempts to "grab" the actual image and place it in known location side-by-side with expected image
+ * @param {string} token line of output
+ * @param {string} target 'emulator' || 'simulator' || 'device'
+ * @param {string} snapshotDir directory to place generated images
+ * @returns {Promise<string>}
+ */
+async function handleMismatchedImage(token, target, snapshotDir) {
+	const imageIndex = token.indexOf(DIFF_IMAGE_PREFIX);
+	const trimmed = token.slice(imageIndex + DIFF_IMAGE_PREFIX.length).trim();
+	const details = JSON.parse(trimmed);
+
+	const expected = path.join(snapshotDir, details.platform, details.relativePath);
+	const diffDir = path.join(snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
+	await fs.ensureDir(diffDir);
+	await fs.copy(expected, path.join(diffDir, 'expected.png'));
+
+	if (target === 'device') {
+		// TODO: Give details on the current test that generated it?
+		console.error(`Cannot grab generated image ${details.relativePath} from a device. Please run locally on a simulator and add the image to the suite.`);
+		return;
+	}
+
+	const actual = path.join(diffDir, 'actual.png');
+	return saveAppImage(details, actual);
 }
 
 function generateJUnitPrefix(platform, target, deviceFamily) {
