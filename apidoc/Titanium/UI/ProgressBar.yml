@@ -49,7 +49,7 @@ properties:
     summary: Color of the progress bar message, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: font
     summary: Font for the progress bar text.
@@ -65,10 +65,11 @@ properties:
 
   - name: tintColor
     summary: The color shown for the portion of the progress bar that is filled.
+    type: [String, Titanium.UI.Color]
 
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android]
     since: {iphone: "5.2.0", ipad: "5.2.0", android: "8.0.0"}
     osver: {android: {min: "5.0"}}

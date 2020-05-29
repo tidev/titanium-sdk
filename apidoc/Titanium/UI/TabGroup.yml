@@ -319,7 +319,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         A value of `transparent` results in a semi-opaque black bar style.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android]
 
   - name: translucent
@@ -341,7 +341,7 @@ properties:
     summary: The tintColor to apply to the navigation bar (typically for the **More** tab).
     description: |
         This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
-    type: [String]
+    type: [String, Titanium.UI.Color]
     since: "3.3.0"
     default: null
     osver: {ios: {min: "7.0"}}
@@ -447,7 +447,7 @@ properties:
 
         This property applies to all states and tabs, not just inactive tabs. Furthermore, the inactive 
         tab icons without activeIcon will be tinted this color.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
 
@@ -457,7 +457,7 @@ properties:
         This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
         title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
         blue.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "3.1.3"
     default: null
     platforms: [iphone, ipad]
@@ -522,7 +522,7 @@ properties:
         indicates that the tab group should use its default value instead.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: 6.1.0
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
@@ -543,7 +543,7 @@ properties:
     summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad]
