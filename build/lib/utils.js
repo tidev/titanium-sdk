@@ -14,7 +14,6 @@ const ssri = require('ssri');
 
 const tempDir = os.tmpdir();
 const Utils = {};
-const ROOT_DIR = path.join(__dirname, '../..');
 
 function leftpad(str, len, ch) {
 	str = String(str);
