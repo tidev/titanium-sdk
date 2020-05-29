@@ -599,7 +599,7 @@
       tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
     }
     if (tintColor != nil && image != nil) {
-      image = [image imageWithTintColor:[tintColor color] renderingMode:UIImageRenderingModeAlwaysOriginal];
+      image = [TiUtils imageWithTint:image tintColor:[tintColor color]];
     }
 
     TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
@@ -608,9 +608,9 @@
     }
     if (activeTintColor != nil) {
       if (activeImage != nil) {
-        activeImage = [activeImage imageWithTintColor:[activeTintColor color] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        activeImage = [TiUtils imageWithTint:activeImage tintColor:[activeTintColor color]];
       } else if (image != nil) {
-        activeImage = [image imageWithTintColor:[activeTintColor color] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        activeImage = [TiUtils imageWithTint:image tintColor:[activeTintColor color]];
       }
     }
   }
