@@ -1,1 +1,6 @@
-{"ti.ui.defaultunit":"dp","appc-app-id":"560bf82002a6a2cf486c6284","ti.deploytype":"development"}
+{
+	"appc-app-id": "560bf82002a6a2cf486c6284",
+	"run-in-background": false,
+	"ti.deploytype": "development",
+	"ti.ui.defaultunit": "dp"
+}

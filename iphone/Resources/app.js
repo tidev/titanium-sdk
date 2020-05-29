@@ -6,17 +6,25 @@
  * to trigger a log that is displayed in the Xcode console.
  */
 
-var win = Ti.UI.createWindow({
-    backgroundColor: '#fff'
-});
+'use strict';
 
-var btn = Ti.UI.createButton({
-    title: 'Trigger'
-});
+function openWindow() {
+	var win = Ti.UI.createWindow({
+		backgroundColor: '#fff'
+	});
+	var btn = Ti.UI.createButton({
+		title: 'Trigger'
+	});
+	btn.addEventListener('click', function () {
+		Ti.API.info('Hello world!');
+	});
+	win.add(btn);
+	win.open();
+}
 
-btn.addEventListener('click', function() {
-    Ti.API.info('Hello world!');
+Ti.UI.addEventListener('sessionbegin', function () {
+	openWindow();
 });
-
-win.add(btn);
-win.open();
+if (Ti.UI.hasSession) {
+	openWindow();
+}
