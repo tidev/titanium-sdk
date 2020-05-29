@@ -337,6 +337,22 @@ properties:
     platforms: [iphone, ipad]
     type: titleAttributesParams
 
+  - name: titleColor
+    summary: Defines the color of the title of tab when it's inactive.
+    description: |
+        The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
+    type: [String, Titanium.UI.Color]
+    since: {iphone: "9.1.0", ipad: "9.1.0", android: "9.1.0"}
+    platforms: [iphone, ipad, android]
+
+  - name: activeTitleColor
+    summary: Defines the color of the title of tab when it's active.
+    description: |
+        The color of the title of the tab when it's active. If not defined, it will use the default tint color.
+    type: [String, Titanium.UI.Color]
+    since: {iphone: "9.1.0", ipad: "9.1.0", android: "9.1.0"}
+    platforms: [iphone, ipad, android]
+
   - name: navTintColor
     summary: The tintColor to apply to the navigation bar (typically for the **More** tab).
     description: |
