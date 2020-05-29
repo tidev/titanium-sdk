@@ -776,12 +776,12 @@ static NSDictionary *sizeMap = nil;
     UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
     imageView.tintColor = tintColor;
-    
+
     UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
     [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
+
     return tintedImage;
   }
   return image;
