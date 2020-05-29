@@ -46,7 +46,7 @@ async function runTests(zipfile, platforms, program) {
 	// Run the tests
 	const cleanup = undefined;
 	const architecture = undefined;
-	return test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, cleanup, architecture, program.deployType, program.deviceFamily);
+	return test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, cleanup, architecture, program.deployType, program.deviceFamily, path.join(LOCAL_TESTS, 'Resources'));
 }
 
 async function outputResults(results) {
