@@ -460,7 +460,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   ENSURE_SINGLE_ARG(color, NSString);
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS]) {
     UIColor *colorObj = [UIColor colorNamed:color];
     if (colorObj == nil) {
       // not defined in user Assets
