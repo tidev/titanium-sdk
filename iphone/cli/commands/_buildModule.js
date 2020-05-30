@@ -503,13 +503,23 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 
 	const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId;
 	const findLib = function (dest) {
-		const libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
+		let libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
 
 		let lib = path.join(this.projectDir, 'build', dest + libPath);
 		this.logger.info(__('Looking for ' + lib));
 
 		if (!fs.existsSync(lib)) {
-			return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+			// unfortunately the initial module project template incorrectly
+			// used the camel-cased module id
+			libPath = '.xcarchive/Products/usr/local/lib/lib' + this.moduleIdAsIdentifier + '.a';
+			let newLib = path.join(this.projectDir, 'build', dest + libPath);
+			this.logger.debug('Searching library: ' + newLib);
+			if (!fs.existsSync(newLib)) {
+				return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+			} else {
+				// rename file to 'lib' + moduleId + '.a'
+				fs.renameSync(newLib, lib);
+			}
 		}
 		return lib;
 	}.bind(this);
