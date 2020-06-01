@@ -99,7 +99,7 @@
     "fields": "0.1.24",
     "fs-extra": "^9.0.0",
     "ioslib": "^1.7.20",
-    "liveview": "^1.5.0",
+    "liveview": "^1.5.1",
     "markdown": "0.5.0",
     "moment": "^2.26.0",
     "node-appc": "^1.0.1",
