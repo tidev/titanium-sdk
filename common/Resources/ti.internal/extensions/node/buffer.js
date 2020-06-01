@@ -63,7 +63,7 @@ const uint8FloatArray = new Uint8Array(floatArray.buffer);
 
 let INSPECT_MAX_BYTES = 50;
 
-class Buffer {
+class Buffer { // FIXME: Extend Uint8Array
 	/**
 	 * Constructs a new buffer.
 	 *
@@ -207,8 +207,8 @@ class Buffer {
 		}
 
 		// TODO: handle overlap when target === this!
-		// TODO: Do we need to take target or this.byteOffset into account here?
-		target._tiBuffer.copy(this._tiBuffer, targetStart, sourceStart, length);
+		// TODO: Do we need to take target byteOffset into account here?
+		target._tiBuffer.copy(this._tiBuffer, targetStart, sourceStart + this.byteOffset, length);
 		return length;
 	}
 
@@ -1472,6 +1472,13 @@ class Buffer {
 Buffer.prototype.inspect = Buffer.prototype[customInspectSymbol];
 
 Buffer.poolSize = 8192;
+
+// HACK: ArrayBuffer.isView returns true for Node Buffer, but false for us. Until we can extend Uint8Array, we need to hack this sniffing method
+const ArrayBufferIsView = ArrayBuffer.isView;
+ArrayBuffer.isView = function (thing) {
+	return ArrayBufferIsView(thing) || thing instanceof Buffer;
+};
+Object.setPrototypeOf(Buffer, Uint8Array);
 
 export default {
 	Buffer,
