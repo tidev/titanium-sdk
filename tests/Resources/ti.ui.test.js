@@ -405,7 +405,7 @@ describe('Titanium.UI', function () {
 				const actualBuffer = Ti.createBuffer({ length: 2048 });
 				// TODO: Use node buffer shim and call equals()?
 				const actualStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
-				const snapshotStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
+				const snapshotStream = Ti.Stream.createStream({ source: snapshotBlob, mode: Ti.Stream.MODE_READ });
 
 				// read x bytes in to each buffer, compare all the bytes, move on to next chunk
 				const bytesRead = actualStream.read(actualBuffer);
