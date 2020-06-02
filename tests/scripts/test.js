@@ -539,14 +539,17 @@ async function grabGeneratedImage(token, target, snapshotDir) {
  * @param {string} dest destination filepath
  */
 async function saveAppImage(details, dest) {
-	if (details.path.startsWith('file://')) {
-		details.path = details.path.slice(7);
-	}
+	return grabAppImage(details.platform, details.path, dest);
+}
 
-	if (details.platform === 'android') {
+async function grabAppImage(platform, filepath, dest) {
+	if (filepath.startsWith('file://')) {
+		filepath = filepath.slice(7);
+	}
+	if (platform === 'android') {
 		// Pull the file via adb shell
 		// FIXME: what if android sdk platform-tools/bin isn't on PATH!?
-		await exec(`adb shell "run-as ${APP_ID} cat '${details.path}'" > ${dest}`);
+		await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 		// TODO: handle device(s) vs emulator(s)
 		return dest;
 	} else {
@@ -554,7 +557,7 @@ async function saveAppImage(details, dest) {
 		// iOS - How do we grab the image?
 		// For ios sim, we should just be able to do a file copy
 		// FIXME: iOS device isn't (and may not be able to be) handled!
-		await fs.copy(details.path, dest);
+		await fs.copy(filepath, dest);
 		return dest;
 	}
 }
@@ -583,7 +586,14 @@ async function handleMismatchedImage(token, target, snapshotDir) {
 	}
 
 	const actual = path.join(diffDir, 'actual.png');
-	return saveAppImage(details, actual);
+	await saveAppImage(details, actual);
+	try {
+		const diff = path.join(diffDir, 'diff.png');
+		await grabAppImage(details.platform, details.path.slice(0, -4) + '_diff.png', diff);
+	} catch (err) {
+		// ignore, diff image may not exist
+	}
+	return actual;
 }
 
 function generateJUnitPrefix(platform, target, deviceFamily) {
