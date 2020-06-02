@@ -15,22 +15,24 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.appcelerator.kroll.common.Log;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -41,11 +43,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 
@@ -372,6 +369,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			public void onPageSelected(int i)
 			{
 				selectTabItemInController(i);
+				selectTab(i);
 			}
 
 			@Override
@@ -458,22 +456,40 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
 
+		if (drawable == null) {
+			final String title = tabProperties.optString(TiC.PROPERTY_TITLE, "");
+			Log.w(TAG, "Could not update tab icon tint color for '" + title + "' tab.");
+			return null;
+		}
+
+		int color = this.textColorInt;
 		if (selected) {
-			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
 				final String colorString = tabProperties.optString(
-					TiC.PROPERTY_ACTIVE_TITLE_COLOR, properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
-				final int color = TiColorHelper.parseColor(colorString);
-				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+					TiC.PROPERTY_ACTIVE_TINT_COLOR,
+					properties.optString(
+						TiC.PROPERTY_ACTIVE_TINT_COLOR,
+						tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+												properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR))));
+				color = TiColorHelper.parseColor(colorString);
 			}
+			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
-			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
-				final String colorString =
-					tabProperties.optString(TiC.PROPERTY_TITLE_COLOR, properties.getString(TiC.PROPERTY_TITLE_COLOR));
-				final int color = TiColorHelper.parseColor(colorString);
-				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+				final String colorString = tabProperties.optString(
+					TiC.PROPERTY_TINT_COLOR,
+					properties.optString(TiC.PROPERTY_TINT_COLOR,
+										 tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
+																 properties.getString(TiC.PROPERTY_TITLE_COLOR))));
+				color = TiColorHelper.parseColor(colorString);
 			}
+			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		}
 
 		return drawable;
