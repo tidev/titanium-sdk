@@ -196,25 +196,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void updateTabBackgroundDrawable(int index)
 	{
-		// Validate index input.
 		if (index < 0 || index >= tabs.size()) {
 			return;
 		}
-		TiViewProxy tabProxy = tabs.get(index).getProxy();
+
+		final TiViewProxy tabProxy = tabs.get(index).getProxy();
 		if (tabProxy == null) {
 			return;
 		}
-		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
-		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 
-		// Go through the layout to set the background color state drawable manually for each tab.
-		// Currently we support only the default type of TabLayout which has a SlidingTabStrip.
-		try {
-			LinearLayout tabLL = getTabLinearLayoutForIndex(index);
-			tabLL.setBackground(backgroundDrawable);
-		} catch (Exception e) {
-			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
-		}
+		final Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
+		this.mTabLayout.setBackground(backgroundDrawable);
 	}
 
 	@Override
@@ -357,5 +349,6 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		super.selectTab(tabIndex);
 
 		updateIconTint();
+		updateTabBackgroundDrawable(tabIndex);
 	}
 }
