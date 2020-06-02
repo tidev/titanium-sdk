@@ -9,15 +9,15 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewParent;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
-
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewParent;
-
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -26,10 +26,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 
@@ -236,6 +232,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.setBackgroundColor(colorInt);
 	}
 
+	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateTabBackgroundDrawable(int index)
 	{
@@ -245,6 +242,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
 			Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+			// bottomMenuView.setItemBackground(backgroundDrawable);
 			bottomMenuView.getChildAt(index).setBackground(backgroundDrawable);
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
@@ -363,5 +361,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		super.selectTab(tabIndex);
 
 		updateIconTint();
+		updateTabBackgroundDrawable(tabIndex);
 	}
 }
