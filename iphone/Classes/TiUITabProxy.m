@@ -531,11 +531,6 @@
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
-  if (badgeColor == nil) {
-    // Default badgeColor to tintColor.
-    badgeColor = [self valueForKey:@"tintColor"];
-  }
-
   // System-icons
   if ([icon isKindOfClass:[NSNumber class]]) {
     int value = [TiUtils intValue:icon];
@@ -598,6 +593,12 @@
     if (tintColor == nil) {
       tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
     }
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
+    }
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
+    }
     if (tintColor != nil && image != nil) {
       image = [TiUtils imageWithTint:image tintColor:[tintColor color]];
     }
@@ -605,6 +606,12 @@
     TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
     if (activeTintColor == nil) {
       activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTintColor"]];
+    }
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
+    }
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
     }
     if (activeTintColor != nil) {
       if (activeImage != nil) {
