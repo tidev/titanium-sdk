@@ -372,6 +372,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			public void onPageSelected(int i)
 			{
 				selectTabItemInController(i);
+				selectTab(i);
 			}
 
 			@Override
@@ -457,29 +458,38 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
-		
+
 		if (drawable == null) {
 			final String title = tabProperties.optString(TiC.PROPERTY_TITLE, "");
 			Log.w(TAG, "Could not update tab icon tint color for '" + title + "' tab.");
 			return null;
 		}
 
+		int color = this.textColorInt;
 		if (selected) {
-			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
-				final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
-					properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
-				final int color = TiColorHelper.parseColor(colorString);
-				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+				final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TINT_COLOR,
+					properties.optString(TiC.PROPERTY_ACTIVE_TINT_COLOR,
+						tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+							properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR))));
+				color = TiColorHelper.parseColor(colorString);
 			}
+			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
-			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
-				final String colorString = tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
-					properties.getString(TiC.PROPERTY_TITLE_COLOR));
-				final int color = TiColorHelper.parseColor(colorString);
-				drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+				final String colorString = tabProperties.optString(TiC.PROPERTY_TINT_COLOR,
+					properties.optString(TiC.PROPERTY_TINT_COLOR,
+						tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
+							properties.getString(TiC.PROPERTY_TITLE_COLOR))));
+				color = TiColorHelper.parseColor(colorString);
 			}
+			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		}
 
 		return drawable;
