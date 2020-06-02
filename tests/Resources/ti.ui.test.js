@@ -399,34 +399,40 @@ describe('Titanium.UI', function () {
 					should(blob.height).equal(snapshotBlob.height, 'height');
 					should(blob.size).equal(snapshotBlob.size, 'size');
 				}
-				should(blob.length).equal(snapshotBlob.length, 'length'); // byte count // FIXME: Android 9 gives 97 bytes, we expect 110 bytes
-				// Compare bytes!
-				const snapshotBuffer = Ti.createBuffer({ length: 2048 }); // Compare up to 2Kb at a time
-				const actualBuffer = Ti.createBuffer({ length: 2048 });
-				// TODO: Use node buffer shim and call equals()?
-				const actualStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
-				const snapshotStream = Ti.Stream.createStream({ source: snapshotBlob, mode: Ti.Stream.MODE_READ });
-
-				// read x bytes in to each buffer, compare all the bytes, move on to next chunk
-				const bytesRead = actualStream.read(actualBuffer);
-				if (bytesRead === -1) {
-					// done!
-					actualStream.close();
-					snapshotStream.close();
-					return;
-				} else {
-					snapshotStream.read(snapshotBuffer, 0, bytesRead);
-					// Now compare bytes 0 -> bytesRead in each buffer!
-					for (let i = 0; i < bytesRead; i++) {
-						should(snapshotBuffer[i]).equal(actualBuffer[i], `byte[${i}]`);
-					}
-				}
 			} catch (e) {
 				// assume we failed some assertion, let's try and save the image for reference!
 				// The wrapping script should basically generate a "diffs" folder with actual vs expected PNGs in subdirectories
 				const file = saveImage(blob, imageFilePath);
 				console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
 				throw e;
+			}
+
+			// use pngjs and pixelmatch!
+			const zlib = require('browserify-zlib');
+			global.binding.register('zlib', zlib);
+			const PNG = require('pngjs').PNG;
+			const pixelmatch = require('pixelmatch');
+
+			// Need to create a Buffer around the contents of each image!
+			const expectedStream = Ti.Stream.createStream({ source: snapshotBlob, mode: Ti.Stream.MODE_READ });
+			const expectedBuffer = Buffer.from(Ti.Stream.readAll(expectedStream));
+			const expectedImg = PNG.sync.read(expectedBuffer);
+
+			const actualStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
+			const actualBuffer = Buffer.from(Ti.Stream.readAll(actualStream));
+			const actualImg = PNG.sync.read(actualBuffer);
+
+			const { width, height } = actualImg;
+			const diff = new PNG({ width, height });
+			const pixelsDiff = pixelmatch(actualImg.data, expectedImg.data, diff.data, width, height, { threshold: 0 });
+			if (pixelsDiff !== 0) {
+				const file = saveImage(blob, imageFilePath); // save "actual"
+				// Save diff image!
+				const diffBuffer = PNG.sync.write(diff);
+				const diffFilePath = imageFilePath.slice(0, -4) + '_diff.png';
+				saveImage(diffBuffer.toTiBuffer().toBlob(), diffFilePath); // TODO Pass along path to diff file?
+				console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
+				should.fail(`Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
 			}
 		}
 
@@ -440,7 +446,8 @@ describe('Titanium.UI', function () {
 				height: '10px'
 			});
 			win.add(view);
-			win.addEventListener('postlayout', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					compareViewToImage(view, `snapshots/${backgroundColor}${suffix}.png`);
 				} catch (e) {
