@@ -504,7 +504,7 @@ properties:
   - name: activeTintColor
     summary: The activeTintColor to apply to tabs.
     description: |
-        This property affects the tint of selected tab icons.
+        This property affects the tint of selected tab icons. Will fallback to activeTitleColor when not defined.
     type: String
     since: "9.1.0"
     default: null
@@ -513,7 +513,7 @@ properties:
   - name: tintColor
     summary: The tintColor to apply to tabs.
     description: |
-        This property affects the tint of unselected tab icons.
+        This property affects the tint of unselected tab icons. Will fallback to titleColor when not defined.
     type: String
     since: "9.1.0"
     default: null
