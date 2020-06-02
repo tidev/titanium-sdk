@@ -25,17 +25,13 @@ public class TiActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		// Destroy this activity if it's the first one launched.
-		// The "TiRootActivity" must be launched 1st to start up the JS runtime. This activity can't work by itself.
-		// ---------------------------------------------------------------------------------------------------------
+		// Destroy this activity if no window proxy is assigned to it or root activity hasn't been created yet.
 		// Can happen when:
-		// 1) Started by another app via "startActivity(TiActivity)".
-		// 2) If app was force-quit by the OS due to low memory, then on app relaunch the OS will restore last shown
-		//    activities backwards, starting with last displayed top-most child activity instead of root activity.
-		//    Last known parent activity won't be restored/recreated until after finishing the child activity.
-		//    So, in this case, we want to keep finishing child activities until we're back to the root activity.
-		// ---------------------------------------------------------------------------------------------------------
-		if (TiApplication.isScriptRunning() == false) {
+		// 1) Was started externally via startActivity(TiActivity) instead of by Titanium.
+		// 2) If app was force-quit and OS is restoring app's activities backwards from top to bottom.
+		//    In this case, destroy all child activities until we reach TiRootActivity to startup JS runtime normally.
+		int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID);
+		if (!TiActivityWindows.hasWindow(windowId) || !TiRootActivity.isTaskRunning()) {
 			Log.i(TAG, "Launching with '" + getClass().getName() + "' is not allowed. Closing activity.");
 			this.isInvalidLaunch = true;
 			activityOnCreate(savedInstanceState);

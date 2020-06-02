@@ -518,7 +518,7 @@ public class UIModule extends KrollModule
 	@Kroll.getProperty
 	public boolean getHasSession()
 	{
-		return (KrollRuntime.getActivityRefCount() > 0);
+		return TiRootActivity.isTaskRunning();
 	}
 
 	@Kroll.getProperty

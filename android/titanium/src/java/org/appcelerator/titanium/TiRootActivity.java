@@ -44,6 +44,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 	private static final String TAG = "TiRootActivity";
 
+	/** Set true if an UI task exists for this activity. Set false if activity is destroyed and finished. */
+	private static boolean isTaskRunning;
+
 	private ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
 	private LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
 	private Drawable[] backgroundLayers = { null, null };
@@ -314,6 +317,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		}
 
 		// Initialize this activity and start up the Titanium JavaScript runtime.
+		TiRootActivity.isTaskRunning = true;
 		tiApp.setCurrentActivity(this, this);
 		tiApp.setRootActivity(this);
 		super.onCreate(savedInstanceState);
@@ -538,6 +542,27 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		if (tiApp.getRootActivity() == this) {
 			tiApp.setRootActivity(null);
 		}
+
+		// The UI task has ended if activity has been "finished", which means the OS won't restore it later.
+		// Note: OS will not finish activity if low on memory or if developer option "Don't keep activities" is true.
+		if (isFinishing() && (tiApp.getRootActivity() == null)) {
+			TiRootActivity.isTaskRunning = false;
+		}
+	}
+
+	/**
+	 * Determines if at least one UI task currently exists for this activity,
+	 * meaning that the root activity was created/launched and it hasn't been "finished" yet.
+	 * <p>
+	 * Note that this will return true if the activity is temporarily destroyed (ie: not "finished"),
+	 * which means the Android OS will most likely restore this activity later when back navigating to it.
+	 * @return
+	 * Returns true if at least 1 UI task exists for this activity.
+	 * Retruns false if this activity was never created or last created activity was destroyed and finished.
+	 */
+	public static boolean isTaskRunning()
+	{
+		return TiRootActivity.isTaskRunning;
 	}
 
 	/**

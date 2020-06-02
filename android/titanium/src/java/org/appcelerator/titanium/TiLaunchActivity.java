@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
@@ -33,6 +34,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 * The value is the JavaScript file URL assigned to it.
 	 */
 	private static HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
+
+	/** Timestamp when the 1st instance of this activity was created, expressed in Unix time. */
+	private static long firstLaunchTime = (new Date()).getTime();
 
 	/** JavaScript file URL to be loaded by loadScript() method. This URL is assigned in onCreate() method. */
 	private TiUrl url;
@@ -176,12 +180,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		// Launch the Titanium UI, if not done already.
 		if (!hasLaunched) {
-			if (KrollRuntime.isBoundToUI()) {
-				// JavaScript runtime is bound to the lifetime of this activity.
+			if (KrollRuntime.isBoundToUI() || !TiApplication.isScriptRunning()) {
 				// Create the runtime and load the main Titanium script.
 				hasLaunched = true;
 				loadScript();
-			} else if (KrollRuntime.getInstance() != null) {
+			} else {
 				// JS runtime was backgrounded without UI. So, this is a new UI session.
 				// Fire a session begin event from the Ti.UI module signaling scripts to create its windows.
 				// Note: Our "bootstrap.loader.js" will handle event first so it can show bootstrap UI before app UI.
@@ -203,6 +206,29 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		// Windows opened before TiRootActivity has animated may cause an unwanted stutter animation.
 		if (TiApplication.firstOnActivityStack()) {
 			overridePendingTransition(0, 0);
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		super.onSaveInstanceState(outState);
+
+		// Store below settings. To be restored when this activity has been recreated.
+		outState.putLong("firstLaunchTime", TiLaunchActivity.firstLaunchTime);
+		outState.putBoolean("hasLaunched", this.hasLaunched);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		super.onRestoreInstanceState(savedInstanceState);
+
+		// This activity is being recreated/restored. Reload last instance's settings.
+		// Note: If stored "firstLaunchTime" doesn't match actual time, then app was restarted. We need to re-launch.
+		long value = savedInstanceState.getLong("firstLaunchTime", 0);
+		if (value == TiLaunchActivity.firstLaunchTime) {
+			this.hasLaunched = savedInstanceState.getBoolean("hasLaunched", false);
 		}
 	}
 

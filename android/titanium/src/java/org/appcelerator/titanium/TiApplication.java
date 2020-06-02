@@ -193,25 +193,30 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	// application (typically when the root activity is destroyed)
 	public static void terminateActivityStack()
 	{
-		// Do not continue if there are no activities on the stack.
-		if ((activityStack == null) || (activityStack.size() <= 0)) {
-			return;
-		}
-
 		// Remove all activities from the stack and finish/destroy them.
 		// Note: The finish() method can add/remove activities to the stack.
-		WeakReference<Activity> activityRef;
-		Activity currentActivity;
-		while (activityStack.size() > 0) {
-			activityRef = activityStack.get(activityStack.size() - 1);
-			activityStack.remove(activityRef);
-			if (activityRef != null) {
-				currentActivity = activityRef.get();
-				if (currentActivity != null && !currentActivity.isFinishing()) {
-					currentActivity.finish();
+		if (activityStack != null) {
+			WeakReference<Activity> activityRef;
+			Activity currentActivity;
+			while (activityStack.size() > 0) {
+				activityRef = activityStack.get(activityStack.size() - 1);
+				activityStack.remove(activityRef);
+				if (activityRef != null) {
+					currentActivity = activityRef.get();
+					if (currentActivity != null && !currentActivity.isFinishing()) {
+						currentActivity.finish();
+					}
 				}
 			}
 		}
+
+		// Dispose all window proxies.
+		// Note: We might have more window proxies than activities here.
+		//       Happens if destroyed/removed activity was not finished, which means it might be restored later.
+		TiActivityWindows.dispose();
+
+		// Remove all onActivityResult() handlers.
+		TiActivitySupportHelpers.dispose();
 	}
 
 	public boolean activityStackHasLaunchActivity()
