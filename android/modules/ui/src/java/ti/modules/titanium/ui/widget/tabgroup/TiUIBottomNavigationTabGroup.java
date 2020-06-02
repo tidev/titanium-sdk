@@ -232,7 +232,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.setBackgroundColor(colorInt);
 	}
 
-	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateTabBackgroundDrawable(int index)
 	{
@@ -242,7 +241,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
 			Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-			// bottomMenuView.setItemBackground(backgroundDrawable);
 			bottomMenuView.getChildAt(index).setBackground(backgroundDrawable);
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
