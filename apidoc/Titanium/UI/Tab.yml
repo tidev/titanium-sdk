@@ -259,13 +259,13 @@ properties:
   - name: tintColor
     summary: Defines the color of the tab icon. Will fallback to titleColor when not defined.
     type: String
-    since: {iphone: "3.1.3", ipad: "3.1.3", android: "9.1.0"}
+    since: {iphone: "3.1.3", ipad: "3.1.3", android: "9.0.3"}
     platforms: [iphone, ipad, android]
 
   - name: activeTintColor
     summary: Defines the color of the tab icon when it is active. Will fallback to activeTitleColor when not defined.
     type: String
-    since: {android: "9.1.0"}
+    since: {android: "9.0.3"}
     platforms: [iphone, ipad, android]
 
   - name: title
