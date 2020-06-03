@@ -71,7 +71,7 @@ class Packager {
 		// Location where we build up the zip file contents
 		this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 		this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
-		this.commonResourcesDir = path.join(this.zipSDKDir, 'common', 'Resources');
+		this.commonDir = path.join(this.zipSDKDir, 'common');
 		this.skipZip = options.skipZip;
 		this.options = options;
 	}
@@ -90,7 +90,7 @@ class Packager {
 			// copy misc dirs/files over
 			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
 			// copy over 'common' bundle optimized for each platform
-			this.copyCommonBundles(),
+			this.copyCommon(),
 			// grab down and unzip the native modules
 			this.includePackagedModules(),
 			// copy over support/
@@ -110,12 +110,15 @@ class Packager {
 	}
 
 	/**
-	 * Copy 'common' bundles
+	 * Copy 'common' code over
 	 * @returns {Promise<void>}
 	 */
-	async copyCommonBundles() {
-		await fs.ensureDir(this.commonResourcesDir);
-		return fs.copy(path.join(TMP_DIR, 'common'), this.commonResourcesDir);
+	async copyCommon() {
+		await fs.emptyDir(this.commonDir);
+		return Promise.all([
+			fs.copy(path.join(ROOT_DIR, 'common/lib'), path.join(this.commonDir, 'lib')),
+			fs.copy(path.join(TMP_DIR, 'common/Resources'), path.join(this.commonDir, 'Resources')),
+		]);
 	}
 
 	/**

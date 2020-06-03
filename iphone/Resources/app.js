@@ -16,7 +16,7 @@ function openWindow() {
 		title: 'Trigger'
 	});
 	btn.addEventListener('click', function () {
-		Ti.API.info('Hello world!');
+		Ti.API.info(L('hello_world'));
 	});
 	win.add(btn);
 	win.open();
