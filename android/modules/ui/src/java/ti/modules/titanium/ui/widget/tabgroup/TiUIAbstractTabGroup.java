@@ -453,14 +453,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	public Drawable updateIconTint(TiViewProxy tabProxy, Drawable drawable, boolean selected)
 	{
-		final KrollDict tabProperties = tabProxy.getProperties();
-		final KrollDict properties = getProxy().getProperties();
-
 		if (drawable == null) {
-			final String title = tabProperties.optString(TiC.PROPERTY_TITLE, "");
-			Log.w(TAG, "Could not update tab icon tint color for '" + title + "' tab.");
 			return null;
 		}
+
+		final KrollDict tabProperties = tabProxy.getProperties();
+		final KrollDict properties = getProxy().getProperties();
 
 		int color = this.textColorInt;
 		if (selected) {
