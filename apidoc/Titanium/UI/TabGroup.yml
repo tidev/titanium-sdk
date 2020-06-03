@@ -342,7 +342,7 @@ properties:
     description: |
         The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
     type: String
-    since: {iphone: "9.1.0", ipad: "9.1.0", android: "9.1.0"}
+    since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
     platforms: [iphone, ipad, android]
 
   - name: activeTitleColor
@@ -350,7 +350,7 @@ properties:
     description: |
         The color of the title of the tab when it's active. If not defined, it will use the default tint color.
     type: String
-    since: {iphone: "9.1.0", ipad: "9.1.0", android: "9.1.0"}
+    since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
     platforms: [iphone, ipad, android]
 
   - name: navTintColor
@@ -478,7 +478,7 @@ properties:
     default: null
     platforms: [iphone, ipad]
     deprecated:
-        since: "9.1.0"
+        since: "9.0.3"
         notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: tabsTranslucent
@@ -506,7 +506,7 @@ properties:
     description: |
         This property affects the tint of selected tab icons. Will fallback to activeTitleColor when not defined.
     type: String
-    since: "9.1.0"
+    since: "9.0.3"
     default: null
     platforms: [iphone, ipad, android]
 
@@ -515,7 +515,7 @@ properties:
     description: |
         This property affects the tint of unselected tab icons. Will fallback to titleColor when not defined.
     type: String
-    since: "9.1.0"
+    since: "9.0.3"
     default: null
     platforms: [iphone, ipad, android]
 
@@ -543,7 +543,7 @@ properties:
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
     deprecated:
-        since: "9.1.0"
+        since: "9.0.3"
         notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: shadowImage
@@ -564,7 +564,7 @@ properties:
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad]
     deprecated:
-        since: "9.1.0"
+        since: "9.0.3"
         notes: Deprecated in favor of [Titanium.UI.TabGroup.activeTintColor](Titanium.UI.TabGroup.activeTintColor) or alternatively [Titanium.UI.Tab.activeTintColor](Titanium.UI.Tab.activeTintColor).
 
   - name: tabsBackgroundSelectedColor
