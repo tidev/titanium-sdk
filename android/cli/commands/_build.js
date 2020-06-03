@@ -2626,13 +2626,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
 							jsFiles[id] = from;
-
-							// JS files that end with "*.bootstrap.js" are loaded before the "app.js".
-							// Add it as a require() compatible string to bootstrap array if it's a match.
-							const bootstrapPath = id.substr(0, id.length - 3);  // Remove the ".js" extension.
-							if (bootstrapPath.endsWith('.bootstrap')) {
-								jsBootstrapFiles.push(bootstrapPath);
-							}
 						}
 
 						next();
