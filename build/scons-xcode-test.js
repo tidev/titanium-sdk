@@ -14,7 +14,7 @@ const DEST_APP_JS = path.join(DEST, 'app.js');
 const APP_PROPS_JSON = path.join(TEST_SUITE_DIR, 'scripts', 'mocha', 'build', 'iphone', 'build', 'Products', 'Debug-iphonesimulator', 'mocha.app', '_app_props_.json');
 
 // Test files to skip
-const TO_SKIP = [ 'es6.class.test', 'es6.import.test', 'ti.map.test', 'es6.async.await.test.js' ];
+const TO_SKIP = [ 'es6.class.test', 'es6.import.test', 'ti.map.test', 'es6.async.await.test' ];
 
 async function main() {
 	await fs.copy(JS_DIR, DEST); // copy Resources from test suite to xcode project
@@ -32,7 +32,7 @@ async function main() {
 	}
 
 	// TODO: We need to run npm install --production in DEST
-	await execFile('npm', [ 'install', '--production' ], { cwd: DEST });
+	await execFile('npm', [ 'ci', '--production' ], { cwd: DEST });
 }
 
 main()
