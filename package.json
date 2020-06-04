@@ -97,7 +97,7 @@
     "css-parse": "2.0.0",
     "ejs": "^3.1.3",
     "fields": "0.1.24",
-    "fs-extra": "^9.0.0",
+    "fs-extra": "^9.0.1",
     "ioslib": "^1.7.20",
     "liveview": "^1.5.1",
     "markdown": "0.5.0",
