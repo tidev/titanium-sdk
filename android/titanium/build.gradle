@@ -37,6 +37,26 @@ for (nextString in tiBuildVersionString.split('\\.')) {
 	}
 }
 
+// Fetch Android NDK major version set via "local.properties" or "ANDROID_NDK_HOME" environment variable.
+def ndkVersionMajor = 0
+try {
+	def localProperties = new Properties()
+	localProperties.load(file("${rootDir}/local.properties").newDataInputStream())
+	def ndkDir = localProperties.get('ndk.dir')
+	if (ndkDir == null) {
+		ndkDir = System.env.ANDROID_NDK_HOME
+	}
+	if (ndkDir != null) {
+		def ndkSourceProperties = new Properties()
+		ndkSourceProperties.load(file("${ndkDir}/source.properties").newDataInputStream())
+		def ndkVersionString = ndkSourceProperties.get('Pkg.Revision')
+		if (ndkVersionString != null) {
+			ndkVersionMajor = Integer.parseInt(ndkVersionString.split('\\.')[0])
+		}
+	}
+} catch (Throwable) {
+}
+
 android {
 	compileSdkVersion 29
 	defaultConfig {
@@ -65,9 +85,13 @@ android {
 					'APP_STL:=c++_shared',
 					"TI_DIST_DIR=${projectDir}/../../dist".replace('\\', '\\\\'),
 					"NDK_MODULE_PATH+=${projectDir}/../runtime/v8/src/ndk-modules".replace('\\', '\\\\'),
-					"--output-sync=none",
 					"-j${Runtime.runtime.availableProcessors()}".toString()
 				])
+				if (ndkVersionMajor >= 21) {
+					// Work-around issue where Google sets "--output-sync=target" by default for NDK v21+
+					// which causes "bad file descriptor" errors when using "-j" parallel executions argument.
+					arguments.add('--output-sync=none')
+				}
 				if (System.getProperty('os.name').toLowerCase().contains('windows')) {
 					// Reduces length of NDK command line strings by writing source file list to text files.
 					arguments.add('APP_SHORT_COMMANDS=true')

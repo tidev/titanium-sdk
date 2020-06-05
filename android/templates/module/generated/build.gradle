@@ -14,6 +14,28 @@ repositories {
 // Path to proxy binding JSON file created by "kroll-apt" annotation processor and used to do C/C++ code generation.
 def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.json".toString()
 
+// Fetch Android NDK version assigned to the "local.properties" file. (Will be missing if NDK not installed.)
+def ndkVersionString = null;
+try {
+	def localProperties = new Properties()
+	localProperties.load(file("${rootDir}/local.properties").newDataInputStream())
+	def ndkDir = localProperties.get('ndk.dir')
+	if (ndkDir != null) {
+		def ndkSourceProperties = new Properties()
+		ndkSourceProperties.load(file("${ndkDir}/source.properties").newDataInputStream())
+		ndkVersionString = ndkSourceProperties.get('Pkg.Revision')
+	}
+} catch (Throwable) {
+}
+
+// If Titanium failed to set Android NDK path in "local.properties", then assume NDK is not installed.
+// Have gradle auto-download NDK by setting the version we want below. (Will fail if a different version is installed.)
+// Must be set to a stable release version listed here: https://developer.android.com/ndk/downloads
+if (ndkVersionString == null) {
+	ndkVersionString = '21.2.6472646'
+	android.ndkVersion ndkVersionString
+}
+
 android {
 	compileSdkVersion <%- compileSdkVersion %>
 	defaultConfig {
@@ -58,9 +80,13 @@ android {
 				cppFlags '-std=c++11'
 				arguments.addAll([
 					'APP_STL:=c++_shared',
-					"--output-sync=none",
 					"-j${Runtime.runtime.availableProcessors()}".toString()
 				])
+				if (Integer.parseInt(ndkVersionString.split('\\.')[0]) >= 21) {
+					// Work-around issue where Google sets "--output-sync=target" by default for NDK v21+
+					// which causes "bad file descriptor" errors when using "-j" parallel executions argument.
+					arguments.add('--output-sync=none')
+				}
 			}
 		}
 		ndk {
@@ -152,6 +178,7 @@ preBuild.doFirst {
 	}
 }
 
+/*
 // If Titanium failed to set Android NDK path in "local.properties", then assume NDK is not installed.
 // Have gradle auto-download NDK by setting the version we want below. (Will fail if a different version is installed.)
 // Must be set to a stable release version listed here: https://developer.android.com/ndk/downloads
@@ -160,6 +187,7 @@ localProperties.load(file("${rootDir}/local.properties").newDataInputStream())
 if (localProperties.get('ndk.dir') == null) {
 	android.ndkVersion '21.2.6472646'
 }
+*/
 
 // Set up project to compile Java side before compiling the C/C++ side.
 // We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
