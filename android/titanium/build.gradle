@@ -65,6 +65,7 @@ android {
 					'APP_STL:=c++_shared',
 					"TI_DIST_DIR=${projectDir}/../../dist".replace('\\', '\\\\'),
 					"NDK_MODULE_PATH+=${projectDir}/../runtime/v8/src/ndk-modules".replace('\\', '\\\\'),
+					"--output-sync=none",
 					"-j${Runtime.runtime.availableProcessors()}".toString()
 				])
 				if (System.getProperty('os.name').toLowerCase().contains('windows')) {
