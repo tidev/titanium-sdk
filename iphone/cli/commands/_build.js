@@ -31,6 +31,7 @@ const appc = require('node-appc'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
+	Color = require('../../../common/lib/color'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
@@ -5851,27 +5852,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					}
 
 					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
-					const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-
-					function hexToRgb(hex) {
-						let alpha = 1;
-						let color = hex;
-						if (hex.color) {
-							alpha = hex.alpha / 100; // convert from 0-100 range to 0-1 range
-							color = hex.color;
-						}
-						// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-						color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-
-						var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
-						return result ? {
-							r: parseInt(result[1], 16),
-							g: parseInt(result[2], 16),
-							b: parseInt(result[3], 16),
-							alpha: alpha.toFixed(3)
-						} : null;
-					}
-
 					const colors = fs.readJSONSync(colorsFile);
 
 					for (const [ color, colorValue ] of Object.entries(colors)) {
@@ -5887,9 +5867,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							continue;
 						}
 
-						const defaultRGB = hexToRgb(colorValue.default || colorValue.light);
-						const lightRGB = hexToRgb(colorValue.light);
-						const darkRGB = hexToRgb(colorValue.dark);
+						const defaultRGB = Color.fromSemanticColorsEntry(colorValue.default || colorValue.light);
+						const lightRGB = Color.fromSemanticColorsEntry(colorValue.light);
+						const darkRGB = Color.fromSemanticColorsEntry(colorValue.dark);
 
 						const colorSource = {
 							info: {
@@ -5898,6 +5878,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							},
 							colors: []
 						};
+
+						// Contents.json can hold string or numeric values for colors. 0-255 integers or 0-1 floats.
 
 						// Default
 						colorSource.colors.push({
@@ -5908,7 +5890,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${defaultRGB.r}`,
 									green: `${defaultRGB.g}`,
 									blue: `${defaultRGB.b}`,
-									alpha: `${defaultRGB.alpha}`
+									alpha: defaultRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
 								}
 							}
 						});
@@ -5926,7 +5908,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${lightRGB.r}`,
 									green: `${lightRGB.g}`,
 									blue: `${lightRGB.b}`,
-									alpha: `${lightRGB.alpha}`
+									alpha: lightRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
 								}
 							}
 						});
@@ -5944,7 +5926,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${darkRGB.r}`,
 									green: `${darkRGB.g}`,
 									blue: `${darkRGB.b}`,
-									alpha: `${darkRGB.alpha}`
+									alpha: darkRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
 								}
 							}
 						});
