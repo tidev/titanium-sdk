@@ -2559,7 +2559,7 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
 	this.tiLogServerPort = 0;
 
-	if (this.target !== 'device') {
+	if (this.target !== 'device' && this.target !== 'macos') {
 		// we don't allow the log server in production
 		return next();
 	}
@@ -2570,7 +2570,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 	// error if two different apps have been assigned the same port.
 	this.tiLogServerPort = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
 
-	if (this.target === 'device') {
+	if (this.target === 'device' || this.target === 'macos') {
 		return next();
 	}
 
