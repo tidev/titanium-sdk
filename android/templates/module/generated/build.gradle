@@ -58,6 +58,7 @@ android {
 				cppFlags '-std=c++11'
 				arguments.addAll([
 					'APP_STL:=c++_shared',
+					"--output-sync=none",
 					"-j${Runtime.runtime.availableProcessors()}".toString()
 				])
 			}
