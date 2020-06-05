@@ -157,7 +157,7 @@ preBuild.doFirst {
 def localProperties = new Properties()
 localProperties.load(file("${rootDir}/local.properties").newDataInputStream())
 if (localProperties.get('ndk.dir') == null) {
-	android.ndkVersion '20.1.5948944'
+	android.ndkVersion '21.2.6472646'
 }
 
 // Set up project to compile Java side before compiling the C/C++ side.
