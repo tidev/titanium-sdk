@@ -136,6 +136,7 @@ methods:
         optional: true
         default: "{ animated: false }"
     since: "6.2.0"
+    platforms: [iphone, ipad]
 
 properties:
   - name: active
