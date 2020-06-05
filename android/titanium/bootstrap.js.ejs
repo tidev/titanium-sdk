@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -70,8 +70,8 @@ exports.defineLazyBinding = function(object, binding) {
 	});
 }
 
-function addInvocationAPI(module, moduleNamespace, namespace, api) {
-	var apiInfo = { namespace: namespace, api: api };
+function addInvocationAPI(module, namespace, api) {
+	const apiInfo = { namespace: namespace, api: api };
 	module.invocationAPIs.push(apiInfo);
 }
 exports.addInvocationAPI = addInvocationAPI;
@@ -79,20 +79,27 @@ exports.addInvocationAPI = addInvocationAPI;
 function bootstrapGlobals(global, Titanium) {
 	// Below this is where generated global bindings go
 	// ----
-
-	%(globalsJS)s
+<% globals.forEach(global => { -%>
+	global.<%- global.name %> = function(...args) {
+		return <%- global.delegate %>.<%- global.method %>.apply(<%- global.delegate %>, args);
+	};
+<% }); -%>
 }
 exports.bootstrapGlobals = bootstrapGlobals;
 
 exports.bootstrap = function(Titanium) {
-	var module = Titanium;
+	if (Titanium.invocationAPIs == null) {
+		Titanium.invocationAPIs = [];
+	}
 
 	bootstrapGlobals(global, Titanium);
 
 	// Below this is where the generated code
-	// from genBootstrap.py goes
+	// from genBootstrap.js goes
 	// ----
+<% invocationAPIs.forEach(function (api) { -%>
+	addInvocationAPI(Titanium, '<%- api.namespace %>', '<%- api.apiName %>');
+<% }); -%>
 
-	%(invocationJS)s
-	%(bootstrapJS)s
+	<%- include('bootstrap.lazymodule.js.ejs', { mod, name: 'Titanium' }); %>
 }
