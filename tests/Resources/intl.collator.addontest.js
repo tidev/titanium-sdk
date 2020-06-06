@@ -33,6 +33,12 @@ describe('Intl.Collator', function () {
 			should(formatter.compare('', '')).be.a.Number();
 		});
 
+		it('sort callback', () => {
+			const elements = [ 'c', 'b', 'a' ];
+			elements.sort(new Intl.Collator().compare);
+			should(elements).be.eql([ 'a', 'b', 'c' ]);
+		});
+
 		it('sensitivity - variant', () => {
 			const collator = new Intl.Collator({ sensitivity: 'variant' });
 			should(collator.compare('a', 'a')).be.eql(0);

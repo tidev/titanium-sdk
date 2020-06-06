@@ -40,7 +40,9 @@ if (Ti.Android) {
 	// Set up an "Intl.Collator" type which wraps our undocumented "Ti.Locale.Collator" proxy.
 	const TiCollator = (...args) => {
 		const properties = makeTiFormatCreationPropertiesFrom(args, Ti.Locale.getSupportedCollatorLocales);
-		return new Ti.Locale.Collator(properties);
+		const collator = new Ti.Locale.Collator(properties);
+		collator.compare = collator.compare.bind(collator);
+		return collator;
 	};
 	TiCollator.supportedLocalesOf = Ti.Locale.getSupportedCollatorLocales;
 
