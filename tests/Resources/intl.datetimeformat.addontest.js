@@ -163,36 +163,24 @@ describe('Intl.DateTimeFormat', function () {
 				timeZone: 'UTC'
 			});
 			const partsArray = formatter.formatToParts(date);
-			should(partsArray[0].type).be.eql('month');
-			should(partsArray[0].value).be.eql('03');
-			should(partsArray[1].type).be.eql('literal');
-			should(partsArray[1].value).be.eql('/');
-			should(partsArray[2].type).be.eql('day');
-			should(partsArray[2].value).be.eql('31');
-			should(partsArray[3].type).be.eql('literal');
-			should(partsArray[3].value).be.eql('/');
-			should(partsArray[4].type).be.eql('year');
-			should(partsArray[4].value).be.eql('2020');
-			should(partsArray[5].type).be.eql('literal');
-			should(partsArray[5].value).be.eql(', ');
-			should(partsArray[6].type).be.eql('hour');
-			should(partsArray[6].value).be.eql('8');
-			should(partsArray[7].type).be.eql('literal');
-			should(partsArray[7].value).be.eql(':');
-			should(partsArray[8].type).be.eql('minute');
-			should(partsArray[8].value).be.eql('15');
-			should(partsArray[9].type).be.eql('literal');
-			should(partsArray[9].value).be.eql(':');
-			should(partsArray[10].type).be.eql('second');
-			should(partsArray[10].value).be.eql('30');
-			should(partsArray[11].type).be.eql('literal');
-			should(partsArray[11].value).be.eql('.');
-			should(partsArray[12].type).be.eql('fractionalSecond');
-			should(partsArray[12].value).be.eql('123');
-			should(partsArray[13].type).be.eql('literal');
-			should(partsArray[13].value).be.eql(' ');
-			should(partsArray[14].type).be.eql('dayPeriod');
-			should(partsArray[14].value).be.eql('PM');
+			should(partsArray).be.an.Array();
+			should(partsArray).be.eql([
+				{ type: 'month', value: '03' },
+				{ type: 'literal', value: '/' },
+				{ type: 'day', value: '31' },
+				{ type: 'literal', value: '/' },
+				{ type: 'year', value: '2020' },
+				{ type: 'literal', value: ', ' },
+				{ type: 'hour', value: '8' },
+				{ type: 'literal', value: ':' },
+				{ type: 'minute', value: '15' },
+				{ type: 'literal', value: ':' },
+				{ type: 'second', value: '30' },
+				{ type: 'literal', value: '.' },
+				{ type: 'fractionalSecond', value: '123' },
+				{ type: 'literal', value: ' ' },
+				{ type: 'dayPeriod', value: 'PM' }
+			]);
 		});
 	});
 

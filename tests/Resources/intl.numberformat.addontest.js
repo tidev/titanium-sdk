@@ -149,41 +149,31 @@ describe('Intl.NumberFormat', function () {
 		it('decimal', () => {
 			let formatter = new Intl.NumberFormat('en-US', { useGrouping: true });
 			let partsArray = formatter.formatToParts(-1234567.8);
-			should(partsArray[0].type).be.eql('minusSign');
-			should(partsArray[0].value).be.eql('-');
-			should(partsArray[1].type).be.eql('integer');
-			should(partsArray[1].value).be.eql('1');
-			should(partsArray[2].type).be.eql('group');
-			should(partsArray[2].value).be.eql(',');
-			should(partsArray[3].type).be.eql('integer');
-			should(partsArray[3].value).be.eql('234');
-			should(partsArray[4].type).be.eql('group');
-			should(partsArray[4].value).be.eql(',');
-			should(partsArray[5].type).be.eql('integer');
-			should(partsArray[5].value).be.eql('567');
-			should(partsArray[6].type).be.eql('decimal');
-			should(partsArray[6].value).be.eql('.');
-			should(partsArray[7].type).be.eql('fraction');
-			should(partsArray[7].value).be.eql('8');
+			should(partsArray).be.an.Array();
+			should(partsArray).be.eql([
+				{ type: 'minusSign', value: '-' },
+				{ type: 'integer', value: '1' },
+				{ type: 'group', value: ',' },
+				{ type: 'integer', value: '234' },
+				{ type: 'group', value: ',' },
+				{ type: 'integer', value: '567' },
+				{ type: 'decimal', value: '.' },
+				{ type: 'fraction', value: '8' }
+			]);
 
 			formatter = new Intl.NumberFormat('de-DE', { useGrouping: true });
 			partsArray = formatter.formatToParts(-1234567.8);
-			should(partsArray[0].type).be.eql('minusSign');
-			should(partsArray[0].value).be.eql('-');
-			should(partsArray[1].type).be.eql('integer');
-			should(partsArray[1].value).be.eql('1');
-			should(partsArray[2].type).be.eql('group');
-			should(partsArray[2].value).be.eql('.');
-			should(partsArray[3].type).be.eql('integer');
-			should(partsArray[3].value).be.eql('234');
-			should(partsArray[4].type).be.eql('group');
-			should(partsArray[4].value).be.eql('.');
-			should(partsArray[5].type).be.eql('integer');
-			should(partsArray[5].value).be.eql('567');
-			should(partsArray[6].type).be.eql('decimal');
-			should(partsArray[6].value).be.eql(',');
-			should(partsArray[7].type).be.eql('fraction');
-			should(partsArray[7].value).be.eql('8');
+			should(partsArray).be.an.Array();
+			should(partsArray).be.eql([
+				{ type: 'minusSign', value: '-' },
+				{ type: 'integer', value: '1' },
+				{ type: 'group', value: '.' },
+				{ type: 'integer', value: '234' },
+				{ type: 'group', value: '.' },
+				{ type: 'integer', value: '567' },
+				{ type: 'decimal', value: ',' },
+				{ type: 'fraction', value: '8' }
+			]);
 		});
 
 		it('currency', () => {
@@ -195,19 +185,20 @@ describe('Intl.NumberFormat', function () {
 
 			let formatter = new Intl.NumberFormat('en-US', options);
 			let partsArray = formatter.formatToParts(100);
-			should(partsArray[0].type).be.eql('currency');
-			should(partsArray[0].value).be.eql('$');
-			should(partsArray[1].type).be.eql('integer');
-			should(partsArray[1].value).be.eql('100');
+			should(partsArray).be.an.Array();
+			should(partsArray).be.eql([
+				{ type: 'currency', value: '$' },
+				{ type: 'integer', value: '100' }
+			]);
 
 			formatter = new Intl.NumberFormat('de-DE', options);
 			partsArray = formatter.formatToParts(100);
-			should(partsArray[0].type).be.eql('integer');
-			should(partsArray[0].value).be.eql('100');
-			should(partsArray[1].type).be.eql('literal');
-			should(partsArray[1].value).be.eql('\u00A0');  // Non-breaking space.
-			should(partsArray[2].type).be.eql('currency');
-			should(partsArray[2].value).be.eql('€');
+			should(partsArray).be.an.Array();
+			should(partsArray).be.eql([
+				{ type: 'integer', value: '100' },
+				{ type: 'literal', value: '\u00A0' },  // Non-breaking space.
+				{ type: 'currency', value: '€' }
+			]);
 		});
 	});
 
