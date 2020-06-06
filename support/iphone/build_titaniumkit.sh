@@ -68,8 +68,8 @@ FRAMEWORK_NAME="TitaniumKit"
 #[[ PIPESTATUS[0] -ne 0 ]] && exit 1
 
 # restore TopTiModule.m
-rm TitaniumKit/Sources/API/TopTiModule.m
-mv TitaniumKit/Sources/API/TopTiModule.bak TitaniumKit/Sources/API/TopTiModule.m
+#rm TitaniumKit/Sources/API/TopTiModule.m
+#mv TitaniumKit/Sources/API/TopTiModule.bak TitaniumKit/Sources/API/TopTiModule.m
 
 ######################
 # Create directory for universal
@@ -141,6 +141,9 @@ xcodebuild archive \
 -sdk iphoneos \
 SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
 
+# restore TopTiModule.m
+rm TitaniumKit/Sources/API/TopTiModule.m
+mv TitaniumKit/Sources/API/TopTiModule.bak TitaniumKit/Sources/API/TopTiModule.m
 
 #----- Make XCFramework
 xcodebuild -create-xcframework \
