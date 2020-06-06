@@ -33,9 +33,9 @@ exports.init = function (logger, config, cli) {
 				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			if (cli.argv.target === 'macos') {
+				// TO DO: It does force quit. Find another way to quit.
 
-				const quitCommand = 'osascript -e ' + '\'' + 'quit app ' + '\"' + builder.tiapp.name + '\"' + '\'';
-				logger.info(__(quitCommand));
+				const quitCommand = 'pkill -QUIT -x ' + builder.tiapp.name;
 
 				exec(quitCommand, function () {
 
@@ -46,7 +46,7 @@ exports.init = function (logger, config, cli) {
 					// TO DO: It only log app messages.
 					// Need to  make logging better for macos and should be comparable to logging as in ios simulator and device.
 					// Probably can  be done after first release.
-				    startLogTxt = __('Start mac application log');
+						startLogTxt = __('Start mac application log');
 						endLogTxt = __('End mac application log');
 						function connectToLogServer() {
 							if (builder.tiLogServerPort) {
@@ -54,15 +54,15 @@ exports.init = function (logger, config, cli) {
 
 								(function tryConnecting() {
 									var client = net.connect(builder.tiLogServerPort, function () {
-							    logger.trace(__('Connected to log server port %s...', builder.tiLogServerPort).grey);
+										logger.trace(__('Connected to log server port %s...', builder.tiLogServerPort).grey);
 
-										var disconnectLogServer = function () {
+										function disconnectLogServer() {
 											if (client) {
 												client.end();
 												client.destroy();
 												client = null;
 											}
-										};
+										}
 
 										client.on('close', () => {
 											endLog();
@@ -70,28 +70,30 @@ exports.init = function (logger, config, cli) {
 										});
 									});
 									client.on('data', data => {
-										data.toString().split('\n').forEach(function (line) {
-											line = line.replace(/\s+$/g, '');
+										const dataString = data.toString().replace(/\n$/, '');
+
+										dataString.split('\n').forEach(function (msg) {
+											msg = msg.replace(/\s+$/g, '');
 
 											if (!simStarted) {
 												simStarted = true;
 												logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 											}
-											line = line.replace(trimRE, '');
-											var m = line.match(logLevelRE);
+											msg = msg.replace(trimRE, '');
+											var m = msg.match(logLevelRE);
 
 											if (m) {
-												let line1 = m[0].trim();
-												m = line1.match(logLevelRE);
+												let line = m[0].trim();
+												m = line.match(logLevelRE);
 												if (m) {
 													lastLogger = m[2].toLowerCase();
-													line1 = m[4].trim();
+													line = m[4].trim();
 												}
 												if (levels.indexOf(lastLogger) === -1) {
 												// unknown log level
-													logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line1);
+													logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 												} else {
-													logger[lastLogger](line1);
+													logger[lastLogger](line);
 												}
 											} else if (levels.indexOf(lastLogger) === -1) {
 												logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
