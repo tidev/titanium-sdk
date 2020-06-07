@@ -87,7 +87,7 @@ public class ShortcutItemProxy extends KrollProxy
 				int resId = ((Number) icon).intValue();
 				shortcutBuilder.setIcon(Icon.createWithResource(context, resId));
 			} else if (icon instanceof String) {
-				String uri = resolveUrl(null, dict.getString(TiC.PROPERTY_ICON));
+				String uri = resolveUrl(null, (String) icon);
 				shortcutBuilder.setIcon(Icon.createWithResource(context, TiUIHelper.getResourceId(uri)));
 			} else {
 				Log.w(TAG, "icon invalid, expecting resourceId (Number) or path (String)!");
@@ -102,40 +102,33 @@ public class ShortcutItemProxy extends KrollProxy
 				this.shortcuts.remove(shortcut);
 			}
 		}
-		this.shortcutManager.setDynamicShortcuts(shortcuts);
-		for (ShortcutInfo shortcut : this.shortcutManager.getDynamicShortcuts()) {
-			if (shortcut.getId().equals(this.shortcut.getId())) {
-				if (shortcut.isEnabled()) {
-					this.show();
-				}
-			} else {
-				this.shortcuts.add(shortcut);
-			}
-		}
+		this.shortcuts.add(shortcut);
 
 		super.handleCreationDict(dict);
 	}
 
 	@SuppressLint("NewApi")
+	@Deprecated
 	@Kroll.method
 	public void show()
 	{
 		if (shortcut != null) {
 			if (!shortcuts.contains(shortcut)) {
 				shortcuts.add(shortcut);
-				shortcutManager.setDynamicShortcuts(shortcuts);
+				shortcutManager.addDynamicShortcuts(shortcuts);
 			}
 		}
 	}
 
 	@SuppressLint("NewApi")
+	@Deprecated
 	@Kroll.method
 	public void hide()
 	{
 		if (shortcut != null) {
 			if (shortcuts.contains(shortcut)) {
 				shortcuts.remove(shortcut);
-				shortcutManager.setDynamicShortcuts(shortcuts);
+				shortcutManager.addDynamicShortcuts(shortcuts);
 			}
 		}
 	}
@@ -159,17 +152,32 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 	}
 
-	@SuppressLint("NewApi")
-	@Kroll.method
-	@Kroll.getProperty
 	public String getId()
 	{
-		if (shortcut != null) {
-			return shortcut.getId();
-		}
-		return null;
+		return properties.getString(TiC.PROPERTY_ID);
 	}
 
+	public String getTitle()
+	{
+		return properties.getString(TiC.PROPERTY_TITLE);
+	}
+
+	public String getDescription()
+	{
+		return properties.getString(TiC.PROPERTY_DESCRIPTION);
+	}
+
+	public Object getIcon()
+	{
+		return properties.get(TiC.PROPERTY_ICON);
+	}
+
+	public KrollDict getData()
+	{
+		return properties.getKrollDict(TiC.PROPERTY_DATA);
+	}
+
+	@Deprecated
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getVisible()
@@ -186,7 +194,6 @@ public class ShortcutItemProxy extends KrollProxy
 	{
 		if (shortcut != null) {
 			shortcuts.remove(shortcut);
-			shortcutManager.setDynamicShortcuts(shortcuts);
 			shortcut = null;
 		}
 		super.release();
