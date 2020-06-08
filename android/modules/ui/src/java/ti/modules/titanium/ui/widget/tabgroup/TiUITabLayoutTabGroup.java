@@ -331,7 +331,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 
 	private void updateIconTint()
 	{
-		for (int i = 0; i < this.mTabLayout.getTabCount(); i++) {
+		for (int i = 0; i < this.tabs.size(); i++) {
 			final TiUITab tab = this.tabs.get(i);
 			if (tab.getProxy() != null) {
 				final TiViewProxy tabProxy = tab.getProxy();
