@@ -245,7 +245,9 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 					//TIMOB-27830: Update text color after layout for change to take effect.
 					tabLayout.addOnLayoutChangeListener(
 						(v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-							textView.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+							if (tabProxy != null) {
+								textView.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+							}
 						});
 				}
 			}
