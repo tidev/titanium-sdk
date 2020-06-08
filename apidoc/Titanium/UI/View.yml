@@ -1328,7 +1328,7 @@ properties:
     type: Array<Number>
     constants: Titanium.UI.BORDER_EDGE_*
     platforms: [android, iphone, ipad]
-    since: "9.0.0"
+    since: "9.1.0"
 
   - name: borderWidth
     summary: Border width of the view.
