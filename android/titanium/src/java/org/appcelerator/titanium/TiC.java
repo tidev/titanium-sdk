@@ -798,9 +798,14 @@ public class TiC
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
-	 * @module.ape
+	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVE_TITLE_COLOR = "activeTitleColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVE_TINT_COLOR = "activeTintColor";
 
 	/**
 	 * @module.api

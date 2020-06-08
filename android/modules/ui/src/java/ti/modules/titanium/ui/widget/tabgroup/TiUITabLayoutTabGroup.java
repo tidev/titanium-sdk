@@ -9,11 +9,10 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import com.google.android.material.tabs.TabLayout;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import com.google.android.material.tabs.TabLayout;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -22,7 +21,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-
 import ti.modules.titanium.ui.TabGroupProxy;
 
 /**
@@ -196,25 +194,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void updateTabBackgroundDrawable(int index)
 	{
-		// Validate index input.
 		if (index < 0 || index >= tabs.size()) {
 			return;
 		}
-		TiViewProxy tabProxy = tabs.get(index).getProxy();
+
+		final TiViewProxy tabProxy = tabs.get(index).getProxy();
 		if (tabProxy == null) {
 			return;
 		}
-		// Create a background drawable with ripple effect for the state used by TabLayout.Tab.
-		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 
-		// Go through the layout to set the background color state drawable manually for each tab.
-		// Currently we support only the default type of TabLayout which has a SlidingTabStrip.
-		try {
-			LinearLayout tabLL = getTabLinearLayoutForIndex(index);
-			tabLL.setBackground(backgroundDrawable);
-		} catch (Exception e) {
-			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
-		}
+		final Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
+		this.mTabLayout.setBackground(backgroundDrawable);
 	}
 
 	@Override
@@ -246,12 +236,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		}
 
 		try {
-			LinearLayout tabLL = getTabLinearLayoutForIndex(index);
+			final LinearLayout tabLayout = getTabLinearLayoutForIndex(index);
 			// Set the TextView textColor.
-			for (int i = 0; i < tabLL.getChildCount(); i++) {
-				if (tabLL.getChildAt(i) instanceof TextView) {
-					((TextView) tabLL.getChildAt(i))
-						.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+			for (int i = 0; i < tabLayout.getChildCount(); i++) {
+				if (tabLayout.getChildAt(i) instanceof TextView) {
+					final TextView textView = (TextView) tabLayout.getChildAt(i);
+
+					//TIMOB-27830: Update text color after layout for change to take effect.
+					tabLayout.addOnLayoutChangeListener(
+						(v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+							textView.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+						});
 				}
 			}
 		} catch (Exception e) {
@@ -330,5 +325,28 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		LinearLayout stripLayout = ((LinearLayout) this.mTabLayout.getChildAt(0));
 		// Get the just added TabView as a LinearLayout in order to set the background.
 		return ((LinearLayout) stripLayout.getChildAt(index));
+	}
+
+	private void updateIconTint()
+	{
+		for (int i = 0; i < this.mTabLayout.getTabCount(); i++) {
+			final TiUITab tab = this.tabs.get(i);
+			if (tab.getProxy() != null) {
+				final TiViewProxy tabProxy = tab.getProxy();
+				final boolean selected = i == this.mTabLayout.getSelectedTabPosition();
+				Drawable drawable = this.mTabLayout.getTabAt(i).getIcon();
+				drawable = updateIconTint(tabProxy, drawable, selected);
+				this.mTabLayout.getTabAt(i).setIcon(drawable);
+			}
+		}
+	}
+
+	@Override
+	public void selectTab(int tabIndex)
+	{
+		super.selectTab(tabIndex);
+
+		updateIconTint();
+		updateTabBackgroundDrawable(tabIndex);
 	}
 }
