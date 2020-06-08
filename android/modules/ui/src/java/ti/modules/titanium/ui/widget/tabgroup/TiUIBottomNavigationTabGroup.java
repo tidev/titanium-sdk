@@ -349,7 +349,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	private void updateIconTint()
 	{
-		for (int i = 0; i < this.mMenuItemsArray.size(); i++) {
+		for (int i = 0; i < this.tabs.size(); i++) {
 			final TiUITab tab = this.tabs.get(i);
 			if (tab.getProxy() != null) {
 				final TiViewProxy tabProxy = tab.getProxy();
