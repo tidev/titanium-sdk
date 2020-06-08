@@ -281,15 +281,6 @@
     [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
   }
 
-  // TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
-  BOOL needsAdjustment = (![TiUtils isIOSVersionOrGreater:@"10.0"] && ((UITextField *)textWidgetView).secureTextEntry);
-
-  if (needsAdjustment) {
-    NSString *str = ((UITextField *)textWidgetView).text;
-    ((UITextField *)textWidgetView).text = @"";
-    ((UITextField *)textWidgetView).text = str;
-  }
-
   return textWidgetView;
 }
 
@@ -326,26 +317,10 @@
   }
 }
 
-- (void)setPaddingLeft_:(id)value
-{
-  DEPRECATED_REPLACED(@"UI.TextField.paddingLeft", @"6.1.0", @"UI.TextField.padding.left");
-
-  TiTextField *tv = (TiTextField *)[self textWidgetView];
-  tv.paddingLeft = [TiUtils floatValue:value];
-}
-
 - (void)setLeftButtonPadding_:(id)value
 {
   TiTextField *tv = (TiTextField *)[self textWidgetView];
   tv.leftButtonPadding = [TiUtils floatValue:value];
-}
-
-- (void)setPaddingRight_:(id)value
-{
-  DEPRECATED_REPLACED(@"UI.TextField.paddingRight", @"6.1.0", @"UI.TextField.padding.right");
-
-  TiTextField *tv = (TiTextField *)[self textWidgetView];
-  tv.paddingRight = [TiUtils floatValue:value];
 }
 
 - (void)setRightButtonPadding_:(id)value
@@ -436,9 +411,10 @@
 
 - (void)setBorderStyle_:(id)value
 {
-  TiThreadPerformOnMainThread(^{
-    [(TiTextField *)[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [(TiTextField *)[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
+      },
       NO);
 }
 

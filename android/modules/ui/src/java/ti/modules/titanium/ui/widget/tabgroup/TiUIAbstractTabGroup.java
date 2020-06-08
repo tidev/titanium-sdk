@@ -8,19 +8,20 @@ package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -34,6 +35,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -126,7 +128,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public abstract String getTabTitle(int index);
 
 	// region protected fields
-	protected static final String TAG = "TiUITabLayoutTabGroup";
+	protected final static String TAG = "TiUIAbstractTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE =
 		"Trying to customize an unknown layout, sticking to the default one";
 
@@ -237,7 +239,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		tabFragmentIDs.add(fragmentIdGenerator.getAndIncrement());
 
 		this.tabGroupPagerAdapter.notifyDataSetChanged();
-
 		addTabItemInController(tabProxy);
 	}
 
@@ -255,15 +256,24 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected ColorStateList textColorStateList(TiViewProxy tabProxy, int stateToUse)
 	{
 		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
-		int[] textColors = { tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
-								 ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString())
-								 : this.textColorInt,
-							 tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
-								 ? TiColorHelper.parseColor(
-									   tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString())
-								 : this.textColorInt };
-		ColorStateList stateListDrawable = new ColorStateList(textColorStates, textColors);
-		return stateListDrawable;
+		int[] textColors = { this.textColorInt, this.textColorInt };
+
+		final KrollDict tabProperties = tabProxy.getProperties();
+		final KrollDict properties = getProxy().getProperties();
+
+		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+			final String colorString = tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
+				properties.getString(TiC.PROPERTY_TITLE_COLOR));
+			textColors[0] = TiColorHelper.parseColor(colorString);
+		}
+		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+			final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+				properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
+			textColors[1] = TiColorHelper.parseColor(colorString);
+		}
+		return new ColorStateList(textColorStates, textColors);
 	}
 
 	/**
@@ -362,6 +372,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			public void onPageSelected(int i)
 			{
 				selectTabItemInController(i);
+				selectTab(i);
 			}
 
 			@Override
@@ -369,6 +380,22 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			{
 			}
 		});
+
+		// Set action bar color.
+		final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
+		if (actionBar != null) {
+			final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
+			final KrollDict windowProperties = windowProxy.getProperties();
+			final KrollDict properties = getProxy().getProperties();
+
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)
+				|| windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
+				final String colorString = properties.optString(TiC.PROPERTY_BAR_COLOR,
+					windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
+				final int color = TiColorHelper.parseColor(colorString);
+				actionBar.setBackgroundDrawable(new ColorDrawable(color));
+			}
+		}
 	}
 
 	@Override
@@ -425,6 +452,45 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (actionBar != null) {
 			actionBar.setTitle(title);
 		}
+	}
+
+	public Drawable updateIconTint(TiViewProxy tabProxy, Drawable drawable, boolean selected)
+	{
+		if (drawable == null) {
+			return null;
+		}
+
+		final KrollDict tabProperties = tabProxy.getProperties();
+		final KrollDict properties = getProxy().getProperties();
+
+		int color = this.textColorInt;
+		if (selected) {
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+				final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TINT_COLOR,
+					properties.optString(TiC.PROPERTY_ACTIVE_TINT_COLOR,
+						tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+							properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR))));
+				color = TiColorHelper.parseColor(colorString);
+			}
+			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+		} else {
+			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+				final String colorString = tabProperties.optString(TiC.PROPERTY_TINT_COLOR,
+					properties.optString(TiC.PROPERTY_TINT_COLOR,
+						tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
+							properties.getString(TiC.PROPERTY_TITLE_COLOR))));
+				color = TiColorHelper.parseColor(colorString);
+			}
+			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+		}
+
+		return drawable;
 	}
 
 	/**

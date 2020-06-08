@@ -1,0 +1,118 @@
+
+apply plugin: 'com.android.application'
+
+// Apply the Google Services plugin if included
+if (file("${projectDir}/google-services.json").exists()) {
+	apply plugin: 'com.google.gms.google-services'
+}
+
+repositories {
+<% if (mavenRepositoryUrls) { for (let nextUrl of mavenRepositoryUrls) { %>
+	maven { url '<%- nextUrl %>' }
+<% } } %>
+}
+
+android {
+	compileSdkVersion <%- compileSdkVersion %>
+	defaultConfig {
+		applicationId '<%- applicationId %>'
+		minSdkVersion <%- minSdkVersion %>
+		targetSdkVersion <%- targetSdkVersion %>
+		versionCode <%- versionCode %>
+		versionName '<%- versionName %>'
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
+		multiDexEnabled true
+		aaptOptions {
+			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
+			// So, we must redefine ignore string with underscore pattern removed to support this too.
+			ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+		}
+<% if (ndkAbiArray && (ndkAbiArray.length > 0)) { %>
+		ndk {
+			abiFilters <%- "'" + ndkAbiArray.join("','") + "'" %>
+		}
+<% } %>
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+	signingConfigs {
+		def tiKeystoreFilePath = <%- "'" + tiSdkAndroidDir.replace(/\\/g, '\\\\') + "/dev_keystore'" %>
+		if (System.env.TI_ANDROID_APP_KEYSTORE_FILE != null) {
+			tiKeystoreFilePath = System.env.TI_ANDROID_APP_KEYSTORE_FILE
+		}
+		def tiKeystorePassword = 'tirocks'
+		if (System.env.TI_ANDROID_APP_KEYSTORE_PASSWORD != null) {
+			tiKeystorePassword = System.env.TI_ANDROID_APP_KEYSTORE_PASSWORD
+		}
+		def tiKeystoreAliasName = 'tidev'
+		if (System.env.TI_ANDROID_APP_KEYSTORE_ALIAS_NAME != null) {
+			tiKeystoreAliasName = System.env.TI_ANDROID_APP_KEYSTORE_ALIAS_NAME
+		}
+		def tiKeystoreAliasPassword = 'tirocks'
+		if (System.env.TI_ANDROID_APP_KEYSTORE_ALIAS_PASSWORD != null) {
+			tiKeystoreAliasPassword = System.env.TI_ANDROID_APP_KEYSTORE_ALIAS_PASSWORD
+		} else if (System.env.TI_ANDROID_APP_KEYSTORE_PASSWORD != null) {
+			tiKeystoreAliasPassword = System.env.TI_ANDROID_APP_KEYSTORE_PASSWORD
+		}
+		config {
+			storeFile file(tiKeystoreFilePath)
+			storePassword tiKeystorePassword
+			keyAlias tiKeystoreAliasName
+			keyPassword tiKeystoreAliasPassword
+		}
+	}
+	buildTypes {
+		debug {
+			signingConfig signingConfigs.config
+		}
+		release {
+			signingConfig signingConfigs.config
+<% if (proguardFilePaths && (proguardFilePaths.length > 0)) { %>
+			minifyEnabled true
+			proguardFiles(
+				getDefaultProguardFile('proguard-android-optimize.txt'),
+				<%- "'" + proguardFilePaths.join("',\n'").replace(/\\/g, '\\\\') + "'" %>)
+<% } %>
+		}
+	}
+	dexOptions {
+		javaMaxHeapSize '<%- dexJavaMaxHeapSize %>'
+	}
+	lintOptions {
+		checkReleaseBuilds false
+	}
+	packagingOptions {
+		pickFirst '/lib/arm64-v8a/libc++_shared.so'
+		pickFirst '/lib/armeabi-v7a/libc++_shared.so'
+		pickFirst '/lib/x86/libc++_shared.so'
+		pickFirst '/lib/x86_64/libc++_shared.so'
+	}
+}
+
+// Disable linting to improve build performance. No point since all Java code is generated.
+tasks.lint.enabled = false
+
+dependencies {
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
+	implementation fileTree(dir: "${rootDir}/libs", include: ['*.aar', '*.jar'])
+	implementation fileTree(dir: "${projectDir}/src/main", include: ['*.aar', '*.jar'])
+<% if (libFilePaths && (libFilePaths.length > 0)) { %>
+	implementation files(<%- ("'" + libFilePaths.join("','") + "'").replace(/\\/g, '\\\\') %>)
+<% } %>
+<% if (libProjectNames) { for (let nextLibProjectName of libProjectNames) { %>
+	implementation project(':<%- nextLibProjectName %>')
+<% } } %>
+<% if (libDependencyStrings) { for (let nextString of libDependencyStrings) { %>
+	implementation '<%- nextString %>'
+<% } } %>
+}
+
+// Load optional "build.gradle" file copied from Titanium project's "platform/android" directory.
+// Allows app developer to add additional dependencies, such as those needed by hyperloop.
+def customBuildGradlePath = "${projectDir}/src/main/build.gradle"
+if (file(customBuildGradlePath).exists()) {
+	apply from: customBuildGradlePath
+}

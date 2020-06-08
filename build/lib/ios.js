@@ -27,6 +27,33 @@ class IOS {
 		this.timestamp = options.timestamp;
 	}
 
+	babelOptions() {
+		// eslint-disable-next-line security/detect-non-literal-require
+		const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
+
+		return {
+			targets: {
+				ios: minIosVersion
+			},
+			transform: {
+				platform: 'ios',
+				Ti: {
+					version: this.sdkVersion,
+					buildHash: this.gitHash,
+					buildDate: this.timestamp,
+					Platform: {
+						runtime: 'javascriptcore',
+						manufacturer: 'apple',
+					},
+					Filesystem: {
+						lineEnding: '\n',
+						separator: '/',
+					},
+				},
+			},
+		};
+	}
+
 	async clean() {
 		return fs.remove(path.join(IOS_ROOT, 'TitaniumKit/build'));
 	}
@@ -36,10 +63,8 @@ class IOS {
 
 		return new Promise((resolve, reject) => {
 			const buildScript = path.join(ROOT_DIR, 'support/iphone/build_titaniumkit.sh');
-			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ]);
-			child.stdout.on('data', data => console.log(`\n${data}`));
-			child.stderr.on('data', data => console.log(`\n${data}`));
-
+			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ], { stdio: 'inherit' });
+			child.on('error', reject);
 			child.on('exit', code => {
 				if (code) {
 					const err = new Error(`TitaniumKit build exited with code ${code}`);

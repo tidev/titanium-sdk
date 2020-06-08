@@ -13,7 +13,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUISlider;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		"min",
@@ -24,9 +24,10 @@ import android.app.Activity;
 		TiC.PROPERTY_SPLIT_TRACK,
 		"leftTrackImage",
 		"rightTrackImage",
+		TiC.PROPERTY_TINT_COLOR,
+		TiC.PROPERTY_TRACK_TINT_COLOR,
 		TiC.PROPERTY_VALUE
 })
-// clang-format on
 public class SliderProxy extends TiViewProxy
 {
 	public SliderProxy()

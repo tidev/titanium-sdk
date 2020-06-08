@@ -41,7 +41,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_LOCALE,
@@ -53,7 +53,6 @@ import android.widget.TimePicker;
 		TiC.PROPERTY_MIN_DATE,
 		TiC.PROPERTY_MAX_DATE
 })
-// clang-format on
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
@@ -162,20 +161,17 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		return new TiUIDateSpinner(this, activity);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getUseSpinner()
-	// clang-format on
 	{
 		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
 		return useSpinner;
 	}
-	// clang-format off
+
 	@Kroll.method
 	@Kroll.setProperty
 	public void setUseSpinner(boolean value)
-	// clang-format on
 	{
 		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
 		if (peekView() != null) {
@@ -192,20 +188,16 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getType()
-	// clang-format on
 	{
 		return type;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setType(int type)
-	// clang-format on
 	{
 		if (peekView() != null) {
 			Log.e(TAG, "Attempt to change picker type after view has been created.");
@@ -333,11 +325,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		return row;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public PickerColumnProxy[] getColumns()
-	// clang-format on
 	{
 		if (!isPlainPicker()) {
 			Log.w(TAG, "Cannot get columns from date/time or countdown picker.");
@@ -350,11 +340,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setColumns(Object passedColumns)
-	// clang-format on
 	{
 		if (!isPlainPicker()) {
 			Log.w(TAG, "Cannot set columns in date/time or countdown picker.");

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package org.appcelerator.kroll;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.common.Log;
@@ -20,6 +19,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import androidx.annotation.Nullable;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -40,6 +40,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_DISPOSE = 101;
 	private static final int MSG_RUN_MODULE = 102;
 	private static final int MSG_EVAL_STRING = 103;
+	private static final int MSG_RUN_MODULE_BYTES = 104;
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
 
@@ -54,17 +55,17 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	private WeakReference<KrollApplication> krollApplication;
 	private long threadId;
-	private CountDownLatch initLatch = new CountDownLatch(1);
 	private KrollEvaluator evaluator;
 	private KrollExceptionHandler primaryExceptionHandler;
 	private HashMap<String, KrollExceptionHandler> exceptionHandlers;
 
-	public enum State { INITIALIZED, RELEASED, RELAUNCHED, DISPOSED }
+	public enum State { INITIALIZED, RELEASED, DISPOSED }
 	private static State runtimeState = State.DISPOSED;
+	private static boolean isDisposing;
 
 	protected Handler handler;
 
-	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
+	public static final int MSG_LAST_ID = MSG_RUN_MODULE_BYTES + 100;
 
 	public static final Object UNDEFINED = new Object() {
 		public String toString()
@@ -109,16 +110,43 @@ public abstract class KrollRuntime implements Handler.Callback
 		runtime.doInit();
 	}
 
+	@Nullable
 	public static KrollRuntime getInstance()
 	{
+		// TODO: Prevent this method from requiring `null` checks.
 		return instance;
 	}
 
+	/**
+	 * Suggest V8 garbage collection during idle.
+	 */
 	public static void suggestGC()
 	{
 		if (instance != null) {
 			instance.setGCFlag();
 		}
+	}
+
+	/**
+	 * Force V8 garbage collection.
+	 */
+	public static void softGC()
+	{
+		// Force V8 garbage collection.
+		if (instance != null) {
+			instance.forceGC();
+		}
+	}
+
+	/**
+	 * Force both V8 and JVM garbage collection.
+	 */
+	public static void hardGC()
+	{
+		softGC();
+
+		// Force JVM garbage collection.
+		System.gc();
 	}
 
 	public static boolean isInitialized()
@@ -161,43 +189,61 @@ public abstract class KrollRuntime implements Handler.Callback
 		return threadId;
 	}
 
-	protected void doInit()
+	private void doInit()
 	{
-		// initializer for the specific runtime implementation (V8)
-		initRuntime();
-
-		// Notify the main thread that the runtime has been initialized
-		synchronized (runtimeState)
-		{
-			runtimeState = State.INITIALIZED;
+		// Do not continue if already initialized.
+		if (runtimeState == State.INITIALIZED) {
+			return;
 		}
-		initLatch.countDown();
+
+		// Make sure this method is being called on the runtime's thread.
+		if (!isRuntimeThread()) {
+			instance.handler.sendEmptyMessage(MSG_INIT);
+			return;
+		}
+
+		// If currently scheduled to be disposed, then do so now.
+		if (runtimeState == State.RELEASED) {
+			internalDispose();
+			if (runtimeState != State.DISPOSED) {
+				instance.handler.sendEmptyMessage(MSG_INIT);
+				return;
+			}
+		}
+
+		// Initialize the JavaScript runtime.
+		initRuntime();
+		runtimeState = State.INITIALIZED;
 	}
 
 	public void dispose()
 	{
-
-		Log.d(TAG, "Disposing runtime.", Log.DEBUG_MODE);
-
-		// Set state to released when since we have not fully disposed of it yet
+		// Flag the runtime as "released" to indicate that it's about to be disposed.
 		synchronized (runtimeState)
 		{
-			if (runtimeState == State.DISPOSED) {
-				return;
+			switch (runtimeState) {
+				case RELEASED:
+				case DISPOSED:
+					return;
 			}
 			runtimeState = State.RELEASED;
 		}
 
-		// Cancel all timers associated with the app
-		KrollApplication app = krollApplication.get();
-		if (app != null) {
-			app.cancelTimers();
-		}
+		// Dispose the runtime on the thread it was created on.
+		Log.d(TAG, "Disposing runtime.", Log.DEBUG_MODE);
+		internalDispose();
+	}
 
+	public void runModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy)
+	{
 		if (isRuntimeThread()) {
-			internalDispose();
+			doRunModuleBytes(source, filename, activityProxy);
+
 		} else {
-			handler.sendEmptyMessage(MSG_DISPOSE);
+			Message message = handler.obtainMessage(MSG_RUN_MODULE_BYTES, activityProxy);
+			message.getData().putByteArray(PROPERTY_SOURCE, source);
+			message.getData().putString(PROPERTY_FILENAME, filename);
+			message.sendToTarget();
 		}
 	}
 
@@ -293,44 +339,18 @@ public abstract class KrollRuntime implements Handler.Callback
 				doEvalString(source, filename);
 				return true;
 			}
-		}
 
-		return false;
-	}
+			case MSG_RUN_MODULE_BYTES: {
+				byte[] source = msg.getData().getByteArray(PROPERTY_SOURCE);
+				String filename = msg.getData().getString(PROPERTY_FILENAME);
+				KrollProxySupport activityProxy = (KrollProxySupport) msg.obj;
 
-	private static void waitForInit()
-	{
-		try {
-			instance.initLatch.await();
-		} catch (InterruptedException e) {
-			Log.e(TAG, "Interrupted while waiting for runtime to initialize", e);
-		}
-	}
-
-	private static void syncInit()
-	{
-		waitForInit();
-
-		// When the process is re-entered, it is either in the RELEASED or DISPOSED state. If it is in the RELEASED
-		// state, that means we have not disposed of the runtime from the previous launch. In that case, we set the
-		// state to RELAUNCHED. If we are in the DISPOSED state, we need to re-initialize the runtime here.
-		synchronized (runtimeState)
-		{
-			if (runtimeState == State.DISPOSED) {
-				instance.initLatch = new CountDownLatch(1);
-
-				if (instance.isRuntimeThread()) {
-					instance.doInit();
-				} else {
-					instance.handler.sendEmptyMessage(MSG_INIT);
-				}
-
-			} else if (runtimeState == State.RELEASED) {
-				runtimeState = State.RELAUNCHED;
+				doRunModuleBytes(source, filename, activityProxy);
+				return true;
 			}
 		}
 
-		waitForInit();
+		return false;
 	}
 
 	/**
@@ -341,14 +361,12 @@ public abstract class KrollRuntime implements Handler.Callback
 	 */
 	public static void incrementActivityRefCount()
 	{
-		waitForInit();
-
 		// Increment the activity count.
 		activityRefCount++;
 
 		// If this is the 1st activity, then start up the runtime, if not done already.
 		if ((activityRefCount == 1) && (instance != null)) {
-			syncInit();
+			instance.doInit();
 		}
 	}
 
@@ -400,19 +418,22 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	private void internalDispose()
 	{
+		// Make sure this method is called on the runtime's thread.
+		if (!isRuntimeThread()) {
+			handler.sendEmptyMessage(MSG_DISPOSE);
+			return;
+		}
+
+		// Do not continue if already disposed/disposing.
 		synchronized (runtimeState)
 		{
-			if (runtimeState == State.DISPOSED) {
+			if (runtimeState != State.RELEASED) {
 				return;
 			}
-			if (runtimeState == State.RELAUNCHED) {
-				// Abort the dispose if the application has been re-launched since we scheduled this dispose during the
-				// last exit. Then set it back to the initialized state.
-				runtimeState = State.INITIALIZED;
+			if (isDisposing) {
 				return;
 			}
-
-			runtimeState = State.DISPOSED;
+			isDisposing = true;
 		}
 
 		// Invoke all OnDisposingListener objects before disposing this runtime.
@@ -420,6 +441,11 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		// Dispose/terminate the runtime.
 		doDispose();
+		synchronized (runtimeState)
+		{
+			runtimeState = State.DISPOSED;
+			isDisposing = false;
+		}
 
 		// Request the application to dispose its native resources.
 		KrollApplication app = krollApplication.get();
@@ -439,6 +465,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public void setGCFlag()
+	{
+		// No-op V8 should override.
+	}
+
+	public void forceGC()
 	{
 		// No-op V8 should override.
 	}
@@ -560,12 +591,17 @@ public abstract class KrollRuntime implements Handler.Callback
 		for (OnDisposingListener listener : clonedListeners) {
 			if (KrollRuntime.disposingListeners.contains(listener)) {
 				// Previous listener did not remove this listener. Invoke it.
-				listener.onDisposing(runtime);
+				try {
+					listener.onDisposing(runtime);
+				} catch (Exception ex) {
+					Log.e(TAG, "OnDisposingListener threw an exception.", ex);
+				}
 			}
 		}
 	}
 
 	public abstract void doDispose();
+	public abstract void doRunModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy);
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
 	public abstract Object doEvalString(String source, String filename);
 

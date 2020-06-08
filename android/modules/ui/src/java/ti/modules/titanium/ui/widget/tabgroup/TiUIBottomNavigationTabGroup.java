@@ -6,11 +6,14 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.design.internal.BottomNavigationItemView;
-import android.support.design.internal.BottomNavigationMenuView;
-import android.support.design.widget.BottomNavigationView;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewParent;
@@ -24,10 +27,10 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
+import ti.modules.titanium.ui.TabProxy;
 
 /**
  * TabGroup implementation using BottomNavigationView as a controller.
@@ -46,6 +49,22 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+	}
+
+	// Overriding addTab method to provide a proper guard for trying to add more tabs than the limit
+	// for BottomNavigationView class.
+	@Override
+	public void addTab(TabProxy tabProxy)
+	{
+		if (this.mBottomNavigationView == null) {
+			return;
+		}
+		final int MAX_TABS = this.mBottomNavigationView.getMaxItemCount();
+		if (this.tabs.size() < MAX_TABS) {
+			super.addTab(tabProxy);
+		} else {
+			Log.w(TAG, "Bottom style TabGroup cannot have more than " + MAX_TABS + " tabs.");
+		}
 	}
 
 	@Override
@@ -150,10 +169,18 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		int index = this.mMenuItemsArray.size() - 1;
 		updateDrawablesAfterNewItem(index);
 		// Handle shift mode.
-		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
-			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
-				disableShiftMode();
-			}
+		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
+		switch (shiftMode) {
+			case 0:
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+				break;
+			case 1:
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_AUTO);
+				break;
+			case 2:
+				// NOTE: Undocumented for now, will create new property that has parity with iOS.
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
+				break;
 		}
 	}
 
@@ -168,32 +195,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			updateTabTitleColor(i);
 			// Set the background drawable.
 			updateTabBackgroundDrawable(i);
-		}
-	}
-
-	/**
-	 * Disabling shift mode for BottomNavigation currently needs to be done a bit dirty.
-	 * The property is expected to be exposed in future Design library versions, so it will
-	 * be revisited once Titanium takes advantage of them.
-	 *
-	 */
-	private void disableShiftMode()
-	{
-		BottomNavigationMenuView menuView = ((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
-		try {
-			Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
-			shiftingMode.setAccessible(true);
-			shiftingMode.setBoolean(menuView, false);
-			shiftingMode.setAccessible(false);
-			for (int i = 0; i < menuView.getChildCount(); i++) {
-				BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
-				item.setShiftingMode(false);
-				item.setChecked(item.getItemData().isChecked());
-			}
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "Unable to get shift mode field", e);
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, "Unable to change value of shift mode", e);
 		}
 	}
 
@@ -273,6 +274,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
+	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateTabTitleColor(int index)
 	{
@@ -301,7 +303,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
+		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
 	}
 
@@ -326,6 +328,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
+		// Guard for clicking on the currently selected tab.
+		// This is required to have parity with the default style tab.
+		if (index == this.currentlySelectedIndex) {
+			return true;
+		}
 		if ((index != currentlySelectedIndex) && (getProxy() != null)) {
 			if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size())) {
 				TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();
@@ -337,8 +344,32 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 		// Make the ViewPager to select the proper page too.
 		selectTab(index);
+
 		// Trigger the select event firing for the new tab.
 		((TabGroupProxy) getProxy()).onTabSelected(index);
 		return false;
+	}
+
+	private void updateIconTint()
+	{
+		for (int i = 0; i < this.tabs.size(); i++) {
+			final TiUITab tab = this.tabs.get(i);
+			if (tab.getProxy() != null) {
+				final TiViewProxy tabProxy = tab.getProxy();
+				final boolean selected = i == currentlySelectedIndex;
+				Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
+				drawable = updateIconTint(tabProxy, drawable, selected);
+				this.mBottomNavigationView.getMenu().getItem(i).setIcon(drawable);
+			}
+		}
+	}
+
+	@Override
+	public void selectTab(int tabIndex)
+	{
+		super.selectTab(tabIndex);
+
+		updateIconTint();
+		updateTabBackgroundDrawable(tabIndex);
 	}
 }

@@ -201,7 +201,6 @@ excludes:
     properties: [children]
 since: "0.8"
 methods:
-
   - name: setHtml
     summary: Sets the value of [html](Titanium.UI.WebView.html) property.
     description: |
@@ -381,18 +380,9 @@ methods:
     platforms: [iphone, ipad]
     since: "8.0.0"
     parameters:
-      - name: source
-        summary: A script that can be injected into a webpage.
-        type: String
-      - name: injectionTime
-        summary: The time when the script should be injected into the webpage.
-        type: Number
-        constants: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_*
-      - name: mainFrameOnly
-        summary: |
-            A Boolean value indicating whether the script should be injected only into the 
-            main frame (true) or into all frames (false).
-        type: Boolean
+      - name: params
+        summary: Properties required to create user script.
+        type: UserScriptParams
 
   - name: removeAllUserScripts
     summary: Removes all associated user scripts.
@@ -432,7 +422,6 @@ methods:
         type: BackForwardList
 
 events:
-
   - name: beforeload
     summary: Fired before the web view starts loading its content.
     description: |
@@ -443,6 +432,7 @@ events:
         This event does not fire when navigating remote web pages.
     properties:
       - name: url
+        type: String
         summary: URL of the web document being loaded.
 
       - name: navigationType
@@ -450,6 +440,12 @@ events:
         type: Number
         constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone]
+
+      - name: isMainFrame
+        summary: Indicate if the event was generated from the main page or an iframe.
+        type: Boolean
+        platforms: [ipad, iphone]
+        since: "9.0.0"
 
   - name: error
     summary: Fired when the web view cannot load the content.
@@ -485,6 +481,8 @@ events:
         platforms: [iphone, ipad, android]
         deprecated:
             since: "3.1.0"
+            removed: "9.0.0"
+            notes: Removed on ios in 8.0.0. Removed on android in 9.0.0.
       - name: errorCode
         summary: A constant or underlying platform specific error code. Use code instead.
         type: Number
@@ -492,11 +490,14 @@ events:
         platforms: [iphone, ipad, android]
         deprecated:
             since: "3.1.0"
+            removed: "9.0.0"
+            notes: Removed on ios in 8.0.0. Removed on android in 9.0.0.
 
   - name: load
     summary: Fired when the web view content is loaded.
     properties:
       - name: url
+        type: String
         summary: URL of the web document.
 
   - name: onLoadResource
@@ -530,8 +531,10 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
+        type: String
     deprecated:
         since: "6.1.0"
+        removed: "9.0.0"
         notes: Use the  cross-platform `blacklisturl` event instead.
 
   - name: blacklisturl
@@ -541,6 +544,7 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
+        type: String
 
   - name: message
     summary: Fired when a script message is received from a webpage.
@@ -569,8 +573,8 @@ events:
     description: |
         Provides a normalized value between 0.0 and 1.0, where 0.0 indicates nothing was downloaded and 
         1.0 means the page and all of its resources has finished downloading.
-    platforms: [ipad, iphone]
-    since: "8.0.0"
+    platforms: [android, ipad, iphone]
+    since: {android: "9.1.0", iphone: "8.0.0", ipad: "8.0.0"}
     properties:
       - name: value
         summary: An estimate of what fraction of the current navigation has been loaded.
@@ -606,7 +610,6 @@ events:
         type: String
 
 properties:
-
   - name: allowsLinkPreview
     summary: |
         A Boolean value that determines whether pressing on a link displays a preview of the
@@ -715,6 +718,21 @@ properties:
     platforms: [iphone, ipad]
     since: "3.0.0"
     default: false
+
+  - name: assetsDirectory
+    summary: Path of file or directory to allow read access by the WebView.
+    description: |
+        Use this property to change the resources the web view has access to when loading the content of a local file.
+        By default the web view only has access to files inside the same directory as the loaded file. To reference
+        resources from other directories (e.g. a parent directory) change this property accordingly.
+
+        If assetsDirectory references a single file, only that file may be loaded. If assetsDirectory references a
+        directory, files inside that directory may be loaded.
+
+        This property needs to be set before [url](Titanium.UI.WebView.url) is assigned to a local file.
+    type: String
+    platforms: [iphone, ipad]
+    since: "9.0.0"
 
   - name: html
     summary: HTML content of this web view.
@@ -1000,8 +1018,8 @@ properties:
         After loading completes, the progress remains at 1.0 until a new download starts, 
         at which point progress is reset to 0.0.
     type: Number
-    platforms: [iphone, ipad]
-    since: "8.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "9.1.0", iphone: "8.0.0", ipad: "8.0.0"}
     permission: read-only
 
   - name: cachePolicy
@@ -1154,3 +1172,26 @@ properties:
   - name: url
     summary: The url of the link that should be navigated to.
     type: String
+
+---
+name: UserScriptParams
+summary: Dictionary of options for the <Titanium.UI.WebView.addUserScript> method.
+platforms: [iphone, ipad]
+since: "8.0.0"
+properties:
+  - name: source
+    summary: A script that can be injected into a webpage.
+    type: String
+  - name: injectionTime
+    summary: The time when the script should be injected into the webpage.
+    type: Number
+    constants: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_*
+    default: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_START
+    optional: true
+  - name: mainFrameOnly
+    summary: |
+        A Boolean value indicating whether the script should be injected only into the 
+        main frame (true) or into all frames (false).
+    type: Boolean
+    default: false
+    optional: true

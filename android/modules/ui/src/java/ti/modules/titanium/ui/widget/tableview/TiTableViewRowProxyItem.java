@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2019-current by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,11 +28,11 @@ import ti.modules.titanium.ui.widget.TiUILabel;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -48,9 +48,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private static final String RIGHT_MARGIN = "6dp";
 	private static final int MIN_HEIGHT = 48;
 
-	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
+	private Drawable hasChildDrawable, hasCheckDrawable;
 	private ImageView leftImage;
 	private ImageView rightImage;
+	private LayoutParams rightImageDefaultLayout;
 	private TiCompositeLayout content;
 	private ArrayList<TiUIView> views;
 	private TiDimension height = null;
@@ -72,7 +73,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		this.rightImage = new ImageView(activity);
 		rightImage.setVisibility(GONE);
-		addView(rightImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		final int size =
+			(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18, getResources().getDisplayMetrics());
+		this.rightImageDefaultLayout = new LayoutParams(size, size);
+		addView(rightImage, this.rightImageDefaultLayout);
 	}
 
 	protected TableViewRowProxy getRowProxy()
@@ -191,7 +195,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			Object newValue = newProps.get(name);
 
 			if (!(oldValue == null && newValue == null)) {
-				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+				if ((oldValue == null && newValue != null)
+					|| (newValue == null && oldValue != null)
+					|| (!oldValue.equals(newValue))) {
 					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
 					propertyChanges.add(pch);
 				}
@@ -284,7 +290,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	protected void applyChildProperties(TiViewProxy viewProxy, TiUIView view)
 	{
 		int i = 0;
-		TiViewProxy childProxies[] = viewProxy.getChildren();
+		TiViewProxy[] childProxies = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
 			TiViewProxy oldProxy = childView.getProxy();
@@ -378,9 +384,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
 				if (hasCheckDrawable == null) {
-					hasCheckDrawable = createHasCheckDrawable();
+					hasCheckDrawable = getHasCheckDrawable();
 				}
 				rightImage.setImageDrawable(hasCheckDrawable);
+				rightImage.setLayoutParams(this.rightImageDefaultLayout);
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
 			}
@@ -388,9 +395,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (props.containsKey(TiC.PROPERTY_HAS_CHILD)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHILD)) {
 				if (hasChildDrawable == null) {
-					hasChildDrawable = createHasChildDrawable();
+					hasChildDrawable = getHasChildDrawable();
 				}
 				rightImage.setImageDrawable(hasChildDrawable);
+				rightImage.setLayoutParams(this.rightImageDefaultLayout);
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
 			}
@@ -401,6 +409,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			Drawable d = loadDrawable(url);
 			if (d != null) {
 				rightImage.setImageDrawable(d);
+				rightImage.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
 			}
@@ -545,10 +554,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				// Make sure the height is greater than 1 (not 0 since image views default to 1)
-				if (hasChildView && h > 1) {
-					content.getLayoutParams().height = h;
-				}
 
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
@@ -607,9 +612,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 	}
 
-	private static String[] filteredProperties =
-		new String[] { TiC.PROPERTY_BACKGROUND_IMAGE, TiC.PROPERTY_BACKGROUND_COLOR,
-					   TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, TiC.PROPERTY_BACKGROUND_SELECTED_COLOR };
+	private static String[] filteredProperties = new String[] {
+		TiC.PROPERTY_BACKGROUND_IMAGE,
+		TiC.PROPERTY_BACKGROUND_COLOR,
+		TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE,
+		TiC.PROPERTY_BACKGROUND_SELECTED_COLOR
+	};
+
 	private KrollDict filterProperties(KrollDict d)
 	{
 		if (d == null)
@@ -647,6 +656,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 		return selectorDrawable;
+	}
+
+	public TiCompositeLayout getContentView()
+	{
+		return this.content;
 	}
 
 	@Override

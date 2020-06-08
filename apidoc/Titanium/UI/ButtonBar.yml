@@ -76,6 +76,31 @@ properties:
             </Alloy>
     type: [Array<String>, Array<BarItemType>]
 
+  - name: textColor
+    summary: Color of title of button, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad]
+    since: "9.0.0"
+
+  - name: selectedTextColor
+    summary: Color of title of button when it is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad]
+    since: "9.0.0"
+
+  - name: selectedButtonColor
+    summary: Color of selected button, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad]
+    since: "9.0.0"
+    osver: {ios: {min: "13.0"}}
+
 examples:
   - title: Simple 3 button button bar
     example: |

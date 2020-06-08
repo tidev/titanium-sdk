@@ -8,9 +8,9 @@ package org.appcelerator.kroll.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -114,6 +114,11 @@ public class KrollAssetHelper
 		}
 	}
 
+	public static AssetManager getAssetManager()
+	{
+		return assetManager;
+	}
+
 	public static InputStream openAsset(String path)
 	{
 		// Validate argument.
@@ -123,7 +128,7 @@ public class KrollAssetHelper
 
 		// First, attempt to open it as a Titanium encrypted asset.
 		if (assetCrypt != null) {
-			InputStream stream = assetCrypt.openAsset(normalizeAssetCryptPath(path));
+			InputStream stream = assetCrypt.openAsset(path);
 			if (stream != null) {
 				return stream;
 			}
@@ -147,38 +152,47 @@ public class KrollAssetHelper
 		return null;
 	}
 
-	public static String readAsset(String path)
+	public static ByteArrayOutputStream readInputStream(InputStream in) throws IOException
 	{
-		if (assetCrypt != null) {
-			String asset = assetCrypt.readAsset(normalizeAssetCryptPath(path));
-			if (asset != null) {
-				return asset;
-			}
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buffer = new byte[4096];
+		int count = 0;
+		while ((count = in.read(buffer)) != -1) {
+			out.write(buffer, 0, count);
 		}
+		return out;
+	}
 
+	public static byte[] readAssetBytes(String path)
+	{
+		if (KrollAssetCache.has(path)) {
+			return KrollAssetCache.get(path);
+		}
 		try {
+			if (assetCrypt != null) {
+				InputStream in = assetCrypt.openAsset(path);
+				if (in != null) {
+					return readInputStream(in).toByteArray();
+				}
+			}
 			if (assetManager == null) {
 				Log.e(TAG, "AssetManager is null, can't read asset: " + path);
 				return null;
 			}
-
 			InputStream in = assetManager.open(path);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte buffer[] = new byte[1024];
-			int count = 0;
-
-			while ((count = in.read(buffer)) != -1) {
-				if (out != null) {
-					out.write(buffer, 0, count);
-				}
-			}
-
-			return out.toString();
-
+			return readInputStream(in).toByteArray();
 		} catch (IOException e) {
 			Log.e(TAG, "Error while reading asset \"" + path + "\":", e);
 		}
+		return null;
+	}
 
+	public static String readAsset(String path)
+	{
+		byte[] asset = readAssetBytes(path);
+		if (asset != null) {
+			return new String(asset, StandardCharsets.UTF_8);
+		}
 		return null;
 	}
 
@@ -194,25 +208,10 @@ public class KrollAssetHelper
 	{
 		try {
 			FileInputStream in = new FileInputStream(path);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte buffer[] = new byte[1024];
-			int count = 0;
-
-			while ((count = in.read(buffer)) != -1) {
-				if (out != null) {
-					out.write(buffer, 0, count);
-				}
-			}
-
-			return out.toString();
-
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, "File not found: " + path, e);
-
+			return readInputStream(in).toString(StandardCharsets.UTF_8.name());
 		} catch (IOException e) {
-			Log.e(TAG, "Error while reading file: " + path, e);
+			Log.e(TAG, "Could not read: '" + path + "'", e);
 		}
-
 		return null;
 	}
 
@@ -226,7 +225,7 @@ public class KrollAssetHelper
 		// First, check if path references an encrypted Titanium asset.
 		Collection<String> collection = getEncryptedAssetPaths();
 		if (collection != null) {
-			if (collection.contains(normalizeAssetCryptPath(path))) {
+			if (collection.contains(path)) {
 				return true;
 			}
 		}
@@ -243,7 +242,7 @@ public class KrollAssetHelper
 	public static boolean directoryExists(String path)
 	{
 		path = normalizeDirectoryPath(path);
-		if (encrpytedDirectoryListingMap.containsKey(normalizeAssetCryptPath(path))) {
+		if (encrpytedDirectoryListingMap.containsKey(path)) {
 			return true;
 		}
 		if (apkDirectoryListingMap.containsKey(path)) {
@@ -265,7 +264,7 @@ public class KrollAssetHelper
 		}
 		{
 			// Merge the encrypted assets listing (if any) into the result list.
-			Collection<String> collection = encrpytedDirectoryListingMap.get(normalizeAssetCryptPath(path));
+			Collection<String> collection = encrpytedDirectoryListingMap.get(path);
 			if (collection != null) {
 				for (String entry : collection) {
 					if (!resultList.contains(entry)) {
@@ -296,18 +295,6 @@ public class KrollAssetHelper
 		} else if (!path.isEmpty() && !path.endsWith("/")) {
 			// Subdirectory paths must end with a slash.
 			path += "/";
-		}
-		return path;
-	}
-
-	private static String normalizeAssetCryptPath(String path)
-	{
-		final String ROOT_PATH_NAME = "Resources/";
-
-		if (path != null) {
-			if (path.startsWith(ROOT_PATH_NAME)) {
-				path = path.substring(ROOT_PATH_NAME.length());
-			}
 		}
 		return path;
 	}

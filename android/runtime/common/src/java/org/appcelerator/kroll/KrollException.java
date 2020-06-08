@@ -26,13 +26,13 @@ public class KrollException
 			return;
 		}
 
-		String split[];
+		String[] split;
 		split = stack.split("\\n");
 		if (split.length >= 2) {
 			String secondLine = split[1];
 			secondLine = secondLine.replace("at", " ").trim();
 
-			String info[];
+			String[] info;
 			info = secondLine.split(":");
 			if (info.length >= 2) {
 				lineNumber = info[1];

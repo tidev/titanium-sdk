@@ -6,21 +6,24 @@
  */
 'use strict';
 
-var NativeModule = require('native_module'),
-	assets = kroll.binding('assets'),
-	path = require('path'),
-	Script = kroll.binding('evals').Script,
-	invoker = require('invoker');
+const NativeModule = require('native_module');
+const assets = kroll.binding('assets');
+const path = require('path');
+const Script = kroll.binding('evals').Script;
+const invoker = require('invoker');
 
 require('bootstrap');
 
-var TAG = 'Module';
+const TAG = 'Module';
 
 /**
  * [Module description]
  * @param {String} id      module id
  * @param {Module} parent  parent module
  * @param {Object} context context object
+ * @param {Titanium.Android.Service} [context.currentService] current service
+ * @param {Titanium.Android.Activity} [context.currentActivity] current Activity
+ * @param {string} context.sourceUrl source URL
  */
 function Module(id, parent, context) {
 	this.id = id;
@@ -44,18 +47,14 @@ Module.wrap = NativeModule.wrap;
  * [runModule description]
  * @param  {String} source            JS Source code
  * @param  {String} filename          Filename of the module
- * @param  {object} activityOrService [description]
+ * @param  {Titanium.Service|Ti.Android.Activity} activityOrService Titanium.Service when invoked via background service. Ti.Android.Activity when via app.js entry point
  * @return {Module}                   The loaded Module
  */
 Module.runModule = function (source, filename, activityOrService) {
-	var id = filename;
-	if (!Module.main) {
-		id = '.';
-	}
+	const id = Module.main ? filename : '.'; // if we don't yet have a Module.main id is '.', otherwise use the filepath
 
-	var module,
-		isService = (activityOrService instanceof Titanium.Service);
-
+	let module;
+	const isService = (activityOrService instanceof Titanium.Service);
 	if (isService) {
 		module = new Module(id, null, {
 			currentService: activityOrService,
@@ -123,13 +122,13 @@ Module.prototype.createModuleWrapper = function (externalModule, sourceUrl) {
 	function ModuleWrapper() {}
 	ModuleWrapper.prototype = externalModule;
 
-	var wrapper = new ModuleWrapper();
-	var invocationAPIs = externalModule.invocationAPIs;
-	var invocationsLen = invocationAPIs.length;
+	const wrapper = new ModuleWrapper();
+	const invocationAPIs = externalModule.invocationAPIs;
+	const invocationsLen = invocationAPIs.length;
 
-	for (var j = 0; j < invocationsLen; ++j) {
-		var api = invocationAPIs[j].api;
-		var delegate = externalModule[api];
+	for (let j = 0; j < invocationsLen; ++j) {
+		const api = invocationAPIs[j].api;
+		const delegate = externalModule[api];
 		if (!delegate) {
 			continue;
 		}
@@ -164,7 +163,7 @@ Module.prototype.createModuleWrapper = function (externalModule, sourceUrl) {
  */
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
-		var jsModule = new Module(id + '.commonjs', thiss, context);
+		const jsModule = new Module(id + '.commonjs', thiss, context);
 		// Load under fake name, or the commonjs side of the native module gets cached in place of the native module!
 		// See TIMOB-24932
 		jsModule.load(id + '.commonjs', kroll.getExternalCommonJsModule(id));
@@ -185,19 +184,18 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
  * @return {Object}                 The exported module
  */
 Module.prototype.loadExternalModule = function (id, externalBinding, context) {
-	var sourceUrl = (context === undefined) ? 'app://ti.main.js' : context.sourceUrl,
-		externalModule = Module.cache[id];
+	let externalModule = Module.cache[id];
 
 	if (!externalModule) {
 		// Get the compiled bootstrap JS
-		var source = externalBinding.bootstrap;
+		const source = externalBinding.bootstrap;
 
 		// Load the native module's bootstrap JS
-		var module = new Module(id, this, context);
+		const module = new Module(id, this, context);
 		module.load(id + '/bootstrap.js', source);
 
 		// Bootstrap and load the module using the native bindings
-		var result = module.exports.bootstrap(externalBinding);
+		const result = module.exports.bootstrap(externalBinding);
 
 		// Cache the external module instance
 		externalModule = Module.cache[id] = result;
@@ -206,17 +204,14 @@ Module.prototype.loadExternalModule = function (id, externalBinding, context) {
 	if (externalModule) {
 		// We cache each context-specific module wrapper
 		// on the parent module, rather than in the Module.cache
-		var wrapper = this.wrapperCache[id];
-		if (wrapper) {
-			return wrapper;
+		if (this.wrapperCache[id]) {
+			return this.wrapperCache[id];
 		}
 
-		wrapper = this.createModuleWrapper(externalModule, sourceUrl);
-
+		const sourceUrl = (context === undefined) ? 'app://ti.main.js' : context.sourceUrl;
+		const wrapper = this.createModuleWrapper(externalModule, sourceUrl);
 		extendModuleWithCommonJs(wrapper, id, this, context);
-
 		this.wrapperCache[id] = wrapper;
-
 		return wrapper;
 	}
 
@@ -238,31 +233,31 @@ Module.prototype.loadExternalModule = function (id, externalBinding, context) {
  * @return {Object}          The loaded module
  */
 Module.prototype.require = function (request, context) {
-	var start, // hack up the start of the string to check relative/absolute/"naked" module id
-		loaded; // variable to hold the possibly loaded module...
-
-	// 1. If X is a core module,
-	loaded = this.loadCoreModule(request, context);
-	if (loaded) {
-		// a. return the core module
-		// b. STOP
-		return loaded;
-	}
-
 	// 2. If X begins with './' or '/' or '../'
-	start = request.substring(0, 2);
+	const start = request.substring(0, 2); // hack up the start of the string to check relative/absolute/"naked" module id
 	if (start === './' || start === '..') {
-		loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request), context);
+		const loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request), context);
 		if (loaded) {
 			return loaded.exports;
 		}
 	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
 	} else if (request.substring(0, 1) === '/') {
-		loaded = this.loadAsFileOrDirectory(path.normalize(request), context);
+		const loaded = this.loadAsFileOrDirectory(path.normalize(request), context);
 		if (loaded) {
 			return loaded.exports;
 		}
 	} else {
+		// Despite being step 1 in Node.JS psuedo-code, we moved it down here because we don't allow native modules
+		// to start with './', '..' or '/' - so this avoids a lot of misses on requires starting that way
+
+		// 1. If X is a core module,
+		let loaded = this.loadCoreModule(request, context);
+		if (loaded) {
+			// a. return the core module
+			// b. STOP
+			return loaded;
+		}
+
 		// Look for CommonJS module
 		if (request.indexOf('/') === -1) {
 			// For CommonJS we need to look for module.id/module.id.js first...
@@ -310,18 +305,13 @@ Module.prototype.require = function (request, context) {
  * @return {Object}    true if the module id matches a native or CommonJS module id, (or it's first path segment does).
  */
 Module.prototype.loadCoreModule = function (id, context) {
-	var wrapper = this.wrapperCache[id],
-		parts,
-		externalBinding,
-		externalCommonJsContents;
 	// check if we have a cached copy of the wrapper
-	if (wrapper) {
-		return wrapper;
+	if (this.wrapperCache[id]) {
+		return this.wrapperCache[id];
 	}
 
-	parts = id.split('/');
-	externalBinding = kroll.externalBinding(parts[0]);
-
+	const parts = id.split('/');
+	const externalBinding = kroll.externalBinding(parts[0]);
 	if (externalBinding) {
 		if (parts.length === 1) {
 			// This is the "root" of an external module. It can look like:
@@ -333,11 +323,11 @@ Module.prototype.loadCoreModule = function (id, context) {
 		// Could be a sub-module (CommonJS) of an external native module.
 		// We allow that since TIMOB-9730.
 		if (kroll.isExternalCommonJsModule(parts[0])) {
-			externalCommonJsContents = kroll.getExternalCommonJsModule(id);
+			const externalCommonJsContents = kroll.getExternalCommonJsModule(id);
 			if (externalCommonJsContents) {
 				// found it
 				// FIXME Re-use loadAsJavaScriptText?
-				var module = new Module(id, this, context);
+				const module = new Module(id, this, context);
 				module.load(id, externalCommonJsContents);
 				return module.exports;
 			}
@@ -355,16 +345,12 @@ Module.prototype.loadCoreModule = function (id, context) {
  * @return {Object}                The module's exports, if loaded. null if not.
  */
 Module.prototype.loadNodeModules = function (moduleId, dirs, context) {
-	var mod, // the loaded module
-		i,
-		dir;
-
 	// 2. for each DIR in DIRS:
-	for (i = 0; i < dirs.length; i++) {
-		dir = dirs[i];
+	for (let i = 0; i < dirs.length; i++) {
+		const dir = dirs[i];
 		// a. LOAD_AS_FILE(DIR/X)
 		// b. LOAD_AS_DIRECTORY(DIR/X)
-		mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
+		const mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
 		if (mod) {
 			return mod;
 		}
@@ -388,12 +374,11 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		return [ '/node_modules' ];
 	}
 	// 1. let PARTS = path split(START)
-	var parts = startDir.split('/'),
-		// 2. let I = count of PARTS - 1
-		i = parts.length - 1,
-		// 3. let DIRS = []
-		dirs = [],
-		dir;
+	const parts = startDir.split('/');
+	// 2. let I = count of PARTS - 1
+	let i = parts.length - 1;
+	// 3. let DIRS = []
+	const dirs = [];
 
 	// 4. while I >= 0,
 	while (i >= 0) {
@@ -403,7 +388,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
-		dir = path.join(parts.slice(0, i + 1).join('/'), 'node_modules');
+		const dir = path.join(parts.slice(0, i + 1).join('/'), 'node_modules');
 		// c. DIRS = DIRS + DIR
 		dirs.push(dir);
 		// d. let I = I - 1
@@ -422,7 +407,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
  */
 Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
 	// a. LOAD_AS_FILE(Y + X)
-	var loaded = this.loadAsFile(normalizedPath, context);
+	let loaded = this.loadAsFile(normalizedPath, context);
 	if (loaded) {
 		return loaded;
 	}
@@ -442,14 +427,12 @@ Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
  * @return {Object}          module.exports of the file.
  */
 Module.prototype.loadJavascriptText = function (filename, context) {
-	var module;
-
 	// Look in the cache!
 	if (Module.cache[filename]) {
 		return Module.cache[filename];
 	}
 
-	module = new Module(filename, this, context);
+	const module = new Module(filename, this, context);
 	module.load(filename);
 
 	return module;
@@ -463,18 +446,15 @@ Module.prototype.loadJavascriptText = function (filename, context) {
  * @return {Object}          The parsed JSON object from the file
  */
 Module.prototype.loadJavascriptObject = function (filename, context) {
-	var module,
-		source;
-
 	// Look in the cache!
 	if (Module.cache[filename]) {
 		return Module.cache[filename];
 	}
 
-	module = new Module(filename, this, context);
+	const module = new Module(filename, this, context);
 	module.filename = filename;
 	module.path = path.dirname(filename);
-	source = assets.readAsset('Resources' + filename); // Assumes Resources/!
+	const source = assets.readAsset('Resources' + filename); // Assumes Resources/!
 
 	// Stick it in the cache
 	Module.cache[filename] = module;
@@ -494,7 +474,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
  */
 Module.prototype.loadAsFile = function (id, context) {
 	// 1. If X is a file, load X as JavaScript text.  STOP
-	var filename = id;
+	let filename = id;
 	if (this.filenameExists(filename)) {
 		// If the file has a .json extension, load as JavascriptObject
 		if (filename.length > 5 && filename.slice(-4) === 'json') {
@@ -525,13 +505,13 @@ Module.prototype.loadAsFile = function (id, context) {
  */
 Module.prototype.loadAsDirectory = function (id, context) {
 	// 1. If X/package.json is a file,
-	var filename = path.resolve(id, 'package.json');
+	let filename = path.resolve(id, 'package.json');
 	if (this.filenameExists(filename)) {
 		// a. Parse X/package.json, and look for "main" field.
-		var object = this.loadJavascriptObject(filename, context);
+		const object = this.loadJavascriptObject(filename, context);
 		if (object && object.exports && object.exports.main) {
 			// b. let M = X + (json main field)
-			var m = path.resolve(id, object.exports.main);
+			const m = path.resolve(id, object.exports.main);
 			// c. LOAD_AS_FILE(M)
 			return this.loadAsFileOrDirectory(m, context);
 		}
@@ -559,10 +539,14 @@ Module.prototype.loadAsDirectory = function (id, context) {
  * @return {[type]}          [description]
  */
 Module.prototype._runScript = function (source, filename) {
-	var self = this,
-		url = 'app://' + filename;
+	const self = this;
 
-	function require(path, context) {
+	// Create context-bound modules
+	// inherit parent Module's context, override sourceUrl/module values
+	const context = self.context || {};
+	context.sourceUrl = `app://${filename}`;
+
+	function require(path) {
 		return self.require(path, context);
 	}
 	require.main = Module.main;
@@ -574,10 +558,10 @@ Module.prototype._runScript = function (source, filename) {
 		global.require = require;
 
 		// check if we have an inspector binding...
-		var inspector = kroll.binding('inspector');
+		const inspector = kroll.binding('inspector');
 		if (inspector) {
 			// If debugger is enabled, load app.js and pause right before we execute it
-			var inspectorWrapper = inspector.callAndPauseOnStart;
+			const inspectorWrapper = inspector.callAndPauseOnStart;
 			if (inspectorWrapper) {
 				// FIXME Why can't we do normal Module.wrap(source) here?
 				// I get "Uncaught TypeError: Cannot read property 'createTabGroup' of undefined" for "Ti.UI.createTabGroup();"
@@ -591,12 +575,7 @@ Module.prototype._runScript = function (source, filename) {
 		return Script.runInThisContext(source, filename, true);
 	}
 
-	// Create context-bound modules.
-	var context = self.context || {};
-	context.sourceUrl = url;
-	context.module = this;
-
-	var ti = new Titanium.Wrapper(context);
+	const ti = new Titanium.Wrapper(context);
 
 	// In V8, we treat external modules the same as native modules.  First, we wrap the
 	// module code and then run it in the current context.  This will allow external modules to
@@ -604,7 +583,7 @@ Module.prototype._runScript = function (source, filename) {
 	// occurs as a result of creating a new context during startup in TIMOB-12286.
 	source = Module.wrap(source);
 
-	var f = Script.runInThisContext(source, filename, true);
+	const f = Script.runInThisContext(source, filename, true);
 	return f(this.exports, require, this, filename, path.dirname(filename), ti, ti, global, kroll);
 };
 
@@ -612,7 +591,7 @@ Module.prototype._runScript = function (source, filename) {
  * The loaded index.json file from the app. Used to store the encrypted JS assets'
  * filenames/offsets.
  */
-var fileIndex;
+let fileIndex;
 
 /**
  * Look up a filename in the app's index.json file
@@ -622,7 +601,7 @@ var fileIndex;
 Module.prototype.filenameExists = function (filename) {
 	filename = 'Resources' + filename; // When we actually look for files, assume "Resources/" is the root
 	if (!fileIndex) {
-		var json = assets.readAsset('index.json');
+		const json = assets.readAsset('index.json');
 		fileIndex = JSON.parse(json);
 	}
 

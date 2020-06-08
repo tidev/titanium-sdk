@@ -8,7 +8,6 @@
 package org.appcelerator.titanium.io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,8 +15,6 @@ import java.io.OutputStream;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -54,8 +51,11 @@ public class TitaniumBlob extends TiBaseFile
 		}
 
 		// Get ready to fetch URL's description, path, and file size via content provider.
-		String[] projection = { MediaStore.Images.ImageColumns.DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA,
-								MediaStore.Images.ImageColumns.SIZE };
+		String[] projection = {
+			MediaStore.Images.ImageColumns.DISPLAY_NAME,
+			MediaStore.Images.ImageColumns.DATA,
+			MediaStore.Images.ImageColumns.SIZE
+		};
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		// First, attempt to fetch an absolute path to the file, if publicly available.
@@ -86,11 +86,18 @@ public class TitaniumBlob extends TiBaseFile
 		} else if (url.startsWith("content://com.android.providers.downloads.documents")) {
 			// This was a file downloaded from the Google cloud.
 			String id = DocumentsContract.getDocumentId(Uri.parse(url));
-			Uri uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-			try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {
-				if ((cursor != null) && cursor.moveToNext()) {
-					this.name = getStringFrom(cursor, 0);
-					this.path = getStringFrom(cursor, 1);
+			try {
+				if (id.startsWith("raw:")) {
+					this.path = id.substring(4);
+					this.name = this.path.substring(this.path.lastIndexOf(File.pathSeparatorChar) + 1);
+				} else {
+					Uri uri =
+						ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+					Cursor cursor = contentResolver.query(uri, projection, null, null, null);
+					if ((cursor != null) && cursor.moveToNext()) {
+						this.name = getStringFrom(cursor, 0);
+						this.path = getStringFrom(cursor, 1);
+					}
 				}
 			} catch (Exception ex) {
 			}

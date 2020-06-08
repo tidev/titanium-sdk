@@ -9,9 +9,7 @@ package ti.modules.titanium.android.notificationmanager;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.android.AndroidModule;
@@ -26,7 +24,7 @@ import android.Manifest;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import java.util.HashMap;
 
@@ -102,9 +100,11 @@ public class NotificationManagerModule extends KrollModule
 			defaultChannel =
 				new NotificationChannel(DEFAULT_CHANNEL_ID, "miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
 			getManager().createNotificationChannel(defaultChannel);
-			Log.w(
-				TAG,
-				"Falling back to default notification channel.\nIt is highly advised to create your own notification channel using Ti.Android.NotificationManager.createNotificationChannel()");
+			String warningMessage
+				= "Falling back to default notification channel.\n"
+				+ "It is highly advised to create your own notification channel using"
+				+ " Ti.Android.NotificationManager.createNotificationChannel()";
+			Log.w(TAG, warningMessage);
 		}
 
 		return useDefaultChannel;

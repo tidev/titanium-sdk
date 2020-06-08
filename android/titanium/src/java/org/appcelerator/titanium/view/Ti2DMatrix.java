@@ -149,7 +149,7 @@ public class Ti2DMatrix extends KrollProxy
 	}
 
 	@Kroll.method
-	public Ti2DMatrix scale(Object args[])
+	public Ti2DMatrix scale(Object[] args)
 	{
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_SCALE);
 		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = VALUE_UNSPECIFIED;

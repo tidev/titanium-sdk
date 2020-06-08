@@ -186,11 +186,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     UIApplication *app = [UIApplication sharedApplication];
     NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
     if ([app canOpenURL:url]) {
-      if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-        [app openURL:url options:@{} completionHandler:nil];
-      } else {
-        [app openURL:url];
-      }
+      [app openURL:url options:@{} completionHandler:nil];
     } else {
       DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
     }
@@ -256,9 +252,10 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       [_queuedApplicationSelectors removeAllObjects];
     }
 
-    TiThreadPerformOnMainThread(^{
-      [self validator];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self validator];
+        },
         YES);
   }
 }
@@ -354,10 +351,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     remoteDeviceUUID = [apnsUUID copy];
   }
 
-  // iOS 10+: Register our notification delegate
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
-  }
+  [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
 
   // Get some launch options to validate before finish launching. Some of them
   // need to be mapepd from native to JS-types to be used by the client
@@ -432,7 +426,12 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
+  id source = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
+  if (source != nil) {
+    [launchOptions setObject:source forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
@@ -453,7 +452,11 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 
-  [launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
+  if (sourceApplication != nil) {
+    [launchOptions setObject:sourceApplication forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
@@ -1068,12 +1071,13 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
     // Synchronize the cleanup call on the main thread in case
     // the task actually finishes at around the same time.
-    TiThreadPerformOnMainThread(^{
-      if (bgTask != UIBackgroundTaskInvalid) {
-        [app endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [app endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
         NO);
   }];
   // Start the long-running task and return immediately.
@@ -1336,12 +1340,13 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   if ([runningServices count] == 0) {
     // Synchronize the cleanup call on the main thread in case
     // the expiration handler is fired at the same time.
-    TiThreadPerformOnMainThread(^{
-      if (bgTask != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
         NO);
   }
 }
@@ -1376,7 +1381,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [event setObject:NULL_IF_NIL(notification.request.content.userInfo) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL(notification.request.content.categoryIdentifier) forKey:@"category"];
   [event setObject:NULL_IF_NIL(notification.request.content.threadIdentifier) forKey:@"threadIdentifier"];
-  [event setObject:NULL_IF_NIL(notification.request.identifier) forKey:@"identifier"];
+  [event setObject:NULL_IF_NIL(identifier) forKey:@"identifier"];
 
   // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
   // a sound in the APS dictionary, we can provide that one for parity

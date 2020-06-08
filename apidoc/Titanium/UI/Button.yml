@@ -129,7 +129,7 @@ properties:
     description: |
         Also sets the background image for the other button states (disabled, focused, selected),
         unless they've been specified explicitly. On iOS, if backgroundDisabledImage is unset, the
-        image will appear faded to indicate being disabled. Also on iOS, if backgroundSelectedImage
+        image will appear faded to indicate being disabled. Also on iOS, if `backgroundSelectedImage`
         is unset, the image will be darkened to indicate being selected.
     type: String
 
@@ -157,7 +157,7 @@ properties:
     summary: Selected background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [ String, Titanium.UI.Color ]
     platforms: [iphone, ipad, android]
     default: Background color of this view.
     since: {iphone: "6.1.0", ipad: "6.1.0", android: 0.9.0}
@@ -176,11 +176,11 @@ properties:
     summary: Default button text color, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [ String, Titanium.UI.Color ]
 
   - name: disabledColor
     summary: Text color of the button in its disabled state, as a color name or hex triplet.
-    type: String
+    type: [ String, Titanium.UI.Color ]
     since: "3.2.0"
     platforms: [iphone, ipad]
 
@@ -207,7 +207,7 @@ properties:
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [ String, Titanium.UI.Color ]
     platforms: [iphone,ipad]
 
   - name: shadowColor
@@ -215,16 +215,16 @@ properties:
     description: |
         Use in conjunction with [shadowOffset](Titanium.UI.Button.shadowOffset) and [shadowRadius](Titanium.UI.Button.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [android]
+    type: [ String, Titanium.UI.Color ]
+    platforms: [android, iphone, ipad]
     since: "3.2.0"
 
   - name: shadowOffset
     summary: Shadow offset of the [title](Titanium.UI.Button.title), as a dictionary with the properties `x` and `y`.
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowRadius](Titanium.UI.Button.shadowRadius).
-    type: Dictionary
-    platforms: [android]
+    type: Point
+    platforms: [android, iphone, ipad]
     since: "3.2.0"
 
   - name: shadowRadius

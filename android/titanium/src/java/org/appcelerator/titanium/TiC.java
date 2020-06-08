@@ -128,11 +128,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_CREATE = "create";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_DESTROY = "destroy";
 
 	/**
@@ -547,11 +542,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_RESTART = "restart";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_RESUME = "resume";
 
 	/**
@@ -707,12 +697,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+	public static final String EVENT_USER_INTERACTION = "userinteraction";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_USER_INTERACTION = "userinteraction";
+	public static final String EVENT_USER_INTERFACE_STYLE = "userinterfacestyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 
 	/**
 	 * @module.api
@@ -808,9 +803,14 @@ public class TiC
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
-	 * @module.ape
+	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVE_TITLE_COLOR = "activeTitleColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVE_TINT_COLOR = "activeTintColor";
 
 	/**
 	 * @module.api
@@ -1439,9 +1439,8 @@ public class TiC
 
 	/**
 	 * @module.api
-	 * @deprecated Value will be changed to "countryCode" in SDK 9.0.0
 	 */
-	public static final String PROPERTY_COUNTRY_CODE = "country_code";
+	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
 
 	/**
 	 * @module.api
@@ -2392,6 +2391,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_OPEN = "open";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_BACK = "onBack";
 
 	/**
@@ -2433,11 +2437,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_STOP = "onStop";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ON_STOP_BLACKLISTED_URL = "onStopBlacklistedUrl"; // Deprecated in 6.1.0
 
 	/**
 	 * @module.api

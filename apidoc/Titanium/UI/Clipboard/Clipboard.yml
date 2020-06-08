@@ -50,13 +50,12 @@ methods:
         `text/plain` MIME type.
 
   - name: getData
-    summary: Gets data of the specified MIME type stored in the clipboard.
+    summary: Gets data of the specified MIME type stored in the clipboard. Returns null if non-text mimetype on Android.
     returns:
-        - type: String
-        - type: Titanium.Blob
+        type: [String,Titanium.Blob]
     parameters:
       - name: type
-        summary: MIME type. Must be text type on Android.
+        summary: MIME type. Must be 'text' or 'text/plain' on Android, or else null is returned.
         type: String
 
   - name: getText
@@ -70,8 +69,9 @@ methods:
         type: Boolean
     parameters:
       - name: type
-        summary: MIME type. Must be text type on Android.
+        summary: MIME type. Must be 'text' or 'text/plain' on Android (or it will return false).
         type: String
+        optional: true
 
   - name: hasText
     summary: Indicates whether any text data is stored in the clipboard.
@@ -112,12 +112,14 @@ methods:
         enables different representations/formats of a data item to be saved.
     parameters:
       - name: type
-        summary: MIME type. Must be text type on Android.
+        summary: |
+            MIME type. Must be 'text' or 'text/plain' on Android.
+            Possible types include: `'text', 'text/plain', 'color', 'image', 'url', 'text/uri-list'`
         type: String
 
       - name: data
         summary: New item of data.
-        type: Object
+        type: [Object, String, Titanium.Blob, Titanium.Filesystem.File, Titanium.UI.Color]
 
   - name: setText
     summary: Stores text data in the clipboard.

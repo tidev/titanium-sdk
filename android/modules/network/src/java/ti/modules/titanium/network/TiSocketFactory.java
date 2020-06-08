@@ -33,7 +33,9 @@ public class TiSocketFactory extends SSLSocketFactory
 	private SSLContext sslContext;
 	private String tlsVersion;
 	private static final String TAG = "TiSocketFactory";
-	private static final boolean JELLYBEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
+	private static final boolean JELLYBEAN_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+	private static final boolean Q_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+	private static final String TLS_VERSION_1_3_PROTOCOL = "TLSv1.3";
 	private static final String TLS_VERSION_1_2_PROTOCOL = "TLSv1.2";
 	private static final String TLS_VERSION_1_1_PROTOCOL = "TLSv1.1";
 	private static final String TLS_VERSION_1_0_PROTOCOL = "TLSv1";
@@ -43,9 +45,17 @@ public class TiSocketFactory extends SSLSocketFactory
 		throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException
 	{
 		super();
-		//super(null,null,null,null,null,null);
-		switch (protocol) {
 
+		// Select appropriate default based on Android version.
+		if (protocol == NetworkModule.TLS_DEFAULT) {
+			if (Q_OR_GREATER) {
+				protocol = NetworkModule.TLS_VERSION_1_3;
+			} else if (JELLYBEAN_OR_GREATER) {
+				protocol = NetworkModule.TLS_VERSION_1_2;
+			}
+		}
+
+		switch (protocol) {
 			case NetworkModule.TLS_VERSION_1_0:
 				tlsVersion = TLS_VERSION_1_0_PROTOCOL;
 				enabledProtocols = new String[] { TLS_VERSION_1_0_PROTOCOL };
@@ -56,21 +66,23 @@ public class TiSocketFactory extends SSLSocketFactory
 				break;
 			case NetworkModule.TLS_VERSION_1_2:
 				tlsVersion = TLS_VERSION_1_2_PROTOCOL;
-				enabledProtocols =
-					new String[] { TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL, TLS_VERSION_1_2_PROTOCOL };
+				enabledProtocols = new String[] {
+					TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL, TLS_VERSION_1_2_PROTOCOL
+				};
+				break;
+			case NetworkModule.TLS_VERSION_1_3:
+				tlsVersion = TLS_VERSION_1_3_PROTOCOL;
+				enabledProtocols = new String[] {
+					TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL,
+					TLS_VERSION_1_2_PROTOCOL, TLS_VERSION_1_3_PROTOCOL
+				};
 				break;
 			default:
 				Log.e(TAG, "Incorrect TLS version was set in HTTPClient. Reverting to default TLS version.");
 			case NetworkModule.TLS_DEFAULT:
-				if (JELLYBEAN_OR_GREATER) {
-					tlsVersion = TLS_VERSION_1_2_PROTOCOL;
-					enabledProtocols =
-						new String[] { TLS_VERSION_1_0_PROTOCOL, TLS_VERSION_1_1_PROTOCOL, TLS_VERSION_1_2_PROTOCOL };
-				} else {
-					tlsVersion = TLS_VERSION_1_0_PROTOCOL;
-					enabledProtocols = new String[] { TLS_VERSION_1_0_PROTOCOL };
-					Log.i(TAG, tlsVersion + " protocol is being used. It is a less-secure version.");
-				}
+				tlsVersion = TLS_VERSION_1_0_PROTOCOL;
+				enabledProtocols = new String[] { TLS_VERSION_1_0_PROTOCOL };
+				Log.i(TAG, tlsVersion + " protocol is being used. It is a less-secure version.");
 				break;
 		}
 

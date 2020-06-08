@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Base theme applied to all Titanium transluent windows and splash activity. -->
+	<!-- Our "_build.js" script will replace it with ".Fullscreen" theme if set in "tiapp.xml" file. -->
+	<style name="Base.Theme.Titanium.Basic" parent="Theme.AppCompat"/>
+
+	<!-- Base theme applied to all Titanium opaque windows. -->
+	<!-- Our "_build.js" script will replace it if custom theme is applied to application in manifest. -->
+	<style name="Base.Theme.Titanium.Customizable" parent="Theme.AppCompat"/>
+
+	<!-- Base theme to be used by the "TiRootActivity" class. -->
+	<style name="Base.Theme.Titanium.Splash" parent="@style/Base.Theme.Titanium.Basic">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<style name="Theme.AppCompat.NoTitleBar">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowActionBar">false</item>
+		<!-- AppCompat Compatibility -->
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<style name="Theme.AppCompat.NoTitleBar.Fullscreen">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<style name="Theme.AppCompat.Fullscreen" parent="@style/Theme.AppCompat.NoTitleBar.Fullscreen"/>
+
+	<!-- Theme to be replaced by app project and have a "windowBackground" image applied to it. -->
+	<!-- Our Android "_build.js" script will replace this theme via the generateTheme() method. -->
+	<style name="Theme.Titanium" parent="@style/Base.Theme.Titanium.Splash"/>
+
+	<!-- Theme to be used by Titanium's translucent windows and modal windows. -->
+	<style name="Theme.Titanium.Translucent" parent="@style/Base.Theme.Titanium.Customizable">
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:colorBackgroundCacheHint">@null</item>
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:windowAnimationStyle">@android:style/Animation</item>
+	</style>
+
+	<style name="Theme.AppCompat.Translucent" parent="@style/Base.Theme.Titanium.Basic">
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:colorBackgroundCacheHint">@null</item>
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:actionBarStyle">@style/Base.Widget.AppCompat.ActionBar.Solid</item>
+		<!-- AppCompat Compatibility -->
+		<item name="actionBarStyle">@style/Base.Widget.AppCompat.ActionBar.Solid</item>
+	</style>
+	
+	<style name="Theme.AppCompat.Translucent.NoTitleBar">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowActionBar">false</item>
+		<!-- AppCompat Compatibility -->
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+	
+	<style name="Theme.AppCompat.Translucent.NoTitleBar.Fullscreen">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+</resources>

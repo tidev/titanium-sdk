@@ -31,6 +31,7 @@ const appc = require('node-appc'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
+	Color = require('../../../common/lib/color'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
@@ -180,6 +181,10 @@ function iOSBuilder() {
 	this.enableLaunchScreenStoryboard = true;
 	this.defaultLaunchScreenStoryboard = true;
 	this.defaultBackgroundColor = null;
+
+	// if the selected sim is 32-bit (iPhone 5 and older, iPad 4th gen or older), then the app
+	// won't run, so we need to track the ONLY_ACTIVE_ARCH flag and disable it for 32-bit sims
+	this.simOnlyActiveArch = null;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -2052,6 +2057,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					this.watchSimHandle = watchSimHandle;
 					this.xcodeEnv = selectedXcode;
 
+					// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+					const m = this.simHandle.model.match(/^(iPad|iPhone)([\d]+)/);
+					this.simOnlyActiveArch = !!(m && (m[1] === 'iPad' && parseInt(m[2]) >= 4) || (m[1] === 'iPhone' && parseInt(m[2]) >= 6));
+
 					if (!this.iosSdkVersion) {
 						const sdks = selectedXcode.sdks.sort();
 						this.iosSdkVersion = sdks[sdks.length - 1];
@@ -2106,23 +2115,20 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 			function determineMinIosVer() {
 				// figure out the min-ios-ver that this app is going to support
-				let defaultMinIosSdk = this.packageJson.minIosVersion;
+				let defaultMinIosVersion = this.packageJson.minIosVersion;
 
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '9.0')) {
-					defaultMinIosSdk = '9.0';
-				}
+				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosVersion;
 
-				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
-
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '9.0')) {
-					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '9.0'));
-					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '9.0'));
-				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
-					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
-					this.minIosVer = defaultMinIosSdk;
-				} else if (version.lt(this.minIosVer, defaultMinIosSdk)) {
-					logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(defaultMinIosSdk, 2).cyan));
-					this.minIosVer = defaultMinIosSdk;
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '10.0')) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '10.0'));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '10.0'));
+					this.minIosVer = defaultMinIosVersion;
+				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosVersion)) {
+					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosVersion.cyan));
+					this.minIosVer = defaultMinIosVersion;
+				} else if (version.lt(this.minIosVer, defaultMinIosVersion)) {
+					logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(defaultMinIosVersion, 2).cyan));
+					this.minIosVer = defaultMinIosVersion;
 				} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
 					logger.error(__('The <min-ios-ver> of the iOS section in the tiapp.xml is set to %s and is greater than the specified iOS version %s', version.format(this.minIosVer, 2), version.format(this.iosSdkVersion, 2)));
 					logger.error(__('Either rerun with --ios-version %s or set the <min-ios-ver> to %s.', version.format(this.minIosVer, 2), version.format(this.iosSdkVersion, 2)) + '\n');
@@ -2401,7 +2407,8 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'];
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
-	this.currentBuildManifest.showErrorController          = this.showErrorController;
+	this.currentBuildManifest.simOnlyActiveArch  = this.simOnlyActiveArch;
+	this.currentBuildManifest.showErrorController = this.showErrorController;
 
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
@@ -2514,7 +2521,7 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
 	this.tiLogServerPort = 0;
 
-	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+	if (this.target !== 'device') {
 		// we don't allow the log server in production
 		return next();
 	}
@@ -2840,6 +2847,13 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
+		if (this.simOnlyActiveArch !== manifest.simOnlyActiveArch) {
+			this.logger.info(__('Forcing rebuild: simOnlyActiveArch flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.simOnlyActiveArch));
+			this.logger.info('  ' + __('Now: %s', this.simOnlyActiveArch));
+			return true;
+		}
+
 		// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
 		// note: as soon as these tiapp.xml settings are written to an encrypted file instead of the binary, we can remove this whole section
 		const tiappSettings = {
@@ -3090,6 +3104,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
+		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
@@ -3419,7 +3434,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				const handledBuildPhases = [ 'PBXSourcesBuildPhase', 'PBXFrameworksBuildPhase', 'PBXResourcesBuildPhase', 'PBXCopyFilesBuildPhase' ];
 
 				// add the build phases
-				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
+				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(phase => {
 					let type;
 
 					for (const handledBuildPhase of handledBuildPhases) {
@@ -4128,6 +4143,9 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	if (this.enableLaunchScreenStoryboard) {
 		plist.UILaunchStoryboardName = 'LaunchScreen';
 	} else {
+		if (appc.version.gte(this.xcodeEnv.version, '11.0.0')) {
+			this.logger.warn(__('Launch images are deprecated by Xcode 11 and you will need to adopt a storyboard-based launch screen'));
+		}
 		delete plist.UILaunchStoryboardName;
 	}
 
@@ -4596,6 +4614,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
+	copyAndReplaceFile.call(
+		this,
+		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),
+		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata')
+	);
 
 	if (this.enableLaunchScreenStoryboard && this.defaultLaunchScreenStoryboard) {
 		this.logger.info(__('Installing default %s', 'LaunchScreen.storyboard'.cyan));
@@ -4657,7 +4680,8 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles(next) {
 			beforeCopy: function (srcFile, destFile, srcStat) {
 				this.unmarkBuildDirFile(destFile);
 
-				if (path.basename(srcFile) === 'Info.plist') {
+				// Only check source Info.plist files, not compiled framework Info.plist files
+				if (path.basename(srcFile) === 'Info.plist' && !srcFile.includes('.framework')) {
 					// validate the info.plist
 					const infoPlist = new appc.plist(srcFile);
 					if (infoPlist.WKWatchKitApp) {
@@ -4978,7 +5002,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	this.logger.info(__('Analyzing Resources directory'));
-	walk(path.join(this.titaniumSdkPath, 'common', 'Resources'), this.xcodeAppDir);
+	walk(path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir);
@@ -5746,14 +5770,29 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 					Object.keys(imageAssets).forEach(function (file) {
+						const directories = file.split('/');
+						let newPath = '';
+						for (let i = 0; i < directories.length - 1; i++) {
+							newPath = newPath + '/' + directories[i];
+
+							writeAssetContentsFile.call(this, path.join(assetCatalog, newPath, 'Contents.json'), {
+								info: {
+									version: 1,
+									author: 'xcode'
+								},
+								properties: {
+									'provides-namespace': true
+								},
+							});
+						}
+
 						const imageName = imageAssets[file].name,
 							match = file.match(imageNameRegExp);
 
 						if (match) {
 							const imageExt = imageAssets[file].ext;
 							const imageSetName = match[1];
-							const imageSetNameSHA = sha1(imageSetName + '.' + imageExt);
-							const imageSetRelPath = imageSetNameSHA + '.imageset';
+							const imageSetRelPath = imageSetName + '.imageset';
 
 							// update image file's destination
 							const dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
@@ -5800,32 +5839,19 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				},
 
 				function generateSemanticColors() {
-					const colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
-					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
-					const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+					let colorsFile = path.join(this.projectDir, 'Resources', 'iphone', 'semantic.colors.json');
 
-					function hexToRgb(hex) {
-						let alpha = 1;
-						let color = hex;
-						if (hex.color) {
-							alpha = hex.alpha / 100; // convert from 0-100 range to 0-1 range
-							color = hex.color;
-						}
-						// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-						color = color.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-
-						var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
-						return result ? {
-							r: parseInt(result[1], 16),
-							g: parseInt(result[2], 16),
-							b: parseInt(result[3], 16),
-							alpha: alpha.toFixed(3)
-						} : null;
+					if (!fs.existsSync(colorsFile)) {
+						// Fallback to root of Resources folder for Classic applications
+						colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
 					}
 
 					if (!fs.existsSync(colorsFile)) {
+						this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
 						return;
 					}
+
+					const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
 					const colors = fs.readJSONSync(colorsFile);
 
 					for (const [ color, colorValue ] of Object.entries(colors)) {
@@ -5841,9 +5867,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							continue;
 						}
 
-						const defaultRGB = hexToRgb(colorValue.default || colorValue.light);
-						const lightRGB = hexToRgb(colorValue.light);
-						const darkRGB = hexToRgb(colorValue.dark);
+						const defaultRGB = Color.fromSemanticColorsEntry(colorValue.default || colorValue.light);
+						const lightRGB = Color.fromSemanticColorsEntry(colorValue.light);
+						const darkRGB = Color.fromSemanticColorsEntry(colorValue.dark);
 
 						const colorSource = {
 							info: {
@@ -5852,6 +5878,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							},
 							colors: []
 						};
+
+						// Contents.json can hold string or numeric values for colors. 0-255 integers or 0-1 floats.
 
 						// Default
 						colorSource.colors.push({
@@ -5862,7 +5890,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${defaultRGB.r}`,
 									green: `${defaultRGB.g}`,
 									blue: `${defaultRGB.b}`,
-									alpha: `${defaultRGB.alpha}`
+									alpha: defaultRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
 								}
 							}
 						});
@@ -5880,7 +5908,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${lightRGB.r}`,
 									green: `${lightRGB.g}`,
 									blue: `${lightRGB.b}`,
-									alpha: `${lightRGB.alpha}`
+									alpha: lightRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
 								}
 							}
 						});
@@ -5898,7 +5926,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									red: `${darkRGB.r}`,
 									green: `${darkRGB.g}`,
 									blue: `${darkRGB.b}`,
-									alpha: `${darkRGB.alpha}`
+									alpha: darkRGB.alpha.toFixed(3) // explicitly force float with decimal, or it interprets 1 as integer 1/255
 								}
 							}
 						});
@@ -5968,7 +5996,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			series(this, [
 				function processJSFiles(next) {
 					this.logger.info(__('Processing JavaScript files'));
-					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources');
+					const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources', 'ios');
 					const task = new ProcessJsTask({
 						inputFiles: Object.keys(jsFiles).map(relPath => jsFiles[relPath].src),
 						incrementalDirectory: path.join(this.buildDir, 'incremental', 'process-js'),
@@ -5984,7 +6012,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							resourcesDir: this.xcodeAppDir,
 							logger: this.logger,
 							targets: {
-								ios: this.minSupportedIosSdk
+								ios: this.minIosVersion
 							}
 						}
 					});
@@ -6776,10 +6804,12 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (this.simHandle) {
-		// when building for the simulator, we need to specify a destination and a scheme (above)
-		// so that it can compile all targets (phone and watch targets) for the simulator
-		args.push('-destination', 'platform=iOS Simulator,id=' + this.simHandle.udid + ',OS=' + appc.version.format(this.simHandle.version, 2, 2));
-		args.push('ONLY_ACTIVE_ARCH=1');
+		args.push('-destination', 'generic/platform=iOS Simulator');
+
+		// only build active architecture, which is 64-bit, if simulator is not 32-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+		if (this.simOnlyActiveArch) {
+			args.push('ONLY_ACTIVE_ARCH=1');
+		}
 	}
 
 	xcodebuildHook(

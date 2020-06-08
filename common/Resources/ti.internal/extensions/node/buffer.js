@@ -14,7 +14,17 @@
  * a Uint8Array in any of our APIs that take a Ti.Buffer and eventually deprecating/removing Ti.Buffer.
  */
 
-import { isInsideNodeModules } from './internal/util';
+import {
+	customInspectSymbol,
+	getOwnNonIndexProperties,
+	isBuffer,
+	isInsideNodeModules,
+	propertyFilter
+} from './internal/util';
+
+import { inspect as utilInspect } from './internal/util/inspect';
+
+const { ALL_PROPERTIES, ONLY_ENUMERABLE } = propertyFilter;
 
 // https://nodejs.org/api/buffer.html#buffer_buffers_and_character_encodings
 const TI_CODEC_MAP = new Map();
@@ -51,6 +61,8 @@ const uint8DoubleArray = new Uint8Array(doubleArray.buffer);
 const floatArray = new Float32Array(1);
 const uint8FloatArray = new Uint8Array(floatArray.buffer);
 
+let INSPECT_MAX_BYTES = 50;
+
 class Buffer {
 	/**
 	 * Constructs a new buffer.
@@ -80,17 +92,23 @@ class Buffer {
 
 		const tiBuffer = arg;
 		let start = encodingOrOffset;
-		this._tiBuffer = tiBuffer;
 		if (start === undefined) {
 			start = 0;
 		}
-		this.byteOffset = start;
 		if (length === undefined) {
-			this.length = tiBuffer.length - this.byteOffset;
-		} else {
-			this.length = length;
+			length = tiBuffer.length - start;
 		}
-		this._isBuffer = true;
+		Object.defineProperties(this, {
+			byteOffset: {
+				value: start
+			},
+			length: {
+				value: length
+			},
+			_tiBuffer: {
+				value: tiBuffer
+			}
+		});
 		// FIXME: Support .buffer property that holds an ArrayBuffer!
 	}
 
@@ -846,6 +864,14 @@ class Buffer {
 	}
 
 	/**
+	 * Provides a conversion method for interacting with Ti APIs taht require a Ti.Buffer
+	 * @returns {Ti.Buffer} the underlying Ti.Buffer backing this Buffer instance
+	 */
+	toTiBuffer() {
+		return this._tiBuffer;
+	}
+
+	/**
 	 * Creates and returns an iterator for buf values (bytes)
 	 * @returns {Iterator}
 	 */
@@ -1405,9 +1431,45 @@ class Buffer {
 	 * @returns {boolean}
 	 */
 	static isBuffer(obj) {
-		return obj !== null && obj !== undefined && obj._isBuffer === true;
+		return obj !== null && obj !== undefined && obj[isBuffer] === true;
+	}
+
+	// Override how buffers are presented by util.inspect().
+	[customInspectSymbol](recurseTimes, ctx) {
+		const max = INSPECT_MAX_BYTES;
+		const actualMax = Math.min(max, this.length);
+		const remaining = this.length - max;
+		let str = this.slice(0, actualMax).toString('hex').replace(/(.{2})/g, '$1 ').trim();
+		if (remaining > 0) {
+			str += ` ... ${remaining} more byte${remaining > 1 ? 's' : ''}`;
+		}
+		// Inspect special properties as well, if possible.
+		if (ctx) {
+			let extras = false;
+			const filter = ctx.showHidden ? ALL_PROPERTIES : ONLY_ENUMERABLE;
+			const obj = getOwnNonIndexProperties(this, filter).reduce((obj, key) => {
+				extras = true;
+				obj[key] = this[key];
+				return obj;
+			}, Object.create(null));
+			if (extras) {
+				if (this.length !== 0) {
+					str += ', ';
+				}
+				// '[Object: null prototype] {'.length === 26
+				// This is guarded with a test.
+				str += utilInspect(obj, {
+					...ctx,
+					breakLength: Infinity,
+					compact: true
+				}).slice(27, -2);
+			}
+		}
+		return `<${this.constructor.name} ${str}>`;
 	}
 }
+
+Buffer.prototype.inspect = Buffer.prototype[customInspectSymbol];
 
 Buffer.poolSize = 8192;
 
@@ -1543,6 +1605,8 @@ const arrayIndexHandler = {
 			if (Number.isSafeInteger(num)) {
 				return getAdjustedIndex(target, num);
 			}
+		} else if (propKey === isBuffer) {
+			return true;
 		}
 		return Reflect.get(target, propKey, receiver);
 	},
@@ -1551,7 +1615,8 @@ const arrayIndexHandler = {
 		if (typeof propKey === 'string') {
 			const num = Number(propKey);
 			if (Number.isSafeInteger(num)) {
-				return setAdjustedIndex(target, num, value);
+				setAdjustedIndex(target, num, value);
+				return true;
 			}
 		}
 		return Reflect.set(target, propKey, value, receiver);
@@ -1580,7 +1645,6 @@ function setAdjustedIndex(buf, index, value) {
 	if (index >= 0 || index < buf._tiBuffer.length) {
 		buf._tiBuffer[index + buf.byteOffset] = value;
 	}
-	return value;
 }
 
 /**
@@ -1589,7 +1653,7 @@ function setAdjustedIndex(buf, index, value) {
  * @returns {Buffer} wrapped inside a Proxy
  */
 function newBuffer(...args) {
-	return new Proxy(new Buffer(...args), arrayIndexHandler);  // eslint-disable-line security/detect-new-buffer
+	return new Proxy(new Buffer(...args), arrayIndexHandler); // eslint-disable-line security/detect-new-buffer
 }
 
 /**

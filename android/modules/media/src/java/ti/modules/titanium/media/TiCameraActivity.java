@@ -1,13 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.media;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -19,12 +20,12 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -32,13 +33,12 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.Size;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.hardware.Camera.Size;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import android.os.Environment;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Surface;
@@ -49,7 +49,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.content.pm.PackageManager;
+import androidx.appcompat.app.ActionBar;
 
 @SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
@@ -81,7 +81,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public static MediaModule mediaContext;
 	public static KrollObject callbackContext;
-	public static KrollFunction successCallback, errorCallback, cancelCallback;
+	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
@@ -447,11 +447,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			return;
 		}
 
-		if (saveToPhotoGallery) {
-			videoFile = MediaModule.createGalleryImageFile();
-		} else {
-			videoFile = TiFileFactory.createDataFile("tia", ".mp4");
-		}
+		videoFile = MediaModule.createExternalStorageFile(".mp4", Environment.DIRECTORY_MOVIES, saveToPhotoGallery);
 
 		if (recorder == null) {
 			recorder = new MediaRecorder();
@@ -586,7 +582,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	/**
 	 * Computes the optimal preview size given the target display size and aspect ratio.
-	 * 
+	 *
 	 * @param supportPreviewSizes
 	 *            a list of preview sizes the camera supports
 	 * @param targetSize
@@ -630,9 +626,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	}
 
 	/**
-	 * Computes the optimal picture size given the preview size. 
+	 * Computes the optimal picture size given the preview size.
 	 * This returns the maximum resolution size.
-	 * 
+	 *
 	 * @param sizes
 	 *            a list of picture sizes the camera supports
 	 * @return the optimal size of the picture
@@ -672,35 +668,24 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	private static File writeToFile(byte[] data, boolean saveToGallery) throws Throwable
 	{
-		try {
-			File imageFile = null;
-			if (saveToGallery) {
-				imageFile = MediaModule.createGalleryImageFile();
-			} else {
-				// Save the picture in the internal data directory so it is private to this application.
-				String extension = ".jpg";
-				if (MEDIA_TYPE_VIDEO.equals(mediaType)) {
-					extension = ".mp4";
-				}
-				imageFile = TiFileFactory.createDataFile("tia", extension);
-			}
+		final boolean isVideo = MEDIA_TYPE_VIDEO.equals(mediaType);
+		final String extension = isVideo ? ".mp4" : ".jpg";
+		final File mediaFile = MediaModule.createExternalStorageFile(
+			extension, isVideo ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_PICTURES, saveToGallery);
+		final Uri mediaUri = MediaModule.getMediaUriFrom(mediaFile);
+		final OutputStream mediaOutputStream =
+			TiApplication.getInstance().getContentResolver().openOutputStream(mediaUri);
 
-			FileOutputStream imageOut = new FileOutputStream(imageFile);
-			imageOut.write(data);
-			imageOut.close();
+		BufferedOutputStream imageOut = new BufferedOutputStream(mediaOutputStream);
+		imageOut.write(data);
+		imageOut.close();
 
-			if (saveToGallery) {
-				Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-				Uri contentUri = Uri.fromFile(imageFile);
-				mediaScanIntent.setData(contentUri);
-				Activity activity = TiApplication.getAppCurrentActivity();
-				activity.sendBroadcast(mediaScanIntent);
-			}
-			return imageFile;
-
-		} catch (Throwable t) {
-			throw t;
+		if (saveToGallery) {
+			Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+			mediaScanIntent.setData(mediaUri);
+			TiApplication.getInstance().sendBroadcast(mediaScanIntent);
 		}
+		return mediaFile;
 	}
 
 	static public void takePicture()
@@ -716,23 +701,28 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 						public void onAutoFocus(boolean success, Camera camera)
 						{
 							if (takingPicture) {
-								try {
-									camera.takePicture(shutterCallback, null, jpegCallback);
-								} catch (Exception e) {
-									Log.w(TAG, "could not take picture: " + e.toString());
-									takingPicture = false;
-								}
-								if (!success) {
+								if (success) {
+									try {
+										camera.takePicture(shutterCallback, null, jpegCallback);
+									} catch (Exception e) {
+										Log.w(TAG, "Could not take picture: " + e.toString());
+										takingPicture = false;
+									}
+
+									// This is required in order to continue auto-focus after taking a picture.
+									// Calling 'cancelAutofocus' may cause issues on Android M. (TIMOB-20260)
+									// Which is why this requires an exception handler.
+									// NOTE: We should really update to Camera2 API.
+									try {
+										camera.cancelAutoFocus();
+										camera.autoFocus(null);
+									} catch (Exception e) {
+										Log.w(TAG, "Failed to cancel auto focus: " + e.toString());
+									}
+								} else {
 									Log.w(TAG, "Unable to focus.");
 								}
 							}
-							// This is a Hotfix for TIMOB-20260
-							// "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera)
-							// We need to move to android.hardware.camera2 APIs as soon as we can.
-							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-								camera.cancelAutoFocus();
-							}
-							camera.autoFocus(null);
 						}
 					};
 					camera.autoFocus(focusCallback);
@@ -740,7 +730,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					camera.takePicture(shutterCallback, null, jpegCallback);
 				}
 			} catch (Exception e) {
-				Log.w(TAG, "could not take picture: " + e.toString());
+				Log.w(TAG, "Could not take picture: " + e.toString());
 				if (camera != null) {
 					camera.release();
 				}
@@ -881,10 +871,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				camera = Camera.open(cameraId);
 			}
 		} catch (Exception e) {
-			Log.e(
-				TAG,
-				"Could not open camera. Camera may be in use by another process or device policy manager has disabled the camera.",
-				e);
+			String errorMessage =
+				"Could not open camera. "
+				+ "Camera may be in use by another process or device policy manager has disabled the camera.";
+			Log.e(TAG, errorMessage, e);
 		}
 
 		if (camera == null) {
@@ -945,12 +935,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onBackPressed()
 	{
-		if (cancelCallback != null) {
+		if (androidbackCallback != null) {
 			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, "User cancelled the request");
-			cancelCallback.callAsync(callbackContext, response);
+			response.putCodeAndMessage(-1, "User pressed androidback");
+			androidbackCallback.callAsync(callbackContext, response);
+		} else {
+			if (cancelCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(-1, "User cancelled the request");
+				cancelCallback.callAsync(callbackContext, response);
+			}
+			super.onBackPressed();
 		}
-		super.onBackPressed();
 	}
 
 	@Override

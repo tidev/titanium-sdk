@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
@@ -34,9 +35,9 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.ActionBar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.appcompat.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -522,6 +523,25 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int IMPORTANCE_UNSPECIFIED = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
 
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MANIFEST = ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_NONE = ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_DATA_SYNC = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_PHONE_CALL = ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_LOCATION = ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE =
+		ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION =
+		ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+
 	protected RProxy r;
 	private LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
 
@@ -593,11 +613,9 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getCurrentActivity()
-	// clang-format on
 	{
 		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity instanceof TiBaseActivity) {
@@ -606,11 +624,9 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getRootActivity()
-	// clang-format on
 	{
 		TiBaseActivity activity = TiApplication.getInstance().getRootActivity();
 		if (activity != null) {

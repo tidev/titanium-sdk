@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,8 +8,6 @@
 package org.appcelerator.titanium.util;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,13 +16,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -152,8 +150,12 @@ public class TiFileHelper
 				String resid = parts[2];
 
 				if (TI_RESOURCE_PREFIX.equals(section)) {
-					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid
-																+ ".png");
+					try {
+						is = TiApplication.getInstance().getResources().openRawResource(
+							TiRHelper.getResource("drawable." + resid));
+					} catch (Exception e) {
+						Log.w(TAG, "Drawable not found for Titanium id: " + resid);
+					}
 				} else if ("Sys".equals(section)) {
 					Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
 					Integer id = systemIcons.get(resid);
@@ -252,8 +254,8 @@ public class TiFileHelper
 	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
 	 * if checkForNinePatch param is true.
-	 * @param path  the path/url of the Drawable 
-	 * @param report  this is not being used. 
+	 * @param path  the path/url of the Drawable
+	 * @param report  this is not being used.
 	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
 	 * @param densityScaled  a boolean to determine whether the returning Drawable is scaled based on device density.
 	 * @return  a Drawable instance.
@@ -350,9 +352,11 @@ public class TiFileHelper
 			if (TI_RESOURCE_PREFIX.equals(section)) {
 				InputStream is = null;
 				try {
-					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid
-																+ ".png");
+					is = TiApplication.getInstance().getResources().openRawResource(
+						TiRHelper.getResource("drawable." + resid));
 					d = new BitmapDrawable(is);
+				} catch (Exception e) {
+					Log.w(TAG, "Resource not found for Titanium id: " + resid);
 				} finally {
 					if (is != null) {
 						try {
@@ -565,18 +569,13 @@ public class TiFileHelper
 
 	public File getTempFile(File dir, String suffix, boolean destroyOnExit) throws IOException
 	{
-		File result = null;
-		Context context = softContext.get();
-		if (context != null) {
-			if (!dir.exists()) {
-				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
-							   + "' does not exist. Call to File.createTempFile() will fail.");
-			}
-			result = File.createTempFile("tia", suffix, dir);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		final File result = new File(dir.getPath() + "/tia" + Math.abs(new Random().nextLong()) + suffix);
 
-			if (destroyOnExit) {
-				tempFiles.add(result);
-			}
+		if (destroyOnExit) {
+			tempFiles.add(result);
 		}
 		return result;
 	}
@@ -689,7 +688,7 @@ public class TiFileHelper
 
 	private boolean titaniumPath(String path)
 	{
-		return path == "" || path.equals("tiapp.xml") || path.startsWith("Resources");
+		return path.isEmpty() || path.equals("tiapp.xml") || path.startsWith("Resources");
 	}
 
 	private ZipInputStream getZipInputStream(InputStream is) throws FileNotFoundException, IOException

@@ -27,25 +27,28 @@
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;
   BOOL _tiCookieHandlerAdded;
+  BOOL ignoreNextRequest;
+  SEL reloadMethod;
+  NSString *assetsDirectory;
 }
+
+@property (nonatomic, retain) id reloadData;
 
 // Used from the proxy
 - (void)setHtml_:(id)args;
 - (void)viewDidClose;
-
+- (void)reload;
 - (WKWebView *)webView;
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
 
 @end
 
-#if IS_SDK_IOS_11
 @interface WebAppProtocolHandler : NSObject <WKURLSchemeHandler> {
 }
 
 + (NSString *)specialProtocolScheme;
 
 @end
-#endif
 
 #endif

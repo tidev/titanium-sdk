@@ -179,6 +179,7 @@ events:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) instead.
     properties:
       - name: index
@@ -204,6 +205,7 @@ events:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) instead.
     properties:
       - name: index
@@ -317,8 +319,8 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         A value of `transparent` results in a semi-opaque black bar style.
-    type: String
-    platforms: [iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, android]
 
   - name: translucent
     summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
@@ -335,11 +337,27 @@ properties:
     platforms: [iphone, ipad]
     type: titleAttributesParams
 
+  - name: titleColor
+    summary: Defines the color of the title of tab when it's inactive.
+    description: |
+        The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
+    type: [String, Titanium.UI.Color]
+    since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
+    platforms: [iphone, ipad, android]
+
+  - name: activeTitleColor
+    summary: Defines the color of the title of tab when it's active.
+    description: |
+        The color of the title of the tab when it's active. If not defined, it will use the default tint color.
+    type: [String, Titanium.UI.Color]
+    since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
+    platforms: [iphone, ipad, android]
+
   - name: navTintColor
     summary: The tintColor to apply to the navigation bar (typically for the **More** tab).
     description: |
         This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
-    type: [String]
+    type: [String, Titanium.UI.Color]
     since: "3.3.0"
     default: null
     osver: {ios: {min: "7.0"}}
@@ -445,7 +463,7 @@ properties:
 
         This property applies to all states and tabs, not just inactive tabs. Furthermore, the inactive 
         tab icons without activeIcon will be tinted this color.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
 
@@ -455,10 +473,13 @@ properties:
         This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
         title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
         blue.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "3.1.3"
     default: null
     platforms: [iphone, ipad]
+    deprecated:
+        since: "9.0.3"
+        notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: tabsTranslucent
     summary: A Boolean value that indicates whether the tab bar is translucent.
@@ -480,6 +501,24 @@ properties:
     default: true
     platforms: [iphone, ipad]
 
+  - name: activeTintColor
+    summary: The activeTintColor to apply to tabs.
+    description: |
+        This property affects the tint of selected tab icons. Will fallback to activeTitleColor when not defined.
+    type: String
+    since: "9.0.3"
+    default: null
+    platforms: [iphone, ipad, android]
+
+  - name: tintColor
+    summary: The tintColor to apply to tabs.
+    description: |
+        This property affects the tint of unselected tab icons. Will fallback to titleColor when not defined.
+    type: String
+    since: "9.0.3"
+    default: null
+    platforms: [iphone, ipad, android]
+
   - name: title
     summary: Title for this tabGroup.
     type: String
@@ -499,10 +538,13 @@ properties:
         indicates that the tab group should use its default value instead.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: 6.1.0
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
+    deprecated:
+        since: "9.0.3"
+        notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
@@ -517,10 +559,13 @@ properties:
     summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad]
+    deprecated:
+        since: "9.0.3"
+        notes: Deprecated in favor of [Titanium.UI.TabGroup.activeTintColor](Titanium.UI.TabGroup.activeTintColor) or alternatively [Titanium.UI.Tab.activeTintColor](Titanium.UI.Tab.activeTintColor).
 
   - name: tabsBackgroundSelectedColor
     summary: Default background selected color for tabs, as a color name or hex triplet.

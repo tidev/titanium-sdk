@@ -585,12 +585,21 @@ static NSDictionary *sizeMap = nil;
 
 + (NSString *)hexColorValue:(UIColor *)color
 {
-  const CGFloat *components = CGColorGetComponents(color.CGColor);
-
-  return [NSString stringWithFormat:@"#%02lX%02lX%02lX",
-                   lroundf(components[0] * 255),
-                   lroundf(components[1] * 255),
-                   lroundf(components[2] * 255)];
+  CGFloat red;
+  CGFloat green;
+  CGFloat blue;
+  CGFloat alpha;
+  BOOL wasConverted = [color getRed:&red
+                              green:&green
+                               blue:&blue
+                              alpha:&alpha];
+  if (!wasConverted) {
+    return @"#000000";
+  }
+  if (lroundf(alpha * 255.0) != 255) {
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0), lroundf(alpha * 255.0)];
+  }
+  return [NSString stringWithFormat:@"#%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
 }
 
 + (TiDimension)dimensionValue:(id)value
@@ -757,6 +766,25 @@ static NSDictionary *sizeMap = nil;
   UIGraphicsEndImageContext();
 
   return imageCopy;
+}
+
++ (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
+  }
+#endif
+  UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+  UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
+  imageView.tintColor = tintColor;
+
+  UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
+  [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
+  UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  return tintedImage;
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url
@@ -1270,6 +1298,49 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (WebFont *)fontValue:(id)value
 {
   return [self fontValue:value def:[WebFont defaultFont]];
+}
+
++ (TiScriptError *)scriptErrorFromValueRef:(JSValueRef)valueRef inContext:(JSGlobalContextRef)contextRef
+{
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:contextRef];
+  JSValue *error = [JSValue valueWithJSValueRef:valueRef inContext:context];
+  NSMutableDictionary *errorDict = [NSMutableDictionary new];
+
+  if ([error hasProperty:@"constructor"]) {
+    [errorDict setObject:[error[@"constructor"][@"name"] toString] forKey:@"type"];
+  }
+
+  // error message
+  if ([error hasProperty:@"message"]) {
+    [errorDict setObject:[error[@"message"] toString] forKey:@"message"];
+  }
+  if ([error hasProperty:@"nativeReason"]) {
+    [errorDict setObject:[error[@"nativeReason"] toString] forKey:@"nativeReason"];
+  }
+
+  // error location
+  if ([error hasProperty:@"sourceURL"]) {
+    [errorDict setObject:[error[@"sourceURL"] toString] forKey:@"sourceURL"];
+  }
+  if ([error hasProperty:@"line"]) {
+    [errorDict setObject:[error[@"line"] toNumber] forKey:@"line"];
+  }
+  if ([error hasProperty:@"column"]) {
+    [errorDict setObject:[error[@"column"] toNumber] forKey:@"column"];
+  }
+
+  // stack trace
+  if ([error hasProperty:@"backtrace"]) {
+    [errorDict setObject:[error[@"backtrace"] toString] forKey:@"backtrace"];
+  }
+  if ([error hasProperty:@"stack"]) {
+    [errorDict setObject:[error[@"stack"] toString] forKey:@"stack"];
+  }
+  if ([error hasProperty:@"nativeStack"]) {
+    [errorDict setObject:[error[@"nativeStack"] toString] forKey:@"nativeStack"];
+  }
+
+  return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];
 }
 
 + (TiScriptError *)scriptErrorValue:(id)value;
@@ -1890,6 +1961,19 @@ If the new path starts with / and the base url is app://..., we have to massage 
   NSMutableString *encoded = [[NSMutableString alloc] initWithCapacity:length];
   for (int i = 0; i < length; i++) {
     [encoded appendFormat:@"%02x", result[i]];
+  }
+  NSString *value = [encoded lowercaseString];
+  [encoded release];
+  return value;
+}
+
++ (NSString *)convertToHexFromData:(NSData *)data
+{
+  NSUInteger dataLength = data.length;
+  unsigned char *dataBytes = (unsigned char *)data.bytes;
+  NSMutableString *encoded = [[NSMutableString alloc] initWithCapacity:dataLength * 2];
+  for (int i = 0; i < dataLength; i++) {
+    [encoded appendFormat:@"%02x", dataBytes[i]];
   }
   NSString *value = [encoded lowercaseString];
   [encoded release];

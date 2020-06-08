@@ -7,6 +7,7 @@
 #import "ObjcProxy.h"
 #import "KrollBridge.h"
 #import "TiBindingTiValue.h"
+#import "TiExceptionHandler.h"
 #import "TiHost.h"
 
 @implementation ObjcProxy
@@ -16,10 +17,17 @@
 + (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
 {
   NSString *exceptionName = @"org.appcelerator";
-  NSDictionary *details = @{
-    kTiExceptionSubreason : subreason,
-    kTiExceptionLocation : location
-  };
+  NSDictionary *details;
+  if (subreason != nil) {
+    details = @{
+      kTiExceptionSubreason : subreason,
+      kTiExceptionLocation : location
+    };
+  } else {
+    details = @{
+      kTiExceptionLocation : location
+    };
+  }
   NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
   JSGlobalContextRef jsContext = [context JSGlobalContextRef];
   JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
@@ -29,10 +37,17 @@
 - (JSValue *)createError:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location inContext:(JSContext *)context
 {
   NSString *exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];
-  NSDictionary *details = @{
-    kTiExceptionSubreason : subreason,
-    kTiExceptionLocation : location
-  };
+  NSDictionary *details;
+  if (subreason != nil) {
+    details = @{
+      kTiExceptionSubreason : subreason,
+      kTiExceptionLocation : location
+    };
+  } else {
+    details = @{
+      kTiExceptionLocation : location
+    };
+  }
   NSException *exc = [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
   JSGlobalContextRef jsContext = [context JSGlobalContextRef];
   JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, exc);
@@ -98,6 +113,38 @@
   return [self init];
 }
 
+- (id)_initWithPageContext:(id<TiEvaluator>)context_ args:(NSArray *)args
+{
+  if (self = [self _initWithPageContext:context_]) {
+    NSDictionary *a = nil;
+    NSUInteger count = [args count];
+    if (count > 0 && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+      a = [args objectAtIndex:0];
+    }
+
+    // If we're being created by an old proxy/module but we're a new-style obj-c proxy
+    // we need to handle assigning the properties object passed into the constructor
+    if (a != nil) {
+      // Get the JS object corresponding to "this" proxy
+      // Note that [JSContext currentContext] is nil, so we need to hack and get the global context
+      // TODO: Can we hack in a nice method that gets current context if available, falls back to global context?
+      // Because a lot of the code in the proxy base class assumes current context is not nil
+      KrollContext *krollContext = [context_ krollContext];
+      JSGlobalContextRef ref = krollContext.context;
+      JSValueRef jsValueRef = TiBindingTiValueFromNSObject(ref, self);
+      JSContext *context = [JSContext contextWithJSGlobalContextRef:ref];
+      JSValue *this = [JSValue valueWithJSValueRef:jsValueRef inContext:context];
+
+      // Go through the key/value pairs and set them on "this"
+      for (NSString *key in a) {
+        id value = a[key];
+        this[key] = value;
+      }
+    }
+  }
+  return self;
+}
+
 - (NSURL *)_baseURL
 {
   return baseURL;
@@ -111,13 +158,13 @@
     if (_listeners == nil) {
       _listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
     }
-    JSManagedValue *managedRef = [JSManagedValue managedValueWithValue:callback];
-    [callback.context.virtualMachine addManagedReference:managedRef withOwner:self];
     NSMutableArray *listenersForType = [_listeners objectForKey:name];
     if (listenersForType == nil) {
       listenersForType = [[NSMutableArray alloc] init];
     }
-    [listenersForType addObject:managedRef];
+    // TIMOB-27839. Instead of using JSManagedValue we are using JSValue to force a retain cycle
+    // between the module/proxy and the event listeners to keep both alive so long as there were any listeners
+    [listenersForType addObject:callback];
     ourCallbackCount = [listenersForType count];
     [_listeners setObject:listenersForType forKey:name];
   }
@@ -143,11 +190,9 @@
 
     NSUInteger count = [listenersForType count];
     for (NSUInteger i = 0; i < count; i++) {
-      JSManagedValue *storedCallback = (JSManagedValue *)[listenersForType objectAtIndex:i];
-      JSValue *actualCallback = [storedCallback value];
+      JSValue *actualCallback = (JSValue *)[listenersForType objectAtIndex:i];
       if ([actualCallback isEqualToObject:callback]) {
         // if the callback matches, remove the listener from our mapping and mark unmanaged
-        [actualCallback.context.virtualMachine removeManagedReference:storedCallback withOwner:self];
         [listenersForType removeObjectAtIndex:i];
         [_listeners setObject:listenersForType forKey:name];
         ourCallbackCount = count - 1;
@@ -204,9 +249,8 @@
       return;
     }
     // FIXME: looks like we need to handle bubble logic/etc. See other fireEvent impl
-    for (JSManagedValue *storedCallback in listenersForType) {
-      JSValue *function = [storedCallback value];
-      [function callWithArguments:@[ dict ]];
+    for (JSValue *storedCallback in listenersForType) {
+      [self _fireEventToListener:name withObject:dict listener:storedCallback];
     }
   }
   @finally {
@@ -233,6 +277,11 @@
 
   if (listener != nil) {
     [listener callWithArguments:@[ eventObject ]];
+    // handle an uncaught exception
+    JSValue *exception = listener.context.exception;
+    if (exception != nil) {
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:listener.context];
+    }
   }
 }
 

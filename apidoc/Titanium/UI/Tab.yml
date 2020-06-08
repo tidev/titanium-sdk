@@ -74,7 +74,7 @@ methods:
             Dictionary of display and animation settings to use when opening the window.
             Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
             iOS only supports the **animated** parameter.
-        type: Object
+        type: openWindowParams
         optional: true
 
   - name: close
@@ -124,6 +124,7 @@ methods:
         type: Titanium.UI.Window
 
   - name: popToRootWindow
+    # FIXME: I don't think this exists on Android!
     summary: Closes all windows that are currently opened inside the tab.
     description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
@@ -131,8 +132,11 @@ methods:
         summary: |
             Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
-        type: Dictionary
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: "6.2.0"
+    platforms: [iphone, ipad]
 
 properties:
   - name: active
@@ -185,7 +189,7 @@ properties:
         If set to null, the default background color will be used instead.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: 6.1.0
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
@@ -252,6 +256,18 @@ properties:
     osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad]
 
+  - name: tintColor
+    summary: Defines the color of the tab icon. Will fallback to titleColor when not defined.
+    type: String
+    since: {iphone: "3.1.3", ipad: "3.1.3", android: "9.0.3"}
+    platforms: [iphone, ipad, android]
+
+  - name: activeTintColor
+    summary: Defines the color of the tab icon when it is active. Will fallback to activeTitleColor when not defined.
+    type: String
+    since: {android: "9.0.3"}
+    platforms: [iphone, ipad, android]
+
   - name: title
     summary: Title for this tab.
     type: String
@@ -264,7 +280,7 @@ properties:
     summary: Defines the color of the title of tab when it's inactive.
     description: |
         The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android]
@@ -273,7 +289,7 @@ properties:
     summary: Defines the color of the title of tab when it's active.
     description: |
         The color of the title of the tab when it's active. If not defined, it will use the default tint color.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android]
@@ -288,6 +304,7 @@ events:
     summary: Fired when the tab loses focus.
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) instead.
     properties:
       - name: index
@@ -330,6 +347,7 @@ events:
     summary: Fired when the tab gains focus.
     deprecated:
         since: "5.2.0"
+        removed: "9.0.0"
         notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) instead.
     properties:
       - name: index
@@ -364,16 +382,6 @@ events:
         type: Titanium.UI.Tab
     platforms: [android, iphone, ipad]
 
-  - name: selected
-    summary: Fired when the tab is selected.
-    platforms: [android]
-    since: "3.6.0"
-
-  - name: unselected
-    summary: Fired when the tab is unselected.
-    platforms: [android]
-    since: "3.6.0"
-
 examples:
   - title: Simple Tab Example
     example: |
@@ -406,14 +414,19 @@ examples:
 
 ---
 name: TabIconInsets
-summary: Dictionary to specify edge insets for <Titanium.UI.Tab.iconInsets>.
+extends: Padding
+summary: Dictionary to specify edge insets for <Titanium.UI.Tab.iconInsets>. Difference from typical <Padding> is that `right` and `bottom` are ignored and calculated internally from `top`/`left` values.
 since: "5.2.0"
 platforms: [iphone, ipad]
+excludes:
+  properties: [right, bottom]
 properties:
   - name: top
     summary: Top inset.
     type: Number
+    default: 0
 
   - name: left
     summary: Left inset.
     type: Number
+    default: 0

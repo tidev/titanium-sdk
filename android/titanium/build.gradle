@@ -1,0 +1,348 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License.
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+// Fetch Titanium version info to be applied to generated "BuildConfig" Java class and published AAR.
+// Prefer environment variables assigned via build/package scripts under "titanium_mobile/build" folder.
+def tiBuildVersionString = System.env.TI_SDK_BUILD_VERSION
+if (tiBuildVersionString == null) {
+	def packageJson = new groovy.json.JsonSlurper().parse(file("${projectDir}/../../package.json"))
+	tiBuildVersionString = packageJson.version
+	if (tiBuildVersionString == null) {
+		tiBuildVersionString = '1.0.0'
+	}
+}
+def tiBuildHashString = System.env.TI_SDK_BUILD_GIT_HASH
+if (tiBuildHashString == null) {
+	tiBuildHashString = 'HEAD'
+}
+def tiBuildTimeString = System.env.TI_SDK_BUILD_TIMESTAMP
+if (tiBuildTimeString == null) {
+	tiBuildTimeString = (new Date()).format('MM/dd/yyyy HH:mm', TimeZone.getTimeZone("UTC"))
+}
+def tiBuildVersionCode = 0
+for (nextString in tiBuildVersionString.split('\\.')) {
+	def intValue = Math.max(Integer.parseInt(nextString), 0)
+	if (tiBuildVersionCode <= 0) {
+		tiBuildVersionCode = intValue
+	} else {
+		tiBuildVersionCode *= 100
+		tiBuildVersionCode += Math.min(intValue, 99)
+	}
+}
+
+android {
+	compileSdkVersion 29
+	defaultConfig {
+		minSdkVersion 19
+		targetSdkVersion 29
+		versionName tiBuildVersionString
+		versionCode tiBuildVersionCode
+		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
+		buildConfigField('String', 'TI_BUILD_TIME_STRING', '"' + tiBuildTimeString + '"')
+		manifestPlaceholders = project.ext.tiManifestPlaceholders
+		javaCompileOptions {
+			annotationProcessorOptions {
+				// Set up "kroll-apt" @Kroll annotation processor to generate C/C++ code bindings between V8/Java.
+				// Also have it produce a JSON file of all bindings to be used by module build system.
+				arguments = [
+					'kroll.outputJsonFilePath': "${projectDir}/../../dist/android/titanium.bindings.json".toString(),
+					'kroll.outputCppDirPath': "${projectDir}/../runtime/v8/generated".toString(),
+					'kroll.jsModuleName': 'titanium'
+				]
+			}
+		}
+		externalNativeBuild {
+			ndkBuild {
+				cppFlags '-std=c++11'
+				arguments.addAll([
+					'APP_STL:=c++_shared',
+					"TI_DIST_DIR=${projectDir}/../../dist".replace('\\', '\\\\'),
+					"NDK_MODULE_PATH+=${projectDir}/../runtime/v8/src/ndk-modules".replace('\\', '\\\\'),
+					"-j${Runtime.runtime.availableProcessors()}".toString()
+				])
+				if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+					// Reduces length of NDK command line strings by writing source file list to text files.
+					arguments.add('APP_SHORT_COMMANDS=true')
+				}
+			}
+		}
+		ndk {
+			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+		}
+	}
+	buildTypes {
+		debug {
+			debuggable true
+			jniDebuggable true
+			externalNativeBuild {
+				ndkBuild {
+					arguments.add('TI_DEBUG=1')
+				}
+			}
+		}
+	}
+	externalNativeBuild {
+		ndkBuild {
+			path "${projectDir}/../runtime/v8/src/native/Android.mk"
+		}
+	}
+	sourceSets {
+		main {
+			manifest.srcFile 'AndroidManifest.xml'
+			assets.srcDirs = [
+				'assets',
+				"${projectDir}/../modules/ui/assets"
+			]
+			java.srcDirs = [
+				'src/java',
+				"${projectDir}/../modules/accelerometer/src/java",
+				"${projectDir}/../modules/analytics/src/java",
+				"${projectDir}/../modules/android/src/java",
+				"${projectDir}/../modules/app/src/java",
+				"${projectDir}/../modules/calendar/src/java",
+				"${projectDir}/../modules/contacts/src/java",
+				"${projectDir}/../modules/database/src/java",
+				"${projectDir}/../modules/filesystem/src/java",
+				"${projectDir}/../modules/geolocation/src/java",
+				"${projectDir}/../modules/gesture/src/java",
+				"${projectDir}/../modules/locale/src/java",
+				"${projectDir}/../modules/media/src/java",
+				"${projectDir}/../modules/network/src/java",
+				"${projectDir}/../modules/platform/src/java",
+				"${projectDir}/../modules/ui/src/java",
+				"${projectDir}/../modules/utils/src/java",
+				"${projectDir}/../modules/xml/src/java",
+				"${projectDir}/../runtime/common/src/java",
+				"${projectDir}/../runtime/v8/src/java"
+			]
+			jni.srcDirs = [
+				"${projectDir}/../runtime/v8/src/native",
+				"${projectDir}/../runtime/v8/src/native/modules",
+				"${projectDir}/../runtime/v8/generated"
+			]
+			res.srcDirs = [
+				'res',
+				"${projectDir}/../modules/ui/res"
+			]
+		}
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+}
+
+// Downloads/extracts V8 library and create a makefile for it. To be executed before C/C++ "build" or "clean".
+task updateV8Library() {
+	def packageJson = new groovy.json.JsonSlurper().parse(file("${projectDir}/../package.json"))
+	def v8MakeFilePath = "${projectDir}/../runtime/v8/src/ndk-modules/libv8/V8Settings.mk"
+	inputs.property 'v8.version', packageJson.v8.version
+	inputs.property 'v8.mode', packageJson.v8.mode
+	inputs.property 'v8.integrity', packageJson.v8.integrity
+	outputs.file v8MakeFilePath
+	outputs.files fileTree("${projectDir}/../../dist/android/libv8/${packageJson.v8.version}/${packageJson.v8.mode}")
+	doLast {
+		// Generate a "V8Settings.mk" makefile providing V8 information via variables.
+		// This file is referenced by our "./runtime/v8/src/ndk-modules/libv8/Android.mk" file.
+		def v8MakeFile = file(v8MakeFilePath)
+		v8MakeFile.getParentFile().mkdirs()
+		v8MakeFile.text = [
+			"LIBV8_VERSION=${packageJson.v8.version}",
+			"LIBV8_MODE=${packageJson.v8.mode}"
+		].join('\n') + '\n'
+
+		// Download/install the V8 library referenced in our "package.json", if not already done.
+		exec {
+			executable = 'node'
+			workingDir = projectDir
+			args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
+		}
+	}
+}
+preBuild.dependsOn updateV8Library
+tasks.withType(com.android.build.gradle.tasks.ExternalNativeCleanTask) {
+	dependsOn updateV8Library
+}
+
+// Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
+// Will trigger a build failure if any violations have been detected.
+// Customize all the Checkstyle tasks
+tasks.withType(Checkstyle) {
+	// Specify all files that should be checked
+	classpath = files()
+	source android.sourceSets.main.java.srcDirs
+}
+// Execute Checkstyle on all files
+task checkJavaStyle(type: Checkstyle) {
+	// include '**/*.java'
+}
+// Execute Checkstyle on all modified files
+task checkstyleChanged(type: Checkstyle) {
+	include getChangedFiles()
+}
+
+// Used to strip the src dir prefixes from the changed java files
+def getChangedFiles() {
+	if (!project.hasProperty('changedFiles')) {
+		return new ArrayList<>()
+	}
+	def allFiles = project.changedFiles.split(',')
+
+	// Remove the prefix
+	List<String> files = new ArrayList<>()
+	for (file in allFiles) {
+		def index = file.indexOf('src/java/')
+		if (index != -1) {
+			files.add(file.substring(index + 9))
+		}
+	}
+
+	// Return the list of touched files
+	files
+}
+
+// Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
+// takes a V8 snapshot of rolled-up files, and then generates a C++ header file of that snapshot to be compiled-in.
+// Note: This supports incremental builds. Only executes when JS files change or snapshot output file is missing.
+task snapshotTiCommonFiles() {
+	inputs.dir "${projectDir}/../../common/Resources"
+	inputs.file "${projectDir}/../../build/lib/builder.js"
+	inputs.file "${projectDir}/../../build/lib/android/index.js"
+	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
+	doLast {
+		exec {
+			executable = 'node'
+			workingDir = projectDir
+			args = ['-e', "require('./libv8-services').createSnapshotThenExit()"]
+		}
+	}
+}
+
+// Set up project to compile Java side before compiling the C/C++ side.
+// We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
+project.afterEvaluate {
+	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
+	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+}
+
+// Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
+// Generates C/C++ files providing our Android-only JS files via byte arrays.
+tasks.withType(JavaCompile) {
+	dependsOn checkJavaStyle
+	dependsOn snapshotTiCommonFiles
+	doLast {
+		exec {
+			executable = 'node'
+			workingDir = projectDir
+			args = ['prebuild.js']
+		}
+	}
+}
+
+clean.doLast {
+	// Delete generated C/C++ files.
+	project.delete file("${projectDir}/../runtime/v8/generated")
+
+	// Delete the files copied to our distribution directory. This is what gets packaged/installed.
+	project.delete fileTree(dir: file("${projectDir}/../../dist/android"), include: '**/*', exclude: 'libv8/**/*')
+}
+
+dependencies {
+	// This reads our code's @Kroll annotations and generates code which interops between V8 and proxy classes.
+	annotationProcessor project(':kroll-apt')
+	compileOnly project(':kroll-apt')
+
+	// AndroidX Library dependencies.
+	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
+	implementation 'androidx.cardview:cardview:1.0.0'
+	implementation "androidx.core:core:${project.ext.tiAndroidXCoreLibVersion}"
+	implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
+	implementation 'androidx.exifinterface:exifinterface:1.1.0'
+	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
+	implementation 'androidx.media:media:1.1.0'
+	implementation 'androidx.recyclerview:recyclerview:1.1.0'
+	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+	implementation 'androidx.transition:transition:1.2.0'
+	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
+	implementation 'androidx.viewpager:viewpager:1.0.0'
+	compileOnly 'androidx.annotation:annotation:1.1.0'
+
+	//TODO: Remove multidex library when our min OS version supported is Android 5.0 or higher.
+	implementation 'androidx.multidex:multidex:2.0.1'
+
+	// Google's "Material Components" themed UI library.
+	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
+
+	// The Google Play Services libraries are only used by Titanium's geolocation feature.
+	// We link to them dynamically at runtime. So, they can be safely excluded when in the app project.
+	implementation "com.google.android.gms:play-services-base:${project.ext.tiPlayServicesBaseLibVersion}"
+	implementation 'com.google.android.gms:play-services-location:17.0.0'
+
+	// Reference all local JAR file dependencies.
+	implementation fileTree(dir: 'lib', include: ['*.jar'])
+	implementation fileTree(dir: "${projectDir}/../modules/ui/lib", include: ['*.jar'])
+	implementation fileTree(dir: "${projectDir}/../modules/xml/lib", include: ['*.jar'])
+	implementation fileTree(dir: "${projectDir}/../runtime/v8/lib", include: ['*.jar'])
+}
+
+// This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.
+// It generates a maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
+// The below will only work if you do a release build via "gradlew :titanium:assembleRelease" first.
+publishing {
+	publications {
+		titaniumPublication(MavenPublication) {
+			// Set up maven repo info.
+			groupId 'org.appcelerator'
+			artifactId 'titanium'
+			version tiBuildVersionString
+			artifact file("${buildDir}/outputs/aar/titanium-release.aar")
+
+			// Generates the "*.pom" XML file containing all of Titanium's above dependencies,
+			// but excluding Google Play Services dependencies which is optional.
+			pom.withXml {
+				def dependenciesNode = asNode().appendNode('dependencies')
+				def list = new ArrayList<Dependency>()
+				list.addAll(configurations.api.allDependencies)
+				list.addAll(configurations.implementation.allDependencies)
+				list.each {
+					if ((it.group != null) && (it.name != null)) {
+						if (it.group != 'com.google.android.gms') {
+							def childNode = dependenciesNode.appendNode('dependency')
+							childNode.appendNode('groupId', it.group)
+							childNode.appendNode('artifactId', it.name)
+							childNode.appendNode('version', it.version)
+						}
+					}
+				}
+			}
+		}
+	}
+	repositories {
+		maven {
+			// The maven directory tree produced above will be outputted to the following local directory.
+			url "${buildDir}/outputs/m2repository"
+		}
+	}
+}
+publish.doLast {
+	// After above publishing step, extract C/C++ "*.so" libraries from AAR to "./build/outputs/jniLibs" directory.
+	def jniLibsOutputDir = "${buildDir}/outputs/jniLibs"
+	project.delete jniLibsOutputDir
+	copy {
+		from zipTree("${buildDir}/outputs/aar/titanium-release.aar")
+		into jniLibsOutputDir
+		include 'jni/**/*'
+		includeEmptyDirs false
+		eachFile {
+			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1))
+		}
+	}
+}

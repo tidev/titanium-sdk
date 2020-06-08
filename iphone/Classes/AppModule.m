@@ -36,9 +36,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)_restart:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [[[TiApp app] controller] shutdownUi:self];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[[TiApp app] controller] shutdownUi:self];
+      },
       NO);
 }
 
@@ -190,8 +191,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   if (appListeners != nil) {
     id type = [args objectAtIndex:0];
     id obj = [args count] > 1 ? [args objectAtIndex:1] : nil;
-
-    DebugLog(@"[DEBUG] Firing app event: %@", type);
 
     NSArray *array = [[appListeners objectForKey:type] copy];
 

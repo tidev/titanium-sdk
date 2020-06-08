@@ -64,6 +64,8 @@ public class NetworkModule extends KrollModule
 	public static final int TLS_VERSION_1_1 = 2;
 	@Kroll.constant
 	public static final int TLS_VERSION_1_2 = 3;
+	@Kroll.constant
+	public static final int TLS_VERSION_1_3 = 4;
 
 	@Kroll.constant
 	public static final int PROGRESS_UNKNOWN = -1;
@@ -172,11 +174,9 @@ public class NetworkModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getOnline()
-	// clang-format on
 	{
 		boolean result = false;
 
@@ -213,11 +213,9 @@ public class NetworkModule extends KrollModule
 		return type;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getNetworkType()
-	// clang-format on
 	{
 		int type = NETWORK_UNKNOWN;
 
@@ -239,11 +237,9 @@ public class NetworkModule extends KrollModule
 		return type;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNetworkTypeName()
-	// clang-format on
 	{
 		return networkTypeToTypeName(getNetworkType());
 	}
@@ -264,20 +260,16 @@ public class NetworkModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.topLevel
 	public String encodeURIComponent(String component)
-	// clang-format on
 	{
 		return Uri.encode(component);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.topLevel
 	public String decodeURIComponent(String component)
-	// clang-format on
 	{
 		return Uri.decode(component);
 	}

@@ -7,9 +7,11 @@
 
 #import "TiExceptionHandler.h"
 #import "APSAnalytics.h"
+#import "KrollContext.h"
 #import "TiApp.h"
 #import "TiBase.h"
 
+#include <JavaScriptCore/JavaScriptCore.h>
 #include <execinfo.h>
 #include <signal.h>
 
@@ -80,6 +82,16 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   [currentDelegate handleScriptError:scriptError];
 }
 
+- (void)reportScriptError:(JSValueRef)errorRef inKrollContext:(KrollContext *)krollContext
+{
+  [self reportScriptError:[TiUtils scriptErrorFromValueRef:errorRef inContext:krollContext.context]];
+}
+
+- (void)reportScriptError:(JSValue *)error inJSContext:(JSContext *)context
+{
+  [self reportScriptError:[TiUtils scriptErrorFromValueRef:error.JSValueRef inContext:context.JSGlobalContextRef]];
+}
+
 - (void)showScriptError:(TiScriptError *)error
 {
   NSArray<NSString *> *exceptionStackTrace = [error valueForKey:@"nativeStack"];
@@ -87,11 +99,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     exceptionStackTrace = [NSThread callStackSymbols];
   }
 
+  NSMutableDictionary *errorDict = [error.dictionaryValue mutableCopy];
+  [errorDict setObject:[NSNumber numberWithLong:error.column] forKey:@"column"];
+  [errorDict setObject:[NSNumber numberWithLong:error.lineNo] forKey:@"line"];
   if (exceptionStackTrace == nil) {
     [[TiApp app] showModalError:[error description]];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
-                                                        object:self
-                                                      userInfo:error.dictionaryValue];
   } else {
     NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
     NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
@@ -105,13 +117,12 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
       [formattedStackTrace addObject:line];
     }
-
     NSString *stackTrace = [formattedStackTrace componentsJoinedByString:@"\n"];
+    [errorDict setObject:stackTrace forKey:@"nativeStack"];
+
     [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], stackTrace]];
-    NSMutableDictionary *errorDict = [error.dictionaryValue mutableCopy];
-    [errorDict setObject:stackTrace forKey:@"stackTrace"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification object:self userInfo:errorDict];
   }
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification object:self userInfo:errorDict];
 }
 
 - (NSString *)removeWhitespace:(NSString *)line

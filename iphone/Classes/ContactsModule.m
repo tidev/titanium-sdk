@@ -60,6 +60,7 @@ static NSArray *contactKeysWithoutImage;
 {
   [super startup];
   contactStore = NULL;
+  _includeNote = YES;
 }
 
 //used for fetch predicates.
@@ -103,21 +104,20 @@ static NSArray *contactKeysWithoutImage;
 
 #pragma mark Public API
 
+- (void)setIncludeNote:(id)arg
+{
+  _includeNote = [TiUtils boolValue:arg def:YES];
+}
+
 - (NSNumber *)hasContactsPermissions:(id)unused
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSContactsUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !calendarPermission) {
+  if (!calendarPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSContactsUsageDescription\" inside the plist in your tiapp.xml when accessing the native contacts. Please add the key and re-run the application.");
   }
 
   return @([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusAuthorized);
-}
-
-- (void)requestAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Contacts.requestAuthorization()", @"5.1.0", @"Contacts.requestContactsPermissions()");
-  [self requestContactsPermissions:args];
 }
 
 - (void)requestContactsPermissions:(id)args
@@ -154,17 +154,18 @@ static NSArray *contactKeysWithoutImage;
     [invocationArray release];
     return;
   }
-  TiThreadPerformOnMainThread(^() {
-    CNContactStore *ourContactStore = [self contactStore];
-    [ourContactStore requestAccessForEntityType:CNEntityTypeContacts
-                              completionHandler:^(BOOL granted, NSError *error) {
-                                NSString *errorMessage = granted ? nil : @"The user has denied access to the address book";
-                                NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code] message:errorMessage];
-                                KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
-                                [[callback context] enqueue:invocationEvent];
-                                RELEASE_TO_NIL(invocationEvent);
-                              }];
-  },
+  TiThreadPerformOnMainThread(
+      ^() {
+        CNContactStore *ourContactStore = [self contactStore];
+        [ourContactStore requestAccessForEntityType:CNEntityTypeContacts
+                                  completionHandler:^(BOOL granted, NSError *error) {
+                                    NSString *errorMessage = granted ? nil : @"The user has denied access to the address book";
+                                    NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code] message:errorMessage];
+                                    KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
+                                    [[callback context] enqueue:invocationEvent];
+                                    RELEASE_TO_NIL(invocationEvent);
+                                  }];
+      },
       NO);
 }
 
@@ -242,25 +243,14 @@ static NSArray *contactKeysWithoutImage;
   [[TiApp app] showModalController:contactPicker animated:animated];
 }
 
-- (TiContactsPerson *)getPersonByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getPersonByID\" method has been removed for iOS 9 and greater.");
-  return nil;
-}
-
-- (TiContactsGroup *)getGroupByID:(id)arg
-{
-  DebugLog(@"[WARN] The \"getGroupByID\" method has been removed for iOS 9 and greater.");
-  return nil;
-}
-
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getPersonByIdentifier:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getPersonByIdentifier:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -271,7 +261,11 @@ static NSArray *contactKeysWithoutImage;
   }
   NSError *error = nil;
   CNContact *contact = nil;
-  contact = [ourContactStore unifiedContactWithIdentifier:arg keysToFetch:[ContactsModule contactKeysWithImage] error:&error];
+  NSMutableArray *contactKeys = [NSMutableArray arrayWithArray:[ContactsModule contactKeysWithImage]];
+  if (!_includeNote) {
+    [contactKeys removeObject:CNContactNoteKey];
+  }
+  contact = [ourContactStore unifiedContactWithIdentifier:arg keysToFetch:contactKeys error:&error];
   if (error) {
     return nil;
   }
@@ -285,9 +279,10 @@ static NSArray *contactKeysWithoutImage;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getGroupByIdentifier:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getGroupByIdentifier:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -314,9 +309,10 @@ static NSArray *contactKeysWithoutImage;
 
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getPeopleWithName:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getPeopleWithName:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -327,8 +323,12 @@ static NSArray *contactKeysWithoutImage;
   }
   NSError *error = nil;
   NSArray *contacts = nil;
+  NSMutableArray *contactKeys = [NSMutableArray arrayWithArray:[ContactsModule contactKeysWithImage]];
+  if (!_includeNote) {
+    [contactKeys removeObject:CNContactNoteKey];
+  }
   //returns empty array or nil if there's an error
-  contacts = [ourContactStore unifiedContactsMatchingPredicate:[CNContact predicateForContactsMatchingName:arg] keysToFetch:[ContactsModule contactKeysWithImage] error:&error];
+  contacts = [ourContactStore unifiedContactsMatchingPredicate:[CNContact predicateForContactsMatchingName:arg] keysToFetch:contactKeys error:&error];
   if (!contacts) {
     return nil;
   }
@@ -350,9 +350,10 @@ static NSArray *contactKeysWithoutImage;
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getAllPeople:unused] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getAllPeople:unused] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -365,7 +366,11 @@ static NSArray *contactKeysWithoutImage;
   NSMutableArray *peopleRefs = nil;
   peopleRefs = [[NSMutableArray alloc] init];
   //this fetch request takes all information. Not advised to use this method if addressbook is huge. May result in performance issues.
-  CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:[ContactsModule contactKeysWithImage]];
+  NSMutableArray *array = [NSMutableArray arrayWithArray:[ContactsModule contactKeysWithImage]];
+  if (!_includeNote) {
+    [array removeObject:CNContactNoteKey];
+  }
+  CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:array];
   BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest
                                                               error:&error
                                                          usingBlock:^(CNContact *__nonnull contact, BOOL *__nonnull stop) {
@@ -390,9 +395,10 @@ static NSArray *contactKeysWithoutImage;
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getAllGroups:unused] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getAllGroups:unused] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -421,9 +427,10 @@ static NSArray *contactKeysWithoutImage;
 
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createPerson:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createPerson:arg] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -474,9 +481,10 @@ static NSArray *contactKeysWithoutImage;
 
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createGroup:arg] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createGroup:arg] retain];
+        },
         YES);
     return [result autorelease];
   }

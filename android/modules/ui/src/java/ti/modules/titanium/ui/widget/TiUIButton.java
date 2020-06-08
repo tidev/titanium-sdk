@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.lang.CharSequence;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -26,10 +25,9 @@ import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.support.v7.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatButton;
 
 public class TiUIButton extends TiUIView
 {

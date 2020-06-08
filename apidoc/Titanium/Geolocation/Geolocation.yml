@@ -307,6 +307,7 @@ events:
     properties:
       - name: code
         summary: If `success` is `false`, the error code is available.
+        type: Number
         platforms: [android, iphone, ipad]
 
       - name: success
@@ -869,6 +870,7 @@ properties:
   - name: altitudeAccuracy
     summary:  Vertical accuracy of the location update, in meters.
     type: Number
+    osver: { android: { min: "8.0.0" } }
 
   - name: heading
     summary: |
@@ -1204,6 +1206,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: {iphone: "8.0.0", ipad: "8.0.0"}
+        removed: "9.0.0"
 
   - name: country
     summary: Country name.
@@ -1221,6 +1224,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: {android: "8.0.0", iphone: "8.0.0", ipad: "8.0.0"}
+        removed: "9.0.0"
 
   - name: longitude
     summary: Longitude of the geocoded point.
@@ -1238,6 +1242,7 @@ properties:
     platforms: [android]
     deprecated:
         since: {android: "8.0.0"}
+        removed: "9.0.0"
 
   - name: address
     summary: Full address.

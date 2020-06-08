@@ -165,6 +165,15 @@ typedef enum {
 + (UIImage *)adjustRotation:(UIImage *)image;
 
 /**
+ Tint image to specified color.
+
+ @param image The image to be tinted.
+ @param tintColor The color to tint the image.
+ @return The tinted image.
+ */
++ (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor;
+
+/**
  Constructs URL from string using provided base URL.
 
  @param relativeString The relative URL
@@ -523,6 +532,8 @@ typedef enum {
 
 + (TiScriptError *)scriptErrorValue:(id)value;
 
++ (TiScriptError *)scriptErrorFromValueRef:(JSValueRef)valueRef inContext:(JSGlobalContextRef)contextRef;
+
 + (NSTextAlignment)textAlignmentValue:(id)alignment;
 
 + (NSString *)jsonStringify:(id)value;
@@ -792,6 +803,8 @@ typedef enum {
  @return Hex representation of the input array.
  */
 + (NSString *)convertToHex:(unsigned char *)input length:(size_t)length;
+
++ (NSString *)convertToHexFromData:(NSData *)data;
 
 + (NSString *)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders;
 

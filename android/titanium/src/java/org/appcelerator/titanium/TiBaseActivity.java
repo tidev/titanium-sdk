@@ -8,13 +8,11 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
@@ -29,7 +27,6 @@ import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
 import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -49,7 +46,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -59,19 +56,17 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
-import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -213,8 +208,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	public static interface ConfigurationChangedListener {
-		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
+	public interface ConfigurationChangedListener {
+		void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
 	/**
@@ -406,7 +401,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
 		if (!callbackDataByPermission.isEmpty()) {
 			handlePermissionRequestResult(requestCode, permissions, grantResults);
@@ -753,7 +748,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
-			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -777,12 +771,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
 						 .getToolbarInstance()));
 			} catch (RuntimeException e) {
-				Log.e(
-					TAG,
-					"Attempting to use Toolbar as ActionBar without disabling the default ActionBar in the current theme.\n"
-						+ "You must set 'windowActionBar' to false in your current theme. Or use one of the following themes:\n"
-						+ " - Theme.Titanium\n - Theme.AppCompat.Translucent.NoTitleBar\n - Theme.AppCompat.NoTitleBar\n"
-						+ "Which have ActionBar disabled by default.");
+				String message
+					= "You cannot use a Toolbar as an ActionBar if the current theme has an ActionBar.\n"
+					+ "You must set 'windowActionBar' to false in your theme or use one of the following themes:\n"
+					+ "- Theme.Titanium\n"
+					+ "- Theme.AppCompat.Translucent.NoTitleBar\n"
+					+ "- Theme.AppCompat.NoTitleBar";
+				Log.e(TAG, message);
 				TiApplication.terminateActivityStack();
 				finish();
 			}
@@ -992,19 +987,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			case KeyEvent.KEYCODE_BACK: {
 
 				if (event.getAction() == KeyEvent.ACTION_UP) {
-					String backEvent = "android:back";
 					KrollProxy proxy = null;
-					//android:back could be fired from a tabGroup window (activityProxy)
+					//androidback could be fired from a tabGroup window (activityProxy)
 					//or hw window (window).This event is added specifically to the activity
 					//proxy of a tab group in window.js
-					if (activityProxy.hasListeners(backEvent)) {
+					if (activityProxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 						proxy = activityProxy;
-					} else if (window.hasListeners(backEvent)) {
+					} else if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 						proxy = window;
 					}
 
 					if (proxy != null) {
-						proxy.fireEvent(backEvent, null);
+						proxy.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 						handled = true;
 					}
 				}
@@ -1014,13 +1008,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_CAMERA, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:camera")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:camera", null);
 					}
 					handled = true;
 				}
@@ -1034,13 +1021,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:focus")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:focus", null);
-					}
-					handled = true;
-				}
 
 				break;
 			}
@@ -1048,13 +1028,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_SEARCH, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:search")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:search", null);
 					}
 					handled = true;
 				}
@@ -1068,13 +1041,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:volup")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:volup", null);
-					}
-					handled = true;
-				}
 
 				break;
 			}
@@ -1082,13 +1048,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:voldown")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:voldown", null);
 					}
 					handled = true;
 				}
@@ -1180,6 +1139,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+
+		if (Build.VERSION.SDK_INT < 26) {
+			getResources().updateConfiguration(newConfig, getResources().getDisplayMetrics());
+		}
 
 		// Update ActionBar height and font size, if needed.
 		// Handler will only be null if activity was set up without a title bar.
@@ -1339,10 +1302,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			releaseDialogs(false);
 		}
 
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1379,10 +1338,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		TiApplication tiApp = getTiApp();
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
-
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
-		}
 
 		synchronized (lifecycleListeners.synchronizedList())
 		{
@@ -1422,20 +1377,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		updateTitle();
 
-		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
-			activityProxy.fireEvent(TiC.EVENT_START, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1462,10 +1403,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
-		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_STOP, null);
-		}
-
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
@@ -1491,20 +1428,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
-
-		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
-			activityProxy.fireEvent(TiC.EVENT_RESTART, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
-		}
 	}
 
 	@Override
@@ -1680,9 +1603,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void fireOnDestroy()
 	{
 		if (!onDestroyFired) {
-			if (activityProxy != null) {
-				activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
-			}
 			onDestroyFired = true;
 		}
 	}

@@ -1,12 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,8 +14,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import android.content.Context;
-import android.content.ContextWrapper;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -125,20 +122,16 @@ public class TiFileProxy extends KrollProxy
 		return tbf.isDirectory();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getReadonly()
-	// clang-format on
 	{
 		return tbf.isReadonly();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getWritable()
-	// clang-format on
 	{
 		return tbf.isWriteable();
 	}
@@ -169,11 +162,6 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public boolean createFile()
 	{
-		Context context = TiApplication.getInstance().getApplicationContext();
-		ContextWrapper contextWrapper = new ContextWrapper(context);
-		tbf = new TiFile(
-			new File(contextWrapper.getDir("data", Context.MODE_PRIVATE) + "/" + tbf.getNativeFile().getName()), path,
-			getExecutable());
 		return tbf.createFile();
 	}
 
@@ -206,29 +194,23 @@ public class TiFileProxy extends KrollProxy
 		return tbf.extension();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSymbolicLink()
-	// clang-format on
 	{
 		return tbf.isSymbolicLink();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getExecutable()
-	// clang-format on
 	{
 		return tbf.isExecutable();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHidden()
-	// clang-format on
 	{
 		return tbf.isHidden();
 	}
@@ -243,11 +225,9 @@ public class TiFileProxy extends KrollProxy
 		return dl != null ? dl.toArray(new String[0]) : null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getParent()
-	// clang-format on
 	{
 		TiBaseFile bf = tbf.getParent();
 		return bf != null ? new TiFileProxy(bf) : null;
@@ -259,20 +239,16 @@ public class TiFileProxy extends KrollProxy
 		return tbf.move(destination);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return tbf.name();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNativePath()
-	// clang-format on
 	{
 		return tbf.nativePath();
 	}
@@ -301,11 +277,9 @@ public class TiFileProxy extends KrollProxy
 		return getNativePath();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public long getSize()
-	// clang-format on
 	{
 		return tbf.size();
 	}
@@ -357,18 +331,21 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public long createTimestamp()
 	{
-		Log.w(
-			TAG,
-			"createTimestamp() has been deprecated in 7.2.0 in favor of createdAt() to avoid platform-differences for return type between iOS and Android. createdAt() will return a Date object on all platforms.");
+		String message
+			= "createTimestamp() has been deprecated in 7.2.0 in favor of createdAt() to avoid platform-differences"
+			+ " for return type between iOS and Android. createdAt() will return a Date object on all platforms.";
+		Log.w(TAG, message);
 		return tbf.createTimestamp();
 	}
 
 	@Kroll.method
 	public long modificationTimestamp()
 	{
-		Log.w(
-			TAG,
-			"modificationTimestamp() has been deprecated in 7.2.0 in favor of modifiedAt() to avoid platform-differences for return type between iOS and Android. modifiedAt() will return a Date object on all platforms.");
+		String message
+			= "modificationTimestamp() has been deprecated in 7.2.0 in favor of modifiedAt() to avoid"
+			+ " platform-differences for return type between iOS and Android. modifiedAt() will return a"
+			+ " Date object on all platforms.";
+		Log.w(TAG, message);
 		return tbf.modificationTimestamp();
 	}
 

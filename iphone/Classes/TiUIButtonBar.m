@@ -59,6 +59,42 @@
   return [self segmentedControl];
 }
 
+- (UIColor *)reverseColorOf:(UIColor *)oldColor
+{
+  CGColorRef oldCGColor = oldColor.CGColor;
+
+  int numberOfComponents = CGColorGetNumberOfComponents(oldCGColor);
+  // can not invert - the only component is the alpha
+  if (numberOfComponents == 1) {
+    return [UIColor colorWithCGColor:oldCGColor];
+  }
+
+  const CGFloat *oldComponentColors = CGColorGetComponents(oldCGColor);
+  CGFloat newComponentColors[numberOfComponents];
+
+  int i = numberOfComponents - 1;
+  newComponentColors[i] = oldComponentColors[i]; // alpha
+  while (--i >= 0) {
+    newComponentColors[i] = 1 - oldComponentColors[i];
+  }
+
+  CGColorRef newCGColor = CGColorCreate(CGColorGetColorSpace(oldCGColor), newComponentColors);
+  UIColor *newColor = [UIColor colorWithCGColor:newCGColor];
+  CGColorRelease(newCGColor);
+
+  //For the GRAY colors 'Middle level colors'
+  CGFloat white = 0;
+  [oldColor getWhite:&white alpha:nil];
+
+  if (white > 0.3 && white < 0.67) {
+    if (white >= 0.5)
+      newColor = [UIColor darkGrayColor];
+    else if (white < 0.5)
+      newColor = [UIColor blackColor];
+  }
+  return newColor;
+}
+
 // For regression #1880.  Because there are essentially TWO kinds of 'width' going on with tabbed/button bars
 // (width of all elements, width of the proxy) we assume that if the user has set the width of the bar completely,
 // AND the width of the proxy is undefined, they want magic!
@@ -67,7 +103,7 @@
 #ifndef TI_USE_AUTOLAYOUT
   // Treat 'undefined' like 'auto' when we have an available width for ALL control segments
   UISegmentedControl *ourControl = [self segmentedControl];
-  if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy *)[self proxy] layoutProperties] -> width)) {
+  if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy *)[self proxy] layoutProperties]->width)) {
     CGRect controlBounds = bounds_;
     controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
     [ourControl setBounds:controlBounds];
@@ -84,11 +120,52 @@
   [[self segmentedControl] setMomentary:!newIsTabbed];
 }
 
+- (void)setTintColor_:(id)value
+{
+  UIColor *color = [[TiUtils colorValue:value] color];
+
+  if ([TiUtils isIOSVersionLower:@"13.0"]) {
+    [[self segmentedControl] setTintColor:color];
+    return;
+  }
+
+  UIColor *newColor = [self reverseColorOf:color];
+  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateNormal];
+  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : newColor } forState:UIControlStateSelected];
+
+  [[self segmentedControl] setSelectedSegmentTintColor:color];
+}
+
 - (void)setBackgroundColor_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
-  [[self segmentedControl] setTintColor:[color _color]];
+  [[self segmentedControl] setBackgroundColor:[color _color]];
 }
+
+- (void)setTextColor_:(id)value
+{
+  UIColor *color = [[TiUtils colorValue:value] color];
+
+  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateNormal];
+}
+
+- (void)setSelectedTextColor_:(id)value
+{
+  UIColor *color = [[TiUtils colorValue:value] color];
+
+  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateSelected];
+}
+
+#if IS_SDK_IOS_13
+- (void)setSelectedButtonColor_:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return;
+  }
+  UIColor *color = [[TiUtils colorValue:value] color];
+  [[self segmentedControl] setSelectedSegmentTintColor:color];
+}
+#endif
 
 - (void)setIndex_:(id)value
 {
@@ -99,6 +176,7 @@
     [self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
   } else {
     [[self segmentedControl] setSelectedSegmentIndex:selectedIndex];
+    [segmentedControl setNeedsLayout];
   }
 }
 

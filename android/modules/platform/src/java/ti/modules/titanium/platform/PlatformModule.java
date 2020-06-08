@@ -7,6 +7,7 @@
 package ti.modules.titanium.platform;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -85,38 +86,30 @@ public class PlatformModule extends KrollModule
 		batteryLevel = -1;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getOsname()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getLocale()
-	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public DisplayCapsProxy getDisplayCaps()
-	// clang-format on
 	{
 		if (displayCaps == null) {
 			displayCaps = new DisplayCapsProxy();
@@ -125,101 +118,79 @@ public class PlatformModule extends KrollModule
 		return displayCaps;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getProcessorCount()
-	// clang-format on
 	{
 		return Runtime.getRuntime().availableProcessors();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
-	// clang-format on
 	{
 		return Build.USER;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getOsVersion();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getAvailableMemory()
-	// clang-format on
 	{
 		return Runtime.getRuntime().freeMemory();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getTotalMemory()
-	// clang-format on
 	{
 		return Runtime.getRuntime().totalMemory();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getModel()
-	// clang-format on
 	{
 		return Build.MODEL;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getManufacturer()
-	// clang-format on
 	{
 		return Build.MANUFACTURER;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getOstype()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getOsType();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getArchitecture()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getArchitecture();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getAddress()
-	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNetmask()
-	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getNetmask();
 	}
@@ -325,8 +296,36 @@ public class PlatformModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean openURL(KrollInvocation invocation, String url)
+	public boolean openURL(KrollInvocation invocation, String url,
+						   @Kroll.argument(optional = true) Object arg2, @Kroll.argument(optional = true) Object arg3)
 	{
+		// If given an optional callback, then call this method recursively without the callback.
+		// Note: We might also receieve an optional KrollDict argument. This is iOS only and should be ignored.
+		KrollFunction callback = null;
+		if (arg2 instanceof KrollFunction) {
+			callback = (KrollFunction) arg2;
+		} else if (arg3 instanceof KrollFunction) {
+			callback = (KrollFunction) arg3;
+		}
+		if (callback != null) {
+			// Attempt to open the URL.
+			boolean wasOpened = false;
+			String errorMessage = null;
+			try {
+				wasOpened = openURL(invocation, url, null, null);
+			} catch (Exception ex) {
+				errorMessage = ex.getMessage();
+			}
+
+			// Invoke callback with the result on the next message pump. (Mimics iOS' behavior.)
+			KrollDict event = new KrollDict();
+			event.putCodeAndMessage(wasOpened ? 0 : 1, errorMessage);
+			callback.callAsync(getKrollObject(), event);
+
+			// Return the result immediately for backward compatibility.
+			return wasOpened;
+		}
+
 		Log.d(TAG, "Launching viewer for: " + url, Log.DEBUG_MODE);
 
 		// Validate argument.
@@ -371,11 +370,9 @@ public class PlatformModule extends KrollModule
 		return wasSuccessful;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getMacaddress()
-	// clang-format on
 	{
 		String macaddr = null;
 		TiApplication tiApp = TiApplication.getInstance();
@@ -418,20 +415,16 @@ public class PlatformModule extends KrollModule
 		return macaddr;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return APSAnalytics.getInstance().getMachineId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
-	// clang-format on
 	{
 		if (monitor && batteryStateReceiver == null) {
 			registerBatteryStateReceiver();
@@ -440,55 +433,44 @@ public class PlatformModule extends KrollModule
 			batteryStateReceiver = null;
 		}
 	}
-	// clang-format off
+
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
-	// clang-format on
 	{
 		return batteryStateReceiver != null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getBatteryState()
-	// clang-format on
 	{
 		return batteryState;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getBatteryLevel()
-	// clang-format on
 	{
 		return batteryLevel;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getRuntime()
-	// clang-format on
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getUptime()
-	// clang-format on
 	{
 		return SystemClock.uptimeMillis() / 1000.0;
 	}
 
-	// clang-format off
 	@Kroll.method
 	public Object[] cpus()
-	// clang-format on
 	{
 		List<Processor> processors = getProcessors();
 		List<KrollDict> result = new ArrayList<KrollDict>(processors.size());
@@ -796,8 +778,10 @@ public class PlatformModule extends KrollModule
 		{
 			BufferedReader in = null;
 			try {
-				String[] args = { "/system/bin/cat",
-								  "/sys/devices/system/cpu/cpu" + getIndex() + "/cpufreq/scaling_cur_freq" };
+				String[] args = {
+					"/system/bin/cat",
+					"/sys/devices/system/cpu/cpu" + getIndex() + "/cpufreq/scaling_cur_freq"
+				};
 				ProcessBuilder cmd = new ProcessBuilder(args);
 				Process process = cmd.start();
 				InputStream inStream = process.getInputStream();

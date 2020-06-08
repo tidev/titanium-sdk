@@ -22,21 +22,6 @@ static NSOperationQueue *_operationQueue = nil;
   return @"Ti.Network";
 }
 
-- (NSNumber *)READ_MODE
-{
-  return [NSNumber numberWithInt:READ_MODE];
-}
-
-- (NSNumber *)WRITE_MODE
-{
-  return [NSNumber numberWithInt:WRITE_MODE];
-}
-
-- (NSNumber *)READ_WRITE_MODE
-{
-  return [NSNumber numberWithInt:READ_WRITE_MODE];
-}
-
 - (void)shutdown:(id)sender
 {
   RELEASE_TO_NIL(_operationQueue);
@@ -67,17 +52,19 @@ static NSOperationQueue *_operationQueue = nil;
   WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
   // wait until done is important to get the right state
-  TiThreadPerformOnMainThread(^{
-    [self startReachability];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self startReachability];
+      },
       YES);
 }
 
 - (void)_destroy
 {
-  TiThreadPerformOnMainThread(^{
-    [self stopReachability];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self stopReachability];
+      },
       YES);
   WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
@@ -196,6 +183,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_0, TLS_VERSION_1_0);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_1, TLS_VERSION_1_1);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
+MAKE_SYSTEM_PROP(TLS_VERSION_1_3, TLS_VERSION_1_3);
 
 MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
@@ -209,9 +197,10 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 - (NSNumber *)remoteNotificationsEnabled
 {
   __block BOOL enabled;
-  TiThreadPerformOnMainThread(^{
-    enabled = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        enabled = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+      },
       YES);
   return NUMBOOL(enabled);
 }
@@ -220,9 +209,10 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   __block NSUInteger types;
   NSMutableArray *result = [NSMutableArray array];
-  TiThreadPerformOnMainThread(^{
-    types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+      },
       YES);
   if ((types & UIUserNotificationTypeBadge) != 0) {
     [result addObject:NUMINT(1)];
@@ -286,11 +276,8 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   // called by TiApp
   if (pushNotificationSuccess != nil) {
-    NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<" withString:@""]
-        stringByReplacingOccurrencesOfString:@">"
-                                  withString:@""]
-        stringByReplacingOccurrencesOfString:@" "
-                                  withString:@""];
+    NSString *token = [TiUtils convertToHexFromData:deviceToken];
+
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:token forKey:@"deviceToken"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];

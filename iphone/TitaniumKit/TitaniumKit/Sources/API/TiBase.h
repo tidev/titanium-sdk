@@ -129,6 +129,24 @@ NSString *JavascriptNameForClass(Class c);
 
 #define NULL_IF_NIL(x) ({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
+#define IS_NULL_OR_NIL(x) ((x == nil) || ((id)x == [NSNull null]))
+
+#define ENSURE_CLASS_OR_NIL(x, t)                                                                                                                                         \
+  if (IS_NULL_OR_NIL(x)) {                                                                                                                                                \
+    x = nil;                                                                                                                                                              \
+  } else if (![x isKindOfClass:t]) {                                                                                                                                      \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
+  }
+
+#define ENSURE_TYPE_OR_NIL(x, t) ENSURE_CLASS_OR_NIL(x, [t class])
+
+#define ENSURE_CLASS(x, t)                                                                                                                                         \
+  if (![x isKindOfClass:t]) {                                                                                                                                      \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
+  }
+
+#define ENSURE_TYPE(x, t) ENSURE_CLASS(x, [t class])
+
 //NOTE: these checks can be pulled out of production build type
 
 //Question: Given that some of these silently massage the data during development but not production,
@@ -141,40 +159,31 @@ NSString *JavascriptNameForClass(Class c);
     ENSURE_TYPE_OR_NIL(x, NSString);                   \
   }
 
-#define ENSURE_SINGLE_ARG(x, t)                                                                                                                                            \
-  if ([x isKindOfClass:[NSArray class]] && [x count] > 0) {                                                                                                                \
-    x = (t *)[x objectAtIndex:0];                                                                                                                                          \
-  }                                                                                                                                                                        \
-  if (![x isKindOfClass:[t class]]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS([t class]), OBJTYPE2JS(x)] location:CODELOCATION]; \
+#define ENSURE_SINGLE_ARG(x, t)                                        \
+  if ([x isKindOfClass:[NSArray class]] && [(NSArray *)x count] > 0) { \
+    x = (t *)[x objectAtIndex:0];                                      \
+  }                                                                    \
+  ENSURE_TYPE(x, t);
+
+#define ENSURE_SINGLE_ARG_OR_NIL(x, t) \
+  if (IS_NULL_OR_NIL(x)) {             \
+    x = nil;                           \
+  } else {                             \
+    ENSURE_SINGLE_ARG(x, t);           \
   }
 
-#define ENSURE_SINGLE_ARG_OR_NIL(x, t)                                                                                                                                       \
-  if (x == nil || x == [NSNull null]) {                                                                                                                                      \
-    x = nil;                                                                                                                                                                 \
-  } else {                                                                                                                                                                   \
-    if ([x isKindOfClass:[NSArray class]] && [x count] > 0) {                                                                                                                \
-      x = (t *)[x objectAtIndex:0];                                                                                                                                          \
-    }                                                                                                                                                                        \
-    if (![x isKindOfClass:[t class]]) {                                                                                                                                      \
-      [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS([t class]), OBJTYPE2JS(x)] location:CODELOCATION]; \
-    }                                                                                                                                                                        \
-  }
-
-#define ENSURE_ARG_AT_INDEX(out, args, index, type)                                                                                                                             \
-  if ([args isKindOfClass:[NSArray class]] && [args count] > index) {                                                                                                           \
-    out = (type *)[args objectAtIndex:index];                                                                                                                                   \
-  }                                                                                                                                                                             \
-  if (![out isKindOfClass:[type class]]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS([type class]), OBJTYPE2JS(out)] location:CODELOCATION]; \
-  }
+#define ENSURE_ARG_AT_INDEX(out, args, index, type)                              \
+  if ([args isKindOfClass:[NSArray class]] && [(NSArray *)args count] > index) { \
+    out = (type *)[(NSArray *)args objectAtIndex:index];                         \
+  }                                                                              \
+  ENSURE_TYPE(out, type);
 
 #define ENSURE_ARG_OR_NIL_AT_INDEX(out, args, index, type)                                                                                                                        \
-  if (args == nil || args == [NSNull null]) {                                                                                                                                     \
+  if (IS_NULL_OR_NIL(args)) {                                                                                                                                                     \
     out = nil;                                                                                                                                                                    \
   } else if ([args isKindOfClass:[NSArray class]]) {                                                                                                                              \
-    if ([args count] > index) {                                                                                                                                                   \
-      out = [args objectAtIndex:index];                                                                                                                                           \
+    if ([(NSArray *)args count] > index) {                                                                                                                                        \
+      out = [(NSArray *)args objectAtIndex:index];                                                                                                                                \
     } else {                                                                                                                                                                      \
       out = nil;                                                                                                                                                                  \
     }                                                                                                                                                                             \
@@ -239,29 +248,11 @@ NSString *JavascriptNameForClass(Class c);
     }                                                       \
   }
 
-#define ENSURE_CLASS(x, t)                                                                                                                                         \
-  if (![x isKindOfClass:t]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
-  }
-
-#define ENSURE_TYPE(x, t) ENSURE_CLASS(x, [t class])
-
 //Because both NSString and NSNumber respond to intValue, etc, this is a wider net
 #define ENSURE_METHOD(x, t)                                                                                                                                            \
   if (![x respondsToSelector:@selector(t)]) {                                                                                                                          \
     [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@", OBJTYPE2JS(x), @ #t] location:CODELOCATION]; \
   }
-
-#define IS_NULL_OR_NIL(x) ((x == nil) || ((id)x == [NSNull null]))
-
-#define ENSURE_CLASS_OR_NIL(x, t)                                                                                                                                         \
-  if (IS_NULL_OR_NIL(x)) {                                                                                                                                                \
-    x = nil;                                                                                                                                                              \
-  } else if (![x isKindOfClass:t]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
-  }
-
-#define ENSURE_TYPE_OR_NIL(x, t) ENSURE_CLASS_OR_NIL(x, [t class])
 
 #define ENSURE_ARG_COUNT(x, c)                                                                                                                                                            \
   if ([x count] < c) {                                                                                                                                                                    \
@@ -464,6 +455,8 @@ enum {
 #define TI_KEYBOARD_LANDSCAPE_HEIGHT 140
 
 #define TI_SEARCHBAR_HEIGHT 56
+
+#define TI_STATUSBAR_TAG 11101
 
 #ifdef DEBUG
 #define FRAME_DEBUG(f) \

@@ -3,6 +3,7 @@ const { IncrementalFileTask } = require('appc-tasks');
 const crypto = require('crypto');
 const fs = require('fs-extra');
 const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
+const nodeify = require('nodeify');
 const path = require('path');
 const pLimit = require('p-limit');
 const { promisify } = require('util');
@@ -47,9 +48,58 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
-		this.defaultAnalyzeOptions = options.defaultAnalyzeOptions;
+
+		// set up the object used by babel-plugin-transform-titanium to inline statics/etc
+		const transform = {
+			platform: this.platform,
+			deploytype: this.builder.deployType,
+			target: this.builder.target,
+			Ti: {
+				version: this.builder.titaniumSdkVersion, // use the shortened version number, i.e. 9.1.0
+				// TODO: Do these work?
+				// buildHash: ti.manifest.githash,
+				// buildDate: ti.manifest.timestamp,
+				App: {
+					copyright: this.builder.cli.tiapp.copyright,
+					deployType: this.builder.deployType,
+					description: this.builder.cli.tiapp.description,
+					guid: this.builder.cli.tiapp.guid,
+					id: this.builder.cli.tiapp.id,
+					name: this.builder.cli.tiapp.name,
+					publisher: this.builder.cli.tiapp.publisher,
+					url: this.builder.cli.tiapp.url,
+					version: this.builder.cli.tiapp.version,
+				},
+				Platform: {
+					runtime: 'javascriptcore', // overridden below for android
+				},
+				Filesystem: {
+					lineEnding: '\n',
+					separator: '/',
+				}
+			}
+		};
+		switch (this.platform) {
+			case 'android':
+				transform.Ti.Platform.osname = 'android';
+				transform.Ti.Platform.name = 'android';
+				transform.Ti.Platform.runtime = 'v8'; // override
+				break;
+			case 'ios':
+				// if not 'universal' it is 'ipad' or 'iphone'
+				if (this.builder.deviceFamily !== 'universal') {
+					transform.Ti.Platform.osname = this.builder.deviceFamily;
+				}
+				transform.Ti.Platform.manufacturer = 'apple';
+				break;
+		}
+
+		this.defaultAnalyzeOptions = Object.assign({}, options.defaultAnalyzeOptions, { transform });
 
 		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
+
+		this.fileContentsMap = new Map();
+
 		this.resetTaskData();
 
 		this.createHooks();
@@ -116,9 +166,7 @@ class ProcessJsTask extends IncrementalFileTask {
 
 		this.jsFiles = this.data.jsFiles;
 		this.jsBootstrapFiles.splice(0, 0, ...this.data.jsBootstrapFiles);
-		return Promise.all(Object.keys(this.jsFiles).map(relPath => {
-			return limit(() => this.processJsFile(this.jsFiles[relPath].src));
-		}));
+		return Promise.all(Array.from(this.inputFiles).map(filePath => limit(() => this.processJsFile(filePath))));
 	}
 
 	/**
@@ -153,16 +201,17 @@ class ProcessJsTask extends IncrementalFileTask {
 				return done();
 			}
 
-			this.transformAndCopy(source, from, to).then(() => {
-				this.data.contentHashes[from] = currentHash;
-				return done();
-			}).catch(e => {
-				// if we have a nicely formatted pointer to syntax error from babel, print it!
-				if (e.codeFrame) {
-					this.logger.error(e.codeFrame);
+			nodeify(this.transformAndCopy(source, from, to), (e) => {
+				if (e) {
+					// if we have a nicely formatted pointer to syntax error from babel, print it!
+					if (e.codeFrame) {
+						this.logger.error(e.codeFrame);
+					}
+					done(e);
 				}
 
-				done(e);
+				this.data.contentHashes[from] = currentHash;
+				return done();
 			});
 		});
 
@@ -174,7 +223,6 @@ class ProcessJsTask extends IncrementalFileTask {
 				contents: originalContents,
 				symbols: []
 			};
-
 			compileJsFileHook(r, from, to, done);
 		}));
 	}

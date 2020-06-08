@@ -11,16 +11,11 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.os.Message;
-import android.support.v7.view.menu.MenuItemWrapperICS;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,12 +68,6 @@ public class MenuProxy extends KrollProxy
 
 		MenuItem item = menu.add(groupId, itemId, order, title);
 		mip = new MenuItemProxy(item);
-		//Appcompat for ICS+ wraps the menu object so here we want to set the wrapped object for look-up purposes
-		//since the wrapper will be copied when onOptionsItemSelected is invoked.
-		if (item instanceof MenuItemWrapperICS) {
-			MenuItemWrapperICS wrapper = (MenuItemWrapperICS) item;
-			item = wrapper.getWrappedObject();
-		}
 		menuMap.put(item, mip);
 
 		if (d.containsKey(TiC.PROPERTY_ACTION_VIEW)) {
@@ -117,6 +106,8 @@ public class MenuProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_VISIBLE)) {
 			mip.setVisible(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE));
 		}
+
+		mip.setContentDescription(d);
 		return mip;
 	}
 
@@ -174,11 +165,6 @@ public class MenuProxy extends KrollProxy
 
 	public MenuItemProxy findItem(MenuItem item)
 	{
-		//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
-		if (item instanceof MenuItemWrapperICS) {
-			MenuItemWrapperICS wrapper = (MenuItemWrapperICS) item;
-			item = wrapper.getWrappedObject();
-		}
 		return menuMap.get(item);
 	}
 
@@ -202,11 +188,6 @@ public class MenuProxy extends KrollProxy
 		int len = menu.size();
 		for (int i = 0; i < len; i++) {
 			MenuItem mi = menu.getItem(i);
-			//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
-			if (mi instanceof MenuItemWrapperICS) {
-				MenuItemWrapperICS wrapper = (MenuItemWrapperICS) mi;
-				mi = wrapper.getWrappedObject();
-			}
 			MenuItemProxy mip = menuMap.get(mi);
 			mm.put(mi, mip);
 		}
@@ -224,11 +205,6 @@ public class MenuProxy extends KrollProxy
 	{
 		MenuItem mi = menu.findItem(itemId);
 		if (mi != null) {
-			//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
-			if (mi instanceof MenuItemWrapperICS) {
-				MenuItemWrapperICS wrapper = (MenuItemWrapperICS) mi;
-				mi = wrapper.getWrappedObject();
-			}
 			MenuItemProxy mip = menuMap.remove(mi);
 			if (mip != null) {
 				//TODO release mip items
@@ -278,11 +254,9 @@ public class MenuProxy extends KrollProxy
 		return menu.size();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public MenuItemProxy[] getItems()
-	// clang-format on
 	{
 		int len = menu.size();
 		MenuItemProxy[] proxies = new MenuItemProxy[len];
@@ -308,10 +282,6 @@ public class MenuProxy extends KrollProxy
 		}
 		this.menu = menu;
 	}
-
-	//	public ArrayList<MenuItemProxy> getMenuItems() {
-	//		return menuItems;
-	//	}
 
 	public void release()
 	{

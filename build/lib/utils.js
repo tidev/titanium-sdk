@@ -5,6 +5,7 @@ const promisify = util.promisify;
 const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
+const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 
 const glob = promisify(require('glob'));
 const appc = require('node-appc');
@@ -13,6 +14,7 @@ const ssri = require('ssri');
 
 const tempDir = os.tmpdir();
 const Utils = {};
+const ROOT_DIR = path.join(__dirname, '../..');
 
 function leftpad(str, len, ch) {
 	str = String(str);
@@ -168,6 +170,10 @@ async function downloadWithIntegrity(url, downloadPath, integrity, options) {
 	return file;
 }
 
+/**
+ * @param {string} url url of file we're caching
+ * @returns {string} cache filepath (basicaly dir under tmp with the url file's basename appended)
+ */
 function cachedDownloadPath(url) {
 	// Use some consistent name so we can cache files!
 	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || tempDir, 'timob-build');
@@ -177,6 +183,7 @@ function cachedDownloadPath(url) {
 	// Place to download file
 	return path.join(cacheDir, filename);
 }
+Utils.cachedDownloadPath = cachedDownloadPath;
 
 Utils.generateSSRIHashFromURL = async function (url) {
 	if (url.startsWith('file://')) {
@@ -230,6 +237,82 @@ Utils.downloadURL = async function downloadURL(url, integrity, options) {
 
 	// download and verify integrity
 	return downloadWithIntegrity(url, downloadPath, integrity, options);
+};
+
+/**
+ * @param {string} zipFile the downloaded file to extract
+ * @param {string} integrity SSRI generated integrity hash for the zip
+ * @param {string} outDir filepath of directory to extract zip to
+ */
+Utils.cacheUnzip = async function (zipFile, integrity, outDir) {
+	return Utils.cacheExtract(zipFile, integrity, outDir, Utils.unzip);
+};
+
+/**
+ * @callback AsyncExtractFunction
+ * @param {string} inFile filepath of input file
+ * @param {string} outDir filepath of output directory to place extracted/mnipulated contents of input file
+ * @return {Promise<void>}
+ */
+
+/**
+ * @param {string} inFile filepath to input file we're extracting
+ * @param {string} integrity SSRI generated integrity hash for the input file
+ * @param {string} outDir filepath of directory to extract the input file to
+ * @param {AsyncExtractFunction} extractFunc function to call to extract/manipulate the input file
+ */
+Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
+	const { hashElement } = require('folder-hash');
+	const exists = await fs.pathExists(outDir);
+	// The integrity hash may contain characters like '/' which we need to convert
+	// see https://en.wikipedia.org/wiki/Base64#Filenames
+	const cacheFile = cachedDownloadPath(`${integrity.replace(/\//g, '-')}.json`);
+	// if the extracted directory already exists...
+	if (exists) {
+		// we need to hash and verify it matches expectations
+		const hash = await hashElement(outDir);
+		// Read the cache file and compare hashes!
+		try {
+			const cachedHash = await fs.readJson(cacheFile);
+			// eslint-disable-next-line security/detect-possible-timing-attacks
+			if (hash.hash === cachedHash.hash) { // we're only checking top-level dir hash
+				// we got a match, so we do nothing!
+				return;
+			}
+		} catch (err) {
+			// ignore, assume cache file didn't exist
+		}
+	}
+
+	// ok the output dir doesn't exist, or it's hash doesn't match expectations
+	// we need to extract and then record the new hash for caching
+	await extractFunc(inFile, outDir);
+	const hash = await hashElement(outDir);
+	return fs.writeJson(cacheFile, hash);
+};
+
+/**
+* @param {string} zipfile zip file to unzip
+* @param {string} dest destination folder to unzip to
+* @returns {Promise<void>}
+*/
+Utils.unzip = function unzip(zipfile, dest) {
+	return new Promise((resolve, reject) => {
+		console.log(`Unzipping ${zipfile} to ${dest}`);
+		const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/unzip') : 'unzip';
+		const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
+		let err = '';
+		child.stderr.on('data', buffer => {
+			err += buffer.toString();
+		});
+		child.on('error', err => reject(err));
+		child.on('close', code => {
+			if (code !== 0) {
+				return reject(new Error(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`));
+			}
+			resolve();
+		});
+	});
 };
 
 /**
@@ -304,57 +387,5 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 		});
 	});
 };
-
-/**
-* Given an npm module id, this will copy it and it's dependencies to a
-* destination "node_modules" folder.
-* Note that all of the packages are copied to the top-level of "node_modules",
-* not nested!
-* Also, to shortcut the logic, if the original package has been copied to the
-* destination we will *not* attempt to read it's dependencies and ensure those
-* are copied as well! So if the modules version changes or something goes
-* haywire and the copies aren't full finished due to a failure, the only way to
-* get right is to clean the destination "node_modules" dir before rebuilding.
-*
-* @param  {String} moduleId           The npm package/module to copy (along with it's dependencies)
-* @param  {String} destNodeModulesDir path to the destination "node_modules" folder
-* @param  {Array}  [paths=[]]         Array of additional paths to pass to require.resolve() (in addition to those from require.resolve.paths(moduleId))
-*/
-function copyPackageAndDependencies(moduleId, destNodeModulesDir, paths = []) {
-	const destPackage = path.join(destNodeModulesDir, moduleId);
-	if (fs.existsSync(path.join(destPackage, 'package.json'))) {
-		return; // if the module seems to exist in the destination, just skip it.
-	}
-
-	// copy the dependency's folder over
-	let pkgJSONPath;
-	if (require.resolve.paths) {
-		const thePaths = require.resolve.paths(moduleId);
-		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'), { paths: thePaths.concat(paths) });
-	} else {
-		pkgJSONPath = require.resolve(path.join(moduleId, 'package.json'));
-	}
-	const srcPackage = path.dirname(pkgJSONPath);
-	const srcPackageNodeModulesDir = path.join(srcPackage, 'node_modules');
-	for (let i = 0; i < 3; i++) {
-		fs.copySync(srcPackage, destPackage, {
-			preserveTimestamps: true,
-			filter: src => !src.startsWith(srcPackageNodeModulesDir)
-		});
-
-		// Quickly verify package copied, I've experienced occurences where it does not.
-		// Retry up to three times if it did not copy correctly.
-		if (fs.existsSync(path.join(destPackage, 'package.json'))) {
-			break;
-		}
-	}
-
-	// Now read it's dependencies and recurse on them
-	const packageJSON = fs.readJSONSync(pkgJSONPath);
-	for (const dependency in packageJSON.dependencies) {
-		copyPackageAndDependencies(dependency, destNodeModulesDir, [ srcPackageNodeModulesDir ]);
-	}
-}
-Utils.copyPackageAndDependencies = copyPackageAndDependencies;
 
 module.exports = Utils;

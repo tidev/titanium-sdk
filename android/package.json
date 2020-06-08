@@ -11,22 +11,24 @@
 	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
+		"Chris Barber <cbarber@axway.com>",
 		"Chris Williams <cwilliams@axway.com>",
 		"Gary Mathews <gmathews@axway.com>",
 		"Josh Quick <jquick@axway.com>",
-		"Chris Barber <cbarber@axway.com>"
+		"Yordan Banev <ybanev@axway.com>"
 	],
-	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
+	"architectures": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
 	"v8": {
-		"version": "7.3.492.26",
+		"version": "7.9.317.32",
 		"mode": "release",
-		"checksum": "7798aae19b2efff53b1f18d53345291ab16a574e0524350eed3db6d45757bc476a158303b8df6c5f359439f9184818d61eba6bd820cec404e268ab0796cc7c5a"
+		"checksum": "4fd238e9e22dda0a6d67cf132d95ac6b874cf82bec28769e25672877b3cca09ef9ef268be9482e2cc0ca20227f495e5d3ad038c83a9b90f72ad9d5e6a7bad77d",
+		"integrity": "sha512-T9I46eIt2gptZ88TLZWsa4dM+CvsKHaeJWcod7PMoJ757yaL6UguLMDKICJ/SV5dOtA4yDqbkPcq2dXmp7rXfQ=="
 	},
 	"minSDKVersion": "19",
 	"compileSDKVersion": "29",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=28.x",
-		"android build tools": ">=25.x <=29.x",
+		"android sdk": ">=23.x <=29.x",
+		"android build tools": ">=28.0.3 <=29.x",
 		"android platform tools": "29.x",
 		"android tools": "<=26.x",
 		"android ndk": ">=r11c <=r20",	

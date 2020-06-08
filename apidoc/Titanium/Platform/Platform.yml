@@ -95,10 +95,14 @@ methods:
                 * `UIApplicationOpenURLOptionsOpenInPlaceKey` (Boolean value)
                 * `UIApplicationOpenURLOptionUniversalLinksOnly` (Boolean value)
             Read more about the available keys in the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationopenurloptionskey?language=objc).
-        type: Dictionary
+        type: OpenURLOptions
+        optional: true
       - name: callback
-        summary: The optional callback that is called once the URL is opened (iOS 10+).
+        summary: |
+            The optional callback that is called once the URL is opened (iOS 10+).
+            Also supported on Android as of Titanium 9.1.0.
         type: Callback
+        optional: true
 
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
@@ -405,3 +409,34 @@ properties:
   - name: irq
     summary: The number of milliseconds the CPU has spent in irq mode.
     type: Number
+
+---
+name: OpenURLOptions
+summary: |
+    The optional options to pass to the URL handling (iOS 10+). Pass a
+    dictionary with one or more of the following string-keys:
+        * `UIApplicationOpenURLOptionsSourceApplicationKey` (String value)
+        * `UIApplicationOpenURLOptionsAnnotationKey` (Array value)
+        * `UIApplicationOpenURLOptionsOpenInPlaceKey` (Boolean value)
+        * `UIApplicationOpenURLOptionUniversalLinksOnly` (Boolean value)
+    Read more about the available keys in the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationopenurloptionskey?language=objc).
+properties:
+  - name: UIApplicationOpenURLOptionsSourceApplicationKey
+    type: String
+    summary: The value of this key is an String containing the bundle ID of the app that made the request. If the request originated from another app belonging to your team, UIKit sets the value of this key to the ID of that app. If the team identifier of the originating app is different than the team identifier of the current app, the value of the key is nil.
+    optional: true
+
+  - name: UIApplicationOpenURLOptionsAnnotationKey
+    type: Array
+    summary: contains the information passed to a document interaction controller object's annotation property.
+    optional: true
+
+  - name: UIApplicationOpenURLOptionsOpenInPlaceKey
+    type: Boolean
+    summary: When the value of this property is `false`, you must copy the document to maintain access to it. If the flag is not set, you also must copy the document before you can use it.
+    optional: true
+
+  - name: UIApplicationOpenURLOptionUniversalLinksOnly
+    type: Boolean
+    summary: When you include this key in the options dictionary, the method opens the URL only if the URL is a valid universal link and there is an installed app capable of opening that URL.
+    optional: true

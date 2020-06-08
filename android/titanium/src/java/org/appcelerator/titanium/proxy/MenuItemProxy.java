@@ -6,9 +6,9 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
@@ -17,11 +17,10 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Message;
-import android.support.v4.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -56,47 +55,37 @@ public class MenuItemProxy extends KrollProxy
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getGroupId()
-	// clang-format on
 	{
 		return item.getGroupId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getItemId()
-	// clang-format on
 	{
 		return item.getItemId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getOrder()
-	// clang-format on
 	{
 		return item.getOrder();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
-	// clang-format on
 	{
 		return (String) item.getTitle();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTitleCondensed()
-	// clang-format on
 	{
 		return (String) item.getTitleCondensed();
 	}
@@ -107,77 +96,145 @@ public class MenuItemProxy extends KrollProxy
 		return item.hasSubMenu();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isChecked()
-	// clang-format on
 	{
 		return item.isChecked();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isCheckable()
-	// clang-format on
 	{
 		return item.isCheckable();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isEnabled()
-	// clang-format on
 	{
 		return item.isEnabled();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isVisible()
-	// clang-format on
 	{
 		return item.isVisible();
 	}
 
-	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityLabel()
+	{
+		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_LABEL);
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityHint()
+	{
+		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_HINT);
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAccessibilityValue()
+	{
+		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_VALUE);
+	}
+
+	private void updateContentDescription()
+	{
+		String contentDescription = TiUIView.composeContentDescription(properties);
+		MenuItemCompat.setContentDescription(item, contentDescription);
+	}
+
+	public void setContentDescription(KrollDict d)
+	{
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_ACCESSIBILITY_LABEL)) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_LABEL, d.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_LABEL);
+		}
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT)) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_HINT, d.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_HINT);
+		}
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE)) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_VALUE, d.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_VALUE);
+		}
+		updateContentDescription();
+	}
+
+	@Kroll.method
+	@Kroll.setProperty
+	public void setAccessibilityLabel(String label)
+	{
+		if (label != null && label.length() != 0) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_LABEL, label);
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_LABEL);
+		}
+		updateContentDescription();
+	}
+
+	@Kroll.method
+	@Kroll.setProperty
+	public void setAccessibilityHint(String hint)
+	{
+		if (hint != null && hint.length() != 0) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_HINT, hint);
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_HINT);
+		}
+		updateContentDescription();
+	}
+
+	@Kroll.method
+	@Kroll.setProperty
+	public void setAccessibilityValue(String value)
+	{
+		if (value != null && value.length() != 0) {
+			properties.put(TiC.PROPERTY_ACCESSIBILITY_VALUE, value);
+		} else {
+			properties.remove(TiC.PROPERTY_ACCESSIBILITY_VALUE);
+		}
+
+		updateContentDescription();
+	}
+
 	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setCheckable(boolean checkable)
-	// clang-format on
 	{
 		item.setCheckable(checkable);
 		return this;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setChecked(boolean checked)
-	// clang-format on
 	{
 		item.setChecked(checked);
 		return this;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setEnabled(boolean enabled)
-	// clang-format on
 	{
 		item.setEnabled(enabled);
 		return this;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setIcon(Object icon)
-	// clang-format on
 	{
 		if (icon != null) {
 			if (icon instanceof String) {
@@ -200,41 +257,33 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setTitle(String title)
-	// clang-format on
 	{
 		item.setTitle(title);
 		return this;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setTitleCondensed(String title)
-	// clang-format on
 	{
 		item.setTitleCondensed(title);
 		return this;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setVisible(boolean visible)
-	// clang-format on
 	{
 		item.setVisible(visible);
 		return this;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setActionView(Object view)
-	// clang-format on
 	{
 		if (view instanceof TiViewProxy) {
 			final View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
@@ -250,11 +299,9 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setShowAsAction(final int flag)
-	// clang-format on
 	{
 		TiMessenger.postOnMain(new Runnable() {
 			@Override
@@ -289,11 +336,9 @@ public class MenuItemProxy extends KrollProxy
 		});
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isActionViewExpanded()
-	// clang-format on
 	{
 		return item.isActionViewExpanded();
 	}

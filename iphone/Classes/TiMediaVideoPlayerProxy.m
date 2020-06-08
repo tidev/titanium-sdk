@@ -89,15 +89,8 @@ NSArray *moviePlayerKeys = nil;
   // For durationavailable event
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
-  // The AVPlayer does not properly support state management on iOS < 10.
-  // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    // iOS 10+: For playbackState property / playbackstate event
-    [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
-  } else {
-    // iOS < 10: For playbackstate event
-    [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  }
+  // For playbackState property / playbackstate event
+  [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
 
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
@@ -123,12 +116,7 @@ NSArray *moviePlayerKeys = nil;
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"player.currentItem.presentationSize"];
-
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
-  } else {
-    [movie removeObserver:self forKeyPath:@"player.rate"];
-  }
+  [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
 }
 
 - (void)configurePlayer
@@ -232,9 +220,10 @@ NSArray *moviePlayerKeys = nil;
   [loadProperties setValue:value forKey:@"scalingMode"];
 
   if (movie != nil) {
-    TiThreadPerformOnMainThread(^{
-      [self updateScalingMode:@"scalingMode"];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updateScalingMode:@"scalingMode"];
+        },
         NO);
   }
 }
@@ -320,9 +309,10 @@ NSArray *moviePlayerKeys = nil;
   }
 
   if (restart) {
-    TiThreadPerformOnMainThread(^{
-      [self play:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self play:nil];
+        },
         NO);
   }
 }
@@ -374,9 +364,10 @@ NSArray *moviePlayerKeys = nil;
 {
   if (movie != nil) {
     __block float volume = 1.0;
-    TiThreadPerformOnMainThread(^{
-      volume = [[movie player] volume];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          volume = [[movie player] volume];
+        },
         YES);
 
     return NUMFLOAT(volume);
@@ -389,9 +380,10 @@ NSArray *moviePlayerKeys = nil;
 {
   float volume = [TiUtils floatValue:newVolume def:-1.0];
   volume = MAX(0.0, MIN(volume, 1.0));
-  TiThreadPerformOnMainThread(^{
-    [[movie player] setVolume:volume];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[movie player] setVolume:volume];
+      },
       YES);
 }
 
@@ -438,9 +430,10 @@ NSArray *moviePlayerKeys = nil;
                                                [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];
                                              }
 
-                                             TiThreadPerformOnMainThread(^{
-                                               [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
-                                             },
+                                             TiThreadPerformOnMainThread(
+                                                 ^{
+                                                   [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
+                                                 },
                                                  YES);
 
                                              if (--callbackRequestCount <= 0) {
@@ -483,10 +476,11 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)cancelAllThumbnailImageRequests:(id)value
 {
-  TiThreadPerformOnMainThread(^{
-    AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:[[[movie player] currentItem] asset]];
-    [imageGenerator cancelAllCGImageGeneration];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:[[[movie player] currentItem] asset]];
+        [imageGenerator cancelAllCGImageGeneration];
+      },
       NO);
 }
 
@@ -546,9 +540,10 @@ NSArray *moviePlayerKeys = nil;
   backgroundColor = [[TiUtils colorValue:color] retain];
 
   if (movie != nil) {
-    TiThreadPerformOnMainThread(^{
-      [[movie view] setBackgroundColor:[backgroundColor _color]];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[movie view] setBackgroundColor:[backgroundColor _color]];
+        },
         NO);
     return;
   } else {
@@ -914,7 +909,7 @@ NSArray *moviePlayerKeys = nil;
   _playbackState = TiVideoPlayerPlaybackStatePlaying;
 
   if ([self _hasListeners:@"playing"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
+    NSDictionary *event = [NSDictionary dictionaryWithObject:NULL_IF_NIL([self url]) forKey:@"url"];
     [self fireEvent:@"playing" withObject:event];
   }
 }
@@ -997,17 +992,14 @@ NSArray *moviePlayerKeys = nil;
     [self handleLoadStateChangeNotification:nil];
   }
   if ([keyPath isEqualToString:@"player.currentItem.presentationSize"]) {
-    CGSize size = [[change objectForKey:@"new"] CGSizeValue];
-    [self handleNaturalSizeAvailableNotification:size];
+    id sizeObject = [change objectForKey:@"new"];
+    if (![sizeObject isKindOfClass:[NSNull class]]) {
+      CGSize size = [sizeObject CGSizeValue];
+      [self handleNaturalSizeAvailableNotification:size];
+    }
   }
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
-      [self handleTimeControlStatusNotification:nil];
-    }
-  } else {
-    if ([keyPath isEqualToString:@"player.rate"]) {
-      [self handlePlaybackStateChangeNotification:nil];
-    }
+  if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
+    [self handleTimeControlStatusNotification:nil];
   }
 }
 
