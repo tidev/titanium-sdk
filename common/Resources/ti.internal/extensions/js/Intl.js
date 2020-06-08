@@ -38,29 +38,29 @@ function makeTiFormatCreationPropertiesFrom(args, supportedFormatLocalesFunction
 // Add "Intl" APIs missing on Android.
 if (Ti.Android) {
 	// Set up an "Intl.Collator" type which wraps our undocumented "Ti.Locale.Collator" proxy.
-	const TiCollator = (...args) => {
-		const properties = makeTiFormatCreationPropertiesFrom(args, Ti.Locale.getSupportedCollatorLocales);
+	function TiCollator() {
+		const properties = makeTiFormatCreationPropertiesFrom(arguments, Ti.Locale.getSupportedCollatorLocales);
 		const collator = new Ti.Locale.Collator(properties);
 		collator.compare = collator.compare.bind(collator);
 		return collator;
-	};
+	}
 	TiCollator.supportedLocalesOf = Ti.Locale.getSupportedCollatorLocales;
 
 	// Set up an "Intl.DateTimeFormat" type which wraps our undocumented "Ti.Locale.DateTimeFormat" proxy.
-	const TiDateTimeFormat = (...args) => {
-		const properties = makeTiFormatCreationPropertiesFrom(args, Ti.Locale.getSupportedDateTimeFormatLocales);
+	function TiDateTimeFormat() {
+		const properties = makeTiFormatCreationPropertiesFrom(arguments, Ti.Locale.getSupportedDateTimeFormatLocales);
 		return new Ti.Locale.DateTimeFormat(properties);
-	};
+	}
 	TiDateTimeFormat._makeTiCreationPropertiesFrom = (args) => {
 		return makeTiFormatCreationPropertiesFrom(args, Ti.Locale.getSupportedDateTimeFormatLocales);
 	};
 	TiDateTimeFormat.supportedLocalesOf = Ti.Locale.getSupportedDateTimeFormatLocales;
 
 	// Set up an "Intl.NumberFormat" type which wraps our undocumented "Ti.Locale.NumberFormat" proxy.
-	const TiNumberFormat = (...args) => {
-		const properties = makeTiFormatCreationPropertiesFrom(args, Ti.Locale.getSupportedNumberFormatLocales);
+	function TiNumberFormat() {
+		const properties = makeTiFormatCreationPropertiesFrom(arguments, Ti.Locale.getSupportedNumberFormatLocales);
 		return new Ti.Locale.NumberFormat(properties);
-	};
+	}
 	TiNumberFormat.supportedLocalesOf = Ti.Locale.getSupportedNumberFormatLocales;
 
 	// Make our custom "Intl" module available globally.
