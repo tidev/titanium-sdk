@@ -170,7 +170,6 @@ events:
         type: String
 
 properties:
-
   - name: autocapitalization
     summary: Determines how text is capitalized during typing.
     type: Number
@@ -191,7 +190,7 @@ properties:
 
         On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
         On Windows, `barColor` specifies the color of the whole surrounding area of the search text field.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
     default: System default bar color.
 
@@ -207,7 +206,7 @@ properties:
     summary: Color of the text in this text field, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
     since: "7.1.0"
 
@@ -245,7 +244,7 @@ properties:
     since: "7.1.0"
     description: |
         Sets the color of the <Titanium.UI.SearchBar.hintText>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: The platform's default hint text color.
 
   - name: hinttextid

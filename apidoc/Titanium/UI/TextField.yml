@@ -238,7 +238,7 @@ properties:
     summary: Color of the text in this text field, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: editable
     summary: Determines whether this field can be edited.
@@ -325,7 +325,7 @@ properties:
             </android>
 
         Another way to change the hint text color is to use this property and specify a color.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: The platform's default hint text color.
 
   - name: hinttextid
@@ -388,7 +388,7 @@ properties:
         Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad]
 
   - name: keyboardToolbarHeight

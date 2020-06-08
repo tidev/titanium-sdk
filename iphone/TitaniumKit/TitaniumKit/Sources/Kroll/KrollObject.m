@@ -1055,8 +1055,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
     JSValueRef jsEventData = ConvertIdTiValue(context, eventData);
     JSValueRef result = JSObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData, &exception);
     if (exception != NULL) {
-      id excm = [KrollObject toID:context value:exception];
-      [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     }
 
     if (block != nil) {
@@ -1291,8 +1290,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
     JSValueRef exception = NULL;
     JSObjectCallAsFunction(jsContext, (JSObjectRef)currentCallback, [thisObject jsobject], 1, &jsEventData, &exception);
     if (exception != NULL) {
-      id excm = [KrollObject toID:context value:exception];
-      [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     }
   }
 }

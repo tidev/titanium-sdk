@@ -201,7 +201,6 @@ excludes:
     properties: [children]
 since: "0.8"
 methods:
-
   - name: setHtml
     summary: Sets the value of [html](Titanium.UI.WebView.html) property.
     description: |
@@ -381,18 +380,9 @@ methods:
     platforms: [iphone, ipad]
     since: "8.0.0"
     parameters:
-      - name: source
-        summary: A script that can be injected into a webpage.
-        type: String
-      - name: injectionTime
-        summary: The time when the script should be injected into the webpage.
-        type: Number
-        constants: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_*
-      - name: mainFrameOnly
-        summary: |
-            A Boolean value indicating whether the script should be injected only into the 
-            main frame (true) or into all frames (false).
-        type: Boolean
+      - name: params
+        summary: Properties required to create user script.
+        type: UserScriptParams
 
   - name: removeAllUserScripts
     summary: Removes all associated user scripts.
@@ -432,7 +422,6 @@ methods:
         type: BackForwardList
 
 events:
-
   - name: beforeload
     summary: Fired before the web view starts loading its content.
     description: |
@@ -584,8 +573,8 @@ events:
     description: |
         Provides a normalized value between 0.0 and 1.0, where 0.0 indicates nothing was downloaded and 
         1.0 means the page and all of its resources has finished downloading.
-    platforms: [ipad, iphone]
-    since: "8.0.0"
+    platforms: [android, ipad, iphone]
+    since: {android: "9.1.0", iphone: "8.0.0", ipad: "8.0.0"}
     properties:
       - name: value
         summary: An estimate of what fraction of the current navigation has been loaded.
@@ -621,7 +610,6 @@ events:
         type: String
 
 properties:
-
   - name: allowsLinkPreview
     summary: |
         A Boolean value that determines whether pressing on a link displays a preview of the
@@ -1030,8 +1018,8 @@ properties:
         After loading completes, the progress remains at 1.0 until a new download starts, 
         at which point progress is reset to 0.0.
     type: Number
-    platforms: [iphone, ipad]
-    since: "8.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "9.1.0", iphone: "8.0.0", ipad: "8.0.0"}
     permission: read-only
 
   - name: cachePolicy
@@ -1184,3 +1172,26 @@ properties:
   - name: url
     summary: The url of the link that should be navigated to.
     type: String
+
+---
+name: UserScriptParams
+summary: Dictionary of options for the <Titanium.UI.WebView.addUserScript> method.
+platforms: [iphone, ipad]
+since: "8.0.0"
+properties:
+  - name: source
+    summary: A script that can be injected into a webpage.
+    type: String
+  - name: injectionTime
+    summary: The time when the script should be injected into the webpage.
+    type: Number
+    constants: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_*
+    default: Titanium.UI.iOS.INJECTION_TIME_DOCUMENT_START
+    optional: true
+  - name: mainFrameOnly
+    summary: |
+        A Boolean value indicating whether the script should be injected only into the 
+        main frame (true) or into all frames (false).
+    type: Boolean
+    default: false
+    optional: true

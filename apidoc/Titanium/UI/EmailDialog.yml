@@ -70,7 +70,7 @@ methods:
     parameters:
       - name: options
         summary: |
-            Supported on iOS only. Simple object to override animation. Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimationOptions> is false)
+            Supported on iOS only. Simple object to override animation. Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimatedOptions> is false)
         type: AnimatedOptions
         optional: true
         default: "{ animated: true }"
@@ -121,7 +121,6 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: SAVED
     summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
     type: Number
@@ -133,13 +132,12 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: barColor
     summary: |
         Bar color of the email dialog window, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [ String, Titanium.UI.Color ]
     platforms: [iphone, ipad]
 
   - name: bccRecipients
