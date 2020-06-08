@@ -252,6 +252,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	protected ColorStateList textColorStateList(TiViewProxy tabProxy, int stateToUse)
 	{
+		if (getProxy() == null || tabProxy == null) {
+			return null;
+		}
+
 		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
 		int[] textColors = { this.textColorInt, this.textColorInt };
 
