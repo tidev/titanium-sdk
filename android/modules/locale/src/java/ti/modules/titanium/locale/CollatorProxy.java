@@ -27,8 +27,8 @@ public class CollatorProxy extends KrollProxy
 	private static final String TAG = "CollatorProxy";
 
 	private Collator collator = Collator.getInstance();
-	private Collator caseCollator;
 	private KrollDict resolvedOptions = new KrollDict();
+	private boolean isStrippingAccents;
 
 	@Override
 	public void handleCreationDict(KrollDict properties)
@@ -58,7 +58,7 @@ public class CollatorProxy extends KrollProxy
 		// Determine the collatior setting we need to use.
 		int strengthId;
 		int decompositionId = Collator.CANONICAL_DECOMPOSITION;
-		this.caseCollator = null;
+		this.isStrippingAccents = false;
 		String sensitivityTypeId = TiConvert.toString(options.get("sensitivity"), "variant");
 		switch (sensitivityTypeId) {
 			case "accent":
@@ -68,12 +68,8 @@ public class CollatorProxy extends KrollProxy
 				strengthId = Collator.PRIMARY;
 				break;
 			case "case":
-				// This requires special handling since Java class does not have an equivalent option.
-				// - Use PRIMARY strength so that similar accent characters will match.
-				// - Then use separate case-sensitive collator to be used after stripping out accent chars.
-				strengthId = Collator.PRIMARY;
-				this.caseCollator = Collator.getInstance(locale);
-				this.caseCollator.setStrength(Collator.IDENTICAL);
+				strengthId = Collator.IDENTICAL;
+				this.isStrippingAccents = true;
 				break;
 			case "variant":
 			default:
@@ -96,18 +92,14 @@ public class CollatorProxy extends KrollProxy
 	@Kroll.method
 	public int compare(String string1, String string2)
 	{
-		// Compare strings used main collator.
-		int result = this.collator.compare(string1, string2);
-
-		// If using sensitivity "case", then strip out accent characters and do case-sensitive comparison.
-		if ((this.caseCollator != null) && (result == 0)) {
+		// If comparing by "case", replace accented chars with non-accented chars so they'll be treated the same.
+		if (this.isStrippingAccents) {
 			string1 = stripAccents(string1);
 			string2 = stripAccents(string2);
-			result = this.caseCollator.compare(string1, string2);
 		}
 
-		// Return the result.
-		return result;
+		// Compare strings using collator.
+		return this.collator.compare(string1, string2);
 	}
 
 	@Kroll.method
