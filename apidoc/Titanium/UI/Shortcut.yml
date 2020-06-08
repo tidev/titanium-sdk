@@ -1,0 +1,72 @@
+---
+name: Titanium.UI.Shortcut
+summary: Manage application shortcuts.
+description: |
+    Allows the creation of application shortcuts, which can be detected using
+    the `shortcutitemclick` event from <Titanium.App>.
+
+    Use the <Titanium.UI.createShortcut> method to manage shortcut creation.
+
+extends: Titanium.Proxy
+since: "9.1.0"
+platforms: [android, iphone, ipad]
+osver: {android: {min: "7.1"}}
+
+properties:
+  - name: items
+    summary: List current shortcuts.
+    type: Array<Titanium.UI.ShortcutItem>
+    permission: read-only
+
+  - name: staticItems
+    summary: List current pinned/static shortcuts.
+    type: Array<Titanium.UI.ShortcutItem>
+    permission: read-only
+
+methods:
+  - name: add
+    summary: Add shortcut to application.
+    parameters:
+      - name: item
+        summary: <Titanium.UI.ShortcutItem> to add.
+        type: Titanium.UI.ShortcutItem
+
+  - name: remove
+    summary: Remove shortcut from application.
+    parameters:
+      - name: item
+        summary: <Titanium.UI.ShortcutItem> to remove.
+        type: Titanium.UI.ShortcutItem
+
+  - name: removeAll
+    summary: Remove all shortcuts from application.
+
+examples:
+  - title: Simple Shortcut Example
+    example: |
+        Create a shortcut item and detect its click with the `shortcutitemclick` event.
+
+            const win = Ti.UI.createWindow({ backgroundColor: 'grey' }),
+            const btn = Ti.UI.createButton({ title: 'ADD SHORTCUT' }),
+
+            const shortcut = Ti.UI.createShortcut();
+            const shortcutItem = Ti.UI.createShortcutItem({
+                id: 'test_shortcut',
+                title: 'TEST',
+                description: 'DESCRIPTION'
+            });
+
+            Ti.App.addEventListener('shortcutitemclick', () => {
+
+                // Set background to 'blue' on shortcut click event.
+                win.backgroundColor = 'blue';
+            });
+
+            btn.addEventListener('click', () => {
+
+                // Add shortcut.
+                shortcut.add(shortcutItem);
+            });
+
+            win.add(btn);
+            win.open();
