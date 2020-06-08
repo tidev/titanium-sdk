@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -245,8 +246,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 					//TIMOB-27830: Update text color after layout for change to take effect.
 					tabLayout.addOnLayoutChangeListener(
 						(v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-							if (tabProxy != null) {
-								textView.setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+							final ColorStateList colorStateList =
+								textColorStateList(tabProxy, android.R.attr.state_selected);
+							if (colorStateList != null) {
+								textView.setTextColor(colorStateList);
 							}
 						});
 				}
