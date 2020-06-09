@@ -4,15 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-const isAndroid = Ti.Platform.osname === 'android';
-const isIOS = !isAndroid && (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
-const isIOS13Plus = isIOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
+/* globals OS_ANDROID,OS_IOS */
+import Color from '../../../../lib/color';
+const isIOS13Plus = OS_IOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
 
 // As Android passes a new instance of Ti.UI to every JS file we can't just
 // Ti.UI within this file, we must call kroll.binding to get the Titanium
 // namespace that is passed in with require and that deal with the .UI
 // namespace that is on that directly.
-const UI = isAndroid ? kroll.binding('Titanium').Titanium.UI : Ti.UI;
+const UI = OS_ANDROID ? kroll.binding('Titanium').Titanium.UI : Ti.UI;
 
 // Make our read-only constants
 // TODO: Remove in SDK 10, DEPRECATED in 9.1.0
@@ -49,23 +49,24 @@ if (!isIOS13Plus) {
 			} catch (error) {
 				// We should probably throw an Error here (or return a fallback color!)
 				console.error('Failed to load colors file \'semantic.colors.json\'');
-				return;
+				return Color.fallback().toRGBAString();
 			}
 		}
 
 		try {
+			if (!colorset[colorName]) {
+				return Color.fallback().toRGBAString();
+			}
+
 			const entry = colorset[colorName][UI.semanticColorType];
-			const hex = entry.color || entry;
+			const colorObj = Color.fromSemanticColorsEntry(entry);
 			// For now, return a string on iOS < 13, Android so we can pass the result directly to the UI property we want to set
 			// Otherwise we need to modify the Android APIs to accept this faked Ti.UI.Color instance and convert it to it's own internal
 			// Color representation
-			return hex;
-			// return {
-			// 	toHex: () => hex,
-			// 	apiName: 'Ti.UI.Color'
-			// };
+			return colorObj.toRGBAString(); // rgba is standard across iOS/Android. Hex on Android ia ARGB vs RGBA on iOS.
 		} catch (error) {
 			console.error(`Failed to lookup color for ${colorName}`);
 		}
+		return Color.fallback().toRGBAString();
 	};
 }

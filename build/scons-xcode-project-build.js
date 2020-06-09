@@ -2,23 +2,19 @@
 'use strict';
 
 const program = require('commander');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
 const path = require('path');
 const IOS = require('./lib/ios');
 const Builder = require('./lib/builder');
-
+const { i18n } = require('node-titanium-sdk');
 program.parse(process.argv);
 
 const projectDir = program.args[0];
 const targetBuildDir = program.args[1];
 const productName = program.args[2];
 
-const ROOT_DIR = path.join(__dirname, '..');
 const appDir = path.join(targetBuildDir, `${productName}.app`);
 const xcodeProjectResources = path.join(projectDir, '../Resources');
-const localeCompiler = path.join(ROOT_DIR, 'support/dev/localecompiler.py');
 
 async function generateIndexJSON(dirToTraverse) {
 	const index = {};
@@ -46,9 +42,14 @@ async function generateIndexJSON(dirToTraverse) {
 }
 
 async function generateBundle(outputDir) {
-	const builder = new Builder({ args: [ 'ios' ] });
-	const ios = new IOS({ });
-
+	const program = { args: [ 'ios' ] };
+	const builder = new Builder(program);
+	await builder.ensureGitHash();
+	const ios = new IOS({
+		sdkVersion: require('../package.json').version,
+		gitHash: program.gitHash,
+		timestamp: program.timestamp
+	});
 	await builder.transpile('ios', ios.babelOptions(), path.join(outputDir, 'ti.main.js'));
 }
 
@@ -60,9 +61,35 @@ async function main(tmpBundleDir) {
 	console.log(`Copying xcode resources: ${xcodeProjectResources} -> ${appDir}`);
 	await fs.copy(xcodeProjectResources, appDir, { dereference: true }); // copy our xcode app resources
 	console.log('Creating i18n files');
-	await exec(`${localeCompiler} "${path.join(projectDir, '..')}" ios simulator "${appDir}"`); // create i18n files
+	await generateI18n();
 	console.log('Generating index.json');
 	await generateIndexJSON(appDir); // generate _index_.json file for require file existence checks
+}
+
+async function generateI18n () {
+	const project = path.join(projectDir, '..');
+
+	const i18nData = i18n.load(project);
+	const fileHeader = '/**\n * Appcelerator Titanium\n * this is a generated file - DO NOT EDIT\n */\n\n';
+	for (const [ language, data ] of Object.entries(i18nData)) {
+		const dir = path.join(appDir, `${language}.lproj`);
+		await fs.ensureDir(dir);
+		if (data.strings) {
+			const stringsFile = path.join(dir, 'Localizable.strings');
+			await fs.writeFile(stringsFile, `${fileHeader}${buildI18nData(data.strings)}`);
+		}
+		if (data.app) {
+			const appFile = path.join(dir, 'InfoPlist.strings');
+			await fs.writeFile(appFile, `${fileHeader}${buildI18nData(data.app, { appname: 'CFBundleDisplayName' })}`);
+		}
+	}
+}
+
+function buildI18nData (data, map) {
+	return Object.keys(data).map(function (name) {
+		return '"' + (map && map[name] || name).replace(/\\"/g, '"').replace(/"/g, '\\"')
+			+ '" = "' + ('' + data[name]).replace(/%s/g, '%@').replace(/\\"/g, '"').replace(/"/g, '\\"') + '";';
+	}).join('\n');
 }
 
 main('/tmp/xcode-titanium')

@@ -37,6 +37,26 @@ for (nextString in tiBuildVersionString.split('\\.')) {
 	}
 }
 
+// Fetch Android NDK major version set via "local.properties" or "ANDROID_NDK_HOME" environment variable.
+def ndkVersionMajor = 0
+try {
+	def localProperties = new Properties()
+	localProperties.load(file("${rootDir}/local.properties").newDataInputStream())
+	def ndkDir = localProperties.get('ndk.dir')
+	if (ndkDir == null) {
+		ndkDir = System.env.ANDROID_NDK_HOME
+	}
+	if (ndkDir != null) {
+		def ndkSourceProperties = new Properties()
+		ndkSourceProperties.load(file("${ndkDir}/source.properties").newDataInputStream())
+		def ndkVersionString = ndkSourceProperties.get('Pkg.Revision')
+		if (ndkVersionString != null) {
+			ndkVersionMajor = Integer.parseInt(ndkVersionString.split('\\.')[0])
+		}
+	}
+} catch (Throwable) {
+}
+
 android {
 	compileSdkVersion 29
 	defaultConfig {
@@ -67,6 +87,11 @@ android {
 					"NDK_MODULE_PATH+=${projectDir}/../runtime/v8/src/ndk-modules".replace('\\', '\\\\'),
 					"-j${Runtime.runtime.availableProcessors()}".toString()
 				])
+				if (ndkVersionMajor >= 21) {
+					// Work-around issue where Google sets "--output-sync=target" by default for NDK v21+
+					// which causes "bad file descriptor" errors when using "-j" parallel executions argument.
+					arguments.add('--output-sync=none')
+				}
 				if (System.getProperty('os.name').toLowerCase().contains('windows')) {
 					// Reduces length of NDK command line strings by writing source file list to text files.
 					arguments.add('APP_SHORT_COMMANDS=true')
@@ -145,7 +170,7 @@ task updateV8Library() {
 	def v8MakeFilePath = "${projectDir}/../runtime/v8/src/ndk-modules/libv8/V8Settings.mk"
 	inputs.property 'v8.version', packageJson.v8.version
 	inputs.property 'v8.mode', packageJson.v8.mode
-	inputs.property 'v8.checksum', packageJson.v8.checksum
+	inputs.property 'v8.integrity', packageJson.v8.integrity
 	outputs.file v8MakeFilePath
 	outputs.files fileTree("${projectDir}/../../dist/android/libv8/${packageJson.v8.version}/${packageJson.v8.mode}")
 	doLast {
@@ -173,10 +198,39 @@ tasks.withType(com.android.build.gradle.tasks.ExternalNativeCleanTask) {
 
 // Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
 // Will trigger a build failure if any violations have been detected.
-task checkJavaStyle(type: Checkstyle) {
-	source android.sourceSets.main.java.srcDirs
-	include '**/*.java'
+// Customize all the Checkstyle tasks
+tasks.withType(Checkstyle) {
+	// Specify all files that should be checked
 	classpath = files()
+	source android.sourceSets.main.java.srcDirs
+}
+// Execute Checkstyle on all files
+task checkJavaStyle(type: Checkstyle) {
+	// include '**/*.java'
+}
+// Execute Checkstyle on all modified files
+task checkstyleChanged(type: Checkstyle) {
+	include getChangedFiles()
+}
+
+// Used to strip the src dir prefixes from the changed java files
+def getChangedFiles() {
+	if (!project.hasProperty('changedFiles')) {
+		return new ArrayList<>()
+	}
+	def allFiles = project.changedFiles.split(',')
+
+	// Remove the prefix
+	List<String> files = new ArrayList<>()
+	for (file in allFiles) {
+		def index = file.indexOf('src/java/')
+		if (index != -1) {
+			files.add(file.substring(index + 9))
+		}
+	}
+
+	// Return the list of touched files
+	files
 }
 
 // Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
