@@ -198,10 +198,39 @@ tasks.withType(com.android.build.gradle.tasks.ExternalNativeCleanTask) {
 
 // Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
 // Will trigger a build failure if any violations have been detected.
-task checkJavaStyle(type: Checkstyle) {
-	source android.sourceSets.main.java.srcDirs
-	include '**/*.java'
+// Customize all the Checkstyle tasks
+tasks.withType(Checkstyle) {
+	// Specify all files that should be checked
 	classpath = files()
+	source android.sourceSets.main.java.srcDirs
+}
+// Execute Checkstyle on all files
+task checkJavaStyle(type: Checkstyle) {
+	// include '**/*.java'
+}
+// Execute Checkstyle on all modified files
+task checkstyleChanged(type: Checkstyle) {
+	include getChangedFiles()
+}
+
+// Used to strip the src dir prefixes from the changed java files
+def getChangedFiles() {
+	if (!project.hasProperty('changedFiles')) {
+		return new ArrayList<>()
+	}
+	def allFiles = project.changedFiles.split(',')
+
+	// Remove the prefix
+	List<String> files = new ArrayList<>()
+	for (file in allFiles) {
+		def index = file.indexOf('src/java/')
+		if (index != -1) {
+			files.add(file.substring(index + 9))
+		}
+	}
+
+	// Return the list of touched files
+	files
 }
 
 // Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
