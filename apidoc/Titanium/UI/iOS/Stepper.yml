@@ -87,7 +87,7 @@ properties:
     summary: Sets the color for the widget, any backgroundImages added will be set to the same color.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: backgroundImage
     summary: |

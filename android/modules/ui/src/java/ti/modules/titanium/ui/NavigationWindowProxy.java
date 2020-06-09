@@ -25,28 +25,25 @@ public class NavigationWindowProxy extends WindowProxy
 		super();
 	}
 
-	// clang-format off
 	@Override
 	@Kroll.method
 	public void open(@Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
+		if (!opened && getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
 			opened = true;
 			Object rootView = getProperties().get(TiC.PROPERTY_WINDOW);
 			if (rootView instanceof WindowProxy || rootView instanceof TabGroupProxy) {
 				openWindow(rootView, arg);
+				fireEvent(TiC.EVENT_OPEN, null);
 			}
 			return;
 		}
 		super.open(arg);
 	}
 
-	// clang-format off
 	@Kroll.method
 	public void popToRootWindow(@Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
 		// Keep first "root" window
 		for (int i = windows.size() - 1; i > 0; i--) {
@@ -56,21 +53,21 @@ public class NavigationWindowProxy extends WindowProxy
 		}
 	}
 
-	// clang-format off
 	@Override
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
-		popToRootWindow(arg);
-		closeWindow(windows.get(0), arg); // close the root window
+		if (opened) {
+			opened = false;
+			popToRootWindow(arg);
+			closeWindow(windows.get(0), arg); // close the root window
+			fireEvent(TiC.EVENT_CLOSE, null);
+		}
 		super.close(arg);
 	}
 
-	// clang-format off
 	@Kroll.method
 	public void openWindow(Object childToOpen, @Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
 		if (!opened) {
 			open(null);
@@ -91,10 +88,8 @@ public class NavigationWindowProxy extends WindowProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	public void closeWindow(Object childToClose, @Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
 		// TODO: If they try to close root window, yell at them:
 		// DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");

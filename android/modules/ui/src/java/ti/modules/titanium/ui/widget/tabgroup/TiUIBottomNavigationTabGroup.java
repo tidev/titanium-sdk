@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -26,7 +27,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -169,12 +169,18 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		int index = this.mMenuItemsArray.size() - 1;
 		updateDrawablesAfterNewItem(index);
 		// Handle shift mode.
-		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
-			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
+		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
+		switch (shiftMode) {
+			case 0:
 				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
-			} else {
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_SELECTED);
-			}
+				break;
+			case 1:
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_AUTO);
+				break;
+			case 2:
+				// NOTE: Undocumented for now, will create new property that has parity with iOS.
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
+				break;
 		}
 	}
 
@@ -268,6 +274,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
+	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateTabTitleColor(int index)
 	{
@@ -296,7 +303,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
+		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
 	}
 
@@ -321,6 +328,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
+		// Guard for clicking on the currently selected tab.
+		// This is required to have parity with the default style tab.
+		if (index == this.currentlySelectedIndex) {
+			return true;
+		}
 		if ((index != currentlySelectedIndex) && (getProxy() != null)) {
 			if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size())) {
 				TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();
@@ -332,8 +344,32 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 		// Make the ViewPager to select the proper page too.
 		selectTab(index);
+
 		// Trigger the select event firing for the new tab.
 		((TabGroupProxy) getProxy()).onTabSelected(index);
 		return false;
+	}
+
+	private void updateIconTint()
+	{
+		for (int i = 0; i < this.tabs.size(); i++) {
+			final TiUITab tab = this.tabs.get(i);
+			if (tab.getProxy() != null) {
+				final TiViewProxy tabProxy = tab.getProxy();
+				final boolean selected = i == currentlySelectedIndex;
+				Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
+				drawable = updateIconTint(tabProxy, drawable, selected);
+				this.mBottomNavigationView.getMenu().getItem(i).setIcon(drawable);
+			}
+		}
+	}
+
+	@Override
+	public void selectTab(int tabIndex)
+	{
+		super.selectTab(tabIndex);
+
+		updateIconTint();
+		updateTabBackgroundDrawable(tabIndex);
 	}
 }

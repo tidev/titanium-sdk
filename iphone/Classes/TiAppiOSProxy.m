@@ -133,6 +133,13 @@
                                                  name:kTiTraitCollectionChanged
                                                object:nil];
   }
+
+  if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didTakeScreenshot:)
+                                                 name:UIApplicationUserDidTakeScreenshotNotification
+                                               object:nil];
+  }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -189,6 +196,9 @@
   if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
   }
+  if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+  }
 }
 
 #pragma mark Public
@@ -196,6 +206,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {
+  DEPRECATED_REPLACED(@"App.iOS.userInterfaceStyle", @"9.1.0", @"UI.userInterfaceStyle");
   return @(TiApp.controller.traitCollection.userInterfaceStyle);
 }
 #endif
@@ -203,6 +214,11 @@
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
   [self fireEvent:@"traitcollectionchange"];
+}
+
+- (void)didTakeScreenshot:(NSNotification *)info
+{
+  [self fireEvent:@"screenshotcaptured"];
 }
 
 - (void)didReceiveApplicationShortcutNotification:(NSNotification *)info
@@ -259,9 +275,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createSearchableItem:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createSearchableItem:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -289,9 +306,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createSearchableItemAttributeSet:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createSearchableItemAttributeSet:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -313,9 +331,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createSearchQuery:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createSearchQuery:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -331,9 +350,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self createUserActivity:args] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self createUserActivity:args] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -511,10 +531,11 @@
   DebugLog(@"[ERROR] Please use Ti.App.iOS.UserNotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
 
   __block NSDictionary *returnVal = nil;
-  TiThreadPerformOnMainThread(^{
-    UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-    returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
+      },
       YES);
 
   return [returnVal autorelease];
@@ -553,9 +574,10 @@
 {
   if (![NSThread isMainThread]) {
     __block NSDictionary *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self formatUserNotificationSettings:notificationSettings] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self formatUserNotificationSettings:notificationSettings] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -785,14 +807,15 @@
                                                                         content:content
                                                                         trigger:trigger];
 
-  TiThreadPerformOnMainThread(^{
-    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                           withCompletionHandler:^(NSError *error) {
-                                                             if (error) {
-                                                               DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
-                                                             }
-                                                           }];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
+                                                               withCompletionHandler:^(NSError *error) {
+                                                                 if (error) {
+                                                                   DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+                                                                 }
+                                                               }];
+      },
       NO);
 
   notification.notification = content;
@@ -1071,6 +1094,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
+  DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_UNSPECIFIED", @"9.1.0", @"UI.USER_INTERFACE_STYLE_UNSPECIFIED");
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleUnspecified);
   }
@@ -1080,6 +1104,7 @@
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
+  DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_LIGHT", @"9.1.0", @"UI.USER_INTERFACE_STYLE_LIGHT");
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleLight);
   }
@@ -1089,6 +1114,7 @@
 
 - (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
+  DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_DARK", @"9.1.0", @"UI.USER_INTERFACE_STYLE_DARK");
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return NUMINT(UIUserInterfaceStyleDark);
   }

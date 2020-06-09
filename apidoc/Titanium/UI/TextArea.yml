@@ -20,6 +20,12 @@ description: |
     </table>
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
+
+    #### `click` event in iOS
+
+    In iOS 11+, `click` event in text area is not fired due to changes from apple. 
+    Use `touchstart` event instead of `click` event.
+
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
@@ -232,7 +238,7 @@ properties:
     summary: Color of the text in this text area, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: editable
     summary: Determines whether this field can be edited.
@@ -338,14 +344,14 @@ properties:
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
-    type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
+    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
 
   - name: keyboardToolbarColor
     summary: Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone,ipad]
 
   - name: keyboardToolbarHeight

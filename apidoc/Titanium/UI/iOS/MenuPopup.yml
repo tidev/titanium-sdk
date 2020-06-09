@@ -18,7 +18,7 @@ properties:
     description: |
         The items will be shown as soon in the menu popup when the `show` method is called.
         To hide them again, use the `hide` method in conjunction.
-    type: [String]
+    type: Array<String>
 
 methods:
   - name: show
@@ -36,7 +36,7 @@ methods:
         summary: |
             Includes options how the menu popup should be hidden. Introduced in SDK 5.2.0.
         
-            Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimationOptions> is false)
+            Note that the default here is equivalent to passing in `{ animated: true }` (while typically the default for <AnimatedOptions> is false)
         type: AnimatedOptions
         optional: true
         default: "{ animated: true }"

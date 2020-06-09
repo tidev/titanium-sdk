@@ -130,14 +130,18 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 
 		// use transparent highlight so the selector drawable is visible over background
 		ColorDrawable transparent = new ColorDrawable(Color.TRANSPARENT);
-		stateDrawable.addState(new int[] { android.R.attr.state_window_focused, android.R.attr.state_enabled,
-										   android.R.attr.state_pressed },
-							   transparent);
+		stateDrawable.addState(
+			new int[] {
+				android.R.attr.state_window_focused, android.R.attr.state_enabled, android.R.attr.state_pressed
+			},
+			transparent);
 		stateDrawable.addState(new int[] { android.R.attr.state_selected }, transparent);
 
-		stateDrawable.addState(new int[] { android.R.attr.state_focused, android.R.attr.state_window_focused,
-										   android.R.attr.state_enabled },
-							   drawable);
+		stateDrawable.addState(
+			new int[] {
+				android.R.attr.state_focused, android.R.attr.state_window_focused, android.R.attr.state_enabled
+			},
+			drawable);
 		stateDrawable.addState(new int[0], drawable);
 
 		if (d.containsKey(TiC.PROPERTY_OPACITY)) {

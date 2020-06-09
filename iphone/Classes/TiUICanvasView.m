@@ -71,9 +71,10 @@ enum {
 - (void)commit
 {
   if (operations != nil) {
-    TiThreadPerformOnMainThread(^{
-      [self setNeedsDisplay];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setNeedsDisplay];
+        },
         NO);
   }
 }

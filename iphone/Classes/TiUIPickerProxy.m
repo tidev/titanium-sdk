@@ -123,10 +123,11 @@ NSArray *pickerKeySequence;
 
   [self reloadColumn:column];
   if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO]) {
-    TiThreadPerformOnMainThread(^{
-      [[self picker] selectRow:
-                         [NSArray arrayWithObjects:NUMINT(0), rowIndex, nil]];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[self picker] selectRow:
+                             [NSArray arrayWithObjects:NUMINT(0), rowIndex, nil]];
+        },
         NO);
   }
 }
@@ -208,9 +209,10 @@ NSArray *pickerKeySequence;
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[[self picker] value_] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[[self picker] value_] retain];
+        },
         YES);
     return [result autorelease];
   }

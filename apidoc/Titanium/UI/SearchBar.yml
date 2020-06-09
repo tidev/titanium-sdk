@@ -102,6 +102,27 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
+  
+  - name: insertTokenAtIndex
+    summary: Inserts a new search token at the specified index.
+    parameters:
+      - name: token
+        type: SearchBarToken
+        summary: The token to insert
+      - name: index
+        type: Number
+        summary: The index to insert the token at.
+    osver: { ios: { min: "13.0" } }
+    since: 9.1.0
+
+  - name: removeTokenAtIndex
+    summary: Removes an existing token at the specified index.
+    parameters:
+      - name: index
+        type: Number
+        summary: The index to remove the token at.
+    osver: { ios: { min: "13.0" } }
+    since: 9.1.0
 
 events:
   - name: blur
@@ -149,7 +170,6 @@ events:
         type: String
 
 properties:
-
   - name: autocapitalization
     summary: Determines how text is capitalized during typing.
     type: Number
@@ -170,7 +190,7 @@ properties:
 
         On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
         On Windows, `barColor` specifies the color of the whole surrounding area of the search text field.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
     default: System default bar color.
 
@@ -186,7 +206,7 @@ properties:
     summary: Color of the text in this text field, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
     since: "7.1.0"
 
@@ -217,7 +237,7 @@ properties:
     since: "7.1.0"
     description: |
         Sets the color of the <Titanium.UI.SearchBar.hintText>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: The platform's default hint text color.
 
   - name: hinttextid
@@ -284,6 +304,13 @@ properties:
         On Android, the value cannot be set until after the search bar is created.
     type: String
 
+  - name: tokens
+    summary: The token of a search text field
+    since: 9.1.0
+    osver: { ios: { min: "13.0" } }
+    type: Array<String>
+    default: []
+
 examples:
 
   - title: Simple Search Bar
@@ -323,3 +350,24 @@ examples:
                 </TableView>
             </Alloy>
 
+---
+name: SearchBarToken
+summary: The search bar token for the <Titanium.UI.SearchBar.insertTokenAtIndex> method.
+since: 9.1.0
+osver: { ios: { min: "13.0" } }
+platforms: [iphone, ipad]
+properties:
+  - name: identifier
+    summary: The identifier of the search bar token.
+    type: String
+    optional: false
+
+  - name: text
+    summary: The text of the search bar token (displayed in the search bar).
+    type: String
+    optional: false
+
+  - name: image
+    summary: The image of the search bar token.
+    type: String
+    optional: true

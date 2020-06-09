@@ -103,7 +103,7 @@
 #ifndef TI_USE_AUTOLAYOUT
   // Treat 'undefined' like 'auto' when we have an available width for ALL control segments
   UISegmentedControl *ourControl = [self segmentedControl];
-  if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy *)[self proxy] layoutProperties] -> width)) {
+  if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy *)[self proxy] layoutProperties]->width)) {
     CGRect controlBounds = bounds_;
     controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
     [ourControl setBounds:controlBounds];

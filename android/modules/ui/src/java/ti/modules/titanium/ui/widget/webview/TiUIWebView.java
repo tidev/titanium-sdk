@@ -6,6 +6,22 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.FeatureInfo;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.net.Uri;
+import android.os.Build;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewParent;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import androidx.annotation.StringRes;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.StringRes;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.ViewParent;
+import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -37,22 +48,8 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.WebViewProxy;
 import ti.modules.titanium.ui.android.AndroidModule;
-import android.content.Context;
-import android.content.pm.FeatureInfo;
-import android.content.pm.ApplicationInfo;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Build;
-import android.view.MotionEvent;
-import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-
-import javax.crypto.CipherInputStream;
 
 @SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
@@ -599,13 +596,18 @@ public class TiUIWebView extends TiUIView
 	{
 		reloadMethod = reloadTypes.URL;
 		reloadData = url;
-		String finalUrl = url;
-		Uri uri = Uri.parse(finalUrl);
-		boolean originalUrlHasScheme = (uri.getScheme() != null);
+		final Uri uri = Uri.parse(url);
 
-		if (!originalUrlHasScheme) {
-			finalUrl = getProxy().resolveUrl(null, finalUrl);
-		}
+		// Extract URL query parameters.
+		final String query = uri.getQuery() != null ? "?" + uri.getQuery() : "";
+		final String fragment = uri.getFragment();
+
+		// Resolve URL path.
+		// The scheme is processed by `resolveUrl()`.
+		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
+
+		// Reconstruct URL, ommiting any query parameters.
+		final String finalUrl = finalUri.toString().replace(query, "");
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
@@ -641,9 +643,9 @@ public class TiUIWebView extends TiUIView
 					}
 					String baseUrl = tiFile.nativePath();
 					if (baseUrl == null) {
-						baseUrl = originalUrlHasScheme ? url : finalUrl;
+						baseUrl = finalUrl;
 					}
-					setHtmlInternal(out.toString(), baseUrl, "text/html");
+					setHtmlInternal(out.toString(), baseUrl + query, "text/html");
 					return;
 				} catch (IOException ioe) {
 					Log.e(TAG,
@@ -671,9 +673,9 @@ public class TiUIWebView extends TiUIView
 		}
 		isLocalHTML = false;
 		if (extraHeaders.size() > 0) {
-			getWebView().loadUrl(finalUrl, extraHeaders);
+			getWebView().loadUrl(finalUrl + query, extraHeaders);
 		} else {
-			getWebView().loadUrl(finalUrl);
+			getWebView().loadUrl(finalUrl + query);
 		}
 	}
 
@@ -691,7 +693,7 @@ public class TiUIWebView extends TiUIView
 		return getWebView().getUrl();
 	}
 
-	private static final char escapeChars[] = new char[] { '%', '#', '\'', '?' };
+	private static final char[] escapeChars = new char[] { '%', '#', '\'', '?' };
 
 	private String escapeContent(String content)
 	{
@@ -1041,7 +1043,7 @@ public class TiUIWebView extends TiUIView
 				break;
 
 			case HTML:
-				if (reloadData == null || (reloadData instanceof HashMap<?, ?>) ) {
+				if (reloadData == null || (reloadData instanceof HashMap<?, ?>)) {
 					setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
 							(HashMap<String, Object>) reloadData);
 				} else {
@@ -1091,6 +1093,11 @@ public class TiUIWebView extends TiUIView
 	public boolean interceptOnBackPressed()
 	{
 		return chromeClient.interceptOnBackPressed();
+	}
+
+	public int getProgress()
+	{
+		return getWebView().getProgress();
 	}
 
 	@Override

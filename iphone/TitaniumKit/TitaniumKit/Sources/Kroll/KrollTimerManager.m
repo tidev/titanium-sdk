@@ -50,8 +50,7 @@
   JSContext *context = self.callback.context;
   JSValue *exception = context.exception;
   if (exception != nil) {
-    NSDictionary *exceptionDict = TiBindingTiValueToNSObject(context.JSGlobalContextRef, exception.JSValueRef);
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exceptionDict]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
   }
 }
 
@@ -66,7 +65,7 @@
     return nil;
   }
 
-  self.nextTimerIdentifier = 0;
+  self.nextTimerIdentifier = 1;
   self.timers = [NSMapTable strongToWeakObjectsMapTable];
 
   NSUInteger (^setInterval)(JSValue *, double) = ^(JSValue *callback, double interval) {

@@ -9,6 +9,7 @@
 #import "PlatformModule.h"
 #import "TiPlatformDisplayCaps.h"
 #import "TiUtils+Addons.h"
+#import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/TiApp.h>
 
 #import <mach/mach.h>
@@ -131,9 +132,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if (count == 1 && [type isEqualToString:@"battery"]) {
-    TiThreadPerformOnMainThread(^{
-      [self registerListeners:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self registerListeners:nil];
+        },
         YES);
   }
 }
@@ -141,9 +143,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
   if (count == 0 && [type isEqualToString:@"battery"]) {
-    TiThreadPerformOnMainThread(^{
-      [self unregisterListeners:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self unregisterListeners:nil];
+        },
         YES);
   }
 }
@@ -295,17 +298,16 @@ GETTER_IMPL(NSString *, id, Id);
 }
 GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
 
-- (BOOL)openURL:(NSString *)url withOptions:(id)options andCallback:(JSValue *)callback
+- (BOOL)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
 {
   NSURL *newUrl = [TiUtils toURL:url proxy:self];
   BOOL result = NO;
 
-  // iOS 10+
-  NSMutableDictionary *optionsDict = [NSMutableDictionary dictionary];
-  if ([options isKindOfClass:[NSDictionary class]]) {
-    optionsDict = (NSMutableDictionary *)options;
-  } else if ([options isKindOfClass:[JSValue class]]) {
-    callback = (JSValue *)options;
+  NSDictionary *optionsDict = @{};
+  if ([options isFunction]) {
+    callback = options;
+  } else if ([options isObject]) {
+    optionsDict = [options toDictionary];
   }
 
   if (newUrl != nil) {
@@ -313,7 +315,7 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
                                        options:optionsDict
                              completionHandler:^(BOOL success) {
                                if (callback != nil) {
-                                 [callback callWithArguments:@[ @{ @"success" : @(success)} ]];
+                                 [callback callWithArguments:@[ @{@"success" : @(success)} ]];
                                }
                              }];
   }
@@ -340,9 +342,10 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
 - (void)setBatteryMonitoring:(BOOL)yn
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self setBatteryMonitoring:yn];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setBatteryMonitoring:yn];
+        },
         YES);
   }
   [[UIDevice currentDevice] setBatteryMonitoringEnabled:yn];
@@ -352,9 +355,10 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
 {
   if (![NSThread isMainThread]) {
     __block BOOL result = NO;
-    TiThreadPerformOnMainThread(^{
-      result = [self batteryMonitoring];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [self batteryMonitoring];
+        },
         YES);
     return result;
   }
@@ -366,9 +370,10 @@ READWRITE_IMPL(BOOL, batteryMonitoring, BatteryMonitoring);
 {
   if (![NSThread isMainThread]) {
     __block NSNumber *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self batteryState] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self batteryState] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -380,9 +385,10 @@ GETTER_IMPL(NSNumber *, batteryState, BatteryState);
 {
   if (![NSThread isMainThread]) {
     __block NSNumber *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self batteryLevel] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self batteryLevel] retain];
+        },
         YES);
     return [result autorelease];
   }
