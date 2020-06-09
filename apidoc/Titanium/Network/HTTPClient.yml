@@ -97,48 +97,25 @@ description: |
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
     TLS 1.1 and TLS 1.0. By default, TLS 1.2 is attempted first.
 
-    In android, use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
+    On Android, use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
     if you know the version the server is running.  If you do not know, do not set this property.
 
-    In iOS, add `NSExceptionMinimumTLSVersion` key in plist section of tiapp.xml to set minimum TLS version. 
-    See following example-
+    On iOS, add the `NSExceptionMinimumTLSVersion` key in the `<plist>` section of `tiapp.xml` to set a minimum TLS version. 
+    See following example:
 
-    <ios>
-      <plist>
+    ```
+    <key>NSAppTransportSecurity</key>
+    <dict>
+      <key>NSExceptionDomains</key>
+      <dict>
+        <key>www.appcelerator.com</key>
         <dict>
-          <key>NSAppTransportSecurity</key>
-            <dict>
-              <key>NSExceptionDomains</key>
-              <dict>
-                <key>domain1</key>
-                  <dict>
-                      <key>NSExceptionMinimumTLSVersion</key>
-                      <string>tls version for domain</string>
-                  </dict>
-                <key>domain2</key>
-                  <dict>
-                      <key>NSExceptionMinimumTLSVersion</key>
-                      <string>tls version for domain2</string>
-                  </dict>
-              </dict>
-            </dict>
+          <key>NSExceptionMinimumTLSVersion</key>
+          <string>TLSv1.3</string>
         </dict>
-      </plist>
-    </ios>
-
-    e.g.
-        <key>NSAppTransportSecurity</key>
-          <dict>
-              <key>NSExceptionDomains</key>
-              <dict>
-                <key>www.appcelerator.com</key>
-                  <dict>
-                      <key>NSExceptionMinimumTLSVersion</key>
-                      <string>TLSv1.3</string>
-                  </dict>
-              </dict>
-          </dict>
-    
+      </dict>
+    </dict>
+    ```  
     Titanium will not fallback with a lower TLS version if the `tlsVersion` property in android or `NSExceptionMinimumTLSVersion` in iOS, is set.
     Setting the TLS version saves time from re-attempting connections with lower TLS versions and
     provides added security by denying attempts to use lower TLS versions.
@@ -577,7 +554,7 @@ properties:
     description: |
         If you experience handshake failures, set this value to a lower version using the TLS
         constants in <Titanium.Network>. 'undefined', 'null', or unsupported values use the default
-        behavior for that android versions.
+        behavior for that Android versions.
 
         Setting this property disables falling back to lower TLS versions.
     type: Number
