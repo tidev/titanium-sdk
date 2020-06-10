@@ -42,12 +42,16 @@
                                              (didReceiveApplicationShortcutNotification1:)
                                                  name:kTiApplicationShortcut
                                                object:nil];
+    [self retain];
   }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  if (count == 0 && [type isEqualToString:@"click"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self release];
+  }
 }
 
 - (NSArray<TiUIShortcutItemProxy *> *)items

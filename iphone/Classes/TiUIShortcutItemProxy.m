@@ -114,17 +114,17 @@
 
 - (NSString *)description
 {
-  return NULL_IF_NIL(_shortcutItem.localizedSubtitle);
+  return _shortcutItem.localizedSubtitle;
 }
 
 - (NSDictionary *)data
 {
-  return NULL_IF_NIL(_shortcutItem.userInfo);
+  return _shortcutItem.userInfo;
 }
 
 - (id)icon
 {
-  return NULL_IF_NIL(_shortcutItem.icon);
+  return _shortcutItem.icon;
 }
 @end
 #endif
