@@ -12,11 +12,11 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ShortcutItem', () => {
 
-	it('Ti.UI.ShortcutItem', () => {
+	it.android('Ti.UI.ShortcutItem', () => {
 		should(Ti.UI.ShortcutItem).not.be.undefined();
 	});
 
-	it('createShortcutItem', () => {
+	it.android('createShortcutItem', () => {
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcutItem).be.a.Function();
 
