@@ -1,17 +1,18 @@
 /**
 * Appcelerator Titanium Mobile
-* Copyright (c) 2018 by Appcelerator, Inc. All Rights Reserved.
+* Copyright (c) 2020 by Appcelerator, Inc. All Rights Reserved.
 * Licensed under the terms of the Apache Public License
 * Please see the LICENSE included with this distribution for details.
 */
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
 
 #import "TiUIShortcutItemProxy.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
 #ifdef USE_TI_CONTACTS
 #import "TiContactsPerson.h"
-#endif
 #import <ContactsUI/ContactsUI.h>
-
+#endif
 @implementation TiUIShortcutItemProxy
 
 - (NSString *)apiName

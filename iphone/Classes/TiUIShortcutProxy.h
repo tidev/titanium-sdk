@@ -1,34 +1,29 @@
 /**
 * Appcelerator Titanium Mobile
-* Copyright (c) 2018 by Appcelerator, Inc. All Rights Reserved.
+* Copyright (c) 2020 by Appcelerator, Inc. All Rights Reserved.
 * Licensed under the terms of the Apache Public License
 * Please see the LICENSE included with this distribution for details.
 */
 
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
 
-#import <TitaniumKit/TitaniumKit.h>
+#import <TitaniumKit/ObjcProxy.h>
+
+@class TiUIShortcutItemProxy;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol TiUIShortcutProxyExports <JSExport>
-READONLY_PROPERTY(NSArray *, items, Items);
-READONLY_PROPERTY(NSString *, staticItems, StaticItems);
+READONLY_PROPERTY(NSArray<TiUIShortcutItemProxy *> *, items, Items);
+READONLY_PROPERTY(NSArray<TiUIShortcutItemProxy *> *, staticItems, StaticItems);
 
-JSExportAs(getById,
-           -(NSArray *)getById
-           : (NSString *)identifier);
-JSExportAs(remove,
-           -(void)remove
-           : (id)arg);
+- (TiUIShortcutItemProxy *)getById:(NSString *)identifier;
 
-JSExportAs(removeAll,
-           -(void)removeAll
-           : (id)identifier);
+- (void)remove:(TiUIShortcutItemProxy *)shortcut;
 
-JSExportAs(add,
-           -(void)add
-           : (id)arg);
+- (void)removeAll;
+- (void)add:(TiUIShortcutItemProxy *)shortcut;
+
 @end
 
 @interface TiUIShortcutProxy : ObjcProxy <TiUIShortcutProxyExports>
