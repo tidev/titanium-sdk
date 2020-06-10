@@ -3456,7 +3456,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 
 					if (type === 'PBXShellScriptBuildPhase' && this.deployType !== 'production') {
-						this.logger.warn(`Only include ${type} in "${targetName}" for production, skipping now …`);
+						this.logger.debug(`Excluding PBXShellScriptBuildPhase in "${targetName}" for non-production build`);
 						return;
 					}
 
