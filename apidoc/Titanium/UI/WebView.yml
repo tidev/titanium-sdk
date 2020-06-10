@@ -201,7 +201,6 @@ excludes:
     properties: [children]
 since: "0.8"
 methods:
-
   - name: setHtml
     summary: Sets the value of [html](Titanium.UI.WebView.html) property.
     description: |
@@ -423,7 +422,6 @@ methods:
         type: BackForwardList
 
 events:
-
   - name: beforeload
     summary: Fired before the web view starts loading its content.
     description: |
@@ -612,7 +610,6 @@ events:
         type: String
 
 properties:
-
   - name: allowsLinkPreview
     summary: |
         A Boolean value that determines whether pressing on a link displays a preview of the
