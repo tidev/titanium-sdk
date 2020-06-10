@@ -37,8 +37,18 @@ exports.run = async function run(logger, config, cli, finished) {
 			}
 		}
 
+		const buildDir = path.join(projectDir, 'build');
+		for (const file of await fs.readdir(buildDir)) {
+			if (file === 'clean_android.log') {
+				continue;
+			}
+			const filePath = path.join(buildDir, file);
+			logger.debug(__('Deleting %s', filePath.cyan));
+			await fs.remove(filePath);
+		}
+
 		// Delete the following files and directory trees.
-		const fileNames = [ 'build', 'dist', 'java-sources.txt' ];
+		const fileNames = [ 'dist', 'java-sources.txt' ];
 		for (const nextFileName of fileNames) {
 			const nextFilePath = path.join(projectDir, nextFileName);
 			if (await fs.exists(nextFilePath)) {
