@@ -1,5 +1,5 @@
 ---
-name: Console
+name: Global.Console
 summary: Console logging facilities.
 description: |
     The toplevel `console` support is intended to supplement <Titanium.API>
@@ -124,3 +124,75 @@ methods:
         optional: true
         repeatable: true
     since: 7.5.0
+
+  - name: trace
+    summary: Log a message at the `trace` level.
+    description: |
+        The message to log can either be a single argument, or any number
+        of arguments, which will be converted to strings and then concatenated
+        together with a space character.
+    since: "9.1.0"
+    parameters:
+      - name: message
+        summary: The message(s) to log.
+        type: Object
+        repeatable: true
+
+  - name: count
+    summary: Maintains an internal counter specific to `label` and outputs to stdout the number of times `console.count()` has been called with the given `label`.
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: The display label for the counter
+        type: String
+        optional: true
+        default: 'default'
+
+  - name: countReset
+    summary: Resets the internal counter specific to `label`.
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: The display label for the counter
+        type: String
+        optional: true
+        default: 'default'
+
+  - name: assert
+    summary: A simple assertion test that verifies whether value is truthy. If it is not, Assertion failed is logged. If provided, the error message is formatted using `util.format()` by passing along all message arguments. The output is used as the error message.
+    since: "9.1.0"
+    parameters:
+      - name: value
+        summary: The value tested for being truthy.
+        type: Object
+        optional: true
+        default: 'default'
+      - name: message
+        summary: All arguments besides value are used as error message.
+        type: Object
+        optional: true
+        repeatable: true
+
+  - name: group
+    summary: Increases indentation of subsequent lines by spaces for `groupIndentation` length.
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: Labels to print before indentation (if provided)
+        type: Object
+        optional: true
+        repeatable: true
+
+  - name: groupCollapsed
+    summary: Alias for `group()`
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: Labels to print before indentation (if provided)
+        type: Object
+        optional: true
+        repeatable: true
+
+  - name: groupEnd
+    summary: Decreases indentation of subsequent lines by spaces for `groupIndentation` length.
+    since: "9.1.0"

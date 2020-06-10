@@ -287,5 +287,10 @@ methods:
 properties:
   - name: console
     summary: Console logging facilities.
-    type: Console
+    type: Global.Console
+    accessors: false
+
+  - name: console
+    summary: Reference to the global object itself.
+    type: Global
     accessors: false
