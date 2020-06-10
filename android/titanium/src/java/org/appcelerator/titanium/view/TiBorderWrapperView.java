@@ -1,16 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2017 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.view;
 
-import com.nineoldandroids.view.ViewHelper;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
@@ -19,9 +18,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.view.ViewOutlineProvider;
-import android.graphics.Outline;
+import android.widget.FrameLayout;
+
+import com.nineoldandroids.view.ViewHelper;
 
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
@@ -34,6 +34,7 @@ public class TiBorderWrapperView extends FrameLayout
 	private int color = Color.TRANSPARENT;
 	private int backgroundColor = Color.TRANSPARENT;
 	private float radius = 0;
+	private int radii = 0;
 	private float borderWidth = 0;
 	private int alpha = -1;
 	private Paint paint;
@@ -69,14 +70,24 @@ public class TiBorderWrapperView extends FrameLayout
 		if (radius > 0f) {
 			float innerRadius = radius - padding;
 			if (innerRadius > 0f) {
-				outerPath.addRoundRect(innerRect, innerRadius, innerRadius, Direction.CW);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && radii != 0) {
+					// Set specified border corners.
+					outerPath.addRoundRect(innerRect, getBorderRadiusCorners(innerRadius), Direction.CW);
+				} else {
+					outerPath.addRoundRect(innerRect, innerRadius, innerRadius, Direction.CW);
+				}
 			} else {
 				outerPath.addRect(innerRect, Direction.CW);
 			}
 			Path innerPath = new Path(outerPath);
 
-			// draw border
-			outerPath.addRoundRect(outerRect, radius, radius, Direction.CCW);
+			// Draw border.
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && radii != 0) {
+				// Set specified border corners.
+				outerPath.addRoundRect(outerRect, getBorderRadiusCorners(radius), Direction.CW);
+			} else {
+				outerPath.addRoundRect(outerRect, radius, radius, Direction.CCW);
+			}
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
@@ -108,6 +119,37 @@ public class TiBorderWrapperView extends FrameLayout
 		}
 	}
 
+	private float[] getBorderRadiusCorners(float radius)
+	{
+		float[] corners = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		// Top left corner.
+		if ((radii & 1) == 1) {
+			corners[0] = radius;
+			corners[1] = radius;
+		}
+
+		// Top right corner.
+		if ((radii & 2) == 2) {
+			corners[2] = radius;
+			corners[3] = radius;
+		}
+
+		// Bottom left corner.
+		if ((radii & 4) == 4) {
+			corners[6] = radius;
+			corners[7] = radius;
+		}
+
+		// Bottom right corner.
+		if ((radii & 8) == 8) {
+			corners[4] = radius;
+			corners[5] = radius;
+		}
+
+		return corners;
+	}
+
 	@Override
 	public void onDescendantInvalidated(View child, View target)
 	{
@@ -131,6 +173,23 @@ public class TiBorderWrapperView extends FrameLayout
 	public void setRadius(float radius)
 	{
 		this.radius = radius;
+	}
+
+	public void setBorderRadiusCorners(Object obj)
+	{
+		int radii = 0;
+
+		if (obj instanceof Object[]) {
+			for (Object value : (Object[]) obj) {
+				if (value instanceof Integer) {
+					radii |= (Integer) value;
+				}
+			}
+		} else if (obj instanceof Integer) {
+			radii = (Integer) obj;
+		}
+
+		this.radii = radii;
 	}
 
 	public void setBorderWidth(float borderWidth)

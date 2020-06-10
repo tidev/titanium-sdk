@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,6 +23,7 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -114,30 +115,43 @@ public class UIModule extends KrollModule
 	@Kroll.constant
 	public static final int AUTOLINK_NONE = 16;
 
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_USERNAME = View.AUTOFILL_HINT_USERNAME;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_PASSWORD = View.AUTOFILL_HINT_PASSWORD;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_EMAIL = View.AUTOFILL_HINT_EMAIL_ADDRESS;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_NAME = View.AUTOFILL_HINT_NAME;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_PHONE = View.AUTOFILL_HINT_PHONE;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_ADDRESS = View.AUTOFILL_HINT_POSTAL_ADDRESS;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_POSTAL_CODE = View.AUTOFILL_HINT_POSTAL_CODE;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_CARD_NUMBER = View.AUTOFILL_HINT_CREDIT_CARD_NUMBER;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_CARD_SECURITY_CODE = View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_CARD_EXPIRATION_DATE = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_CARD_EXPIRATION_DAY = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_CARD_EXPIRATION_MONTH = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH;
+	@SuppressLint("InlinedApi")
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_CARD_EXPIRATION_YEAR = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR;
 
@@ -390,6 +404,15 @@ public class UIModule extends KrollModule
 	public static final int USER_INTERFACE_STYLE_DARK = Configuration.UI_MODE_NIGHT_YES;
 	@Kroll.constant
 	public static final int USER_INTERFACE_STYLE_UNSPECIFIED = Configuration.UI_MODE_NIGHT_UNDEFINED;
+
+	@Kroll.constant
+	public static final int BORDER_CORNER_TOP_LEFT = 1;
+	@Kroll.constant
+	public static final int BORDER_CORNER_TOP_RIGHT = 2;
+	@Kroll.constant
+	public static final int BORDER_CORNER_BOTTOM_LEFT = 4;
+	@Kroll.constant
+	public static final int BORDER_CORNER_BOTTOM_RIGHT = 8;
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 

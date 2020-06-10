@@ -1193,6 +1193,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 * @param backgroundColor The background color of the view.
 	 * @param rippleColor The ripple color.
 	 */
+	@SuppressLint("NewApi")
 	private void applyTouchFeedback(@NonNull Integer backgroundColor, @Nullable Integer rippleColor)
 	{
 		if (rippleColor == null) {
@@ -1465,6 +1466,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					borderView.setRadius(radius);
 				}
 
+				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS_CORNERS)) {
+					borderView.setBorderRadiusCorners(d.get(TiC.PROPERTY_BORDER_RADIUS_CORNERS));
+				}
+
 				if (bgColor != null) {
 					borderView.setBgColor(bgColor);
 					borderView.setColor(bgColor);
@@ -1517,6 +1522,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
+		} else if (TiC.PROPERTY_BORDER_RADIUS_CORNERS.equals(property)) {
+			borderView.setBorderRadiusCorners(value);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
 			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
