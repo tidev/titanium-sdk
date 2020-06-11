@@ -11,7 +11,7 @@ description: |
 
     #### console
 
-    Titanium provides [console](Global.console) support familiar to many javascript developers
+    Titanium provides [console](Global.Console) support familiar to many javascript developers
     for logging at the toplevel, in addition to the [Titanium](Titanium.API) logging facilities.
 
     #### Timers
@@ -244,9 +244,9 @@ methods:
         example: |
 
                 var count = 0;
-                var timer = setInterval(function(){
+                var timer = setInterval(function() {
                     count++;
-                    label.text = "count: " + count;
+                    label.text = 'count - ' + count;
                     if (count == 10) {
                         clearInterval(timer);
                     }
@@ -279,13 +279,121 @@ methods:
       - title: Execute a function in 500 milliseconds
         example: |
 
-                setTimeout(function(){
+                setTimeout(function() {
                     Ti.API.debug('Called using setTimeout');
                 }, 500);
 
 
 properties:
+  - name: OS_ANDROID
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the current platform is Android.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard platform-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: OS_IOS
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the current platform is ipad/iphone.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard platform-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_DEV
+    summary: Alias for <ENV_DEVELOPMENT>
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_DEVELOPMENT
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'development'`. Typically true for simulator/emulator builds.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the deploy type is `'development'`.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_PROD
+    summary: Alias for <ENV_PRODUCTION>
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_PRODUCTION
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'production'`. Typically true for app store/ad-hoc builds.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the deploy type is `'production'`.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_TEST
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'test'`. Typically true for device builds.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: DIST_ADHOC
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-adhoc'`.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: DIST_STORE
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-appstore'` or `'dist-playstore'`.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
   - name: console
     summary: Console logging facilities.
-    type: Console
+    type: Global.Console
+    accessors: false
+
+  - name: global
+    summary: Reference to the global object itself.
+    type: Global
     accessors: false

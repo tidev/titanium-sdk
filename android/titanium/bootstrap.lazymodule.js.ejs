@@ -1,0 +1,45 @@
+if (!('__propertiesDefined__' in <%- name %>)) {
+	Object.defineProperties(<%- name %>, {
+<%
+if (mod.children) {
+	for (const child of mod.children) {
+		let fullAPIName = child.proxyAttrs.fullAPIName;
+		// Drop leading 'Tiatnium' if in full aAPI name
+		if (fullAPIName.startsWith('Titanium.')) {
+			fullAPIName = fullAPIName.slice(9);
+		}
+-%>
+		'<%- child.proxyAttrs.name %>': {
+			get: function () {
+<%
+		if (child.children && child.children.length !== 0) {
+-%>
+				const <%- child.proxyAttrs.name %> = lazyGet(this, '<%- child.proxyAttrs.proxyClassName %>', '<%- child.proxyAttrs.name %>', '<%- fullAPIName %>');
+				<%- include('bootstrap.lazymodule.js.ejs', { mod: child, name: child.proxyAttrs.name }); %>
+<%
+		} else {
+-%>
+				return lazyGet(this, '<%- child.proxyAttrs.proxyClassName %>', '<%- child.proxyAttrs.name %>', '<%- fullAPIName %>');
+<%
+		}
+-%>
+			},
+			configurable: true
+		},
+<%
+	}
+}
+_%>
+	});
+<%_ if (mod.createProxies) {
+	for (const create of mod.createProxies) { _%>
+		<%- name %>.constructor.prototype.create<%- create.name %> = function () {
+			return new <%- name %>['<%- create.name %>'](arguments); // FIXME: don't use arguments!
+		}
+<%
+	}
+}
+_%>
+}
+<%- name %>.__propertiesDefined__ = true;
+return <%- name %>;

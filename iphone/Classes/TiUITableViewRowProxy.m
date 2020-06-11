@@ -528,7 +528,8 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (UIView *)view
 {
-  return nil;
+  //TIMOB-27935: TiUITableViewRowProxy do not have corresponding view class. So return corresponding cell
+  return callbackCell;
 }
 
 //Private method : For internal use only
