@@ -8,9 +8,6 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
-const utilities = require('./utilities/utilities');
-
-const isAndroid = utilities.isAndroid();
 
 describe('Titanium.UI.View', function () {
 	let rootWindow;
@@ -58,14 +55,14 @@ describe('Titanium.UI.View', function () {
 
 	it.ios('borderRadiusCorners after opening window', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		const view = Ti.UI.createView({ 
-			bottom: 0, 
+		const view = Ti.UI.createView({
+			bottom: 0,
 			height: 350,
 			borderRadius: 20,
 			borderRadiusCorners: [
 				Ti.UI.BORDER_CORNER_TOP_RIGHT,
 				Ti.UI.BORDER_CORNER_TOP_LEFT
-			] 
+			]
 		});
 		win.add(view);
 		win.addEventListener('focus', function () {
