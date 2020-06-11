@@ -388,7 +388,7 @@ DEFINE_EXCEPTIONS
 
   if ([self hasCustomBorderRadii]) {
     __block UIRectCorner corners;
-    NSArray<NSNumber *> *edges = [proxy valueForKey:@"borderRadiusEdges"];
+    NSArray<NSNumber *> *edges = [proxy valueForKey:@"borderRadiusCorners"];
     TiDimension borderRadius = TiDimensionFromObject([proxy valueForKey:@"borderRadius"]);
 
     if (TiDimensionIsUndefined(borderRadius)) {
@@ -412,7 +412,7 @@ DEFINE_EXCEPTIONS
 
 - (BOOL)hasCustomBorderRadii
 {
-  return [proxy valueForKey:@"borderRadiusEdges"] != nil;
+  return [proxy valueForKey:@"borderRadiusCorners"] != nil;
 }
 
 - (void)setFrame:(CGRect)frame

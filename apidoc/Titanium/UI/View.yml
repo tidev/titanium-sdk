@@ -1323,13 +1323,6 @@ properties:
     type: Number
     default: 0
 
-  - name: borderRadiusEdges
-    summary: An array of radius edges to define custom radii.
-    type: Array<Number>
-    constants: Titanium.UI.BORDER_EDGE_*
-    platforms: [android, iphone, ipad]
-    since: "9.0.0"
-
   - name: borderWidth
     summary: Border width of the view.
     description: |
