@@ -486,7 +486,9 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
     @"mid" : [TiUtils appIdentifier],
     @"sid" : sid,
     @"q" : address,
-    @"c" : [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode]
+    @"c" : [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] != nil
+        ? [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode]
+        : @"US"
   };
   [callback start:params];
 }
