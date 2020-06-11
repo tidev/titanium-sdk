@@ -1323,6 +1323,13 @@ properties:
     type: Number
     default: 0
 
+  - name: borderRadiusCorners
+    summary: An array of corners to use specified <Titanium.UI.View.borderRadius> on.
+    type: Array<Number>
+    constants: Titanium.UI.BORDER_CORNER_*
+    platforms: [android, iphone, ipad]
+    since: "9.1.0"
+
   - name: borderWidth
     summary: Border width of the view.
     description: |

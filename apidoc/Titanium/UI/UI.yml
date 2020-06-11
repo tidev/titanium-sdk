@@ -1555,6 +1555,34 @@ properties:
     since: "7.3.0"
     platforms: [android, iphone, ipad]
 
+  - name: BORDER_CORNER_BOTTOM_LEFT
+    summary: The bottom left border corner for use with <Titanium.UI.View.borderRadiusCorners>.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "9.1.0"
+    permission: read-only
+
+  - name: BORDER_CORNER_BOTTOM_RIGHT
+    summary: The bottom right border corner for use with <Titanium.UI.View.borderRadiusCorners>.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "9.1.0"
+    permission: read-only
+
+  - name: BORDER_CORNER_TOP_LEFT
+    summary: The top left border corner for use with <Titanium.UI.View.borderRadiusCorners>.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "9.1.0"
+    permission: read-only
+
+  - name: BORDER_CORNER_TOP_RIGHT
+    summary: The top right border corner for use with <Titanium.UI.View.borderRadiusCorners>.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "9.1.0"
+    permission: read-only
+
   - name: HINT_TYPE_STATIC
     summary: |
         Use when creating a TextField to specify the hintType as static.
