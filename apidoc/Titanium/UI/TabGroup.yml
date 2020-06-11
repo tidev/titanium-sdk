@@ -509,7 +509,7 @@ properties:
     default: true
     platforms: [iphone, ipad]
     
-  - name: tabsTranparent
+  - name: tabsTransparent
     summary: A Boolean value that indicates whether the tab bar is transparent.
     description: |
         When the value of this property is `true`, the tab group bar is completely transparent.
