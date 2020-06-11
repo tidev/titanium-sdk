@@ -467,6 +467,14 @@ properties:
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
 
+  - name: tabsBackgroundView
+    summary: Set a view for the TabGroup bar.
+    description: |
+        Adds a Ti.UI.View as a child of the TabGroup bar and sends it to back
+    type: [Titanium.UI.View]
+    since: {iphone: "9.1.0", ipad: "9.1.0"}
+    platforms: [iphone, ipad]
+
   - name: tabsTintColor
     summary: The tintColor to apply to the tabs.
     description: |
@@ -499,6 +507,16 @@ properties:
     type: Boolean
     since: "6.2.0"
     default: true
+    platforms: [iphone, ipad]
+    
+  - name: tabsTranparent
+    summary: A Boolean value that indicates whether the tab bar is transparent.
+    description: |
+        When the value of this property is `true`, the tab group bar is completely transparent.
+        You can use in combination with `tabsBackgroundView` to give a custom shape to your tab bar.
+    type: Boolean
+    since: "9.1.0"
+    default: false
     platforms: [iphone, ipad]
 
   - name: activeTintColor
