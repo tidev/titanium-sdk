@@ -11,7 +11,7 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.View', () => {
 
-	it.android('borderRadiusEdges', () => {
+	it.android('borderRadiusCorners', () => {
 		const view = Ti.UI.createView({
 			width: 100,
 			height: 100,
