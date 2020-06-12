@@ -14,12 +14,14 @@ osver: {ios: {min: "10.3"}}
 methods:
   - name: getCanonicalLocales
     summary: Gets canonical locale identifiers matching given BCP 47 locale identifiers.
+    description: |
+      ``` js
+      // Will return ['en-US'].
+      Ti.API.info(Intl.getCanonicalLocales('EN-US'));
 
-            // Will return ['en-US'].
-            Ti.API.info(Intl.getCanonicalLocales('EN-US'));
-
-            // Will return ['en-US', 'fr'].
-            Ti.API.info(Intl.getCanonicalLocales(['EN-US', 'Fr']));
+      // Will return ['en-US', 'fr'].
+      Ti.API.info(Intl.getCanonicalLocales(['EN-US', 'Fr']));
+      ```
     parameters:
       - name: locales
         summary: A string or array of strings providing BCP 47 locale identifiers to fetch the canoncial names of.

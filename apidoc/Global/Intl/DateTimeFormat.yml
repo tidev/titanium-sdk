@@ -13,57 +13,65 @@ description: |
 examples:
   - title: Output Numeric Date
     example: |
-            // 2020-March-1st
-            const date = new Date(Date.UTC(2020, 2, 1));
+        ``` js
+        // 2020-March-1st
+        const date = new Date(Date.UTC(2020, 2, 1));
 
-            // Logs "3/1/2020" for US English locale.
-            // Logs "1.3.2020" for German locale.
-            // Logs "2020/3/1" for Japanese locale.
-            const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-                timeZone: 'UTC'
-            });
-            console.log(`Time: ${formatter.format(date)}`);
+        // Logs "3/1/2020" for US English locale.
+        // Logs "1.3.2020" for German locale.
+        // Logs "2020/3/1" for Japanese locale.
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            timeZone: 'UTC'
+        });
+        console.log(`Time: ${formatter.format(date)}`);
+        ```
 
   - title: Output 12-Hour Time
     example: |
-            // 2020-January-1st 08:02:05 PM
-            const date = new Date(Date.UTC(2020, 0, 1, 20, 2, 5));
+        ``` js
+        // 2020-January-1st 08:02:05 PM
+        const date = new Date(Date.UTC(2020, 0, 1, 20, 2, 5));
 
-            // Logs "8:02:05 PM" for English locales.
-            // Logs "8:02:05 nachm." for German locales.
-            const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
-                hour: 'numeric',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true,
-                dayPeriod: 'narrow',
-                timeZone: 'UTC'
-            });
-            console.log(`Time: ${formatter.format(date)}`);
+        // Logs "8:02:05 PM" for English locales.
+        // Logs "8:02:05 nachm." for German locales.
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+            dayPeriod: 'narrow',
+            timeZone: 'UTC'
+        });
+        console.log(`Time: ${formatter.format(date)}`);
+        ```
 
   - title: Output 24-Hour Time
     example: |
-            // 2020-January-1st 08:02:05 PM
-            const date = new Date(Date.UTC(2020, 0, 1, 20, 2, 5));
+        ``` js
+        // 2020-January-1st 08:02:05 PM
+        const date = new Date(Date.UTC(2020, 0, 1, 20, 2, 5));
 
-            // Logs "20:02:05".
-            const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false,
-                timeZone: 'UTC'
-            });
-            console.log(`Time: ${formatter.format(date)}`);
+        // Logs "20:02:05".
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            timeZone: 'UTC'
+        });
+        console.log(`Time: ${formatter.format(date)}`);
+        ```
 
   - title: Output Localized Weekday Name
     example: |
-            // Log current weekday name (such as "Monday") using system's selected language.
-            const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, { weekday: 'long' });
-            console.log(formatter.format(new Date()));
+        ``` js
+        // Log current weekday name (such as "Monday") using system's selected language.
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, { weekday: 'long' });
+        console.log(formatter.format(new Date()));
+        ```
 
 platforms: [iphone, ipad, android]
 since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
@@ -128,7 +136,9 @@ properties:
     description: |
       #### Syntax
 
-            new Intl.DateTimeFormat([locales[, options]])
+      ``` js
+      new Intl.DateTimeFormat([locales[, options]])
+      ```
 
       #### Parameters
 

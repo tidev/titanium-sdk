@@ -10,41 +10,45 @@ description: |
 examples:
   - title: Array Sorting
     example: |
-            // Sort using collator. Array becomes: [ 'a', 'b', 'c' ]
-            const elements = [ 'c', 'b', 'a' ];
-            elements.sort(new Intl.Collator().compare);
-            console.log(`Sorted Elements: ${elements}`);
+        ``` js
+        // Sort using collator. Array becomes: [ 'a', 'b', 'c' ]
+        const elements = [ 'c', 'b', 'a' ];
+        elements.sort(new Intl.Collator().compare);
+        console.log(`Sorted Elements: ${elements}`);
+        ```
 
   - title: String Compare Sensitivity
     example: |
-            // Case sensitive and accent sensitive string matching.
-            // This is the default collator sensitivity.
-            const collator = new Intl.Collator({ sensitivity: 'variant' });
-            console.log(collator.compare('a', 'a') === 0);  // Equal
-            console.log(collator.compare('a', 'á') === 0);  // Not Equal
-            console.log(collator.compare('a', 'A') === 0);  // Not Equal
-            console.log(collator.compare('a', 'b') === 0);  // Not Equal
+        ``` js
+        // Case sensitive and accent sensitive string matching.
+        // This is the default collator sensitivity.
+        const collator = new Intl.Collator({ sensitivity: 'variant' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Not Equal
+        console.log(collator.compare('a', 'A') === 0);  // Not Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
 
-            // Match strings that are the same case, ignoring accent marks.
-            collator = new Intl.Collator({ sensitivity: 'case' });
-            console.log(collator.compare('a', 'a') === 0);  // Equal
-            console.log(collator.compare('a', 'á') === 0);  // Equal
-            console.log(collator.compare('a', 'A') === 0);  // Not Equal
-            console.log(collator.compare('a', 'b') === 0);  // Not Equal
+        // Match strings that are the same case, ignoring accent marks.
+        collator = new Intl.Collator({ sensitivity: 'case' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Equal
+        console.log(collator.compare('a', 'A') === 0);  // Not Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
 
-            // Do an accent sensitive match, ignoring case.
-            collator = new Intl.Collator({ sensitivity: 'accent' });
-            console.log(collator.compare('a', 'a') === 0);  // Equal
-            console.log(collator.compare('a', 'á') === 0);  // Not Equal
-            console.log(collator.compare('a', 'A') === 0);  // Equal
-            console.log(collator.compare('a', 'b') === 0);  // Not Equal
+        // Do an accent sensitive match, ignoring case.
+        collator = new Intl.Collator({ sensitivity: 'accent' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Not Equal
+        console.log(collator.compare('a', 'A') === 0);  // Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
 
-            // Match strings having same base letters, ignoring case and accents.
-            collator = new Intl.Collator({ sensitivity: 'base' });
-            console.log(collator.compare('a', 'a') === 0);  // Equal
-            console.log(collator.compare('a', 'á') === 0);  // Equal
-            console.log(collator.compare('a', 'A') === 0);  // Equal
-            console.log(collator.compare('a', 'b') === 0);  // Not Equal
+        // Match strings having same base letters, ignoring case and accents.
+        collator = new Intl.Collator({ sensitivity: 'base' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Equal
+        console.log(collator.compare('a', 'A') === 0);  // Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
+        ```
 
 platforms: [iphone, ipad, android]
 since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
@@ -97,7 +101,9 @@ properties:
     description: |
       #### Syntax
 
-            new Intl.Collator([locales[, options]])
+      ``` js
+      new Intl.Collator([locales[, options]])
+      ```
 
       #### Parameters
 

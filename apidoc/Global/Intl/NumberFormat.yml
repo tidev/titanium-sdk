@@ -13,98 +13,108 @@ description: |
 examples:
   - title: Format with Leading Zeros
     example: |
-            // Set up to pad first 3 integer digits with zeros if needed.
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                minimumIntegerDigits: 3,
-                useGrouping: false
-            });
+        ``` js
+        // Set up to pad first 3 integer digits with zeros if needed.
+        const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+            minimumIntegerDigits: 3,
+            useGrouping: false
+        });
 
-            // Logs: 000
-            console.log(formatter.format(0));
+        // Logs: 000
+        console.log(formatter.format(0));
 
-            // Logs: 001
-            console.log(formatter.format(1));
+        // Logs: 001
+        console.log(formatter.format(1));
 
-            // Logs: 001.23
-            console.log(formatter.format(1.23));
+        // Logs: 001.23
+        console.log(formatter.format(1.23));
 
-            // Logs: 12345
-            console.log(formatter.format(12345));
+        // Logs: 12345
+        console.log(formatter.format(12345));
+        ```
 
   - title: Round to Significant Digits
     example: |
-            // Round up to 3 significant digits.
-            // All trailing non-fractional digits will be zero.
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                maximumSignificantDigits: 3,
-                useGrouping: false
-            });
+        ``` js
+        // Round up to 3 significant digits.
+        // All trailing non-fractional digits will be zero.
+        const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+            maximumSignificantDigits: 3,
+            useGrouping: false
+        });
 
-            // Logs: 12300
-            console.log(formatter.format(12345.6));
+        // Logs: 12300
+        console.log(formatter.format(12345.6));
 
-            // Logs: -12300
-            console.log(formatter.format(-12345.6));
+        // Logs: -12300
+        console.log(formatter.format(-12345.6));
 
-            // Logs: 1.23
-            console.log(formatter.format(1.23456));
+        // Logs: 1.23
+        console.log(formatter.format(1.23456));
+        ```
 
   - title: Currency Format
     example: |
-            // Set up currency style numeric format options.
-            const options = {
-                style: 'currency',
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 2,
-                useGrouping: true
-            };
+        ``` js
+        // Set up currency style numeric format options.
+        const options = {
+            style: 'currency',
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+            useGrouping: true
+        };
 
-            // Format in dollars in USA. Logs: $1,000.00
-            // Note that the "currency" option is required.
-            let formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'USD' }, options));
-            console.log(formatter.format(1000));
+        // Format in dollars in USA. Logs: $1,000.00
+        // Note that the "currency" option is required.
+        let formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'USD' }, options));
+        console.log(formatter.format(1000));
 
-            // Format in euros in USA. Logs: €1,000.00
-            formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'EUR' }, options));
-            console.log(formatter.format(1000));
+        // Format in euros in USA. Logs: €1,000.00
+        formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'EUR' }, options));
+        console.log(formatter.format(1000));
 
-            // Format in euros in Germany. Logs: 1.000,00 €
-            formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'EUR' }, options));
-            console.log(formatter.format(1000));
+        // Format in euros in Germany. Logs: 1.000,00 €
+        formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'EUR' }, options));
+        console.log(formatter.format(1000));
 
-            // Format in dollars in Germany. Logs: 1.000,00 $
-            formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'USD' }, options));
-            console.log(formatter.format(1000));
+        // Format in dollars in Germany. Logs: 1.000,00 $
+        formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'USD' }, options));
+        console.log(formatter.format(1000));
+        ```
 
   - title: Percentage Format
     example: |
-            // Set up percentage style numeric formatting.
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                style: 'percent',
-                maximumFractionDigits: 1,
-                minimumFractionDigits: 1,
-                useGrouping: false
-            });
+        ``` js
+        // Set up percentage style numeric formatting.
+        const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+            style: 'percent',
+            maximumFractionDigits: 1,
+            minimumFractionDigits: 1,
+            useGrouping: false
+        });
 
-            // Logs: 25.0%
-            console.log(formatter.format(0.25));
+        // Logs: 25.0%
+        console.log(formatter.format(0.25));
 
-            // Logs: 100.0%
-            console.log(formatter.format(1.0));
+        // Logs: 100.0%
+        console.log(formatter.format(1.0));
 
-            // Logs: 1234.5%
-            console.log(formatter.format(12.345));
+        // Logs: 1234.5%
+        console.log(formatter.format(12.345));
 
-            // Logs: 1234.6%
-            // Since value exceeds "maximumFractionDigits" of 1, it is rounded.
-            console.log(formatter.format(12.3456));
+        // Logs: 1234.6%
+        // Since value exceeds "maximumFractionDigits" of 1, it is rounded.
+        console.log(formatter.format(12.3456));
+        ```
 
   - title: Scientific Notation (Android Only)
     example: |
-            // Logs: 1.235E5
-            // Decimal point will be a period, comma, or space depending on the locale.
-            let formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, { notation: 'scientific' });
-            console.log(formatter.format(123456.7));
+        ``` js
+        // Logs: 1.235E5
+        // Decimal point will be a period, comma, or space depending on the locale.
+        let formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, { notation: 'scientific' });
+        console.log(formatter.format(123456.7));
+        ```
 
 platforms: [iphone, ipad, android]
 since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
@@ -169,7 +179,9 @@ properties:
     description: |
       #### Syntax
 
-            new Intl.NumberFormat([locales[, options]])
+      ``` js
+      new Intl.NumberFormat([locales[, options]])
+      ```
 
       #### Parameters
 
@@ -260,25 +272,29 @@ properties:
       side of the decimal separator to be shown. This will pad the formatted number with
       leading zeros if below the minimum value.
 
-            // Pad with 3 leading zeros.
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                minimumIntegerDigits: 3,
-            });
-            console.log(formatter.format(1));    // Logs:  001
-            console.log(formatter.format(12));   // Logs:  012
-            console.log(formatter.format(123));  // Logs:  123
-            console.log(formatter.format(1234)); // Logs: 1234
+      ``` js
+      // Pad with 3 leading zeros.
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          minimumIntegerDigits: 3,
+      });
+      console.log(formatter.format(1));    // Logs:  001
+      console.log(formatter.format(12));   // Logs:  012
+      console.log(formatter.format(123));  // Logs:  123
+      console.log(formatter.format(1234)); // Logs: 1234
+      ```
 
       Set to `0` to not show any leading zeros.
 
-            // Do not pad with leading zeros.
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                minimumIntegerDigits: 0,
-            });
-            console.log(formatter.format(1));    // Logs: 1
-            console.log(formatter.format(0));    // Logs: 0
-            console.log(formatter.format(0.5));  // Logs: .5
-            console.log(formatter.format(0.05)); // Logs: .05
+      ``` js
+      // Do not pad with leading zeros.
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          minimumIntegerDigits: 0,
+      });
+      console.log(formatter.format(1));    // Logs: 1
+      console.log(formatter.format(0));    // Logs: 0
+      console.log(formatter.format(0.5));  // Logs: .5
+      console.log(formatter.format(0.05)); // Logs: .05
+      ```
 
   - name: minimumFractionDigits
     type: Number
@@ -288,13 +304,15 @@ properties:
       A value ranging between `0` to `20` setting the minimum number of fractional digits
       to be shown. This will pad the formatted number with trailing zeros if needed.
 
-            // Pad with 2 trailing zeros.
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                minimumFractionDigits: 2,
-            });
-            console.log(formatter.format(123));   // Logs: 123.00
-            console.log(formatter.format(0.1));   // Logs:   0.10
-            console.log(formatter.format(0.123)); // Logs:   0.123
+      ``` js
+      // Pad with 2 trailing zeros.
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          minimumFractionDigits: 2,
+      });
+      console.log(formatter.format(123));   // Logs: 123.00
+      console.log(formatter.format(0.1));   // Logs:   0.10
+      console.log(formatter.format(0.123)); // Logs:   0.123
+      ```
 
   - name: maximumFractionDigits
     type: Number
@@ -304,12 +322,14 @@ properties:
       A value ranging between `0` to `20` setting the maximum number of fractional digits
       to be shown. Will round the number at this maximum.
 
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                maximumFractionDigits: 3,
-            });
-            console.log(formatter.format(1.2345)); // Logs: 1.235
-            console.log(formatter.format(0.1));    // Logs: 0.1
-            console.log(formatter.format(1));      // Logs: 1
+      ``` js
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          maximumFractionDigits: 3,
+      });
+      console.log(formatter.format(1.2345)); // Logs: 1.235
+      console.log(formatter.format(0.1));    // Logs: 0.1
+      console.log(formatter.format(1));      // Logs: 1
+      ```
 
   - name: maximumSignificantDigits
     type: Number
@@ -319,12 +339,14 @@ properties:
       A value ranging between `1` to `21` setting the maximum number of significant digits
       to be shown. Will round the number at this maximum.
 
-            const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
-                maximumSignificantDigits: 3,
-            });
-            console.log(formatter.format(12345.6));   // Logs:  12300
-            console.log(formatter.format(1.23456));   // Logs:      1.23
-            console.log(formatter.format(0.0123456)); // Logs:      0.0123
+      ``` js
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          maximumSignificantDigits: 3,
+      });
+      console.log(formatter.format(12345.6));   // Logs:  12300
+      console.log(formatter.format(1.23456));   // Logs:      1.23
+      console.log(formatter.format(0.0123456)); // Logs:      0.0123
+      ```
 
   - name: notation
     type: String
