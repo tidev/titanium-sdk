@@ -81,6 +81,31 @@ public class LocaleModule extends KrollModule
 	}
 
 	/**
+	 * Undocumented method used to implement the JavaScript Intl.getCanonicalLocales() static method.
+	 * @param locales
+	 * Can be a string or array of strings providing locale IDs to convert to canonical locale IDs. Can be null.
+	 * @return
+	 * Returns the given locale string IDs converted to "canonical" string IDs. Duplicate locales are removed.
+	 * Returns an empty array if given locales are invalid/unsupported or if given a null locales argument.
+	 */
+	@Kroll.method
+	public String[] getCanonicalLocales(@Kroll.argument(optional = true) Object locales)
+	{
+		String[] requestedLocaleStrings = getLocaleStringArrayFrom(locales);
+		ArrayList<String> canonicalLocaleStrings = new ArrayList<>(requestedLocaleStrings.length);
+		for (String nextLocaleString : requestedLocaleStrings) {
+			Locale locale = TiPlatformHelper.getInstance().getLocale(nextLocaleString);
+			if (locale != null) {
+				String canonicalString = locale.toString().replace('_', '-');
+				if (!canonicalLocaleStrings.contains(canonicalString)) {
+					canonicalLocaleStrings.add(canonicalString);
+				}
+			}
+		}
+		return canonicalLocaleStrings.toArray(new String[0]);
+	}
+
+	/**
 	 * Undocumented method used to implement the JavaScript Intl.Collator.supportedLocalesOf() static method.
 	 * @param locales Can be a string or array of strings providing the locale IDs to search for. Can be null.
 	 * @param options The Intl.Collator.supportedLocalesOf() argument. Currently ignored.

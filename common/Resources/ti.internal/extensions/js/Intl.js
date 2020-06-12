@@ -36,7 +36,7 @@ function makeTiFormatCreationPropertiesFrom(args, supportedFormatLocalesFunction
 }
 
 // Add "Intl" APIs missing on Android.
-if (Ti.Android) {
+if (OS_ANDROID) {
 	// Set up an "Intl.Collator" type which wraps our undocumented "Ti.Locale.Collator" proxy.
 	function TiCollator() {
 		const properties = makeTiFormatCreationPropertiesFrom(arguments, Ti.Locale.getSupportedCollatorLocales);
@@ -67,6 +67,7 @@ if (Ti.Android) {
 	global.Intl = {
 		Collator: TiCollator,
 		DateTimeFormat: TiDateTimeFormat,
-		NumberFormat: TiNumberFormat
+		NumberFormat: TiNumberFormat,
+		getCanonicalLocales: Ti.Locale.getCanonicalLocales
 	};
 }
