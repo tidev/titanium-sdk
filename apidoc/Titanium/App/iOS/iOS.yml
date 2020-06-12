@@ -186,10 +186,12 @@ methods:
 
         This method should be used as part of the `watchkitextensionrequest` event as shown below.
 
-            Ti.App.iOS.addEventListener("watchkitextensionrequest", function(e) {
-                var replyContent = {foo: "bar"};
-                Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
-            });
+        ``` js
+        Ti.App.iOS.addEventListener("watchkitextensionrequest", function(e) {
+            var replyContent = {foo: "bar"};
+            Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
+        });
+        ```
     parameters:
       - name: handlerId
         summary: |
@@ -799,18 +801,20 @@ properties:
         These NSUserActivityTypes keys are the keys which you can use working with iOS Titanium User Activities.
         NSUserActivityTypes must be defined at build time in your tiapp.xml file as shown below:
 
-            <ios>
-              <plist>
-              <dict>
-                <key>NSUserActivityTypes</key>
-                  <array>
-                    <string>com.setdirection.home</string>
-                    <string>com.setdirection.shelf</string>
-                    <string>com.setdirection.item</string>
-                  </array>
-                </dict>
-                </plist>
-              </ios>
+        ``` xml
+        <ios>
+          <plist>
+          <dict>
+            <key>NSUserActivityTypes</key>
+              <array>
+                <string>com.setdirection.home</string>
+                <string>com.setdirection.shelf</string>
+                <string>com.setdirection.item</string>
+              </array>
+            </dict>
+            </plist>
+          </ios>
+        ```
 
     type: Array<String>
     permission: read-only
@@ -823,10 +827,12 @@ properties:
         Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method.
         When you open the URL built from this string, the system launches the Settings app and displays the app's custom settings, if it has any.
 
-            var settingsURL = Ti.App.iOS.applicationOpenSettingsURL;
-            if (Ti.Platform.canOpenURL(settingsURL)) {
-                Ti.Platform.openURL(settingsURL);
-            }
+        ``` js
+        var settingsURL = Ti.App.iOS.applicationOpenSettingsURL;
+        if (Ti.Platform.canOpenURL(settingsURL)) {
+            Ti.Platform.openURL(settingsURL);
+        }
+        ```
 
     type: String
     permission: read-only
@@ -1048,30 +1054,33 @@ events:
 
         You can send extra information with a silent push using extra:
 
-            {
-              aps: {
-                'content-available': 1
-              },
-              extra: {
-                foo: 'bar'
-              }
-            }
+        ``` js
+        {
+          aps: {
+            'content-available': 1
+          },
+          extra: {
+            foo: 'bar'
+          }
+        }
+        ```
 
         In the event handler for <code>silentpush</code>, your code may look something like this:
-
-            {
-              "handlerId": "SilentPush-1415976886.375816",
-              "aps": {
-                "content-available": 1,
-              },
-              "extra": {
-                "foo": "bar"
-              },
-              "bubbles": true,
-              "type": "silentpush",
-              "source": {},
-              "cancelBubble": false
-            }
+        ``` json
+        {
+          "handlerId": "SilentPush-1415976886.375816",
+          "aps": {
+            "content-available": 1,
+          },
+          "extra": {
+            "foo": "bar"
+          },
+          "bubbles": true,
+          "type": "silentpush",
+          "source": {},
+          "cancelBubble": false
+        }
+        ```
     properties:
       - name: handlerId
         summary: |
@@ -1314,10 +1323,12 @@ events:
         current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension. The `handlerID` identifier
         must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
 
-            Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
-                var replyContent = {foo:"bar"};
-                Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
-            });
+        ``` js
+        Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
+            var replyContent = {foo:"bar"};
+            Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
+        });
+        ```
     properties:
       - name: handlerId
         summary: |
@@ -1340,9 +1351,11 @@ events:
         your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the
         user to pick-up from where they left off on their other device.
 
-            Ti.App.iOS.addEventListener("continueactivity", function(e) {
-                console.log('activityType: '' + e.activityType);
-            });
+        ``` js
+        Ti.App.iOS.addEventListener("continueactivity", function(e) {
+            console.log('activityType: '' + e.activityType);
+        });
+        ```
     properties:
       - name: activityType
         summary: |
