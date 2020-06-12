@@ -6,11 +6,31 @@
  */
 package ti.modules.titanium.network.socket;
 
+import android.os.Build;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.security.auth.x500.X500Principal;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -22,6 +42,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
+import ti.modules.titanium.network.NetworkModule;
+import ti.modules.titanium.network.TiSocketFactory;
 
 @Kroll.proxy(creatableInModule = SocketModule.class)
 public class TCPProxy extends KrollProxy implements TiStream
@@ -202,22 +224,72 @@ public class TCPProxy extends KrollProxy implements TiStream
 			Object timeoutProperty = getProperty("timeout");
 
 			try {
+				int port = TiConvert.toInt(getProperty("port"));
+				boolean useTls = TiConvert.toBoolean(getProperty("useTls"), false);
+
+				if (useTls) {
+					TiSocketFactory sslSocketFactory = new TiSocketFactory(null, null, NetworkModule.TLS_DEFAULT);
+					SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket();
+					sslSocket.setUseClientMode(true);
+					if (Build.VERSION.SDK_INT >= 24) {
+						SSLParameters sslParameters = new SSLParameters();
+						List sniHostNames = new ArrayList(1);
+						sniHostNames.add(new SNIHostName(host));
+						sslParameters.setServerNames(sniHostNames);
+						sslSocket.setSSLParameters(sslParameters);
+					}
+					clientSocket = sslSocket;
+				} else {
+					clientSocket = new Socket();
+				}
+
+				InetSocketAddress endpoint = new InetSocketAddress(host, port);
 				if (timeoutProperty != null) {
 					int timeout = TiConvert.toInt(timeoutProperty, 0);
-
-					clientSocket = new Socket();
-					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
-
+					clientSocket.connect(endpoint, timeout);
 				} else {
-					clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+					clientSocket.connect(endpoint);
 				}
-				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 
+				if (useTls) {
+					SSLSocket sslSocket = (SSLSocket) clientSocket;
+					SSLSession sslSession = sslSocket.getSession();
+					KrollFunction checkServerIdentity = (KrollFunction) getProperty("checkServerIdentity");
+					if (checkServerIdentity != null) {
+						X500Principal peerPrincipal = (X500Principal) sslSession.getPeerPrincipal();
+						String canonicalName = peerPrincipal.getName(X500Principal.CANONICAL);
+						int separatorIndex = canonicalName.indexOf(",");
+						String commonName =
+							canonicalName.substring(canonicalName.indexOf("cn=") + 3,
+													separatorIndex != -1 ? separatorIndex : canonicalName.length());
+						HashMap<String, Object> certObject = new HashMap();
+						HashMap<String, String> subjectMap = new HashMap();
+						subjectMap.put("CN", commonName);
+						certObject.put("subject", subjectMap);
+						Object result = checkServerIdentity.call(getKrollObject(), new Object[] { host, certObject });
+						boolean isValid = TiConvert.toBoolean(result, false);
+						if (!isValid) {
+							throw new SSLHandshakeException("Hostname/IP does not match certificates altnames.");
+						}
+					} else {
+						HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+						if (!hostnameVerifier.verify(host, sslSession)) {
+							throw new SSLHandshakeException("Expected " + host + ", found "
+															+ sslSession.getPeerPrincipal());
+						}
+					}
+				}
+
+				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error",
 							buildErrorCallbackArgs("Unable to connect, unknown host <" + host + ">", 0));
-
+			} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | UnrecoverableKeyException
+					 | SSLHandshakeException e) {
+				e.printStackTrace();
+				updateState(SocketModule.ERROR, "error",
+							buildErrorCallbackArgs("Unable to connect, SSL/TLS error: " + e.getMessage(), 0));
 			} catch (IOException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));
@@ -287,6 +359,41 @@ public class TCPProxy extends KrollProxy implements TiStream
 						e.printStackTrace();
 						Log.e(TAG, "Listening thread interrupted");
 					}
+				}
+			}
+		}
+	}
+
+	private class CloseSocketThread extends Thread
+	{
+		private KrollFunction callback = null;
+
+		public CloseSocketThread(KrollFunction callback)
+		{
+			super("CloseSocketThread");
+
+			this.callback = callback;
+		}
+
+		public void run()
+		{
+			try {
+				if (clientSocket != null) {
+					clientSocket.close();
+					clientSocket = null;
+				}
+				if (serverSocket != null) {
+					serverSocket.close();
+					serverSocket = null;
+				}
+				state = SocketModule.CLOSED;
+				if (callback != null) {
+					callback.callAsync(getKrollObject(), new Object[] {});
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				if (callback != null) {
+					callback.callAsync(getKrollObject(), new Object[] { e });
 				}
 			}
 		}
@@ -428,7 +535,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public void close() throws IOException
+	public void close(Object args[]) throws IOException
 	{
 		if (state == SocketModule.CLOSED) {
 			return;
@@ -439,22 +546,60 @@ public class TCPProxy extends KrollProxy implements TiStream
 								  + "> state");
 		}
 
-		try {
-			state = 0; // set socket state to uninitialized to prevent use while closing
-			closeSocket();
-			state = SocketModule.CLOSED;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException("Error occured when closing socket");
+		if (clientSocket.isClosed()) {
+			Log.d(TAG, "clientSocket already closed");
 		}
+
+		state = 0; // set socket state to uninitialized to prevent use while closing
+
+		if (args.length == 1) {
+			Object maybeCallback = args[0];
+			KrollFunction callback = null;
+			if (maybeCallback instanceof KrollFunction) {
+				callback = (KrollFunction) maybeCallback;
+			}
+
+			new CloseSocketThread(callback).start();
+		} else {
+			final RunnableResult runnableResult = new RunnableResult();
+			Runnable runnable = new Runnable() {
+				@Override
+				public void run()
+				{
+					try {
+						closeSocket();
+					} catch (IOException e) {
+						runnableResult.exception = e;
+					}
+				}
+			};
+
+			try {
+				Thread thread = new Thread(runnable);
+				thread.start();
+				thread.join();
+				state = SocketModule.CLOSED;
+			} catch (Exception ex) {
+				runnableResult.exception = ex;
+			}
+
+			if (runnableResult.exception != null) {
+				runnableResult.exception.printStackTrace();
+				throw new IOException("Error occured when closing socket");
+			}
+		}
+	}
+
+	private final class RunnableResult
+	{
+		Exception exception;
 	}
 
 	@Override
 	public void release()
 	{
 		try {
-			close();
+			close(new Object[] {});
 		} catch (Exception e) {
 			// do nothing...
 		}

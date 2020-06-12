@@ -85,7 +85,7 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public void close() throws IOException
+	public void close(Object args[]) throws IOException
 	{
 		tiBlob = null;
 		inputStream.close();

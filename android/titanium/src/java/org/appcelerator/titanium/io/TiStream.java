@@ -65,5 +65,5 @@ public interface TiStream {
 	 * Implementing classes should use this method to close the stream.
 	 * @throws IOException the thrown exception.
 	 */
-	void close() throws IOException;
+	void close(Object args[]) throws IOException;
 }
