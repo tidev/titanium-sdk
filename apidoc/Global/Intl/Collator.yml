@@ -22,28 +22,32 @@ examples:
         ``` js
         // Case sensitive and accent sensitive string matching.
         // This is the default collator sensitivity.
-        const collator = new Intl.Collator({ sensitivity: 'variant' });
+        console.log('Variant Sensitivity:');
+        let collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'variant' });
         console.log(collator.compare('a', 'a') === 0);  // Equal
         console.log(collator.compare('a', 'á') === 0);  // Not Equal
         console.log(collator.compare('a', 'A') === 0);  // Not Equal
         console.log(collator.compare('a', 'b') === 0);  // Not Equal
 
         // Match strings that are the same case, ignoring accent marks.
-        collator = new Intl.Collator({ sensitivity: 'case' });
+        console.log('Case Sensitivity:');
+        collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'case' });
         console.log(collator.compare('a', 'a') === 0);  // Equal
         console.log(collator.compare('a', 'á') === 0);  // Equal
         console.log(collator.compare('a', 'A') === 0);  // Not Equal
         console.log(collator.compare('a', 'b') === 0);  // Not Equal
 
         // Do an accent sensitive match, ignoring case.
-        collator = new Intl.Collator({ sensitivity: 'accent' });
+        console.log('Accent Sensitivity:');
+        collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'accent' });
         console.log(collator.compare('a', 'a') === 0);  // Equal
         console.log(collator.compare('a', 'á') === 0);  // Not Equal
         console.log(collator.compare('a', 'A') === 0);  // Equal
         console.log(collator.compare('a', 'b') === 0);  // Not Equal
 
         // Match strings having same base letters, ignoring case and accents.
-        collator = new Intl.Collator({ sensitivity: 'base' });
+        console.log('Base Sensitivity:');
+        collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'base' });
         console.log(collator.compare('a', 'a') === 0);  // Equal
         console.log(collator.compare('a', 'á') === 0);  // Equal
         console.log(collator.compare('a', 'A') === 0);  // Equal

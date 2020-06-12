@@ -196,6 +196,7 @@ properties:
     type: Number
     default: 0
     summary: Number of millisecond digits to show. Valid values are 0-3.
+    platforms: [android]
 
   - name: dayPeriod
     type: String
