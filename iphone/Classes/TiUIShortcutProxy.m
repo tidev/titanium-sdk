@@ -130,14 +130,16 @@
 {
   NSMutableArray<UIApplicationShortcutItem *> *shortcuts = (NSMutableArray<UIApplicationShortcutItem *> *)[UIApplication sharedApplication].shortcutItems;
 
-  // remove the previous shortcutitem of same id if exists
-  for (UIApplicationShortcutItem *item in shortcuts) {
+  // Remove previous shortcutitem of same id if exists
+  __block NSUInteger index = shortcuts.count;
+  [shortcuts enumerateObjectsUsingBlock:^(UIApplicationShortcutItem *_Nonnull item, NSUInteger idx, BOOL *_Nonnull stop) {
     if ([item.type isEqualToString:[shortcut shortcutItem].type]) {
+      index = idx;
       [shortcuts removeObject:item];
-      break;
+      *stop = true;
     }
-  }
-  [shortcuts addObject:[shortcut shortcutItem]];
+  }];
+  [shortcuts insertObject:[shortcut shortcutItem] atIndex:index];
   [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
