@@ -8,7 +8,7 @@
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Intl', function () {
 	it('#getCanonicalLocales()', () => {

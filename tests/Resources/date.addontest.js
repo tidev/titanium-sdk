@@ -8,7 +8,7 @@
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Date', function () {
 	it('#toLocaleString()', () => {
@@ -27,10 +27,10 @@ describe('Date', function () {
 		should(date.toLocaleString('en-US')).be.a.String();
 		should(date.toLocaleString([ 'en-US' ])).be.a.String();
 		should(date.toLocaleString([ 'en-US', 'de-DE' ])).be.a.String();
+		should(date.toLocaleString(undefined, options)).be.a.String();
 		should(date.toLocaleString('en-US', options)).be.a.String();
 		should(date.toLocaleString([ 'en-US' ], options)).be.a.String();
 		should(date.toLocaleString([ 'en-US', 'de-DE' ], options)).be.a.String();
-		should(date.toLocaleString(options)).be.a.String();
 
 		should(date.toLocaleString('en-US', options)).be.eql('3/1/2020');
 		should(date.toLocaleString('de-DE', options)).be.eql('1.3.2020');
@@ -53,10 +53,10 @@ describe('Date', function () {
 		should(date.toLocaleDateString('en-US')).be.a.String();
 		should(date.toLocaleDateString([ 'en-US' ])).be.a.String();
 		should(date.toLocaleDateString([ 'en-US', 'de-DE' ])).be.a.String();
+		should(date.toLocaleDateString(undefined, options)).be.a.String();
 		should(date.toLocaleDateString('en-US', options)).be.a.String();
 		should(date.toLocaleDateString([ 'en-US' ], options)).be.a.String();
 		should(date.toLocaleDateString([ 'en-US', 'de-DE' ], options)).be.a.String();
-		should(date.toLocaleDateString(options)).be.a.String();
 
 		should(date.toLocaleDateString('en-US', options)).be.eql('3/1/2020');
 		should(date.toLocaleDateString('de-DE', options)).be.eql('1.3.2020');
@@ -81,10 +81,10 @@ describe('Date', function () {
 		should(date.toLocaleTimeString('en-US')).be.a.String();
 		should(date.toLocaleTimeString([ 'en-US' ])).be.a.String();
 		should(date.toLocaleTimeString([ 'en-US', 'de-DE' ])).be.a.String();
+		should(date.toLocaleTimeString(undefined, options)).be.a.String();
 		should(date.toLocaleTimeString('en-US', options)).be.a.String();
 		should(date.toLocaleTimeString([ 'en-US' ], options)).be.a.String();
 		should(date.toLocaleTimeString([ 'en-US', 'de-DE' ], options)).be.a.String();
-		should(date.toLocaleTimeString(options)).be.a.String();
 
 		should(date.toLocaleTimeString('en-US', options)).be.eql('8:02:05 PM');
 		should(date.toLocaleTimeString('de-DE', options)).be.equalOneOf([ '8:02:05 PM', '8:02:05 nachm.' ]);

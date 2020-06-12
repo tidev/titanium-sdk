@@ -8,21 +8,24 @@
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Intl.NumberFormat', function () {
 	it('#constructor()', () => {
 		should(Intl).not.be.undefined();
 		should(Intl.NumberFormat).not.be.undefined();
 		should(Intl.NumberFormat).be.a.Function();
+		should(Intl.NumberFormat.prototype.constructor).not.be.undefined();
+		should(Intl.NumberFormat.prototype.constructor).be.a.Function();
+		should(Intl.NumberFormat.prototype.constructor === Intl.NumberFormat).be.true();
 		should(new Intl.NumberFormat()).be.an.Object();
 		should(new Intl.NumberFormat('en-US')).be.an.Object();
 		should(new Intl.NumberFormat([ 'en-US' ])).be.an.Object();
 		should(new Intl.NumberFormat([ 'en-US', 'de-DE' ])).be.an.Object();
+		should(new Intl.NumberFormat(undefined, { style: 'decimal' })).be.an.Object();
 		should(new Intl.NumberFormat('en-US', { style: 'decimal' })).be.an.Object();
 		should(new Intl.NumberFormat([ 'en-US' ], { style: 'decimal' })).be.an.Object();
 		should(new Intl.NumberFormat([ 'en-US', 'de-DE' ], { style: 'decimal' })).be.an.Object();
-		should(new Intl.NumberFormat({ style: 'decimal' })).be.an.Object();
 	});
 
 	describe('#format()', () => {
@@ -138,7 +141,7 @@ describe('Intl.NumberFormat', function () {
 		});
 	});
 
-	describe.android('#formatToParts()', () => {
+	describe('#formatToParts()', () => {
 		it('validate function', () => {
 			const formatter = new Intl.NumberFormat();
 			should(formatter.formatToParts).not.be.undefined();
@@ -180,10 +183,11 @@ describe('Intl.NumberFormat', function () {
 			const options = {
 				style: 'currency',
 				maximumFractionDigits: 0,
+				minimumFractionDigits: 0,
 				useGrouping: true
 			};
 
-			let formatter = new Intl.NumberFormat('en-US', options);
+			let formatter = new Intl.NumberFormat('en-US', Object.assign({ currency: 'USD' }, options));
 			let partsArray = formatter.formatToParts(100);
 			should(partsArray).be.an.Array();
 			should(partsArray).be.eql([
@@ -191,7 +195,7 @@ describe('Intl.NumberFormat', function () {
 				{ type: 'integer', value: '100' }
 			]);
 
-			formatter = new Intl.NumberFormat('de-DE', options);
+			formatter = new Intl.NumberFormat('de-DE', Object.assign({ currency: 'EUR' }, options));
 			partsArray = formatter.formatToParts(100);
 			should(partsArray).be.an.Array();
 			should(partsArray).be.eql([

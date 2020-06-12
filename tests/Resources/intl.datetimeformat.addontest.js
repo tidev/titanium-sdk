@@ -5,24 +5,28 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
+/* globals OS_ANDROID */
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Intl.DateTimeFormat', function () {
 	it('#constructor()', () => {
 		should(Intl).not.be.undefined();
 		should(Intl.DateTimeFormat).not.be.undefined();
 		should(Intl.DateTimeFormat).be.a.Function();
+		should(Intl.DateTimeFormat.prototype.constructor).not.be.undefined();
+		should(Intl.DateTimeFormat.prototype.constructor).be.a.Function();
+		should(Intl.DateTimeFormat.prototype.constructor === Intl.DateTimeFormat).be.true();
 		should(new Intl.DateTimeFormat()).be.an.Object();
 		should(new Intl.DateTimeFormat('en-US')).be.an.Object();
 		should(new Intl.DateTimeFormat([ 'en-US' ])).be.an.Object();
 		should(new Intl.DateTimeFormat([ 'en-US', 'de-DE' ])).be.an.Object();
+		should(new Intl.DateTimeFormat(undefined, { dateStyle: 'full' })).be.an.Object();
 		should(new Intl.DateTimeFormat('en-US', { dateStyle: 'full' })).be.an.Object();
 		should(new Intl.DateTimeFormat([ 'en-US' ], { dateStyle: 'full' })).be.an.Object();
 		should(new Intl.DateTimeFormat([ 'en-US', 'de-DE' ], { dateStyle: 'full' })).be.an.Object();
-		should(new Intl.DateTimeFormat({ dateStyle: 'full' })).be.an.Object();
 	});
 
 	describe('#format()', () => {
@@ -140,7 +144,7 @@ describe('Intl.DateTimeFormat', function () {
 		});
 	});
 
-	describe.android('#formatToParts()', () => {
+	describe('#formatToParts()', () => {
 		it('validate function', () => {
 			const formatter = new Intl.DateTimeFormat();
 			should(formatter.formatToParts).not.be.undefined();
@@ -163,24 +167,26 @@ describe('Intl.DateTimeFormat', function () {
 				timeZone: 'UTC'
 			});
 			const partsArray = formatter.formatToParts(date);
+			let index = 0;
 			should(partsArray).be.an.Array();
-			should(partsArray).be.eql([
-				{ type: 'month', value: '03' },
-				{ type: 'literal', value: '/' },
-				{ type: 'day', value: '31' },
-				{ type: 'literal', value: '/' },
-				{ type: 'year', value: '2020' },
-				{ type: 'literal', value: ', ' },
-				{ type: 'hour', value: '8' },
-				{ type: 'literal', value: ':' },
-				{ type: 'minute', value: '15' },
-				{ type: 'literal', value: ':' },
-				{ type: 'second', value: '30' },
-				{ type: 'literal', value: '.' },
-				{ type: 'fractionalSecond', value: '123' },
-				{ type: 'literal', value: ' ' },
-				{ type: 'dayPeriod', value: 'PM' }
-			]);
+			should(partsArray[index++]).be.eql({ type: 'month', value: '03' });
+			should(partsArray[index++]).be.eql({ type: 'literal', value: '/' });
+			should(partsArray[index++]).be.eql({ type: 'day', value: '31' });
+			should(partsArray[index++]).be.eql({ type: 'literal', value: '/' });
+			should(partsArray[index++]).be.eql({ type: 'year', value: '2020' });
+			should(partsArray[index++]).be.eql({ type: 'literal', value: ', ' });
+			should(partsArray[index++]).be.eql({ type: 'hour', value: '8' });
+			should(partsArray[index++]).be.eql({ type: 'literal', value: ':' });
+			should(partsArray[index++]).be.eql({ type: 'minute', value: '15' });
+			should(partsArray[index++]).be.eql({ type: 'literal', value: ':' });
+			should(partsArray[index++]).be.eql({ type: 'second', value: '30' });
+			if (OS_ANDROID) {
+				should(partsArray[index++]).be.eql({ type: 'literal', value: '.' });
+				should(partsArray[index++]).be.eql({ type: 'fractionalSecond', value: '123' });
+			}
+			should(partsArray[index++]).be.eql({ type: 'literal', value: ' ' });
+			should(partsArray[index++]).be.eql({ type: 'dayPeriod', value: 'PM' });
+			should(partsArray.length).be.eql(index);
 		});
 	});
 

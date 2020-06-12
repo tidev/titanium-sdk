@@ -8,7 +8,7 @@
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Number', function () {
 	it('#toLocaleString()', () => {
@@ -20,10 +20,10 @@ describe('Number', function () {
 		should(value.toLocaleString('en-US')).be.a.String();
 		should(value.toLocaleString([ 'en-US' ])).be.a.String();
 		should(value.toLocaleString([ 'en-US', 'de-DE' ])).be.a.String();
+		should(value.toLocaleString(undefined, { style: 'decimal' })).be.a.String();
 		should(value.toLocaleString('en-US', { style: 'decimal' })).be.a.String();
 		should(value.toLocaleString([ 'en-US' ], { style: 'decimal' })).be.a.String();
 		should(value.toLocaleString([ 'en-US', 'de-DE' ], { style: 'decimal' })).be.a.String();
-		should(value.toLocaleString({ style: 'decimal' })).be.a.String();
 
 		should(value.toLocaleString('en-US', { useGrouping: false })).be.eql('1234567.8');
 		should(value.toLocaleString('en-US', { useGrouping: true })).be.eql('1,234,567.8');

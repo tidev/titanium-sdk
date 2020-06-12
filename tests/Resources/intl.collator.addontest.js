@@ -8,24 +8,27 @@
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Intl.Collator', function () {
 	it('#constructor()', () => {
 		should(Intl).not.be.undefined();
 		should(Intl.Collator).not.be.undefined();
 		should(Intl.Collator).be.a.Function();
+		should(Intl.Collator.prototype.constructor).not.be.undefined();
+		should(Intl.Collator.prototype.constructor).be.a.Function();
+		should(Intl.Collator.prototype.constructor === Intl.Collator).be.true();
 		should(new Intl.Collator()).be.an.Object();
 		should(new Intl.Collator('en-US')).be.an.Object();
 		should(new Intl.Collator([ 'en-US' ])).be.an.Object();
 		should(new Intl.Collator([ 'en-US', 'de-DE' ])).be.an.Object();
+		should(new Intl.Collator(undefined, { sensitivity: 'variant' })).be.an.Object();
 		should(new Intl.Collator('en-US', { sensitivity: 'variant' })).be.an.Object();
 		should(new Intl.Collator([ 'en-US' ], { sensitivity: 'variant' })).be.an.Object();
 		should(new Intl.Collator([ 'en-US', 'de-DE' ], { sensitivity: 'variant' })).be.an.Object();
-		should(new Intl.Collator({ sensitivity: 'variant' })).be.an.Object();
 	});
 
-	describe.android('#compare()', () => {
+	describe('#compare()', () => {
 		it('validate function', () => {
 			const formatter = new Intl.Collator();
 			should(formatter.compare).not.be.undefined();
@@ -39,8 +42,16 @@ describe('Intl.Collator', function () {
 			should(elements).be.eql([ 'a', 'b', 'c' ]);
 		});
 
+		it('localized compare', () => {
+			// In German, 'ä' sorts before 'z'.
+			should(new Intl.Collator('de').compare('ä', 'z')).be.below(0);
+
+			// In Swedish, 'ä' sorts after 'z'.
+			should(new Intl.Collator('sv').compare('ä', 'z')).be.above(0);
+		});
+
 		it('sensitivity - variant', () => {
-			const collator = new Intl.Collator({ sensitivity: 'variant' });
+			const collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'variant' });
 			should(collator.compare('a', 'a')).be.eql(0);
 			should(collator.compare('a', 'á')).not.be.eql(0);
 			should(collator.compare('a', 'A')).not.be.eql(0);
@@ -48,7 +59,7 @@ describe('Intl.Collator', function () {
 		});
 
 		it('sensitivity - case', () => {
-			const collator = new Intl.Collator({ sensitivity: 'case' });
+			const collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'case' });
 			should(collator.compare('a', 'a')).be.eql(0);
 			should(collator.compare('a', 'á')).be.eql(0);
 			should(collator.compare('a', 'A')).not.be.eql(0);
@@ -56,7 +67,7 @@ describe('Intl.Collator', function () {
 		});
 
 		it('sensitivity - accent', () => {
-			const collator = new Intl.Collator({ sensitivity: 'accent' });
+			const collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'accent' });
 			should(collator.compare('a', 'a')).be.eql(0);
 			should(collator.compare('a', 'á')).not.be.eql(0);
 			should(collator.compare('a', 'A')).be.eql(0);
@@ -64,7 +75,7 @@ describe('Intl.Collator', function () {
 		});
 
 		it('sensitivity - base', () => {
-			const collator = new Intl.Collator({ sensitivity: 'base' });
+			const collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'base' });
 			should(collator.compare('a', 'a')).be.eql(0);
 			should(collator.compare('a', 'á')).be.eql(0);
 			should(collator.compare('a', 'A')).be.eql(0);
