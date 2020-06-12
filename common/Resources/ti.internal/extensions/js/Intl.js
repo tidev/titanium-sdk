@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_ANDROID */
 
 /**
  * Generates a "creation" properties dictionary for Titanium's Collator, DateTimeFormat, and NumberFormat proxies
