@@ -59,7 +59,9 @@ methods:
         A database, with a filename of `mydb1` and located in the same directory as the
         the running script, is installed.
 
-            var db1 = Ti.Database.install('mydb1', 'mydb1Installed');
+        ``` js
+        var db1 = Ti.Database.install('mydb1', 'mydb1Installed');
+        ```
 
         The file is copied to the default database location with a file
         extension of `sql`.
@@ -76,15 +78,18 @@ methods:
 
         To prevent the database file being automatically backed up to iCloud, use `setRemoteBackup`.
 
-            db1.file.setRemoteBackup(false);
-
+        ``` js
+        db1.file.setRemoteBackup(false);
+        ```
 
     - title: Install a Database to Internal Storage (Android)
       example: |
         A database, with a filename of `mydb1` and located in the same directory as the
         the running script, is installed.
 
-            var db1 = Ti.Database.install('mydb1', 'mydb1Installed');
+        ``` js
+        var db1 = Ti.Database.install('mydb1', 'mydb1Installed');
+        ```
 
         Unlike on iOS, no file extension is added. The file is opened in the
         following default database location, on both emulator and device.
@@ -96,9 +101,11 @@ methods:
         database, with a filename of `mydb2` and located in the same directory as the
         the running script, is installed.
 
-            if (Ti.Platform.name === 'android' && Ti.Filesystem.isExternalStoragePresent()) {
-              var db2 = Ti.Database.install('mydb2', Ti.Filesystem.externalStorageDirectory + 'path' + Ti.Filesystem.separator + 'to' + Ti.Filesystem.separator + 'mydb2Installed');
-            }
+        ``` js
+        if (Ti.Platform.name === 'android' && Ti.Filesystem.isExternalStoragePresent()) {
+          var db2 = Ti.Database.install('mydb2', Ti.Filesystem.externalStorageDirectory + 'path' + Ti.Filesystem.separator + 'to' + Ti.Filesystem.separator + 'mydb2Installed');
+        }
+        ```
 
         Unlike on iOS, no file extension is added. The file is copied to the
         absolute path provided.
@@ -132,7 +139,9 @@ methods:
         A database, with a persistant name of `mydb1Installed` and located in the
         default database location on internal storage, is opened.
 
-            var db = Ti.Database.open('mydb1Installed');
+        ``` js
+        var db = Ti.Database.open('mydb1Installed');
+        ```
 
         A file extension of `sql` is added, and the file is opened from the
         following location.
@@ -151,7 +160,9 @@ methods:
         A database, with a persistant name of `mydb1Installed` and located in the
         default database location on internal storage, is opened.
 
-          var db1 = Ti.Database.open('mydb1Installed');
+        ``` js
+        var db1 = Ti.Database.open('mydb1Installed');
+        ```
 
         Unlike on iOS, no file extension is added. The file is opened in
         the following location.
@@ -162,9 +173,11 @@ methods:
         A database, with a filename of `mydb2Installed` and located at the
         absolute path provided, is opened.
 
-            if (Ti.Platform.name === 'android' && Ti.Filesystem.isExternalStoragePresent()) {
-              var db2 = Ti.Database.open(Ti.Filesystem.externalStorageDirectory + 'path' + Ti.Filesystem.separator + 'to' + Ti.Filesystem.separator + 'mydb2Installed');
-            }
+        ``` js
+        if (Ti.Platform.name === 'android' && Ti.Filesystem.isExternalStoragePresent()) {
+          var db2 = Ti.Database.open(Ti.Filesystem.externalStorageDirectory + 'path' + Ti.Filesystem.separator + 'to' + Ti.Filesystem.separator + 'mydb2Installed');
+        }
+        ```
 
         Unlike on iOS, no file extension is added. The file is copied to the
         absolute path, as follows.
@@ -174,14 +187,16 @@ methods:
       example: |
         Opens a Database in a shared directory
 
-            var suiteDir = Ti.Filesystem.directoryForSuite('group.appc.Sharing');
-            if (!suiteDir) {
-                logInApp('Suite Directory not found, check Entitlements.');
-                return;
-            }
-            var path = suiteDir + 'TestDB';
-            var db = Ti.Database.open(path);
-            db.close();
+        ``` js
+        var suiteDir = Ti.Filesystem.directoryForSuite('group.appc.Sharing');
+        if (!suiteDir) {
+            logInApp('Suite Directory not found, check Entitlements.');
+            return;
+        }
+        var path = suiteDir + 'TestDB';
+        var db = Ti.Database.open(path);
+        db.close();
+        ```
 properties:
   - name: FIELD_TYPE_DOUBLE
     summary: Constant for requesting a column's value returned in double form.
@@ -202,4 +217,3 @@ properties:
     summary: Constant for requesting a column's value returned in string form.
     type: Number
     permission: read-only
-

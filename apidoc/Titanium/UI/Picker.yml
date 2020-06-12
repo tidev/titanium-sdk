@@ -231,23 +231,25 @@ properties:
         In an Alloy application you can specify this property with a `<PickerColumn>` (or `<Column>`)
         element that contains one or more `<PickerRow>` (or `<Row>`) elements, as shown below:
 
-            <Alloy>
-                <Window>
-                    <Picker useSpinner="true">
-                        <PickerColumn id="column1">
-                            <PickerRow title="Bananas"/>
-                            <PickerRow title="Strawberries"/>
-                            <PickerRow title="Mangos"/>
-                        </PickerColumn>
-                        <!-- Picker shorthand notation -->
-                        <Column id="column2">
-                            <Row title="red"/>
-                            <Row title="green"/>
-                            <Row title="blue"/>
-                        </Column>
-                    </Picker>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <Picker useSpinner="true">
+                    <PickerColumn id="column1">
+                        <PickerRow title="Bananas"/>
+                        <PickerRow title="Strawberries"/>
+                        <PickerRow title="Mangos"/>
+                    </PickerColumn>
+                    <!-- Picker shorthand notation -->
+                    <Column id="column2">
+                        <Row title="red"/>
+                        <Row title="green"/>
+                        <Row title="blue"/>
+                    </Column>
+                </Picker>
+            </Window>
+        </Alloy>
+        ```
     type: Array<Titanium.UI.PickerColumn>
 
   - name: countDownDuration
@@ -417,16 +419,17 @@ properties:
 
         Example as follows:
 
-            var picker = Ti.UI.createPicker({
-                type: Ti.UI.PICKER_TYPE_TIME,
-                nativeSpinner: true,
-                format24: false,
-                minuteInterval: 4,
-                minDate: new Date(2018, 5, 24),
-                maxDate: new Date(2020, 5, 24),
-                value: new Date(2019, 5, 24)
-            });
-
+        ``` js
+        var picker = Ti.UI.createPicker({
+            type: Ti.UI.PICKER_TYPE_TIME,
+            nativeSpinner: true,
+            format24: false,
+            minuteInterval: 4,
+            minDate: new Date(2018, 5, 24),
+            maxDate: new Date(2020, 5, 24),
+            value: new Date(2019, 5, 24)
+        });
+        ```
     type: Boolean
     default: false
     platforms: [android]
@@ -481,30 +484,32 @@ examples:
         notation for `PickerColumn` and `PickerRow`, respectively.
 
         `app/views/index.xml`:
-
-            <Alloy>
-                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
-                    <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
-                        <PickerColumn id="column1">
-                            <PickerRow title="Bananas"/>
-                            <PickerRow title="Strawberries"/>
-                            <PickerRow title="Mangos"/>
-                            <PickerRow title="Grapes"/>
-                        </PickerColumn>
-                        <!-- Picker shorthand notation -->
-                        <Column id="column2">
-                            <Row title="red"/>
-                            <Row title="green"/>
-                            <Row title="blue"/>
-                            <Row title="orange"/>
-                        </Column>
-                    </Picker>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
+                    <PickerColumn id="column1">
+                        <PickerRow title="Bananas"/>
+                        <PickerRow title="Strawberries"/>
+                        <PickerRow title="Mangos"/>
+                        <PickerRow title="Grapes"/>
+                    </PickerColumn>
+                    <!-- Picker shorthand notation -->
+                    <Column id="column2">
+                        <Row title="red"/>
+                        <Row title="green"/>
+                        <Row title="blue"/>
+                        <Row title="orange"/>
+                    </Column>
+                </Picker>
+            </Window>
+        </Alloy>
+        ```
 
         `app/controllers/index.js`:
-
-            $.win.open();
+        ``` js
+        $.win.open();
+        ```
 
   - title: Date Picker using Alloy XML Markup
     example: |
@@ -514,148 +519,158 @@ examples:
         If you are defining dates in the controller code, use a JavaScript Date object.
 
         `app/views/index.xml`:
-
-            <Alloy>
-                <Window backgroundColor="blue">
-                    <Picker id="picker"
-                      onChange="report"
-                      type="Ti.UI.PICKER_TYPE_DATE"
-                      minDate="2014,4,1"
-                      maxDate="May 1, 2014 12:00:00"
-                      value="2014-04-15T12:00:00">
-                    </Picker>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window backgroundColor="blue">
+                <Picker id="picker"
+                  onChange="report"
+                  type="Ti.UI.PICKER_TYPE_DATE"
+                  minDate="2014,4,1"
+                  maxDate="May 1, 2014 12:00:00"
+                  value="2014-04-15T12:00:00">
+                </Picker>
+            </Window>
+        </Alloy>
+        ```
 
         `app/controllers/index.js`:
+        ``` js
+        function report(e) {
+            Ti.API.info('User selected: ' + e.value);
+        }
 
-            function report(e) {
-                Ti.API.info('User selected: ' + e.value);
-            }
-
-            $.index.open();
+        $.index.open();
+        ```
 
   - title: Basic Single Column Picker
     example: |
         Create a one-column, platform-specific style, picker and automatically select a row.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
-              layout: 'vertical'
-            });
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          layout: 'vertical'
+        });
 
-            var picker = Ti.UI.createPicker({
-              top:50
-            });
+        var picker = Ti.UI.createPicker({
+          top:50
+        });
 
-            var data = [];
-            data[0]=Ti.UI.createPickerRow({title:'Bananas'});
-            data[1]=Ti.UI.createPickerRow({title:'Strawberries'});
-            data[2]=Ti.UI.createPickerRow({title:'Mangos'});
-            data[3]=Ti.UI.createPickerRow({title:'Grapes'});
+        var data = [];
+        data[0]=Ti.UI.createPickerRow({title:'Bananas'});
+        data[1]=Ti.UI.createPickerRow({title:'Strawberries'});
+        data[2]=Ti.UI.createPickerRow({title:'Mangos'});
+        data[3]=Ti.UI.createPickerRow({title:'Grapes'});
 
-            picker.add(data);
-            picker.selectionIndicator = true;
+        picker.add(data);
+        picker.selectionIndicator = true;
 
-            win.add(picker);
-            win.open();
+        win.add(picker);
+        win.open();
 
-            // must be after picker has been displayed
-            picker.setSelectedRow(0, 2, false); // select Mangos
+        // must be after picker has been displayed
+        picker.setSelectedRow(0, 2, false); // select Mangos
+        ```
 
   - title: Multi-Column Picker
     example: |
         Create a two-column, platform-specific style, picker and automatically select a row in
         each column.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
-              layout: 'vertical'
-            });
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          layout: 'vertical'
+        });
 
-            var picker = Ti.UI.createPicker({
-              top:50,
-              useSpinner: true
-            });
-            picker.selectionIndicator = true;
+        var picker = Ti.UI.createPicker({
+          top:50,
+          useSpinner: true
+        });
+        picker.selectionIndicator = true;
 
-            var fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
-            var color = [ 'red', 'green', 'blue', 'orange' ];
+        var fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
+        var color = [ 'red', 'green', 'blue', 'orange' ];
 
-            var column1 = Ti.UI.createPickerColumn();
+        var column1 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=fruit.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({
-                title: fruit[i]
-              });
-              column1.addRow(row);
-            }
+        for(var i=0, ilen=fruit.length; i<ilen; i++){
+          var row = Ti.UI.createPickerRow({
+            title: fruit[i]
+          });
+          column1.addRow(row);
+        }
 
-            var column2 = Ti.UI.createPickerColumn();
+        var column2 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=color.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({ title: color[i] });
-              column2.addRow(row);
-            }
+        for(var i=0, ilen=color.length; i<ilen; i++){
+          var row = Ti.UI.createPickerRow({ title: color[i] });
+          column2.addRow(row);
+        }
 
-            picker.add([column1,column2]);
+        picker.add([column1,column2]);
 
-            win.add(picker);
+        win.add(picker);
 
-            win.open();
+        win.open();
 
-            // must be after picker has been displayed
-            picker.setSelectedRow(0, 2, false); // select Mangos
-            picker.setSelectedRow(1, 3, false); // select Orange
+        // must be after picker has been displayed
+        picker.setSelectedRow(0, 2, false); // select Mangos
+        picker.setSelectedRow(1, 3, false); // select Orange
+        ```
 
   - title: Date Picker
     example: |
         Create a date picker and handle the subsequent user action.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
-              layout: 'vertical'
-            });
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          layout: 'vertical'
+        });
 
-            var picker = Ti.UI.createPicker({
-              type:Ti.UI.PICKER_TYPE_DATE,
-              minDate:new Date(2009,0,1),
-              maxDate:new Date(2014,11,31),
-              value:new Date(2014,3,12),
-              top:50
-            });
+        var picker = Ti.UI.createPicker({
+          type:Ti.UI.PICKER_TYPE_DATE,
+          minDate:new Date(2009,0,1),
+          maxDate:new Date(2014,11,31),
+          value:new Date(2014,3,12),
+          top:50
+        });
 
-            win.add(picker);
-            win.open();
+        win.add(picker);
+        win.open();
 
-            picker.addEventListener('change',function(e){
-              Ti.API.info("User selected date: " + e.value.toLocaleString());
-            });
+        picker.addEventListener('change',function(e){
+          Ti.API.info("User selected date: " + e.value.toLocaleString());
+        });
+        ```
 
   - title: Date Picker using showDatePickerDialog() (Android only)
     example: |
         Create a date picker that is automatically displayed as a modal dialog and handle the
         subsequent user action.
 
-            Ti.UI.backgroundColor = 'white';
+        ``` js
+        Ti.UI.backgroundColor = 'white';
 
-            var picker = Ti.UI.createPicker({
-              type:Ti.UI.PICKER_TYPE_DATE,
-              minDate:new Date(2009,0,1),
-              maxDate:new Date(2014,11,31),
-              value:new Date(2014,3,12)
-            });
+        var picker = Ti.UI.createPicker({
+          type:Ti.UI.PICKER_TYPE_DATE,
+          minDate:new Date(2009,0,1),
+          maxDate:new Date(2014,11,31),
+          value:new Date(2014,3,12)
+        });
 
-            picker.showDatePickerDialog({
-              value: new Date(2010,8,1),
-              callback: function(e) {
-                if (e.cancel) {
-                  Ti.API.info('User canceled dialog');
-                } else {
-                  Ti.API.info('User selected date: ' + e.value);
-                }
-              }
-            });
+        picker.showDatePickerDialog({
+          value: new Date(2010,8,1),
+          callback: function(e) {
+            if (e.cancel) {
+              Ti.API.info('User canceled dialog');
+            } else {
+              Ti.API.info('User selected date: ' + e.value);
+            }
+          }
+        });
+        ```
