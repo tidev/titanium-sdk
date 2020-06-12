@@ -117,7 +117,7 @@ methods:
     parameters:
       - name: locales
         summary: A string or array of strings providing BCP 47 locale identifiers to query.
-        type: [String|Array<String>]
+        type: [String, Array<String>]
     returns:
         type: Array<String>
         summary: Array containing a subset of the given locale strings supported by `DateTimeFormat` objects.
@@ -138,15 +138,15 @@ properties:
            locale will be favored in the order provided by the array. If parameter is not assigned, then
            the system may use the 'en-US' locale by default instead of the system's current locale.
            It's recommended to set this parameter using <Titanium.Locale.currentLocale>.
-      *    options: <Global.Intl.DateTimeFormat.DateTimeFormatOptions> (optional)
+      *    options: <DateTimeFormatOptions> (optional)
            Provides settings indicating how a `Date` object should be formatted to a `String`.
 
-    type: Global.Intl.DateTimeFormat
+    type: DateTimeFormat
     permission: read-only
 
 ---
 name: DateTimeFormatOptions
-summary: Options to be passed into the <Global.Intl.DateTimeFormat.constructor> method.
+summary: Options to be passed into the <DateTimeFormat.constructor> method.
 properties:
   - name: dateStyle
     type: String

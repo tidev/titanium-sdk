@@ -158,7 +158,7 @@ methods:
     parameters:
       - name: locales
         summary: A string or array of strings providing BCP 47 locale identifiers to query.
-        type: [String|Array<String>]
+        type: [String, Array<String>]
     returns:
         type: Array<String>
         summary: Array containing a subset of the given locale strings supported by `NumberFormat` objects.
@@ -179,15 +179,15 @@ properties:
            locale will be favored in the order provided by the array. If parameter is not assigned, then
            the system may use the 'en-US' locale by default instead of the system's current locale.
            It's recommended to set this parameter using <Titanium.Locale.currentLocale>.
-      *    options: <Global.Intl.NumberFormat.NumberFormatOptions> (optional)
+      *    options: <NumberFormatOptions> (optional)
            Provides settings indicating how a number should be formatted to a string.
 
-    type: Global.Intl.NumberFormat
+    type: NumberFormat
     permission: read-only
 
 ---
 name: NumberFormatOptions
-summary: Options to be passed into the <Global.Intl.NumberFormat.constructor> method.
+summary: Options to be passed into the <NumberFormat.constructor> method.
 properties:
   - name: style
     type: String

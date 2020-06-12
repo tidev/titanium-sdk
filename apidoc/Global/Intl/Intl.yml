@@ -23,7 +23,7 @@ methods:
     parameters:
       - name: locales
         summary: A string or array of strings providing BCP 47 locale identifiers to fetch the canoncial names of.
-        type: [String|Array<String>]
+        type: [String, Array<String>]
         optional: true
         default: undefined
     returns:
