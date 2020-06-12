@@ -84,7 +84,9 @@ description: |
     `ti.ui.defaultunit` property in `tiapp.xml`. For example, to use DIPs as the
     default on all platforms, set `defaultunit` to `dip`:
 
-        <property name="ti.ui.defaultunit" type="string">dip</property>
+    ``` xml
+    <property name="ti.ui.defaultunit" type="string">dip</property>
+    ```
 
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or
     `system` to specify that the platform's default unit should be used.
@@ -206,8 +208,6 @@ description: |
     * If none of the conditions are met, clipping is disabled.
 
     In earlier versions of Titanium Mobile, views had clipping enabled by default.
-
-
 extends: Titanium.Proxy
 since: "0.9"
 
@@ -821,7 +821,6 @@ methods:
 
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual size and
         position of the view.
-
     parameters:
       - name: animation
         summary: |
@@ -930,10 +929,12 @@ methods:
         Call [finishLayout](Titanium.UI.View.finishLayout) to end batch update mode and trigger a
         layout pass. For example:
 
-            view.startLayout();
-            view.top = 50;
-            view.left = 50;
-            view.finishLayout();
+        ``` js
+        view.startLayout();
+        view.top = 50;
+        view.left = 50;
+        view.finishLayout();
+        ```
 
         Note that _any_ property changes made during the batch update _may_ be deferred until
         `finishLayout` is called. This may vary somewhat by platform. For example, changing the
@@ -982,14 +983,18 @@ methods:
         This is another way to perform a batch update.  The `updateLayout` method is called with a
         dictionary of layout properties to perform the batch update. For example:
 
-            view.updateLayout({top:50, left:50});
+        ``` js
+        view.updateLayout({top:50, left:50});
+        ```
 
         This is equivalent to the following:
 
-            view.startLayout();
-            view.top = 50;
-            view.left = 50;
-            view.finishLayout();
+        ``` js
+        view.startLayout();
+        view.top = 50;
+        view.left = 50;
+        view.finishLayout();
+        ```
 
         See also: [startLayout](Titanium.UI.View.startLayout),
         [finishLayout](Titanium.UI.View.finishLayout),
@@ -1060,7 +1065,6 @@ properties:
         [View.setImportantForAccessibility](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
         method. The native method is only available in Android 4.1 (API level 16/Jelly Bean) and
         later; if this property is specified on earlier versions of Android, it is ignored.
-
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: Boolean
@@ -1190,16 +1194,22 @@ properties:
         coordinates, or as percentages of the view's size. Thus, if a view is 60 x 60, the center
         point of the view can be specified as:
 
-            { x: 30, y: 30 }
-        Or:
+        ``` js
+        { x: 30, y: 30 }
+        ```
 
-            { x: '50%', y: '50%' }
+        Or:
+        ``` js
+        { x: '50%', y: '50%' }
+        ```
 
         When specifying multiple colors, you can specify an *offset* value for each color, defining
         how far into the gradient it takes effect. For example, the following color array specifies
         a gradient that goes from red to blue back to red:
 
-            colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
+        ``` js
+        colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
+        ```
 
         Android's linear gradients ignores `backfillStart` and `backfillEnd`, treating them as if
         they are true. Android's radial gradients ignore the `endPoint` property.
@@ -1210,40 +1220,42 @@ properties:
             The following code excerpt creates two views, one with a linear gradient and one with
             a radial gradient.
 
-                var win1 = Titanium.UI.createWindow({
-                    title:'Tab 1',
-                    backgroundColor:'#fff',
-                    layout: 'vertical'
-                });
+            ``` js
+            var win1 = Titanium.UI.createWindow({
+                title:'Tab 1',
+                backgroundColor:'#fff',
+                layout: 'vertical'
+            });
 
-                var radialGradient = Ti.UI.createView({
-                    top: 10,
-                    width: 100,
-                    height: 100,
-                    backgroundGradient: {
-                        type: 'radial',
-                        startPoint: { x: 50, y: 50 },
-                        endPoint: { x: 50, y: 50 },
-                        colors: [ 'red', 'blue'],
-                        startRadius: 50,
-                        endRadius: 0,
-                        backfillStart: true
-                    }
-                });
-                var linearGradient = Ti.UI.createView({
-                    top: 10,
-                    width: 100,
-                    height: 100,
-                    backgroundGradient: {
-                        type: 'linear',
-                        startPoint: { x: '0%', y: '50%' },
-                        endPoint: { x: '100%', y: '50%' },
-                        colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ],
-                    }
-                });
-                win1.add(radialGradient);
-                win1.add(linearGradient);
-                win1.open();
+            var radialGradient = Ti.UI.createView({
+                top: 10,
+                width: 100,
+                height: 100,
+                backgroundGradient: {
+                    type: 'radial',
+                    startPoint: { x: 50, y: 50 },
+                    endPoint: { x: 50, y: 50 },
+                    colors: [ 'red', 'blue'],
+                    startRadius: 50,
+                    endRadius: 0,
+                    backfillStart: true
+                }
+            });
+            var linearGradient = Ti.UI.createView({
+                top: 10,
+                width: 100,
+                height: 100,
+                backgroundGradient: {
+                    type: 'linear',
+                    startPoint: { x: '0%', y: '50%' },
+                    endPoint: { x: '100%', y: '50%' },
+                    colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ],
+                }
+            });
+            win1.add(radialGradient);
+            win1.add(linearGradient);
+            win1.open();
+            ```
 
   - name: backgroundImage
     summary: Background image for the view, specified as a local file path or URL.
@@ -1896,21 +1908,25 @@ examples:
     example: |
         Create a rounded view.
 
-            var view = Titanium.UI.createView({
-               borderRadius:10,
-               backgroundColor:'red',
-               width:50,
-               height:50
-            });
-            window.add(view);
+        ``` js
+        var view = Titanium.UI.createView({
+            borderRadius:10,
+            backgroundColor:'red',
+            width:50,
+            height:50
+        });
+        window.add(view);
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
+        </Alloy>
+        ```
 
 ---
 name: Point

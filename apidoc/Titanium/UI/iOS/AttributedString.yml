@@ -18,18 +18,14 @@ description: |
 platforms: [iphone, ipad]
 extends: Titanium.Proxy
 since: "3.2"
-
 properties:
   - name: text
-    summary: |
-        The text applied to the attributed string.
-    description: |
-        The `text` property must be set in the constructor and cannot be changed.
+    summary: The text applied to the attributed string.
+    description: The `text` property must be set in the constructor and cannot be changed.
     type: String
 
   - name: attributes
-    summary: |
-        An array of attributes to add.
+    summary: An array of attributes to add.
     description: |
         Internally, this calls the [addAttribute](Titanium.UI.iOS.AttributedString.addAttribute)
         method for each of the attributes passed in.
@@ -49,89 +45,92 @@ examples:
         Creates an AttributedString proxy, adds some attributes to it, and applies them
         to a <Titanium.UI.Label>.
 
-            var win = Titanium.UI.createWindow({
-                backgroundColor: '#ddd',
-            });
+        ``` js
+        var win = Titanium.UI.createWindow({
+            backgroundColor: '#ddd',
+        });
 
-            win.open();
+        win.open();
 
-            var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+        var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
 
-            var attr = Titanium.UI.iOS.createAttributedString({
-                text: text,
-                attributes: [
-                    // Underlines text
-                    {
-                        type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
-                        value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                        range: [0, text.length]
-                    },
-                    // Sets a background color
-                    {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
-                        value: "red",
-                        range: [text.indexOf('Appcelerator'), ('Appcelerator').length]
-                    },
-                    {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
-                        value: "blue",
-                        range: [text.indexOf('Titanium'), ('Titanium').length]
-                    },
-                    {
-                        type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
-                        value: "yellow",
-                        range: [text.indexOf('rocks!'), ('rocks!').length]
-                    },
-                    // Sets a foreground color
-                    {
-                        type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
-                        value: "orange",
-                        range: [0,  text.length]
-                    },
-                    {
-                        type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
-                        value: "black",
-                        range: [text.indexOf('rocks!'), ('rocks!').length]
-                    }
-                ]
-            });
+        var attr = Titanium.UI.iOS.createAttributedString({
+            text: text,
+            attributes: [
+                // Underlines text
+                {
+                    type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
+                    value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                    range: [0, text.length]
+                },
+                // Sets a background color
+                {
+                    type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                    value: "red",
+                    range: [text.indexOf('Appcelerator'), ('Appcelerator').length]
+                },
+                {
+                    type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                    value: "blue",
+                    range: [text.indexOf('Titanium'), ('Titanium').length]
+                },
+                {
+                    type: Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR,
+                    value: "yellow",
+                    range: [text.indexOf('rocks!'), ('rocks!').length]
+                },
+                // Sets a foreground color
+                {
+                    type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                    value: "orange",
+                    range: [0,  text.length]
+                },
+                {
+                    type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+                    value: "black",
+                    range: [text.indexOf('rocks!'), ('rocks!').length]
+                }
+            ]
+        });
 
-            var label = Titanium.UI.createLabel({
-                left: 20,
-                right: 20,
-                height: Titanium.UI.SIZE,
-                attributedString: attr
-            });
+        var label = Titanium.UI.createLabel({
+            left: 20,
+            right: 20,
+            height: Titanium.UI.SIZE,
+            attributedString: attr
+        });
 
-            win.add(label);
+        win.add(label);
+        ```
 
   - title: Adds attributes, one by one.
     example: |
+        ``` js
+        var win = Titanium.UI.createWindow({
+            backgroundColor: '#ddd',
+        });
 
-            var win = Titanium.UI.createWindow({
-                backgroundColor: '#ddd',
-            });
+        win.open();
 
-            win.open();
+        var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
 
-            var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+        var attr = Titanium.UI.iOS.createAttributedString({
+            text: text
+        });
 
-            var attr = Titanium.UI.iOS.createAttributedString({
-                text: text
-            });
+        // Underlines text
+        attr.addAttribute({
+            type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
+            value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+            range: [0, text.length]
+        });
 
-            // Underlines text
-            attr.addAttribute({
-                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
-                value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                range: [0, text.length]
-            });
+        var label = Titanium.UI.createLabel({
+            left: 20,
+            right: 20,
+            height: Titanium.UI.SIZE,
+            attributedString: attr
+        });
 
-            var label = Titanium.UI.createLabel({
-                left: 20,
-                right: 20,
-                height: Titanium.UI.SIZE,
-                attributedString: attr
-            });
-
-            win.add(label);
+        win.add(label);
+        ```

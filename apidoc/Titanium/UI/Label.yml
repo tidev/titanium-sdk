@@ -21,32 +21,36 @@ properties:
         Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
         element inside a `<Label>` element and set the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <Label>
-                    <AttributedString>
-                        Alloy is great!
-                    </AttributedString>
-                  </Label>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <Label>
+                <AttributedString>
+                    Alloy is great!
+                </AttributedString>
+              </Label>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -59,7 +63,9 @@ properties:
     description: |
         Multiple autolink values can be combined with a bitwise OR. For example:
 
-            label.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ``` js
+        label.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ```
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
@@ -258,44 +264,45 @@ events:
     osver: {ios: {min: "7.0"}}
     since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
 
-
 examples:
   - title: Basic Label
     example: |
         Create a center-aligned label with a text shadow and specified-size font, and another
         containing forced line breaks and Unicode symbols.
 
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
-              layout: 'vertical',
-              title: 'Label Demo'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false,
+          layout: 'vertical',
+          title: 'Label Demo'
+        });
 
-            var label1 = Ti.UI.createLabel({
-              color: '#900',
-              font: { fontSize:48 },
-              shadowColor: '#aaa',
-              shadowOffset: {x:5, y:5},
-              shadowRadius: 3,
-              text: 'A simple label',
-              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
-              top: 30,
-              width: Ti.UI.SIZE, height: Ti.UI.SIZE
-            });
+        var label1 = Ti.UI.createLabel({
+          color: '#900',
+          font: { fontSize:48 },
+          shadowColor: '#aaa',
+          shadowOffset: {x:5, y:5},
+          shadowRadius: 3,
+          text: 'A simple label',
+          textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+          top: 30,
+          width: Ti.UI.SIZE, height: Ti.UI.SIZE
+        });
 
-            var label2 = Ti.UI.createLabel({
-              color:'blue',
-              text: 'A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
-              textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
-              top: 30,
-              width: 300, height: 200
-            });
+        var label2 = Ti.UI.createLabel({
+          color:'blue',
+          text: 'A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+          textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+          top: 30,
+          width: 300, height: 200
+        });
 
-            win.add(label1);
-            win.add(label2);
-            win.open();
+        win.add(label1);
+        win.add(label2);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -305,17 +312,20 @@ examples:
         These property values are dictionaries, rather than single values,
         so they cannot be included in the markup.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
 
-                    <!-- The text property can either be defined as an attribute or as node text. -->
-                    <Label id="label1" color="#900" shadowColor="#aaa" text="A simple label" textAlign="Ti.UI.TEXT_ALIGNMENT_CENTER"
-                        top="30" width="Ti.UI.SIZE" height="Ti.UI.SIZE" />
-                    <Label id="label2" color="blue" textAlign="Ti.UI.TEXT_ALIGNMENT_LEFT" top="30" width="300" height="200">
-                        A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
-                    </Label>
-                </Window>
-            </Alloy>
+                <!-- The text property can either be defined as an attribute or as node text. -->
+                <Label id="label1" color="#900" shadowColor="#aaa" text="A simple label" textAlign="Ti.UI.TEXT_ALIGNMENT_CENTER"
+                    top="30" width="Ti.UI.SIZE" height="Ti.UI.SIZE" />
+                <Label id="label2" color="blue" textAlign="Ti.UI.TEXT_ALIGNMENT_LEFT" top="30" width="300" height="200">
+                    A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
+                </Label>
+            </Window>
+        </Alloy>
+        ```
+
 ---
 name: LabelLineSpacing
 summary: See [TextView.setLineSpacing](https://developer.android.com/reference/android/widget/TextView#setLineSpacing(float,%20float))

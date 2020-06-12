@@ -93,7 +93,7 @@ methods:
   - name: timeEnd
     summary: Stop a timer that was previously started.
     description: |
-          Stop a timer that was started by calling [console.time](Console.time), and
+          Stop a timer that was started by calling [console.time](Global.Console.time), and
           output the time since the timer was begun to the console in milliseconds.
           If no timer exists a warning will be logged to the console.
     parameters:
@@ -108,7 +108,7 @@ methods:
     summary: Log duration taken so far for an operation.
     description: |
           Output the time since a timer was started by calling
-          [console.time](Console.time) to the console, as well as any
+          [console.time](Global.Console.time) to the console, as well as any
           other `data` arguments provided. To log extra data a label must
           be provided. If no timer exists a warning will be logged to the
           console.

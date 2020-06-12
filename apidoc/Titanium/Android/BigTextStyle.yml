@@ -9,7 +9,7 @@ description: |
 examples:
   - title: Big text style Example
     example: |
-
+        ``` js
         var bigTextStyle = Titanium.Android.createBigTextStyle({
             bigText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
             bigContentTitle: "Title for big text",
@@ -26,7 +26,7 @@ examples:
 
         // Send the notification.
         Titanium.Android.NotificationManager.notify(1, notification);
-
+        ```
 since: "5.4.0"
 platforms: [android]
 extends: Titanium.Proxy

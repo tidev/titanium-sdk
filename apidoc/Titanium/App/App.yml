@@ -119,7 +119,9 @@ description: |
     application. By convention, application-level events are set on the `Titanium.App`
     module, like this:
 
-        Ti.App.addEventListener('app:myCustomEvent', myHandlerFunction);
+    ``` js
+    Ti.App.addEventListener('app:myCustomEvent', myHandlerFunction);
+    ```
 
     Adding a prefix (like 'app:' in this example) is optional, but can help ensure that
     your custom event names don't conflict with any future Titanium events.
@@ -163,7 +165,9 @@ description: |
     depends on what accessibility services are activated on the device. The most common are VoiceOver on
     iOS and TalkBack on Android. Each of those would read the announcement aloud.
 
-            Ti.App.fireSystemEvent(Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT, "Welcome to my App");
+    ``` js
+    Ti.App.fireSystemEvent(Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT, "Welcome to my App");
+    ```
 
     * <Titanium.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED>, available only on iOS, can be used to alert
     the accessibility system that the layout of the screen has changed, such as when an element
