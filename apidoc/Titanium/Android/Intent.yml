@@ -364,7 +364,7 @@ examples:
         ```
 
         `app.js`:
-        ``` ja
+        ``` js
         var win = Ti.UI.createWindow({
               backgroundColor: '#fff',
               fullscreen: false,

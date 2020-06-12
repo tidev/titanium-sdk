@@ -387,98 +387,106 @@ examples:
     example: |
         Create three views and assign them as pages to a scrollable view.
 
-            var win = Ti.UI.createWindow();
+        ``` js
+        var win = Ti.UI.createWindow();
 
-            var view1 = Ti.UI.createView({ backgroundColor:'#123' });
-            var view2 = Ti.UI.createView({ backgroundColor:'#246' });
-            var view3 = Ti.UI.createView({ backgroundColor:'#48b' });
+        var view1 = Ti.UI.createView({ backgroundColor:'#123' });
+        var view2 = Ti.UI.createView({ backgroundColor:'#246' });
+        var view3 = Ti.UI.createView({ backgroundColor:'#48b' });
 
-            var scrollableView = Ti.UI.createScrollableView({
-              views:[view1,view2,view3],
-              showPagingControl:true
-            });
+        var scrollableView = Ti.UI.createScrollableView({
+          views:[view1,view2,view3],
+          showPagingControl:true
+        });
 
-            win.add(scrollableView);
-            win.open();
+        win.add(scrollableView);
+        win.open();
+        ```
 
   - title: Simple Scrollable View with 2 Zoomable Images
     example: |
         Create two scroll views, each containing an image view, and assign them as pages to a
         scrollable view.
 
-            var img1 = Ti.UI.createImageView({
-                image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
-                'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +
-                '402px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg'
-            });
-            var img1Wrapper = Ti.UI.createScrollView({
-                maxZoomScale:4.0,
-            });
-            img1Wrapper.add(img1);
+        ``` js
+        var img1 = Ti.UI.createImageView({
+            image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
+            'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +
+            '402px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg'
+        });
+        var img1Wrapper = Ti.UI.createScrollView({
+            maxZoomScale:4.0,
+        });
+        img1Wrapper.add(img1);
 
-            var img2 = Ti.UI.createImageView({
-                image:'http://www.nasa.gov/images/content/' +
-                '616903main_rover_comparison1600_1600-1200.jpg'
-            });
-            var img2Wrapper = Ti.UI.createScrollView({
-                maxZoomScale:4.0,
-            });
-            img2Wrapper.add(img2);
-            var photosView = Ti.UI.createScrollableView({
-                showPagingControl:true,
-                views:[img1Wrapper, img2Wrapper]
-            });
-            win.add(photosView);
+        var img2 = Ti.UI.createImageView({
+            image:'http://www.nasa.gov/images/content/' +
+            '616903main_rover_comparison1600_1600-1200.jpg'
+        });
+        var img2Wrapper = Ti.UI.createScrollView({
+            maxZoomScale:4.0,
+        });
+        img2Wrapper.add(img2);
+        var photosView = Ti.UI.createScrollableView({
+            showPagingControl:true,
+            views:[img1Wrapper, img2Wrapper]
+        });
+        win.add(photosView);
+        ```
 
   - title: Scrollable View with multiple visible views
     example: |
       Create three views and assign them as pages to a scrollable view. Each page is narrower than
       a scrollable view, so multiple views are visible at the same time.
 
-          var win = Ti.UI.createWindow();
+      ``` js
+      var win = Ti.UI.createWindow();
 
-          var view1 = Ti.UI.createView({ backgroundColor:'#123' });
-          var view2 = Ti.UI.createView({ backgroundColor:'#246' });
-          var view3 = Ti.UI.createView({ backgroundColor:'#48b' });
+      var view1 = Ti.UI.createView({ backgroundColor:'#123' });
+      var view2 = Ti.UI.createView({ backgroundColor:'#246' });
+      var view3 = Ti.UI.createView({ backgroundColor:'#48b' });
 
-          // Common params
-          var params = {
-            views:[view1,view2,view3],
-            clipViews:false,
-            showPagingControl:false,
-            top: 0
-          };
+      // Common params
+      var params = {
+        views:[view1,view2,view3],
+        clipViews:false,
+        showPagingControl:false,
+        top: 0
+      };
 
-          if (Ti.Platform.name === 'android') {
-            // Android specific params
-            params.padding = {
-              left:40,
-              right:40
-            };
-          } else {
-            // iOS specific params
-            params.width = '90%';
-          }
+      if (Ti.Platform.name === 'android') {
+        // Android specific params
+        params.padding = {
+          left:40,
+          right:40
+        };
+      } else {
+        // iOS specific params
+        params.width = '90%';
+      }
 
-          win.add(scrollableView);
-          win.open();
+      win.add(scrollableView);
+      win.open();
+      ```
 
   - title: Alloy XML Markup
     example: |
-       First example as an Alloy view.
+        First example as an Alloy view.
 
-           <Alloy>
-               <Window id="win">
-                   <ScrollableView id="scrollableView" showPagingControl="true">
-                       <View id="view1" backgroundColor="#123">
-                          <Label>View 1</Label>
-                       </View>
-                       <View id="view2" backgroundColor="#246">
-                        <Label>View 2</Label>
-                        </View>
-                       <View id="view3" backgroundColor="#48b">
-                        <Label>View 3</Label>
-                        </View>
-                   </ScrollableView>
-               </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win">
+                <ScrollableView id="scrollableView" showPagingControl="true">
+                    <View id="view1" backgroundColor="#123">
+                      <Label>View 1</Label>
+                    </View>
+                    <View id="view2" backgroundColor="#246">
+                    <Label>View 2</Label>
+                    </View>
+                    <View id="view3" backgroundColor="#48b">
+                    <Label>View 3</Label>
+                    </View>
+                </ScrollableView>
+            </Window>
+        </Alloy>
+        ```
