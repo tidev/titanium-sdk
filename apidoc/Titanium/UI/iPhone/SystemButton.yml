@@ -10,9 +10,11 @@ description: |
     on where system buttons can be used. In an Alloy application you can omit the `Ti.UI.iPhone.SystemButton`
     namespace when assigning a value to the `<Button>` element's `systemButton` attribute, for example:
 
-        <Button systemButton="CAMERA"/>
-        <!-- Instead of -->
-        <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
+    ``` xml
+    <Button systemButton="CAMERA"/>
+    <!-- Instead of -->
+    <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
+    ```
 
     A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
     create standard iOS buttons that can be used in other places, including table view rows.

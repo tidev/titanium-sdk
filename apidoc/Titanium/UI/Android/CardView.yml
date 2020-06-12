@@ -21,9 +21,7 @@ excludes:
     properties: [backgroundImage, backgroundRepeat, borderColor, backgroundGradient]
 since: "5.1.0"
 platforms: [android]
-
 properties:
-
   - name: cardBackgroundColor
     summary: Background color for CardView as a color name or hex triplet.
     description: |
@@ -182,40 +180,41 @@ properties:
     since: 5.1.2
 
 examples:
-
   - title: CardView used in a ScrollView
     example: |
         The following example creates a CardView used in a ScrollView.
 
-            var win = Ti.UI.createWindow({
-                title: 'Card Demo'
+        ``` js
+        var win = Ti.UI.createWindow({
+            title: 'Card Demo'
+        });
+        var scrollView = Ti.UI.createScrollView({
+            layout: 'vertical'
+        });
+        for (var index = 1; index <= 10; index++) {
+            var cardView = Ti.UI.Android.createCardView({
+                layout: 'vertical',
+                padding: '16dp',
+                top: '10dp',
+                left: '10dp',
+                right: '10dp',
             });
-            var scrollView = Ti.UI.createScrollView({
-                layout: 'vertical'
-            });
-            for (var index = 1; index <= 10; index++) {
-                var cardView = Ti.UI.Android.createCardView({
-                    layout: 'vertical',
-                    padding: '16dp',
-                    top: '10dp',
-                    left: '10dp',
-                    right: '10dp',
-                });
-                cardView.add(Ti.UI.createLabel({
-                    text: 'Card ' + index,
-                    maxLines: 1,
-                    font: {
-                        fontSize: '20dp',
-                        fontWeight: 'bold'
-                    },
-                    width: Ti.UI.FILL
-                }));
-                cardView.add(Ti.UI.createLabel({
-                    text: 'This is the card view description text.\nThis is the 2nd line of text.',
-                    textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
-                    width: Ti.UI.FILL
-                }));
-                scrollView.add(cardView);
-            }
-            win.add(scrollView);
-            win.open();
+            cardView.add(Ti.UI.createLabel({
+                text: 'Card ' + index,
+                maxLines: 1,
+                font: {
+                    fontSize: '20dp',
+                    fontWeight: 'bold'
+                },
+                width: Ti.UI.FILL
+            }));
+            cardView.add(Ti.UI.createLabel({
+                text: 'This is the card view description text.\nThis is the 2nd line of text.',
+                textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+                width: Ti.UI.FILL
+            }));
+            scrollView.add(cardView);
+        }
+        win.add(scrollView);
+        win.open();
+        ```
