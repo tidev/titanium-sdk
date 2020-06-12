@@ -24,14 +24,10 @@ function makeTiFormatCreationPropertiesFrom(args, supportedFormatLocalesFunction
 			if (supportedLocales.length > 0) {
 				properties.locale = supportedLocales[0];
 			}
-		} else if (typeof args[0] === 'object') {
-			properties.options = args[0];
 		}
 	}
-	if ((args.length >= 2) && !properties.options) {
-		if (typeof args[1] === 'object') {
-			properties.options = args[1];
-		}
+	if ((args.length >= 2) && (typeof args[1] === 'object')) {
+		properties.options = args[1];
 	}
 	return properties;
 }
