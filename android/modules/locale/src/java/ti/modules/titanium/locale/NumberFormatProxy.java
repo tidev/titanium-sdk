@@ -67,7 +67,6 @@ public class NumberFormatProxy extends KrollProxy
 		}
 
 		// Create a format object based on given "style" option.
-		boolean isCurrency = false;
 		String styleStringId = TiConvert.toString(options.get("style"), "decimal");
 		switch (styleStringId) {
 			case "currency": {
@@ -76,7 +75,6 @@ public class NumberFormatProxy extends KrollProxy
 				if (currencyStringCode != null) {
 					this.numberFormat.setCurrency(Currency.getInstance(currencyStringCode));
 				}
-				isCurrency = true;
 				break;
 			}
 			case "percent":

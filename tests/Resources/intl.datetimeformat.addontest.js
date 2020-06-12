@@ -8,7 +8,7 @@
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
+var should = require('./utilities/assertions');
 
 describe('Intl.DateTimeFormat', function () {
 	it('#constructor()', () => {
@@ -27,7 +27,7 @@ describe('Intl.DateTimeFormat', function () {
 
 	describe('#format()', () => {
 		it('validate function', () => {
-			const formatter = Intl.DateTimeFormat();
+			const formatter = new Intl.DateTimeFormat();
 			should(formatter.format).not.be.undefined();
 			should(formatter.format).be.a.Function();
 			should(formatter.format(new Date())).be.a.String();

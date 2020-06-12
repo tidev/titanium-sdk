@@ -8,7 +8,7 @@
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
+var should = require('./utilities/assertions');
 
 describe('Intl.Collator', function () {
 	it('#constructor()', () => {

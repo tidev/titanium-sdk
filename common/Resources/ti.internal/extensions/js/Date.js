@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-if (Ti.Android) {
+if (OS_ANDROID) {
 	Date.prototype.toLocaleDateString = function () {
 		const properties = Intl.DateTimeFormat._makeTiCreationPropertiesFrom(arguments);
 		const mergedOptions = Object.assign({ dateStyle: 'short' }, properties.options);

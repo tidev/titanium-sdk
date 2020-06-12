@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-if (Ti.Android) {
+if (OS_ANDROID) {
 	Number.prototype.toLocaleString = function () {
 		const formatter = new Intl.NumberFormat(...arguments);
 		return formatter.format(this.valueOf());
