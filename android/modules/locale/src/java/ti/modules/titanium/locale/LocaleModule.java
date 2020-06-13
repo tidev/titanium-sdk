@@ -161,6 +161,26 @@ public class LocaleModule extends KrollModule
 	}
 
 	@Kroll.method
+	public String makeLowerCase(String text, @Kroll.argument(optional = true) Object locales)
+	{
+		if (text == null) {
+			return null;
+		}
+		Locale locale = getLocaleFrom(locales, Locale.getDefault());
+		return text.toLowerCase(locale);
+	}
+
+	@Kroll.method
+	public String makeUpperCase(String text, @Kroll.argument(optional = true) Object locales)
+	{
+		if (text == null) {
+			return null;
+		}
+		Locale locale = getLocaleFrom(locales, Locale.getDefault());
+		return text.toUpperCase(locale);
+	}
+
+	@Kroll.method
 	@Kroll.setProperty
 	public void setLanguage(String language)
 	{
@@ -203,6 +223,22 @@ public class LocaleModule extends KrollModule
 			Log.e(TAG, "Error trying to get resource string with key '" + key + "':", e);
 			return defaultValue;
 		}
+	}
+
+	private Locale getLocaleFrom(Object value, Locale defaultLocale)
+	{
+		String localeName = null;
+		if (value instanceof String) {
+			localeName = (String) value;
+		} else if ((value != null) && value.getClass().isArray()) {
+			String[] stringArray = TiConvert.toStringArray((Object[]) value);
+			if (stringArray.length > 0) {
+				localeName = stringArray[0];
+			}
+		}
+
+		Locale locale = TiPlatformHelper.getInstance().getLocale(localeName);
+		return (locale != null) ? locale : defaultLocale;
 	}
 
 	private String[] getLocaleStringArrayFrom(Object value)
