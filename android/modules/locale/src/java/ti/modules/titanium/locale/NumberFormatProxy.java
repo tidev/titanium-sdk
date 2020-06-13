@@ -166,6 +166,11 @@ public class NumberFormatProxy extends KrollProxy
 		this.resolvedOptions = new KrollDict();
 		this.resolvedOptions.putAll(options);
 		this.resolvedOptions.put(TiC.PROPERTY_LOCALE, locale.toString().replace("_", "-"));
+		this.resolvedOptions.put("signDisplay", "auto");
+		this.resolvedOptions.put("useGrouping", this.numberFormat.isGroupingUsed());
+		this.resolvedOptions.put("minimumIntegerDigits", this.numberFormat.getMinimumIntegerDigits());
+		this.resolvedOptions.put("maximumFractionDigits", this.numberFormat.getMaximumFractionDigits());
+		this.resolvedOptions.put("minimumFractionDigits", this.numberFormat.getMinimumFractionDigits());
 	}
 
 	@Kroll.method

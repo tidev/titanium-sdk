@@ -85,6 +85,11 @@ public class CollatorProxy extends KrollProxy
 
 		// Store locale and options settings to be returned by this class' resolvedOptions() method.
 		this.resolvedOptions = new KrollDict();
+		this.resolvedOptions.put("usage", "sort");
+		this.resolvedOptions.put("ignorePunctuation", false);
+		this.resolvedOptions.put("numeric", false);
+		this.resolvedOptions.put("caseFirst", "false");
+		this.resolvedOptions.put("sensitivity", sensitivityTypeId);
 		this.resolvedOptions.putAll(options);
 		this.resolvedOptions.put(TiC.PROPERTY_LOCALE, locale.toString().replace("_", "-"));
 	}
