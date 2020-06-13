@@ -18,9 +18,8 @@ description: |
 
     Titanium has built-in support for one-off and repeating timers:
 
-    *    Use [setTimeout](Global.setTimeout) to start a one-off timer.
-
-    *    Use [setInterval](Global.setInterval) to start a repeating timer.
+    * Use [setTimeout](Global.setTimeout) to start a one-off timer.
+    * Use [setInterval](Global.setInterval) to start a repeating timer.
 
     #### Alert
 
@@ -41,9 +40,11 @@ methods:
         [alert dialog](Titanium.UI.AlertDialog). For example, the following two statements produce
         the same result.
 
-            alert('Danger, Will Robinson!');
+        ``` js
+        alert('Danger, Will Robinson!');
 
-            Ti.UI.createAlertDialog({ message: 'Danger, Will Robinson!' }).show();
+        Ti.UI.createAlertDialog({ message: 'Danger, Will Robinson!' }).show();
+        ```
 
         Note that unlike a web browser-based version of `alert`, the method is asynchronous. However,
         only one alert dialog will be visible and modal at a time.
@@ -53,7 +54,6 @@ methods:
       - name: message
         summary: Alert message.
         type: String
-
 
   - name: clearInterval
     summary: Cancels an interval timer.
@@ -158,11 +158,13 @@ methods:
         built application. To include both the MainWindow module and the platform-specific
         TaskWindow module from any JavaScript file in the project:
 
-             // load main window module from ui subdirectory
-             var mainWindow = require('ui/MainWindow');
+        ``` js
+        // load main window module from ui subdirectory
+        var mainWindow = require('ui/MainWindow');
 
-             // load platform-specific task window module
-             var taskWindow = require('ui/TaskWindow');
+        // load platform-specific task window module
+        var taskWindow = require('ui/TaskWindow');
+        ```
 
         For more information, see the official [CommonJS](http://requirejs.org/docs/commonjs.html) website.
 
@@ -178,7 +180,9 @@ methods:
         For example, a module file `app/lib/android/myModule/module.js` may be loaded by
         `app/controllers/index.js` using:
 
-            require('myModule/module');
+        ``` js
+        require('myModule/module');
+        ```
 
         #### Android
 
@@ -188,10 +192,10 @@ methods:
         For example, a module file `Resources/myModule/module.js` may be required by
         `Resources/example/example.js` using either of the following:
 
-            require('../myModule/module')
-            require ('/myModule/module')
-
-
+        ``` js
+        require('../myModule/module')
+        require ('/myModule/module')
+        ```
     returns:
         summary: Exported `exports` object of the required module.
         type: Object
@@ -204,17 +208,21 @@ methods:
         example: |
             To load a native module with the ID `com.mycompany.module`:
 
-                var module = require('com.mycompany.module');
+            ``` js
+            var module = require('com.mycompany.module');
+            ```
       - title: Require a JavaScript Module
         example: |
             `myModule.js`:
-
-                exports.message = "hello world";
+            ``` js
+            exports.message = "hello world";
+            ```
 
             `app.js`:
-
-                var myModule = require('myModule');
-                alert(myModule.message);
+            ``` js
+            var myModule = require('myModule');
+            alert(myModule.message);
+            ```
 
   - name: setInterval
     summary: Executes a function repeatedly with a fixed time delay between each call to that function.
@@ -242,15 +250,16 @@ methods:
     examples:
       - title: Update a label once every second, and stop at 10 seconds
         example: |
-
-                var count = 0;
-                var timer = setInterval(function() {
-                    count++;
-                    label.text = 'count - ' + count;
-                    if (count == 10) {
-                        clearInterval(timer);
-                    }
-                }, 1000);
+            ``` js
+            var count = 0;
+            var timer = setInterval(function() {
+                count++;
+                label.text = 'count - ' + count;
+                if (count == 10) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+            ```
 
   - name: setTimeout
     summary: Executes code or a function after a delay.
@@ -278,11 +287,11 @@ methods:
     examples:
       - title: Execute a function in 500 milliseconds
         example: |
-
-                setTimeout(function() {
-                    Ti.API.debug('Called using setTimeout');
-                }, 500);
-
+            ``` js
+            setTimeout(function() {
+                Ti.API.debug('Called using setTimeout');
+            }, 500);
+            ```
 
 properties:
   - name: OS_ANDROID
