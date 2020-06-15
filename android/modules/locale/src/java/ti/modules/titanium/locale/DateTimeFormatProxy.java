@@ -180,6 +180,11 @@ public class DateTimeFormatProxy extends KrollProxy
 		this.resolvedOptions = new KrollDict();
 		this.resolvedOptions.putAll(options);
 		this.resolvedOptions.put(TiC.PROPERTY_LOCALE, locale.toString().replace("_", "-"));
+		NumberingSystem numberingSystem = NumberingSystem.from(locale);
+		if (numberingSystem == null) {
+			numberingSystem = NumberingSystem.LATN;
+		}
+		this.resolvedOptions.put(TiC.PROPERTY_NUMBERING_SYSTEM, numberingSystem.toLdmlStringId());
 	}
 
 	@Kroll.method

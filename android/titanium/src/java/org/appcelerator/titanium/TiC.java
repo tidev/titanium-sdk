@@ -2376,6 +2376,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_NUMBERING_SYSTEM = "numberingSystem";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
 
 	/**

@@ -171,6 +171,11 @@ public class NumberFormatProxy extends KrollProxy
 		this.resolvedOptions.put("minimumIntegerDigits", this.numberFormat.getMinimumIntegerDigits());
 		this.resolvedOptions.put("maximumFractionDigits", this.numberFormat.getMaximumFractionDigits());
 		this.resolvedOptions.put("minimumFractionDigits", this.numberFormat.getMinimumFractionDigits());
+		NumberingSystem numberingSystem = NumberingSystem.from(locale);
+		if (numberingSystem == null) {
+			numberingSystem = NumberingSystem.LATN;
+		}
+		this.resolvedOptions.put(TiC.PROPERTY_NUMBERING_SYSTEM, numberingSystem.toLdmlStringId());
 	}
 
 	@Kroll.method
