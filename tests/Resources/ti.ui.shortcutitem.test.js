@@ -6,51 +6,53 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint no-undef: "off" */
 'use strict';
 
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ShortcutItem', () => {
 
-	it.android('Ti.UI.ShortcutItem', () => {
-		should(Ti.UI.ShortcutItem).not.be.undefined();
-	});
-
-	it.android('createShortcutItem', () => {
+	describe.android('createShortcutItem', () => {
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcutItem).be.a.Function();
 
-		// ONLY compatible with Android 7.1+, end test early.
-		if (Ti.Platform.osname === 'android') {
-			const version = Ti.Platform.version.split('.');
-			if (parseInt(`${version[0]}${version[1]}`) < 71) {
-				return;
+		it.android('no id', finish => {
+			try {
+				Ti.UI.createShortcutItem({});
+			} catch (e) {
+
+				// Expects an error to be thrown if no `id` is defined.
+				finish();
 			}
-		}
-
-		// Create shortcut item.
-		const item = Ti.UI.createShortcutItem({
-			id: 'test_shortcut',
-			title: 'Test Shortcut',
-			description: 'Test shortcut description',
-			data: { test_data: 'data' }
 		});
-		should(item).be.a.Object();
 
-		// Verify `apiName`.
-		should(item).have.readOnlyProperty('apiName').which.is.a.String();
-		should(item.apiName).be.eql('Ti.UI.ShortcutItem');
+		it.android('basic shortcut item', () => {
 
-		// Verify `id`.
-		should(item.id).be.eql('test_shortcut');
+			// Create shortcut item.
+			const item = Ti.UI.createShortcutItem({
+				id: 'test_shortcut',
+				title: 'Test Shortcut',
+				description: 'Test shortcut description',
+				data: { test_data: 'data' }
+			});
+			should(item).be.a.Object();
 
-		// Verify `title`.
-		should(item.title).be.eql('Test Shortcut');
+			// Verify `apiName`.
+			should(item).have.readOnlyProperty('apiName').which.is.a.String();
+			should(item.apiName).be.eql('Ti.UI.ShortcutItem');
 
-		// Verify `description`.
-		should(item.description).be.eql('Test shortcut description');
+			// Verify `id`.
+			should(item.id).be.eql('test_shortcut');
 
-		// Verify `data`.
-		should(item.data).be.a.Object();
+			// Verify `title`.
+			should(item.title).be.eql('Test Shortcut');
+
+			// Verify `description`.
+			should(item.description).be.eql('Test shortcut description');
+
+			// Verify `data`.
+			should(item.data).be.a.Object();
+		});
 	});
 });

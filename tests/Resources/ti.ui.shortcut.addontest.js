@@ -6,46 +6,107 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint no-undef: "off" */
 'use strict';
 
 const should = require('./utilities/assertions');
 
-describe('Titanium.UI.Shortcut', () => {
+// ONLY compatible with Android 7.1+, end test early.
+let androidCompatible = true;
+if (OS_ANDROID) {
+	const version = Ti.Platform.version.split('.');
+	if (parseInt(`${version[0]}${version[1]}`) < 71) {
+		androidCompatible = false;
+	}
+}
 
-	it.android('Ti.UI.Shortcut', () => {
-		should(Ti.UI.Shortcut).not.be.undefined();
-	});
+// Create basic shortcut item.
+const shortcutItem = Ti.UI.createShortcutItem({
+	id: 'test_shortcut',
+	title: 'Test Shortcut',
+	description: 'Test shortcut description',
+	data: { test_data: 'data' }
+});
+
+describe('Titanium.UI.Shortcut', () => {
 
 	it.android('createShortcut', () => {
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcut).be.a.Function();
 
-		// ONLY compatible with Android 7.1+, end test early.
-		if (Ti.Platform.osname === 'android') {
-			const version = Ti.Platform.version.split('.');
-			if (parseInt(`${version[0]}${version[1]}`) < 71) {
-				return;
-			}
-		}
-
-		// Create shortcut.
+		// Create shortcut instance.
 		const shortcut = Ti.UI.createShortcut();
 		should(shortcut).be.a.Object();
 
 		// Verify `apiName`.
 		should(shortcut).have.readOnlyProperty('apiName').which.is.a.String();
 		should(shortcut.apiName).be.eql('Ti.UI.Shortcut');
+	});
 
-		// Verify `add()`.
-		should(shortcut.add).not.be.undefined();
-		should(shortcut.add).be.a.Function();
+	it.android('removeAll', () => {
+
+		if (!androidCompatible) {
+			return;
+		}
+
+		// Create shortcut instance.
+		const shortcut = Ti.UI.createShortcut();
+		should(shortcut).be.a.Object();
+
+		// Verify `removeAll()`.
+		should(shortcut.removeAll).not.be.undefined();
+		should(shortcut.removeAll).be.a.Function();
+
+		// Test `removeAll()`.
+		shortcut.removeAll();
+	});
+
+	it.android('remove', () => {
+
+		if (!androidCompatible) {
+			return;
+		}
+
+		// Create shortcut instance.
+		const shortcut = Ti.UI.createShortcut();
+		should(shortcut).be.a.Object();
+
+		// Detect existing shortcuts.
+		const existingShortcuts = shortcut.items;
 
 		// Verify `remove()`.
 		should(shortcut.remove).not.be.undefined();
 		should(shortcut.remove).be.a.Function();
 
-		// Verify `removeAll()`.
-		should(shortcut.removeAll).not.be.undefined();
-		should(shortcut.removeAll).be.a.Function();
+		// Test `remove()`.
+		shortcut.remove(shortcutItem);
+
+		// Check shortcut has been removed.
+		should(shortcut.items).be.lessThan(existingShortcuts);
+	});
+
+	it.android('add', () => {
+
+		if (!androidCompatible) {
+			return;
+		}
+
+		// Create shortcut instance.
+		const shortcut = Ti.UI.createShortcut();
+		should(shortcut).be.a.Object();
+
+		// Detect existing shortcuts.
+		const existingShortcuts = shortcut.items;
+
+		// Verify `add()`.
+		should(shortcut.add).not.be.undefined();
+		should(shortcut.add).be.a.Function();
+
+		// Test `add()`.
+		// NOTE: Tests run backwards, this shortcut is added first.
+		shortcut.add(shortcutItem);
+
+		// Check shortcut has been added.
+		should(shortcut.items).be.greaterThan(existingShortcuts);
 	});
 });

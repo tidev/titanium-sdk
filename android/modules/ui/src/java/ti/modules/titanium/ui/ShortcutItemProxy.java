@@ -64,8 +64,7 @@ public class ShortcutItemProxy extends KrollProxy
 			id = dict.getString(TiC.PROPERTY_ID);
 			shortcutBuilder = new ShortcutInfo.Builder(context, id);
 		} else {
-			Log.e(TAG, "id is required to create a shortcut!");
-			return;
+			throw new Error("id is required to create a shortcut!");
 		}
 
 		// create shortcut intent
