@@ -43,9 +43,9 @@ description: |
     (API level 21) or higher, the action bar icon may not display. Google is discouraging
     the use of icons in toolbars:
 
-        In modern Android UIs developers should lean more on a visually distinct color scheme for toolbars
-        than on their application icon. The use of application icon plus title as a standard layout is
-        discouraged on API 21 devices and newer.
+    > In modern Android UIs developers should lean more on a visually distinct color scheme for toolbars
+    > than on their application icon. The use of application icon plus title as a standard layout is
+    > discouraged on API 21 devices and newer.
 
     Source: [Android Developer: Toolbar API reference](https://developer.android.com/reference/android/support/v7/widget/Toolbar.html)
 

@@ -27,15 +27,17 @@ description: |
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects. This is
     easily visualized as an Alloy view:
 
-        <Alloy>
-            <ListView id="list">
-                <ListSection>
-                    <ListItem title="List item 1"></ListItem>
-                    <ListItem title="List item 2"></ListItem>
-                    <ListItem title="List item 3"></ListItem>
-                </ListSection>
-            </ListView>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <ListView id="list">
+            <ListSection>
+                <ListItem title="List item 1"></ListItem>
+                <ListItem title="List item 2"></ListItem>
+                <ListItem title="List item 3"></ListItem>
+            </ListSection>
+        </ListView>
+    </Alloy>
+    ```
 
     For more instructions and examples of using `ListView`, refer to the
     [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
@@ -1765,7 +1767,7 @@ examples:
         </Alloy>
         ```
 
-  - title: Alloy example of <PullView> element
+  - title: Alloy example of `<PullView>` element
     example: |
         The example below demonstrates how to use a `<PullView>` Alloy element.
 
