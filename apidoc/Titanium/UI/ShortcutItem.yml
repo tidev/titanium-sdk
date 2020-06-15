@@ -70,7 +70,6 @@ properties:
     description: Determines if the shortcut is visible.
     type: Boolean
     platforms: [android, iphone, ipad]
-    availability: creation
     deprecated:
         since: "9.1.0"
         notes: Use [Titanium.UI.Shortcut.items](Titanium.UI.Shortcut.items) to determine if shortcut is active.
