@@ -3,7 +3,6 @@ name: Titanium.UI.DashboardItem
 summary: A dashboard item is a view that is displayed as an icon in a <Titanium.UI.DashboardView>.
 description: A DashboardItem is created using the <Titanium.UI.createDashboardItem> method or **`<DashboardItem>`**
  Alloy element.
-
 extends: Titanium.Proxy
 since: "1.2"
 platforms: [iphone, ipad]

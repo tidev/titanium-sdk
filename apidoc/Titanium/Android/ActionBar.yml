@@ -43,9 +43,9 @@ description: |
     (API level 21) or higher, the action bar icon may not display. Google is discouraging
     the use of icons in toolbars:
 
-        In modern Android UIs developers should lean more on a visually distinct color scheme for toolbars
-        than on their application icon. The use of application icon plus title as a standard layout is
-        discouraged on API 21 devices and newer.
+    > In modern Android UIs developers should lean more on a visually distinct color scheme for toolbars
+    > than on their application icon. The use of application icon plus title as a standard layout is
+    > discouraged on API 21 devices and newer.
 
     Source: [Android Developer: Toolbar API reference](https://developer.android.com/reference/android/support/v7/widget/Toolbar.html)
 
@@ -64,64 +64,66 @@ examples:
         Adds action items and sets several properties on a window's action bar in the XML and TSS files.
 
         `app/views/index.xml`:
-
-            <Alloy>
-                <Window title="My Test App">
-                    <ActionBar id="actionbar" title="My XML Menu" onHomeIconItemSelected="doMenuClick" />
-                    <Menu>
-                        <MenuItem id="item1" title="Settings" onClick="openSettings" />
-                        <MenuItem id="item2" title="Search" onClick="doSearch" />
-                    </Menu>
-                    <Label id="label">Welcome!</Label>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window title="My Test App">
+                <ActionBar id="actionbar" title="My XML Menu" onHomeIconItemSelected="doMenuClick" />
+                <Menu>
+                    <MenuItem id="item1" title="Settings" onClick="openSettings" />
+                    <MenuItem id="item2" title="Search" onClick="doSearch" />
+                </Menu>
+                <Label id="label">Welcome!</Label>
+            </Window>
+        </Alloy>
+        ```
 
         `app/styles/index.tss`:
-
-            "MenuItem": {
-                showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS
-            },
-            "#item1": {
-                icon: Ti.Android.R.drawable.ic_menu_preferences
-            },
-            "#item2": {
-                icon: Ti.Android.R.drawable.ic_menu_search
-            },
-            "#actionbar": {
-                icon: "/actionicon.png",
-                displayHomeAsUp: true,
-                backgroundImage: "/actionbackground.png"
-            }
-
-
+        ```
+        "MenuItem": {
+            showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS
+        },
+        "#item1": {
+            icon: Ti.Android.R.drawable.ic_menu_preferences
+        },
+        "#item2": {
+            icon: Ti.Android.R.drawable.ic_menu_search
+        },
+        "#actionbar": {
+            icon: "/actionicon.png",
+            displayHomeAsUp: true,
+            backgroundImage: "/actionbackground.png"
+        }
+        ```
   - title: Action Bar Example
     example: |
         The following example sets several properties on a window's action bar.
 
-            var win = Ti.UI.createWindow({
-                title: "Old Title",
-                navBarHidden: false
-            });
-            var actionBar;
-    
-            win.addEventListener("open", function() {
-                if (Ti.Platform.osname === "android") {
-                    if (! win.activity) {
-                        Ti.API.error("Can't access action bar on a lightweight window.");
-                    } else {
-                        actionBar = win.activity.actionBar;
-                        if (actionBar) {
-                            actionBar.backgroundImage = "/bg.png";
-                            actionBar.title = "New Title";
-                            actionBar.onHomeIconItemSelected = function() {
-                                Ti.API.info("Home icon clicked!");
-                            };
-                        }
+        ``` js
+        var win = Ti.UI.createWindow({
+            title: "Old Title",
+            navBarHidden: false
+        });
+        var actionBar;
+
+        win.addEventListener("open", function() {
+            if (Ti.Platform.osname === "android") {
+                if (! win.activity) {
+                    Ti.API.error("Can't access action bar on a lightweight window.");
+                } else {
+                    actionBar = win.activity.actionBar;
+                    if (actionBar) {
+                        actionBar.backgroundImage = "/bg.png";
+                        actionBar.title = "New Title";
+                        actionBar.onHomeIconItemSelected = function() {
+                            Ti.API.info("Home icon clicked!");
+                        };
                     }
                 }
-            });
-    
-            win.open();
+            }
+        });
+
+        win.open();
+        ```
 
         Nearly identical code can be used for a tab group, but in Release 3.0, the tab group's
         activity must be accessed using the [getActivity](Titanium.UI.TabGroup.getActivity) method.

@@ -92,32 +92,36 @@ properties:
         For Alloy, you can use an `<AttributedString>` element inside a `<TextField>` element and set
         the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <TextField>
-                    <AttributedString>
-                        Alloy is great!
-                    </AttributedString>
-                  </TextField>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <TextField>
+                <AttributedString>
+                    Alloy is great!
+                </AttributedString>
+              </TextField>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -139,32 +143,36 @@ properties:
         Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedHintText>`
         element inside a `<TextField>` element and set the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <TextField>
-                    <AttributedHintText>
-                        Alloy is great!
-                    </AttributedHintText>
-                  </TextField>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <TextField>
+                <AttributedHintText>
+                    Alloy is great!
+                </AttributedHintText>
+              </TextField>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -206,7 +214,9 @@ properties:
     description: |
         Multiple autolink values can be combined with a bitwise OR. For example:
 
-            textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES | Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ``` js
+        textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES | Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ```
 
         The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
     type: Number
@@ -311,11 +321,13 @@ properties:
         the hint text color would also be white, hence not visible to the user. To change this, you can
         edit the tiapp.xml file with another theme. Example as follows:
 
-            <android xmlns:android="http://schemas.android.com/apk/res/android">
-                <manifest>
-                    <application android:theme="@style/Theme.AppCompat.Light"/>
-                </manifest>
-            </android>
+        ``` xml
+        <android xmlns:android="http://schemas.android.com/apk/res/android">
+            <manifest>
+                <application android:theme="@style/Theme.AppCompat.Light"/>
+            </manifest>
+        </android>
+        ```
 
         Another way to change the hint text color is to use this property and specify a color.
     type: [String, Titanium.UI.Color]
@@ -359,20 +371,22 @@ properties:
         In Alloy, you can use a `<KeyboardToolbar>` element inside a `<TextField>` element to create
         a `KeyboardToolbar`.
 
-            <Alloy>
-                <TextField id="textfield" platform="ios" hintText="Tap here...">
-                    <!-- Nested properties -->
-                    <KeyboardToolbar >
-                        <Toolbar >
-                            <Items >
-                                <Button>button 1</Button>
-                                <FlexSpace />
-                                <Button>button 2</Button>
-                            </Items>
-                        </Toolbar>
-                    </KeyboardToolbar>
-                </TextField>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TextField id="textfield" platform="ios" hintText="Tap here...">
+                <!-- Nested properties -->
+                <KeyboardToolbar >
+                    <Toolbar >
+                        <Items >
+                            <Button>button 1</Button>
+                            <FlexSpace />
+                            <Button>button 2</Button>
+                        </Items>
+                    </Toolbar>
+                </KeyboardToolbar>
+            </TextField>
+        </Alloy>
+        ```
     type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
 
@@ -408,19 +422,21 @@ properties:
 
         In Alloy you can use a `<LeftButton>` element inside the `<TextField>` element.
 
-            <Alloy>
-                <Window>
-                    <!-- iOS TextField properties -->
-                    <TextField id="textfield" platform="ios">
-                        <LeftButton>
-                            <Button onClick="sayHi">Say Hi</Button>
-                        </LeftButton>
-                        <RightButton>
-                            <Button onClick="doAlert">Do Alert</Button>
-                        </RightButton>
-                    </TextField>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <!-- iOS TextField properties -->
+                <TextField id="textfield" platform="ios">
+                    <LeftButton>
+                        <Button onClick="sayHi">Say Hi</Button>
+                    </LeftButton>
+                    <RightButton>
+                        <Button onClick="doAlert">Do Alert</Button>
+                    </RightButton>
+                </TextField>
+            </Window>
+        </Alloy>
+        ```
     type: Titanium.UI.View
     platforms: [iphone, ipad]
 
@@ -504,19 +520,21 @@ properties:
         Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
         In Alloy you can use a `<RightButton>` element inside the `<TextField>` element.
 
-            <Alloy>
-                <Window>
-                    <!-- iOS TextField properties -->
-                    <TextField id="textfield" platform="ios">
-                        <LeftButton>
-                            <Button onClick="sayHi">Say Hi</Button>
-                        </LeftButton>
-                        <RightButton>
-                            <Button onClick="doAlert">Do Alert</Button>
-                        </RightButton>
-                    </TextField>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <!-- iOS TextField properties -->
+                <TextField id="textfield" platform="ios">
+                    <LeftButton>
+                        <Button onClick="sayHi">Say Hi</Button>
+                    </LeftButton>
+                    <RightButton>
+                        <Button onClick="doAlert">Do Alert</Button>
+                    </RightButton>
+                </TextField>
+            </Window>
+        </Alloy>
+        ```
 
         The `sayHi` and `doAlert` methods are defined in the Alloy controller.
     type: Titanium.UI.View
@@ -633,19 +651,21 @@ examples:
     example: |
         Create a simple text field with green text color.
 
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'white'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white'
+        });
 
-            var textField = Ti.UI.createTextField({
-              backgroundColor: '#fafafa',
-              color: 'green',
-              width: 250,
-              height: 40
-            });
+        var textField = Ti.UI.createTextField({
+          backgroundColor: '#fafafa',
+          color: 'green',
+          width: 250,
+          height: 40
+        });
 
-            win.add(textField);
-            win.open();
+        win.add(textField);
+        win.open();
+        ```
 
   - title: Custom Keyboard Toolbar (iOS)
     example: |
@@ -655,40 +675,42 @@ examples:
 
         This code excerpt creates a text field with a toolbar:
 
-            var win = Ti.UI.createWindow({
-                backgroundColor: 'white'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            backgroundColor: 'white'
+        });
 
-            var send = Ti.UI.createButton({
-                title: 'Send',
-                style: Ti.UI.iOS.SystemButtonStyle.DONE,
-            });
+        var send = Ti.UI.createButton({
+            title: 'Send',
+            style: Ti.UI.iOS.SystemButtonStyle.DONE,
+        });
 
-            var camera = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.CAMERA,
-            });
+        var camera = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.CAMERA,
+        });
 
-            var cancel = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.CANCEL
-            });
+        var cancel = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.CANCEL
+        });
 
-            var flexSpace = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
-            });
+        var flexSpace = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
+        });
 
-            var textfield = Ti.UI.createTextField({
-                borderStyle: Ti.UI.INPUT_BORDERSTYLE_BEZEL,
-                hintText: 'Focus to see keyboard with toolbar',
-                keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
-                keyboardToolbarColor: '#999',
-                keyboardToolbarHeight: 40,
-                top: 10,
-                width: 300,
-                height: 35
-            });
+        var textfield = Ti.UI.createTextField({
+            borderStyle: Ti.UI.INPUT_BORDERSTYLE_BEZEL,
+            hintText: 'Focus to see keyboard with toolbar',
+            keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
+            keyboardToolbarColor: '#999',
+            keyboardToolbarHeight: 40,
+            top: 10,
+            width: 300,
+            height: 35
+        });
 
-            win.add(textField);
-            win.open();
+        win.add(textField);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -696,11 +718,13 @@ examples:
 
         Alternatively, define the properties using the TSS file.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <TextField class="myTextField" color="green" width="250" height="45" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <TextField class="myTextField" color="green" width="250" height="45" />
+            </Window>
+        </Alloy>
+        ```
 
   - title: Alloy Custom Keyboard Toolbar (iOS)
     example: |
@@ -710,33 +734,35 @@ examples:
         You can also declare the `leftButton` and `rightButton` properties in XML markup as the
         `<LeftButton>` and `<RightButton>` XML elements.
 
-            <Alloy>
-                <Window fullscreen="true" backgroundColor="white">
-                    <TextField
-                        platform="ios"
-                        borderStyle="Ti.UI.INPUT_BORDERSTYLE_BEZEL"
-                        keyboardToolbarColor="#999"
-                        keyboardToolbarHeight="40"
-                        top="10"
-                        height="35"
-                        width="300"
-                        value="Focus to see keyboard with toolbar">
+        ``` xml
+        <Alloy>
+            <Window fullscreen="true" backgroundColor="white">
+                <TextField
+                    platform="ios"
+                    borderStyle="Ti.UI.INPUT_BORDERSTYLE_BEZEL"
+                    keyboardToolbarColor="#999"
+                    keyboardToolbarHeight="40"
+                    top="10"
+                    height="35"
+                    width="300"
+                    value="Focus to see keyboard with toolbar">
 
-                        <!-- Sets the keyboardToolbar property -->
-                        <KeyboardToolbar>
-                            <Toolbar>
-                                <Items>
-                                    <Button systemButton="CANCEL" />
-                                    <FlexSpace/>
-                                    <Button systemButton="CAMERA" />
-                                    <FlexSpace/>
-                                    <Button style="DONE">Send</Button>
-                                </Items>
-                            </Toolbar>
-                        </KeyboardToolbar>
-                    </TextField>
-                </Window>
-            </Alloy>
+                    <!-- Sets the keyboardToolbar property -->
+                    <KeyboardToolbar>
+                        <Toolbar>
+                            <Items>
+                                <Button systemButton="CANCEL" />
+                                <FlexSpace/>
+                                <Button systemButton="CAMERA" />
+                                <FlexSpace/>
+                                <Button style="DONE">Send</Button>
+                            </Items>
+                        </Toolbar>
+                    </KeyboardToolbar>
+                </TextField>
+            </Window>
+        </Alloy>
+        ```
 
 ---
 name: textFieldSelectedParams

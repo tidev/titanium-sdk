@@ -32,6 +32,7 @@ examples:
     example: |
         Simple example of playing a WAVE file from the Resources directory.
         
-            var player = Ti.Media.createSystemAlert({url:"alert.wav"});
-            player.play();
-        
+        ``` js
+        var player = Ti.Media.createSystemAlert({url:"alert.wav"});
+        player.play();
+        ```
