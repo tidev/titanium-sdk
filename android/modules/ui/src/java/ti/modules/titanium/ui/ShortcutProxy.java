@@ -30,10 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Kroll.proxy(
-	creatableInModule = UIModule.class,
-	propertyAccessors = {
-		TiC.PROPERTY_ITEMS
-	}
+	// Rename to not override `ShortcutModule` definition.
+	name = "_Shortcut"
 )
 public class ShortcutProxy extends KrollProxy
 {
@@ -152,6 +150,7 @@ public class ShortcutProxy extends KrollProxy
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.setAction(Intent.ACTION_VIEW);
 		intent.putExtra("shortcut", shortcut.getId());
+		intent.putExtra("properties", shortcut.getProperties().toString());
 		shortcutBuilder.setIntent(intent);
 
 		shortcutBuilder.setShortLabel(shortcut.getTitle());
