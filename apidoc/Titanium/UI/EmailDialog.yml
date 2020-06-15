@@ -172,13 +172,14 @@ properties:
 examples:
   - title: Simple Email Dialog with Attachment
     example: |
-
         Create and send an email with a file attachment.
 
-            var emailDialog = Ti.UI.createEmailDialog()
-            emailDialog.subject = "Hello from Titanium";
-            emailDialog.toRecipients = ['foo@yahoo.com'];
-            emailDialog.messageBody = '<b>Appcelerator Titanium Rocks!</b>';
-            var f = Ti.Filesystem.getFile('cricket.wav');
-            emailDialog.addAttachment(f);
-            emailDialog.open();
+        ``` js
+        var emailDialog = Ti.UI.createEmailDialog()
+        emailDialog.subject = "Hello from Titanium";
+        emailDialog.toRecipients = ['foo@yahoo.com'];
+        emailDialog.messageBody = '<b>Appcelerator Titanium Rocks!</b>';
+        var f = Ti.Filesystem.getFile('cricket.wav');
+        emailDialog.addAttachment(f);
+        emailDialog.open();
+        ```

@@ -72,33 +72,35 @@ properties:
             click the window to test again. Note that the logged information relates to the UI rather 
             than the physical orientation of the device.
             
-                var win = Ti.UI.createWindow({
-                  title: 'Click window to output UI dimensions',
-                  backgroundColor: 'white',
-                  orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
-                  fullscreen: false,
-                  exitOnClose: true
-                });
-                
-                var label = Ti.UI.createLabel({
-                  text:'Hello world'
-                });
-                win.add(label);
-                
-                function logDisplayCaps(){
-                  Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
-                }
-                
-                win.addEventListener('click',function(e){
-                  // as the UI orientation is restricted by orientationModes, this will only ever 
-                  // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
-                  // Android device tested
-                  logDisplayCaps();
-                });
-                
-                win.open();
-                
-                logDisplayCaps();
+            ``` js
+            var win = Ti.UI.createWindow({
+              title: 'Click window to output UI dimensions',
+              backgroundColor: 'white',
+              orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
+              fullscreen: false,
+              exitOnClose: true
+            });
+            
+            var label = Ti.UI.createLabel({
+              text:'Hello world'
+            });
+            win.add(label);
+            
+            function logDisplayCaps(){
+              Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
+            }
+            
+            win.addEventListener('click',function(e){
+              // as the UI orientation is restricted by orientationModes, this will only ever 
+              // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
+              // Android device tested
+              logDisplayCaps();
+            });
+            
+            win.open();
+            
+            logDisplayCaps();
+            ```
   - name: platformWidth
     summary: |
         Absolute width of the display in relation to UI orientation. Measured in platform-specific 
@@ -118,33 +120,35 @@ properties:
             click the window to test again. Note that the logged information relates to the UI rather 
             than the physical orientation of the device.
             
-                var win = Ti.UI.createWindow({
-                  title: 'Click window to output UI dimensions',
-                  backgroundColor: 'white',
-                  orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
-                  fullscreen: false,
-                  exitOnClose: true
-                });
-                
-                var label = Ti.UI.createLabel({
-                  text:'Hello world'
-                });
-                win.add(label);
-                
-                function logDisplayCaps(){
-                  Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
-                }
-                
-                win.addEventListener('click',function(e){
-                  // as the UI orientation is restricted by orientationModes, this will only ever 
-                  // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
-                  // Android device tested
-                  logDisplayCaps();
-                });
-                
-                win.open();
-                
-                logDisplayCaps();    
+            ``` js
+            var win = Ti.UI.createWindow({
+              title: 'Click window to output UI dimensions',
+              backgroundColor: 'white',
+              orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
+              fullscreen: false,
+              exitOnClose: true
+            });
+            
+            var label = Ti.UI.createLabel({
+              text:'Hello world'
+            });
+            win.add(label);
+            
+            function logDisplayCaps(){
+              Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
+            }
+            
+            win.addEventListener('click',function(e){
+              // as the UI orientation is restricted by orientationModes, this will only ever 
+              // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
+              // Android device tested
+              logDisplayCaps();
+            });
+            
+            win.open();
+            
+            logDisplayCaps();  
+            ```  
   - name: xdpi
     summary: Physical pixels per inch of the display in the X dimension.
     type: Number
@@ -161,16 +165,17 @@ examples:
   - title: System Display Information
     example: |
         Output the display properties to the system log.
-            
-            Ti.API.info('Ti.Platform.displayCaps.density: ' + Ti.Platform.displayCaps.density);
-            Ti.API.info('Ti.Platform.displayCaps.dpi: ' + Ti.Platform.displayCaps.dpi);
-            Ti.API.info('Ti.Platform.displayCaps.platformHeight: ' + Ti.Platform.displayCaps.platformHeight);
-            Ti.API.info('Ti.Platform.displayCaps.platformWidth: ' + Ti.Platform.displayCaps.platformWidth);
-            if((Ti.Platform.osname === 'iphone')||(Ti.Platform.osname === 'ipad')||(Ti.Platform.osname === 'android')){
-              Ti.API.info('Ti.Platform.displayCaps.logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
-            }
-            if(Ti.Platform.osname === 'android'){
-              Ti.API.info('Ti.Platform.displayCaps.xdpi: ' + Ti.Platform.displayCaps.xdpi);
-              Ti.API.info('Ti.Platform.displayCaps.ydpi: ' + Ti.Platform.displayCaps.ydpi);
-            }
-            
+
+        ``` js    
+        Ti.API.info('Ti.Platform.displayCaps.density: ' + Ti.Platform.displayCaps.density);
+        Ti.API.info('Ti.Platform.displayCaps.dpi: ' + Ti.Platform.displayCaps.dpi);
+        Ti.API.info('Ti.Platform.displayCaps.platformHeight: ' + Ti.Platform.displayCaps.platformHeight);
+        Ti.API.info('Ti.Platform.displayCaps.platformWidth: ' + Ti.Platform.displayCaps.platformWidth);
+        if((Ti.Platform.osname === 'iphone')||(Ti.Platform.osname === 'ipad')||(Ti.Platform.osname === 'android')){
+          Ti.API.info('Ti.Platform.displayCaps.logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
+        }
+        if(Ti.Platform.osname === 'android'){
+          Ti.API.info('Ti.Platform.displayCaps.xdpi: ' + Ti.Platform.displayCaps.xdpi);
+          Ti.API.info('Ti.Platform.displayCaps.ydpi: ' + Ti.Platform.displayCaps.ydpi);
+        }
+        ``` 

@@ -20,7 +20,9 @@ description: |
     <Titanium.App.Android.R> object to reference the view's ID. For example, if you have a 
     view with the ID `notify_imageview`, you can refer to it using:
         
-        Ti.App.Android.R.id.notify_imageview
+    ``` js
+    Ti.App.Android.R.id.notify_imageview
+    ```
     
     See also: 
     
@@ -49,15 +51,12 @@ properties:
     availability: creation
 
 methods:
-
   - name: setBoolean
     summary: |
         Calls a method taking a single `boolean` argument on a view in the remote view
         hierarchy.  See Android's documentation for
         [setBoolean](https://developer.android.com/reference/android/widget/RemoteViews.html#setBoolean(int, java.lang.String, boolean)).
-
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the view to invoke the method on.
@@ -79,9 +78,7 @@ methods:
     description: |
         See Android's documentation for 
         [setChronometer](https://developer.android.com/reference/android/widget/RemoteViews.html#setChronometer(int, long, java.lang.String, boolean)).
-
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the Chronometer to update.
@@ -107,7 +104,6 @@ methods:
     description: |
         See Android's documentation for 
         [setDouble](https://developer.android.com/reference/android/widget/RemoteViews.html#setDouble(int, java.lang.String, double)).
-
     parameters:
       - name: viewId
         summary: |
@@ -129,7 +125,6 @@ methods:
         See Android's documentation for 
         [setImageViewResource](https://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewResource(int, int)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the `ImageView` to update.
@@ -151,7 +146,6 @@ methods:
         See Android's documentation for
         [setImageViewUri](https://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewUri(int, android.net.Uri)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the `ImageView` to update.
@@ -168,7 +162,6 @@ methods:
     description: |
         See Android's documentation for [setInt](https://developer.android.com/reference/android/widget/RemoteViews.html#setInt(int, java.lang.String, int))
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the view to update.
@@ -189,7 +182,6 @@ methods:
         See Android's documentation for
         [setOnClickPendingIntent](https://developer.android.com/reference/android/widget/RemoteViews.html#setOnClickPendingIntent(int, android.app.PendingIntent)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the view to add a click listener to.
@@ -208,7 +200,6 @@ methods:
         See Android's documentation for
         [setProgressBar](https://developer.android.com/reference/android/widget/RemoteViews.html#setProgressBar(int, int, int, boolean)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the progress bar to update.
@@ -237,7 +228,6 @@ methods:
         See Android's documentation for
         [setString](https://developer.android.com/reference/android/widget/RemoteViews.html#setString(int, java.lang.String, java.lang.String)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the view to update.
@@ -258,7 +248,6 @@ methods:
         See Android's documentation for
         [setTextColor](https://developer.android.com/reference/android/widget/RemoteViews.html#setTextColor(int, int)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the view to update.
@@ -275,7 +264,6 @@ methods:
         See Android's documentation for
         [setTextViewText](https://developer.android.com/reference/android/widget/RemoteViews.html#setTextViewText(int, java.lang.CharSequence)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the text view to update.
@@ -292,7 +280,6 @@ methods:
         See Android's documentation for
         [setUri](https://developer.android.com/reference/android/widget/RemoteViews.html#setUri(int, java.lang.String, android.net.Uri)).
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the view to update.
@@ -312,7 +299,6 @@ methods:
     description:  |
         See Android's documentation for [setViewVisibility](https://developer.android.com/reference/android/widget/RemoteViews.html#setViewVisibility(int, int))
     parameters:
-
       - name: viewId
         summary: |
             Resource ID of the view to show or hide.
@@ -330,27 +316,30 @@ examples:
         The following code excerpt creates a `RemoteViews` object based on a custom layout 
         called `custom_layout.xml`, and set a label's text.
 
-
-            var AppR = Ti.App.Android.R;
-            var customLayout = Ti.Android.createRemoteViews({ layoutId: AppR.layout.custom_layout });
-            customLayout.setTextViewText(AppR.id.custom_text, "Click Me!");
+        ``` js
+        var AppR = Ti.App.Android.R;
+        var customLayout = Ti.Android.createRemoteViews({ layoutId: AppR.layout.custom_layout });
+        customLayout.setTextViewText(AppR.id.custom_text, "Click Me!");
+        ```
 
         This example uses a simple custom layout:
 
-            <?xml version="1.0" encoding="utf-8"?>
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="fill_parent" 
-                    android:layout_height="fill_parent" 
-                    android:orientation="vertical" >
-                <TextView android:id="@+id/custom_text"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:background="#ffffff"
-                        android:textColor="#aaff0000"
-                        android:textStyle="italic"
-                        android:gravity="center"
-                        android:text="Hello, I am a TextView" />
-            </LinearLayout>
+        ``` xml
+        <?xml version="1.0" encoding="utf-8"?>
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent" 
+                android:layout_height="fill_parent" 
+                android:orientation="vertical" >
+            <TextView android:id="@+id/custom_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#ffffff"
+                    android:textColor="#aaff0000"
+                    android:textStyle="italic"
+                    android:gravity="center"
+                    android:text="Hello, I am a TextView" />
+        </LinearLayout>
+        ```
 
         The layout file for this example must be placed in
         `platform/android/res/layout/custom_layout.xml`. 

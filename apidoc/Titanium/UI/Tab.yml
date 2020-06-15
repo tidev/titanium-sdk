@@ -84,11 +84,15 @@ methods:
         correctly maintain the iOS tab group's navigation state. Note that the window to
         be closed **must** be passed in as a parameter:
 
-            myTab.close(tabWin);
+        ``` js
+        myTab.close(tabWin);
+        ```
 
         On Android, this method does **not** take a `window` parameter.
 
-            myTab.close();
+        ``` js
+        myTab.close();
+        ```
 
         On Android, if a window has been opened in front of the tab using `Tab.open`,
         a subsequent call to `Tab.close` is equivalent to calling `close` on that window.
@@ -226,7 +230,7 @@ properties:
     summary: The icon inset or outset for each edge.
     description: |
         Use this property for example to center an icon without providing a title. To do that, set the
-        insets to `{top:6}` and/or `{left:6}`. The `right` and `bottom` are calculated internally to prevent the
+        insets to `{ top: 6 }` and/or `{ left: 6 }`. The `right` and `bottom` are calculated internally to prevent the
         icon from mutating.
     since: "5.2.0"
     default: All insets are zero.
@@ -385,32 +389,35 @@ events:
 examples:
   - title: Simple Tab Example
     example: |
-
         In this example, we create a simple tab and add it to a tab group.
 
-            var window = Ti.UI.createWindow({
-                title: 'My Tab'
-            });
+        ``` js
+        var window = Ti.UI.createWindow({
+            title: 'My Tab'
+        });
 
-            var tab = Ti.UI.createTab({
-                window: window,
-                title: 'My Tab',
-                icon: 'myicon.png'
-            });
+        var tab = Ti.UI.createTab({
+            window: window,
+            title: 'My Tab',
+            icon: 'myicon.png'
+        });
 
-            tabGroup.addTab(tab);
+        tabGroup.addTab(tab);
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example an an Alloy view.
 
-            <Alloy>
-                <TabGroup id="tabGroup">
-                    <Tab id="tab" title="My Tab" icon="myicon.png">
-                        <Window id="window" title="My Tab" />
-                    </Tab>
-                 </TabGroup>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TabGroup id="tabGroup">
+                <Tab id="tab" title="My Tab" icon="myicon.png">
+                    <Window id="window" title="My Tab" />
+                </Tab>
+              </TabGroup>
+        </Alloy>
+        ```
 
 ---
 name: TabIconInsets

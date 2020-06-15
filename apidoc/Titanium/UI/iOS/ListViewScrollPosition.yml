@@ -7,12 +7,10 @@ summary: |
 extends: Titanium.Proxy
 since: '5.4.0'
 platforms: [iphone, ipad]
-
 excludes:
     properties: [bubbleParent]
     methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
 createable: false
-
 properties:
   - name: BOTTOM
     summary: The list view scrolls the row of interest to the bottom of the visible list view.

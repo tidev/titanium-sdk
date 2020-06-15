@@ -10,7 +10,6 @@ excludes:
 platforms: [iphone, ipad]
 since: "3.1.0"
 createable: false
-
 properties:
   - name: GROUPED
     summary: |

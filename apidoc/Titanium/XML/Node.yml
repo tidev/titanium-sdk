@@ -10,12 +10,9 @@ description: |
     that the methods `appendChild`, `insertBefore`, `removeChild`, and
     `replaceChild` only work on `Element` objects. If one of these methods is called on
     another type of node, it throws an exception.
-
 createable: false
 platforms: [android, iphone, ipad]
-
 properties:
-
   - name: ELEMENT_NODE
     summary: |
         Used with [nodeType](Titanium.XML.Node.nodeType) to identify an
@@ -244,7 +241,6 @@ properties:
     accessors: false
 
 methods:
-
   - name: appendChild
     summary: Appends the node `newChild` as a child of this node.
     description: |

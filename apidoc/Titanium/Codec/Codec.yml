@@ -16,11 +16,15 @@ description: |
     If we represent a buffer as an array of byte values, a big-endian encoding of
     0xFEDCBA98 would look like this:
 
-        [ 0xFE, 0xDC, 0xBA, 0x98 ]
+    ``` js
+    [ 0xFE, 0xDC, 0xBA, 0x98 ]
+    ```
 
     In little-endian order, the bytes would be stored in this order:
 
-        [ 0x98, 0xBA, 0xDC, 0xFE ]
+    ``` js
+    [ 0x98, 0xBA, 0xDC, 0xFE ]
+    ```
 
     For 8-bit character encodings, including ASCII, Latin-1 and UTF-8, byte order is not
     significant: the text is a sequence of individual bytes.
@@ -29,11 +33,15 @@ description: |
     a capital T in UTF-16 is 0x0054, and lowercase i is 0x0069. If we encode the string
     "Ti" with UTF-16 in big-endian byte order, we get:
 
-        [ 0x00, 0x54, 0x00, 0x69 ]
+    ``` js
+    [ 0x00, 0x54, 0x00, 0x69 ]
+    ```
 
     In UTF-16 with little-endian byte order, "Ti" is encoded as:
 
-        [ 0x54, 0x00, 0x69, 0x00 ]
+    ``` js
+    [ 0x54, 0x00, 0x69, 0x00 ]
+    ```
 
     Note that the bytes for each character are stored least-significant byte first, but
     the order of the characters is unchanged.
@@ -51,8 +59,6 @@ properties:
     value: "ascii"
     permission: read-only
 
-
-
   - name: CHARSET_ISO_LATIN_1
     type: String
     summary: ISO 8859-1 (Latin-1) character encoding.
@@ -60,7 +66,6 @@ properties:
         See also: [ISO/IEC 8859-1](http://en.wikipedia.org/wiki/ISO/IEC_8859-1) on Wikipedia.
     value: "iso-latin-1"
     permission: read-only
-
 
   - name: CHARSET_UTF8
     type: String
@@ -70,7 +75,6 @@ properties:
     value: "utf8"
     permission: read-only
 
-
   - name: CHARSET_UTF16
     type: String
     summary: UTF-16 character encoding with default byte order.
@@ -78,7 +82,6 @@ properties:
         See also: [UTF-16/UCS2](http://en.wikipedia.org/wiki/UTF-16/UCS-2) on Wikipedia.
     value: "utf16"
     permission: read-only
-
 
   - name: CHARSET_UTF16BE
     type: String
@@ -88,7 +91,6 @@ properties:
     value: "utf16be"
     permission: read-only
 
-
   - name: CHARSET_UTF16LE
     type: String
     summary: UTF-16 character encoding with little endian byte order.
@@ -97,13 +99,11 @@ properties:
     value: "utf16le"
     permission: read-only
 
-
   - name: TYPE_BYTE
     type: String
     summary: 8-bit integer encoding type.
     value: "byte"
     permission: read-only
-
 
   - name: TYPE_SHORT
     type: String
@@ -111,13 +111,11 @@ properties:
     value: "short"
     permission: read-only
 
-
   - name: TYPE_INT
     type: String
     summary: 32-bit integer encoding type.
     value: "int"
     permission: read-only
-
 
   - name: TYPE_FLOAT
     type: String
@@ -125,20 +123,17 @@ properties:
     value: "float"
     permission: read-only
 
-
   - name: TYPE_LONG
     type: String
     summary: 64-bit integer encoding type.
     value: "long"
     permission: read-only
 
-
   - name: TYPE_DOUBLE
     type: String
     summary: 64-bit double precision floating-point type.
     value: "double"
     permission: read-only
-
 
   - name: BIG_ENDIAN
     type: Number
@@ -155,7 +150,6 @@ properties:
     permission: read-only
 
 methods:
-
   - name: getNativeByteOrder
     summary: |
         Get the OS native byte order (either <Titanium.Codec.BIG_ENDIAN> or
@@ -166,7 +160,6 @@ methods:
         type: Number
         summary: OS native byte order.
         constants: [Titanium.Codec.BIG_ENDIAN, Titanium.Codec.LITTLE_ENDIAN]
-
 
   - name: encodeNumber
     summary: Encodes a number and writes it to a buffer.
@@ -195,27 +188,30 @@ methods:
             This example encodes a double-precision floating point value in 8 bytes using the OS byte
             order.
 
-                var buffer = Ti.createBuffer({ length: 8 });
-                Ti.Codec.encodeNumber({
-                  source: 1.23456789,
-                  dest: buffer,
-                  type: Ti.Codec.TYPE_DOUBLE
-                });
+            ``` js
+            var buffer = Ti.createBuffer({ length: 8 });
+            Ti.Codec.encodeNumber({
+              source: 1.23456789,
+              dest: buffer,
+              type: Ti.Codec.TYPE_DOUBLE
+            });
+            ```
 
       - title: Encode an Integer Specifying Start Position and Byte Order
         example: |
             This example encodes a 4-byte integer using big endian encoding, and
             writes it to the supplied buffer starting at index position 10.
 
-                var buffer = Ti.createBuffer({ length: 100 });
-                Ti.Codec.encodeNumber({
-                    source: 0x3456789a,
-                    dest: buffer,
-                    position: 10,
-                    type: Ti.Codec.TYPE_INT,
-                    byteOrder: Ti.Codec.BIG_ENDIAN
-                });
-
+            ``` js
+            var buffer = Ti.createBuffer({ length: 100 });
+            Ti.Codec.encodeNumber({
+                source: 0x3456789a,
+                dest: buffer,
+                position: 10,
+                type: Ti.Codec.TYPE_INT,
+                byteOrder: Ti.Codec.BIG_ENDIAN
+            });
+            ```
 
   - name: decodeNumber
     summary: |
@@ -249,25 +245,28 @@ methods:
             This sample decodes an 8-byte double-precision floating point number using the
             OS byte order.
 
-                var buffer = // a buffer containing (at least) one 8-byte floating-point number
-                var value = Ti.Codec.decodeNumber({
-                    source: buffer,
-                    type: Ti.Codec.TYPE_DOUBLE
-                });
+            ``` js
+            var buffer = // a buffer containing (at least) one 8-byte floating-point number
+            var value = Ti.Codec.decodeNumber({
+                source: buffer,
+                type: Ti.Codec.TYPE_DOUBLE
+            });
+            ```
 
       - title: Decode an Integer Specifying Start Position and Byte Order
         example: |
             This sample decodes a 4-byte integer starting at index position 10 in the
             buffer, using big endian encoding.
 
-                var buffer = // a buffer containing a 4-byte integer at position 10.
-                var value = Ti.Codec.decodeNumber({
-                      source: buffer,
-                      position: 10,
-                      type: Ti.Codec.TYPE_INT,
-                      byteOrder: Ti.Codec.BIG_ENDIAN
-                });
-
+            ``` js
+            var buffer = // a buffer containing a 4-byte integer at position 10.
+            var value = Ti.Codec.decodeNumber({
+                  source: buffer,
+                  position: 10,
+                  type: Ti.Codec.TYPE_INT,
+                  byteOrder: Ti.Codec.BIG_ENDIAN
+            });
+            ```
 
   - name: encodeString
     summary: |
@@ -311,26 +310,29 @@ methods:
             This sample encodes a string using the default character encoding (UTF-8), then trims the
             buffer to the length of the encoded string.
 
-                var buffer = Ti.createBuffer({ length: 1024 });
-                var length = Ti.Codec.encodeString({
-                    source: "hello world",
-                    dest: buffer
-                });
-                buffer.length = length;
+            ``` js
+            var buffer = Ti.createBuffer({ length: 1024 });
+            var length = Ti.Codec.encodeString({
+                source: "hello world",
+                dest: buffer
+            });
+            buffer.length = length;
+            ```
 
       - title: Encode Substring with Specified Character Encoding
         example: |
             This sample encodes the first 10 characters of a string using UTF-16 character encoding.
 
-                // (10 * 2) + BOM = 22
-                var buffer = Ti.createBuffer({ length: 22 });
-                Ti.Codec.encodeString({
-                    source: "jack jumped over the candle stick",
-                    sourceLength: 10,
-                    dest: buffer,
-                    charset: Ti.Codec.CHARSET_UTF16
-                });
-
+            ``` js
+            // (10 * 2) + BOM = 22
+            var buffer = Ti.createBuffer({ length: 22 });
+            Ti.Codec.encodeString({
+                source: "jack jumped over the candle stick",
+                sourceLength: 10,
+                dest: buffer,
+                charset: Ti.Codec.CHARSET_UTF16
+            });
+            ```
 
   - name: decodeString
     summary: |
@@ -365,18 +367,22 @@ methods:
         example: |
             This sample decodes a string using the default character encoding.
 
-                var buffer = // a buffer containing an encoded string
-                var string = Ti.Codec.decodeString({ source: buffer });
+            ``` js
+            var buffer = // a buffer containing an encoded string
+            var string = Ti.Codec.decodeString({ source: buffer });
+            ```
 
       - title: Decode a String with a Specified Character Encoding
         example: |
             This sample decodes a string using the UTF-16 character encoding.
 
-                var buffer = // a buffer containing a UTF-16 encoded string
-                var string = Ti.Codec.decodeString({
-                  source: buffer,
-                  charset: Ti.Codec.CHARSET_UTF16
-                });
+            ``` js
+            var buffer = // a buffer containing a UTF-16 encoded string
+            var string = Ti.Codec.decodeString({
+              source: buffer,
+              charset: Ti.Codec.CHARSET_UTF16
+            });
+            ```
 
 ---
 name: EncodeNumberDict

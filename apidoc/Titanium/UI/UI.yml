@@ -143,7 +143,7 @@ description:  |
 
     To specify colors for dark mode, also known as semantic colors, first create a file called `semantic.colors.json` in the Resources directory for classic applications, or in the assets directory for Alloy applications. Then you can specify color names in the following format:
 
-    ````
+    ``` json
       {
         "textColor": { // the name for your color
           "dark": {
@@ -153,7 +153,7 @@ description:  |
           "light": "#ff1f1f"
         }
       }
-    ````
+    ```
 
     To reference these colors in your application use the <Titanium.UI.fetchSemanticColor> API, this is a cross platform API that on iOS 13 and above will use the native method that checks the users system-wide setting, and in all other instances will check the <Titanium.UI.semanticColorType> property and return the correct color for the current setting.
 
@@ -2897,34 +2897,36 @@ examples:
         The following example demonstrates all the color formats, and color names, that are intended
         to be supported by Titanium. See the [description](Titanium.UI) section for details.
 
-            var colorArray = [
-              '#ff00ff', '#f0f', 'rgb(255,0,255)',
-              'transparent', '#55ff00ff', '#5f0f', 'rgba(255,0,255,0.3)',
-              'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green',
-              'lightgray', 'lime', 'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink',
-              'purple', 'red', 'silver', 'teal', 'white', 'yellow',
-            ];
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'black',
-              exitOnClose: true,
-              fullscreen: false,
-              layout: 'vertical',
-              title: 'Color Demo'
-            });
-            var rows = [];
-            var row;
-            for (var i=0, ilen = colorArray.length; i < ilen; i++){
-              row = Ti.UI.createTableViewRow({
-                color:'black',
-                backgroundColor: colorArray[i],
-                title: colorArray[i],
-                height: 40
-              });
-              rows.push(row);
-            }
-            var table = Ti.UI.createTableView({
-              data: rows,
-              backgroundColor: 'white'
-            });
-            win.add(table);
-            win.open();
+        ``` js
+        var colorArray = [
+          '#ff00ff', '#f0f', 'rgb(255,0,255)',
+          'transparent', '#55ff00ff', '#5f0f', 'rgba(255,0,255,0.3)',
+          'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green',
+          'lightgray', 'lime', 'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink',
+          'purple', 'red', 'silver', 'teal', 'white', 'yellow',
+        ];
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'black',
+          exitOnClose: true,
+          fullscreen: false,
+          layout: 'vertical',
+          title: 'Color Demo'
+        });
+        var rows = [];
+        var row;
+        for (var i=0, ilen = colorArray.length; i < ilen; i++){
+          row = Ti.UI.createTableViewRow({
+            color:'black',
+            backgroundColor: colorArray[i],
+            title: colorArray[i],
+            height: 40
+          });
+          rows.push(row);
+        }
+        var table = Ti.UI.createTableView({
+          data: rows,
+          backgroundColor: 'white'
+        });
+        win.add(table);
+        win.open();
+        ```
