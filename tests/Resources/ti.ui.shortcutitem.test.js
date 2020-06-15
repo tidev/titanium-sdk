@@ -17,16 +17,6 @@ describe('Titanium.UI.ShortcutItem', () => {
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcutItem).be.a.Function();
 
-		it.android('no id', finish => {
-			try {
-				Ti.UI.createShortcutItem({});
-			} catch (e) {
-
-				// Expects an error to be thrown if no `id` is defined.
-				finish();
-			}
-		});
-
 		it.android('basic shortcut item', () => {
 
 			// Create shortcut item.
