@@ -23,7 +23,6 @@ description: |
     or to use a button-bar type component on a platform other than iOS, you can use a set 
     of individual [Button](Titanium.UI.Button) controls wrapped in a
     [View](Titanium.UI.View) to create the appearance of a button bar.
-
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
@@ -59,21 +58,23 @@ properties:
 
         In Alloy you specify the labels with a nested `<Labels>` element that contains one or more `<Label>` elements.
 
-            <Alloy>
-                <ButtonBar platform="ios">
-                    <Labels>
-                        <!-- Specify text with node text or "title" attribute. -->
-                        <Label>button 1</Label>
-                        <Label title="button 2"/>
-                        <!-- uses images and/or widths -->
-                        <Label width="40" image="/KS_nav_ui.png"/>
-                        <!-- set as disabled -->
-                        <Label enabled="false">disabled</Label>
-                        <!-- empty labels will print a warning (no properties) -->
-                        <!-- <Label/> -->
-                    </Labels>
-                </ButtonBar>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <ButtonBar platform="ios">
+                <Labels>
+                    <!-- Specify text with node text or "title" attribute. -->
+                    <Label>button 1</Label>
+                    <Label title="button 2"/>
+                    <!-- uses images and/or widths -->
+                    <Label width="40" image="/KS_nav_ui.png"/>
+                    <!-- set as disabled -->
+                    <Label enabled="false">disabled</Label>
+                    <!-- empty labels will print a warning (no properties) -->
+                    <!-- <Label/> -->
+                </Labels>
+            </ButtonBar>
+        </Alloy>
+        ```
     type: [Array<String>, Array<BarItemType>]
 
   - name: textColor
@@ -104,33 +105,36 @@ properties:
 examples:
   - title: Simple 3 button button bar
     example: |
-        
-            var bb1 = Titanium.UI.createButtonBar({
-            	labels:['One', 'Two', 'Three'],
-            	backgroundColor:'#336699',
-            	top:50,
-            	style:Titanium.UI.iOS.SystemButtonStyle.PLAIN,
-            	height:25,
-            	width:200
-            });
-            win.add(bb1);
+        ``` js
+        var bb1 = Titanium.UI.createButtonBar({
+          labels:['One', 'Two', 'Three'],
+          backgroundColor:'#336699',
+          top:50,
+          style:Titanium.UI.iOS.SystemButtonStyle.PLAIN,
+          height:25,
+          width:200
+        });
+        win.add(bb1);
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <Window id="win">
-                    <ButtonBar id="bb1" platform="ios" backgroundColor="#369" top="50" height="25" width="200">
-                        <!-- The Labels tag sets the ButtonBar.labels property -->
-                        <Labels>
-                            <!-- Specify text with node text or the title attribute. -->
-                            <!-- Can also specify the enabled, image and width attributes. -->
-                            <Label>One</Label>
-                            <Label>Two</Label>
-                            <Label>Three</Label>
-                        </Labels>
-                        <!-- Place additional views for the ButtonBar here. -->
-                    </ButtonBar>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win">
+                <ButtonBar id="bb1" platform="ios" backgroundColor="#369" top="50" height="25" width="200">
+                    <!-- The Labels tag sets the ButtonBar.labels property -->
+                    <Labels>
+                        <!-- Specify text with node text or the title attribute. -->
+                        <!-- Can also specify the enabled, image and width attributes. -->
+                        <Label>One</Label>
+                        <Label>Two</Label>
+                        <Label>Three</Label>
+                    </Labels>
+                    <!-- Place additional views for the ButtonBar here. -->
+                </ButtonBar>
+            </Window>
+        </Alloy>
+        ```

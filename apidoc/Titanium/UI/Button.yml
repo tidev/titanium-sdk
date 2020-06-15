@@ -79,11 +79,15 @@ description: |
 
     For example:
 
-        var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iOS.SystemButton.CANCEL });
+    ``` js
+    var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iOS.SystemButton.CANCEL });
+    ```
 
     In Alloy, you can omit the namespace when setting the `systemButton` property:
 
-        <Button id="cancelbtn" systemButton="CANCEL"></Button>
+    ``` xml
+    <Button id="cancelbtn" systemButton="CANCEL"></Button>
+    ```
 
     Note that the `systemButton` property specifies *appearance*, not behavior. For
     example, to bring up the camera when the user presses the **Camera** button, you must
@@ -100,7 +104,6 @@ description: |
     or use system icons such as [CAMERA](Titanium.UI.iOS.SystemButton.CAMERA), a glow effect is
     used. The glow effect shows as a white circular glow or highlight at the center of the button
     when the button is pressed.
-
 extends: Titanium.UI.View
 excludes:
     properties: [children]
@@ -245,15 +248,17 @@ properties:
     description: |
         In JavaScript:
 
-            var cancelButton = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.CANCEL
-            });
+        ``` js
+        var cancelButton = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.CANCEL
+        });
+        ```
 
         In Alloy, you can omit the namespace when setting the `systemButton` property on a `<Button>`
         element:
-
-            <Button systemButton="CAMERA"/>
-
+        ``` xml
+        <Button systemButton="CAMERA"/>
+        ```
     type: Number
     constants: Titanium.UI.iOS.SystemButton.*
     platforms: [iphone,ipad]
@@ -285,7 +290,6 @@ properties:
     type: String
     since: "1.5"
 
-
   - name: verticalAlign
     summary: |
         Vertical alignment for the text field, specified using one of the
@@ -298,34 +302,37 @@ properties:
 examples:
   - title: Simple Button Example
     example: |
-
-            var button = Titanium.UI.createButton({
-               title: 'Hello',
-               top: 10,
-               width: 100,
-               height: 50
-            });
-            button.addEventListener('click',function(e)
-            {
-               Titanium.API.info("You clicked the button");
-            });
+        ``` js
+        var button = Titanium.UI.createButton({
+            title: 'Hello',
+            top: 10,
+            width: 100,
+            height: 50
+        });
+        button.addEventListener('click',function(e)
+        {
+            Titanium.API.info("You clicked the button");
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
         button.xml:
-
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <!-- The title property can also be defined as node text. -->
-                    <Button id="button" onClick="doClick" title="Hello"
-                        top="10" width="100" height="50" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <!-- The title property can also be defined as node text. -->
+                <Button id="button" onClick="doClick" title="Hello"
+                    top="10" width="100" height="50" />
+            </Window>
+        </Alloy>
+        ```
 
         button.js:
-
-            function doClick(e){
-                Titanium.API.info("You clicked the button");
-            };
+        ``` js
+        function doClick(e){
+            Titanium.API.info("You clicked the button");
+        };
+        ```

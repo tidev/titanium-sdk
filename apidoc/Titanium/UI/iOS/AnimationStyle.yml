@@ -12,12 +12,10 @@ summary: |
       * [FLIP_FROM_BOTTOM](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_BOTTOM)
       * [CROSS_DISSOLVE](Titanium.UI.iOS.AnimationStyle.CROSS_DISSOLVE)
       * [NONE](Titanium.UI.iOS.AnimationStyle.NONE)
-
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "5.4.0"
 createable: false
-
 properties:
   - name: CURL_DOWN
     summary: Curl downwards during a transition animation.

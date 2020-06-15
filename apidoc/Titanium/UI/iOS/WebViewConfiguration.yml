@@ -7,14 +7,10 @@ description: |
     user can select, and many other options. This property can only be set when creating the webview and will be ignored when set afterwards.
 
     See the example section "Usage of WebViewConfiguration with WebView in iOS".
-
-
 extends: Titanium.Proxy
 since: "8.0.0"
 platforms: [iphone, ipad]
-
 properties:
-
   - name: preferences
     summary: The preference settings to be used by the web view.
     type: WebViewPreferencesObject
@@ -96,20 +92,20 @@ examples:
   - title: Usage of WebViewConfiguration with WebView in iOS
     example:  |
         Creates a configuration object and use it as property of webview.
-        
-            var config = Ti.UI.iOS.createWebViewConfiguration({ 
-                allowsPictureInPictureMediaPlayback: true,
-                preferences: { 
-                    minimumFontSize : 20,
-                }, 
-            });
 
-            var webView = Ti.UI.createWebView({
-                configuration: config,
-                url: 'https://www.google.com'
-            });
-            var window = Ti.UI.createWindow();
-            window.add(webView);
-            window.open();
+        ``` js
+        var config = Ti.UI.iOS.createWebViewConfiguration({ 
+            allowsPictureInPictureMediaPlayback: true,
+            preferences: { 
+                minimumFontSize : 20,
+            }, 
+        });
 
-
+        var webView = Ti.UI.createWebView({
+            configuration: config,
+            url: 'https://www.google.com'
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webView);
+        window.open();
+        ```

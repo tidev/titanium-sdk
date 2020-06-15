@@ -76,8 +76,6 @@ properties:
         Use `number` type for `era`, `year`, `month` and `day`. These must be consistent with
         corresponding `calendarIdentifier`.
         Use `boolean` type for `isLeapMonth`.
-
-
     type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.0"}}
@@ -199,8 +197,6 @@ properties:
         Determines the type of information the person record contains; either person or organization. 
         Read-only on Android.
     constants: Titanium.Contacts.CONTACTS_KIND_*
-
-        
     type: Number
     
   - name: lastName
