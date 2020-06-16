@@ -52,19 +52,21 @@ description: |
     the search bar and dismiss the onscreen keyboard when the user selects a row, you
     could add code like this to the `click` event handler on your table view:
 
-        myTableView.addEventListener('click', function(e) {
-            if (Ti.Platform.name === 'android') {
-                // Clear search bar
-                mySearchBar.value ="";
-                // hiding and showing the search bar forces it back to its non-focused appearance.
-                mySearchBar.hide();
-                mySearchBar.show();
-            }
-            // standard click event handling here
+    ``` js
+    myTableView.addEventListener('click', function(e) {
+        if (Ti.Platform.name === 'android') {
+            // Clear search bar
+            mySearchBar.value ="";
+            // hiding and showing the search bar forces it back to its non-focused appearance.
+            mySearchBar.hide();
+            mySearchBar.show();
+        }
+        // standard click event handling here
+    });
+    ```
 
     **Note**: Due to native limitations, the SearchBar's positional properties may not work properly
     when nested within a TableView or ListView (properties such as left, right, width and so on).
-
 extends: Titanium.UI.View
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
@@ -86,8 +88,9 @@ methods:
         On iOS, this method can be used to specify animation properties when changing the
         state of the cancel button.
 
-            searchBar.setShowCancel(true, { animated: true });
-
+        ``` js
+        searchBar.setShowCancel(true, { animated: true });
+        ```
     parameters:
       - name: showCancel
         summary: New value for [showCancel](Titanium.UI.SearchBar.showCancel).
@@ -315,40 +318,47 @@ examples:
 
   - title: Simple Search Bar
     example: |
-
-            var search = Titanium.UI.createSearchBar({
-            	barColor:'#000',
-            	showCancel:true,
-            	height:43,
-            	top:0,
-            });
+        ``` js
+        var search = Titanium.UI.createSearchBar({
+          barColor:'#000',
+          showCancel:true,
+          height:43,
+          top:0,
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
+        </Alloy>
+        ```
 
   - title: Search Bar with TableView
     example: |
-            var search = Ti.UI.createSearchBar({
-                showCancel: true
-            });
-            var tableview = Ti.UI.createTableView({
-                search: search
-            });
+        ``` js
+        var search = Ti.UI.createSearchBar({
+            showCancel: true
+        });
+        var tableview = Ti.UI.createTableView({
+            search: search
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <TableView id="tableview">
-                    <SearchBar id="search" showCancel="true" />
-                </TableView>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TableView id="tableview">
+                <SearchBar id="search" showCancel="true" />
+            </TableView>
+        </Alloy>
+        ```
 
 ---
 name: SearchBarToken

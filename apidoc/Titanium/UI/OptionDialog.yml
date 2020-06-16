@@ -154,20 +154,22 @@ properties:
         In an Alloy application you can specify this property with either an `<AndroidView/>` or
         `<View/>` element inside the `<OptionDialog/>` element, for example:
 
-            <Alloy>
-                <OptionDialog id="dialog" title="Delete File?" onClick="clickCB">
+        ``` xml
+        <Alloy>
+            <OptionDialog id="dialog" title="Delete File?" onClick="clickCB">
 
-                    <!-- Add View or AndroidView for the androidView property -->
-                    <AndroidView platform="android" layout="vertical">
-                        <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
-                    </AndroidView>
+                <!-- Add View or AndroidView for the androidView property -->
+                <AndroidView platform="android" layout="vertical">
+                    <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
+                </AndroidView>
 
-                    <ButtonNames>
-                        <ButtonName>Confirm</ButtonName>
-                        <ButtonName>Cancel</ButtonName>
-                    </ButtonNames>
-                </OptionDialog>
-            </Alloy>
+                <ButtonNames>
+                    <ButtonName>Confirm</ButtonName>
+                    <ButtonName>Cancel</ButtonName>
+                </ButtonNames>
+            </OptionDialog>
+        </Alloy>
+        ```
     type: Titanium.UI.View
     platforms: [android]
 
@@ -252,7 +254,7 @@ properties:
 examples:
   - title: Dialog with 3 Options
     example: |
-
+        ``` js
         Ti.UI.setBackgroundColor('white');
         var win = Ti.UI.createWindow({
           title: 'Click window to test',
@@ -271,10 +273,11 @@ examples:
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
+        ```
 
   - title: Dialog with 2 Options and 1 Button on Android and 3 Options on iOS
     example: |
-
+        `` js
         var win = Ti.UI.createWindow({
           title: 'Click window to test OptionDialog',
           backgroundColor: 'white'
@@ -320,6 +323,7 @@ examples:
         }
 
         win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -327,43 +331,46 @@ examples:
         and [destructive](Titanium.UI.OptionDialog.destructive) on a `<Option/>` tag.
 
         optiondialog.xml:
+        ``` xml
+        <Alloy>
+            <Window id="win" onClick="showOptions" title="Click window to test"
+                fullscreen="false" onExit="true" backgroundColor="white">
 
-            <Alloy>
-                <Window id="win" onClick="showOptions" title="Click window to test"
-                    fullscreen="false" onExit="true" backgroundColor="white">
+                <!--
+                    The OptionDialog tag declares an option dialog,
+                    which will need to be opened by the controller.
+                -->
+                <OptionDialog id="dialog" title="Delete File?">
 
-                    <!--
-                        The OptionDialog tag declares an option dialog,
-                        which will need to be opened by the controller.
-                    -->
-                    <OptionDialog id="dialog" title="Delete File?">
+                    <!-- The Options tag sets the options property. -->
+                    <Options>
+                        <Option destructive="true">Confirm</Option>
+                        <Option platform="ios">Help</Option>
+                        <Option cancel="true">Cancel</Option>
+                    </Options>
 
-                        <!-- The Options tag sets the options property. -->
-                        <Options>
-                            <Option destructive="true">Confirm</Option>
-                            <Option platform="ios">Help</Option>
-                            <Option cancel="true">Cancel</Option>
-                        </Options>
+                    <!-- The ButtonNames tag sets the Android-only buttonNames property. -->
+                    <ButtonNames>
+                        <ButtonName>Help</ButtonName>
+                    </ButtonNames>
 
-                        <!-- The ButtonNames tag sets the Android-only buttonNames property. -->
-                        <ButtonNames>
-                            <ButtonName>Help</ButtonName>
-                        </ButtonNames>
+                    <!-- Add a View for the androidView property here. -->
 
-                        <!-- Add a View for the androidView property here. -->
+                </OptionDialog>
 
-                    </OptionDialog>
+                <!-- Add views here -->
 
-                    <!-- Add views here -->
-
-                </Window>
-            </Alloy>
+            </Window>
+        </Alloy>
+        ```
 
         optiondialog.js:
+        ``` js
+        function showOptions(){
+            $.dialog.show();
+        }
+        ```
 
-            function showOptions(){
-                $.dialog.show();
-            }
 ---
 # FIXME: I don't think we actually take any args any more, it inherits the animated value from show on iOS!
 name: hideParams

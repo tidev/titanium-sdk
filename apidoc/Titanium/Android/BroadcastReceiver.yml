@@ -30,13 +30,15 @@ description: |
     a special permission.  For example, to monitor the `NEW_OUTGOING_CALL` broadcast, the
     application needs to add the following permission:
 
-        <ti:app>
-            <android>
-                <manifest>
-                    <uses-permission android:name="android.permission.NEW_OUTGOING_CALL" />
-                </manifest>
-            </android>
-        </ti:app>
+    ``` xml
+    <ti:app>
+        <android>
+            <manifest>
+                <uses-permission android:name="android.permission.NEW_OUTGOING_CALL" />
+            </manifest>
+        </android>
+    </ti:app>
+    ```
 
     Further Reading:
 
@@ -49,7 +51,6 @@ since: "3.1.0"
 platforms: [android]
 
 properties:
-
   - name: onReceived
     summary: The function called when a broadcast is received.
     type: Callback<Object>
@@ -63,10 +64,12 @@ examples:
     example: |
         This example creates a broadcast receiver and registers it to handle the airplane mode broadcast.
 
-            var bc = Ti.Android.createBroadcastReceiver({
-                onReceived: function() {
-                    Ti.API.info('Handling broadcast.');
-                }
-            });
+        ``` js
+        var bc = Ti.Android.createBroadcastReceiver({
+            onReceived: function() {
+                Ti.API.info('Handling broadcast.');
+            }
+        });
 
-            Ti.Android.registerBroadcastReceiver(bc, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);
+        Ti.Android.registerBroadcastReceiver(bc, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);
+        ```

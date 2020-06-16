@@ -65,7 +65,9 @@ description: |
     A global method `alert()` is aliased to this object, and can be invoked with a single message.
     For example
 
-        alert('this is a message');
+    ``` js
+    alert('this is a message');
+    ```
 
     This will generate an alert with a title of "Alert" and an "OK" button.
 
@@ -93,7 +95,6 @@ excludes:
 events:
   - name: click
     summary: Fired when a button in the dialog is clicked.
-
     properties:
       - name: cancel
         summary: |
@@ -151,22 +152,23 @@ properties:
         In an Alloy application you can specify this property with either an `<AndroidView/>` or
         `<View/>` element inside the `<AlertDialog/>` element, for example:
 
-            <Alloy>
-                <AlertDialog onClick="doClick" title="Delete"
-                    message="Would you like to delete the file?" cancel="1">
+        ``` xml
+        <Alloy>
+            <AlertDialog onClick="doClick" title="Delete"
+                message="Would you like to delete the file?" cancel="1">
 
-                    <!--  Add View or AndroidView for the androidView property  -->
-                    <View platform="android">
-                        <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
-                    </View>
+                <!--  Add View or AndroidView for the androidView property  -->
+                <View platform="android">
+                    <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
+                </View>
 
-                    <ButtonNames>
-                        <ButtonName>Confirm</ButtonName>
-                        <ButtonName>Cancel</ButtonName>
-                    </ButtonNames>
-                </AlertDialog>
-            </Alloy>
-
+                <ButtonNames>
+                    <ButtonName>Confirm</ButtonName>
+                    <ButtonName>Cancel</ButtonName>
+                </ButtonNames>
+            </AlertDialog>
+        </Alloy>
+        ```
     type: Titanium.UI.View
     platforms: [android]
     accessors: false
@@ -174,7 +176,6 @@ properties:
 
   - name: buttonNames
     summary: Name of each button to create.
-
     description: |
         On iOS, a button will automatically be created if none are explicitly defined, because
         without it users would be unable to dismiss the dialog. Conversely, a dialog with no
@@ -185,23 +186,23 @@ properties:
         Alloy applications can specify this property with a `<ButtonNames>` element containing
         one or more `<ButtonName>` elements (see example).
 
-            <Alloy>
-                <AlertDialog id="dialog" onClick="doClick" title="Decide!" message="Do you really want to do that?" cancel="1">
-                    <ButtonNames>
-                        <ButtonName>Confirm</ButtonName>
-                        <ButtonName>Cancel</ButtonName>
-                        <ButtonName>Help</ButtonName>
-                    </ButtonNames>
-                </AlertDialog>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <AlertDialog id="dialog" onClick="doClick" title="Decide!" message="Do you really want to do that?" cancel="1">
+                <ButtonNames>
+                    <ButtonName>Confirm</ButtonName>
+                    <ButtonName>Cancel</ButtonName>
+                    <ButtonName>Help</ButtonName>
+                </ButtonNames>
+            </AlertDialog>
+        </Alloy>
+        ```
     type: Array<String>
     default: No buttons (Android), Single "OK" button (iOS)
     availability: creation
 
   - name: cancel
     summary: Index to define the cancel button.
-
     description: |
         On iOS, set to `-1` to disable the cancel option.
     type: Number
@@ -520,72 +521,78 @@ examples:
     example: |
         Create a single-button alert dialog using the global `alert()` alias.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test',
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false
-            });
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test',
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false
+        });
 
-            win.addEventListener('click', function(e) {
-              alert('The file has been deleted');
-            });
-            win.open();
+        win.addEventListener('click', function(e) {
+          alert('The file has been deleted');
+        });
+        win.open();
+        ```
 
   - title: Single-button Alert Dialog (standard)
     example: |
         Create a single-button alert dialog, without explicitly defining it using the `buttonNames`
         property, which is invoked when the app window is clicked.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test',
-              backgroundColor: 'white',
-            exitOnClose: true,
-            fullscreen: false
-            });
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test',
+          backgroundColor: 'white',
+        exitOnClose: true,
+        fullscreen: false
+        });
 
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
-                message: 'The file has been deleted',
-                ok: 'Okay',
-                title: 'File Deleted'
-              });
-              dialog.show();
-            });
-            win.open();
+        win.addEventListener('click', function(e) {
+          var dialog = Ti.UI.createAlertDialog({
+            message: 'The file has been deleted',
+            ok: 'Okay',
+            title: 'File Deleted'
+          });
+          dialog.show();
+        });
+        win.open();
+        ```
 
   - title: Three-button Alert Dialog
     example: |
         Create a three-button alert dialog, which is invoked when the app window is clicked.
         Output a message to the log when the cancel button is clicked.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test',
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false
-            });
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
-                cancel: 1,
-                buttonNames: ['Confirm', 'Cancel', 'Help'],
-                message: 'Would you like to delete the file?',
-                title: 'Delete'
-              });
-              dialog.addEventListener('click', function(e) {
-                if (e.index === e.source.cancel) {
-                  Ti.API.info('The cancel button was clicked');
-                }
-                Ti.API.info('e.cancel: ' + e.cancel);
-                Ti.API.info('e.source.cancel: ' + e.source.cancel);
-                Ti.API.info('e.index: ' + e.index);
-              });
-              dialog.show();
-            });
-            win.open();
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test',
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false
+        });
+        win.addEventListener('click', function(e) {
+          var dialog = Ti.UI.createAlertDialog({
+            cancel: 1,
+            buttonNames: ['Confirm', 'Cancel', 'Help'],
+            message: 'Would you like to delete the file?',
+            title: 'Delete'
+          });
+          dialog.addEventListener('click', function(e) {
+            if (e.index === e.source.cancel) {
+              Ti.API.info('The cancel button was clicked');
+            }
+            Ti.API.info('e.cancel: ' + e.cancel);
+            Ti.API.info('e.source.cancel: ' + e.source.cancel);
+            Ti.API.info('e.index: ' + e.index);
+          });
+          dialog.show();
+        });
+        win.open();
+        ```
 
   - title: Alert Dialog with Plain Text Input
     example: |
@@ -593,54 +600,58 @@ examples:
         app window is clicked.
         Output entered text value to the log when the OK button is clicked.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test'
-            });
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
-                title: 'Enter text',
-                style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
-                buttonNames: ['OK']
-              });
-              dialog.addEventListener('click', function(e) {
-                Ti.API.info('e.text: ' + e.text);
-              });
-              dialog.show();
-            });
-            win.open();
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test'
+        });
+        win.addEventListener('click', function(e) {
+          var dialog = Ti.UI.createAlertDialog({
+            title: 'Enter text',
+            style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
+            buttonNames: ['OK']
+          });
+          dialog.addEventListener('click', function(e) {
+            Ti.API.info('e.text: ' + e.text);
+          });
+          dialog.show();
+        });
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous three-button alert dialog example as an Alloy view.
 
         alertdialog.xml:
+        ``` xml
+        <Alloy>
+            <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
+                exitOnClose="true" fullscreen="false" >
 
-            <Alloy>
-                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
-                    exitOnClose="true" fullscreen="false" >
+                <AlertDialog id="dialog" onClick="doClick" title="Delete"
+                    message="Would you like to delete the file?" cancel="1">
 
-                    <AlertDialog id="dialog" onClick="doClick" title="Delete"
-                        message="Would you like to delete the file?" cancel="1">
-
-                        <!-- The ButtonNames tag sets the buttonNames property. -->
-                        <ButtonNames>
-                            <ButtonName>Confirm</ButtonName>
-                            <ButtonName>Cancel</ButtonName>
-                            <ButtonName>Help</ButtonName>
-                        </ButtonNames>
-                    </AlertDialog>
-                </Window>
-            </Alloy>
+                    <!-- The ButtonNames tag sets the buttonNames property. -->
+                    <ButtonNames>
+                        <ButtonName>Confirm</ButtonName>
+                        <ButtonName>Cancel</ButtonName>
+                        <ButtonName>Help</ButtonName>
+                    </ButtonNames>
+                </AlertDialog>
+            </Window>
+        </Alloy>
+        ```
 
         alertdialog.js:
+        ``` js
+        function showDialog() {
+            $.dialog.show();
+        }
 
-            function showDialog() {
-                $.dialog.show();
-            }
+        function doClick(e) {
+            Ti.API.info('e.text: ' + e.text);
+        }
 
-            function doClick(e) {
-                Ti.API.info('e.text: ' + e.text);
-            }
-
-            $.win.open();
+        $.win.open();
+        ```

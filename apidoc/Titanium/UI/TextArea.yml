@@ -65,7 +65,6 @@ methods:
 
           On iOS, soft keyboard would show when text is selected.
 
-
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
@@ -99,32 +98,36 @@ properties:
         Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedHintText>`
         element inside a `<TextField>` element and set the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <TextField>
-                    <AttributedHintText>
-                        Alloy is great!
-                    </AttributedHintText>
-                  </TextField>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <TextField>
+                <AttributedHintText>
+                    Alloy is great!
+                </AttributedHintText>
+              </TextField>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -144,32 +147,36 @@ properties:
         Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
         element inside a `<TextArea>` element and set the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <TextArea>
-                    <AttributedString>
-                        Alloy is great!
-                    </AttributedString>
-                  </TextArea>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <TextArea>
+                <AttributedString>
+                    Alloy is great!
+                </AttributedString>
+              </TextArea>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -213,7 +220,9 @@ properties:
 
         Multiple autolink values can be combined with a bitwise OR. For example:
 
-            textArea.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ``` js
+        textArea.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ```
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
@@ -301,11 +310,13 @@ properties:
         the hint text color would also be white, hence not visible to the user. To change this, you can
         edit the tiapp.xml file with another theme. Example as follows:
 
-            <android xmlns:android="http://schemas.android.com/apk/res/android">
-                <manifest>
-                    <application android:theme="@style/Theme.AppCompat.Light"/>
-                </manifest>
-            </android>
+        ``` xml
+        <android xmlns:android="http://schemas.android.com/apk/res/android">
+            <manifest>
+                <application android:theme="@style/Theme.AppCompat.Light"/>
+            </manifest>
+        </android>
+        ```
 
         Another way to change the hint text color is to use this property and specify a color.
 
@@ -542,24 +553,26 @@ examples:
     example: |
         This example creates a highly customized text area.
 
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'white'
-            });
-            var textArea = Ti.UI.createTextArea({
-              borderWidth: 2,
-              borderColor: '#bbb',
-              borderRadius: 5,
-              color: '#888',
-              font: {fontSize:20, fontWeight:'bold'},
-              keyboardType: Ti.UI.KEYBOARD_NUMBER_PAD,
-              returnKeyType: Ti.UI.RETURNKEY_GO,
-              textAlign: 'left',
-              value: 'I am a textarea',
-              top: 60,
-              width: 300, height : 70
-            });
-            win.add(textArea);
-            win.open();
+        ``` js
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white'
+        });
+        var textArea = Ti.UI.createTextArea({
+          borderWidth: 2,
+          borderColor: '#bbb',
+          borderRadius: 5,
+          color: '#888',
+          font: {fontSize:20, fontWeight:'bold'},
+          keyboardType: Ti.UI.KEYBOARD_NUMBER_PAD,
+          returnKeyType: Ti.UI.RETURNKEY_GO,
+          textAlign: 'left',
+          value: 'I am a textarea',
+          top: 60,
+          width: 300, height : 70
+        });
+        win.add(textArea);
+        win.open();
+        ```
 
   - title: Text Area with Custom Keyboard Toolbar (iOS)
     example: |
@@ -571,46 +584,50 @@ examples:
 
         Example using a custom keyboard toolbar:
 
-            var send = Ti.UI.createButton({
-                style : Ti.UI.iOS.SystemButtonStyle.DONE,
-                title : 'Send'
-            });
+        ``` js
+        var send = Ti.UI.createButton({
+            style : Ti.UI.iOS.SystemButtonStyle.DONE,
+            title : 'Send'
+        });
 
-            var camera = Ti.UI.createButton({
-                systemButton : Ti.UI.iOS.SystemButton.CAMERA
-            });
+        var camera = Ti.UI.createButton({
+            systemButton : Ti.UI.iOS.SystemButton.CAMERA
+        });
 
-            var cancel = Ti.UI.createButton({
-                systemButton : Ti.UI.iOS.SystemButton.CANCEL
-            });
+        var cancel = Ti.UI.createButton({
+            systemButton : Ti.UI.iOS.SystemButton.CANCEL
+        });
 
-            var flexSpace = Ti.UI.createButton({
-                systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
-            });
+        var flexSpace = Ti.UI.createButton({
+            systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
+        });
 
-            var textarea = Ti.UI.createTextArea({
-                borderColor : '#000',
-                color : '#000',
-                keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
-                keyboardToolbarColor : '#999',
-                keyboardToolbarHeight : 40,
-                value : 'Focus to see keyboard with toolbar',
-                top : 10,
-                width : 300, height : 120
-            });
+        var textarea = Ti.UI.createTextArea({
+            borderColor : '#000',
+            color : '#000',
+            keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
+            keyboardToolbarColor : '#999',
+            keyboardToolbarHeight : 40,
+            value : 'Focus to see keyboard with toolbar',
+            top : 10,
+            width : 300, height : 120
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous basic text area with customizations example as an Alloy view.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <TextArea id="textArea"
-                        borderWidth="2" borderColor="#bbb" borderRadius="5"
-                        color="#888" textAlign="left" value="I am a textarea"
-                        top="60" width="300" height="70" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <TextArea id="textArea"
+                    borderWidth="2" borderColor="#bbb" borderRadius="5"
+                    color="#888" textAlign="left" value="I am a textarea"
+                    top="60" width="300" height="70" />
+            </Window>
+        </Alloy>
+        ```
 
 ---
 name: textAreaSelectedParams

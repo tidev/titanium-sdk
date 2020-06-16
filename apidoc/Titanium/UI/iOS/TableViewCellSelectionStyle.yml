@@ -7,7 +7,6 @@ extends: Titanium.Proxy
 since: "5.4.0"
 platforms: [iphone, ipad]
 createable: false
-
 properties:
   - name: BLUE
     summary: The cell when selected has a blue background. This is the default value.

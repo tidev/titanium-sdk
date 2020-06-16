@@ -27,15 +27,17 @@ description: |
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects. This is
     easily visualized as an Alloy view:
 
-        <Alloy>
-            <ListView id="list">
-                <ListSection>
-                    <ListItem title="List item 1"></ListItem>
-                    <ListItem title="List item 2"></ListItem>
-                    <ListItem title="List item 3"></ListItem>
-                </ListSection>
-            </ListView>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <ListView id="list">
+            <ListSection>
+                <ListItem title="List item 1"></ListItem>
+                <ListItem title="List item 2"></ListItem>
+                <ListItem title="List item 3"></ListItem>
+            </ListSection>
+        </ListView>
+    </Alloy>
+    ```
 
     For more instructions and examples of using `ListView`, refer to the
     [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
@@ -871,20 +873,22 @@ properties:
         In Alloy you can assign this property with a `<PullView>` child element of a `<ListView>`
         element:
 
-            <Alloy>
-              <ListView>
-                <ListSection>
-                  <ListItem title="Item a"></ListItem>
-                  <ListItem title="Item b"></ListItem>
-                  <ListItem title="Item c"></ListItem>
-                </ListSection>
-                <PullView>
-                  <View height="50" backgroundColor="black">
-                    <Label/>
-                  </View>
-                </PullView>
-              </ListView>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <ListView>
+            <ListSection>
+              <ListItem title="Item a"></ListItem>
+              <ListItem title="Item b"></ListItem>
+              <ListItem title="Item c"></ListItem>
+            </ListSection>
+            <PullView>
+              <View height="50" backgroundColor="black">
+                <Label/>
+              </View>
+            </PullView>
+          </ListView>
+        </Alloy>
+        ```
 
         See the code example on `pullView` to  see how it may be utilized.
     type: Titanium.UI.View
@@ -912,14 +916,16 @@ properties:
 
         In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<ListView>` element.
 
-            <Alloy>
-                <ListView>
-                   <!-- search, shorthand with Ti.UI.SearchBar -->
-                  <SearchBar class="search" platform="ios"/>
-                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
-                  <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
-                </ListView>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <ListView>
+                <!-- search, shorthand with Ti.UI.SearchBar -->
+              <SearchBar class="search" platform="ios"/>
+              <!-- search, shorthand with Ti.UI.Android.SearchView -->
+              <SearchView ns="Ti.UI.Android" class="search" platform="android"/>
+            </ListView>
+        </Alloy>
+        ```
 
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
@@ -1062,12 +1068,12 @@ properties:
 
         For example:
 
-             listView.setTableSeparatorInsets({
-                 left:10,
-                 right:10
-             });
-
-
+        ``` js
+        listView.setTableSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
     type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
@@ -1081,13 +1087,12 @@ properties:
         right edge. If the rowSeparatorInsets is not set, the listSeparatorInsets will also set the cell insets.
 
         For example:
-
-             listView.setListSeparatorInsets({
-                 left:10,
-                 right:10
-             });
-
-
+        ``` js
+        listView.setListSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
     type: HorizontalInsets
     since: "5.4.0"
     osver: {ios: {min: "7.0"}}
@@ -1101,12 +1106,12 @@ properties:
         right edge. This property is only available upon creation of the cells.
 
         For example:
-
-             listView.setRowSeparatorInsets({
-                 left:10,
-                 right:10
-             });
-
+        ``` js
+        listView.setRowSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
     type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
@@ -1376,115 +1381,119 @@ examples:
         Creates a list with three sections, each with two rows.
         Adds two sections to the table before and one after it is rendered.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'gray'});
-            var listView = Ti.UI.createListView();
-            var sections = [];
+        ``` js
+        var win = Ti.UI.createWindow({backgroundColor: 'gray'});
+        var listView = Ti.UI.createListView();
+        var sections = [];
 
-            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
-            var fruitDataSet = [
-                {properties: { title: 'Apple'}},
-                {properties: { title: 'Banana'}},
-            ];
-            fruitSection.setItems(fruitDataSet);
-            sections.push(fruitSection);
+        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+        var fruitDataSet = [
+            {properties: { title: 'Apple'}},
+            {properties: { title: 'Banana'}},
+        ];
+        fruitSection.setItems(fruitDataSet);
+        sections.push(fruitSection);
 
-            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
-            var vegDataSet = [
-                {properties: { title: 'Carrots'}},
-                {properties: { title: 'Potatoes'}},
-            ];
-            vegSection.setItems(vegDataSet);
-            sections.push(vegSection);
+        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+        var vegDataSet = [
+            {properties: { title: 'Carrots'}},
+            {properties: { title: 'Potatoes'}},
+        ];
+        vegSection.setItems(vegDataSet);
+        sections.push(vegSection);
 
-            listView.sections = sections;
-            win.add(listView);
-            win.open();
+        listView.sections = sections;
+        win.add(listView);
+        win.open();
 
-            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
-            var fishDataSet = [
-                {properties: { title: 'Cod'}},
-                {properties: { title: 'Haddock'}},
-            ];
-            fishSection.setItems(fishDataSet);
-            listView.appendSection(fishSection);
+        var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+        var fishDataSet = [
+            {properties: { title: 'Cod'}},
+            {properties: { title: 'Haddock'}},
+        ];
+        fishSection.setItems(fishDataSet);
+        listView.appendSection(fishSection);
+        ```
 
   - title: List View with Custom Item Template
     example: |
         Modifies the previous example to create a list using an item template to customize the view layout.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        ``` js
+        var win = Ti.UI.createWindow({backgroundColor: 'white'});
 
-            // Create a custom template that displays an image on the left,
-            // then a title next to it with a subtitle below it.
-            var myTemplate = {
-                childTemplates: [
-                    {                            // Image justified left
-                        type: 'Ti.UI.ImageView', // Use an image view for the image
-                        bindId: 'pic',           // Maps to a custom pic property of the item data
-                        properties: {            // Sets the image view  properties
-                            width: '50dp', height: '50dp', left: 0
-                        }
-                    },
-                    {                            // Title
-                        type: 'Ti.UI.Label',     // Use a label for the title
-                        bindId: 'info',          // Maps to a custom info property of the item data
-                        properties: {            // Sets the label properties
-                            color: 'black',
-                            font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
-                            left: '60dp', top: 0,
-                        }
-                    },
-                    {                            // Subtitle
-                        type: 'Ti.UI.Label',     // Use a label for the subtitle
-                        bindId: 'es_info',       // Maps to a custom es_info property of the item data
-                        properties: {            // Sets the label properties
-                            color: 'gray',
-                            font: { fontFamily:'Arial', fontSize: '14dp' },
-                            left: '60dp', top: '25dp',
-                        }
+        // Create a custom template that displays an image on the left,
+        // then a title next to it with a subtitle below it.
+        var myTemplate = {
+            childTemplates: [
+                {                            // Image justified left
+                    type: 'Ti.UI.ImageView', // Use an image view for the image
+                    bindId: 'pic',           // Maps to a custom pic property of the item data
+                    properties: {            // Sets the image view  properties
+                        width: '50dp', height: '50dp', left: 0
                     }
-                ]
-            };
+                },
+                {                            // Title
+                    type: 'Ti.UI.Label',     // Use a label for the title
+                    bindId: 'info',          // Maps to a custom info property of the item data
+                    properties: {            // Sets the label properties
+                        color: 'black',
+                        font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                        left: '60dp', top: 0,
+                    }
+                },
+                {                            // Subtitle
+                    type: 'Ti.UI.Label',     // Use a label for the subtitle
+                    bindId: 'es_info',       // Maps to a custom es_info property of the item data
+                    properties: {            // Sets the label properties
+                        color: 'gray',
+                        font: { fontFamily:'Arial', fontSize: '14dp' },
+                        left: '60dp', top: '25dp',
+                    }
+                }
+            ]
+        };
 
-            var listView = Ti.UI.createListView({
-                // Maps myTemplate dictionary to 'template' string
-                templates: { 'template': myTemplate },
-                // Use 'template', that is, the myTemplate dict created earlier
-                // for all items as long as the template property is not defined for an item.
-                defaultItemTemplate: 'template'
-            });
-            var sections = [];
+        var listView = Ti.UI.createListView({
+            // Maps myTemplate dictionary to 'template' string
+            templates: { 'template': myTemplate },
+            // Use 'template', that is, the myTemplate dict created earlier
+            // for all items as long as the template property is not defined for an item.
+            defaultItemTemplate: 'template'
+        });
+        var sections = [];
 
-            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
-            var fruitDataSet = [
-                // the text property of info maps to the text property of the title label
-                // the text property of es_info maps to text property of the subtitle label
-                // the image property of pic maps to the image property of the image view
-                { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, pic: {image: 'apple.png'}},
-                { info: {text: 'Banana'}, es_info: {text: 'Banana'}, pic: {image: 'banana.png'}}
-            ];
-            fruitSection.setItems(fruitDataSet);
-            sections.push(fruitSection);
+        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
+        var fruitDataSet = [
+            // the text property of info maps to the text property of the title label
+            // the text property of es_info maps to text property of the subtitle label
+            // the image property of pic maps to the image property of the image view
+            { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, pic: {image: 'apple.png'}},
+            { info: {text: 'Banana'}, es_info: {text: 'Banana'}, pic: {image: 'banana.png'}}
+        ];
+        fruitSection.setItems(fruitDataSet);
+        sections.push(fruitSection);
 
-            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
-            var vegDataSet = [
-                { info: {text: 'Carrot'}, es_info: {text: 'Zanahoria'}, pic: {image: 'carrot.png'}},
-                { info: {text: 'Potato'}, es_info: {text: 'Patata'}, pic: {image: 'potato.png'}}
-            ];
-            vegSection.setItems(vegDataSet);
-            sections.push(vegSection);
+        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
+        var vegDataSet = [
+            { info: {text: 'Carrot'}, es_info: {text: 'Zanahoria'}, pic: {image: 'carrot.png'}},
+            { info: {text: 'Potato'}, es_info: {text: 'Patata'}, pic: {image: 'potato.png'}}
+        ];
+        vegSection.setItems(vegDataSet);
+        sections.push(vegSection);
 
-            var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
-            var grainDataSet = [
-                { info: {text: 'Corn'}, es_info: {text: 'Maiz'}, pic: {image: 'corn.png'}},
-                { info: {text: 'Rice'}, es_info: {text: 'Arroz'}, pic: {image: 'rice.png'}}
-            ];
-            grainSection.setItems(grainDataSet);
-            sections.push(grainSection);
+        var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
+        var grainDataSet = [
+            { info: {text: 'Corn'}, es_info: {text: 'Maiz'}, pic: {image: 'corn.png'}},
+            { info: {text: 'Rice'}, es_info: {text: 'Arroz'}, pic: {image: 'rice.png'}}
+        ];
+        grainSection.setItems(grainDataSet);
+        sections.push(grainSection);
 
-            listView.setSections(sections);
-            win.add(listView);
-            win.open();
+        listView.setSections(sections);
+        win.add(listView);
+        win.open();
+        ```
 
   - title: List View with a pullView (Only supported on iOS since 3.2.0)
     example: |
@@ -1492,158 +1501,160 @@ examples:
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
         create a refresh control.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
-            var listView = Ti.UI.createListView({height:'90%', top:0});
-            var sections = [];
+        ``` js
+        var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        var listView = Ti.UI.createListView({height:'90%', top:0});
+        var sections = [];
 
-            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
-            var fruitDataSet = [
-                {properties: { title: 'Apple'}},
-                {properties: { title: 'Banana'}},
-            ];
-            fruitSection.setItems(fruitDataSet);
-            sections.push(fruitSection);
+        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+        var fruitDataSet = [
+            {properties: { title: 'Apple'}},
+            {properties: { title: 'Banana'}},
+        ];
+        fruitSection.setItems(fruitDataSet);
+        sections.push(fruitSection);
 
-            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
-            var vegDataSet = [
-                {properties: { title: 'Carrots'}},
-                {properties: { title: 'Potatoes'}},
-            ];
-            vegSection.setItems(vegDataSet);
+        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+        var vegDataSet = [
+            {properties: { title: 'Carrots'}},
+            {properties: { title: 'Potatoes'}},
+        ];
+        vegSection.setItems(vegDataSet);
 
-            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
-            var fishDataSet = [
-                {properties: { title: 'Cod'}},
-                {properties: { title: 'Haddock'}},
-            ];
-            fishSection.setItems(fishDataSet);
-            listView.sections = sections;
-            var refreshCount = 0;
+        var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+        var fishDataSet = [
+            {properties: { title: 'Cod'}},
+            {properties: { title: 'Haddock'}},
+        ];
+        fishSection.setItems(fishDataSet);
+        listView.sections = sections;
+        var refreshCount = 0;
 
-            function getFormattedDate(){
-                var date = new Date();
-                return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
+        function getFormattedDate(){
+            var date = new Date();
+            return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
+        }
+
+        function resetPullHeader(){
+            actInd.hide();
+            imageArrow.transform=Ti.UI.createMatrix2D();
+            if (refreshCount < 2) {
+                imageArrow.show();
+                labelStatus.text = 'Pull down to refresh...';
+                labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
+            } else {
+                labelStatus.text = 'Nothing To Refresh';
+                labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
+                listView.removeEventListener('pull', pullListener);
+                listView.removeEventListener('pullend', pullendListener);
+                eventStatus.text = 'Removed event listeners.';
             }
+            listView.setContentInsets({top:0}, {animated:true});
+        }
 
-            function resetPullHeader(){
-                actInd.hide();
-                imageArrow.transform=Ti.UI.createMatrix2D();
-                if (refreshCount < 2) {
-                    imageArrow.show();
-                    labelStatus.text = 'Pull down to refresh...';
-                    labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
-                } else {
-                    labelStatus.text = 'Nothing To Refresh';
-                    labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
-                    listView.removeEventListener('pull', pullListener);
-                    listView.removeEventListener('pullend', pullendListener);
-                    eventStatus.text = 'Removed event listeners.';
-                }
-                listView.setContentInsets({top:0}, {animated:true});
+        function loadTableData()
+        {
+            if (refreshCount == 0) {
+                listView.appendSection(vegSection);
+            } else if (refreshCount == 1) {
+                listView.appendSection(fishSection);
             }
+            refreshCount ++;
+            resetPullHeader();
+        }
 
-            function loadTableData()
-            {
+        function pullListener(e){
+            eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
+            if (e.active == false) {
+                var unrotate = Ti.UI.createMatrix2D();
+                imageArrow.animate({transform:unrotate, duration:180});
+                labelStatus.text = 'Pull down to refresh...';
+            } else {
+                var rotate = Ti.UI.createMatrix2D().rotate(180);
+                imageArrow.animate({transform:rotate, duration:180});
                 if (refreshCount == 0) {
-                    listView.appendSection(vegSection);
-                } else if (refreshCount == 1) {
-                    listView.appendSection(fishSection);
-                }
-                refreshCount ++;
-                resetPullHeader();
-            }
-
-            function pullListener(e){
-                eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
-                if (e.active == false) {
-                    var unrotate = Ti.UI.createMatrix2D();
-                    imageArrow.animate({transform:unrotate, duration:180});
-                    labelStatus.text = 'Pull down to refresh...';
+                    labelStatus.text = 'Release to get Vegetables...';
                 } else {
-                    var rotate = Ti.UI.createMatrix2D().rotate(180);
-                    imageArrow.animate({transform:rotate, duration:180});
-                    if (refreshCount == 0) {
-                        labelStatus.text = 'Release to get Vegetables...';
-                    } else {
-                        labelStatus.text = 'Release to get Fish...';
-                    }
+                    labelStatus.text = 'Release to get Fish...';
                 }
             }
+        }
 
-            function pullendListener(e){
-                eventStatus.text = 'EVENT pullend FIRED.';
+        function pullendListener(e){
+            eventStatus.text = 'EVENT pullend FIRED.';
 
-                if (refreshCount == 0) {
-                    labelStatus.text = 'Loading Vegetables...';
-                } else {
-                    labelStatus.text = 'Loading Fish...';
-                }
-                imageArrow.hide();
-                actInd.show();
-                listView.setContentInsets({top:80}, {animated:true});
-                setTimeout(function(){
-                    loadTableData();
-                }, 2000);
+            if (refreshCount == 0) {
+                labelStatus.text = 'Loading Vegetables...';
+            } else {
+                labelStatus.text = 'Loading Fish...';
             }
+            imageArrow.hide();
+            actInd.show();
+            listView.setContentInsets({top:80}, {animated:true});
+            setTimeout(function(){
+                loadTableData();
+            }, 2000);
+        }
 
-            var tableHeader = Ti.UI.createView({
-                backgroundColor:'#e2e7ed',
-                width:320, height:80
-            });
+        var tableHeader = Ti.UI.createView({
+            backgroundColor:'#e2e7ed',
+            width:320, height:80
+        });
 
-            var border = Ti.UI.createView({
-                backgroundColor:'#576c89',
-                bottom:0,
-                height:2
-            });
-            tableHeader.add(border);
+        var border = Ti.UI.createView({
+            backgroundColor:'#576c89',
+            bottom:0,
+            height:2
+        });
+        tableHeader.add(border);
 
-            var imageArrow = Ti.UI.createImageView({
-                image:'arrow.png',
-                left:20, bottom:10,
-                width:23, height:60
-            });
-            tableHeader.add(imageArrow);
+        var imageArrow = Ti.UI.createImageView({
+            image:'arrow.png',
+            left:20, bottom:10,
+            width:23, height:60
+        });
+        tableHeader.add(imageArrow);
 
-            var labelStatus = Ti.UI.createLabel({
-                color:'#576c89',
-                font:{fontSize:13, fontWeight:'bold'},
-                text:'Pull down to refresh...',
-                textAlign:'center',
-                left:55, bottom:30,
-                width:200
-            });
-            tableHeader.add(labelStatus);
+        var labelStatus = Ti.UI.createLabel({
+            color:'#576c89',
+            font:{fontSize:13, fontWeight:'bold'},
+            text:'Pull down to refresh...',
+            textAlign:'center',
+            left:55, bottom:30,
+            width:200
+        });
+        tableHeader.add(labelStatus);
 
-            var labelLastUpdated = Ti.UI.createLabel({
-                color:'#576c89',
-                font:{fontSize:12},
-                text:'Last Updated: ' + getFormattedDate(),
-                textAlign:'center',
-                left:55, bottom:15,
-                width:200
-            });
-            tableHeader.add(labelLastUpdated);
+        var labelLastUpdated = Ti.UI.createLabel({
+            color:'#576c89',
+            font:{fontSize:12},
+            text:'Last Updated: ' + getFormattedDate(),
+            textAlign:'center',
+            left:55, bottom:15,
+            width:200
+        });
+        tableHeader.add(labelLastUpdated);
 
-            var actInd = Ti.UI.createActivityIndicator({
-                left:20, bottom:13,
-                width:30, height:30
-            });
-            tableHeader.add(actInd);
-            listView.pullView = tableHeader;
-            listView.addEventListener('pull', pullListener);
-            listView.addEventListener('pullend',pullendListener);
+        var actInd = Ti.UI.createActivityIndicator({
+            left:20, bottom:13,
+            width:30, height:30
+        });
+        tableHeader.add(actInd);
+        listView.pullView = tableHeader;
+        listView.addEventListener('pull', pullListener);
+        listView.addEventListener('pullend',pullendListener);
 
-            var eventStatus = Ti.UI.createLabel({
-                font:{fontSize:13, fontWeight:'bold'},
-                text: 'Event data will show here',
-                bottom:0,
-                height:'10%'
-            })
+        var eventStatus = Ti.UI.createLabel({
+            font:{fontSize:13, fontWeight:'bold'},
+            text: 'Event data will show here',
+            bottom:0,
+            height:'10%'
+        })
 
-            win.add(listView);
-            win.add(eventStatus);
-            win.open();
+        win.add(listView);
+        win.add(eventStatus);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -1651,63 +1662,65 @@ examples:
         Alloy 1.2.0 and later.
 
         `app/views/index.xml`:
+        ``` xml
+        <Alloy>
+            <Window backgroundColor="white">
+                <ListView id="listView" defaultItemTemplate="template">
 
-            <Alloy>
-                <Window backgroundColor="white">
-                    <ListView id="listView" defaultItemTemplate="template">
+                    <!-- The Templates tag sets the ListView's templates property -->
 
-                        <!-- The Templates tag sets the ListView's templates property -->
+                    <Templates>
 
-                        <Templates>
+                        <!-- Define your item templates within the Templates tags or use the
+                              Require tag to include a view that only contains an ItemTemplate -->
 
-                            <!-- Define your item templates within the Templates tags or use the
-                                 Require tag to include a view that only contains an ItemTemplate -->
+                        <ItemTemplate name="template">
+                            <ImageView bindId="pic" id="icon" />
+                            <Label bindId="info" id="title" />
+                            <Label bindId="es_info" id="subtitle" />
+                        </ItemTemplate>
 
-                            <ItemTemplate name="template">
-                                <ImageView bindId="pic" id="icon" />
-                                <Label bindId="info" id="title" />
-                                <Label bindId="es_info" id="subtitle" />
-                            </ItemTemplate>
+                    </Templates>
 
-                        </Templates>
+                    <ListSection headerTitle="Fruit / Frutas">
 
-                        <ListSection headerTitle="Fruit / Frutas">
+                        <!-- You can specify any ListItem or ListDataItem properties in ListItem -->
 
-                            <!-- You can specify any ListItem or ListDataItem properties in ListItem -->
+                        <!-- Specify data to bind to the item template with inline attributes
+                              defined as <bindId>:<Ti.UI.Component.property> -->
 
-                            <!-- Specify data to bind to the item template with inline attributes
-                                 defined as <bindId>:<Ti.UI.Component.property> -->
-
-                            <ListItem info:text="Apple" es_info:text="Manzana" pic:image="/apple.png" />
-                            <ListItem info:text="Banana" es_info:text="Banana" pic:image="/banana.png" />
-                        </ListSection>
-                        <ListSection headerTitle="Vegetables / Verduras">
-                            <ListItem info:text="Carrot" es_info:text="Zanahoria" pic:image="/carrot.png" />
-                            <ListItem info:text="Potato" es_info:text="Patata" pic:image="/potato.png" />
-                        </ListSection>
-                        <ListSection headerTitle="Grains / Granos">
-                            <ListItem info:text="Corn" es_info:text="Maiz" pic:image="/corn.png" />
-                            <ListItem info:text="Rice" es_info:text="Arroz" pic:image="/rice.png" />
-                        </ListSection>
-                    </ListView>
-                </Window>
-            </Alloy>
+                        <ListItem info:text="Apple" es_info:text="Manzana" pic:image="/apple.png" />
+                        <ListItem info:text="Banana" es_info:text="Banana" pic:image="/banana.png" />
+                    </ListSection>
+                    <ListSection headerTitle="Vegetables / Verduras">
+                        <ListItem info:text="Carrot" es_info:text="Zanahoria" pic:image="/carrot.png" />
+                        <ListItem info:text="Potato" es_info:text="Patata" pic:image="/potato.png" />
+                    </ListSection>
+                    <ListSection headerTitle="Grains / Granos">
+                        <ListItem info:text="Corn" es_info:text="Maiz" pic:image="/corn.png" />
+                        <ListItem info:text="Rice" es_info:text="Arroz" pic:image="/rice.png" />
+                    </ListSection>
+                </ListView>
+            </Window>
+        </Alloy>
+        ```
 
         `app/styles/index.tss`:
-
-            "#icon" : {
-                width: '50dp', height: '50dp', left: 0
-            },
-            "#title" : {
-                color: 'black',
-                font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
-                left: '60dp', top: 0
-            },
-            "#subtitle" : {
-                color: 'gray',
-                font: { fontFamily:'Arial', fontSize: '14dp' },
-                left: '60dp', top: '25dp'
-            }
+        ``` js
+        "#icon" : {
+            width: '50dp', height: '50dp', left: 0
+        },
+        "#title" : {
+            color: 'black',
+            font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+            left: '60dp', top: 0
+        },
+        "#subtitle" : {
+            color: 'gray',
+            font: { fontFamily:'Arial', fontSize: '14dp' },
+            left: '60dp', top: '25dp'
+        }
+        ```
 
   - title: Alloy example of ListView properties
     example: |
@@ -1717,61 +1730,65 @@ examples:
         properties may be declared as XML elements inline with the `ListView` element.  The example
         below demonstrates how to use `searchView`, `headerView` and `footerView`.
 
-            <Alloy>
-                <Window fullscreen="true">
-                    <ListView>
-                        <!-- Sets ListView's searchView property.
-                             For Android, you can also do <SearchView platform="android" />
-                             to use a Ti.UI.Android.SearchView instead of a search bar. -->
-                        <SearchBar barColor="#000" />
+        ``` xml
+        <Alloy>
+            <Window fullscreen="true">
+                <ListView>
+                    <!-- Sets ListView's searchView property.
+                          For Android, you can also do <SearchView platform="android" />
+                          to use a Ti.UI.Android.SearchView instead of a search bar. -->
+                    <SearchBar barColor="#000" />
 
-                        <!-- Sets ListView's headerView property -->
-                        <HeaderView>
-                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
-                                <Label>Header View</Label>
-                            </View>>
-                        </HeaderView>
+                    <!-- Sets ListView's headerView property -->
+                    <HeaderView>
+                        <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                            <Label>Header View</Label>
+                        </View>>
+                    </HeaderView>
 
-                        <ListSection>
-                            <ListItem title="Papaya" searchableText="Papaya"/>
-                            <ListItem title="Peach" searchableText="Peach"/>
-                            <ListItem title="Pear" searchableText="Pear"/>
-                            <ListItem title="Persimmon" searchableText="Persimmon"/>
-                            <ListItem title="Pineapple" searchableText="Pineapple"/>
-                            <ListItem title="Pluot" searchableText="Pluto"/>
-                            <ListItem title="Pomegranate" searchableText="Pomegranate"/>
-                        </ListSection>
+                    <ListSection>
+                        <ListItem title="Papaya" searchableText="Papaya"/>
+                        <ListItem title="Peach" searchableText="Peach"/>
+                        <ListItem title="Pear" searchableText="Pear"/>
+                        <ListItem title="Persimmon" searchableText="Persimmon"/>
+                        <ListItem title="Pineapple" searchableText="Pineapple"/>
+                        <ListItem title="Pluot" searchableText="Pluto"/>
+                        <ListItem title="Pomegranate" searchableText="Pomegranate"/>
+                    </ListSection>
 
-                        <!-- Sets ListView's footerView property -->
-                        <FooterView>
-                            <View backgroundColor="#DDD" height="Ti.UI.SIZE">
-                                <Label>Footer View</Label>
-                            </View>
-                        </FooterView>
-                    </ListView>
-                </Window>
-            </Alloy>
+                    <!-- Sets ListView's footerView property -->
+                    <FooterView>
+                        <View backgroundColor="#DDD" height="Ti.UI.SIZE">
+                            <Label>Footer View</Label>
+                        </View>
+                    </FooterView>
+                </ListView>
+            </Window>
+        </Alloy>
+        ```
 
-  - title: Alloy example of <PullView> element
+  - title: Alloy example of `<PullView>` element
     example: |
         The example below demonstrates how to use a `<PullView>` Alloy element.
 
-            <!-- views/index.xml -->
-            <Alloy>
-                <Window class="container" >
-                    <ListView id="list">
-                        <ListSection>
-                            <ListItem title="Number 1"></ListItem>
-                            <ListItem title="Number 2"></ListItem>
-                        </ListSection>
-                        <PullView>
-                            <View backgroundColor="red" height="50">
-                                <Label>Release to reload</Label>
-                            </View>
-                        </PullView>
-                    </ListView>
-                </Window>
-            </Alloy>
+        ``` xml
+        <!-- views/index.xml -->
+        <Alloy>
+            <Window class="container" >
+                <ListView id="list">
+                    <ListSection>
+                        <ListItem title="Number 1"></ListItem>
+                        <ListItem title="Number 2"></ListItem>
+                    </ListSection>
+                    <PullView>
+                        <View backgroundColor="red" height="50">
+                            <Label>Release to reload</Label>
+                        </View>
+                    </PullView>
+                </ListView>
+            </Window>
+        </Alloy>
+        ```
 
 ---
 name: ListViewAnimationProperties
@@ -1824,8 +1841,10 @@ summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addM
 description: |
     Use this in conjunction with [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods. For example:
 
-        setMarker({sectionIndex:5, itemIndex:10});
-        addMarker({sectionIndex:7, itemIndex: 2});
+    ``` js
+    setMarker({ sectionIndex: 5, itemIndex: 10 });
+    addMarker({ sectionIndex: 7, itemIndex: 2 });
+    ```
 since: 3.2.0
 platforms: [iphone, ipad, android]
 properties:
