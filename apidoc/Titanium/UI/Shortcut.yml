@@ -66,7 +66,8 @@ examples:
                 description: 'DESCRIPTION'
             });
 
-            Ti.App.addEventListener('shortcutitemclick', () => {
+            Ti.UI.Shortcut.addEventListener('click', e => {
+                console.log(`id: ${e.id}`);
 
                 // Set background to 'blue' on shortcut click event.
                 win.backgroundColor = 'blue';
