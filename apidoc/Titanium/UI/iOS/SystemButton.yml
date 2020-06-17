@@ -11,9 +11,11 @@ description: |
     namespace when assigning a value to the `<Button>` element's `systemButton` attribute, 
     for example:
 
-        <Button systemButton="CAMERA"/>
-        <!-- Instead of -->
-        <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
+    ``` xml
+    <Button systemButton="CAMERA"/>
+    <!-- Instead of -->
+    <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
+    ```
 
     A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
     create standard iOS buttons that can be used in other places, including table view rows.
@@ -26,7 +28,6 @@ description: |
 
     See Apple's 
     [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/) in the iOS Developer Library for details on the proper usage of iOS standard buttons and icons.
-
 extends: Titanium.Proxy
 since: "5.4.0"
 platforms: [iphone, ipad]

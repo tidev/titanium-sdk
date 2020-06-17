@@ -6,7 +6,6 @@ summary: |
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
-
 methods:
   - name: createLivePhotoBadge
     summary: |

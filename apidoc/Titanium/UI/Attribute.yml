@@ -5,10 +5,8 @@ description: |
     Attributes are added to the <Titanium.UI.AttributedString> object to create
     styled text. The attribute is a JavaScript Object containing three properties:
     `type`, `value` and `range`.
-
 platforms: [iphone, ipad, android]
 since: "3.6.0"
-
 properties:
   - name: type
     summary: Attribute to apply to the text.
@@ -38,12 +36,13 @@ properties:
         The `value` parameter depends on the `type` parameter. For example, to
         use the foreground color on the text you would use <Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR>
         for the `type` and a color value for the `value`:
-
-            {
-                type: Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                value: '#DDD',
-                range: [0, 100]
-            }
+        ``` js
+        {
+            type: Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
+            value: '#DDD',
+            range: [0, 100]
+        }
+        ```
 
         On iOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>,
         you must use one or more of these constants:
@@ -60,12 +59,13 @@ properties:
           * <Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD>
 
         These can be combined:
-
-            {
-                type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                value: Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE | Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH,
-                range: [0, 100]
-            }
+        ``` js
+        {
+            type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
+            value: Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE | Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH,
+            range: [0, 100]
+        }
+        ```
 
         On iOS, if you use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>, you must use one or more of
         these constants:
@@ -80,24 +80,26 @@ properties:
 
         On iOS, if you use the <Titanium.UI.ATTRIBUTE_SHADOW>, the `value` must be a JavaScript object containing
         any of the `offset`, `blurRadius` or `color` properties:
-
-            {
-                offset: {
-                    width: 10,
-                    height: 10
-                },
-                blurRadius: 10,
-                color: 'red'
-            }
+        ``` js
+        {
+            offset: {
+                width: 10,
+                height: 10
+            },
+            blurRadius: 10,
+            color: 'red'
+        }
+        ```
 
         On IOS, if you use the <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE>, the `value` must be ParagraphAttribute. 
         E.g:
-
-            {
-                minimumLineHeight: 10.0,
-                tailIndent: 5,
-                lineBreakMode: Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
-            }
+        ``` js
+        {
+            minimumLineHeight: 10.0,
+            tailIndent: 5,
+            lineBreakMode: Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+        }
+        ```
 
         On iOS, if you use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>, you must use the <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE> constant.
 

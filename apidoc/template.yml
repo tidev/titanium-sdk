@@ -15,7 +15,7 @@ methods:
     summary: A method
     description: A long-format description of this property.
 events:
-  - name: exampleEvent
+  - name: exampleevent
     summary: An event
     description: A long-format description of this property.
     properties:

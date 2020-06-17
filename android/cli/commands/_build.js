@@ -3551,10 +3551,9 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 
 	// Choose app theme to be used by all activities depending on following "tiapp.xml" settings.
 	let appThemeName = '@style/Theme.AppCompat';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		if (this.tiapp['navbar-hidden']) {
-			appThemeName += '.NoTitleBar';
-		} else {
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] || this.tiapp['navbar-hidden']) {
+		appThemeName += '.NoTitleBar';
+		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			appThemeName += '.Fullscreen';
 		}
 	}

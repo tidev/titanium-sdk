@@ -34,9 +34,11 @@ description: |
     pass an optional <MatrixCreationDict> dictionary to the method to initialize the
     matrix. For example, the following creates a new matrix with a 45 degree rotation.
 
-        var m = Ti.UI.create2DMatrix({
-            rotate: 45
-        });
+    ``` js
+    var m = Ti.UI.create2DMatrix({
+        rotate: 45
+    });
+    ```
 
     If you pass no arguments, `create2DMatrix` returns an identity matrix.
 
@@ -116,11 +118,9 @@ methods:
 
         The resulting object cannot be expressed as an affine transform, but can be used with the
         <Titanium.UI.Animation.transform> property to specify a rotation animation.
-
     returns:
         type: Titanium.UI.2DMatrix
     parameters:
-
       - name: angle
         summary: |
             Angle to rotate to, in degrees. On Android, if `toAngle` is specified, this specifies
@@ -158,7 +158,6 @@ methods:
     returns:
         type: Titanium.UI.2DMatrix
     parameters:
-
       - name: sx
         summary: |
             Horizontal scaling factor. If `toSx` and `toSy` are specified,
@@ -187,7 +186,6 @@ methods:
         type: Number
         optional: true
 
-
   - name: translate
     summary: Returns a matrix constructed by applying a translation transform to this matrix.
     returns:
@@ -199,6 +197,7 @@ methods:
       - name: ty
         summary: Vertical component of the translation.
         type: Number
+
 properties:
   - name: a
     summary: The entry at position [1,1] in the matrix.
@@ -230,34 +229,36 @@ examples:
     example: |
         The following uses a 2D matrix to translate a label in the y direction.
 
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'white'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white'
+        });
 
-            var label = Ti.UI.createLabel({
-              font:{fontSize:50},
-              text:'Titanium',
-              textAlign:'center',
-              top: 100
-            });
-            win.add(label);
+        var label = Ti.UI.createLabel({
+          font:{fontSize:50},
+          text:'Titanium',
+          textAlign:'center',
+          top: 100
+        });
+        win.add(label);
 
-            var button = Ti.UI.createButton({
-              title:'Animate',
-              bottom:20,
-              width:200, height:40
-            });
-            win.add(button);
+        var button = Ti.UI.createButton({
+          title:'Animate',
+          bottom:20,
+          width:200, height:40
+        });
+        win.add(button);
 
-            button.addEventListener('click', function(){
-              var t1 = Ti.UI.create2DMatrix();
-              t1 = t1.translate(0, 300);
-              var a1 = Ti.UI.createAnimation();
-              a1.transform = t1;
-              a1.duration = 800;
-              label.animate(a1);
-            });
-            win.open();
+        button.addEventListener('click', function(){
+          var t1 = Ti.UI.create2DMatrix();
+          t1 = t1.translate(0, 300);
+          var a1 = Ti.UI.createAnimation();
+          a1.transform = t1;
+          a1.duration = 800;
+          label.animate(a1);
+        });
+        win.open();
+        ```
 
 ---
 name: MatrixCreationDict

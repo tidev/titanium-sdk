@@ -111,21 +111,22 @@ description: |
     In Titanium SDK, to support this, we have the <Titanium.Android.requestPermissions> method. It is used to
     request any permission you may need. An example of using it is shown below:
 
-        var permissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE', 'android.permission.WRITE_EXTERNAL_STORAGE' ];
-        Ti.Android.requestPermissions(permissions, function (e) {
-            if (e.success) {
-                Ti.API.info('SUCCESS');
-            } else {
-                Ti.API.info('ERROR: ' + e.error);
-            }
-        });
+    ``` js
+    var permissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE', 'android.permission.WRITE_EXTERNAL_STORAGE' ];
+    Ti.Android.requestPermissions(permissions, function (e) {
+        if (e.success) {
+            Ti.API.info('SUCCESS');
+        } else {
+            Ti.API.info('ERROR: ' + e.error);
+        }
+    });
+    ```
 
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
 
 methods:
-
   - name: createIntentChooser
     summary: |
         Creates an activity chooser intent, used to allow the user to select a target activity
@@ -158,15 +159,17 @@ methods:
         example: |
             The following example uses an activity chooser to send a plain text message.
 
-                var intent = Ti.Android.createIntent( {
-                    action: Ti.Android.ACTION_SEND,
-                    type: 'text/plain'
-                });
-                intent.putExtra(Ti.Android.EXTRA_SUBJECT, 'This is the subject.');
-                intent.putExtra(Ti.Android.EXTRA_TEXT, 'This is some text to send.')
+            ``` js
+            var intent = Ti.Android.createIntent( {
+                action: Ti.Android.ACTION_SEND,
+                type: 'text/plain'
+            });
+            intent.putExtra(Ti.Android.EXTRA_SUBJECT, 'This is the subject.');
+            intent.putExtra(Ti.Android.EXTRA_TEXT, 'This is some text to send.')
 
-                var chooser = Ti.Android.createIntentChooser(intent, 'Send Message');
-                var activity = Ti.Android.currentActivity.startActivity(chooser);
+            var chooser = Ti.Android.createIntentChooser(intent, 'Send Message');
+            var activity = Ti.Android.currentActivity.startActivity(chooser);
+            ```
 
   - name: createPendingIntent
     summary: |
@@ -399,13 +402,15 @@ properties:
         The application needs to also set the `android.permission.RECEIVE_BOOT_COMPLETED` permission
         in the Android manifest section of the `tiapp.xml` file.
 
-            <ti:app>
-                <android>
-                    <manifest>
-                        <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-                    </manifest>
-                </android>
-            </ti:app>
+        ``` xml
+        <ti:app>
+            <android>
+                <manifest>
+                    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+                </manifest>
+            </android>
+        </ti:app>
+        ```
 
         See [Intent.ACTION_BOOT_COMPLETED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_BOOT_COMPLETED).
     type: String
@@ -747,13 +752,15 @@ properties:
         The application needs to also set the `android.permission.NEW_OUTGOING_CALL` permission
         in the Android manifest section of the `tiapp.xml` file.
 
-            <ti:app>
-                <android>
-                    <manifest>
-                        <uses-permission android:name="android.permission.NEW_OUTGOING_CALL"/>
-                    </manifest>
-                </android>
-            </ti:app>
+        ``` xml
+        <ti:app>
+            <android>
+                <manifest>
+                    <uses-permission android:name="android.permission.NEW_OUTGOING_CALL"/>
+                </manifest>
+            </android>
+        </ti:app>
+        ```
 
         See [Intent.ACTION_NEW_OUTGOING_CALL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_NEW_OUTGOING_CALL).
     type: String

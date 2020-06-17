@@ -37,60 +37,65 @@ description: |
     in the controller code.
 
     `app/lib/foo.js`:
+    ``` js
+    // For a classic Titanium project, save the file to 'Resources/foo.js'
+    var data = {};
+    function setData (obj){
+        data = obj;
+    }
+    function getData () {
+        return data;
+    }
 
-        // For a classic Titanium project, save the file to 'Resources/foo.js'
-        var data = {};
-        function setData (obj){
-            data = obj;
-        }
-        function getData () {
-            return data;
-        }
-
-        // The special variable 'exports' exposes the functions as public
-        exports.setData = setData;
-        exports.getData = getData;
+    // The special variable 'exports' exposes the functions as public
+    exports.setData = setData;
+    exports.getData = getData;
+    ```
 
     `app/views/index.xml`:
-
-        <Alloy>
-            <Window backgroundColor="blue">
-                <Label onClick="openWindow">Open the Red Window!</Label>
-            </Window>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <Window backgroundColor="blue">
+            <Label onClick="openWindow">Open the Red Window!</Label>
+        </Window>
+    </Alloy>
+    ```
 
     `app/controllers/index.js`:
+    ``` js
+    var foo = require('foo');
+    foo.setData({foobar: 42});
 
-        var foo = require('foo');
-        foo.setData({foobar: 42});
+    function openWindow () {
+        var win2 = Alloy.createController('win2').getView();
+        // For Alloy projects, you can pass context
+        // to the controller in the Alloy.createController method.
+        // var win2 = Alloy.createController('win2', {foobar: 42}).getView();
+        win2.open();
+    }
 
-        function openWindow () {
-            var win2 = Alloy.createController('win2').getView();
-            // For Alloy projects, you can pass context
-            // to the controller in the Alloy.createController method.
-            // var win2 = Alloy.createController('win2', {foobar: 42}).getView();
-            win2.open();
-        }
-
-        $.index.open();
+    $.index.open();
+    ```
 
     `app/views/win2.xml`:
-
-        <Alloy>
-            <Window backgroundColor="red">
-                <Label id="label">I am a red window.</Label>
-            </Window>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <Window backgroundColor="red">
+            <Label id="label">I am a red window.</Label>
+        </Window>
+    </Alloy>
+    ```
 
     `app/controllers/win2.js`:
+    ``` js
+    var foo = require('foo');
+    $.label.text = foo.getData().foobar;
 
-        var foo = require('foo');
-        $.label.text = foo.getData().foobar;
-
-        // For Alloy projects, you can also pass in context
-        // with the Alloy.createController method and retrieve
-        // it in the controller code.
-        // $.label.text = $.args.foobar;
+    // For Alloy projects, you can also pass in context
+    // with the Alloy.createController method and retrieve
+    // it in the controller code.
+    // $.label.text = $.args.foobar;
+    ```
 
     ### Modal Windows
 
@@ -162,18 +167,19 @@ description: |
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var win = Ti.UI.createNavigationWindow({
-            window: Ti.UI.createWindow({
-                title: "Modal Window"
-            })
-        });
+    ``` js
+    var win = Ti.UI.createNavigationWindow({
+        window: Ti.UI.createWindow({
+            title: "Modal Window"
+        })
+    });
 
-        win.open({
-            modal: true,
-            modalTransitionStyle: Ti.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
-            modalStyle: Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET
-        });
-
+    win.open({
+        modal: true,
+        modalTransitionStyle: Ti.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+        modalStyle: Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET
+    });
+    ```
 
     ### Animations
 
@@ -186,32 +192,34 @@ description: |
     back to it's original size at 100%. This gives the bounce effect during animation.
 
     `app/views/index.xml`:
-
-        <Alloy>
-            <Window backgroundColor="blue" onPostlayout="animateOpen" >
-                <Label color="orange">Animated Window</Label>
-            </Window>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <Window backgroundColor="blue" onPostlayout="animateOpen" >
+            <Label color="orange">Animated Window</Label>
+        </Window>
+    </Alloy>
+    ```
 
     `app/controllers/index.js`:
+    ``` js
+    $.index.transform = Titanium.UI.createMatrix2D().scale(0);
+    $.index.open();
 
-        $.index.transform = Titanium.UI.createMatrix2D().scale(0);
-        $.index.open();
-
-        var a = Ti.UI.createAnimation({
-            transform : Ti.UI.createMatrix2D().scale(1.1),
-            duration : 2000,
+    var a = Ti.UI.createAnimation({
+        transform : Ti.UI.createMatrix2D().scale(1.1),
+        duration : 2000,
+    });
+    a.addEventListener('complete', function() {
+        $.index.animate({
+            transform: Ti.UI.createMatrix2D(),
+            duration: 200
         });
-        a.addEventListener('complete', function() {
-            $.index.animate({
-                transform: Ti.UI.createMatrix2D(),
-                duration: 200
-            });
-        });
+    });
 
-        function animateOpen() {
-            $.index.animate(a);
-        }
+    function animateOpen() {
+        $.index.animate(a);
+    }
+    ```
 
     Note that to animate an Android window while you open it, you need to follow a specific
     procedure which is explained below in "Window Transitions in Android".
@@ -225,29 +233,32 @@ description: |
     For example, to flip right-to-left between two windows:
 
     `app/views/index.xml`:
-
-        <Alloy>
-            <Window backgroundColor="blue" onOpen="animateOpen">
-                <Label id="label">I am a blue window!</Label>
-            </Window>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <Window backgroundColor="blue" onOpen="animateOpen">
+            <Label id="label">I am a blue window!</Label>
+        </Window>
+    </Alloy>
+    ```
 
     `app/controllers/index.js`
-
-        function animateOpen() {
-            Alloy.createController('win2').getView().open({
-                transition: Ti.UI.iOS.AnimationStyle.FLIP_FROM_LEFT
-            });
-        }
-        $.index.open();
+    ``` js
+    function animateOpen() {
+        Alloy.createController('win2').getView().open({
+            transition: Ti.UI.iOS.AnimationStyle.FLIP_FROM_LEFT
+        });
+    }
+    $.index.open();
+    ```
 
     `app/views/win2.xml`:
-
-        <Alloy>
-            <Window backgroundColor="red">
-                <Label id="label">I am a red window!</Label>
-            </Window>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <Window backgroundColor="red">
+            <Label id="label">I am a red window!</Label>
+        </Window>
+    </Alloy>
+    ```
 
     In the above example, the red window will be animated from the right-to-left over the blue window.
 
@@ -262,71 +273,75 @@ description: |
     making them transparent:
 
     `app/views/index.xml`:
-
-        <Alloy>
-            <NavigationWindow platform="ios">
-                <Window id="redwin" title="Red Window" backgroundColor="red">
-                    <Button id="button" onClick="openBlueWindow">Open Blue Window</Button>
-                </Window>
-            </NavigationWindow>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <NavigationWindow platform="ios">
+            <Window id="redwin" title="Red Window" backgroundColor="red">
+                <Button id="button" onClick="openBlueWindow">Open Blue Window</Button>
+            </Window>
+        </NavigationWindow>
+    </Alloy>
+    ```
 
     `app/controllers/index.js`:
+    ``` js
+    function openBlueWindow(e) {
+        var bluewin = Alloy.createController('bluewin').getView();
+        $.index.openWindow(bluewin);
+    }
 
-        function openBlueWindow(e) {
-            var bluewin = Alloy.createController('bluewin').getView();
-            $.index.openWindow(bluewin);
-        }
-
-        $.redwin.transitionAnimation = Ti.UI.iOS.createTransitionAnimation({
+    $.redwin.transitionAnimation = Ti.UI.iOS.createTransitionAnimation({
+        duration: 300,
+        // The show transition makes the window opaque and rotates it correctly
+        transitionTo: {
+            opacity: 1,
             duration: 300,
-            // The show transition makes the window opaque and rotates it correctly
-            transitionTo: {
-                opacity: 1,
-                duration: 300,
-                transform: Ti.UI.createMatrix2D()
-            },
-            // The hide transition makes the window transparent and rotates it upside down
-            transitionFrom: {
-                opacity: 0,
-                duration: 300 / 2,
-                transform: Ti.UI.createMatrix2D().rotate(180),
-            }
-        });
+            transform: Ti.UI.createMatrix2D()
+        },
+        // The hide transition makes the window transparent and rotates it upside down
+        transitionFrom: {
+            opacity: 0,
+            duration: 300 / 2,
+            transform: Ti.UI.createMatrix2D().rotate(180),
+        }
+    });
 
-        $.index.open();
+    $.index.open();
+    ```
 
     `app/views/bluewin.xml`:
-
-        <Alloy>
-            <Window title="Blue Window" backgroundColor="blue" opacity="0">
-                <Button onClick="closeWindow">Close Window</Button>
-            </Window>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <Window title="Blue Window" backgroundColor="blue" opacity="0">
+            <Button onClick="closeWindow">Close Window</Button>
+        </Window>
+    </Alloy>
+    ```
 
     `app/controllers/bluewin.js`:
+    ``` js
+    function closeWindow(){
+        $.bluewin.close();
+    }
 
-        function closeWindow(){
-            $.bluewin.close();
-        }
-
-        $.bluewin.transitionAnimation = Ti.UI.iOS.createTransitionAnimation({
+    $.bluewin.transitionAnimation = Ti.UI.iOS.createTransitionAnimation({
+        duration: 300,
+        // The show transition makes the window opaque and rotates it correctly
+        transitionTo: {
+            opacity: 1,
             duration: 300,
-            // The show transition makes the window opaque and rotates it correctly
-            transitionTo: {
-                opacity: 1,
-                duration: 300,
-                transform: Ti.UI.createMatrix2D()
-            },
-            // The hide transition makes the window transparent and rotates it upside down
-            transitionFrom: {
-                opacity: 0,
-                duration: 300 / 2,
-                transform: Ti.UI.createMatrix2D().rotate(180),
-            }
-        });
+            transform: Ti.UI.createMatrix2D()
+        },
+        // The hide transition makes the window transparent and rotates it upside down
+        transitionFrom: {
+            opacity: 0,
+            duration: 300 / 2,
+            transform: Ti.UI.createMatrix2D().rotate(180),
+        }
+    });
 
-        $.bluewin.transform = Ti.UI.createMatrix2D().rotate(180);
+    $.bluewin.transform = Ti.UI.createMatrix2D().rotate(180);
+    ```
 
     ### Android Platform Notes
 
@@ -349,11 +364,13 @@ description: |
     As an example, you may wish for the window that you are opening to fade in while the window
     you are leaving should fade out:
 
-        var win2 = Ti.UI.createWindow();
-        win2.open({
-            activityEnterAnimation: Ti.Android.R.anim.fade_in,
-            activityExitAnimation: Ti.Android.R.anim.fade_out
-        });
+    ``` js
+    var win2 = Ti.UI.createWindow();
+    win2.open({
+        activityEnterAnimation: Ti.Android.R.anim.fade_in,
+        activityExitAnimation: Ti.Android.R.anim.fade_out
+    });
+    ```
 
     See the official Android [R.anim](https://developer.android.com/reference/android/R.anim.html) documentation
     for information about built-in animations.
@@ -379,26 +396,28 @@ description: |
 
     For example to transition a title label in window A to a title label in window B.
 
-        // Create label in window A with a unique transitionName.
-        var titleInWinA = new Ti.UI.createLabel({
-            text:'Top 10 pics from Mars!',
-            left:70, top: 6,
-            width:200, height: 30,
-            transitionName: 'title'
-        });
-        windowA.add(titleInWinA);
+    ``` js
+    // Create label in window A with a unique transitionName.
+    var titleInWinA = new Ti.UI.createLabel({
+        text:'Top 10 pics from Mars!',
+        left:70, top: 6,
+        width:200, height: 30,
+        transitionName: 'title'
+    });
+    windowA.add(titleInWinA);
 
-        // Creating label in window B, note that the same transitionName is used.
-        var titleInWinB = new Ti.UI.createLabel({
-            text:'Top 10 pics from Mars!',
-            left:50, top: 10,
-            width:200, height: 30,
-            transitionName: 'title'
-        });
+    // Creating label in window B, note that the same transitionName is used.
+    var titleInWinB = new Ti.UI.createLabel({
+        text:'Top 10 pics from Mars!',
+        left:50, top: 10,
+        width:200, height: 30,
+        transitionName: 'title'
+    });
 
-        // Before opening window B specify the common UI elements.
-        windowB.addSharedElement(titleInWinA, "title");
-        windowB.open();
+    // Before opening window B specify the common UI elements.
+    windowB.addSharedElement(titleInWinA, "title");
+    windowB.open();
+    ```
 
     Further you can use `activityEnterTransition`, `activityExitTransition`, `activityReenterTransition`
     and `activityReturnTransition` to customize the way activities transition into the scene. These are intended
@@ -420,10 +439,12 @@ description: |
     To indicate that a particular window should cause an application to exit when the back
     button is pressed, pass `exitOnClose: true` as one of the creation arguments, as shown here:
 
-        var win = Titanium.UI.createWindow({
-          title: 'My Root Window',
-          exitOnClose: true
-        });
+    ``` js
+    var win = Titanium.UI.createWindow({
+      title: 'My Root Window',
+      exitOnClose: true
+    });
+    ```
 
     Starting with Release 3.2.0, the root window's `exitOnClose` property is set to `true` by
     default.  Prior to Release 3.2.0, the default value of the property was `false` for all windows.
@@ -651,14 +672,15 @@ events:
         As of 5.0.0, you can create an event that can prevent accidental closure of the
         app due to hitting the back button to many times.
 
-            var win = Ti.UI.createWindow(
-                { // some code... }
-            );
-            // more code
-            win.addEventListener("windows:back", function()
-                { alert("Back pressed"); }
-            );
-
+        ``` js
+        var win = Ti.UI.createWindow(
+            { // some code... }
+        );
+        // more code
+        win.addEventListener("windows:back", function()
+            { alert("Back pressed"); }
+        );
+        ```
     since: '3.0.0'
 
   - name: androidcamera
@@ -1029,18 +1051,19 @@ properties:
     description: |
         In an Alloy application you can specify this property with a `<LeftNavButton>` element inside the
         `<Window>` element, for example:
-
-            <Alloy>
-                <TabGroup>
-                    <Tab>
-                        <Window class="container">
-                            <LeftNavButton platform=ios>
-                                <Button title="Back" onClick="closeWindow" />
-                            </LeftNavButton>
-                        </Window>
-                    </Tab>
-                </TabGroup>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TabGroup>
+                <Tab>
+                    <Window class="container">
+                        <LeftNavButton platform=ios>
+                            <Button title="Back" onClick="closeWindow" />
+                        </LeftNavButton>
+                    </Window>
+                </Tab>
+            </TabGroup>
+        </Alloy>
+        ```
     platforms: [iphone, ipad]
     type: Titanium.UI.View
 
@@ -1080,8 +1103,10 @@ properties:
         he methods <Titanium.UI.Window.showNavBar> and <Titanium.UI.Window.hideNavBar> with the second parameter
         to specify the animation:
 
-            // "myWindow" is a Ti.UI.Window inside a Ti.UI.NavigationWindow
-            myWindow.hideNavBar(true, {animated: false});
+        ``` js
+        // "myWindow" is a Ti.UI.Window inside a Ti.UI.NavigationWindow
+        myWindow.hideNavBar(true, {animated: false});
+        ```
 
         #### Android Platform Notes
 
@@ -1262,18 +1287,19 @@ properties:
         In an Alloy application you can specify this property with a `<RightNavButton>` element in the
         `<Window>` element, for example:
 
-            <Alloy>
-                <TabGroup>
-                    <Tab>
-                        <Window class="container">
-                            <RightNavButton platform=ios>
-                                <Button title="Back" onClick="closeWindow" />
-                            </RightNavButton>
-                        </Window>
-                    </Tab>
-                </TabGroup>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <TabGroup>
+                <Tab>
+                    <Window class="container">
+                        <RightNavButton platform=ios>
+                            <Button title="Back" onClick="closeWindow" />
+                        </RightNavButton>
+                    </Window>
+                </Tab>
+            </TabGroup>
+        </Alloy>
+        ```
     platforms: [iphone, ipad]
     type: Titanium.UI.View
 
@@ -1302,28 +1328,29 @@ properties:
 
         Below is an example on how to set up a safe-area view container using this property.
 
-            // Set up a window with a translucent top status bar and translucent nav bar.
-            // This will only work on Android 4.4 and newer OS versions.
-            var win = Ti.UI.createWindow({
-                extendSafeArea: true,
-                theme: 'Theme.AppCompat.NoTitleBar',
-                windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION | Ti.UI.Android.FLAG_TRANSLUCENT_STATUS
-            });
+        ``` js
+        // Set up a window with a translucent top status bar and translucent nav bar.
+        // This will only work on Android 4.4 and newer OS versions.
+        var win = Ti.UI.createWindow({
+            extendSafeArea: true,
+            theme: 'Theme.AppCompat.NoTitleBar',
+            windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION | Ti.UI.Android.FLAG_TRANSLUCENT_STATUS
+        });
 
-            // Set up a safe-area view to be layed out between the system insets.
-            // You should use this as a container for child views.
-            var safeAreaView = Ti.UI.createView({
-                backgroundColor: 'green'
-            });
-            win.add(safeAreaView);
-            win.addEventListener('postlayout', function() {
-                // Update the safe-area view's dimensions after every 'postlayout' event.
-                safeAreaView.applyProperties(win.safeAreaPadding);
-            });
+        // Set up a safe-area view to be layed out between the system insets.
+        // You should use this as a container for child views.
+        var safeAreaView = Ti.UI.createView({
+            backgroundColor: 'green'
+        });
+        win.add(safeAreaView);
+        win.addEventListener('postlayout', function() {
+            // Update the safe-area view's dimensions after every 'postlayout' event.
+            safeAreaView.applyProperties(win.safeAreaPadding);
+        });
 
-            // Open the window.
-            win.open();
-
+        // Open the window.
+        win.open();
+        ```
     type: Padding
     permission: read-only
     since: {android: "7.5.0", iphone: "8.0.0", ipad: "8.0.0"}
@@ -1429,19 +1456,21 @@ properties:
         In an Alloy application you can specify this property using a `<TitleControl>` element inside
         `<Window>`, for example:
 
-            <Alloy>
-                <Window>
-                    <RightNavButton>
-                        <Button title="Back" />
-                    </RightNavButton>
-                    <LeftNavButton>
-                        <Button title="Back" />
-                    </LeftNavButton>
-                    <TitleControl>
-                        <View backgroundColor="blue" height="100%" width="100%"></View>
-                    </TitleControl>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <RightNavButton>
+                    <Button title="Back" />
+                </RightNavButton>
+                <LeftNavButton>
+                    <Button title="Back" />
+                </LeftNavButton>
+                <TitleControl>
+                    <View backgroundColor="blue" height="100%" width="100%"></View>
+                </TitleControl>
+            </Window>
+        </Alloy>
+        ```
     platforms: [iphone, ipad]
     type: Titanium.UI.View
 
@@ -1480,20 +1509,21 @@ properties:
         Since Alloy 1.6.0, you can specify this property using the `<WindowToolbar>` element as a
         child of a `<Window>` element, for example:
 
-            <Alloy>
-                <NavigationWindow>
-                    <Window>
-                        <WindowToolbar>
-                            <Button id="send" title="Send" style="Ti.UI.iOS.SystemButtonStyle.DONE" />
-                            <FlexSpace/>
-                            <Button id="camera" systemButton="Ti.UI.iOS.SystemButton.CAMERA" />
-                            <FlexSpace/>
-                            <Button id="cancel" systemButton="Ti.UI.iOS.SystemButton.CANCEL" />
-                        </WindowToolbar>
-                    </Window>
-                </NavigationWindow>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <NavigationWindow>
+                <Window>
+                    <WindowToolbar>
+                        <Button id="send" title="Send" style="Ti.UI.iOS.SystemButtonStyle.DONE" />
+                        <FlexSpace/>
+                        <Button id="camera" systemButton="Ti.UI.iOS.SystemButton.CAMERA" />
+                        <FlexSpace/>
+                        <Button id="cancel" systemButton="Ti.UI.iOS.SystemButton.CANCEL" />
+                    </WindowToolbar>
+                </Window>
+            </NavigationWindow>
+        </Alloy>
+        ```
     platforms: [iphone, ipad]
     type: Array<Titanium.UI.View>
 
@@ -1546,10 +1576,8 @@ properties:
         When loading JavaScript files using this property, the special property
         <Titanium.UI.currentWindow> is available inside a multi-context
         application that points to the JavaScript instance by reference in the global context.
-
     type: String
     availability: creation
-
 
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.
@@ -1597,35 +1625,36 @@ properties:
             Create a white window and respond to a click of it to open a red window containing a
             text area. Show the software keyboard automatically as the red window opens.
 
-                var win1 = Ti.UI.createWindow({
-                  backgroundColor: 'white',
-                  exitOnClose: true,
-                  fullscreen: false,
-                  title: 'Click window to test'
-                });
+            ``` js
+            var win1 = Ti.UI.createWindow({
+              backgroundColor: 'white',
+              exitOnClose: true,
+              fullscreen: false,
+              title: 'Click window to test'
+            });
 
-                // use bitwise OR to combine two settings for the windowSoftInputMode property
-                var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
+            // use bitwise OR to combine two settings for the windowSoftInputMode property
+            var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
 
-                win1.addEventListener('click', function(){
-                var win2 = Ti.UI.createWindow({
-                  backgroundColor: 'red',
-                  fullscreen: false,
-                  windowSoftInputMode: softInput
-                });
+            win1.addEventListener('click', function(){
+            var win2 = Ti.UI.createWindow({
+              backgroundColor: 'red',
+              fullscreen: false,
+              windowSoftInputMode: softInput
+            });
 
-                var textArea = Ti.UI.createTextArea({
-                  value : 'I am a textarea',
-                  height : 200,
-                  width : 300,
-                  top : 200
-                });
-                win2.add(textArea);
-                win2.open();
-                });
+            var textArea = Ti.UI.createTextArea({
+              value : 'I am a textarea',
+              height : 200,
+              width : 300,
+              top : 200
+            });
+            win2.add(textArea);
+            win2.open();
+            });
 
-                win1.open();
-
+            win1.open();
+            ```
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |
@@ -1781,18 +1810,21 @@ examples:
     example: |
         Create a fullscreen window with a red background.
 
-            var window = Titanium.UI.createWindow({
-               backgroundColor:'red'
-            });
-            window.open({fullscreen:true});
-
+        ``` js
+        var window = Titanium.UI.createWindow({
+            backgroundColor:'red'
+        });
+        window.open({fullscreen:true});
+        ```
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <Window id="win" backgroundColor="red" fullscreen="true" />
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="red" fullscreen="true" />
+        </Alloy>
+        ```
 
 ---
 name: openWindowParams
@@ -1928,12 +1960,13 @@ properties:
     examples:
       - title: Sliding in a new Window
         example: |
-                var win2 = Ti.UI.createWindow({fullscreen:false});
-                win2.open({
-                    activityEnterAnimation: Ti.Android.R.anim.slide_in_left,
-                    activityExitAnimation: Ti.Android.R.anim.slide_out_right
-                });
-
+            ``` js
+            var win2 = Ti.UI.createWindow({fullscreen:false});
+            win2.open({
+                activityEnterAnimation: Ti.Android.R.anim.slide_in_left,
+                activityExitAnimation: Ti.Android.R.anim.slide_out_right
+            });
+            ```
   - name: activityExitAnimation
     summary: Animation resource to run on the activity that is being put in background
         as a window is being opened above it.
@@ -1944,14 +1977,13 @@ properties:
     type: Number
     platforms: [android]
     since: "3.1.0"
+
 ---
 name: windowToolbarParam
 summary: Dictionary of options for the <Titanium.UI.Window.setToolbar> method.
 since: 3.1.3
 platforms: [iphone,ipad]
-
 properties:
-
   - name: translucent
     summary: Defines if the toolbar is translucent.
     type: Boolean
@@ -2018,10 +2050,12 @@ properties:
     examples:
       - title: Fading out a Window
         example: |
-                win2.close({
-                    activityEnterAnimation: Ti.Android.R.anim.fade_in,
-                    activityExitAnimation: Ti.Android.R.anim.fade_out
-                });
+            ``` js
+            win2.close({
+                activityEnterAnimation: Ti.Android.R.anim.fade_in,
+                activityExitAnimation: Ti.Android.R.anim.fade_out
+            });
+            ```
 
 ---
 name: titleAttributesParams
@@ -2031,7 +2065,7 @@ platforms: [iphone, ipad]
 examples:
   - title: Simple Example
     example: |
-
+        ``` js
         var win = Ti.UI.createWindow({
             title: 'Title',
             barColor: 'yellow',
@@ -2043,9 +2077,8 @@ examples:
         });
         var nav = Ti.UI.createNavigationWindow({window: win});
         nav.open();
-
+        ```
 properties:
-
   - name: color
     summary: Color of the window title, as a color name or hex triplet.
     description: |
