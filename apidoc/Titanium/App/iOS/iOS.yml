@@ -1226,7 +1226,7 @@ events:
         Fired to indicate that a [urlSession](Modules.URLSession) task finished transferring data.
         Available only on iOS 7 and later.
     description: |
-        This event only needs to be used if your app is using the `urlSession` module to download data.
+        This event only needs to be used if your app is using the `urlSession` module to download or upload data.
 
         Server errors are not reported through the error parameter. The only error events sent
         through the error parameter are client-side errors, such as being unable to resolve
@@ -1252,15 +1252,22 @@ events:
 
       - name: message
         summary: A string containing the localized description of the error.
+        description: |
+            This property does not exhist if errorCode is 0, which means there is no error.
         type: String
 
       - name: responseText
-        summary: The response text for upload tasks (since SDK 7.2.0).
+        summary: The response text for [task](Modules.URLSession.task) and [uploadTask](Modules.URLSession.uploadTask).
+        description: |
+            This property does not exhist for download task. For download task response,
+            use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.
         type: String
+        since: "7.2.0"
 
       - name: statusCode
-        summary: The response status code for upload tasks (since SDK 7.2.0).
+        summary: The response status code for tasks.
         type: Number
+        since: "7.2.0"
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
