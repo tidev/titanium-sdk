@@ -92,7 +92,7 @@
     "ioslib": "^1.7.20",
     "liveview": "^1.5.1",
     "markdown": "0.5.0",
-    "moment": "^2.26.0",
+    "moment": "^2.27.0",
     "node-appc": "^1.0.1",
     "node-titanium-sdk": "^5.1.1",
     "node-uuid": "1.4.8",
