@@ -277,7 +277,7 @@ examples:
 
   - title: Dialog with 2 Options and 1 Button on Android and 3 Options on iOS
     example: |
-        `` js
+        ``` js
         var win = Ti.UI.createWindow({
           title: 'Click window to test OptionDialog',
           backgroundColor: 'white'
