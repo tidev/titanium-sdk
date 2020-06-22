@@ -107,7 +107,7 @@
     "xmldom": "^0.3.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
+    "@commitlint/cli": "^9.0.1",
     "@commitlint/config-conventional": "^9.0.1",
     "@seadub/clang-format-lint": "0.0.2",
     "@seadub/danger-plugin-dependencies": "0.1.0",
