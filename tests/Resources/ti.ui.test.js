@@ -9,29 +9,16 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
-const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI', function () {
-	let win;
-
+	this.slow(2000);
 	this.timeout(5000);
 
-	afterEach(function (done) {
-		if (win) {
-			// If `win` is already closed, we're done.
-			let t = setTimeout(function () {
-				if (win) {
-					win = null;
-					done();
-				}
-			}, 3000);
-
+	let win;
+	afterEach(done => { // fires after every test in sub-suites too...
+		if (win && !win.closed) {
 			win.addEventListener('close', function listener () {
-				clearTimeout(t);
-
-				if (win) {
-					win.removeEventListener('close', listener);
-				}
+				win.removeEventListener('close', listener);
 				win = null;
 				done();
 			});
@@ -231,8 +218,7 @@ describe('Titanium.UI', function () {
 	});
 
 	describe('Semantic Colors', () => {
-		const isIOS = (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
-		const isIOS13Plus = isIOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
+		const isIOS13Plus = OS_IOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
 
 		it('#fetchSemanticColor() with user colors', () => {
 			const semanticColors = require('./semantic.colors.json');
