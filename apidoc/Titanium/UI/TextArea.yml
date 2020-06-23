@@ -270,6 +270,13 @@ properties:
     type: Boolean
     default: false
 
+  - name: focused
+    summary: Determines whether this TextArea has focus.
+    type: Boolean
+    default: false
+    permission: read-only
+    since: "9.1.0"
+
   - name: font
     summary: Font to use for text.
     type: Font
