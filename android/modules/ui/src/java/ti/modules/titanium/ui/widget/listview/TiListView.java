@@ -38,6 +38,7 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.AbsListView;
@@ -76,7 +77,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 	public LayoutInflater inflater;
 	private int titleId;
 	private int dividerHeight;
-	private int scrollDamping = 5;
 	private ArrayList<Pair<Integer, Integer>> markers = new ArrayList<Pair<Integer, Integer>>();
 	private View headerView;
 	private View footerView;
@@ -405,6 +405,13 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 				_firstVisibleItem = firstVisibleItem;
 				_visibleItemCount = visibleItemCount;
 				int scrolledOffset = listView.getVerticalScrollOffset();
+
+				ViewConfiguration viewConfiguration = ViewConfiguration.get(activity);
+				int scrollDamping = 0;
+				if (viewConfiguration != null) {
+					scrollDamping = viewConfiguration.getScaledTouchSlop();
+				}
+
 				if (Math.abs(mInitialScroll - scrolledOffset) > scrollDamping) {
 					if (scrolledOffset > mInitialScroll) {
 						scrollUp = 1;
@@ -648,10 +655,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			this.listView.setTouchScrollable(TiConvert.toBoolean(d.get(TiC.PROPERTY_CAN_SCROLL), true));
 		}
 
-		if (d.containsKeyAndNotNull(TiC.PROPERTY_SCROLL_DAMPING)) {
-			scrollDamping = TiConvert.toInt(d.get(TiC.PROPERTY_SCROLL_DAMPING), 0);
-		}
-
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_FAST_SCROLL)) {
 			listView.setFastScrollEnabled(TiConvert.toBoolean(d.get(TiC.PROPERTY_FAST_SCROLL), false));
 		}
@@ -810,8 +813,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 			this.listView.setTouchScrollable(TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_FAST_SCROLL)) {
 			listView.setFastScrollEnabled(TiConvert.toBoolean(newValue, false));
-		} else if (key.equals(TiC.PROPERTY_SCROLL_DAMPING)) {
-			scrollDamping = TiConvert.toInt(newValue, 0);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

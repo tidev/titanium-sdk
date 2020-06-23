@@ -899,15 +899,6 @@ properties:
     platforms: [android, iphone, ipad]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
-  - name: scrollDamping
-    summary: Minimum distance where a scoll direction change is detected.
-    description: |
-        A higher value will prevent the `direction` in the `scolling` event to change too quickly.
-    type: Number
-    platforms: [android]
-    default: 5
-    since: { android: "9.1.0" }
-
   - name: searchView
     summary: Search field to use for the list view.
     description: |
