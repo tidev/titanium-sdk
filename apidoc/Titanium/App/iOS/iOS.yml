@@ -1251,16 +1251,16 @@ events:
         type: Number
 
       - name: message
-        summary: A string containing the localized description of the error.
-        description: |
+        summary: |
+            A string containing the localized description of the error.
             This property does not exhist if errorCode is 0, which means there is no error.
         type: String
 
       - name: responseText
-        summary: The response text for [task](Modules.URLSession.task) and [uploadTask](Modules.URLSession.uploadTask).
-        description: |
+        summary: |
+            The response text for [task](Modules.URLSession.task) and [uploadTask](Modules.URLSession.uploadTask).
             This property does not exhist for download task. For download task response,
-            use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.
+            use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.            
         type: String
         since: "7.2.0"
 
