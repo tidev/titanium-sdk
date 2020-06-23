@@ -24,34 +24,36 @@ examples:
     example: |
         The following example shows how to use the [pump](Titanium.Stream.pump) method.
         
-            var pumpCallback = function(arg) {
-                if(arg.bytesProcessed == -1) {
-                    Ti.API.info("At end of stream.");
-                } else {
-                    Ti.API.info(String.format("Received %.0f bytes. Total: %.0f bytes.", 
-                                arg.bytesProcessed, arg.totalBytesProcessed));
-                    // do something useful with the data in arg.buffer
-                }
+        ``` js
+        var pumpCallback = function(arg) {
+            if(arg.bytesProcessed == -1) {
+                Ti.API.info("At end of stream.");
+            } else {
+                Ti.API.info(String.format("Received %.0f bytes. Total: %.0f bytes.", 
+                            arg.bytesProcessed, arg.totalBytesProcessed));
+                // do something useful with the data in arg.buffer
             }
-            Ti.Stream.pump(inputStream, pumpCallback, 1024);
+        }
+        Ti.Stream.pump(inputStream, pumpCallback, 1024);
+        ```
   - title: Write Stream to File
     example: |
         The following example uses the [writeStream](Titanium.Stream.writeStream) method
         to copy the contents of an input stream to a file. This can be used for any kind
         of input stream -- `BufferStream`, `FileStream`, or `Socket.TCP`.
         
-            var outFileStream = Ti.Filesystem.getFile('outfile.txt').open(Ti.Filesystem.MODE_WRITE);
-            
-            // writes all data from inputStream to outFileStream in chunks of 1024 bytes
-            var bytesWritten = Ti.Stream.writeStream(inputStream, outFileStream, 1024);
-            Ti.API.info('Wrote ' + bytesWritten + ' bytes, closing both streams.');
-            
-            inputStream.close();
-            outFileStream.close();
-
+        ``` js
+        var outFileStream = Ti.Filesystem.getFile('outfile.txt').open(Ti.Filesystem.MODE_WRITE);
+        
+        // writes all data from inputStream to outFileStream in chunks of 1024 bytes
+        var bytesWritten = Ti.Stream.writeStream(inputStream, outFileStream, 1024);
+        Ti.API.info('Wrote ' + bytesWritten + ' bytes, closing both streams.');
+        
+        inputStream.close();
+        outFileStream.close();
+        ```
 
 properties:
-
   - name: MODE_READ
     type: Number
     summary: |
@@ -92,7 +94,6 @@ methods:
         type: CreateStreamArgs
 
   - name: read
-
     summary: |
         Asynchronously reads data from an [IOStream](Titanium.IOStream) into a buffer.
     description: |
@@ -110,9 +111,7 @@ methods:
         * On Android, calls the callback with an error.
         
         If `offset` is past the last byte of the buffer, throws an exception.
-
     parameters:
-
       - name: sourceStream
         summary: Stream to read from.
         type: Titanium.IOStream
@@ -142,7 +141,6 @@ methods:
         type: Callback<ReadCallbackArgs>
 
   - name: readAll
-
     summary: Reads all data from the specified [IOStream](Titanium.IOStream).
     description: |
         Reads data from the stream, either synchronously or asynchronously.
@@ -156,9 +154,7 @@ methods:
         
         If the `buffer` and `resultsCallback` arguments are omitted, a new buffer is
         allocated and returned.
-        
     parameters:
-
       - name: sourceStream
         summary: Stream to read from.
         type: Titanium.IOStream
@@ -176,13 +172,11 @@ methods:
             If specified, `resultsCallback` must be specified as well.
         type: Callback<ReadCallbackArgs>
         optional: true
-
     returns:
       - type: Titanium.Buffer
       - type: void
 
   - name: write
-
     summary: Asynchronously writes data from a buffer to an [IOStream](Titanium.IOStream).
     description: |
         Data is read from the buffer and written to the stream. 
@@ -198,9 +192,7 @@ methods:
         * On iOS, an exception is thrown.
 
         * On Android, the callback is invoked with an error.
-
     parameters:
-
       - name: outputStream
         summary: Stream to write to.
         type: Titanium.IOStream
@@ -229,10 +221,8 @@ methods:
         type: Callback<WriteCallbackArgs>
 
   - name: writeStream
-
     summary: Writes all data from an input stream to an output stream.
     description: |
-
         If the optional `resultsCallback` argument is supplied, the operation is 
         performed asynchronously.
         
@@ -245,9 +235,7 @@ methods:
         *   iOS throws an exception.
 
         *   Android returns 0, or calls the callback with `bytesProcessed` set to 0.
-
     parameters:
-
       - name: inputStream
         summary: Stream to read from.
         type: Titanium.IOStream
@@ -268,14 +256,12 @@ methods:
         optional: true
 
   - name: pump
-
     summary: Reads data from input stream and passes it to a handler method.
     description: |
         After the end of the input stream is reached, the handler is called 
         a final time with no data and `bytesProcessed` set to -1 to indicate
         the end of the input data.
     parameters:
-
       - name: inputStream
         summary: Stream to pump from.
         type: Titanium.IOStream
@@ -300,9 +286,7 @@ name: CreateStreamArgs
 platforms: [android, iphone, ipad]
 summary: Argument passed to [createStream](Titanium.Stream.createStream).
 since: "1.7"
-
 properties:
-
   - name: source
     summary: Object that the stream will read from or write to.
     type: [Titanium.Blob, Titanium.Buffer]
@@ -371,7 +355,6 @@ properties:
     type: Number
     since: "3.1.0"
 
-
 ---
 name: WriteCallbackArgs
 platforms: [android, iphone, ipad]
@@ -436,7 +419,6 @@ platforms: [android, iphone, ipad]
 summary: |
     Argument passed to the callback when an asynchronous
     [writeStream](Titanium.Stream.writeStream) operation finishes.
-
 since: "1.7"
 extends: ErrorResponse
 properties:
@@ -543,4 +525,3 @@ properties:
         Otherwise, this value will be -1.
     type: Number
     since: "3.1.0"
-

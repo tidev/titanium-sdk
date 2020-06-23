@@ -76,31 +76,33 @@ examples:
     example: |
         This is an example of a Split Window.
 
-            var detail = Ti.UI.createWindow({backgroundColor: 'white'});
-            var label1 = Ti.UI.createLabel({text: 'Detail View'});
-            detail.add(label1);
-            var detailNav = Ti.UI.createNavigationWindow({window: detail});
+        ``` js
+        var detail = Ti.UI.createWindow({backgroundColor: 'white'});
+        var label1 = Ti.UI.createLabel({text: 'Detail View'});
+        detail.add(label1);
+        var detailNav = Ti.UI.createNavigationWindow({window: detail});
 
-            var master = Ti.UI.createWindow({backgroundColor: 'gray'});
-            var label2 = Ti.UI.createLabel({text: 'Master View'});
-            master.add(label2);
-            var masterNav = Ti.UI.createNavigationWindow({window: master});
+        var master = Ti.UI.createWindow({backgroundColor: 'gray'});
+        var label2 = Ti.UI.createLabel({text: 'Master View'});
+        master.add(label2);
+        var masterNav = Ti.UI.createNavigationWindow({window: master});
 
-            var splitWin = Ti.UI.iPad.createSplitWindow({
-                detailView: detailNav,
-                masterView: masterNav
-            });
+        var splitWin = Ti.UI.iPad.createSplitWindow({
+            detailView: detailNav,
+            masterView: masterNav
+        });
 
-            splitWin.addEventListener('visible',function(e){
-                if (e.view == 'detail'){
-                    e.button.title = "Master";
-                    detail.leftNavButton = e.button;
-                } else if (e.view == 'master'){
-                    detail.leftNavButton = null;
-                }
-            });
+        splitWin.addEventListener('visible',function(e){
+            if (e.view == 'detail'){
+                e.button.title = "Master";
+                detail.leftNavButton = e.button;
+            } else if (e.view == 'master'){
+                detail.leftNavButton = null;
+            }
+        });
 
-            splitWin.open();
+        splitWin.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -109,36 +111,38 @@ examples:
         `<Window>` or `<NavigationWindow>`.
 
         **views/index.xml:**
+        ``` xml
+        <Alloy>
+            <SplitWindow backgroundColor="white" showMasterInPortrait="true">
+                <!-- First window is the masterView -->
+                <NavigationWindow>
+                    <ListView>
+                        <ListSection headerTitle="Some items">
+                            <ListItem title="Item 1"></ListItem>
+                            <ListItem title="Item 2"></ListItem>
+                            <ListItem title="Item 3"></ListItem>
+                        </ListSection>
+                    </ListView>
+                </NavigationWindow>
 
-            <Alloy>
-                <SplitWindow backgroundColor="white" showMasterInPortrait="true">
-                    <!-- First window is the masterView -->
-                    <NavigationWindow>
-                        <ListView>
-                            <ListSection headerTitle="Some items">
-                                <ListItem title="Item 1"></ListItem>
-                                <ListItem title="Item 2"></ListItem>
-                                <ListItem title="Item 3"></ListItem>
-                            </ListSection>
-                        </ListView>
-                    </NavigationWindow>
-
-                    <!-- Second window is the detailView -->
-                    <Window>
-                        <Label>I am the detail view.</Label>
-                    </Window>
-                </SplitWindow>
-            </Alloy>
+                <!-- Second window is the detailView -->
+                <Window>
+                    <Label>I am the detail view.</Label>
+                </Window>
+            </SplitWindow>
+        </Alloy>
+        ```
 
         **controllers/index.js:**
+        ``` js
+        $.index.addEventListener('visible',function(e){
+            if (e.view == 'detail'){
+                e.button.title = "Master";
+                $.index.detailView.getWindow().leftNavButton = e.button;
+            } else if (e.view == 'master'){
+                $.index.detailView.getWindow().leftNavButton = null;
+            }
+        });
 
-            $.index.addEventListener('visible',function(e){
-                if (e.view == 'detail'){
-                    e.button.title = "Master";
-                    $.index.detailView.getWindow().leftNavButton = e.button;
-                } else if (e.view == 'master'){
-                    $.index.detailView.getWindow().leftNavButton = null;
-                }
-            });
-
-            $.index.open();
+        $.index.open();
+        ```

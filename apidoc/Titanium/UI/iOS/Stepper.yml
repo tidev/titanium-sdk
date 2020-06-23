@@ -23,7 +23,6 @@ description: |
     set to 'transparent'.
 
     * Note that the stepper cannot be re-sized.
-
 extends: Titanium.UI.View
 since: "5.4.0"
 platforms: [iphone, ipad]
@@ -149,40 +148,44 @@ events:
 examples:
   - title: Simple Stepper Example
     example: |
-            var win = Ti.UI.createWindow({
-                backgroundColor: '#fff'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            backgroundColor: '#fff'
+        });
 
-            var stepper = Ti.UI.iOS.createStepper({
-                tintColor: "green",
-                steps: 3,
-                maximum: 30,
-                minimum: 0
-            });
+        var stepper = Ti.UI.iOS.createStepper({
+            tintColor: "green",
+            steps: 3,
+            maximum: 30,
+            minimum: 0
+        });
 
-            stepper.addEventListener("change", function(e) {
-                Ti.API.info(e.value);
-            });
+        stepper.addEventListener("change", function(e) {
+            Ti.API.info(e.value);
+        });
 
-            win.add(stepper);
-            win.open();
+        win.add(stepper);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
         stepper.xml:
-
-            <Alloy>
-                <Window id="window">
-                    <Stepper id="stepper" onClick="doClick" tintColor="green" steps="3" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="window">
+                <Stepper id="stepper" onClick="doClick" tintColor="green" steps="3" />
+            </Window>
+        </Alloy>
+        ```
 
         stepper.js:
+        ``` js
+        function doClick(e) {
+            alert(e.value);
+        }
 
-            function doClick(e) {
-                alert(e.value);
-            }
-
-            $.window.open();
+        $.window.open();
+        ```

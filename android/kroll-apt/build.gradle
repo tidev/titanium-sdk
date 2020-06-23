@@ -12,10 +12,38 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 // Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
 // Will trigger a build failure if any violations have been detected.
-task checkJavaStyle(type: Checkstyle) {
-	source 'src/main/java'
-	include '**/*.java'
+// Customize all the Checkstyle tasks
+tasks.withType(Checkstyle) {
+	// Specify all files that should be checked
 	classpath = files()
+	source 'src/main/java'
+}
+// Execute Checkstyle on all files
+task checkJavaStyle(type: Checkstyle) {
+	// include '**/*.java'
+}
+task checkstyleChanged(type: Checkstyle) {
+	include getChangedFiles()
+}
+
+// Used to strip the src dir prefixes from the changed java files
+def getChangedFiles() {
+	if (!project.hasProperty('changedFiles')) {
+		return new ArrayList<>()
+	}
+	def allFiles = project.changedFiles.split(',')
+
+	// Remove the prefix
+	List<String> files = new ArrayList<>()
+	for (file in allFiles) {
+		def index = file.indexOf('src/main/java/')
+		if (index != -1) {
+			files.add(file.substring(index + 14))
+		}
+	}
+
+	// Return the list of touched files
+	files
 }
 
 // Hook into Java compile task.
