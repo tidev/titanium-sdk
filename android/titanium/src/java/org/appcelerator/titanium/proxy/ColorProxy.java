@@ -9,8 +9,6 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 
-import android.graphics.Color;
-
 import androidx.annotation.ColorInt;
 
 @Kroll.proxy
@@ -20,37 +18,30 @@ import androidx.annotation.ColorInt;
  */
 public class ColorProxy extends KrollProxy
 {
-	private Color color;
+	private final @ColorInt int color;
 
 	public ColorProxy(@ColorInt int colorInt)
 	{
-		this(Color.valueOf(colorInt));
-	}
-
-	public ColorProxy(Color color)
-	{
-		this.color = color;
+		this.color = colorInt;
 	}
 
 	@Kroll.method
 	public String toHex()
 	{
-		if (this.color == null) {
-			return "#000000";
-		}
-		// Padding! If length is less than 8, pad with leading 0s
-		String hex = Integer.toHexString(this.color.toArgb());
-		while (hex.length() < 8) {
-			hex = "0" + hex;
-		}
-		return "#" + hex;
+		// Convert to ARGB hex string.
+		return String.format(
+			"#%02X%02X%02X%02X",
+			this.color >>> 24,
+			(this.color >>> 16) & 0xFF,
+			(this.color >>> 8) & 0xFF,
+			this.color & 0xFF);
 	}
 
+	@Kroll.method
 	@Override
-	public void release()
+	public String toString()
 	{
-		super.release();
-		this.color = null;
+		return toHex();
 	}
 
 	@Override
