@@ -356,7 +356,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
-		data.put("fromUser", fromUser);
+		data.put("isTrusted", fromUser);
 		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
 
 		fireEvent(TiC.EVENT_CHANGE, data);

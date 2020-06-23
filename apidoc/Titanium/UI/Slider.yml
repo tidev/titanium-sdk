@@ -137,6 +137,13 @@ events:
         type: Point
         platforms: [android]
 
+      - name: isTrusted
+        summary: |
+            If `true` then the change was done by a user.
+        type: Boolean
+        platforms: [android]
+        since: {android, "9.1.0"}
+
   - name: click
     summary: Fired when the device detects a click against the view.
     description: |
