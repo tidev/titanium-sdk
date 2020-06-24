@@ -15,12 +15,12 @@ describe.android('Titanium.UI.Android', () => {
 
 		it('handles resource id as argument', () => {
 			const result = Ti.UI.Android.getColorResource(Ti.Android.R.color.darker_gray);
-			result.toHex().should.eql('#ffaaaaaa');
+			result.toHex().toLowerCase().should.eql('#ffaaaaaa');
 		});
 
 		it('handles color name as argument', () => {
 			const result = Ti.UI.Android.getColorResource('darker_gray');
-			result.toHex().should.eql('#ffaaaaaa');
+			result.toHex().toLowerCase().should.eql('#ffaaaaaa');
 		});
 
 		it('returns null for unknown color name as argument', () => {
