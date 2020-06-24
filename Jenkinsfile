@@ -147,22 +147,6 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 	}
 }
 
-def gatherIOSCrashReports() {
-	// Gather the crash report(s)
-	def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-	// wait 1 minute, sometimes it's delayed in writing out crash reports to disk...
-	sleep time: 1, unit: 'MINUTES'
-	def crashFiles = sh(returnStdout: true, script: "ls -1 ${home}/Library/Logs/DiagnosticReports/").trim().readLines()
-	for (int i = 0; i < crashFiles.size(); i++) {
-		def crashFile = crashFiles[i]
-		if (crashFile =~ /^mocha_.*\.crash$/) {
-			sh "mv ${home}/Library/Logs/DiagnosticReports/${crashFile} ."
-		}
-	}
-	archiveArtifacts 'mocha_*.crash'
-	sh 'rm -f mocha_*.crash'
-}
-
 def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
 	return {
 		node('git && osx && xcode-11') { // Use xcode-11 to make use of ios 13 APIs
@@ -181,7 +165,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
 									sh label: 'Run Test Suite', script: "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
 								}
 							} catch (e) {
-								gatherIOSCrashReports()
+								gatherIOSCrashReports('mocha') // app name is mocha
 								throw e
 							}
 							// save the junit reports as artifacts explicitly so danger.js can use them later

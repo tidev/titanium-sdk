@@ -48,7 +48,7 @@ properties:
     summary: The tint color for the refresh control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
@@ -77,37 +77,39 @@ examples:
   - title: Basic Pull To Refresh
     example: |
         A basic sample showing the usage of refreshstart event with endRefreshing functionality.
-                    
-            var win = Ti.UI.createWindow({
-                fullscreen:true
-            });
-            var counter = 0;
-            function genData()
-            {
-                var data = [];
-                var i=1;
-                for (i=1;i<=3;i++) {
-                    data.push({properties:{title:'ROW '+(counter+i)}})
-                }
-                counter += 3;
-                return data;
+
+        ``` js
+        var win = Ti.UI.createWindow({
+            fullscreen:true
+        });
+        var counter = 0;
+        function genData()
+        {
+            var data = [];
+            var i=1;
+            for (i=1;i<=3;i++) {
+                data.push({properties:{title:'ROW '+(counter+i)}})
             }
-            var section = Ti.UI.createListSection();
-            section.setItems(genData());
-            var control = Ti.UI.createRefreshControl({
-                tintColor:'red'
-            })
-            var listView = Ti.UI.createListView({
-                sections:[section],
-                refreshControl:control
-            });
-            control.addEventListener('refreshstart',function(e){
-                Ti.API.info('refreshstart');
-                setTimeout(function(){
-                    Ti.API.debug('Timeout');
-                    section.appendItems(genData());
-                    control.endRefreshing();
-                }, 2000);
-            })
-            win.add(listView);
-            win.open();
+            counter += 3;
+            return data;
+        }
+        var section = Ti.UI.createListSection();
+        section.setItems(genData());
+        var control = Ti.UI.createRefreshControl({
+            tintColor:'red'
+        })
+        var listView = Ti.UI.createListView({
+            sections:[section],
+            refreshControl:control
+        });
+        control.addEventListener('refreshstart',function(e){
+            Ti.API.info('refreshstart');
+            setTimeout(function(){
+                Ti.API.debug('Timeout');
+                section.appendItems(genData());
+                control.endRefreshing();
+            }, 2000);
+        })
+        win.add(listView);
+        win.open();
+        ```

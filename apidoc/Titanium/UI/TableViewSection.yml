@@ -46,7 +46,6 @@ extends: Titanium.Proxy
 since: "0.9"
 
 methods:
-
   - name: add
     summary: Adds a table view row to this section.
     description: |
@@ -93,7 +92,6 @@ methods:
         summary: Section index of a row.
         type: Number
 
-
 properties:
   - name: footerTitle
     summary: Title of this section footer.
@@ -103,7 +101,6 @@ properties:
         On Android, must be set at creation.
     type: String
 
-    
   - name: footerView
     summary: View to use for this section footer.
     description: |
@@ -112,7 +109,6 @@ properties:
         On Android, must be set at creation. 
     type: Titanium.UI.View
 
-    
   - name: headerTitle
     summary: Title of this section header.
     description: |
@@ -130,34 +126,32 @@ properties:
 
         In Alloy, you can use a `<HeaderView>` element inside a `<TableViewSection>` element:
 
-            <Alloy>
-                <TableView filterAttribute="title">
-                    <SearchBar platform="android,ios"/>
-                    <TableViewSection>
-                        <HeaderView>
-                            <View backgroundColor="#a00" height="50dp"/>
-                        </HeaderView>
-                        <FooterView>
-                            <View backgroundColor="#0a0" height="50dp"/>
-                        </FooterView>
-                        <TableViewRow title="Row 1"/>
-                        <TableViewRow title="Row 2"/>
-                        <TableViewRow title="Row 3"/>
-                    </TableViewSection>
-                </TableView>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <TableView filterAttribute="title">
+                <SearchBar platform="android,ios"/>
+                <TableViewSection>
+                    <HeaderView>
+                        <View backgroundColor="#a00" height="50dp"/>
+                    </HeaderView>
+                    <FooterView>
+                        <View backgroundColor="#0a0" height="50dp"/>
+                    </FooterView>
+                    <TableViewRow title="Row 1"/>
+                    <TableViewRow title="Row 2"/>
+                    <TableViewRow title="Row 3"/>
+                </TableViewSection>
+            </TableView>
+        </Alloy>
+        ```
     type: Titanium.UI.View
-
     
   - name: rowCount
     summary: Number of rows in this section.
     type: Number
     permission: read-only
-
     
   - name: rows
     summary: Rows in this section.
     type: Array<Titanium.UI.TableViewRow>
     permission: read-only
-

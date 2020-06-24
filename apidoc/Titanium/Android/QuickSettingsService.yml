@@ -166,31 +166,33 @@ examples:
         user's interaction.
 
         File: updatequicksettings.js:
+        ``` js
+        var service = Ti.Android.currentService;
+        service.addEventListener('click', function () {
 
-            var service = Ti.Android.currentService;
-            service.addEventListener('click', function () {
-
-              if (service.getState() == Ti.Android.TILE_STATE_ACTIVE) {
-                service.setState(Ti.Android.TILE_STATE_INACTIVE);
-                service.setLabel('Inactive');
-                service.setIcon('inactive.png');
-              } else {
-                service.setState(Ti.Android.TILE_STATE_ACTIVE);
-                service.setLabel('Active');
-                service.setIcon('active.png');
-              }
-              service.updateTile();
-            }
+          if (service.getState() == Ti.Android.TILE_STATE_ACTIVE) {
+            service.setState(Ti.Android.TILE_STATE_INACTIVE);
+            service.setLabel('Inactive');
+            service.setIcon('inactive.png');
+          } else {
+            service.setState(Ti.Android.TILE_STATE_ACTIVE);
+            service.setLabel('Active');
+            service.setIcon('active.png');
+          }
+          service.updateTile();
+        }
+        ```
 
         Register the service in tiapp.xml:
-
-            <ti:app>
-                <android xmlns:android="http://schemas.android.com/apk/res/android">
-                    <services>
-                        <service url="updatequicksettings.js" type="quicksettings" label="Active" icon="active.png"/>
-                    </services>
-                </android>
-            </ti:app>
+        ``` xml
+        <ti:app>
+            <android xmlns:android="http://schemas.android.com/apk/res/android">
+                <services>
+                    <service url="updatequicksettings.js" type="quicksettings" label="Active" icon="active.png"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
 ---
 name: showParams
 summary: Dictionary of options for the <Titanium.Android.QuickSettingsService.showDialog> method.

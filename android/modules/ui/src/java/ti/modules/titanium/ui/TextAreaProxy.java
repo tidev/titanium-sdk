@@ -103,4 +103,14 @@ public class TextAreaProxy extends TiViewProxy
 	{
 		return "Ti.UI.TextArea";
 	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return v.isFocused();
+		}
+		return false;
+	}
 }

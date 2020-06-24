@@ -11,9 +11,10 @@
 
 @implementation TiUIiOSStatusBarProxy
 
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GRAY, UIStatusBarStyleDefault, @"UI.iOS.StatusBar.GRAY", @"9.1.0", @"UI.iOS.StatusBar.DEFAULT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GREY, UIStatusBarStyleDefault, @"UI.iOS.StatusBar.GREY", @"9.1.0", @"UI.iOS.StatusBar.DEFAULT");
+
 MAKE_SYSTEM_PROP(DEFAULT, UIStatusBarStyleDefault);
-MAKE_SYSTEM_PROP(GRAY, UIStatusBarStyleDefault);
-MAKE_SYSTEM_PROP(GREY, UIStatusBarStyleDefault);
 MAKE_SYSTEM_PROP(LIGHT_CONTENT, UIStatusBarStyleLightContent);
 #if IS_SDK_IOS_13
 MAKE_SYSTEM_PROP(DARK_CONTENT, UIStatusBarStyleDarkContent);

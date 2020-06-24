@@ -99,6 +99,13 @@
   }
 }
 
+- (void)fireFocusEvent
+{
+  if ([self _hasListeners:@"focus"]) {
+    [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
 - (void)windowDidOpen
 {
   opening = NO;
@@ -106,10 +113,8 @@
   if ([self _hasListeners:@"open"]) {
     [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
-  if (focussed && [self handleFocusEvents]) {
-    if ([self _hasListeners:@"focus"]) {
-      [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    }
+  if (focussed) {
+    [self fireFocusEvent];
   }
   [super windowDidOpen];
   [self forgetProxy:openAnimation];
@@ -273,7 +278,7 @@
       ^{
         [self openOnUIThread:args];
       },
-      YES);
+      NO);
 }
 
 - (void)setStatusBarStyle:(id)style
@@ -292,13 +297,14 @@
 
 - (void)close:(id)args
 {
-  //I am not open. Go Away
-  if (opening) {
-    DebugLog(@"Window is opening. Ignoring this close call");
-    return;
-  }
-
   if (!opened) {
+    // If I've been asked to open but haven't yet, short-circuit it and tell it not to open
+    if (opening) {
+      opening = NO; // _handleOpen: should check this and abort opening
+      DebugLog(@"Window is not open yet. Attempting to stop it from opening...");
+      return;
+    }
+
     DebugLog(@"Window is not open. Ignoring this close call");
     return;
   }
@@ -329,7 +335,17 @@
       ^{
         [self closeOnUIThread:args];
       },
-      YES);
+      NO);
+}
+
+- (NSNumber *)closed
+{
+  return NUMBOOL(!opening && !opened && !closing);
+}
+
+- (NSNumber *)focused
+{
+  return NUMBOOL(focussed);
 }
 
 - (BOOL)_handleOpen:(id)args
@@ -344,6 +360,11 @@
     DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller without animations.")
         [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
+  }
+
+  // Did someone try to close before we ever finished opening?
+  if (!opening) {
+    return NO;
   }
 
   return YES;
@@ -432,10 +453,8 @@
 {
   if (!focussed) {
     focussed = YES;
-    if ([self handleFocusEvents] && opened) {
-      if ([self _hasListeners:@"focus"]) {
-        [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-      }
+    if (opened) {
+      [self fireFocusEvent];
     }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [[self view] setAccessibilityElementsHidden:NO];

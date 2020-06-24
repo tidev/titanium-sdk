@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -26,6 +26,8 @@
 
 - (void)open:(id)args;
 - (void)close:(id)args;
+
+- (NSDictionary *)focusEvent;
 
 - (UITabBar *)tabbar;
 

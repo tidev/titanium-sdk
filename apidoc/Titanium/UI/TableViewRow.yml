@@ -75,7 +75,6 @@ description: |
 
     For iOS, read the [Row Editing and Moving Modes notes on TableView](Titanium.UI.TableView) regarding
     the interactions between edit modes and swipes.
-
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -192,7 +191,6 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
-
 properties:
   - name: className
     summary: Class name for the row.
@@ -218,7 +216,7 @@ properties:
         On Android, the default text color is black if the background color is closer to white
         otherwise the default text color is white also `selectedColor` is not supported
         so the text is always displayed in this color.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: deleteButtonTitle
     summary: Text to display on the delete button when editable is enabled
@@ -261,7 +259,6 @@ properties:
         the row.
     type: Boolean
     default: false
-
 
   - name: hasChild
     summary: |
@@ -342,19 +339,17 @@ properties:
     summary: Background color to render when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-
+    type: [String, Titanium.UI.Color]
 
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
 
-
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [iphone,ipad]
 
   - name: selectionStyle
@@ -382,79 +377,85 @@ examples:
     example: |
         Create a table view row containing a red square view.
 
-            var row = Titanium.UI.createTableViewRow();
-            var view = Titanium.UI.createView({
-              backgroundColor:'red',
-              width: 20, height: 20
-            });
-            row.add(view);
+        ``` js
+        var row = Titanium.UI.createTableViewRow();
+        var view = Titanium.UI.createView({
+          backgroundColor:'red',
+          width: 20, height: 20
+        });
+        row.add(view);
+        ```
   - title: Row Swipe Gestures
     example: |
         Create a table of rows. When a row is swiped, output its ID to the log.
 
-            var tableData = [];
+        ``` js
+        var tableData = [];
 
-            var win = Ti.UI.createWindow({ backgroundColor: 'white' });
+        var win = Ti.UI.createWindow({ backgroundColor: 'white' });
 
-            var table = Ti.UI.createTableView({ objName: 'table' });
+        var table = Ti.UI.createTableView({ objName: 'table' });
 
-            for (var i = 0; i <= 20; i++){
-              var row = Ti.UI.createTableViewRow({
-                className: 'row',
-                objName: 'row',
-                touchEnabled: true,
-                height: 100
-              });
+        for (var i = 0; i <= 20; i++){
+          var row = Ti.UI.createTableViewRow({
+            className: 'row',
+            objName: 'row',
+            touchEnabled: true,
+            height: 100
+          });
 
-              var enabledWrapperView = Ti.UI.createView({
-                backgroundColor:'#008FD5',
-                objName: 'enabledWrapperView',
-                rowID: i,
-                width: Ti.UI.FILL, height: '100%'
-              });
+          var enabledWrapperView = Ti.UI.createView({
+            backgroundColor:'#008FD5',
+            objName: 'enabledWrapperView',
+            rowID: i,
+            width: Ti.UI.FILL, height: '100%'
+          });
 
-              var disabledWrapperView = Ti.UI.createView({
-                backgroundColor:'#A2E0FF',
-                objName: 'disabledWrapperView',
-                touchEnabled: false,
-                width: 300, height: '80%'
-              });
-              enabledWrapperView.add(disabledWrapperView);
+          var disabledWrapperView = Ti.UI.createView({
+            backgroundColor:'#A2E0FF',
+            objName: 'disabledWrapperView',
+            touchEnabled: false,
+            width: 300, height: '80%'
+          });
+          enabledWrapperView.add(disabledWrapperView);
 
-              var label = Ti.UI.createLabel({
-                backgroundColor:'#313F48',
-                color: 'white',
-                objName: 'label',
-                text: i,
-                touchEnabled: false,
-                left: 0,
-                width: 200
-              });
-              disabledWrapperView.add(label);
+          var label = Ti.UI.createLabel({
+            backgroundColor:'#313F48',
+            color: 'white',
+            objName: 'label',
+            text: i,
+            touchEnabled: false,
+            left: 0,
+            width: 200
+          });
+          disabledWrapperView.add(label);
 
-              row.add(enabledWrapperView);
-              tableData.push(row);
-            }
+          row.add(enabledWrapperView);
+          tableData.push(row);
+        }
 
-            table.setData(tableData);
+        table.setData(tableData);
 
-            table.addEventListener('swipe', function(e){
-              if (e.source && e.source.objName !== 'table'){
-                Ti.API.info('Row swiped: ' + e.source);
-                Ti.API.info('Row swiped: ' + e.source.objName);
-                Ti.API.info('Row ID : ' + e.source.rowID);
-              }
-            });
+        table.addEventListener('swipe', function(e){
+          if (e.source && e.source.objName !== 'table'){
+            Ti.API.info('Row swiped: ' + e.source);
+            Ti.API.info('Row swiped: ' + e.source.objName);
+            Ti.API.info('Row ID : ' + e.source.rowID);
+          }
+        });
 
-            win.add(table);
-            win.open();
+        win.add(table);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous simple table view row example as an Alloy view.
 
-            <Alloy>
-                <TableViewRow id="row">
-                    <View id="view" backgroundColor="red" width="20" height="20"/>
-                </TableViewRow>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TableViewRow id="row">
+                <View id="view" backgroundColor="red" width="20" height="20"/>
+            </TableViewRow>
+        </Alloy>
+        ```

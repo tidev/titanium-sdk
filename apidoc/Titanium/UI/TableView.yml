@@ -4,22 +4,9 @@ summary: |
     A table view is used to present information, organized in sections and rows, in a
     vertically-scrolling view.
 description: |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/tableview/tableview_android.png" height="200" /></td>
-          <td><img src="images/tableview/tableview_ios.png" height="200" /></td>
-          <td><img src="images/tableview/tableview_wp.png" height="200" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows Phone</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](images/tableview/tableview_android.png) | ![iOS](images/tableview/tableview_ios.png) | ![Windows](images/tableview/tableview_wp.png) |
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection)
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects.
@@ -160,9 +147,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
-
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: searchMode
@@ -257,9 +245,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
-
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -316,9 +305,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
-
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
@@ -433,7 +423,6 @@ events:
         type: Number
     since: '3.0.0'
 
-
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
     properties:
@@ -491,8 +480,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -502,7 +493,6 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
-
 
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
@@ -574,8 +564,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -637,8 +629,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -764,7 +758,6 @@ methods:
         type: TableViewAnimationProperties
         optional: true
 
-
   - name: deleteSection
     summary: Deletes an existing section.
     description: |
@@ -788,7 +781,6 @@ methods:
         summary: Row index to deselect.
         type: Number
     platforms: [iphone,ipad]
-
 
   - name: insertRowAfter
     summary: Inserts a row after another row.
@@ -860,7 +852,6 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-
 
   - name: insertSectionBefore
     summary: Inserts a section before another section.
@@ -946,9 +937,11 @@ methods:
       - name: edgeInsets
         summary: |
           Sets the distance that the content view is inset from the enclosing scroll view of the table.
-          For example
+          For example:
 
-              setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+          ``` js
+          setContentInset({ top: 50, bottom: 10, right: 10, left: 10 }, { animated: true });
+          ```
         type: Padding
 
       - name: options
@@ -1077,7 +1070,7 @@ properties:
     summary: Background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: transparent on non-iOS platforms, white on the iOS platform
 
   - name: data
@@ -1119,9 +1112,11 @@ properties:
         TableViewRow object, such as `title`.  To search text stored in a different attribute, set the `title`
         property of the TableViewRow object to the property to be searched. For example:
 
-            var label = Ti.UI.createLabel({text: 'Foobar'}),
-            var row = Ti.UI.createTableViewRow(title: label.text);
-            row.add(label);
+        ``` js
+        var label = Ti.UI.createLabel({text: 'Foobar'}),
+        var row = Ti.UI.createTableViewRow(title: label.text);
+        row.add(label);
+        ```
 
         On the iOS platform, this property can be set to any property on the TableViewRow object,
         including arbitrary properties set on the object, not only Titanium-defined properties.
@@ -1187,15 +1182,17 @@ properties:
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
-            <Alloy>
-                <TableView>
-                    <HeaderPullView platform="ios">
-                        <View class="pull">
-                            <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
-                        </View>
-                    </HeaderPullView>
-                </TableView>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TableView>
+                <HeaderPullView platform="ios">
+                    <View class="pull">
+                        <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
+                    </View>
+                </HeaderPullView>
+            </TableView>
+        </Alloy>
+        ```
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: "2.1.0"
@@ -1242,24 +1239,23 @@ properties:
     since: 8.2.0
     platforms: [iphone, ipad]
 
-
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     description: |
         In Alloy you can use a `<FooterView>` element nested in a `<TableView>` element:
 
-            <Alloy>
-                <TableView>
-                    <FooterView>
-                        <View backgroundColor="#a00" height="50dp"/>
-                    </FooterView>
-                    <TableViewRow><Label>Row 1</Label></TableViewRow>
-                    <TableViewRow><Label>Row 2</Label></TableViewRow>
-                </TableView>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <TableView>
+                <FooterView>
+                    <View backgroundColor="#a00" height="50dp"/>
+                </FooterView>
+                <TableViewRow><Label>Row 1</Label></TableViewRow>
+                <TableViewRow><Label>Row 2</Label></TableViewRow>
+            </TableView>
+        </Alloy>
+        ```
     type: Titanium.UI.View
-
 
   - name: headerDividersEnabled
     summary: When set to false, the ListView will not draw the divider after the header view.
@@ -1273,24 +1269,23 @@ properties:
     summary: Table view header title.
     type: String
 
-
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
     description: |
         In Alloy you can use a `<HeaderView>` element nested in a `<TableView>` element:
 
-            <Alloy>
-                <TableView>
-                    <HeaderView>
-                        <View backgroundColor="#a00" height="50dp"/>
-                    </HeaderView>
-                    <TableViewRow><Label>Row 1</Label></TableViewRow>
-                    <TableViewRow><Label>Row 2</Label></TableViewRow>
-                </TableView>
-            </Alloy>
-
+        ``` js
+        <Alloy>
+            <TableView>
+                <HeaderView>
+                    <View backgroundColor="#a00" height="50dp"/>
+                </HeaderView>
+                <TableViewRow><Label>Row 1</Label></TableViewRow>
+                <TableViewRow><Label>Row 2</Label></TableViewRow>
+            </TableView>
+        </Alloy>
+        ```
     type: Titanium.UI.View
-
 
   - name: index
     summary: Array of objects (with `title` and `index` properties) to control the table view index.
@@ -1306,11 +1301,9 @@ properties:
     summary: Maximum row height for table view rows.
     type: Number
 
-
   - name: minRowHeight
     summary: Minimum row height for table view rows.
     type: Number
-
 
   - name: moveable
     summary: |
@@ -1352,7 +1345,6 @@ properties:
     summary: Default row height for table view rows.
     type: Number
 
-
   - name: scrollable
     summary: If `true`, the tableview can be scrolled.
     type: Boolean
@@ -1386,15 +1378,16 @@ properties:
     description: |
         In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<TableView>` element.
 
-            <Alloy>
-                <TableView>
-                  <!-- search, shorthand with Ti.UI.SearchBar -->
-                  <SearchBar platform="ios"/>
-                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
-                  <SearchView ns="Ti.UI.Android" platform="android"/>
-                </TableView>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <TableView>
+              <!-- search, shorthand with Ti.UI.SearchBar -->
+              <SearchBar platform="ios"/>
+              <!-- search, shorthand with Ti.UI.Android.SearchView -->
+              <SearchView ns="Ti.UI.Android" platform="android"/>
+            </TableView>
+        </Alloy>
+        ```
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
 
@@ -1462,7 +1455,7 @@ properties:
         [backgroundColor](Titanium.UI.TableView.backgroundColor) property.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: platform-specific default color
 
   - name: separatorInsets
@@ -1476,12 +1469,12 @@ properties:
         with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
 
         For example:
-
-            tableView1.setSeparatorInsets({
-                left:10,
-                right:10
-            });
-
+        ``` js
+        tableView1.setSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
     type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
@@ -1495,13 +1488,12 @@ properties:
         right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
 
         For example:
-
-            tableView1.setTableSeparatorInsets({
-                left:10,
-                right:10
-            });
-
-
+        ``` js
+        tableView1.setTableSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
     type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
@@ -1515,13 +1507,12 @@ properties:
         right edge. This property is only available upon creation of the cells.
 
         For example:
-
-            tableView1.setRowSeparatorInsets({
-                left:10,
-                right:10
-            });
-
-
+        ``` js
+        tableView1.setRowSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
     type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
@@ -1556,7 +1547,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
         Note: A transparent background-color is not officially supported by Apple to
         prevent that the list of results overlaps with the list view below it.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as white)
     since: 7.3.0
     platforms: [iphone, ipad]
@@ -1570,7 +1561,7 @@ properties:
         To make the line invisible, set this property to `transparent`, or the same value as the
         [backgroundColor](Titanium.UI.TableView.backgroundColor) property.
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as gray)
     since: 7.3.0
     platforms: [iphone, ipad]
@@ -1602,154 +1593,162 @@ examples:
     example: |
         Create a basic table view.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow();
 
-            var tableData = [ {title: 'Apples'}, {title: 'Bananas'}, {title: 'Carrots'}, {title: 'Potatoes'} ];
+        var tableData = [ {title: 'Apples'}, {title: 'Bananas'}, {title: 'Carrots'}, {title: 'Potatoes'} ];
 
-            var table = Ti.UI.createTableView({
-              data: tableData
-            });
-            win.add(table);
-            win.open();
+        var table = Ti.UI.createTableView({
+          data: tableData
+        });
+        win.add(table);
+        win.open();
+        ```
 
   - title: Table View Sections
     example: |
         Create a table with three sections, each with two rows. Add two sections to the table
         before and one after it is rendered. This sample only works on Release 3.0 and later.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow();
 
-            var sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
-            sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Apples' }));
-            sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Bananas' }));
+        var sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
+        sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Apples' }));
+        sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Bananas' }));
 
-            var sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
-            sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Carrots' }));
-            sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
+        var sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
+        sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Carrots' }));
+        sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
 
-            var table = Ti.UI.createTableView({
-              data: [sectionFruit, sectionVeg]
-            });
+        var table = Ti.UI.createTableView({
+          data: [sectionFruit, sectionVeg]
+        });
 
-            win.add(table);
-            win.open();
+        win.add(table);
+        win.open();
 
-            var sectionFish = Ti.UI.createTableViewSection({ headerTitle: 'Fish' });
-            sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
-            sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
+        var sectionFish = Ti.UI.createTableViewSection({ headerTitle: 'Fish' });
+        sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
+        sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
 
-            // Prior to Release 3.0, you can only add and remove sections by setting the data property
-            // table.data = [ sectionFish, sectionFruit, sectionVeg ];
-            // Due to a known issue, TIMOB-12616, the section access methods and sections
-            // property should not be used on iOS with Release 3.0.x.
-            table.insertSectionBefore(0, sectionFish);
+        // Prior to Release 3.0, you can only add and remove sections by setting the data property
+        // table.data = [ sectionFish, sectionFruit, sectionVeg ];
+        // Due to a known issue, TIMOB-12616, the section access methods and sections
+        // property should not be used on iOS with Release 3.0.x.
+        table.insertSectionBefore(0, sectionFish);
+        ```
 
   - title: Table View with Composite Layout
     example: |
         Create a table of rows that contain a custom child-view layout.
 
-            Ti.UI.setBackgroundColor('#000');
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'black',
-              exitOnClose: true,
-              fullscreen: false,
-              title: 'TableView Demo'
-            });
+        ``` js
+        Ti.UI.setBackgroundColor('#000');
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'black',
+          exitOnClose: true,
+          fullscreen: false,
+          title: 'TableView Demo'
+        });
 
-            // generate random number, used to make each row appear distinct for this example
-            function randomInt(max){
-              return Math.floor(Math.random() * max) + 1;
-            }
+        // generate random number, used to make each row appear distinct for this example
+        function randomInt(max){
+          return Math.floor(Math.random() * max) + 1;
+        }
 
-            var IMG_BASE = 'images/';
-            var defaultFontSize = Ti.Platform.name === 'android' ? 16 : 14;
+        var IMG_BASE = 'images/';
+        var defaultFontSize = Ti.Platform.name === 'android' ? 16 : 14;
 
-            var tableData = [];
+        var tableData = [];
 
-            for (var i=1; i<=20; i++){
-              var row = Ti.UI.createTableViewRow({
-                className:'forumEvent', // used to improve table performance
-                selectedBackgroundColor:'white',
-                rowIndex:i, // custom property, useful for determining the row during events
-                height:110
-              });
+        for (var i=1; i<=20; i++){
+          var row = Ti.UI.createTableViewRow({
+            className:'forumEvent', // used to improve table performance
+            selectedBackgroundColor:'white',
+            rowIndex:i, // custom property, useful for determining the row during events
+            height:110
+          });
 
-              var imageAvatar = Ti.UI.createImageView({
-                image: IMG_BASE + 'custom_tableview/user.png',
-                left:10, top:5,
-                width:50, height:50
-              });
-              row.add(imageAvatar);
+          var imageAvatar = Ti.UI.createImageView({
+            image: IMG_BASE + 'custom_tableview/user.png',
+            left:10, top:5,
+            width:50, height:50
+          });
+          row.add(imageAvatar);
 
-              var labelUserName = Ti.UI.createLabel({
-                color:'#576996',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize+6, fontWeight:'bold'},
-                text:'Fred Smith ' + i,
-                left:70, top: 6,
-                width:200, height: 30
-              });
-              row.add(labelUserName);
+          var labelUserName = Ti.UI.createLabel({
+            color:'#576996',
+            font:{fontFamily:'Arial', fontSize:defaultFontSize+6, fontWeight:'bold'},
+            text:'Fred Smith ' + i,
+            left:70, top: 6,
+            width:200, height: 30
+          });
+          row.add(labelUserName);
 
-              var labelDetails = Ti.UI.createLabel({
-                color:'#222',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize+2, fontWeight:'normal'},
-                text:'Replied to post with id ' + randomInt(1000) + '.',
-                left:70, top:44,
-                width:360
-              });
-              row.add(labelDetails);
+          var labelDetails = Ti.UI.createLabel({
+            color:'#222',
+            font:{fontFamily:'Arial', fontSize:defaultFontSize+2, fontWeight:'normal'},
+            text:'Replied to post with id ' + randomInt(1000) + '.',
+            left:70, top:44,
+            width:360
+          });
+          row.add(labelDetails);
 
-              var imageCalendar = Ti.UI.createImageView({
-                image:IMG_BASE + 'custom_tableview/eventsButton.png',
-                left:70, bottom: 2,
-                width:32, height: 32
-              });
-              row.add(imageCalendar);
+          var imageCalendar = Ti.UI.createImageView({
+            image:IMG_BASE + 'custom_tableview/eventsButton.png',
+            left:70, bottom: 2,
+            width:32, height: 32
+          });
+          row.add(imageCalendar);
 
-              var labelDate = Ti.UI.createLabel({
-                color:'#999',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize, fontWeight:'normal'},
-                text:'on ' + randomInt(30) + ' Nov 2012',
-                left:105, bottom:10,
-                width:200, height:20
-              });
-              row.add(labelDate);
+          var labelDate = Ti.UI.createLabel({
+            color:'#999',
+            font:{fontFamily:'Arial', fontSize:defaultFontSize, fontWeight:'normal'},
+            text:'on ' + randomInt(30) + ' Nov 2012',
+            left:105, bottom:10,
+            width:200, height:20
+          });
+          row.add(labelDate);
 
-              tableData.push(row);
-            }
+          tableData.push(row);
+        }
 
-            var tableView = Ti.UI.createTableView({
-              backgroundColor:'white',
-              data:tableData
-            });
+        var tableView = Ti.UI.createTableView({
+          backgroundColor:'white',
+          data:tableData
+        });
 
-            win.add(tableView);
-            win.open();
+        win.add(tableView);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous table view sections example as an Alloy view.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <TableView id="table">
-                        <TableViewSection id="sectionFruit" headerTitle="Fruit">
-                            <TableViewRow title="Apple"/>
-                            <TableViewRow title="Bananas"/>
-                        </TableViewSection>
-                        <TableViewSection id="sectionVeg" headerTitle="Vegetables">
-                            <TableViewRow title="Carrots"/>
-                            <TableViewRow title="Potatoes"/>
-                        </TableViewSection>
-                        <TableViewSection id="sectionFish" headerTitle="Fish">
-                            <TableViewRow title="Cod"/>
-                            <TableViewRow title="Haddock"/>
-                        </TableViewSection>
-                    </TableView>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <TableView id="table">
+                    <TableViewSection id="sectionFruit" headerTitle="Fruit">
+                        <TableViewRow title="Apple"/>
+                        <TableViewRow title="Bananas"/>
+                    </TableViewSection>
+                    <TableViewSection id="sectionVeg" headerTitle="Vegetables">
+                        <TableViewRow title="Carrots"/>
+                        <TableViewRow title="Potatoes"/>
+                    </TableViewSection>
+                    <TableViewSection id="sectionFish" headerTitle="Fish">
+                        <TableViewRow title="Cod"/>
+                        <TableViewRow title="Haddock"/>
+                    </TableViewSection>
+                </TableView>
+            </Window>
+        </Alloy>
+        ```
 
 ---
 name: TableViewAnimationProperties

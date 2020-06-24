@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,9 +12,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -28,7 +27,6 @@ import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -427,6 +425,17 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		TiUIView v = peekView();
 		if (v != null) {
 			((TiUIWebView) v).zoomBy(value);
+		}
+	}
+
+	@Kroll.getProperty
+	public double getProgress()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return (double) ((TiUIWebView) v).getProgress() / 100.0d;
+		} else {
+			return 0.0d;
 		}
 	}
 

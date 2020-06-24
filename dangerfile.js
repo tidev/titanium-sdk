@@ -6,6 +6,8 @@ const fs = require('fs-extra');
 const eslint = require('@seadub/danger-plugin-eslint').default;
 const junit = require('@seadub/danger-plugin-junit').default;
 const dependencies = require('@seadub/danger-plugin-dependencies').default;
+const load = require('@commitlint/load');
+const lint = require('@commitlint/lint').default;
 const packageJSON = require('./package.json');
 // Due to bug in danger, we hack env variables in build process.
 const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
@@ -51,9 +53,7 @@ async function checkNPMTestOutput() {
 
 // Check that the commit messages adhere to our conventions!
 async function checkCommitMessages() {
-	const load = require('@commitlint/load');
 	const { rules, parserPreset } = await load();
-	const lint = require('@commitlint/lint');
 	const allWarnings = await Promise.all(danger.git.commits.map(async commit => {
 		const report = await lint(commit.message, rules, parserPreset ? { parserOpts: parserPreset.parserOpts } : {});
 		// Bunch warnings/errors together for same commit!

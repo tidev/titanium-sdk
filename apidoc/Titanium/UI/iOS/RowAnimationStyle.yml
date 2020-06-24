@@ -5,7 +5,6 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 createable: false
 since: "0.9"
-
 properties:
   - name: BOTTOM
     summary: |
