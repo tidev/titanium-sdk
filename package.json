@@ -78,7 +78,7 @@
     }
   },
   "dependencies": {
-    "adm-zip": "^0.4.14",
+    "adm-zip": "^0.4.16",
     "appc-tasks": "^1.0.2",
     "archiver": "^4.0.1",
     "async": "^2.6.1",
