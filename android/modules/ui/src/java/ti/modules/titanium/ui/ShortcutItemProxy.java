@@ -102,7 +102,7 @@ public class ShortcutItemProxy extends KrollProxy
 				this.shortcuts.remove(shortcut);
 			}
 		}
-		this.shortcutManager.setDynamicShortcuts(shortcuts);
+		createShortcut();
 		for (ShortcutInfo shortcut : this.shortcutManager.getDynamicShortcuts()) {
 			if (shortcut.getId().equals(this.shortcut.getId())) {
 				if (shortcut.isEnabled()) {
@@ -123,7 +123,7 @@ public class ShortcutItemProxy extends KrollProxy
 		if (shortcut != null) {
 			if (!shortcuts.contains(shortcut)) {
 				shortcuts.add(shortcut);
-				shortcutManager.setDynamicShortcuts(shortcuts);
+				createShortcut();
 			}
 		}
 	}
@@ -135,7 +135,7 @@ public class ShortcutItemProxy extends KrollProxy
 		if (shortcut != null) {
 			if (shortcuts.contains(shortcut)) {
 				shortcuts.remove(shortcut);
-				shortcutManager.setDynamicShortcuts(shortcuts);
+				createShortcut();
 			}
 		}
 	}
@@ -186,10 +186,20 @@ public class ShortcutItemProxy extends KrollProxy
 	{
 		if (shortcut != null) {
 			shortcuts.remove(shortcut);
-			shortcutManager.setDynamicShortcuts(shortcuts);
+			createShortcut();
 			shortcut = null;
 		}
 		super.release();
+	}
+
+	@SuppressLint("NewApi")
+	private void createShortcut()
+	{
+		try {
+			shortcutManager.setDynamicShortcuts(shortcuts);
+		} catch (Exception ex) {
+			Log.e(TAG, "Shortcut count exceeded");
+		}
 	}
 
 	@Override
