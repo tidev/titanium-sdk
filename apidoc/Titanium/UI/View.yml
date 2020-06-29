@@ -1334,7 +1334,7 @@ properties:
     description: Each corner is rounded using an arc of a circle.
         Values for each corner can be specified. For example, '20px 20px' will set both left and right corners to `20px`.
         Specifying '20px 20px 20px 20px' will set top-left, top-right, bottom-right and bottom-left corners in that order.
-    type: [Number, String, Dictionary<Number>, Dictionary<String>]
+    type: [Number, String, Array<Number>, Array<String>]
     default: 0
     osver: {android: {min: "5.0"}}
 
