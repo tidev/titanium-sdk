@@ -4,7 +4,7 @@ summary: A single line text field.
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/textfield/textfield_android.png) | ![iOS](images/textfield/textfield_ios.png) | ![Windows](images/textfield/textfield_wp.png) |
+    | ![Android](./textfield_android.png) | ![iOS](./textfield_ios.png) | ![Windows](./textfield_wp.png) |
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
 

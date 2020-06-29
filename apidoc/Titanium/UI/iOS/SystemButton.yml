@@ -34,7 +34,7 @@ platforms: [iphone, ipad]
 
 properties:
   - name: ACTION
-    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button. <img src="images/systembutton/system_icons.png"/>
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button. <img src="./system_icons.png"/>
     description: |
         The resulting button can only be used in navigation bars and toolbars.
     type: Number

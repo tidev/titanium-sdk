@@ -6,7 +6,7 @@ summary: |
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/alertdialog/alertdialog_android.png) | ![iOS](images/alertdialog/alertdialog_ios.png) | ![Windows](images/alertdialog/alertdialog_wp.png) |
+    | ![Android](./alertdialog_android.png) | ![iOS](./alertdialog_ios.png) | ![Windows](./alertdialog_wp.png) |
 
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
 
