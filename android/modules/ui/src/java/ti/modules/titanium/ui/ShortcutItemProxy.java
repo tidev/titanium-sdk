@@ -114,7 +114,11 @@ public class ShortcutItemProxy extends KrollProxy
 		if (shortcut != null) {
 			if (!shortcuts.contains(shortcut)) {
 				shortcuts.add(shortcut);
-				shortcutManager.addDynamicShortcuts(shortcuts);
+				try {
+					shortcutManager.addDynamicShortcuts(shortcuts);
+				} catch (Exception e) {
+					Log.w(TAG, e.getMessage());
+				}
 			}
 		}
 	}
@@ -126,8 +130,16 @@ public class ShortcutItemProxy extends KrollProxy
 	{
 		if (shortcut != null) {
 			if (shortcuts.contains(shortcut)) {
+				final List<String> shortcutIds = new ArrayList<>();
+
+				shortcutIds.add(shortcut.getId());
 				shortcuts.remove(shortcut);
-				shortcutManager.addDynamicShortcuts(shortcuts);
+
+				try {
+					shortcutManager.removeDynamicShortcuts(shortcutIds);
+				} catch (Exception e) {
+					Log.w(TAG, e.getMessage());
+				}
 			}
 		}
 	}

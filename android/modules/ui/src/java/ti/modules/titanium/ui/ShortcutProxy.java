@@ -159,9 +159,14 @@ public class ShortcutProxy extends KrollProxy
 		// Handle shortcut icon.
 		final Object icon = shortcut.getIcon();
 		if (icon instanceof Number) {
+
+			// Parse specified resource identifier.
 			int resId = ((Number) icon).intValue();
 			shortcutBuilder.setIcon(Icon.createWithResource(context, resId));
+
 		} else if (icon instanceof String) {
+
+			// Parse specified resource path.
 			String uri = resolveUrl(null, (String) icon);
 			shortcutBuilder.setIcon(Icon.createWithResource(context, TiUIHelper.getResourceId(uri)));
 		}
@@ -169,7 +174,12 @@ public class ShortcutProxy extends KrollProxy
 		// Add shortcut.
 		final List<ShortcutInfo> shortcuts = new ArrayList<>();
 		shortcuts.add(shortcutBuilder.build());
-		shortcutManager.addDynamicShortcuts(shortcuts);
+
+		try {
+			shortcutManager.addDynamicShortcuts(shortcuts);
+		} catch (Exception e) {
+			Log.w(TAG, e.getMessage());
+		}
 	}
 
 	/**
@@ -185,7 +195,12 @@ public class ShortcutProxy extends KrollProxy
 		// Remove shortcut.
 		final List<String> ids = new ArrayList<>();
 		ids.add(shortcut.getId());
-		shortcutManager.removeDynamicShortcuts(ids);
+
+		try {
+			shortcutManager.removeDynamicShortcuts(ids);
+		} catch (Exception e) {
+			Log.w(TAG, e.getMessage());
+		}
 	}
 
 	/**
@@ -199,7 +214,11 @@ public class ShortcutProxy extends KrollProxy
 		}
 
 		// Remove all shortcuts.
-		shortcutManager.removeAllDynamicShortcuts();
+		try {
+			shortcutManager.removeAllDynamicShortcuts();
+		} catch (Exception e) {
+			Log.w(TAG, e.getMessage());
+		}
 	}
 
 	@Override
