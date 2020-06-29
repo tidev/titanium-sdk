@@ -52,6 +52,21 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 	}
 
+	@SuppressLint("NewApi")
+	private void setShortcuts()
+	{
+		if (shortcuts.size() > shortcutManager.getMaxShortcutCountPerActivity()) {
+			Log.w(TAG, "Could not set shortcuts, max shortcuts exceeded.");
+			return;
+		}
+
+		try {
+			shortcutManager.setDynamicShortcuts(shortcuts);
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+
 	public void handleCreationDict(KrollDict dict)
 	{
 		// only supported on Android 7.1 and above
@@ -102,7 +117,7 @@ public class ShortcutItemProxy extends KrollProxy
 				this.shortcuts.remove(shortcut);
 			}
 		}
-		createShortcut();
+		setShortcuts();
 		for (ShortcutInfo shortcut : this.shortcutManager.getDynamicShortcuts()) {
 			if (shortcut.getId().equals(this.shortcut.getId())) {
 				if (shortcut.isEnabled()) {
@@ -116,26 +131,24 @@ public class ShortcutItemProxy extends KrollProxy
 		super.handleCreationDict(dict);
 	}
 
-	@SuppressLint("NewApi")
 	@Kroll.method
 	public void show()
 	{
 		if (shortcut != null) {
 			if (!shortcuts.contains(shortcut)) {
 				shortcuts.add(shortcut);
-				createShortcut();
+				setShortcuts();
 			}
 		}
 	}
 
-	@SuppressLint("NewApi")
 	@Kroll.method
 	public void hide()
 	{
 		if (shortcut != null) {
 			if (shortcuts.contains(shortcut)) {
 				shortcuts.remove(shortcut);
-				createShortcut();
+				setShortcuts();
 			}
 		}
 	}
@@ -180,26 +193,15 @@ public class ShortcutItemProxy extends KrollProxy
 		return false;
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public void release()
 	{
 		if (shortcut != null) {
 			shortcuts.remove(shortcut);
-			createShortcut();
+			setShortcuts();
 			shortcut = null;
 		}
 		super.release();
-	}
-
-	@SuppressLint("NewApi")
-	private void createShortcut()
-	{
-		try {
-			shortcutManager.setDynamicShortcuts(shortcuts);
-		} catch (Exception ex) {
-			Log.e(TAG, "Shortcut count exceeded");
-		}
 	}
 
 	@Override
