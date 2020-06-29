@@ -3,14 +3,9 @@ name: Titanium.UI.iOS.Stepper
 summary: |
     A widget used to increment and decrement a value.
 description: |
-    <table id="iOS Stepper">
-      <tbody>
-        <tr>
-          <td><img src="images/stepper/stepper.png" height="25" /></td>
-          <td><img src="images/stepper/stepper_custom.png" height="25" /></td>
-        </tr>
-      </tbody>
-    </table>
+    | Default | Custom |
+    | ------- | ------ |
+    | ![Stepper](./stepper.png) | ![Custom](./stepper_custom.png) |
 
     A Stepper displays its selected state while it is being pressed.
     You can specify background images for each state on iOS.

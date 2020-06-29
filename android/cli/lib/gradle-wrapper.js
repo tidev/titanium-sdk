@@ -69,6 +69,14 @@ class GradleWrapper {
 	}
 
 	/**
+	 * Gets a path to the "gradlew" script file that will be executed to run gradle tasks.
+	 * @type {String}
+	 */
+	get gradlewFilePath() {
+		return path.join(this._gradlewDirPath, isWindows ? 'gradlew.bat' : 'gradlew');
+	}
+
+	/**
 	 * Gets/Sets the "appc-logger" object that gradle will output to. Can be null/undefined.
 	 * @type {Object}
 	 */
@@ -145,6 +153,11 @@ class GradleWrapper {
 		await this.run(`${subprojectName}publish --console plain`);
 	}
 
+	/** Stops all gradle daemon processes on the system using the same gradle version this wrapper references. */
+	async stopDaemon() {
+		await this.run('--stop --console plain');
+	}
+
 	/**
 	 * Runs the "gradlew" command line tool with the given command line arguments string.
 	 * @param {String} [argsString]
@@ -155,8 +168,7 @@ class GradleWrapper {
 	 */
 	async run(argsString) {
 		// Set up the "gradlew" command line string.
-		const gradlewFilePath = path.join(this._gradlewDirPath, isWindows ? 'gradlew.bat' : 'gradlew');
-		let commandLineString = `"${gradlewFilePath}"`;
+		let commandLineString = `"${this.gradlewFilePath}"`;
 		if (argsString) {
 			commandLineString += ' ' + argsString;
 		}
@@ -207,6 +219,42 @@ class GradleWrapper {
 				}
 			});
 		});
+	}
+
+	/**
+	 * Determines if a "locale.properties" file exists at the gradle project's root location.
+	 * @returns {Promise<Boolean>} Returns true if the file exists. Returns false if not.
+	 */
+	async hasLocalPropertiesFile() {
+		return fs.exists(path.join(this._gradlewDirPath, 'local.properties'));
+	}
+
+	/**
+	 * Determines if a "settings.gradle" file exists at the gradle project's root location.
+	 * @returns {Promise<Boolean>} Returns true if the file exists. Returns false if not.
+	 */
+	async hasSettingsGradleFile() {
+		return fs.exists(path.join(this._gradlewDirPath, 'settings.gradle'));
+	}
+
+	/**
+	 * Determines if the gradlew wrapper files exist in the gradle project's root location.
+	 * @returns {Promise<Boolean>} Returns true if the wrapper files exist. Returns false if not.
+	 */
+	async hasWrapperFiles() {
+		if (!await fs.exists(this.gradlewFilePath)) {
+			return false;
+		}
+
+		const wrapperLibraryDirPath = path.join(this._gradlewDirPath, 'gradle', 'wrapper');
+		if (!await fs.exists(path.join(wrapperLibraryDirPath, 'gradle-wrapper.jar'))) {
+			return false;
+		}
+		if (!await fs.exists(path.join(wrapperLibraryDirPath, 'gradle-wrapper.properties'))) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
