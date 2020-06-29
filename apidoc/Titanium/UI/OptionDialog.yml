@@ -7,7 +7,7 @@ summary: |
 description: |
     | Android | iPhone | iPad |
     | ------- | ------ | ---- |
-    | ![Android](./optiondialog_android.png) | ![iOS](./optiondialog_iphone.) | ![Windows](./optiondialog_ipad.png) |
+    | ![Android](./optiondialog_android.png) | ![iPhone](./optiondialog_iphone.png) | ![iPad](./optiondialog_ipad.png) |
 
     An option dialog is created using <Titanium.UI.createOptionDialog> or Alloy `<OptionDialog>`
     element. See Examples below for usage.
