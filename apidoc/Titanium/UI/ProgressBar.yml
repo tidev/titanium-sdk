@@ -4,7 +4,7 @@ summary: A progress bar.
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/progressbar/progressbar_android.png) | ![iOS](images/progressbar/progressbar_ios.png) | ![Windows](images/progressbar/progressbar_wp.png) |
+    | ![Android](./progressbar_android.png) | ![iOS](./progressbar_ios.png) | ![Windows](./progressbar_wp.png) |
 
     A progress bar is used for displaying an ongoing activity with a defined progression.
     For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>.
