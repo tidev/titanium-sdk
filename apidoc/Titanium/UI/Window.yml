@@ -163,7 +163,7 @@ description: |
 
     The example below is a modal window using the Form sheet style:
 
-    <img src="images/window/window-modal.png" width="400" />
+    <img src="./window-modal.png" width="400" />
 
     You can create this type of modal window on iPad with the following code snippet:
 
@@ -825,6 +825,13 @@ properties:
     type: [Number,String]
     default: 0
 
+  - name: closed
+    summary: Determines whether this Window is closed.
+    type: Boolean
+    default: true
+    permission: read-only
+    since: "9.1.0"
+
   - name: exitOnClose
     summary: |
         Boolean value indicating if the application should exit when the Android
@@ -865,6 +872,13 @@ properties:
     since: "3.3.0"
     default: false
     availability: creation
+
+  - name: focused
+    summary: Determines whether this TextArea has focus.
+    type: Boolean
+    default: false
+    permission: read-only
+    since: "9.1.0"
 
   - name: includeOpaqueBars
     summary: |
