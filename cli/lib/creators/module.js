@@ -82,7 +82,8 @@ ModuleCreator.prototype.init = function init() {
 			template:        this.configOptionTemplate(110),
 			'workspace-dir': this.configOptionWorkspaceDir(170),
 			'code-base':	 this.configOptionCodeBase(150),
-			'android-code-base': this.configOptionAndroidCodeBase(150)
+			'android-code-base': this.configOptionAndroidCodeBase(150),
+			'ios-code-base': this.configOptionIosCodeBase(140)
 
 		}
 	};
@@ -124,6 +125,49 @@ ModuleCreator.prototype.configOptionAndroidCodeBase = function configAndroidCode
 		values: validTypes,
 		verifyIfRequired: function (callback) {
 			if (cli.argv.platforms.includes('android')) {
+				return callback(true);
+			}
+			return callback();
+		}
+	};
+};
+
+/**
+ * Defines the --ios-code-base option to select the code base (Objective-C or Swift).
+ *
+ * @param {Integer} order - The order to apply to this option.
+ *
+ * @returns {Object}
+ */
+ModuleCreator.prototype.configOptionIosCodeBase = function configIosCodeBase(order) {
+	const cli = this.cli;
+	const validTypes = [ 'swift', 'objc' ];
+	const logger = this.logger;
+
+	function validate(value, callback) {
+		if (!value || !validTypes.includes(value)) {
+			logger.error(__('Please specify a valid code base') + '\n');
+			return callback(true);
+		}
+		callback(null, value);
+	}
+
+	return {
+		desc: __('the code base of the iOS project'),
+		order: order,
+		default: !cli.argv.prompt ? 'objc' : undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
+		prompt: function (callback) {
+			callback(fields.text({
+				promptLabel: __('iOS code base (' + validTypes.join('|') + ')'),
+				default: 'objc',
+				validate: validate
+			}));
+		},
+		required: true,
+		validate: validate,
+		values: validTypes,
+		verifyIfRequired: function (callback) {
+			if (cli.argv.platforms.includes('ios') || cli.argv.platforms.includes('iphone') || cli.argv.platforms.includes('ipad')) {
 				return callback(true);
 			}
 			return callback();
@@ -200,8 +244,8 @@ ModuleCreator.prototype.run = function run(callback) {
 			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0;
 			let templateBaseDir = this.cli.argv.template;
 
-			if (platform === 'iphone' && this.cli.argv['code-base']) {
-				templateBaseDir = this.cli.argv['code-base'];
+			if (platform === 'iphone' && (this.cli.argv['code-base'] || this.cli.argv['ios-code-base'])) {
+				templateBaseDir = this.cli.argv['ios-code-base'] || this.cli.argv['code-base'];
 			} else if (platform === 'android' && this.cli.argv['android-code-base']) {
 				templateBaseDir = this.cli.argv['android-code-base'];
 			}
