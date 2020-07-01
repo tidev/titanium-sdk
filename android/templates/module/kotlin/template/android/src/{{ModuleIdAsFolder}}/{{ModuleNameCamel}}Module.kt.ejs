@@ -7,7 +7,7 @@
  *
  */
 
-package <%- moduleId %>;
+package <%- moduleId %>
 
 import org.appcelerator.kroll.KrollModule
 import org.appcelerator.kroll.KrollDict
@@ -53,7 +53,7 @@ class <%- moduleNameCamel %>Module: KrollModule() {
 
 		// Access the parameters passed as an Object, e.g. "myModule.testMethod({ name: 'John Doe', flag: true })"
 		val name = params.getString("name")
-		val flag = params.optBoolean("flag", false);
+		val flag = params.optBoolean("flag", false)
 
 		// Fire an event that can be added via "myModule.addEventListener('shown', ...)"
 		val event = KrollDict()
