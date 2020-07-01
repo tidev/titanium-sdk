@@ -1959,9 +1959,23 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 };
 
 AndroidBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecompile() {
-	// Delete all files under the "./build/android" if we need to do a full rebuild.
+	// Determine if we should do a "clean" build.
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 	if (this.forceRebuild) {
+		// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+		if (process.platform === 'win32') {
+			try {
+				const gradlew = new GradleWrapper(this.buildDir);
+				gradlew.logger = this.logger;
+				if (await gradlew.hasWrapperFiles()) {
+					await gradlew.stopDaemon();
+				}
+			} catch (err) {
+				this.logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
+			}
+		}
+
+		// Delete all files under the "./build/android" directory.
 		await fs.emptyDir(this.buildDir);
 		this.unmarkBuildDirFiles(this.buildDir);
 	}
@@ -3537,10 +3551,9 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 
 	// Choose app theme to be used by all activities depending on following "tiapp.xml" settings.
 	let appThemeName = '@style/Theme.AppCompat';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		if (this.tiapp['navbar-hidden']) {
-			appThemeName += '.NoTitleBar';
-		} else {
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] || this.tiapp['navbar-hidden']) {
+		appThemeName += '.NoTitleBar';
+		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			appThemeName += '.Fullscreen';
 		}
 	}

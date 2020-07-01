@@ -24,8 +24,10 @@ description: |
     of the response-related properties defined for the `HTTPClient` object. So the
     callbacks can use code like this to access the response values:
 
-        httpResponse = this.responseText;
-        status = this.status;
+    ``` js
+    httpResponse = this.responseText;
+    status = this.status;
+    ```
 
     #### Content-Type Header
 
@@ -226,15 +228,19 @@ methods:
         To send array data, specify each array element individually as a property of the object.
         For example, normally, you specify an array in an object as:
 
-            var payload = { myArray: [1, 2, 3] };
+        ``` js
+        var payload = { myArray: [1, 2, 3] };
+        ```
 
         Instead, for the HTTP client to encode the data correctly, you need to send the data as:
 
-            var payload = {
-                "myArray[0]" : 1,
-                "myArray[1]" : 2,
-                "myArray[2]" : 3
-            };
+        ``` js
+        var payload = {
+            "myArray[0]" : 1,
+            "myArray[1]" : 2,
+            "myArray[2]" : 3
+        };
+        ```
 
         On iOS, you can specify a synchronous request when you call `open` by passing `false` for
         the `async` parameter. In the case of a synchronous request, `send` blocks until the request
@@ -573,24 +579,26 @@ examples:
     example: |
         The following code excerpt does a simple GET request and logs the response text.
 
-             var url = "http://www.appcelerator.com";
-             var client = Ti.Network.createHTTPClient({
-                 // function called when the response data is available
-                 onload : function(e) {
-                     Ti.API.info("Received text: " + this.responseText);
-                     alert('success');
-                 },
-                 // function called when an error occurs, including a timeout
-                 onerror : function(e) {
-                     Ti.API.debug(e.error);
-                     alert('error');
-                 },
-                 timeout : 5000  // in milliseconds
-             });
-             // Prepare the connection.
-             client.open("GET", url);
-             // Send the request.
-             client.send();
+        ``` js
+        var url = "http://www.appcelerator.com";
+        var client = Ti.Network.createHTTPClient({
+            // function called when the response data is available
+            onload : function(e) {
+                Ti.API.info("Received text: " + this.responseText);
+                alert('success');
+            },
+            // function called when an error occurs, including a timeout
+            onerror : function(e) {
+                Ti.API.debug(e.error);
+                alert('error');
+            },
+            timeout : 5000  // in milliseconds
+        });
+        // Prepare the connection.
+        client.open("GET", url);
+        // Send the request.
+        client.send();
+        ```
 
 ---
 name: SecurityManagerProtocol
