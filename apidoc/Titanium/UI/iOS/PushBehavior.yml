@@ -85,7 +85,7 @@ examples:
     example: |
         The following example generates a random push force on the block when it stops.
 
-        <img src="images/animator/pushforce.gif" height="455" style="border:1px solid black"/>
+        <img src="./pushforce.gif" height="455" style="border:1px solid black"/>
 
         ``` js
         var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});

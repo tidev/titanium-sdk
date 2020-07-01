@@ -4,7 +4,7 @@ summary: An on/off switch control.
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/switch/switch_android.png) | ![iOS](images/switch/switch_ios.png) | ![Windows](images/switch/switch_wp.png) |
+    | ![Android](./switch_android.png) | ![iOS](./switch_ios.png) | ![Windows](./switch_wp.png) |
 
     The appearance of a `Switch` control varies by platform:
 
