@@ -6,7 +6,6 @@ description: |
     
     For iOS UI programming guidelines, review the
     [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/).
-
 extends: Titanium.Module
 platforms: [ipad]
 since: "1.2"

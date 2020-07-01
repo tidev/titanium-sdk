@@ -773,6 +773,25 @@ static NSDictionary *sizeMap = nil;
   return imageCopy;
 }
 
++ (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
+  }
+#endif
+  UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+  UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
+  imageView.tintColor = tintColor;
+
+  UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
+  [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
+  UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  return tintedImage;
+}
+
 + (NSURL *)checkFor2XImage:(NSURL *)url
 {
   NSString *path = nil;

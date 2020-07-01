@@ -1510,7 +1510,6 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 		}
 
 		if (!Array.isArray(ext.targets) || !ext.targets.length) {
-			// logger.warn(__('iOS extension "%s" has no targets, skipping.', projectName));
 			return;
 		}
 
@@ -3551,6 +3550,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								extFrameworkReference = key.split('_')[0];
 								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
 								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
+
+								const currentFileRef = Object.assign({}, xobjs.PBXFileReference[extFrameworkReference]);
+
+								if (!currentFileRef.path.includes('extensions/') && currentFileRef.sourceTree === '"<group>"') {
+									xobjs.PBXFileReference[extFrameworkReference].path = `${ext.relPath}/${currentFileRef.path}`;
+									xobjs.PBXFileReference[extFrameworkReference].name = currentFileRef.path;
+								}
 							}
 						});
 					});
@@ -3572,7 +3578,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					});
 				}
 
-				const handledBuildPhases = [ 'PBXSourcesBuildPhase', 'PBXFrameworksBuildPhase', 'PBXResourcesBuildPhase', 'PBXCopyFilesBuildPhase' ];
+				const handledBuildPhases = [ 'PBXSourcesBuildPhase', 'PBXFrameworksBuildPhase', 'PBXResourcesBuildPhase', 'PBXCopyFilesBuildPhase', 'PBXShellScriptBuildPhase' ];
 
 				// add the build phases
 				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(phase => {
@@ -3587,6 +3593,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 					if (!type) {
 						this.logger.warn(`No build phases found for extension target "${targetName}"`);
+						return;
+					}
+
+					if (type === 'PBXShellScriptBuildPhase' && this.deployType !== 'production') {
+						this.logger.debug(`Excluding PBXShellScriptBuildPhase in "${targetName}" for non-production build`);
 						return;
 					}
 
@@ -3785,8 +3796,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 						if (legacySwift) {
 							extBuildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT = 'YES';
-						} else {
-							extBuildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = 'YES';
 						}
 					}
 				}, this);

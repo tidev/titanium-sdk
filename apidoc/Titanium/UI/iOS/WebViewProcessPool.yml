@@ -9,7 +9,7 @@ description: |
     just pass the same reference to multiple web views. 
 
     E.g.
-
+    ``` js
     var pool = Ti.UI.iOS.createWebViewProcessPool();
 
     var config1 = Ti.UI.iOS.createWebViewConfiguration({
@@ -35,7 +35,7 @@ description: |
     window.add(firstWebView);
     window.add(secondWebView);
     window.open();
-
+    ```
 extends: Titanium.Proxy
 since: "8.0.0"
 platforms: [iphone, ipad]

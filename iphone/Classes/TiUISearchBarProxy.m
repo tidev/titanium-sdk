@@ -237,6 +237,11 @@
 }
 #endif
 
+- (NSNumber *)focused
+{
+  return NUMBOOL([[self searchBar] isFirstResponder]);
+}
+
 USE_VIEW_FOR_CONTENT_HEIGHT
 @end
 
