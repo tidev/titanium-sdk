@@ -6,7 +6,7 @@ summary: |
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/listview/listview_android.png) | ![iOS](images/listview/listview_ios.png) | ![Windows](images/listview/listview_wp.png) |
+    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) | ![Windows](./listview_wp.png) |
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
 
