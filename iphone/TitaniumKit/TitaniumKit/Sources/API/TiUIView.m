@@ -385,6 +385,9 @@ DEFINE_EXCEPTIONS
   if (backgroundRepeat) {
     [self renderRepeatedBackground:backgroundImage];
   }
+  if ([proxy valueForUndefinedKey:@"borderRadius"]) {
+    [self updateBorderRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+  }
   [self updateViewShadowPath];
 }
 
@@ -644,19 +647,82 @@ DEFINE_EXCEPTIONS
   }
 }
 
-- (void)setBorderRadius_:(id)radius
+- (CGFloat)radiusFromObject:(id)object
 {
-  TiDimension theDim = TiDimensionFromObject(radius);
-  if (TiDimensionIsDip(theDim)) {
-    self.layer.cornerRadius = MAX(theDim.value, 0);
-  } else {
-    self.layer.cornerRadius = 0;
+  TiDimension theDim = TiDimensionFromObject(object);
+  return TiDimensionIsDip(theDim) ? MAX(theDim.value, 0) : 0;
+}
+
+- (void)addCornerRadius:(NSArray *)radiusArray toLayer:(CALayer *)viewLayer
+{
+  CGFloat topLeftRadius;
+  CGFloat bottomLeftRadius;
+  CGFloat topRightRadius;
+  CGFloat bottomRightRadius;
+
+  if (radiusArray.count >= 4) {
+    topLeftRadius = [self radiusFromObject:radiusArray[0]];
+    topRightRadius = [self radiusFromObject:radiusArray[1]];
+    bottomRightRadius = [self radiusFromObject:radiusArray[2]];
+    bottomLeftRadius = [self radiusFromObject:radiusArray[3]];
+  } else if (radiusArray.count >= 2) {
+    CGFloat radius = [self radiusFromObject:radiusArray[0]];
+    topLeftRadius = radius;
+    bottomRightRadius = radius;
+
+    radius = [self radiusFromObject:radiusArray[1]];
+    bottomLeftRadius = radius;
+    topRightRadius = radius;
+  } else if (radiusArray.count == 1) {
+    // For same corner radius, no need to create bezier path. Use CALayer's cornerRadius.
+    viewLayer.cornerRadius = [self radiusFromObject:radiusArray[0]];
+    return;
   }
+
+  CAShapeLayer *shapeLayer = [[CAShapeLayer alloc] initWithLayer:viewLayer];
+  CGRect rect = viewLayer.bounds;
+  UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+  [bezierPath moveToPoint:CGPointMake(0 + topLeftRadius, 0)];
+  [bezierPath addLineToPoint:CGPointMake(rect.size.width - topRightRadius, 0)];
+  [bezierPath addQuadCurveToPoint:CGPointMake(rect.size.width, topRightRadius) controlPoint:CGPointMake(rect.size.width, 0)];
+  [bezierPath addLineToPoint:CGPointMake(rect.size.width, rect.size.height - bottomRightRadius)];
+  [bezierPath addQuadCurveToPoint:CGPointMake(rect.size.width - bottomRightRadius, rect.size.height) controlPoint:CGPointMake(rect.size.width, rect.size.height)];
+  [bezierPath addLineToPoint:CGPointMake(bottomLeftRadius, rect.size.height)];
+  [bezierPath addQuadCurveToPoint:CGPointMake(0, rect.size.height - bottomLeftRadius) controlPoint:CGPointMake(0, rect.size.height)];
+  [bezierPath addLineToPoint:CGPointMake(0, topLeftRadius)];
+  [bezierPath addQuadCurveToPoint:CGPointMake(0 + topLeftRadius, 0) controlPoint:CGPointMake(0, 0)];
+  [bezierPath closePath];
+
+  shapeLayer.path = bezierPath.CGPath;
+  shapeLayer.frame = viewLayer.bounds;
+  viewLayer.mask = shapeLayer;
+}
+
+- (void)updateBorderRadius:(id)radius
+{
+  NSArray *cornerRadiusArray;
+  if ([radius isKindOfClass:[NSString class]]) {
+    cornerRadiusArray = [(NSString *)radius componentsSeparatedByString:@" "];
+  } else if ([radius isKindOfClass:[NSArray class]]) {
+    cornerRadiusArray = radius;
+  } else if ([radius isKindOfClass:[NSNumber class]]) {
+    cornerRadiusArray = [NSArray arrayWithObject:radius];
+  } else {
+    NSLog(@"[WARN] Invalid value specified for borderRadius.");
+    return;
+  }
+
+  if (cornerRadiusArray.count == 0) {
+    NSLog(@"[WARN] No value specified for borderRadius.");
+    return;
+  }
+
+  [self addCornerRadius:cornerRadiusArray toLayer:self.layer];
   if (bgdImageLayer != nil) {
-    bgdImageLayer.cornerRadius = self.layer.cornerRadius;
+    [self addCornerRadius:cornerRadiusArray toLayer:bgdImageLayer];
   }
   if (gradientLayer != nil) {
-    gradientLayer.cornerRadius = self.layer.cornerRadius;
+    [self addCornerRadius:cornerRadiusArray toLayer:gradientLayer];
   }
   [self updateClipping];
 }
