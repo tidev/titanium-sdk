@@ -144,6 +144,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	// region private fields
 	private int textColorInt;
+	private int unselectedTextColorInt;
 	private AtomicLong fragmentIdGenerator = new AtomicLong();
 	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
 	protected ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
@@ -157,13 +158,19 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		// Note: We use ActionBar style for backward compatibility with Titanium versions older than 8.0.0.
 		this.colorPrimaryInt = 0xFF212121; // Default to dark gray.
 		this.textColorInt = 0xFFFFFFFF;    // Default to white.
+		this.unselectedTextColorInt = 0xFFBBBBBB; // Default to light gray.
 		try {
-			int styleAttributeId = TiRHelper.getResource("attr.actionBarStyle");
-			int[] idArray = new int[] { TiRHelper.getResource("attr.colorPrimary"),
-										TiRHelper.getResource("attr.textColorPrimary") };
-			TypedArray typedArray = activity.obtainStyledAttributes(null, idArray, styleAttributeId, 0);
+			final int styleAttributeId = TiRHelper.getResource("attr.actionBarStyle");
+			final int[] idArray = new int[] {
+				TiRHelper.getResource("attr.colorPrimary"),
+				TiRHelper.getResource("attr.textColorPrimary"),
+				TiRHelper.getResource("attr.colorControlNormal")
+			};
+			final TypedArray typedArray = activity.obtainStyledAttributes(null, idArray, styleAttributeId, 0);
+
 			this.colorPrimaryInt = typedArray.getColor(0, this.colorPrimaryInt);
 			this.textColorInt = typedArray.getColor(1, this.textColorInt);
+			this.unselectedTextColorInt = typedArray.getColor(2, this.unselectedTextColorInt);
 			typedArray.recycle();
 		} catch (Exception ex) {
 			Log.e(TAG, "Failed to fetch color from theme.", ex);
@@ -260,7 +267,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		}
 
 		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
-		int[] textColors = { this.textColorInt, this.textColorInt };
+		int[] textColors = { this.unselectedTextColorInt, this.textColorInt };
 
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
@@ -481,6 +488,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			}
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
+			color = this.unselectedTextColorInt;
 			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
 				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
