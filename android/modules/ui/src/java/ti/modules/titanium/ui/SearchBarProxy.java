@@ -62,4 +62,14 @@ public class SearchBarProxy extends TiViewProxy
 	{
 		return "Ti.UI.SearchBar";
 	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return v.isFocused();
+		}
+		return false;
+	}
 }

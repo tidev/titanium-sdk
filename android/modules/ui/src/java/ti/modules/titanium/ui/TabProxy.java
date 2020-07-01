@@ -201,7 +201,8 @@ public class TabProxy extends TiViewProxy
 		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
 
 		if (window != null) {
-			window.fireEvent(event, null, false);
+			// Let window proxy handle setting state boolean and firing event
+			window.onWindowFocusChange(focused);
 		}
 		fireEvent(event, eventData, true);
 	}

@@ -124,7 +124,7 @@ examples:
         start falling after the window opens.  The item and boundary collisions are reported to the
         console.
 
-        <img src="images/animator/collision.gif" height="455" style="border:1px solid black"/>
+        <img src="./collision.gif" height="455" style="border:1px solid black"/>
 
         ``` js
         var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});

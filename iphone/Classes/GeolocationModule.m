@@ -480,14 +480,18 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
   id aguid = TI_APPLICATION_GUID;
   id sid = [[TiApp app] sessionId];
 
-  NSDictionary *params = @{
+  NSMutableDictionary *params = [@{
     @"d" : direction,
     @"aguid" : aguid,
     @"mid" : [TiUtils appIdentifier],
     @"sid" : sid,
     @"q" : address,
-    @"c" : [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode]
-  };
+  } mutableCopy];
+
+  NSString *countryCode = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+  if (countryCode) {
+    [params setValue:countryCode forKey:@"c"];
+  }
   [callback start:params];
 }
 
