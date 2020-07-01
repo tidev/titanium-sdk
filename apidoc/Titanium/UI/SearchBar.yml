@@ -4,7 +4,7 @@ summary: A specialized text field for entering search text.
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/searchbar/searchbar_android.png) | ![iOS](images/searchbar/searchbar_ios.png) | ![Windows](images/searchbar/searchbar_wp.png) |
+    | ![Android](./searchbar_android.png) | ![iOS](./searchbar_ios.png) | ![Windows](./searchbar_windows.png) |
 
     The `SearchBar` object is closely modeled on an iOS native search bar.
     As such, not all features are supported on other platforms. For Android applications,

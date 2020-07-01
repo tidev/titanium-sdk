@@ -4,7 +4,7 @@ summary: A multiline text field that supports editing and scrolling.
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/textarea/textarea_android.png) | ![iOS](images/textarea/textarea_ios.png) | ![Windows](images/textarea/textarea_wp.png) |
+    | ![Android](./textarea_android.png) | ![iOS](./textarea_ios.png) | ![Windows](./textarea_wp.png) |
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
 

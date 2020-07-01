@@ -4,7 +4,7 @@ summary: A slider component with a draggable thumb.
 description: |
     | Android | iOS | Windows |
     | ------- | --- | ------- |
-    | ![Android](images/slider/slider_android.png) | ![iOS](images/slider/slider_ios.png) | ![Windows](images/slider/slider_wp.png) |
+    | ![Android](./slider_android.png) | ![iOS](./slider_ios.png) | ![Windows](./slider_wp.png) |
 
     A slider lets the user select from a range of values by dragging the slider thumb.
 
