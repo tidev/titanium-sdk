@@ -119,7 +119,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 
 - (void)noteValueChange:(NSString *)newValue
 {
-  if (![[self valueForKey:@"value"] isEqual:newValue]) {
+  NSString *oldValue = [TiUtils stringValue:[self valueForKey:@"value"]];
+  if (![oldValue isEqual:newValue]) {
     [self replaceValue:newValue forKey:@"value" notification:NO];
     [self contentsWillChange];
     [self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
