@@ -11,12 +11,12 @@ package <%- moduleId %>;
 
 import org.appcelerator.kroll.KrollModule
 import org.appcelerator.kroll.KrollDict
-import org.appcelerator.kroll.annotations.Kroll.*
+import org.appcelerator.kroll.annotations.Kroll
 import org.appcelerator.kroll.common.Log
 import org.appcelerator.kroll.common.TiConfig
 import org.appcelerator.titanium.TiApplication
 
-@module(name = "<%- moduleNameCamel %>", id = "ti.<%- moduleId %>")
+@Kroll.module(name = "<%- moduleNameCamel %>", id = "<%- moduleId %>")
 class <%- moduleNameCamel %>Module: KrollModule() {
 
 	// NOTE: You can develop Titanium Android modules in Android Studio. Follow these three steps:
@@ -30,9 +30,9 @@ class <%- moduleNameCamel %>Module: KrollModule() {
 		private val DBG = TiConfig.LOGD
 		
 		// You can define constants with @Kroll.constant, for example:
-		// @constant private val EXTERNAL_NAME = "EXTERNAL_NAME"
+		// @Kroll.constant private val EXTERNAL_NAME = "EXTERNAL_NAME"
 
-		@onAppCreate
+		@Kroll.onAppCreate
 		fun onAppCreate(app: TiApplication?) {
 			Log.d(LCAT, "inside onAppCreate")
 			// put module init code that needs to run when the application is created
@@ -41,13 +41,13 @@ class <%- moduleNameCamel %>Module: KrollModule() {
 
 	// Methods
 
-	@method
+	@Kroll.method
 	fun example(): String {
 		Log.d(LCAT, "example() called")
 		return "hello world"
 	}
 	
-	@method
+	@Kroll.method
 	fun testMethod(params: KrollDict) {
 		Log.d(LCAT, "testMethod() called")
 
@@ -65,10 +65,8 @@ class <%- moduleNameCamel %>Module: KrollModule() {
 
 	// Properties
 
-	@get:getProperty
-	@get:method
-	@set:setProperty
-	@set:method
+	@get:Kroll.getProperty
+	@set:Kroll.setProperty
 	var exampleProp: String
 		get() {
 			Log.d(LCAT, "get example property")
