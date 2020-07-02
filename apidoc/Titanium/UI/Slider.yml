@@ -130,6 +130,11 @@ events:
         type: Point
         platforms: [android]
 
+      - name: isTrusted
+        summary: True if change was made by the user. False if change was made programmatically.
+        type: Boolean
+        since: 9.1.0
+
   - name: click
     summary: Fired when the device detects a click against the view.
     description: |
