@@ -376,6 +376,7 @@ describe('Titanium.UI', function () {
 				if (OS_IOS) {
 					// Need to take scale into account on iOS. Original image reports 5x5 when it's 2x density while saved image is 10x10
 					// FIXME: This is a bug in Ti.Blob on iOS. It should report in pixels, not points!
+					// NOTE: That this means we need to use sizes divisible by 1, 2, or 3.
 					const scale = Ti.Platform.displayCaps.logicalDensityFactor;
 					should(blob.width * scale).equal(snapshotBlob.width, 'width');
 					should(blob.height * scale).equal(snapshotBlob.height, 'height');
@@ -428,8 +429,10 @@ describe('Titanium.UI', function () {
 			const suffix = OS_IOS ? `_${Ti.UI.semanticColorType}` : '';
 			const view = Ti.UI.createView({
 				backgroundColor,
-				width: '10px',
-				height: '10px'
+				// NOTE: use a number divisble by 1, 2, 3 or 4 because ios scale may be one of those numbers!
+				// And bug in TiBlob on iOS reports width/height in pts, not px
+				width: '12px',
+				height: '12px'
 			});
 			win.add(view);
 			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
