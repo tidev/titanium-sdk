@@ -680,15 +680,15 @@ DEFINE_EXCEPTIONS
   }
 
   CAShapeLayer *shapeLayer = [[CAShapeLayer alloc] initWithLayer:viewLayer];
-  CGRect rect = viewLayer.bounds;
+  CGSize size = viewLayer.bounds.size;
   UIBezierPath *bezierPath = [UIBezierPath bezierPath];
   [bezierPath moveToPoint:CGPointMake(0 + topLeftRadius, 0)];
-  [bezierPath addLineToPoint:CGPointMake(rect.size.width - topRightRadius, 0)];
-  [bezierPath addQuadCurveToPoint:CGPointMake(rect.size.width, topRightRadius) controlPoint:CGPointMake(rect.size.width, 0)];
-  [bezierPath addLineToPoint:CGPointMake(rect.size.width, rect.size.height - bottomRightRadius)];
-  [bezierPath addQuadCurveToPoint:CGPointMake(rect.size.width - bottomRightRadius, rect.size.height) controlPoint:CGPointMake(rect.size.width, rect.size.height)];
-  [bezierPath addLineToPoint:CGPointMake(bottomLeftRadius, rect.size.height)];
-  [bezierPath addQuadCurveToPoint:CGPointMake(0, rect.size.height - bottomLeftRadius) controlPoint:CGPointMake(0, rect.size.height)];
+  [bezierPath addLineToPoint:CGPointMake(size.width - topRightRadius, 0)];
+  [bezierPath addQuadCurveToPoint:CGPointMake(size.width, topRightRadius) controlPoint:CGPointMake(size.width, 0)];
+  [bezierPath addLineToPoint:CGPointMake(size.width, size.height - bottomRightRadius)];
+  [bezierPath addQuadCurveToPoint:CGPointMake(size.width - bottomRightRadius, size.height) controlPoint:CGPointMake(size.width, size.height)];
+  [bezierPath addLineToPoint:CGPointMake(bottomLeftRadius, size.height)];
+  [bezierPath addQuadCurveToPoint:CGPointMake(0, size.height - bottomLeftRadius) controlPoint:CGPointMake(0, size.height)];
   [bezierPath addLineToPoint:CGPointMake(0, topLeftRadius)];
   [bezierPath addQuadCurveToPoint:CGPointMake(0 + topLeftRadius, 0) controlPoint:CGPointMake(0, 0)];
   [bezierPath closePath];
