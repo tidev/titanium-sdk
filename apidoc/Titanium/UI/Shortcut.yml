@@ -41,6 +41,13 @@ methods:
   - name: removeAll
     summary: Remove all shortcuts from application.
 
+  - name: getById
+    summary: Get shortcut by identifier.
+    parameters:
+      - name: id
+        summary: Identifier of shortcut to obtain.
+        type: String
+
 events:
   - name: click
     summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.

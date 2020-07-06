@@ -11,14 +11,16 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.io.TiFileFactory;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 
@@ -82,14 +84,24 @@ public class ShortcutItemProxy extends KrollProxy
 		}
 		if (dict.containsKey(TiC.PROPERTY_ICON)) {
 			Object icon = dict.get(TiC.PROPERTY_ICON);
-			if (icon instanceof Number) {
-				int resId = ((Number) icon).intValue();
-				shortcutBuilder.setIcon(Icon.createWithResource(context, resId));
-			} else if (icon instanceof String) {
-				String uri = resolveUrl(null, (String) icon);
-				shortcutBuilder.setIcon(Icon.createWithResource(context, TiUIHelper.getResourceId(uri)));
-			} else {
-				Log.w(TAG, "icon invalid, expecting resourceId (Number) or path (String)!");
+			try {
+				if (icon instanceof Number) {
+					int resId = ((Number) icon).intValue();
+					shortcutBuilder.setIcon(Icon.createWithResource(context, resId));
+
+				} else if (icon instanceof String) {
+					final String uri = resolveUrl(null, (String) icon);
+					final TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(uri, false));
+					final Bitmap bitmap = blob.getImage();
+
+					if (bitmap != null) {
+						shortcutBuilder.setIcon(Icon.createWithBitmap(bitmap));
+					}
+				} else {
+					Log.w(TAG, "icon invalid, expecting resourceId (Number) or path (String)!");
+				}
+			} catch (Exception e) {
+				Log.w(TAG, e.getMessage());
 			}
 		}
 

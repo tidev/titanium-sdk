@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.PersistableBundle;
@@ -21,8 +22,9 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -145,37 +147,43 @@ public class ShortcutProxy extends KrollProxy
 		final Context context = TiApplication.getInstance();
 		final ShortcutInfo.Builder shortcutBuilder = new ShortcutInfo.Builder(context, shortcut.getId());
 
-		// Create shortcut intent.
-		final Intent intent = new Intent(TiApplication.getAppRootOrCurrentActivity().getIntent());
-		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setAction(Intent.ACTION_VIEW);
-		intent.putExtra("shortcut", shortcut.getId());
-		intent.putExtra("properties", shortcut.getProperties().toString());
-		shortcutBuilder.setIntent(intent);
-
-		shortcutBuilder.setShortLabel(shortcut.getTitle());
-		shortcutBuilder.setLongLabel(shortcut.getDescription());
-
-		// Handle shortcut icon.
-		final Object icon = shortcut.getIcon();
-		if (icon instanceof Number) {
-
-			// Parse specified resource identifier.
-			int resId = ((Number) icon).intValue();
-			shortcutBuilder.setIcon(Icon.createWithResource(context, resId));
-
-		} else if (icon instanceof String) {
-
-			// Parse specified resource path.
-			String uri = resolveUrl(null, (String) icon);
-			shortcutBuilder.setIcon(Icon.createWithResource(context, TiUIHelper.getResourceId(uri)));
-		}
-
-		// Add shortcut.
-		final List<ShortcutInfo> shortcuts = new ArrayList<>();
-		shortcuts.add(shortcutBuilder.build());
-
 		try {
+
+			// Create shortcut intent.
+			final Intent intent = new Intent(TiApplication.getAppRootOrCurrentActivity().getIntent());
+			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.setAction(Intent.ACTION_VIEW);
+			intent.putExtra("shortcut", shortcut.getId());
+			intent.putExtra("properties", shortcut.getProperties().toString());
+			shortcutBuilder.setIntent(intent);
+
+			shortcutBuilder.setShortLabel(shortcut.getTitle());
+			shortcutBuilder.setLongLabel(shortcut.getDescription());
+
+			// Handle shortcut icon.
+			final Object icon = shortcut.getIcon();
+			if (icon instanceof Number) {
+
+				// Parse specified resource identifier.
+				int resId = ((Number) icon).intValue();
+				shortcutBuilder.setIcon(Icon.createWithResource(context, resId));
+
+			} else if (icon instanceof String) {
+
+				// Parse specified resource path.
+				final String uri = resolveUrl(null, (String) icon);
+				final TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(uri, false));
+				final Bitmap bitmap = blob.getImage();
+
+				if (bitmap != null) {
+					shortcutBuilder.setIcon(Icon.createWithBitmap(bitmap));
+				}
+			}
+
+			// Add shortcut.
+			final List<ShortcutInfo> shortcuts = new ArrayList<>();
+			shortcuts.add(shortcutBuilder.build());
+
 			shortcutManager.addDynamicShortcuts(shortcuts);
 		} catch (Exception e) {
 			Log.w(TAG, e.getMessage());
@@ -219,6 +227,21 @@ public class ShortcutProxy extends KrollProxy
 		} catch (Exception e) {
 			Log.w(TAG, e.getMessage());
 		}
+	}
+
+	/**
+	 * Obtain shortcut by identifier.
+	 */
+	@Kroll.method
+	public ShortcutItemProxy getById(String id)
+	{
+		for (ShortcutItemProxy shortcut : items()) {
+			if (shortcut.getId().equals(id)) {
+				return shortcut;
+			}
+		}
+
+		return null;
 	}
 
 	@Override
