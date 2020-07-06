@@ -64,7 +64,7 @@
   CGRect bounds = [[self view] bounds];
   NSLog(@"TIVIEWCONTROLLER DID LAYOUT SUBVIEWS %.1f %.1f", bounds.size.width, bounds.size.height);
 #endif
-  if (!CGRectEqualToRect([_proxy sandboxBounds], [[self view] bounds])) {
+  if (_proxy != nil && !CGRectEqualToRect([_proxy sandboxBounds], [[self view] bounds])) {
     [_proxy parentSizeWillChange];
   }
   [super viewDidLayoutSubviews];
@@ -138,30 +138,34 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
-  [_proxy parentWillShow];
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-    [(id<TiWindowProtocol>)_proxy viewWillAppear:animated];
+  if (_proxy != nil) {
+    [_proxy parentWillShow];
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      [(id<TiWindowProtocol>)_proxy viewWillAppear:animated];
+    }
   }
   [super viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
-  [_proxy parentWillHide];
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-    [(id<TiWindowProtocol>)_proxy viewWillDisappear:animated];
+  if (_proxy != nil) {
+    [_proxy parentWillHide];
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      [(id<TiWindowProtocol>)_proxy viewWillDisappear:animated];
+    }
   }
   [super viewWillDisappear:animated];
 }
 - (void)viewDidAppear:(BOOL)animated
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy viewDidAppear:animated];
   }
   [super viewDidAppear:animated];
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy viewDidDisappear:animated];
   }
   [super viewDidDisappear:animated];
@@ -170,14 +174,14 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy presentationControllerWillDismiss:presentationController];
   }
 }
 
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy presentationControllerDidDismiss:presentationController];
   }
 }
@@ -185,7 +189,7 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
@@ -193,7 +197,7 @@
 
 - (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy systemLayoutFittingSizeDidChangeForChildContentContainer:container];
   }
   [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
@@ -201,7 +205,7 @@
 
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
   }
   [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
@@ -209,7 +213,7 @@
 
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     [(id<TiWindowProtocol>)_proxy preferredContentSizeDidChangeForChildContentContainer:container];
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
@@ -219,34 +223,36 @@
 
 - (BOOL)prefersHomeIndicatorAutoHidden
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     return [(id<TiWindowProtocol>)_proxy homeIndicatorAutoHide];
-  } else {
-    return NO;
   }
+
+  return NO;
 }
 
 #pragma mark - Status Bar Appearance
 
 - (BOOL)prefersStatusBarHidden
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     return [(id<TiWindowProtocol>)_proxy hidesStatusBar];
-  } else {
-    return NO;
   }
+
+  return NO;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
     return [(id<TiWindowProtocol>)_proxy preferredStatusBarStyle];
-  } else if ([[[TiApp app] controller] topContainerController] != nil) {
+  }
+
+  if ([[[TiApp app] controller] topContainerController] != nil) {
     // Prefer the style of the most recent view controller.
     return [[[[TiApp app] controller] topContainerController] preferredStatusBarStyle];
-  } else {
-    return UIStatusBarStyleDefault;
   }
+
+  return UIStatusBarStyleDefault;
 }
 
 - (BOOL)modalPresentationCapturesStatusBarAppearance

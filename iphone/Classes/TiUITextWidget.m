@@ -17,6 +17,8 @@
 
 @implementation TiUITextWidget
 
+@synthesize focused;
+
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
 {
@@ -193,6 +195,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+  focused = YES;
   [[ourProxy keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [ourProxy keyboardAccessoryHeight])];
 
   [[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
@@ -209,6 +212,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didBlurWithText:(NSString *)value
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+  focused = NO;
 
   [[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 

@@ -28,6 +28,24 @@ methods:
         See the example for a demonstration, and the official Android Developer documentation for 
         the [preferences.xml](https://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
         format.
+
+  - name: getColorResource
+    summary: |
+        Returns a <Ti.Color> instance for a color defined by the system or user resources (colors.xml)
+    description: |
+        This method allows converting a known color resource id or short name to an actual color instance.
+
+        The resource id values can be accessed via <Titanium.Android.R.color> and <Titanium.App.Android.R.color> properties.
+
+        See the official Android Developer documentation for
+        the [R.color](https://developer.android.com/reference/android/R.color) constants.
+    parameters:
+      - name: resourceIdOrColorName
+        summary: integer resource id for a color, or the name of the color defined in the application resources (colors.xml).
+        type: [Number, String]
+    returns:
+      - type: Titanium.UI.Color
+    since: "9.1.0"
         
 properties:
   - name: FLAG_TRANSLUCENT_NAVIGATION

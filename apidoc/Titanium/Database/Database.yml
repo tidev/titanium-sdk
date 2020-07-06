@@ -35,7 +35,7 @@ methods:
       storage situations. See
       [How do I prevent files from being backed up to iCloud and iTunes?](https://developer.apple.com/library/ios/qa/qa1719/_index.html)
       for details. To prevent this for database files, use the <Titanium.Database.DB.file> 
-      object with the <Titanium.Filesystem.File.setRemoteBackup> method. 
+      object with the <Titanium.Filesystem.File.remoteBackup> property. 
 
       Always [close](Titanium.Database.DB.close) the database after use.
     returns:
