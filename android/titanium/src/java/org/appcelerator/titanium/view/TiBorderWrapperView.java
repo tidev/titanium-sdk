@@ -182,15 +182,15 @@ public class TiBorderWrapperView extends FrameLayout
 
 			} else if (cornerPixels.length >= 2) {
 
-				// Top-Left, Bottom-Right and Top-Right, Bottom-Left
-				this.radius[0] = cornerPixels[0];
-				this.radius[1] = cornerPixels[0];
-				this.radius[2] = cornerPixels[0];
-				this.radius[3] = cornerPixels[0];
-				this.radius[4] = cornerPixels[1];
-				this.radius[5] = cornerPixels[1];
-				this.radius[6] = cornerPixels[1];
-				this.radius[7] = cornerPixels[1];
+				// Top-Left + Bottom-Right, Top-Right + Bottom-Left
+				this.radius[0] = cornerPixels[0]; // Top-Left
+				this.radius[1] = cornerPixels[0]; // Top-Left
+				this.radius[2] = cornerPixels[1]; // Top-Right
+				this.radius[3] = cornerPixels[1]; // Top-Right
+				this.radius[4] = cornerPixels[0]; // Bottom-Right
+				this.radius[5] = cornerPixels[0]; // Bottom-Right
+				this.radius[6] = cornerPixels[1]; // Bottom-Left
+				this.radius[7] = cornerPixels[1]; // Bottom-Left
 
 			} else if (cornerPixels.length == 1) {
 
