@@ -63,7 +63,7 @@ const uint8FloatArray = new Uint8Array(floatArray.buffer);
 
 let INSPECT_MAX_BYTES = 50;
 
-class Buffer {
+class Buffer { // FIXME: Extend Uint8Array
 	/**
 	 * Constructs a new buffer.
 	 *
@@ -73,11 +73,13 @@ class Buffer {
 	 * Also supports the deprecated Buffer() constructors which are safe
 	 * to use outside of this module.
 	 *
-	 * @param {integer[]|Buffer|integer|string|Ti.Buffer} arg
-	 * @param {string|integer} encodingOrOffset
-	 * @param {integer} length
+	 * @param {integer[]|Buffer|integer|string|Ti.Buffer} arg the underlying data/bytes
+	 * @param {string|integer} encodingOrOffset encoding of the string, or start offset of array/buffer
+	 * @param {integer} length length of the underlying array/buffer to wrap
 	 */
 	constructor(arg, encodingOrOffset, length) {
+		// FIXME: Split into Fast/SlowBuffer. Have SlowBuffer wrap an existing Ti.Buffer
+		// Have FastBuffer just be an extension of Uint8Array
 		if (typeof arg !== 'object' || arg.apiName !== 'Ti.Buffer') {
 			showFlaggedDeprecation();
 
@@ -109,7 +111,23 @@ class Buffer {
 				value: tiBuffer
 			}
 		});
-		// FIXME: Support .buffer property that holds an ArrayBuffer!
+	}
+
+	// This is a method we should get by extending Uint8Array, so really should only be overriden on a "SlowBuffer" that wraps Ti.Buffer
+	get buffer() {
+		// Get the slice of the array from byteOffset to length
+		return Uint8Array.from(this).buffer;
+	}
+
+	// This is a method we should get by extending Uint8Array, so really should only be overriden on a "SlowBuffer" that wraps Ti.Buffer
+	set(src, offset = 0) {
+		const numBytes = src.length;
+		// check src.length + offset doesn't go beyond our length!
+		checkOffset(this, offset, numBytes);
+		// copy src values into this buffer starting at offset
+		for (let i = 0; i < numBytes; i++) {
+			setAdjustedIndex(this, i + offset, src[i]);
+		}
 	}
 
 	/**
@@ -207,8 +225,8 @@ class Buffer {
 		}
 
 		// TODO: handle overlap when target === this!
-		// TODO: Do we need to take target or this.byteOffset into account here?
-		target._tiBuffer.copy(this._tiBuffer, targetStart, sourceStart, length);
+		// TODO: Do we need to take target byteOffset into account here?
+		target._tiBuffer.copy(this._tiBuffer, targetStart, sourceStart + this.byteOffset, length);
 		return length;
 	}
 
@@ -1472,6 +1490,13 @@ class Buffer {
 Buffer.prototype.inspect = Buffer.prototype[customInspectSymbol];
 
 Buffer.poolSize = 8192;
+
+// HACK: ArrayBuffer.isView returns true for Node Buffer, but false for us. Until we can extend Uint8Array, we need to hack this sniffing method
+const ArrayBufferIsView = ArrayBuffer.isView;
+ArrayBuffer.isView = function (thing) {
+	return ArrayBufferIsView(thing) || thing instanceof Buffer;
+};
+Object.setPrototypeOf(Buffer, Uint8Array);
 
 export default {
 	Buffer,

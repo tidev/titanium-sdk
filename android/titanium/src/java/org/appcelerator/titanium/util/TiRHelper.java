@@ -148,6 +148,22 @@ public class TiRHelper
 	}
 
 	/**
+	 * Checks if the given resource path exists. Refer to {@link #getResource(String)} for more details.
+	 * @param path the resource's path
+	 * @return whether or not the resource exists in the application's resource bundle.
+	 * @module.api
+	 */
+	public static boolean hasResource(String path)
+	{
+		try {
+			int id = TiRHelper.getResource(path);
+			return id != 0;
+		} catch (ResourceNotFoundException e) {
+			return false;
+		}
+	}
+
+	/**
 	 * @param path path of the resource.
 	 * @return the application resource given its path.
 	 * @throws ResourceNotFoundException
