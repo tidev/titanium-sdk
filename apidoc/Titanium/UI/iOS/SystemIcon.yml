@@ -5,7 +5,6 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "5.4.0"
 createable: false
-
 properties:
   - name: BOOKMARKS
     summary: Bookmark style icon

@@ -16,11 +16,13 @@ methods:
         For each "conversion specification" (ie. `%s` for a string or `%d` for a number) used inside
         the string, `formatString` argument, the respective value is substituted from the
         argument list. For example:
-        
-            var forename = 'Paul';
-            var number = 21;
-            var message = String.format('Welcome, %s! You are visitor number %d', forename, number);
-            Ti.API.info(message);
+
+        ``` js
+        var forename = 'Paul';
+        var number = 21;
+        var message = String.format('Welcome, %s! You are visitor number %d', forename, number);
+        Ti.API.info(message);
+        ```
     returns:
         type: String
         summary: Formatted string.

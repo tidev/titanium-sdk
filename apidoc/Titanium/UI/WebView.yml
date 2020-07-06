@@ -77,8 +77,10 @@ description: |
     itself, displaying only the default background color. The following log messages will be
     displayed in the console:
 
-        [WARN] :   AwContents: nativeOnDraw failed; clearing to background color.
-        [INFO] :   chromium: [INFO:async_pixel_transfer_manager_android.cc(56)]
+    ```
+    [WARN] :   AwContents: nativeOnDraw failed; clearing to background color.
+    [INFO] :   chromium: [INFO:async_pixel_transfer_manager_android.cc(56)]
+    ```
 
     To workaround this issue, you can enable software rendering by setting the WebView's
     [borderRadius](Titanium.UI.WebView.borderRadius) property to a value greater than zero.
@@ -94,9 +96,11 @@ description: |
     that needs to use the entire web view, the following callback resizes the content to use the
     full height of the web view:
 
-        window.onresize= function(){
-            document.getElementById("component").style.height = window.innerHeight + 'px';
-        };
+    ``` js
+    window.onresize= function(){
+        document.getElementById("component").style.height = window.innerHeight + 'px';
+    };
+    ```
 
     For more information, see the following topics:
 
@@ -132,21 +136,25 @@ description: |
     WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView 
     a little modification is required in the HTML files:
     
-        <style>
-          @font-face
-            {
-              font-family: 'Lato-Regular';
-              src: url('fonts/Lato-Regular.ttf');
-            }
-        </style>
+    ``` html
+    <style>
+      @font-face
+        {
+          font-family: 'Lato-Regular';
+          src: url('fonts/Lato-Regular.ttf');
+        }
+    </style>
+    ```
 
     To have a WKWebView scale the page the same way as UIWebView, add the following meta tag to the HTML header:
 
-        <html>
-          <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          </head>
-        </html>
+    ``` html
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+    </html>
+    ```
 
     ### Ti.UI.SIZE and WebViews
 
@@ -156,36 +164,38 @@ description: |
     As a workaround you can try to get the `document.body.scrollHeight` inside <Titanium.UI.WebView.load> event 
     of webview and set the height to webview. See following example.
 
-        var win = Ti.UI.createWindow({
-          backgroundColor: 'white';
-        });
- 
-        var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
- 
-        verticalView.add(Ti.UI.createLabel({text: 'Label 1', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
- 
-        var htmla = "<div style='font-family: Helvetica Neue; font-size:16px'><ul><li>Item 1</li><li>Item 2</li></ul></div>";
-        var html = "<!DOCTYPE html>";
-      
-        html += "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'><style type='text/css'>html {-webkit-text-size-adjust: none;}</style><script type='text/javascript'>document.ontouchmove = function(event){event.preventDefault();}</script></head><body style='overflow: hidden'>";
-        html += htmla;
-        html += "</body></html>";
-      
-        var webview = Ti.UI.createWebView({left: '14dp', right: '14dp', top: '7dp', height: Ti.UI.SIZE, html: html, backgroundColor: "yellow"});
-      
-        verticalView.add(webview);
- 
-        verticalView.add(Ti.UI.createLabel({text: 'Label 2', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
- 
-        win.add(verticalView);
- 
-        win.open();
- 
-        webview.addEventListener('load', function(e) {
-          var result = webview.evalJSSync('document.body.scrollHeight');
-          Ti.API.info('webview height: ' + result);
-          webview.height = result;
-        });    
+    ``` js
+    var win = Ti.UI.createWindow({
+      backgroundColor: 'white';
+    });
+
+    var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
+
+    verticalView.add(Ti.UI.createLabel({text: 'Label 1', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+
+    var htmla = "<div style='font-family: Helvetica Neue; font-size:16px'><ul><li>Item 1</li><li>Item 2</li></ul></div>";
+    var html = "<!DOCTYPE html>";
+  
+    html += "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'><style type='text/css'>html {-webkit-text-size-adjust: none;}</style><script type='text/javascript'>document.ontouchmove = function(event){event.preventDefault();}</script></head><body style='overflow: hidden'>";
+    html += htmla;
+    html += "</body></html>";
+  
+    var webview = Ti.UI.createWebView({left: '14dp', right: '14dp', top: '7dp', height: Ti.UI.SIZE, html: html, backgroundColor: "yellow"});
+  
+    verticalView.add(webview);
+
+    verticalView.add(Ti.UI.createLabel({text: 'Label 2', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
+
+    win.add(verticalView);
+
+    win.open();
+
+    webview.addEventListener('load', function(e) {
+      var result = webview.evalJSSync('document.body.scrollHeight');
+      Ti.API.info('webview height: ' + result);
+      webview.height = result;
+    });
+    ``` 
     
     #### For More Information
 
@@ -193,8 +203,6 @@ description: |
     Content](https://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
     in the Titanium Mobile Guides for more information on using web views, including use
     cases, more code examples, and best practices for web view content.
-
-
 extends: Titanium.UI.View
 excludes:
     methods: [ add, remove, removeAllChildren, replaceAt ]
@@ -212,11 +220,11 @@ methods:
 
       For example:
 
-          setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  { baseURL: 'https://developer.appcelerator.com/' });
-
+      ``` js
+      setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
+              { baseURL: 'https://developer.appcelerator.com/' });
+      ```
     parameters:
-
       - name: html
         summary: New HTML to display in the web view.
         type: Object
@@ -225,7 +233,6 @@ methods:
         summary: Optional parameters for the content. Only used by iOS and Android.
         optional: true
         type: Dictionary
-
     since: {android: "8.1.0", iphone: "2.0.0", ipad: "2.0.0"}
     platforms: [android, iphone, ipad]
 
@@ -252,18 +259,24 @@ methods:
         example, the following call retrieves the `document.title` element from the
         document currently loaded into the web view.
 
-            var docTitle = myWebView.evalJS('document.title');
+        ``` js
+        var docTitle = myWebView.evalJS('document.title');
+        ```
 
         It is not necessary to include `return` in the JavaScript. In fact, the following
         call returns the empty string:
 
-            myWebView.evalJS('return document.title');
+        ``` js
+        myWebView.evalJS('return document.title');
+        ```
 
         The `evalJS` variant with a second callback argument executes asynchronously.
 
-            myWebView.evalJS('document.title', function (result) {
-              // Manipulate the result here
-            });
+        ``` js
+        myWebView.evalJS('document.title', function (result) {
+          // Manipulate the result here
+        });
+        ```
     returns:
         type: String
         summary: Result of the evaluation. May be null if the asynchronous variant of this method is called.
@@ -323,9 +336,7 @@ methods:
         The persistence property of this method is only supported on iOS and Titanium SDK 8.0.0+. 
         It is ignored on other platforms and versions.
     platforms: [android, iphone, ipad]
-
     parameters:
-
       - name: username
         summary: Basic auth user name.
         type: String
@@ -737,7 +748,6 @@ properties:
   - name: html
     summary: HTML content of this web view.
     description: |
-
         See [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
         specified when setting HTML content.
 
@@ -799,24 +809,25 @@ properties:
 
         The following example opens new web content in a new tab rather than a new window:
 
-            var tabGroup = Ti.UI.createTabGroup(),
-                win = Ti.UI.createWindow(),
-                tab = Ti.UI.createTab({window: win, title: 'Start Page'}),
-                webview = Ti.UI.createWebView({ url:'index.html'});
+        ``` js
+        var tabGroup = Ti.UI.createTabGroup(),
+            win = Ti.UI.createWindow(),
+            tab = Ti.UI.createTab({window: win, title: 'Start Page'}),
+            webview = Ti.UI.createWebView({ url:'index.html'});
 
-            webview.onCreateWindow = function(e) {
-                var newWin = Ti.UI.createWindow(),
-                    newWebView = Ti.UI.createWebView(),
-                    newTab = Ti.UI.createTab({window: newWin, title: 'New Page'});
-                newWin.add(newWebView);
-                tabGroup.addTab(newTab);
-                return newWebView;
-            };
+        webview.onCreateWindow = function(e) {
+            var newWin = Ti.UI.createWindow(),
+                newWebView = Ti.UI.createWebView(),
+                newTab = Ti.UI.createTab({window: newWin, title: 'New Page'});
+            newWin.add(newWebView);
+            tabGroup.addTab(newTab);
+            return newWebView;
+        };
 
-            win.add(webview);
-            tabGroup.addTab(tab);
-            tabGroup.open();
-
+        win.add(webview);
+        tabGroup.addTab(tab);
+        tabGroup.open();
+        ```
     type: Callback<Object>
     platforms: [android]
     since: "2.1.0"
@@ -854,12 +865,14 @@ properties:
         To enable hardware acceleration, add the `tool-api-level` and
         `manifest` elements shown below inside the `android` element in your `tiapp.xml` file.
 
-            <android xmlns:android="http://schemas.android.com/apk/res/android">
-                <tool-api-level>11</tool-api-level>
-                <manifest>
-                    <application android:hardwareAccelerated="true"/>
-                </manifest>
-            </android>
+        ``` xml
+        <android xmlns:android="http://schemas.android.com/apk/res/android">
+            <tool-api-level>11</tool-api-level>
+            <manifest>
+                <application android:hardwareAccelerated="true"/>
+            </manifest>
+        </android>
+        ```
 
         See Android documentation for
         [WebSettings.PluginState](https://developer.android.com/reference/android/webkit/WebSettings.PluginState.html).
@@ -1116,53 +1129,58 @@ examples:
     example: |
         Create a web view to a remote URL and open the window as modal.
 
-            var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
-            var window = Titanium.UI.createWindow();
-            window.add(webview);
-        	window.open({modal:true});
-
+        ``` js
+        var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
+        var window = Titanium.UI.createWindow();
+        window.add(webview);
+        window.open({modal:true});
+        ```
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <Window id="win" modal="true">
-                    <WebView id="webview" url="http://www.appcelerator.com" />
-                </Window>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <Window id="win" modal="true">
+                <WebView id="webview" url="http://www.appcelerator.com" />
+            </Window>
+        </Alloy>
+        ```
   - title: Listening to Web View properties in iOS
     example: |
         Create a web view and listen 'title' property of web view.
 
-            var webview = Ti.UI.createWebView({
-                url:'http://www.appcelerator.com'
-            });
-            webview.startListeningToProperties([ 'title' ]);
-            webview.addEventListener('title', function(e) {
-                alert('Title is : -' +e.value);
-            });
-            var window = Ti.UI.createWindow();
-            window.add(webview);
-            window.open();
-
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url:'http://www.appcelerator.com'
+        });
+        webview.startListeningToProperties([ 'title' ]);
+        webview.addEventListener('title', function(e) {
+            alert('Title is : -' +e.value);
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
   - title: Usage of allowedURLSchemes and handleurl in iOS
     example: |
         Create a web view and listen 'handleurl' event to open url from Titanium platform.
         
-            var webview = Ti.UI.createWebView({
-                url: 'https://www.google.com',
-                allowedURLSchemes: [ 'https', 'http' ]
-            });
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url: 'https://www.google.com',
+            allowedURLSchemes: [ 'https', 'http' ]
+        });
 
-            webview.addEventListener('handleurl', function(e) {
-                var handler = e.handler;
-                Ti.Platform.openURL(e.url);
-                handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL); 
-            });
-            var window = Ti.UI.createWindow();
-            window.add(webview);
-            window.open();
+        webview.addEventListener('handleurl', function(e) {
+            var handler = e.handler;
+            Ti.Platform.openURL(e.url);
+            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL); 
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
 
 ---
 name: OnLinkURLResponse

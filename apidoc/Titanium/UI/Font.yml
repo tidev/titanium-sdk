@@ -8,16 +8,20 @@ description: |
     Note that to update the font used by a UI component, you must set the object's `font`
     property, like this:
 
-        myLabel.font = {
-            fontSize: 24,
-            fontFamily: myFontName
-        }
+    ``` js
+    myLabel.font = {
+        fontSize: 24,
+        fontFamily: myFontName
+    }
+    ```
 
     Changing the `font` object after assigning it does not reliably affect the underlying UI
     component:
 
-        // This may not work as expected
-        myLabel.font.fontSize = 24;
+    ``` js
+    // This may not work as expected
+    myLabel.font.fontSize = 24;
+    ```
 
     #### Custom Fonts
 

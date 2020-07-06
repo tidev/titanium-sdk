@@ -17,6 +17,7 @@ methods:
       - name: index
         summary: The index of the node to retrieve. Indexing starts at 0.
         type: Number
+
 properties:
   - name: length
     summary: The length of the node list.
