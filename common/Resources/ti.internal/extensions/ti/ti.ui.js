@@ -38,6 +38,27 @@ Object.defineProperty(UI, 'semanticColorType', {
 // on Android/iOS < 13, we need to roll our own fetchSemanticColor impl
 // on iOS 13+, we have a native version
 if (!isIOS13Plus) {
+	// On iOS < 13, we don't have the theme constants defined, which breaks our tests
+	if (OS_IOS) {
+		Object.defineProperty(UI, 'USER_INTERFACE_STYLE_UNSPECIFIED', {
+			value: 0,
+			writable: false
+		});
+		Object.defineProperty(UI, 'USER_INTERFACE_STYLE_LIGHT', {
+			value: 1,
+			writable: false
+		});
+		Object.defineProperty(UI, 'USER_INTERFACE_STYLE_DARK', {
+			value: 2,
+			writable: false
+		});
+		// Treat iOS < 13 as 'light' theme
+		Object.defineProperty(UI, 'userInterfaceStyle', {
+			value: 1,
+			writable: false
+		});
+	}
+
 	let colorset;
 	UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
 		if (!colorset) {
