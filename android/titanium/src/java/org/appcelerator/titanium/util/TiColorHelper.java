@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,9 +13,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
+
+import androidx.annotation.ColorInt;
+import androidx.core.content.ContextCompat;
 
 /**
  * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
@@ -44,59 +49,87 @@ public class TiColorHelper
 	 */
 	public static int parseColor(String value)
 	{
-		int color = Color.TRANSPARENT;
-		if (value != null) {
-			String lowval = value.trim().toLowerCase();
+		if (value == null) {
+			return Color.TRANSPARENT;
+		}
 
-			Matcher m = null;
-			if ((m = shortHexPattern.matcher(lowval)).matches()) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("#");
-				for (int i = 1; i <= m.groupCount(); i++) {
-					String s = m.group(i);
-					sb.append(s).append(s);
-				}
-				String newColor = sb.toString();
-				color = Color.parseColor(newColor);
-			} else if ((m = rgbPattern.matcher(lowval)).matches()) {
-				color =
-					Color.rgb(Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
-			} else if ((m = argbPattern.matcher(lowval)).matches()) {
-				color = Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)),
-								   Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
-			} else if ((m = rgbaPattern.matcher(lowval)).matches()) {
-				color = Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
-								   Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
-			} else if ((m = floatsPattern.matcher(lowval)).matches()) {
-				color = Color.argb(
-					Math.round(Float.valueOf(m.group(4)) * 255f), Math.round(Float.valueOf(m.group(1)) * 255f),
-					Math.round(Float.valueOf(m.group(2)) * 255f), Math.round(Float.valueOf(m.group(3)) * 255f));
-			} else {
-				// Try the parser, will throw illegalArgument if it can't parse it.
-				try {
-					// In 4.3, Google introduced some new string color constants and they forgot to
-					// add the alpha bits to them! This is a temporary workaround
-					// until they fix it. I've created a Google ticket for this:
-					// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
-					if (Build.VERSION.SDK_INT > 17 && alphaMissingColors.contains(lowval)) {
-						color = Color.parseColor(lowval) | 0xFF000000;
-					} else {
-						color = Color.parseColor(lowval);
-					}
-				} catch (IllegalArgumentException e) {
-					if (colorTable == null) {
-						buildColorTable();
-					}
+		String lowval = value.trim().toLowerCase();
 
-					if (colorTable.containsKey(lowval)) {
-						color = colorTable.get(lowval);
-					} else {
-						Log.w(TAG, "Unknown color: " + value);
-					}
-				}
+		Matcher m = null;
+		if ((m = shortHexPattern.matcher(lowval)).matches()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("#");
+			for (int i = 1; i <= m.groupCount(); i++) {
+				String s = m.group(i);
+				sb.append(s).append(s);
+			}
+			String newColor = sb.toString();
+			return Color.parseColor(newColor);
+		}
+		// rgb(int, int, int)
+		if ((m = rgbPattern.matcher(lowval)).matches()) {
+			return Color.rgb(Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+		}
+		// rgba(int, int, int, int)
+		if ((m = argbPattern.matcher(lowval)).matches()) {
+			return Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)),
+							Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+		}
+		// rgba(int, int, int, float)
+		if ((m = rgbaPattern.matcher(lowval)).matches()) {
+			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
+							Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+		}
+		// rgba(float, float, float, float)
+		if ((m = floatsPattern.matcher(lowval)).matches()) {
+			return Color.argb(
+				Math.round(Float.valueOf(m.group(4)) * 255f), Math.round(Float.valueOf(m.group(1)) * 255f),
+				Math.round(Float.valueOf(m.group(2)) * 255f), Math.round(Float.valueOf(m.group(3)) * 255f));
+		}
+
+		// Ti.Android.R.color or Ti.App.Android.R.color resource (by name)
+		if (TiColorHelper.hasColorResource(value)) {
+			try {
+				return TiColorHelper.getColorResource(value);
+			} catch (Exception e) {
+				Log.e(TAG, "Cannot find named color: " + value, e);
 			}
 		}
-		return color;
+
+		// Try the parser, will throw illegalArgument if it can't parse it.
+		try {
+			// In 4.3, Google introduced some new string color constants and they forgot to
+			// add the alpha bits to them! This is a temporary workaround
+			// until they fix it. I've created a Google ticket for this:
+			// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
+			if (Build.VERSION.SDK_INT > 17 && alphaMissingColors.contains(lowval)) {
+				return Color.parseColor(lowval) | 0xFF000000;
+			}
+			return Color.parseColor(lowval);
+		} catch (IllegalArgumentException e) {
+			if (colorTable == null) {
+				buildColorTable();
+			}
+
+			if (colorTable.containsKey(lowval)) {
+				return colorTable.get(lowval);
+			}
+			Log.w(TAG, "Unknown color: " + value);
+		}
+		return Color.TRANSPARENT;
+	}
+
+	public static boolean hasColorResource(String colorName)
+	{
+		return TiRHelper.hasResource("color." + colorName);
+	}
+
+	public static @ColorInt int getColorResource(String colorName)
+		throws TiRHelper.ResourceNotFoundException, Resources.NotFoundException
+	{
+		int colorResId = TiRHelper.getResource("color." + colorName);
+		// Now we need to convert it!
+		return ContextCompat.getColor(TiApplication.getInstance(), colorResId);
 	}
 
 	private static void buildColorTable()
