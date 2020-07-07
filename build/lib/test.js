@@ -33,7 +33,7 @@ async function runTests(zipfile, platforms, program) {
 
 	// if we have a package.json in our test overrides, run npm install there first
 	if (await fs.exists(path.join(LOCAL_TESTS, 'Resources/package.json'))) {
-		await exec('npm install --production', { cwd: path.join(LOCAL_TESTS, 'Resources') });
+		await exec('npm ci --production', { cwd: path.join(LOCAL_TESTS, 'Resources') });
 	}
 
 	// Copy over the local overrides from tests folder
@@ -46,7 +46,7 @@ async function runTests(zipfile, platforms, program) {
 	// Run the tests
 	const cleanup = undefined;
 	const architecture = undefined;
-	return test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, cleanup, architecture, program.deployType, program.deviceFamily);
+	return test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, cleanup, architecture, program.deployType, program.deviceFamily, path.join(LOCAL_TESTS, 'Resources'));
 }
 
 async function outputResults(results) {
