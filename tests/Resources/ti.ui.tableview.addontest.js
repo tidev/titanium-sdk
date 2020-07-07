@@ -31,15 +31,9 @@ describe('Titanium.UI.TableView', function () {
 		var	tableData = [];
 		for (var index = 1; index <= 20; index++) {
 			var row = Ti.UI.createTableViewRow({
-		//		layout: "composite",  // <- This is okay
-		//		layout: "horizontal", // <- Crashes
-				layout: "vertical",   // <- Crashes
+				layout: "vertical",
 			});
-			row.add(Ti.UI.createLabel({ text: "Row1 " + index.toString() }));
-			row.add(Ti.UI.createLabel({ top: 10, text: "Row2 " + index.toString() }));
-			row.add(Ti.UI.createLabel({ top: 20, text: "Row3 " + index.toString() }));
-			row.add(Ti.UI.createLabel({ top: 30, text: "Row4 " + index.toString() }));
-			row.add(Ti.UI.createLabel({ top: 40, text: "Row5 " + index.toString() }));
+			row.add(Ti.UI.createLabel({ text: "Row " + index.toString() }));
 
 			tableData.push(row);
 		}
