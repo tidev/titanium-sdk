@@ -10,18 +10,17 @@ description:  |
     Use the <Titanium.UI.Android.createProgressIndicator> method or **`<ProgressIndicator>`** Alloy
     element to create a progress indicator.
 
-    A progress indicator can be either a progress dialog or a horizontal progress bar in the title 
-    of the window. The progress dialog is a modal dialog that blocks the UI. See also: 
+    A progress indicator can be either a progress dialog or a horizontal progress bar in the title
+    of the window. The progress dialog is a modal dialog that blocks the UI. See also:
     <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>,
     <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR>.
 
-    Calling <Titanium.UI.Android.ProgressIndicator.show> displays the indicator, 
-    and calling <Titanium.UI.Android.ProgressIndicator.hide> removes it.
+    **NOTE:** <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR> does not work anymore on devices
+    running Android 4.4+ since the underlying API was deprecated and removed by Google. See
+    [TIMOB-27312](https://jira.appcelerator.org/browse/TIMOB-27312) for more details.
 
-    To display a horizontal progress bar in the title of a heavyweight window,
-    wait for the window to open before creating the progress bar.
-    For example, in the sample code below, for it to work in the status bar,
-    create the progress bar inside the event listener, which waits for the open event.
+    Calling <Titanium.UI.Android.ProgressIndicator.show> displays the indicator,
+    and calling <Titanium.UI.Android.ProgressIndicator.hide> removes it.
 extends: Titanium.UI.View
 since: "3.0.0"
 platforms: [android]
