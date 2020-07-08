@@ -31,18 +31,20 @@ describe('Titanium.UI.TableView', function () {
 		var	tableData = [];
 		for (var index = 1; index <= 20; index++) {
 			var row = Ti.UI.createTableViewRow({
-				layout: "vertical",
+				layout: 'vertical'
 			});
-			row.add(Ti.UI.createLabel({ text: "Row " + index.toString() }));
+			row.add(Ti.UI.createLabel({ text: 'Row ' + index.toString() }));
 
 			tableData.push(row);
 		}
 		var	table = Ti.UI.createTableView({
-				data: tableData
-			});
+			data: tableData
+		});
 		win = Ti.UI.createWindow();
+
 		function addTableView() {
 			try {
+				// After adding table, app should not crash
 				win.add(table);
 				finish();
 			} catch (err) {
@@ -54,5 +56,4 @@ describe('Titanium.UI.TableView', function () {
 		win.add(table);
 		win.open();
 	});
-
 });
