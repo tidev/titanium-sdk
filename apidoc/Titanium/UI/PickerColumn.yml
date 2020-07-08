@@ -39,20 +39,22 @@ methods:
       In an Alloy application you can use one or more `<PickerRow>` (or `<Row>`) elements inside
       a `<PickerColumn>` (or `<Column>`) element.
 
-          <Alloy>
-              <PickerColumn id="hour">
-                  <PickerRow title="10"/>
-                  <PickerRow title="11"/>
-                  <PickerRow title="12"/>
-              </PickerColumn>
-              <!-- Picker shorthand notation -->
-              <Column id="minutes">
-                  <Row title="15"/>
-                  <Row title="30"/>
-                  <Row title="45"/>
-                  <Row title="00"/>
-              </Column>
-          </Alloy>
+      ``` xml
+      <Alloy>
+          <PickerColumn id="hour">
+              <PickerRow title="10"/>
+              <PickerRow title="11"/>
+              <PickerRow title="12"/>
+          </PickerColumn>
+          <!-- Picker shorthand notation -->
+          <Column id="minutes">
+              <Row title="15"/>
+              <Row title="30"/>
+              <Row title="45"/>
+              <Row title="00"/>
+          </Column>
+      </Alloy>
+      ```
 
     parameters:
       - name: row
@@ -90,92 +92,96 @@ examples:
         Create a two-column, platform-specific style, picker and automatically select a row in
         each column.
 
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
-              title: 'Use picker to make selection'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false,
+          title: 'Use picker to make selection'
+        });
 
-            var fruit = [ 'Bananas', 'Grapes', 'Blueberries', 'Strawberries' ];
-            var color = [ 'blue', 'red', 'yellow', 'white' ];
+        var fruit = [ 'Bananas', 'Grapes', 'Blueberries', 'Strawberries' ];
+        var color = [ 'blue', 'red', 'yellow', 'white' ];
 
-            var column1 = Ti.UI.createPickerColumn();
+        var column1 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=fruit.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({
-                title: fruit[i]
-              });
-              column1.addRow(row);
-            }
+        for(var i=0, ilen=fruit.length; i<ilen; i++){
+          var row = Ti.UI.createPickerRow({
+            title: fruit[i]
+          });
+          column1.addRow(row);
+        }
 
-            var column2 = Ti.UI.createPickerColumn();
+        var column2 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=color.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({
-                title: color[i]
-              });
-              column2.addRow(row);
-            }
+        for(var i=0, ilen=color.length; i<ilen; i++){
+          var row = Ti.UI.createPickerRow({
+            title: color[i]
+          });
+          column2.addRow(row);
+        }
 
-            var picker = Ti.UI.createPicker({
-              columns: [column1, column2],
-              selectionIndicator: true,
-              useSpinner: true, // required in order to use multi-column pickers with Android
-              top:50
-            });
+        var picker = Ti.UI.createPicker({
+          columns: [column1, column2],
+          selectionIndicator: true,
+          useSpinner: true, // required in order to use multi-column pickers with Android
+          top:50
+        });
 
-            function pickerDefaults(obj){
-              // on iOS, must be after picker has been rendered
-              picker.setSelectedRow(0, 2, false);
-              picker.setSelectedRow(1, 3, false);
-            }
+        function pickerDefaults(obj){
+          // on iOS, must be after picker has been rendered
+          picker.setSelectedRow(0, 2, false);
+          picker.setSelectedRow(1, 3, false);
+        }
 
-            win.add(picker);
+        win.add(picker);
 
-            var isAndroid = Ti.Platform.osname === 'android';
+        var isAndroid = Ti.Platform.osname === 'android';
 
-            if(isAndroid){
-              pickerDefaults(picker);
-            }
+        if(isAndroid){
+          pickerDefaults(picker);
+        }
 
-            win.open();
+        win.open();
 
-            if(!isAndroid){
-              setTimeout(function(){
-                pickerDefaults(picker);
-              }, 1500);
-            }
+        if(!isAndroid){
+          setTimeout(function(){
+            pickerDefaults(picker);
+          }, 1500);
+        }
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
         multicolumnpicker.xml
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false"
+                title="Use picker to make selection">
 
-            <Alloy>
-                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false"
-                    title="Use picker to make selection">
-
-                    <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
-                        <PickerColumn id="column1">
-                            <PickerRow title="Bananas"/>
-                            <PickerRow title="Grapes"/>
-                            <PickerRow title="Blueberries"/>
-                            <PickerRow title="Strawberries"/>
-                        </PickerColumn>
-                        <!-- Picker shorthand notation -->
-                        <Column id="column2">
-                            <Row title="blue"/>
-                            <Row title="red"/>
-                            <Row title="yellow"/>
-                            <Row title="white"/>
-                        </Column>
-                    </Picker>
-                </Window>
-            </Alloy>
+                <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
+                    <PickerColumn id="column1">
+                        <PickerRow title="Bananas"/>
+                        <PickerRow title="Grapes"/>
+                        <PickerRow title="Blueberries"/>
+                        <PickerRow title="Strawberries"/>
+                    </PickerColumn>
+                    <!-- Picker shorthand notation -->
+                    <Column id="column2">
+                        <Row title="blue"/>
+                        <Row title="red"/>
+                        <Row title="yellow"/>
+                        <Row title="white"/>
+                    </Column>
+                </Picker>
+            </Window>
+        </Alloy>
+        ```
 
         multicolumnpicker.js:
-
-            $.picker.setSelectedRow(0, 2, false);
-            $.picker.setSelectedRow(1, 3, false);
+        ``` js
+        $.picker.setSelectedRow(0, 2, false);
+        $.picker.setSelectedRow(1, 3, false);
+        ```

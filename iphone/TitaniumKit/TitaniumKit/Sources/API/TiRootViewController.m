@@ -1427,7 +1427,7 @@
 {
   [self resetTransformAndForceLayout:YES];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged object:self];
 
   [super traitCollectionDidChange:previousTraitCollection];
 }

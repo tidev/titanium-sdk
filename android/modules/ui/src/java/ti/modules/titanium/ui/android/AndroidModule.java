@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,20 +9,27 @@ package ti.modules.titanium.ui.android;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.proxy.ColorProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.view.Gravity;
-import androidx.core.view.GravityCompat;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
+
+import androidx.annotation.ColorInt;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)
@@ -255,6 +262,28 @@ public class AndroidModule extends KrollModule
 				}
 			}
 		});
+	}
+
+	@Kroll.method
+	public ColorProxy getColorResource(Object idOrName)
+	{
+		try {
+			// Color by resource id
+			if (idOrName instanceof Number) {
+				int colorResId = ((Number) idOrName).intValue();
+				@ColorInt int packedColorInt = ContextCompat.getColor(TiApplication.getInstance(), colorResId);
+				return new ColorProxy(packedColorInt);
+			}
+			// Color by name
+			String colorName = idOrName.toString();
+			if (TiColorHelper.hasColorResource(colorName)) {
+				@ColorInt int packedColorInt = TiColorHelper.getColorResource(colorName);
+				return new ColorProxy(packedColorInt);
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return null;
 	}
 
 	@Override

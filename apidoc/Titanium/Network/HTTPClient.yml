@@ -24,8 +24,10 @@ description: |
     of the response-related properties defined for the `HTTPClient` object. So the
     callbacks can use code like this to access the response values:
 
-        httpResponse = this.responseText;
-        status = this.status;
+    ``` js
+    httpResponse = this.responseText;
+    status = this.status;
+    ```
 
     #### Content-Type Header
 
@@ -97,14 +99,29 @@ description: |
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
     TLS 1.1 and TLS 1.0. By default, TLS 1.2 is attempted first.
 
-    Use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
+    On Android, use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
     if you know the version the server is running.  If you do not know, do not set this property.
-    Titanium will not fallback with a lower TLS version if the `tlsVersion` property is set.
+
+    On iOS, add the `NSExceptionMinimumTLSVersion` key in the `<plist>` section of `tiapp.xml` to set a minimum TLS version. 
+    See following example:
+
+    ```
+    <key>NSAppTransportSecurity</key>
+    <dict>
+      <key>NSExceptionDomains</key>
+      <dict>
+        <key>www.appcelerator.com</key>
+        <dict>
+          <key>NSExceptionMinimumTLSVersion</key>
+          <string>TLSv1.3</string>
+        </dict>
+      </dict>
+    </dict>
+    ```  
+    Titanium will not fallback with a lower TLS version if the `tlsVersion` property in android or `NSExceptionMinimumTLSVersion` in iOS, is set.
     Setting the TLS version saves time from re-attempting connections with lower TLS versions and
     provides added security by denying attempts to use lower TLS versions.
 
-    You can set the TLS version for the Android and iOS platforms.
-    
     #### Caching Data
 
     You can also use the HTTP client API to cache image, response data or related. A convenient
@@ -226,15 +243,19 @@ methods:
         To send array data, specify each array element individually as a property of the object.
         For example, normally, you specify an array in an object as:
 
-            var payload = { myArray: [1, 2, 3] };
+        ``` js
+        var payload = { myArray: [1, 2, 3] };
+        ```
 
         Instead, for the HTTP client to encode the data correctly, you need to send the data as:
 
-            var payload = {
-                "myArray[0]" : 1,
-                "myArray[1]" : 2,
-                "myArray[2]" : 3
-            };
+        ``` js
+        var payload = {
+            "myArray[0]" : 1,
+            "myArray[1]" : 2,
+            "myArray[2]" : 3
+        };
+        ```
 
         On iOS, you can specify a synchronous request when you call `open` by passing `false` for
         the `async` parameter. In the case of a synchronous request, `send` blocks until the request
@@ -539,15 +560,15 @@ properties:
     description: |
         If you experience handshake failures, set this value to a lower version using the TLS
         constants in <Titanium.Network>. 'undefined', 'null', or unsupported values use the default
-        behavior for that iOS and Android versions.
+        behavior for that Android versions.
 
         Setting this property disables falling back to lower TLS versions.
     type: Number
     constants: Titanium.Network.TLS_VERSION_*
-    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    since: {android: "3.6.0"}
     default: |
         undefined, behaves as `Ti.Network.TLS_VERSION_1_2`.
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: cache
     summary: Determines whether HTTP responses are cached.
@@ -573,24 +594,26 @@ examples:
     example: |
         The following code excerpt does a simple GET request and logs the response text.
 
-             var url = "http://www.appcelerator.com";
-             var client = Ti.Network.createHTTPClient({
-                 // function called when the response data is available
-                 onload : function(e) {
-                     Ti.API.info("Received text: " + this.responseText);
-                     alert('success');
-                 },
-                 // function called when an error occurs, including a timeout
-                 onerror : function(e) {
-                     Ti.API.debug(e.error);
-                     alert('error');
-                 },
-                 timeout : 5000  // in milliseconds
-             });
-             // Prepare the connection.
-             client.open("GET", url);
-             // Send the request.
-             client.send();
+        ``` js
+        var url = "http://www.appcelerator.com";
+        var client = Ti.Network.createHTTPClient({
+            // function called when the response data is available
+            onload : function(e) {
+                Ti.API.info("Received text: " + this.responseText);
+                alert('success');
+            },
+            // function called when an error occurs, including a timeout
+            onerror : function(e) {
+                Ti.API.debug(e.error);
+                alert('error');
+            },
+            timeout : 5000  // in milliseconds
+        });
+        // Prepare the connection.
+        client.open("GET", url);
+        // Send the request.
+        client.send();
+        ```
 
 ---
 name: SecurityManagerProtocol
