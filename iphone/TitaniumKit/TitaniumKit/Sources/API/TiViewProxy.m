@@ -1647,7 +1647,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   BOOL isAttached = [self viewAttached];
 
-  if ((!isAttached && !create) || ![[self view] respondsToSelector:@selector(fillBoundsToRect:)]) {
+  if ((!isAttached && !create) || ![[self view] respondsToSelector:selector]) {
     return;
   }
 
