@@ -33,7 +33,7 @@ describe('Titanium.UI.Shortcut', () => {
 	});
 
 	it('createShortcut', () => {
-    should(Ti.UI.createShortcutItem).not.be.undefined();
+		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcut).be.a.Function();
 
 		// Create shortcut instance.

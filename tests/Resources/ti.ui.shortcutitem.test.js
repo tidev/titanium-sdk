@@ -12,12 +12,12 @@
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ShortcutItem', () => {
-  
+
 	it('createShortcutItem', () => {
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcutItem).be.a.Function();
 	});
-  
+
 	it('basic shortcut item', () => {
 		// Create shortcut item.
 		const item = Ti.UI.createShortcutItem({
@@ -27,7 +27,7 @@ describe('Titanium.UI.ShortcutItem', () => {
 			data: { test_data: 'data' }
 		});
 		should(item).be.a.Object();
-    
+
 		// Verify `apiName`.
 		should(item).have.readOnlyProperty('apiName').which.is.a.String();
 		should(item.apiName).be.eql('Ti.UI.ShortcutItem');
