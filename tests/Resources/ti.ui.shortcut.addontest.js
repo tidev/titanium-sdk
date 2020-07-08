@@ -20,19 +20,20 @@ if (OS_ANDROID) {
 	}
 }
 
-// Create basic shortcut item.
-const shortcutItem = Ti.UI.createShortcutItem({
-	id: 'test_shortcut',
-	title: 'Test Shortcut',
-	description: 'Test shortcut description',
-	data: { test_data: 'data' }
-});
-
 describe('Titanium.UI.Shortcut', () => {
+	// Create basic shortcut item.
+	let shortcutItem;
+	before(() => {
+		shortcutItem = Ti.UI.createShortcutItem({
+			id: 'test_shortcut',
+			title: 'Test Shortcut',
+			description: 'Test shortcut description',
+			data: { test_data: 'data' }
+		});
+	});
 
 	it('createShortcut', () => {
-
-		should(Ti.UI.createShortcutItem).not.be.undefined();
+    should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcut).be.a.Function();
 
 		// Create shortcut instance.
