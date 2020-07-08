@@ -20,17 +20,19 @@ if (OS_ANDROID) {
 	}
 }
 
-// Create basic shortcut item.
-const shortcutItem = Ti.UI.createShortcutItem({
-	id: 'test_shortcut',
-	title: 'Test Shortcut',
-	description: 'Test shortcut description',
-	data: { test_data: 'data' }
-});
+describe.android('Titanium.UI.Shortcut', () => {
+	// Create basic shortcut item.
+	let shortcutItem;
+	before(() => {
+		shortcutItem = Ti.UI.createShortcutItem({
+			id: 'test_shortcut',
+			title: 'Test Shortcut',
+			description: 'Test shortcut description',
+			data: { test_data: 'data' }
+		});
+	});
 
-describe('Titanium.UI.Shortcut', () => {
-
-	it.android('createShortcut', () => {
+	it('createShortcut', () => {
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcut).be.a.Function();
 
@@ -43,7 +45,7 @@ describe('Titanium.UI.Shortcut', () => {
 		should(shortcut.apiName).be.eql('Ti.UI.Shortcut');
 	});
 
-	it.android('removeAll', () => {
+	it('removeAll', () => {
 
 		if (!androidCompatible) {
 			return;
@@ -61,7 +63,7 @@ describe('Titanium.UI.Shortcut', () => {
 		shortcut.removeAll();
 	});
 
-	it.android('remove', () => {
+	it('remove', () => {
 
 		if (!androidCompatible) {
 			return;
@@ -85,7 +87,7 @@ describe('Titanium.UI.Shortcut', () => {
 		should(shortcut.items).be.lessThan(existingShortcuts);
 	});
 
-	it.android('add', () => {
+	it('add', () => {
 
 		if (!androidCompatible) {
 			return;
