@@ -14,7 +14,7 @@ const should = require('./utilities/assertions');
 describe('Titanium.UI.ShortcutItem', () => {
 
 	describe('createShortcutItem', () => {
-    
+
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcutItem).be.a.Function();
 

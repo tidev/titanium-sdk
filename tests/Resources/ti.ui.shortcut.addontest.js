@@ -31,7 +31,7 @@ const shortcutItem = Ti.UI.createShortcutItem({
 describe('Titanium.UI.Shortcut', () => {
 
 	it('createShortcut', () => {
-    
+
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcut).be.a.Function();
 
