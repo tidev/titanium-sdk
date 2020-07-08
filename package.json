@@ -123,7 +123,7 @@
     "cz-conventional-changelog": "^3.2.0",
     "danger": "^10.2.1",
     "dateformat": "^3.0.3",
-    "eslint": "^6.8.0",
+    "eslint": "^7.4.0",
     "eslint-config-axway": "^4.7.0",
     "eslint-plugin-mocha": "^6.3.0",
     "folder-hash": "^3.3.2",
