@@ -30,7 +30,8 @@ const shortcutItem = Ti.UI.createShortcutItem({
 
 describe('Titanium.UI.Shortcut', () => {
 
-	it.ios('createShortcut', () => {
+	it('createShortcut', () => {
+    
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcut).be.a.Function();
 
@@ -43,7 +44,7 @@ describe('Titanium.UI.Shortcut', () => {
 		should(shortcut.apiName).be.eql('Ti.UI.Shortcut');
 	});
 
-	it.ios('removeAll', () => {
+	it('removeAll', () => {
 
 		if (!androidCompatible) {
 			return;
@@ -61,7 +62,7 @@ describe('Titanium.UI.Shortcut', () => {
 		shortcut.removeAll();
 	});
 
-	it.ios('remove', () => {
+	it('remove', () => {
 
 		if (!androidCompatible) {
 			return;
@@ -93,7 +94,7 @@ describe('Titanium.UI.Shortcut', () => {
 		should(shortcut.items).be.lessThan(existingShortcuts);
 	});
 
-	it.ios('add', () => {
+	it('add', () => {
 
 		if (!androidCompatible) {
 			return;

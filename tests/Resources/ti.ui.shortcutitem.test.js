@@ -13,12 +13,12 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ShortcutItem', () => {
 
-	describe.ios('createShortcutItem', () => {
+	describe('createShortcutItem', () => {
+    
 		should(Ti.UI.createShortcutItem).not.be.undefined();
 		should(Ti.UI.createShortcutItem).be.a.Function();
 
-		it.ios('basic shortcut item', () => {
-
+		it('basic shortcut item', () => {
 			// Create shortcut item.
 			const item = Ti.UI.createShortcutItem({
 				id: 'test_shortcut',
