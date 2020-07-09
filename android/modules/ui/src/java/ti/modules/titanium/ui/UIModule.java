@@ -560,4 +560,14 @@ public class UIModule extends KrollModule
 			this.module.fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
 		}
 	}
+
+	/**
+	 * Manually define `createShortcut` to allow `ShortcutModule` to exist for 'click' events.
+	 * @return Shortcut proxy instance.
+	 */
+	@Kroll.method
+	public KrollProxy createShortcut()
+	{
+		return new ShortcutProxy();
+	}
 }

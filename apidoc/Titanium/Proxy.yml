@@ -38,12 +38,16 @@ methods:
         When adding a listener, you must save a reference to the callback function
         in order to remove the listener later:
 
-            var listener = function() { Ti.API.info("Event listener called."); }
-            window.addEventListener('click', listener);
+        ``` js
+        var listener = function() { Ti.API.info("Event listener called."); }
+        window.addEventListener('click', listener);
+        ```
 
         To remove the listener, pass in a reference to the callback function:
-
-            window.removeEventListener('click', listener);
+        
+        ``` js
+        window.removeEventListener('click', listener);
+        ```
     parameters:
       - name: name
         summary: Name of the event.

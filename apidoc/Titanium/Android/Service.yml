@@ -40,143 +40,148 @@ description: |
     Below is an example of a simple background location service.
 
     tiapp.xml:
-        <android>
-          <manifest>
-            <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-            <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-          </manifest>
-          <services>
-            <service url="locationService.js"/>
-          </services>
-        </android>
+    ``` xml
+    <android>
+        <manifest>
+        <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+        <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+        </manifest>
+        <services>
+        <service url="locationService.js"/>
+        </services>
+    </android>
+    ```
 
     locationService.js:
-        console.log(`Background location service started.`);
+    ``` js
+    console.log(`Background location service started.`);
 
-        // Create foreground service.
-        Ti.Android.currentService.foregroundNotify(
-          123,
-          Ti.Android.createNotification({
-            contentTitle: "Background Location Service",
-            contentText: "Obtaining location data...",
-            contentIntent: Ti.Android.createPendingIntent({
-              intent: Ti.App.Android.launchIntent || Ti.Android.createIntent(),
-            })
-          }),
-          Ti.Android.FOREGROUND_SERVICE_TYPE_LOCATION
-        );
+    // Create foreground service.
+    Ti.Android.currentService.foregroundNotify(
+        123,
+        Ti.Android.createNotification({
+        contentTitle: "Background Location Service",
+        contentText: "Obtaining location data...",
+        contentIntent: Ti.Android.createPendingIntent({
+            intent: Ti.App.Android.launchIntent || Ti.Android.createIntent(),
+        })
+        }),
+        Ti.Android.FOREGROUND_SERVICE_TYPE_LOCATION
+    );
+    ```
 
     app.js:
-        const win = Ti.UI.createWindow({ backgroundColor: 'gray', layout: 'vertical' });
-        const backgroundServiceBtn = Ti.UI.createButton({ title: 'START BACKGROUND SERVICE' });
-        const listView = Ti.UI.createListView();
+    ``` js
+    const win = Ti.UI.createWindow({ backgroundColor: 'gray', layout: 'vertical' });
+    const backgroundServiceBtn = Ti.UI.createButton({ title: 'START BACKGROUND SERVICE' });
+    const listView = Ti.UI.createListView();
 
-        let count = 1;
-        let service = null;
+    let count = 1;
+    let service = null;
 
-        // Set accuracy to high
-        Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
-        
-        // Enable manual configuration via location providers.
-        Ti.Geolocation.Android.manualMode = true;
-        
-        // Define a location provider.
-        Ti.Geolocation.Android.addLocationProvider(
-            Ti.Geolocation.Android.createLocationProvider({
-                name: Ti.Geolocation.Android.PROVIDER_GPS,
-                minUpdateDistance: 0,
-                minUpdateTime: 5000
-            })
-        );
-        
-        function getLocation () {
+    // Set accuracy to high
+    Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
+    
+    // Enable manual configuration via location providers.
+    Ti.Geolocation.Android.manualMode = true;
+    
+    // Define a location provider.
+    Ti.Geolocation.Android.addLocationProvider(
+        Ti.Geolocation.Android.createLocationProvider({
+            name: Ti.Geolocation.Android.PROVIDER_GPS,
+            minUpdateDistance: 0,
+            minUpdateTime: 5000
+        })
+    );
+    
+    function getLocation () {
 
-            // Create location event listener.
-            Ti.Geolocation.addEventListener('location', e => {
+        // Create location event listener.
+        Ti.Geolocation.addEventListener('location', e => {
 
-                // Create new section for location data.
-                let section = Ti.UI.createListSection({ headerTitle: `#${count++} - ${new Date().toTimeString()}` });
-                if (e.success) {
-                    if (e.coords) {
-                        e = e.coords;
-                    }
-
-                    // Insert location data.
-                    section.setItems([
-                        { properties: { title: 'LOCATION:\n' + e.latitude + ', ' + e.longitude, color: 'green' } },
-                        { properties: { title: 'ALTITUDE:\n' + e.altitude, color: 'green' } },
-                        { properties: { title: 'ACCURACY:\n' + e.accuracy, color: 'green' } }
-                    ]);
-
-                } else {
-
-                    // Oops! Something bad happened.
-                    section.setItems([
-                        { properties: { title: 'ERROR:\n' + e.error, color: 'red' } }
-                    ]);
+            // Create new section for location data.
+            let section = Ti.UI.createListSection({ headerTitle: `#${count++} - ${new Date().toTimeString()}` });
+            if (e.success) {
+                if (e.coords) {
+                    e = e.coords;
                 }
 
-                // Add section to listView
-                listView.appendSection(section);
-            });
-        }
-
-        function startBackgroundLocationService() {
-            if (service) {
-                console.log('Starting background location service...');
-                service.start();
-                backgroundServiceBtn.title = 'STOP BACKGROUND SERVICE';
-            }
-        }
-
-        function stopBackgroundLocationService() {
-            if (service) {
-                console.log('Stopping background location service...');
-                service.stop();
-                backgroundServiceBtn.title = 'START BACKGROUND SERVICE';
-            }
-        }
-        
-        win.addEventListener('open', () => {
-
-            // Request location permissions.
-            Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, e => {
-                if (e.success) {
-                    getLocation();
-                } else {
-                    alert('Could not obtain location permissions.');
-                }
-            });
-        });
-
-        backgroundServiceBtn.addEventListener('click', () => {
-            if (!service) {
-
-                // Create background location service.
-                const intent = Ti.Android.createServiceIntent({ url: 'locationService.js' });
-                service = Ti.Android.createService(intent);
-
-                // Android 10+ request background location permissions.
-                if (parseInt(Ti.Platform.version.split('.')[0]) >= 10) {
-                    Ti.Android.requestPermissions([ 'android.permission.ACCESS_BACKGROUND_LOCATION' ], e => {
-                        if (e.success) {
-                            startBackgroundLocationService();
-                        } else {
-                            alert('Could not obtain background location permissions.');
-                        }
-                    });
-                } else {
-                    startBackgroundLocationService();
-                }
+                // Insert location data.
+                section.setItems([
+                    { properties: { title: 'LOCATION:\n' + e.latitude + ', ' + e.longitude, color: 'green' } },
+                    { properties: { title: 'ALTITUDE:\n' + e.altitude, color: 'green' } },
+                    { properties: { title: 'ACCURACY:\n' + e.accuracy, color: 'green' } }
+                ]);
 
             } else {
-                stopBackgroundLocationService();
+
+                // Oops! Something bad happened.
+                section.setItems([
+                    { properties: { title: 'ERROR:\n' + e.error, color: 'red' } }
+                ]);
+            }
+
+            // Add section to listView
+            listView.appendSection(section);
+        });
+    }
+
+    function startBackgroundLocationService() {
+        if (service) {
+            console.log('Starting background location service...');
+            service.start();
+            backgroundServiceBtn.title = 'STOP BACKGROUND SERVICE';
+        }
+    }
+
+    function stopBackgroundLocationService() {
+        if (service) {
+            console.log('Stopping background location service...');
+            service.stop();
+            backgroundServiceBtn.title = 'START BACKGROUND SERVICE';
+        }
+    }
+    
+    win.addEventListener('open', () => {
+
+        // Request location permissions.
+        Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, e => {
+            if (e.success) {
+                getLocation();
+            } else {
+                alert('Could not obtain location permissions.');
             }
         });
-        
-        win.add([backgroundServiceBtn, listView]);
-        win.open();
+    });
 
+    backgroundServiceBtn.addEventListener('click', () => {
+        if (!service) {
+
+            // Create background location service.
+            const intent = Ti.Android.createServiceIntent({ url: 'locationService.js' });
+            service = Ti.Android.createService(intent);
+
+            // Android 10+ request background location permissions.
+            if (parseInt(Ti.Platform.version.split('.')[0]) >= 10) {
+                Ti.Android.requestPermissions([ 'android.permission.ACCESS_BACKGROUND_LOCATION' ], e => {
+                    if (e.success) {
+                        startBackgroundLocationService();
+                    } else {
+                        alert('Could not obtain background location permissions.');
+                    }
+                });
+            } else {
+                startBackgroundLocationService();
+            }
+
+        } else {
+            stopBackgroundLocationService();
+        }
+    });
+    
+    win.add([backgroundServiceBtn, listView]);
+    win.open();
+    ```
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
@@ -225,14 +230,15 @@ methods:
         This method will fail on Android 9.0 and above unless you set the following Android manifest
         permission in your "tiapp.xml" file.
 
-            <ti:app>
-                <android xmlns:android="http://schemas.android.com/apk/res/android">
-                    <manifest>
-                        <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-                    </manifest>
-                </android>
-            </ti:app>
-
+        ``` xml
+        <ti:app>
+            <android xmlns:android="http://schemas.android.com/apk/res/android">
+                <manifest>
+                    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+                </manifest>
+            </android>
+        </ti:app>
+        ```
     parameters:
       - name: id
         summary: Unique integer ID to be assigned to the notification. Cannot be zero.
@@ -258,7 +264,6 @@ methods:
     summary: Stops this running instance of the Service.
 
 events:
-
   - name: pause
     summary: |
         For Javascript-based services that you create, `pause` fires after each time the JavaScript
@@ -335,55 +340,58 @@ examples:
         to see what it should say besides "Hello World".
 
         File: myservice.js:
-
-            var service = Titanium.Android.currentService;
-            var intent = service.intent;
-            var message = intent.getStringExtra("message_to_echo");
-            Titanium.API.info("Hello World!  I am a Service.  I have this to say: " + message);
+        ``` js
+        var service = Titanium.Android.currentService;
+        var intent = service.intent;
+        var message = intent.getStringExtra("message_to_echo");
+        Titanium.API.info("Hello World!  I am a Service.  I have this to say: " + message);
+        ```
 
         Register the service in tiapp.xml:
-
-            <ti:app>
-                <android xmlns:android="http://schemas.android.com/apk/res/android">
-                    <services>
-                        <service url="myservice.js" type="interval"/>
-                    </services>
-                </android>
-            </ti:app>
+        ``` xml
+        <ti:app>
+            <android xmlns:android="http://schemas.android.com/apk/res/android">
+                <services>
+                    <service url="myservice.js" type="interval"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
 
         Code in "regular" Titanium file to launch the service and listen for pause/resume events.
         Code also stops the service after its code runs 3 times.
 
-            var intent = Titanium.Android.createServiceIntent( { url: 'myservice.js' } );
-            // Service should run its code every 2 seconds.
-            intent.putExtra('interval', 2000);
-            // A message that the service should 'echo'
-            intent.putExtra('message_to_echo', 'Titanium rocks!');
+        ``` js
+        var intent = Titanium.Android.createServiceIntent( { url: 'myservice.js' } );
+        // Service should run its code every 2 seconds.
+        intent.putExtra('interval', 2000);
+        // A message that the service should 'echo'
+        intent.putExtra('message_to_echo', 'Titanium rocks!');
 
-            var service = Titanium.Android.createService(intent);
-            service.addEventListener('resume', function(e) {
-                Titanium.API.info('Service code resumes, iteration ' + e.iteration);
-            });
-            service.addEventListener('pause', function(e) {
-                Titanium.API.info('Service code pauses, iteration ' + e.iteration);
-                if (e.iteration === 3) {
-                    Titanium.API.info('Service code has run 3 times, will now stop it.');
-                    service.stop();
-                }
-            });
-            service.start();
+        var service = Titanium.Android.createService(intent);
+        service.addEventListener('resume', function(e) {
+            Titanium.API.info('Service code resumes, iteration ' + e.iteration);
+        });
+        service.addEventListener('pause', function(e) {
+            Titanium.API.info('Service code pauses, iteration ' + e.iteration);
+            if (e.iteration === 3) {
+                Titanium.API.info('Service code has run 3 times, will now stop it.');
+                service.stop();
+            }
+        });
+        service.start();
+        ```
 
         Console Output:
-
-            [INFO] [29,1942] Service code resumes, iteration 1
-            [INFO] [70,2029] Hello World! I am a Service. I have this to say: Titanium rocks!
-            [INFO] [3,2070] Service code pauses, iteration 1
-            [INFO] [2,3915] Service code resumes, iteration 2
-            [INFO] [31,3961] Hello World! I am a Service. I have this to say: Titanium rocks!
-            [INFO] [5,3968] Service code pauses, iteration 2
-            [INFO] [2,5917] Service code resumes, iteration 3
-            [INFO] [27,5961] Hello World! I am a Service. I have this to say: Titanium rocks!
-            [INFO] [16,5980] Service code pauses, iteration 3
-            [INFO] [1,5981] Service code has run 3 times, will now stop it.
-
-
+        ```
+        [INFO] [29,1942] Service code resumes, iteration 1
+        [INFO] [70,2029] Hello World! I am a Service. I have this to say: Titanium rocks!
+        [INFO] [3,2070] Service code pauses, iteration 1
+        [INFO] [2,3915] Service code resumes, iteration 2
+        [INFO] [31,3961] Hello World! I am a Service. I have this to say: Titanium rocks!
+        [INFO] [5,3968] Service code pauses, iteration 2
+        [INFO] [2,5917] Service code resumes, iteration 3
+        [INFO] [27,5961] Hello World! I am a Service. I have this to say: Titanium rocks!
+        [INFO] [16,5980] Service code pauses, iteration 3
+        [INFO] [1,5981] Service code has run 3 times, will now stop it.
+        ```

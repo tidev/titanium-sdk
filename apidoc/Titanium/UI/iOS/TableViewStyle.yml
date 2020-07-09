@@ -7,7 +7,6 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
 createable: false
-
 properties:
   - name: GROUPED
     summary: |

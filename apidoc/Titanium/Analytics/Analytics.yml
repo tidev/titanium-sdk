@@ -219,9 +219,11 @@ properties:
 
         Here is an example of a guarded Analytics call:
 
-            if (!Ti.Analytics.optedOut) {
-              Ti.Analytics.featureEvent('gdpr_rocks');
-            }
+        ``` js
+        if (!Ti.Analytics.optedOut) {
+          Ti.Analytics.featureEvent('gdpr_rocks');
+        }
+        ```
 
         Read more about GDPR on the [official website](https://www.eugdpr.org/).
     type: Boolean
@@ -233,9 +235,11 @@ examples:
     example: |
         This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
-        
-            Ti.Analytics.featureEvent('app.feature');
-        
+
+        ``` js
+        Ti.Analytics.featureEvent('app.feature');
+        ```
+
         In this case, the Analytics product would show statistics about how many times the
         'app.feature' event was generated.
 

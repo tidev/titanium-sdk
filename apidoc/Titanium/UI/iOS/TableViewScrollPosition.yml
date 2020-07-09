@@ -7,7 +7,6 @@ extends: Titanium.Proxy
 since: "5.4.0"
 platforms: [iphone, ipad]
 createable: false
-
 properties:
   - name: BOTTOM
     summary: The table view scrolls the row of interest to the bottom of the visible table view.

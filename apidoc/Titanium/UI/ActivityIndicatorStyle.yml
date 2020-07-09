@@ -5,7 +5,6 @@ extends: Titanium.Module
 since: {iphone: "5.1.0", ipad: "5.1.0", android: "3.0.0"}
 platforms: [iphone, ipad, android]
 createable: false
-
 properties:
   - name: BIG
     summary: Large white spinning indicator.

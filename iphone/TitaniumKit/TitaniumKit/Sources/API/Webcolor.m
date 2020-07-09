@@ -6,6 +6,7 @@
  */
 
 #import "Webcolor.h"
+#import "TiApp.h"
 #import "TiBase.h"
 #import "TiUtils.h"
 
@@ -16,6 +17,7 @@ NSString *const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
 
 UIColor *checkmarkColor = nil;
 NSMutableDictionary *colorLookup = nil;
+NSDictionary *semanticColors = nil;
 
 BOOL isASCIIHexDigit(unichar c) { return (c >= '0' && c <= '9') || ((c | 0x20) >= 'a' && (c | 0x20) <= 'f'); }
 int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
@@ -30,78 +32,184 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
   return checkmarkColor;
 }
 
-+ (UIColor *)webColorNamed:(NSString *)colorName
++ (UIColor *)semanticColorNamed:(NSString *)colorName
 {
-  if (![colorName isKindOfClass:[NSString class]]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return [UIColor colorNamed:colorName]; // FIXME: in xcode dev project, this won't work properly because our xcode build doesn't convert semantic.colors.json
+  }
+
+  // Fallback to reading the semantic.colors.json directly for iOS < 11
+  if (semanticColors == nil) {
+    NSString *colorsPath = [NSBundle.mainBundle pathForResource:@"semantic.colors" ofType:@"json"];
+    if (![NSFileManager.defaultManager fileExistsAtPath:colorsPath]) {
+      return nil;
+    }
+
+    NSData *colors = [NSData dataWithContentsOfFile:colorsPath options:NSDataReadingMappedIfSafe error:nil];
+    semanticColors = [[NSJSONSerialization JSONObjectWithData:colors options:NSJSONReadingMutableContainers error:nil] retain];
+  }
+
+  NSDictionary *colorMap = semanticColors[colorName];
+  if (colorMap == nil) {
     return nil;
   }
+
+  NSString *currentTraitCollection = TiApp.controller.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark ? @"dark" : @"light";
+
+  return [Webcolor semanticColorEntry:colorMap[currentTraitCollection]];
+}
+
++ (UIColor *)semanticColorEntry:(id)entry
+{
+  if ([entry isKindOfClass:[NSString class]]) {
+    return [Webcolor webColorForString:entry];
+  }
+  if ([entry isKindOfClass:[NSDictionary class]]) {
+    NSDictionary<NSString *, id> *dict = (NSDictionary<NSString *, id> *)entry;
+    NSString *hex = (NSString *)dict[@"color"];
+    UIColor *result = [Webcolor colorForHex:hex];
+    id rawAlpha = dict[@"alpha"];
+    if (rawAlpha != nil) {
+      float alpha = [rawAlpha floatValue] / 100.0; // may be a number or a string
+      result = [result colorWithAlphaComponent:alpha];
+    }
+    return result;
+  }
+  return nil;
+}
+
++ (UIColor *)webColorForString:(NSString *)colorName
+{
   colorName = [colorName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
   if (colorLookup == nil) {
-    UIColor *white = [UIColor whiteColor];
-    UIColor *black = [UIColor blackColor];
-    colorLookup = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                   black, @"black",
-                                               [UIColor grayColor], @"gray",
-                                               [UIColor darkGrayColor], @"darkgray",
-                                               [UIColor lightGrayColor], @"lightgray",
-                                               white, @"white",
-                                               [UIColor redColor], @"red",
-                                               [UIColor greenColor], @"green",
-                                               [UIColor blueColor], @"blue",
-                                               [UIColor cyanColor], @"cyan",
-                                               [UIColor yellowColor], @"yellow",
-                                               [UIColor magentaColor], @"magenta",
-                                               [UIColor orangeColor], @"orange",
-                                               [UIColor purpleColor], @"purple",
-                                               [UIColor brownColor], @"brown",
-                                               [UIColor clearColor], @"transparent",
-                                               [UIColor groupTableViewBackgroundColor], @"stripped",
-                                               [UIColor groupTableViewBackgroundColor], IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND,
-                                               [UIColor clearColor], IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
-                                               [UIColor clearColor], IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
-                                               [UIColor clearColor], IOS_COLOR_UNDER_PAGE_BACKGROUND,
-                                               // these are also defined by the W3C HTML spec so we support them
-                                               [Webcolor colorForHex:@"0ff"], @"aqua",
-                                               [Webcolor colorForHex:@"f0f"], @"fuchsia",
-                                               [Webcolor colorForHex:@"0f0"], @"lime",
-                                               [Webcolor colorForHex:@"800"], @"maroon",
-                                               [Webcolor colorForHex:@"FFC0CB"], @"pink",
-                                               [Webcolor colorForHex:@"000080"], @"navy",
-                                               [Webcolor colorForHex:@"c0c0c0"], @"silver",
-                                               [Webcolor colorForHex:@"808000"], @"olive",
-                                               [Webcolor colorForHex:@"008080"], @"teal",
+    colorLookup = [[NSMutableDictionary dictionary] retain];
+    [colorLookup addEntriesFromDictionary:@{
+      @"black" : UIColor.blackColor,
+      @"blue" : UIColor.blueColor,
+      @"brown" : UIColor.brownColor,
+      @"cyan" : UIColor.cyanColor,
+      @"darkgray" : UIColor.darkGrayColor,
+      @"gray" : UIColor.grayColor,
+      @"green" : UIColor.greenColor,
+      @"lightgray" : UIColor.lightGrayColor,
+      @"magenta" : UIColor.magentaColor,
+      @"orange" : UIColor.orangeColor,
+      @"purple" : UIColor.purpleColor,
+      @"red" : UIColor.redColor,
+      @"white" : UIColor.whiteColor,
+      @"yellow" : UIColor.yellowColor,
+      @"stripped" : UIColor.groupTableViewBackgroundColor,
+      @"transparent" : UIColor.clearColor,
+      IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND : UIColor.groupTableViewBackgroundColor,
+      IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND : UIColor.clearColor,
+      IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND : UIColor.clearColor,
+      IOS_COLOR_UNDER_PAGE_BACKGROUND : UIColor.clearColor,
+      // these are also defined by the W3C HTML spec so we support them
+      @"aqua" : [Webcolor colorForHex:@"0ff"],
+      @"fuchsia" : [Webcolor colorForHex:@"f0f"],
+      @"lime" : [Webcolor colorForHex:@"0f0"],
+      @"maroon" : [Webcolor colorForHex:@"800"],
+      @"pink" : [Webcolor colorForHex:@"FFC0CB"],
+      @"navy" : [Webcolor colorForHex:@"000080"],
+      @"olive" : [Webcolor colorForHex:@"808000"],
+      @"silver" : [Webcolor colorForHex:@"c0c0c0"],
+      @"teal" : [Webcolor colorForHex:@"008080"],
+      // TODO: Remove these hex hacks? Just shorthand to avoid the work for common values?
+      @"fff" : UIColor.whiteColor,
+      @"ffff" : UIColor.whiteColor,
+      @"ffffff" : UIColor.whiteColor,
+      @"ffffffff" : UIColor.whiteColor,
+      @"000" : UIColor.blackColor,
+      @"f000" : UIColor.blackColor,
+      @"000000" : UIColor.blackColor,
+      @"ff000000" : UIColor.blackColor,
+    }];
 
-                                               white, @"fff",
-                                               white, @"ffff",
-                                               white, @"ffffff",
-                                               white, @"ffffffff",
-                                               black, @"000",
-                                               black, @"f000",
-                                               black, @"000000",
-                                               black, @"ff000000",
-                                               nil];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    // NOTE: We explicitly use lowercase names because we cache using lowercase
+    // This basically means color names are case insensitive
+    [colorLookup addEntriesFromDictionary:@{
+      @"systemredcolor" : UIColor.systemRedColor,
+      @"systemgreencolor" : UIColor.systemGreenColor,
+      @"systembluecolor" : UIColor.systemBlueColor,
+      @"systemorangecolor" : UIColor.systemOrangeColor,
+      @"systemyellowcolor" : UIColor.systemYellowColor,
+      @"systempinkcolor" : UIColor.systemPinkColor,
+      @"systempurplecolor" : UIColor.systemPurpleColor,
+      @"systemtealcolor" : UIColor.systemTealColor,
+      @"systemgraycolor" : UIColor.systemGrayColor,
+      @"lighttextcolor" : UIColor.lightTextColor,
+      @"darktextcolor" : UIColor.darkTextColor
+    }];
+
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      [colorLookup addEntriesFromDictionary:@{
+        @"systemindigocolor" : UIColor.systemIndigoColor,
+        @"systemgray2color" : UIColor.systemGray2Color,
+        @"systemgray3color" : UIColor.systemGray3Color,
+        @"systemgray4color" : UIColor.systemGray4Color,
+        @"systemgray5color" : UIColor.systemGray5Color,
+        @"systemgray6color" : UIColor.systemGray6Color,
+        @"labelcolor" : UIColor.labelColor,
+        @"secondarylabelcolor" : UIColor.secondaryLabelColor,
+        @"tertiarylabelcolor" : UIColor.tertiaryLabelColor,
+        @"quaternarylabelcolor" : UIColor.quaternaryLabelColor,
+        @"linkcolor" : UIColor.linkColor,
+        @"placeholdertextcolor" : UIColor.placeholderTextColor,
+        @"separatorcolor" : UIColor.separatorColor,
+        @"opaqueseparatorcolor" : UIColor.opaqueSeparatorColor,
+        @"systembackgroundcolor" : UIColor.systemBackgroundColor,
+        @"secondarysystembackgroundcolor" : UIColor.secondarySystemBackgroundColor,
+        @"tertiarysystembackgroundcolor" : UIColor.tertiarySystemBackgroundColor,
+        @"systemgroupedbackgroundcolor" : UIColor.systemGroupedBackgroundColor,
+        @"secondarysystemgroupedbackgroundcolor" : UIColor.secondarySystemGroupedBackgroundColor,
+        @"tertiarysystemgroupedbackgroundcolor" : UIColor.tertiarySystemGroupedBackgroundColor,
+        @"systemfillcolor" : UIColor.systemFillColor,
+        @"secondarysystemfillcolor" : UIColor.secondarySystemFillColor,
+        @"tertiarysystemfillcolor" : UIColor.tertiarySystemFillColor,
+        @"quaternarysystemfillcolor" : UIColor.quaternarySystemFillColor
+      }];
+    }
+#endif
   }
   if ([colorName hasPrefix:@"#"]) {
     colorName = [colorName substringFromIndex:1];
   }
+  // Check known color lookups (pre-defined color names from CSS/W3C, known system color names)
+  // (Also used as a cache once hex/rgb function is converted)
   colorName = [colorName lowercaseString];
   UIColor *result = [colorLookup objectForKey:colorName];
-
   if (result != nil) {
     return result;
   }
 
+  // Try hex
   result = [Webcolor colorForHex:colorName];
-
+  // Try rgb()/rgba()
   if (result == nil) {
     result = [Webcolor colorForRGBFunction:colorName];
   }
-
+  // TODO: Try hsl()/hsla()
+  // Store result in lookup table to cache next access
   if (result != nil) {
     [colorLookup setObject:result forKey:colorName];
   }
 
   return result;
+}
+
++ (UIColor *)webColorNamed:(NSString *)colorName
+{
+  if (![colorName isKindOfClass:[NSString class]]) {
+    return nil;
+  }
+  // Check for a named color (either system color, web color, or semantic color)
+  UIColor *result = [Webcolor semanticColorNamed:colorName];
+  if (result != nil) {
+    return result;
+  }
+
+  return [Webcolor webColorForString:colorName];
 }
 
 + (UIColor *)colorForRGBFunction:(NSString *)functionString
@@ -201,6 +309,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
 + (void)flushCache
 {
   RELEASE_TO_NIL(colorLookup);
+  RELEASE_TO_NIL(semanticColors);
   RELEASE_TO_NIL(checkmarkColor);
 }
 

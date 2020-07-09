@@ -61,7 +61,7 @@ class Color {
 	}
 
 	/**
-	 * Used by IOS.
+	 * Used by CSS.
 	 * Converts this color to a hex string with leading '#' symbol and 6- or 8-
 	 * hexadecimal characters (depending on if alpha is 1.0)
 	 * @returns {string}
@@ -74,7 +74,7 @@ class Color {
 	}
 
 	/**
-	 * Used by Android
+	 * Used by Android/iOS
 	 * Converts this color to a hex string with leading '#' symbol and 6- or 8-
 	 * hexadecimal characters (depending on if alpha is 1.0). Alpha is the first entry (if there is alpha.)
 	 * @returns {string}
@@ -84,6 +84,14 @@ class Color {
 			return `#${this._toRGBHexString()}`;
 		}
 		return `#${this.alphaHex()}${this._toRGBHexString()}`;
+	}
+
+	/**
+	 * For commonality with native iOS TiColor proxy. Produces an AARRGGBB (or RRGGBB if full alpha) hex string
+	 * @returns {string}
+	 */
+	toHex() {
+		return this.toARGBHexString();
 	}
 
 	/**
@@ -123,10 +131,10 @@ class Color {
 	 */
 	static fromHex8String(hex) {
 		const startIndex = hex.startsWith('#') ? 1 : 0;
-		const r = parseInt(hex.substr(startIndex, 2), 16);
-		const g = parseInt(hex.substr(startIndex + 2, 2), 16);
-		const b = parseInt(hex.substr(startIndex + 4, 2), 16);
-		const alpha = parseInt(hex.substr(startIndex + 6, 2), 16); // alpha is now 0-255
+		const alpha = parseInt(hex.substr(startIndex, 2), 16); // alpha is now 0-255
+		const r = parseInt(hex.substr(startIndex + 2, 2), 16);
+		const g = parseInt(hex.substr(startIndex + 4, 2), 16);
+		const b = parseInt(hex.substr(startIndex + 6, 2), 16);
 		return new Color(r, g, b, alpha / 255.0); // convert to 0.0-1.0 (percent)
 	}
 
@@ -154,7 +162,7 @@ class Color {
 			color = color.replace(HEX_3_REGEX, (m, r, g, b) => r + r + g + g + b + b);
 		} else if (color.length === 4) {
 			// Expand shorthand form (e.g. "03F8") to full form (e.g. "0033FF88")
-			color = color.replace(HEX_4_REGEX, (m, r, g, b, a) => r + r + g + g + b + b + a + a);
+			color = color.replace(HEX_4_REGEX, (m, a, r, g, b) => a + a + r + r + g + g + b + b);
 		}
 
 		if (HEX_6_REGEX.exec(color)) {

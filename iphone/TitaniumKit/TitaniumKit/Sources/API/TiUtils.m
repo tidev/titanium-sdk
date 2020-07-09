@@ -597,8 +597,10 @@ static NSDictionary *sizeMap = nil;
     return @"#000000";
   }
   if (lroundf(alpha * 255.0) != 255) {
-    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0), lroundf(alpha * 255.0)];
+    // AARRGGBB
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(alpha * 255.0), lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
   }
+  // RRGGBB
   return [NSString stringWithFormat:@"#%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
 }
 
@@ -766,6 +768,25 @@ static NSDictionary *sizeMap = nil;
   UIGraphicsEndImageContext();
 
   return imageCopy;
+}
+
++ (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
+  }
+#endif
+  UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+  UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
+  imageView.tintColor = tintColor;
+
+  UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
+  [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
+  UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  return tintedImage;
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url

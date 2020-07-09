@@ -4,16 +4,18 @@ summary: A set of constants for creating standard iOS system buttons.
 description: |
     Most of these constants are used with the
     [Button.systemButton](Titanium.UI.Button.systemButton) property to define a standard
-    iOS system buttons for use in navigation bars and toolbars. 
+    iOS system buttons for use in navigation bars and toolbars.
     
     See <Titanium.UI.Button> for more information on the `systemButton` property, including details
     on where system buttons can be used. In an Alloy application you can omit the `Ti.UI.iOS.SystemButton`
-    namespace when assigning a value to the `<Button>` element's `systemButton` attribute, 
+    namespace when assigning a value to the `<Button>` element's `systemButton` attribute,
     for example:
 
-        <Button systemButton="CAMERA"/>
-        <!-- Instead of -->
-        <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
+    ``` xml
+    <Button systemButton="CAMERA"/>
+    <!-- Instead of -->
+    <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
+    ```
 
     A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
     create standard iOS buttons that can be used in other places, including table view rows.
@@ -27,13 +29,14 @@ description: |
     See Apple's 
     [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/) in the iOS Developer Library for details on the proper usage of iOS standard buttons and icons.
 
+    ![System Icons](./system_icons.png)
 extends: Titanium.Proxy
 since: "5.4.0"
 platforms: [iphone, ipad]
 
 properties:
   - name: ACTION
-    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button. <img src="images/systembutton/system_icons.png"/>
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button.
     description: |
         The resulting button can only be used in navigation bars and toolbars.
     type: Number

@@ -72,6 +72,5 @@ properties:
         tabbed bar), `PLAIN` specifies a button with no built-in decoration except its title text. 
         This is the style you should choose if you want to supply your own background images, 
         background gradient, and so on.
-
     type: Number
     permission: read-only
