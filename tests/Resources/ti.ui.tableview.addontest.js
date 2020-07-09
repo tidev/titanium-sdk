@@ -27,11 +27,15 @@ describe('Titanium.UI.TableView', function () {
 		}
 	});
 
-	it.ios('row with vertical layout', function (finish) {
+	it.ios('rows with vertical or horizontal layout', function (finish) {
 		var	tableData = [];
 		for (var index = 1; index <= 20; index++) {
+			var rowLayout = 'vertical';
+			if (index > 10) {
+				rowLayout = 'horizontal';
+			}
 			var row = Ti.UI.createTableViewRow({
-				layout: 'vertical'
+				layout: rowLayout
 			});
 			row.add(Ti.UI.createLabel({ text: 'Row ' + index.toString() }));
 
@@ -53,7 +57,6 @@ describe('Titanium.UI.TableView', function () {
 		}
 
 		win.addEventListener('postlayout', addTableView);
-		win.add(table);
 		win.open();
 	});
 });
