@@ -21,9 +21,11 @@ description: |
 
     Use the <Titanium.UI.createAnimation> method to create an animation object.
 
-    Note that when you animate a view's size or position, the actual layout properties (such as
+    Note that on SDKs older than 9.1.0, when you animate a view's size or position the actual layout properties (such as
     `top`, `left`, `width`, `height`) are not changed by the animation. See the description of the
     [animate](Titanium.UI.View.animate) method for more information.
+
+    As of 9.1.0, the animated properties should reflect their final values just before the `complete` event and/or the <Ti.UI.View.animate> callback is fired.
 
     #### iOS Platform Notes
 
@@ -79,7 +81,7 @@ properties:
         or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
 
   - name: bottom
@@ -95,7 +97,7 @@ properties:
         Value of the `color` property at the end of the animation, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad]
     since: { android: "9.1.0" }
 
@@ -183,7 +185,6 @@ properties:
         3D transforms are only supported on iOS.
     type: [Titanium.UI.Matrix2D, Titanium.UI.Matrix3D]
 
-
   - name: transition
     summary: Transition type to use during a transition animation.
     description: |
@@ -227,19 +228,21 @@ examples:
         Create a simple animation and apply it to the view.  In this example, the view will animate
         from red to black to orange over 2 seconds.
 
-            var view = Titanium.UI.createView({
-              backgroundColor:'red'
-            });
-            var animation = Titanium.UI.createAnimation();
-            animation.backgroundColor = 'black';
-            animation.duration = 1000;
-            var animationHandler = function() {
-              animation.removeEventListener('complete',animationHandler);
-              animation.backgroundColor = 'orange';
-              view.animate(animation);
-            };
-            animation.addEventListener('complete',animationHandler);
-            view.animate(animation);
+        ``` js
+        var view = Titanium.UI.createView({
+          backgroundColor:'red'
+        });
+        var animation = Titanium.UI.createAnimation();
+        animation.backgroundColor = 'black';
+        animation.duration = 1000;
+        var animationHandler = function() {
+          animation.removeEventListener('complete',animationHandler);
+          animation.backgroundColor = 'orange';
+          view.animate(animation);
+        };
+        animation.addEventListener('complete',animationHandler);
+        view.animate(animation);
+        ```
 
   - title: Animation Using Matrix Transforms
     example: |
@@ -248,27 +251,29 @@ examples:
         the view, then returns it to its original size and position. The
         entire animation is repeated three times.
 
-            var box = Ti.UI.createView({
-              backgroundColor : 'red',
-              height : '100',
-              width : '100'
-            });
-            win.add(box);
+        ``` js
+        var box = Ti.UI.createView({
+          backgroundColor : 'red',
+          height : '100',
+          width : '100'
+        });
+        win.add(box);
 
-            box.addEventListener('click', function() {
-              var matrix = Ti.UI.createMatrix2D();
-              matrix = matrix.rotate(180);
-              matrix = matrix.scale(2, 2);
-              var a = Ti.UI.createAnimation({
-                transform : matrix,
-                duration : 2000,
-                autoreverse : true,
-                repeat : 3
-              });
-              box.animate(a);
-            });
+        box.addEventListener('click', function() {
+          var matrix = Ti.UI.createMatrix2D();
+          matrix = matrix.rotate(180);
+          matrix = matrix.scale(2, 2);
+          var a = Ti.UI.createAnimation({
+            transform : matrix,
+            duration : 2000,
+            autoreverse : true,
+            repeat : 3
+          });
+          box.animate(a);
+        });
 
-            win.add(box);
+        win.add(box);
+        ```
 
   - title: Using an anchorPoint (Android and iOS)
     example: |
@@ -277,65 +282,67 @@ examples:
         an anchor point is configured using the <Titanium.UI.Animation.anchorPoint> property for
         Android and the <Titanium.UI.View.anchorPoint> property for iOS.
 
-            var animationType = [
-              { name: 'Top Left', anchorPoint: {x:0, y:0} },
-              { name: 'Top Right', anchorPoint: {x:1, y:0} },
-              { name: 'Bottom Left', anchorPoint: {x:0, y:1} },
-              { name: 'Bottom Right', anchorPoint: {x:1, y:1} },
-              { name: 'Center', anchorPoint: {x:0.5, y:0.5} }
-            ];
-            var animationTypeLength = animationType.length;
-            var animationCount = 0;
-            var animationTypePointer = 0;
+        ``` js
+        var animationType = [
+          { name: 'Top Left', anchorPoint: {x:0, y:0} },
+          { name: 'Top Right', anchorPoint: {x:1, y:0} },
+          { name: 'Bottom Left', anchorPoint: {x:0, y:1} },
+          { name: 'Bottom Right', anchorPoint: {x:1, y:1} },
+          { name: 'Center', anchorPoint: {x:0.5, y:0.5} }
+        ];
+        var animationTypeLength = animationType.length;
+        var animationCount = 0;
+        var animationTypePointer = 0;
 
-            var t = Ti.UI.createMatrix2D();
-            t = t.rotate(90);
+        var t = Ti.UI.createMatrix2D();
+        t = t.rotate(90);
 
-            // animation properties
-            var a = {
-              transform: t,
-              duration: 2000,
-              autoreverse: true
-            };
+        // animation properties
+        var a = {
+          transform: t,
+          duration: 2000,
+          autoreverse: true
+        };
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow();
 
-            var view = Ti.UI.createView({
-              backgroundColor:'#336699',
-              width:100, height:100
-            });
-            win.add(view);
+        var view = Ti.UI.createView({
+          backgroundColor:'#336699',
+          width:100, height:100
+        });
+        win.add(view);
 
-            var button = Ti.UI.createButton({
-              title:'Animate ' + animationType[animationTypePointer].name,
-              height: (Ti.UI.Android) ? 80 : 40,
-              width: (Ti.UI.Android) ? 300 : 200,
-              top:30
-            });
-            win.add(button);
+        var button = Ti.UI.createButton({
+          title:'Animate ' + animationType[animationTypePointer].name,
+          height: (Ti.UI.Android) ? 80 : 40,
+          width: (Ti.UI.Android) ? 300 : 200,
+          top:30
+        });
+        win.add(button);
 
-            function updateButton(name){
-              button.title = 'Animate ' + name;
-            }
+        function updateButton(name){
+          button.title = 'Animate ' + name;
+        }
 
-            button.addEventListener('click', function(){
-              // set new anchorPoint on animation for Android
-              a.anchorPoint = animationType[animationTypePointer].anchorPoint;
+        button.addEventListener('click', function(){
+          // set new anchorPoint on animation for Android
+          a.anchorPoint = animationType[animationTypePointer].anchorPoint;
 
-              // set new anchorPoint on view for iOS
-              view.anchorPoint = animationType[animationTypePointer].anchorPoint;
+          // set new anchorPoint on view for iOS
+          view.anchorPoint = animationType[animationTypePointer].anchorPoint;
 
-              animationCount++;
+          animationCount++;
 
-              // determine position of next object in animationType array or return to first item
-              // using modulus operator
-              animationTypePointer = animationCount % animationTypeLength;
+          // determine position of next object in animationType array or return to first item
+          // using modulus operator
+          animationTypePointer = animationCount % animationTypeLength;
 
-              // animate view, followed by callback to set next button title
-              view.animate(a, function(){
-                updateButton(animationType[animationTypePointer].name);
-              });
-            });
+          // animate view, followed by callback to set next button title
+          view.animate(a, function(){
+            updateButton(animationType[animationTypePointer].name);
+          });
+        });
 
-            win.open();
+        win.open();
+        ```

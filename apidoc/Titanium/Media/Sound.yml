@@ -24,18 +24,15 @@ methods:
     returns:
         type: Boolean
 
-
   - name: isPaused
     summary: Returns the value of the [paused](Titanium.Media.Sound.paused) property.
     returns:
         type: Boolean
 
-
   - name: isPlaying
     summary: Returns the value of the [playing](Titanium.Media.Sound.playing) property.
     returns:
         type: Boolean
-
 
   - name: pause
     summary: Pauses the audio.
@@ -54,14 +51,12 @@ methods:
   - name: reset
     summary: Resets the audio playback position to the beginning.
 
-
   - name: setLooping
     summary: Sets the value of the [looping](Titanium.Media.Sound.looping) property.
     parameters: 
       - name: looping
         summary: New value for the `looping` property.
         type: Boolean
-
 
   - name: setPaused
     summary: Sets the value of the [paused](Titanium.Media.Sound.paused) property.
@@ -350,6 +345,7 @@ examples:
     example: |
         Simple example of playing a WAVE file from the Resources directory.
         
-            var player = Ti.Media.createSound({url:"sound.wav"});
-            player.play();
-        
+        ``` js
+        var player = Ti.Media.createSound({url:"sound.wav"});
+        player.play();
+        ```

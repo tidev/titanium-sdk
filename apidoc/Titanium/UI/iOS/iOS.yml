@@ -6,7 +6,6 @@ summary: |
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
-
 methods:
   - name: createLivePhotoBadge
     summary: |
@@ -2148,8 +2147,8 @@ properties:
     since: "5.4.0"
 
   - name: statusBarBackgroundColor
-    summary: Sets the global status bar background color for the application.
-    type: String
+    summary: Sets the global status bar background color for the application. Android does not support setting instances of <Titanium.UI.Color>
+    type: [String, Titanium.UI.Color]
     since: "6.0.0"
     default: Undefined (Uses the native defaults)
 

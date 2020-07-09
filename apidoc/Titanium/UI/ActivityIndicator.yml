@@ -2,22 +2,9 @@
 name: Titanium.UI.ActivityIndicator
 summary: An activity indicator that lets the user know an action is taking place.
 description:  |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/activityindicator/activityindicator_android.png" height="75" /></td>
-          <td><img src="images/activityindicator/activityindicator_ios.png" height="75" /></td>
-          <td><img src="images/activityindicator/activityindicator_wp.png" height="75" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows Phone</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./activityindicator_android.png) | ![iOS](./activityindicator_ios.png) | ![Windows](./activityindicator_wp.png) |
 
     An activity indicator can be used to show the progress of an operation in the UI to let the
     user know that some action is taking place. An activity indicator consists of a spinning
@@ -30,7 +17,6 @@ description:  |
     `ActivityIndicator` is a view and, like any view, must be added to a window or other top-level
     view before it can be shown. Unlike most views, `ActivityIndicator` is hidden by
     default and must be shown explicitly by calling its <Titanium.UI.ActivityIndicator.show> method.
-
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
@@ -56,6 +42,7 @@ methods:
         Remember to add the activity indicator to a parent view first,
         so it centers properly. This is optional for Android and required
         for iOS.
+
 properties:
   - name: bottom
     summary: Bottom position of the view.
@@ -70,7 +57,7 @@ properties:
         Color of the message text, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [ String, Titanium.UI.Color ]
 
   - name: font
     summary: Font used for the message text.
@@ -82,6 +69,14 @@ properties:
         display the message and to position the view correctly.
     type: String
     constants: Titanium.UI.SIZE
+
+  - name: indicatorColor
+    summary: Color of the animated indicator.
+    description: For information about color values, see the "Colors" section of <Titanium.UI>.
+    since: "2.1.0"
+    type: [ String, Titanium.UI.Color ]
+    default: "white"
+    platforms: [iphone,ipad,android]
 
   - name: left
     summary: Left position of the view.
@@ -118,13 +113,6 @@ properties:
     constants: Titanium.UI.ActivityIndicatorStyle.*
     default: <Titanium.UI.ActivityIndicatorStyle.PLAIN>
 
-  - name: indicatorColor
-    summary: Color of the animated indicator.
-    since: "2.1.0"
-    type: String
-    default: white
-    platforms: [iphone,ipad,android]
-
   - name: top
     summary: Top position of the view.
     description: |
@@ -146,78 +134,84 @@ examples:
         Open a yellow window immediately after a blue window. Show an activity indicator while
         some code executes and hide it on completion. Then close the yellow window.
 
-            Ti.UI.backgroundColor = 'white';
+        ``` js
+        Ti.UI.backgroundColor = 'white';
 
-            var win1 = Ti.UI.createWindow({
-              backgroundColor: 'blue'
-            });
+        var win1 = Ti.UI.createWindow({
+          backgroundColor: 'blue'
+        });
 
-            var win2 = Ti.UI.createWindow({
-              backgroundColor: 'yellow'
-            });
+        var win2 = Ti.UI.createWindow({
+          backgroundColor: 'yellow'
+        });
 
-            var activityIndicator = Ti.UI.createActivityIndicator({
-              color: 'green',
-              message: 'Loading ...',
-              style: Ti.UI.ActivityIndicatorStyle.DARK,
-              top: 10,
-              left: 10,
-              height: Ti.UI.SIZE,
-              width: Ti.UI.SIZE
-            });
+        var activityIndicator = Ti.UI.createActivityIndicator({
+          color: 'green',
+          message: 'Loading ...',
+          style: Ti.UI.ActivityIndicatorStyle.DARK,
+          top: 10,
+          left: 10,
+          height: Ti.UI.SIZE,
+          width: Ti.UI.SIZE
+        });
 
-            // The activity indicator must be added to a window or view for it to appear
-            win2.add(activityIndicator);
+        // The activity indicator must be added to a window or view for it to appear
+        win2.add(activityIndicator);
 
-            // eventListeners must always be loaded before the event is likely to fire
-            // hence, the open() method must be positioned before the window is opened
-            win2.addEventListener('open', function (e) {
-              activityIndicator.show();
-              // do some work that takes 6 seconds
-              // ie. replace the following setTimeout block with your code
-              setTimeout(function() {
-                e.source.close();
-                activityIndicator.hide();
-              }, 6000);
-            });
+        // eventListeners must always be loaded before the event is likely to fire
+        // hence, the open() method must be positioned before the window is opened
+        win2.addEventListener('open', function (e) {
+          activityIndicator.show();
+          // do some work that takes 6 seconds
+          // ie. replace the following setTimeout block with your code
+          setTimeout(function() {
+            e.source.close();
+            activityIndicator.hide();
+          }, 6000);
+        });
 
-            win1.open();
-            win2.open();
+        win1.open();
+        win2.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as two Alloy views.
 
         win1.xml:
-
-            <Alloy>
-                <Window onOpen="openWin2" backgroundColor="blue" />
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window onOpen="openWin2" backgroundColor="blue" />
+        </Alloy>
+        ```
 
         win1.js:
-
-            function openWin2 () {
-                var win2 = Alloy.createController('win2').getView();
-                win2.open();
-            }
+        ``` js
+        function openWin2 () {
+            var win2 = Alloy.createController('win2').getView();
+            win2.open();
+        }
+        ```
 
         win2.xml:
-
-            <Alloy>
-                <Window onOpen="showIndicator" backgroundColor="yellow">
-                    <!-- Define the styling properties in the TSS file -->
-                    <ActivityIndicator id="activityIndicator" message="Loading..."/>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window onOpen="showIndicator" backgroundColor="yellow">
+                <!-- Define the styling properties in the TSS file -->
+                <ActivityIndicator id="activityIndicator" message="Loading..."/>
+            </Window>
+        </Alloy>
+        ```
 
         win2.js:
-
-            function showIndicator(e) {
-                $.activityIndicator.show();
-                // do some work that takes 6 seconds
-                // ie. replace the following setTimeout block with your code
-                setTimeout(function() {
-                    e.source.close();
-                    $.activityIndicator.hide();
-                }, 6000);
-            }
+        ``` js
+        function showIndicator(e) {
+            $.activityIndicator.show();
+            // do some work that takes 6 seconds
+            // ie. replace the following setTimeout block with your code
+            setTimeout(function() {
+                e.source.close();
+                $.activityIndicator.hide();
+            }, 6000);
+        }
+        ```

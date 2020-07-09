@@ -69,7 +69,9 @@ description: |
     [android:alwaysRetainTaskState](https://developer.android.com/guide/topics/manifest/activity-element#always)
     to the root activity instead
 
-            <property name="ti.android.root.reappears.restart" type="bool">true</property>
+    ``` xml
+    <property name="ti.android.root.reappears.restart" type="bool">true</property>
+    ```
 
     Prior to Release 3.4.0, to monitor lifecycle events, use the activity's events, `create`, `destroy`,
     `pause`, `resume`, `start` and `stop`, to be notified when an activity is created, destroyed, paused,
@@ -81,8 +83,6 @@ description: |
     described on the <Titanium.UI.Window> reference page. A *heavyweight* window creates a 
     new `Activity`. A *lightweight* window runs inside the same activity as the code that
     created it.  If you try to reference the activity of lightweight window, it returns undefined.
-
-
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
@@ -102,15 +102,21 @@ methods:
         corresponding format specifiers in the string. For example, given the following
         string resource:
 
-            <string name="greeting">"Hello %1$s, this is %2$s."</string>
+        ``` xml
+        <string name="greeting">"Hello %1$s, this is %2$s."</string>
+        ```
 
         You could call `getString` like this:
 
-            Ti.Android.currentActivity.getString(Ti.App.Android.R.string.greeting,  "Bob", "Doug" );
+        ``` js
+        Ti.Android.currentActivity.getString(Ti.App.Android.R.string.greeting,  "Bob", "Doug" );
+        ```
 
         The resulting string is:
 
-            "Hello Bob, this is Doug."
+        ```
+        "Hello Bob, this is Doug."
+        ```
 
         See also:
         *   [getString](https://developer.android.com/reference/android/content/Context.html#getString(int))
@@ -467,18 +473,20 @@ examples:
     example: |
         The following example shows how to start an activity and retrieve a result code
         and optional data intent when the activity ends.
-        
-            activity.startActivityForResult(intent, function(e) {
-                // The request code used to start this Activity
-                var requestCode = e.requestCode;
-                // The result code returned from the activity 
-                // (https://developer.android.com/reference/android/app/Activity.html#StartingActivities)
-                var resultCode = e.resultCode;
-                // A Titanium.Android.Intent filled with data returned from the Activity
-                var intent = e.intent;
-                // The Activity the received the result
-                var source = e.source;
-            });
+
+        ``` js        
+        activity.startActivityForResult(intent, function(e) {
+            // The request code used to start this Activity
+            var requestCode = e.requestCode;
+            // The result code returned from the activity 
+            // (https://developer.android.com/reference/android/app/Activity.html#StartingActivities)
+            var resultCode = e.resultCode;
+            // A Titanium.Android.Intent filled with data returned from the Activity
+            var intent = e.intent;
+            // The Activity the received the result
+            var source = e.source;
+        });
+        ```
         
 ---
 name: ActivityResult
