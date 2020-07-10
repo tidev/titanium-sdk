@@ -462,17 +462,17 @@ CFMutableSetRef krollBridgeRegistry = nil;
       TiModule *mod = [host moduleNamed:name context:self];
       if (mod != nil) {
         KrollObject *ko = [self registerProxy:mod];
-        result = [JSValue valueWithJSValueRef:[ko jsobject] inContext:[JSContext currentContext]];
+        result = [JSValue valueWithJSValueRef:[ko jsobject] inContext:JSContext.currentContext];
       } else {
-        result = [JSValue valueWithUndefinedInContext:[JSContext currentContext]];
+        result = [JSValue valueWithUndefinedInContext:JSContext.currentContext];
       }
-      [[JSContext currentThis] defineProperty:name
-                                   descriptor:@{
-                                     JSPropertyDescriptorValueKey : result,
-                                     JSPropertyDescriptorWritableKey : @NO,
-                                     JSPropertyDescriptorEnumerableKey : @NO,
-                                     JSPropertyDescriptorConfigurableKey : @NO
-                                   }];
+      [JSContext.currentThis defineProperty:name
+                                 descriptor:@{
+                                   JSPropertyDescriptorValueKey : result,
+                                   JSPropertyDescriptorWritableKey : @NO,
+                                   JSPropertyDescriptorEnumerableKey : @NO,
+                                   JSPropertyDescriptorConfigurableKey : @NO
+                                 }];
       return result;
     };
     [titanium defineProperty:name
@@ -492,17 +492,17 @@ CFMutableSetRef krollBridgeRegistry = nil;
       JSValue *result;
       Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", name]);
       if (moduleClass != nil) {
-        result = [JSValue valueWithObject:[[moduleClass alloc] init] inContext:[JSContext currentContext]];
+        result = [JSValue valueWithObject:[[moduleClass alloc] init] inContext:JSContext.currentContext];
       } else {
-        result = [JSValue valueWithUndefinedInContext:[JSContext currentContext]];
+        result = [JSValue valueWithUndefinedInContext:JSContext.currentContext];
       }
-      [[JSContext currentThis] defineProperty:name
-                                   descriptor:@{
-                                     JSPropertyDescriptorValueKey : result,
-                                     JSPropertyDescriptorWritableKey : @NO,
-                                     JSPropertyDescriptorEnumerableKey : @NO,
-                                     JSPropertyDescriptorConfigurableKey : @NO
-                                   }];
+      [JSContext.currentThis defineProperty:name
+                                 descriptor:@{
+                                   JSPropertyDescriptorValueKey : result,
+                                   JSPropertyDescriptorWritableKey : @NO,
+                                   JSPropertyDescriptorEnumerableKey : @NO,
+                                   JSPropertyDescriptorConfigurableKey : @NO
+                                 }];
       return result;
     };
     [titanium defineProperty:name
