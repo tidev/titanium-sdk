@@ -15,12 +15,10 @@ description: |
     See also:
 
     * [iOS Developer Library: Adopting 3D Touch on iPhone](https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/Adopting3DTouchOniPhone/3DTouchAPIs.html)
-
 platforms: [iphone]
 since: "5.1.0"
 extends: Titanium.Proxy
 osver: {ios: {min: "9.0"}}
-
 properties:
   - name: title
     summary: The title of the action.

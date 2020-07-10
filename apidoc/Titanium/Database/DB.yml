@@ -37,26 +37,28 @@ methods:
         [Titanium.Database.install](Titanium.Database.install) and execute SQL statements that will
         create a table, insert data and query the table.
 
-            var db = Ti.Database.install('mydb1', 'mydb1Installed');
-            db.execute('DELETE FROM people');
-            db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
+        ``` js
+        var db = Ti.Database.install('mydb1', 'mydb1Installed');
+        db.execute('DELETE FROM people');
+        db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
 
-            var thisName = 'Arthur';
-            var thisPhoneNo = '1-617-000-0000';
-            var thisCity = 'Mountain View';
-            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
+        var thisName = 'Arthur';
+        var thisPhoneNo = '1-617-000-0000';
+        var thisCity = 'Mountain View';
+        db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
 
-            var personArray = ['Paul','020 7000 0000', 'London'];
-            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
+        var personArray = ['Paul','020 7000 0000', 'London'];
+        db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
 
-            var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
-            db.close();
+        var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
+        db.close();
 
-            while (rows.isValidRow()) {
-              Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
-              rows.next();
-            }
-            rows.close();
+        while (rows.isValidRow()) {
+          Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
+          rows.next();
+        }
+        rows.close();
+        ```
 
         Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
         column, which is a SQLite-specific column that stores the unique identifier for each row.

@@ -59,6 +59,16 @@
   return name;
 }
 
+- (NSString *)apiName
+{
+  return @"Ti.UI.Color";
+}
+
+- (NSString *)toHex:(id)unused
+{
+  return [TiUtils hexColorValue:self.color];
+}
+
 #pragma mark Deprecated
 
 - (UIColor *)_color

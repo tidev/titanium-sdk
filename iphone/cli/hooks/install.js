@@ -200,9 +200,7 @@ exports.init = function (logger, config, cli) {
 							} else if (err.indexOf('0xe800007f') !== -1) {
 								details = __('Try reconnecting your device and try again.');
 							} else if (err.indexOf('0xe8008016') !== -1) {
-								details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.');
-							} else if (err.indexOf('0xe8008016') !== -1) {
-								details = __('Your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
+								details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.; or your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
 							} else {
 								details = __('For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.');
 							}

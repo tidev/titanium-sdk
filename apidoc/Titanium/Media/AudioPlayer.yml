@@ -23,73 +23,75 @@ examples:
     example: |
         The following example demonstrates using the `AudioPlayer` object to stream audio.
 
-            var win = Ti.UI.createWindow({
-                title: 'Audio Test',
-                backgroundColor: '#fff',
-                layout: 'vertical'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            title: 'Audio Test',
+            backgroundColor: '#fff',
+            layout: 'vertical'
+        });
 
-            var startStopButton = Ti.UI.createButton({
-                title: 'Start/Stop Streaming',
-                top: 10,
-                width: 200,
-                height: 40
-            });
+        var startStopButton = Ti.UI.createButton({
+            title: 'Start/Stop Streaming',
+            top: 10,
+            width: 200,
+            height: 40
+        });
 
-            var pauseResumeButton = Ti.UI.createButton({
-                title: 'Pause/Resume Streaming',
-                top: 10,
-                width: 200,
-                height: 40,
-                enabled: false
-            });
+        var pauseResumeButton = Ti.UI.createButton({
+            title: 'Pause/Resume Streaming',
+            top: 10,
+            width: 200,
+            height: 40,
+            enabled: false
+        });
 
-            win.add(startStopButton);
-            win.add(pauseResumeButton);
+        win.add(startStopButton);
+        win.add(pauseResumeButton);
 
-            // allowBackground: true on Android allows the
-            // player to keep playing when the app is in the
-            // background.
-            var audioPlayer = Ti.Media.createAudioPlayer({
-                url: 'www.example.com/podcast.mp3',
-                allowBackground: true
-            });
+        // allowBackground: true on Android allows the
+        // player to keep playing when the app is in the
+        // background.
+        var audioPlayer = Ti.Media.createAudioPlayer({
+            url: 'www.example.com/podcast.mp3',
+            allowBackground: true
+        });
 
-            startStopButton.addEventListener('click', function() {
-                // When paused, playing returns false.
-                // If both are false, playback is stopped.
-                if (audioPlayer.playing || audioPlayer.paused) {
-                    audioPlayer.stop();
-                    pauseResumeButton.enabled = false;
-                    audioPlayer.release();
-                } else {
-                    audioPlayer.start();
-                    pauseResumeButton.enabled = true;
-                }
-            });
-
-            pauseResumeButton.addEventListener('click', function() {
-                if (audioPlayer.paused) {
-                    audioPlayer.start();
-                } else {
-                    audioPlayer.pause();
-                }
-            });
-
-            audioPlayer.addEventListener('progress', function(e) {
-                Ti.API.info('Time Played: ' + Math.round(e.progress) + ' milliseconds');
-            });
-
-            audioPlayer.addEventListener('change', function(e) {
-                Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
-            });
-
-            win.addEventListener('close', function() {
+        startStopButton.addEventListener('click', function() {
+            // When paused, playing returns false.
+            // If both are false, playback is stopped.
+            if (audioPlayer.playing || audioPlayer.paused) {
                 audioPlayer.stop();
+                pauseResumeButton.enabled = false;
                 audioPlayer.release();
-            });
+            } else {
+                audioPlayer.start();
+                pauseResumeButton.enabled = true;
+            }
+        });
 
-            win.open();
+        pauseResumeButton.addEventListener('click', function() {
+            if (audioPlayer.paused) {
+                audioPlayer.start();
+            } else {
+                audioPlayer.pause();
+            }
+        });
+
+        audioPlayer.addEventListener('progress', function(e) {
+            Ti.API.info('Time Played: ' + Math.round(e.progress) + ' milliseconds');
+        });
+
+        audioPlayer.addEventListener('change', function(e) {
+            Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
+        });
+
+        win.addEventListener('close', function() {
+            audioPlayer.stop();
+            audioPlayer.release();
+        });
+
+        win.open();
+        ```
 
 methods:
   - name: getPaused

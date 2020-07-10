@@ -12,12 +12,16 @@ description: |
     of the the `android.R` class, and should have the same syntax.
     To retrieve the "OK" string from system resources in Android:
 
-        Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);
+    ``` js
+    Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);
+    ```
 
     If the file  `platform/android/res/drawable/icon.png` exists in the
     project, it can be accessed using its resource name, as follows:
 
-        var resid = Titanium.App.Android.R.drawable.icon;
+    ``` js
+    var resid = Titanium.App.Android.R.drawable.icon;
+    ```
 
     See also:
     [android.R](https://developer.android.com/reference/android/R.html) in the
@@ -36,7 +40,6 @@ platforms: [android]
 createable: false
 since: "1.5"
 properties:
-
   - name: anim
     summary: |
         Animation resources. See 

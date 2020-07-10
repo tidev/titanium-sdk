@@ -365,6 +365,13 @@
     UINavigationBar *navBar = [[controller navigationController] navigationBar];
     [navBar setBarStyle:navBarStyle];
     [navBar setBarTintColor:barColor];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if ([self shouldUseNavBarApperance]) {
+      barColor = barColor ?: self.view.backgroundColor;
+      navBar.standardAppearance.backgroundColor = barColor;
+      navBar.scrollEdgeAppearance.backgroundColor = barColor;
+    }
+#endif
     [self refreshBackButton];
   }
 }
@@ -1124,21 +1131,21 @@
   }
 
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
-  CGFloat oldTop = [[safeAreaProxy valueForKey:@"top"] floatValue];
-  CGFloat oldLeft = [[safeAreaProxy valueForKey:@"left"] floatValue];
-  CGFloat oldRight = [[safeAreaProxy valueForKey:@"right"] floatValue];
-  CGFloat oldBottom = [[safeAreaProxy valueForKey:@"bottom"] floatValue];
+  id oldTop = [safeAreaProxy valueForKey:@"top"];
+  id oldLeft = [safeAreaProxy valueForKey:@"left"];
+  id oldRight = [safeAreaProxy valueForKey:@"right"];
+  id oldBottom = [safeAreaProxy valueForKey:@"bottom"];
 
-  if (oldTop != edgeInsets.top) {
+  if (!oldTop || [oldTop floatValue] != edgeInsets.top) {
     [safeAreaProxy setTop:NUMFLOAT(edgeInsets.top)];
   }
-  if (oldBottom != edgeInsets.bottom) {
+  if (!oldBottom || [oldBottom floatValue] != edgeInsets.bottom) {
     [safeAreaProxy setBottom:NUMFLOAT(edgeInsets.bottom)];
   }
-  if (oldLeft != edgeInsets.left) {
+  if (!oldLeft || [oldLeft floatValue] != edgeInsets.left) {
     [safeAreaProxy setLeft:NUMFLOAT(edgeInsets.left)];
   }
-  if (oldRight != edgeInsets.right) {
+  if (!oldRight || [oldRight floatValue] != edgeInsets.right) {
     [safeAreaProxy setRight:NUMFLOAT(edgeInsets.right)];
   }
 }
