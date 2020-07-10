@@ -733,7 +733,13 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS, kCLLocationAccuracyHundredMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER, kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
-MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation); //Since 2.1.3
+MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation);
+#if IS_SDK_IOS_14
+MAKE_SYSTEM_PROP_DBL(ACCURACY_REDUCED, kCLLocationAccuracyReduced);
+
+MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_FULL, CLAccuracyAuthorizationFullAccuracy);
+MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_REDUCED, CLAccuracyAuthorizationReducedAccuracy);
+#endif
 
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
 MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
@@ -846,6 +852,40 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     RELEASE_TO_NIL(errorMessage);
   }
 }
+
+#if IS_SDK_IOS_14
+- (void)requestTemporaryFullAccuracyAuthorization:(NSString *)purposeKey withCallback:(JSValue *)callback
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:@"Supported on iOS 14+"];
+    [callback callWithArguments:@[ propertiesDict ]];
+    return;
+  }
+  NSDictionary *descriptionDict = [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationTemporaryUsageDescriptionDictionary];
+  if (!descriptionDict || ![descriptionDict valueForKey:purposeKey]) {
+    DebugLog(@"[WARN] Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey);
+  }
+  [[self locationPermissionManager] requestTemporaryFullAccuracyAuthorizationWithPurposeKey:purposeKey
+                                                                                 completion:^(NSError *_Nullable error) {
+                                                                                   NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
+                                                                                   if (error != nil) {
+                                                                                     propertiesDict = [TiUtils dictionaryWithCode:1 message:error.description];
+                                                                                   } else {
+                                                                                     propertiesDict[@"accuracyAuthorization"] = @([[self locationPermissionManager] accuracyAuthorization]);
+                                                                                   }
+                                                                                   [callback callWithArguments:@[ propertiesDict ]];
+                                                                                 }];
+}
+
+- (CLAccuracyAuthorization)locationAccuracyAuthorization
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    DebugLog(@"[ERROR] This property is available on iOS 14 and above.");
+    return -1;
+  }
+  return [[self locationPermissionManager] accuracyAuthorization];
+}
+#endif
 
 READWRITE_IMPL(bool, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
 GETTER_IMPL(NSString *, lastGeolocation, LastGeolocation);
