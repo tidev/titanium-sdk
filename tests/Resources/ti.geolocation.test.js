@@ -336,7 +336,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				});
 			});
 
-			it.android('works via Promise return value', function (finish) {
+			it('works via Promise return value', function (finish) {
 				this.timeout(6e4); // 60 sec
 
 				const result = Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View');
@@ -407,7 +407,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				});
 			});
 
-			it.android('works via Promise return value', function (finish) {
+			it('works via Promise return value', function (finish) {
 				const result = Ti.Geolocation.reverseGeocoder(37.3883645, -122.0512682);
 				result.should.be.a.Promise();
 				result.then(data => {
