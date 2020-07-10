@@ -56,14 +56,14 @@
 
 - (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
 {
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *error = [self createError:reason subreason:subreason location:location inContext:context];
   [context setException:error];
 }
 
 + (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
 {
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *error = [ObjcProxy createError:reason subreason:subreason location:location inContext:context];
   [context setException:error];
 }
@@ -320,8 +320,23 @@ READWRITE_IMPL(BOOL, bubbleParent, BubbleParent);
 
 - (id<TiEvaluator>)executionContext
 {
-  KrollContext *context = GetKrollContext([[JSContext currentContext] JSGlobalContextRef]);
+  KrollContext *context = GetKrollContext([self currentContext].JSGlobalContextRef);
   return (KrollBridge *)[context delegate];
+}
+
+- (JSContext *)currentContext
+{
+  JSContext *cur = JSContext.currentContext;
+  if (cur != nil) {
+    return cur;
+  }
+  KrollBridge *bridge = [KrollBridge krollBridgeForThreadName:NSThread.currentThread.name];
+  if (bridge != nil) {
+    KrollContext *krollContext = bridge.krollContext;
+    JSGlobalContextRef globalRef = krollContext.context;
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
 }
 
 @end

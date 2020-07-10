@@ -161,4 +161,10 @@ JSExportAs(fireEvent,
  * the "page context" in their initializers.
  **/
 - (id<TiEvaluator>)executionContext;
+
+/**
+ * Due to mix and match of new and old C API, JSContext.currentContext (and currentThis) may be null
+ * If we get called back through the old C API functionc allback, it will be, so we need to hack.
+ */
+- (JSContext *)currentContext;
 @end
