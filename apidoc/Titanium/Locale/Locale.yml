@@ -166,6 +166,37 @@ methods:
             Ti.API.info(String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg)));
             ```
 
+  - name: parseDecimal
+    summary: Parses a number from the given string using the current or given locale.
+    platforms: [android, iphone, ipad]
+    returns:
+        type: Number
+        summary: Returns the parsed number. Returns `NaN` (Not-a-Number) if given string is invalid.
+    parameters:
+      - name: text
+        summary: The string to be parsed.
+        type: String
+
+      - name: locale
+        summary: |
+            Locale, as a combination of ISO 2-letter language and country codes. For example, 
+            `en-US` or `en-GB`. See the 
+            [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+            [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+            sections of wikipedia for reference.
+        type: String
+        optional: true
+    examples:
+      - title: Parsing Localized Numeric Strings
+        example: |
+                // You can convert to/from a localized numeric string like this.
+                var numericString = String.formatDecimal(1234.5);
+                var numericValue = Ti.Locale.parseDecimal(numericString);
+                
+                // The numbers returned will be the same for the 2 different locales.
+                var number1 = Ti.Locale.parseDecimal('1,234,567.8', 'en-US');
+                var number2 = Ti.Locale.parseDecimal('1.234.567,8', 'de-DE');
+
 events:
   - name: change
     summary: Fired when the device locale changes.
