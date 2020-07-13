@@ -39,7 +39,7 @@
   if (count == 1 && [type isEqualToString:@"click"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector
-                                             (didReceiveApplicationShortcutNotification1:)
+                                             (didReceiveShortcutNotification:)
                                                  name:kTiApplicationShortcut
                                                object:nil];
     [self retain];
@@ -69,19 +69,19 @@
 - (NSArray<TiUIShortcutItemProxy *> *)staticItems
 {
   NSMutableArray<TiUIShortcutItemProxy *> *shortcutsToReturn = [NSMutableArray array];
-  NSArray *shortcuts = [NSBundle mainBundle].infoDictionary[@"UIApplicationShortcutItems"];
+  NSArray<NSDictionary *> *shortcuts = [NSBundle mainBundle].infoDictionary[@"UIApplicationShortcutItems"];
 
   if (shortcuts == nil || [shortcuts count] == 0) {
     return @[];
   }
 
-  for (id item in shortcuts) {
+  for (NSDictionary *item in shortcuts) {
     // We need to map the plist-keys manually for static shortcuts
-    NSString *type = [item valueForKey:@"UIApplicationShortcutItemType"];
-    NSString *title = [item valueForKey:@"UIApplicationShortcutItemTitle"];
-    NSString *subtitle = [item valueForKey:@"UIApplicationShortcutItemSubtitle"];
-    UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:[TiUtils intValue:[item valueForKey:@"UIApplicationShortcutItemIconType"]]];
-    NSDictionary *userInfo = [item valueForKey:@"UIApplicationShortcutItemUserInfo"];
+    NSString *type = item[@"UIApplicationShortcutItemType"];
+    NSString *title = item[@"UIApplicationShortcutItemTitle"];
+    NSString *subtitle = item[@"UIApplicationShortcutItemSubtitle"];
+    UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:[TiUtils intValue:item[@"UIApplicationShortcutItemIconType"]]];
+    NSDictionary *userInfo = item[@"UIApplicationShortcutItemUserInfo"];
 
     UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:type
                                                                             localizedTitle:title
@@ -143,14 +143,15 @@
   [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
-- (void)didReceiveApplicationShortcutNotification1:(NSNotification *)info
+- (void)didReceiveShortcutNotification:(NSNotification *)info
 {
   if ([self _hasListeners:@"click"]) {
-    UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[[info userInfo] valueForKey:@"type"]
-                                                                            localizedTitle:[[info userInfo] valueForKey:@"title"]
-                                                                         localizedSubtitle:[[info userInfo] valueForKey:@"subtitle"]
+    NSDictionary *userInfo = [info userInfo];
+    UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:userInfo[@"type"]
+                                                                            localizedTitle:userInfo[@"title"]
+                                                                         localizedSubtitle:userInfo[@"subtitle"]
                                                                                       icon:nil
-                                                                                  userInfo:[[info userInfo] objectForKey:@"userInfo"]] autorelease];
+                                                                                  userInfo:userInfo[@"userInfo"]] autorelease];
     [self fireEvent:@"click" withDict:@{ @"item" : [[[TiUIShortcutItemProxy alloc] initWithShortcutItem:shortcut] autorelease] }];
   }
 }

@@ -98,7 +98,7 @@ properties:
     description: |
         This can be set as a resource id or file path.
 
-        In iOS, you can use one of the constants like <Titanium.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE> or a reference to a
+        In iOS, you can use constants Titanium.UI.iOS.SHORTCUT_ICON_TYPE_* or a reference to a
         <Titanium.Contacts.Person> as well. On iOS 13 and higher, you can pass in the Ti.Blob instance returned from <Ti.UI.iOS.systemImage> also.
 
         In iOS, if you are using an image file, enable slicing (adding the image to an asset catalog) for
