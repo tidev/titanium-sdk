@@ -31,21 +31,22 @@
 {
   if (self = [self _initWithPageContext:context_]) {
     ENSURE_SINGLE_ARG(args, NSDictionary);
-    if ([args valueForKey:@"id"] == nil) {
+    NSDictionary *argDictionary = (NSDictionary *)args;
+    if (argDictionary[@"id"] == nil) {
       NSLog(@"[ERROR] Ti.UI.ShortcutItem: The \"id\" property is required.");
       return;
     }
 
-    if ([args valueForKey:@"title"] == nil) {
+    if (argDictionary[@"title"] == nil) {
       NSLog(@"[ERROR] Ti.UI.ShortcutItem: The \"title\" property is required.");
       return;
     }
 
-    _shortcutItem = [[UIApplicationShortcutItem alloc] initWithType:[args valueForKey:@"id"]
-                                                     localizedTitle:[args valueForKey:@"title"]
-                                                  localizedSubtitle:[args valueForKey:@"description"]
-                                                               icon:[self findIcon:[args valueForKey:@"icon"]]
-                                                           userInfo:[args valueForKey:@"data"]];
+    _shortcutItem = [[UIApplicationShortcutItem alloc] initWithType:argDictionary[@"id"]
+                                                     localizedTitle:argDictionary[@"title"]
+                                                  localizedSubtitle:argDictionary[@"description"]
+                                                               icon:[self findIcon:argDictionary[@"icon"]]
+                                                           userInfo:argDictionary[@"data"]];
   }
   return self;
 }
@@ -70,10 +71,6 @@
     return [UIApplicationShortcutIcon iconWithContact:[(TiContactsPerson *)value nativePerson]];
   }
 #endif
-
-  if ([value isKindOfClass:[UIApplicationShortcutIcon class]]) {
-    return (UIApplicationShortcutIcon *)value;
-  }
 
   if ([value isKindOfClass:[NSNumber class]]) {
     NSInteger iconIndex = [value integerValue];

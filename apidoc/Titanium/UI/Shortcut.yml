@@ -3,9 +3,12 @@ name: Titanium.UI.Shortcut
 summary: Manage application shortcuts.
 description: |
     Allows the creation of application shortcuts, which can be detected using
-    the `shortcutitemclick` event from <Titanium.App>.
+    the `click` event from <Titanium.UI.Shortcut>.
 
     Use the <Titanium.UI.createShortcut> method to manage shortcut creation.
+    
+    In iOS, to use this feature make sure you have a 3D Touch compatible device. To
+    check for the feature, use the <Titanium.UI.iOS.forceTouchSupported> property.
 
 extends: Titanium.Proxy
 since: "9.1.0"
@@ -61,19 +64,19 @@ events:
 examples:
   - title: Simple Shortcut Example
     example: |
-        Create a shortcut item and detect its click with the `shortcutitemclick` event.
+        Create a shortcut item and detect its click with the `click` event.
 
             const win = Ti.UI.createWindow({ backgroundColor: 'grey' }),
-            const btn = Ti.UI.createButton({ title: 'ADD SHORTCUT' }),
+            btn = Ti.UI.createButton({ title: 'ADD SHORTCUT' }),
 
-            const shortcut = Ti.UI.createShortcut();
-            const shortcutItem = Ti.UI.createShortcutItem({
+            shortcut = Ti.UI.createShortcut();
+            shortcutItem = Ti.UI.createShortcutItem({
                 id: 'test_shortcut',
                 title: 'TEST',
                 description: 'DESCRIPTION'
             });
 
-            Ti.UI.Shortcut.addEventListener('click', e => {
+            shortcut.addEventListener('click', e => {
                 console.log(`id: ${e.id}`);
 
                 // Set background to 'blue' on shortcut click event.
