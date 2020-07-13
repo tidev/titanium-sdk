@@ -80,7 +80,7 @@
   "dependencies": {
     "adm-zip": "^0.4.16",
     "appc-tasks": "^1.0.2",
-    "archiver": "^4.0.1",
+    "archiver": "^4.0.2",
     "async": "^2.6.1",
     "buffer-equal": "1.0.0",
     "clean-css": "4.2.3",
