@@ -189,13 +189,15 @@ methods:
     examples:
       - title: Parsing Localized Numeric Strings
         example: |
-                // You can convert to/from a localized numeric string like this.
-                var numericString = String.formatDecimal(1234.5);
-                var numericValue = Ti.Locale.parseDecimal(numericString);
-                
-                // The numbers returned will be the same for the 2 different locales.
-                var number1 = Ti.Locale.parseDecimal('1,234,567.8', 'en-US');
-                var number2 = Ti.Locale.parseDecimal('1.234.567,8', 'de-DE');
+            ``` javascript
+            // You can convert to/from a localized numeric string like this.
+            var numericString = String.formatDecimal(1234.5);
+            var numericValue = Ti.Locale.parseDecimal(numericString);
+            
+            // The numbers returned will be the same for the 2 different locales.
+            var number1 = Ti.Locale.parseDecimal('1,234,567.8', 'en-US');
+            var number2 = Ti.Locale.parseDecimal('1.234.567,8', 'de-DE');
+            ```
 
 events:
   - name: change
