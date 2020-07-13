@@ -6,7 +6,6 @@ description: |
 
     Use the <Titanium.UI.createShortcutItem> method to create a shortcut
     and <Titanium.UI.createShortcut> to manage shortcuts.
-
 extends: Titanium.Proxy
 since: { android: 7.5.0, iphone: 9.1.0, ipad: 9.1.0 }
 platforms: [android, iphone, ipad]
