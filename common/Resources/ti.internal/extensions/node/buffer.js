@@ -849,14 +849,7 @@ class Buffer { // FIXME: Extend Uint8Array
 		}
 
 		if (encoding === 'hex') {
-			let hexStr = '';
-			for (let i = 0; i < length; i++) {
-				// each one is a "byte"
-				let hex = (getAdjustedIndex(this, i) & 0xff).toString(16);
-				hex = (hex.length === 1) ? '0' + hex : hex;
-				hexStr += hex;
-			}
-			return hexStr;
+			return this.hexSlice(0, length);
 		}
 
 		if (encoding === 'latin1' || encoding === 'binary') {
@@ -879,6 +872,17 @@ class Buffer { // FIXME: Extend Uint8Array
 
 		// UCS2/UTF16
 		return bufferToUTF16String(this._tiBuffer, this.byteOffset, this.length);
+	}
+
+	hexSlice(start, end) {
+		let hexStr = '';
+		for (let i = start; i < end; i++) {
+			// each one is a "byte"
+			let hex = (getAdjustedIndex(this, i) & 0xff).toString(16);
+			hex = (hex.length === 1) ? '0' + hex : hex;
+			hexStr += hex;
+		}
+		return hexStr;
 	}
 
 	/**
@@ -1660,16 +1664,35 @@ const arrayIndexHandler = {
 };
 
 function getAdjustedIndex(buf, index) {
-	if (index < 0 || index >= buf._tiBuffer.length) {
+	if (index < 0) {
 		return undefined;
 	}
-	return buf._tiBuffer[index + buf.byteOffset];
+	// Wrapping Ti.Buffer?
+	if (buf._tiBuffer) {
+		if (index >= buf._tiBuffer.length) {
+			return undefined;
+		}
+		return buf._tiBuffer[index + buf.byteOffset];
+	}
+	// Raw TypedArray/ArrayBuffer
+	// FIXME: do we need to account for byteOffset here?
+	return buf[index];
 }
 
 function setAdjustedIndex(buf, index, value) {
-	if (index >= 0 || index < buf._tiBuffer.length) {
-		buf._tiBuffer[index + buf.byteOffset] = value;
+	if (index < 0) {
+		return;
 	}
+	// Wrapping Ti.Buffer?
+	if (buf._tiBuffer) {
+		if (index < buf._tiBuffer.length) {
+			buf._tiBuffer[index + buf.byteOffset] = value;
+		}
+		return;
+	}
+	// Raw TypedArray/ArrayBuffer
+	// FIXME: do we need to account for byteOffset here?
+	buf[index] = value;
 }
 
 /**
