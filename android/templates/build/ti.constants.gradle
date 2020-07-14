@@ -7,10 +7,10 @@
 
 project.ext {
 	tiAndroidXAppCompatLibVersion = '1.1.0'
-	tiAndroidXCoreLibVersion = '1.1.0'
-	tiAndroidXFragmentLibVersion = '1.1.0'
-	tiMaterialLibVersion = '1.0.0'
-	tiPlayServicesBaseLibVersion = '17.1.0'
+	tiAndroidXCoreLibVersion = '1.3.0'
+	tiAndroidXFragmentLibVersion = '1.2.5'
+	tiMaterialLibVersion = '1.1.0'
+	tiPlayServicesBaseLibVersion = '17.3.0'
 	tiManifestPlaceholders = [
 		tiActivityConfigChanges: 'density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode'
 	]
