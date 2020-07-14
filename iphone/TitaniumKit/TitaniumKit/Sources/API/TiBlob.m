@@ -68,7 +68,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width;
+    return image.size.width * image.scale;
   }
   return 0;
 }
@@ -78,7 +78,7 @@ GETTER_IMPL(NSUInteger, width, Width);
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.height;
+    return image.size.height * image.scale;
   }
   return 0;
 }
@@ -88,7 +88,7 @@ GETTER_IMPL(NSUInteger, height, Height);
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width * image.size.height;
+    return image.size.width * image.size.height * image.scale * image.scale;
   }
   switch (type) {
   case TiBlobTypeData: {
