@@ -28,10 +28,10 @@
 	"compileSDKVersion": "29",
 	"vendorDependencies": {
 		"android sdk": ">=23.x <=29.x",
-		"android build tools": ">=28.0.3 <=29.x",
+		"android build tools": ">=29.0.2 <=29.x",
 		"android platform tools": "29.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r11c <=r20",	
+		"android ndk": ">=r11c <=r21d",	
 		"java": ">=1.8.x"
 	},
 	"repository": {
