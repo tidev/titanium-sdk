@@ -181,6 +181,39 @@ public class LocaleModule extends KrollModule
 	}
 
 	@Kroll.method
+	public double parseDecimal(String text, @Kroll.argument(optional = true) String localeString)
+	{
+		double result = Double.NaN;
+		try {
+			// Create a number format parser using given locale if provided or current locale.
+			Locale locale = TiPlatformHelper.getInstance().getLocale(localeString);
+			NumberFormat numberFormat;
+			if (locale != null) {
+				numberFormat = NumberFormat.getInstance(locale);
+			} else {
+				numberFormat = NumberFormat.getInstance();
+			}
+
+			// Enable thousands separator parsing support. (ex: "1,234,567")
+			numberFormat.setGroupingUsed(true);
+
+			// Remove leading spaces and plus sign. Number format will fail to parse if there.
+			text = text.trim();
+			if (text.startsWith("+")) {
+				text = text.substring(1);
+			}
+
+			// Attempt to parse a decimal value from given string.
+			Number number = numberFormat.parse(text);
+			if (number != null) {
+				result = number.doubleValue();
+			}
+		} catch (Exception ex) {
+		}
+		return result;
+	}
+	
+	@Kroll.method
 	@Kroll.setProperty
 	public void setLanguage(String language)
 	{

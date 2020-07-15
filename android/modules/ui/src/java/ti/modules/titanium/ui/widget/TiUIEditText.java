@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ViewCompat;
+
+import android.text.InputType;
+import android.text.method.ArrowKeyMovementMethod;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.inputmethod.EditorInfo;
@@ -114,6 +117,53 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/**
+	 * Enables/disables text selection for a read-only EditText.
+	 * Enabling it allows the end-user to copy selected text to the clipboard.
+	 * <p>
+	 * Note that an enabled EditText always allows text selection, even if this is set false.
+	 * This method is mostly intended for TextView objects (which EditText derives from),
+	 * but can be used by an EditText whose input type is set to TYPE_NULL (ie: read-only).
+	 * @param isSelectable Enables or disables read-only text selection.
+	 */
+	@Override
+	public void setTextIsSelectable(boolean isSelectable)
+	{
+		if (!isSelectable && isTextSelectable()) {
+			// Work-around for Google bugs when changing setting from true to false. (False is default setting.)
+			// - Setting back to false will disable view's focus/click settings when we don't want it to.
+			// - Setting back to false prevents virtual keyboard from appearing on Android versions older than 9.0.
+
+			// Fetch current view states. We do this because setTextIsSelectable() will change them.
+			int lastFocusState = 0;
+			if (Build.VERSION.SDK_INT >= 26) {
+				lastFocusState = getFocusable();
+			}
+			boolean wasFocusable = isFocusable();
+			boolean wasClickable = isClickable();
+			boolean wasLongClickable = isLongClickable();
+
+			// Disable read-only text selection.
+			// Note: Text selection still works when NOT using "InputType.TYPE_NULL".
+			super.setTextIsSelectable(false);
+
+			// Restore previous settings that above method clobbered. (This is the work-around.)
+			if (Build.VERSION.SDK_INT >= 26) {
+				setFocusable(lastFocusState);
+			} else {
+				setFocusable(wasFocusable);
+			}
+			setFocusableInTouchMode(wasFocusable);
+			setClickable(wasClickable);
+			setLongClickable(wasLongClickable);
+			setMovementMethod(ArrowKeyMovementMethod.getInstance());
+			setText(getText(), BufferType.SPANNABLE);
+		} else {
+			// Call the method normally.
+			super.setTextIsSelectable(isSelectable);
+		}
+	}
+
+	/**
 	 * Called when key input has been received, but before it has been processed by the IME.
 	 * @param keyCode Unique integer ID of the key that was pressed/released.
 	 * @param event Provides additional key event details.
@@ -125,7 +175,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	@Override
 	public boolean onKeyPreIme(int keyCode, KeyEvent event)
 	{
-		// Work-around Android bug where center-alisgned and right-aligned EditText won't
+		// Work-around Android bug where center-aligned and right-aligned EditText won't
 		// always pan above the virtual keyboard when given the focus. (See TIMOB-23757)
 		boolean isLeftAligned = (getGravity() & Gravity.LEFT) != 0;
 		if ((Build.VERSION.SDK_INT < 24) && !isLeftAligned && (keyCode == KeyEvent.KEYCODE_BACK)) {
@@ -157,6 +207,29 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 		if (parentView != null) {
 			parentView.requestDisallowInterceptTouchEvent(true);
 		}
+	}
+
+	/**
+	 * Called when a context menu item such as "Copy", "Paste", etc. has been tapped on.
+	 * @param id The integer ID of the action that was selected in the context menu.
+	 */
+	@Override
+	public boolean onTextContextMenuItem(int id)
+	{
+		// Do not allow the following actions to change the text if we're in read-only mode.
+		if (getInputType() == InputType.TYPE_NULL) {
+			switch (id) {
+				case android.R.id.autofill:
+				case android.R.id.cut:
+				case android.R.id.paste:
+				case android.R.id.pasteAsPlainText:
+				case android.R.id.replaceText:
+					return false;
+			}
+		}
+
+		// Let the base class handle the action.
+		return super.onTextContextMenuItem(id);
 	}
 
 	/**

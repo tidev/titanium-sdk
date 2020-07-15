@@ -1875,7 +1875,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-  [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:YES];
+  // TIMOB-27994: This delegate should called only when accessory detail button is clicked.
+  // If tableView is in edit mode, accessory buttons (detail button) does not appear.
+  // But in iOS 13+, On click of 'reorder control' this delegate is called (probably a bug). So following condition applied.
+  if (!tableView.isEditing) {
+    [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:YES];
+  }
 }
 
 #pragma mark - ScrollView Delegate

@@ -65,6 +65,35 @@ GETTER_IMPL(NSString *, currentLocale, CurrentLocale);
   return [[[[NSLocale alloc] initWithLocaleIdentifier:locale] autorelease] objectForKey:NSLocaleCurrencySymbol];
 }
 
+- (NSNumber *)parseDecimal:(NSString *)text withLocaleId:(id)localeId
+{
+  // Fetch optional locale string argument. (ex: "en-US")
+  NSString *localeStringId = nil;
+  if ((localeId != nil) && [localeId isKindOfClass:[NSString class]]) {
+    localeStringId = (NSString *)localeId;
+  }
+
+  // Acquire requested locale if provided or current locale.
+  NSLocale *locale = nil;
+  if (localeStringId != nil) {
+    locale = [[[NSLocale alloc] initWithLocaleIdentifier:localeStringId] autorelease];
+  }
+  if (locale == nil) {
+    locale = [NSLocale currentLocale];
+  }
+
+  // Remove localized thousands separators from string if they exist. NSScanner fails to parse them.
+  NSString *thousandsSeparator = [locale objectForKey:NSLocaleGroupingSeparator];
+  text = [text stringByReplacingOccurrencesOfString:thousandsSeparator withString:@""];
+
+  // Attempt to parse a number from given text. Return not-a-number if failed.
+  NSScanner *scanner = [NSScanner localizedScannerWithString:text];
+  [scanner setLocale:locale];
+  double value = NAN;
+  [scanner scanDouble:&value];
+  return [NSNumber numberWithDouble:value];
+}
+
 - (void)setLanguage:(NSString *)locale
 {
   [TiLocale setLocale:locale];

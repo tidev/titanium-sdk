@@ -4,22 +4,9 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/listview/listview_android.png" height="200" /></td>
-          <td><img src="images/listview/listview_ios.png" height="200" /></td>
-          <td><img src="images/listview/listview_wp.png" height="200" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows Phone</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) | ![Windows](./listview_wp.png) |
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
 
@@ -27,15 +14,17 @@ description: |
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects. This is
     easily visualized as an Alloy view:
 
-        <Alloy>
-            <ListView id="list">
-                <ListSection>
-                    <ListItem title="List item 1"></ListItem>
-                    <ListItem title="List item 2"></ListItem>
-                    <ListItem title="List item 3"></ListItem>
-                </ListSection>
-            </ListView>
-        </Alloy>
+    ``` xml
+    <Alloy>
+        <ListView id="list">
+            <ListSection>
+                <ListItem title="List item 1"></ListItem>
+                <ListItem title="List item 2"></ListItem>
+                <ListItem title="List item 3"></ListItem>
+            </ListSection>
+        </ListView>
+    </Alloy>
+    ```
 
     For more instructions and examples of using `ListView`, refer to the
     [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
@@ -272,7 +261,7 @@ events:
 
   - name: itemsselected
     summary: |
-      Fired when user stops two-pan gesture interaction for selecting multiple items. 
+      Fired when user stops two-pan gesture interaction for selecting multiple items.
       It is used with <Titanium.UI.ListView.allowsMultipleSelectionInteraction>.
     properties:
       - name: selectedItems
@@ -755,9 +744,9 @@ properties:
   - name: allowsMultipleSelectionInteraction
     summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
     description: |
-        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
-        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
-        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
+        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture.
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior,
         you must also set <Titanium.UI.ListView.allowsMultipleSelectionDuringEditing> to true.
         Once user interaction stops the <Titanium.UI.ListView.itemsselected> event is fired.
     type: Boolean
@@ -1129,8 +1118,8 @@ properties:
   - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
-          If you want to show the search bar in navigation bar, set this property `true` during creation. 
-          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
+          If you want to show the search bar in navigation bar, set this property `true` during creation.
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the
           searchbar when scrolling.
     type: Boolean
     default: false
@@ -1765,7 +1754,7 @@ examples:
         </Alloy>
         ```
 
-  - title: Alloy example of <PullView> element
+  - title: Alloy example of `<PullView>` element
     example: |
         The example below demonstrates how to use a `<PullView>` Alloy element.
 

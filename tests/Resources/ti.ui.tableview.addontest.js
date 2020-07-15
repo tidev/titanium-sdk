@@ -10,26 +10,13 @@
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
-	let win;
-
 	this.timeout(5000);
 
-	afterEach(function (done) {
-		if (win) {
-			// If `win` is already closed, we're done.
-			let t = setTimeout(function () {
-				if (win) {
-					win = null;
-					done();
-				}
-			}, 3000);
-
+	let win;
+	afterEach(done => { // fires after every test in sub-suites too...
+		if (win && !win.closed) {
 			win.addEventListener('close', function listener () {
-				clearTimeout(t);
-
-				if (win) {
-					win.removeEventListener('close', listener);
-				}
+				win.removeEventListener('close', listener);
 				win = null;
 				done();
 			});
@@ -40,25 +27,36 @@ describe('Titanium.UI.TableView', function () {
 		}
 	});
 
-	it.ios('row#rect', function (finish) {
-		win = Ti.UI.createWindow();
-		const tableView = Ti.UI.createTableView();
-		const row = Ti.UI.createTableViewRow({
-			height: Ti.UI.SIZE,
-			width: Ti.UI.FILL
-		});
-		const view = Ti.UI.createView({
-			height: 150,
-			backgroundColor: 'yellow'
-		});
-		row.add(view);
-		tableView.setData([ row ]);
-		win.add(tableView);
+	it.ios('rows with vertical or horizontal layout', function (finish) {
+		var	tableData = [];
+		for (var index = 1; index <= 20; index++) {
+			var rowLayout = 'vertical';
+			if (index > 10) {
+				rowLayout = 'horizontal';
+			}
+			var row = Ti.UI.createTableViewRow({
+				layout: rowLayout
+			});
+			row.add(Ti.UI.createLabel({ text: 'Row ' + index.toString() }));
 
-		row.addEventListener('postlayout', function () {
-			should(row.rect.height).be.eql(150);
-			finish();
+			tableData.push(row);
+		}
+		var	table = Ti.UI.createTableView({
+			data: tableData
 		});
+		win = Ti.UI.createWindow();
+
+		function addTableView() {
+			try {
+				// After adding table, app should not crash
+				win.add(table);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		}
+
+		win.addEventListener('postlayout', addTableView);
 		win.open();
 	});
 });
