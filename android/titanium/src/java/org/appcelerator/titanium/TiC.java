@@ -2002,6 +2002,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ITEM = "item";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ITEM_ID = "itemId";
 
 	/**
