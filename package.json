@@ -111,7 +111,7 @@
     "@commitlint/config-conventional": "^9.1.1",
     "@seadub/clang-format-lint": "0.0.2",
     "@seadub/danger-plugin-dependencies": "0.1.0",
-    "@seadub/danger-plugin-eslint": "^1.0.1",
+    "@seadub/danger-plugin-eslint": "^2.0.0",
     "@seadub/danger-plugin-junit": "0.2.0",
     "babel-plugin-transform-titanium": "^0.1.1",
     "chai": "^4.2.0",
