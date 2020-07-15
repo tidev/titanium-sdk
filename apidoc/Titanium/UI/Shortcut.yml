@@ -70,7 +70,7 @@ examples:
         
         const shortcut = Ti.UI.createShortcut();
         shortcut.addEventListener('click', e => {
-            console.log(`id: ${e.id}`);
+            console.log(`id: ${e.item.id}`);
 
             // Set background to 'blue' on shortcut click event.
             win.backgroundColor = 'blue';
