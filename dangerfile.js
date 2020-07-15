@@ -97,6 +97,7 @@ async function checkCommitMessages() {
 // Check that we have a JIRA Link in the body
 async function checkJIRA() {
 	const body = github.pr.body;
+	// TODO: Cross-reference JIRA tickets linked in PR body versus in commit messages!
 	const hasJIRALink = body.match(/https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/);
 	if (!hasJIRALink) {
 		labelsToAdd.add(Label.NEEDS_JIRA);
@@ -162,8 +163,8 @@ async function checkMergeable() {
 
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
-	// Don't give special thanks to the greenkeeper bot account
-	if (github.pr.user.login === 'greenkeeper[bot]' || github.pr.user.login === 'dependabot-preview[bot]') {
+	// Don't give special thanks to bot accounts
+	if (github.pr.user.login === 'dependabot-preview[bot]') {
 		return;
 	}
 	if (github.pr.author_association === 'FIRST_TIMER') {
