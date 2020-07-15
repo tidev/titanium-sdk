@@ -86,9 +86,9 @@ GETTER_IMPL(NSString *, currentLocale, CurrentLocale);
   // Note: If locale uses whitespace separators (like French), then remove all whitespace character types.
   NSString *thousandsSeparator = [locale objectForKey:NSLocaleGroupingSeparator];
   NSCharacterSet *whitespaceCharSet = [NSCharacterSet whitespaceCharacterSet];
-  if ([thousandsSeparator rangeOfCharacterFromSet: whitespaceCharSet].location != NSNotFound) {
-    if ([text rangeOfCharacterFromSet: whitespaceCharSet].location != NSNotFound) {
-      text = [[text componentsSeparatedByCharactersInSet: whitespaceCharSet] componentsJoinedByString: @""];
+  if ([thousandsSeparator rangeOfCharacterFromSet:whitespaceCharSet].location != NSNotFound) {
+    if ([text rangeOfCharacterFromSet:whitespaceCharSet].location != NSNotFound) {
+      text = [[text componentsSeparatedByCharactersInSet:whitespaceCharSet] componentsJoinedByString:@""];
     }
   } else {
     text = [text stringByReplacingOccurrencesOfString:thousandsSeparator withString:@""];
