@@ -602,8 +602,10 @@ static NSDictionary *sizeMap = nil;
     return @"#000000";
   }
   if (lroundf(alpha * 255.0) != 255) {
-    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0), lroundf(alpha * 255.0)];
+    // AARRGGBB
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(alpha * 255.0), lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
   }
+  // RRGGBB
   return [NSString stringWithFormat:@"#%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
 }
 

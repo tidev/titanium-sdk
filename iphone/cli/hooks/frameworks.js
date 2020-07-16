@@ -260,6 +260,10 @@ class InspectFrameworksTask extends IncrementalFileTask {
 		return [ this._outputDirectory ];
 	}
 
+	get outputDirectory() {
+		return this._outputDirectory;
+	}
+
 	/**
 	 * Sets the output directory where this task will write the framework metadata
 	 *

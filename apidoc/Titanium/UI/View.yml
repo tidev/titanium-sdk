@@ -1332,8 +1332,11 @@ properties:
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
     description: Each corner is rounded using an arc of a circle.
-    type: Number
+        Values for each corner can be specified. For example, '20px 20px' will set both left and right corners to `20px`.
+        Specifying '20px 20px 20px 20px' will set top-left, top-right, bottom-right and bottom-left corners in that order.
+    type: [Number, String, Array<Number>, Array<String>]
     default: 0
+    osver: {android: {min: "5.0"}}
 
   - name: borderWidth
     summary: Border width of the view.
@@ -1766,8 +1769,11 @@ properties:
   - name: touchFeedback
     summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
     description: |
-        This is an opt-in feature available from Android Lollipop.
-        Touch feedback is applied only if the backgroundColor is a solid color.
+        Touch feedback is only applied to a view's background. It is never applied to the view's foreground content
+        such as a <Titanium.UI.ImageView>'s image.
+
+        For Titanium versions older than 9.1.0, touch feedback only works if you set the
+        <Titanium.UI.View.backgroundColor> property to a non-transparent color.
     type: Boolean
     default: false
     platforms: [android]

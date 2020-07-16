@@ -100,14 +100,14 @@ description:  |
     identical, such as `'#000'`, `'#f00'`, `'#0f0#'`, `'#00f'` and `'#fff'` for the above colors,
     respectively.
 
-    An additional alpha channel is supported as a prefix to the hex triplet. So, to make
+    An additional alpha channel is supported as a prefix to the hex triplet (ARGB or AARRGGBB). So, to make
     the purple-like color `'#ff00ff'` semi-opaque, you could use an alpha value of `'55'`, giving,
-    `'#55ff00ff'` or `'#5f0f'`.
+    `'#55ff00ff'` or `'#5f0f'`. Please note that both iOS and Android use ARGB format, while typical CSS supports RGBA.
 
     Note that while the pound symbol, `#`, is not mandatory on iOS when using the hex triplet format,
     it is recommended to include it to provide compatibility with other platforms.
 
-    iOS also accepts colors specified in the form, `rgb(R,G,B)` and `rgba(R,G,B,A)`, with the color
+    iOS and Android also accept colors specified in the form, `rgb(R,G,B)` and `rgba(R,G,B,A)`, with the color
     channels inside the parethesis represented by integer numbers between `0` and `255` and the
     alpha channel by a float number between `0` and `1.0` (transparent to opaque, respectively).
     For example, an opaque purple could be obtained using `'rgb(255,0,255)'` and a semi-opaque purple
@@ -133,6 +133,8 @@ description:  |
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the
     color yellow is applied.
 
+    On iOS, you may use named system colors. See the <Titanium.UI.Color> documentation for more details.
+
     #### Dark Mode
 
     In iOS 13 Apple introduced support for users to adopt a system-wide Dark Mode setting where the screens, view, menus, and controls use a darker color palette. You can read more about this in the Apple Human Interface Guidelines.
@@ -148,14 +150,16 @@ description:  |
         "textColor": { // the name for your color
           "dark": {
             "color": "#ff85e2", // hex color code to be set
-            "alpha": "50.0" // can be set from a range of 0-100
+            "alpha": "50" // can be set from a range of 0.0-100.0, integer or float
           },
-          "light": "#ff1f1f"
+          "light": "#ff1f1f" // can be a hex color (with alpha via ARGB/AARRGGBB)
         }
       }
     ```
 
     To reference these colors in your application use the <Titanium.UI.fetchSemanticColor> API, this is a cross platform API that on iOS 13 and above will use the native method that checks the users system-wide setting, and in all other instances will check the <Titanium.UI.semanticColorType> property and return the correct color for the current setting.
+
+    You may also directly use the named of the colors as values to any color properties on UI elements.
 
     ##### Specifying Dark Mode images
 
@@ -253,12 +257,14 @@ methods:
   - name: fetchSemanticColor
     summary: |
         Fetches the correct color to be used with a UI element dependent on the users current dark mode setting on iOS 13 and above, or the [Titanium.UI.semanticColorType](Titanium.UI.semanticColorType) setting in other instances.
+        Will return a valid string value to be used for color properties on Android. This may be a hex string or an `rgba()` function.
     parameters:
       - name: colorName
         summary: Name of the semantic color defined in the applications colorset.
         type: String
     returns:
       - type: Titanium.UI.Color
+      - type: String
     since: "8.2.0"
 
 properties:
@@ -1856,8 +1862,15 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_ASCII
-    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji. Defaults to English letters layout on iOS.
     description: |
+        This keyboard type allows the end-user to enter numbers, symbols, and non-English letters too.
+        It just launches with the English letters keyboard layout when shown.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        Android keyboards will typically ignore this setting and show the default language keyboard instead,
+        but will still not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -1869,7 +1882,7 @@ properties:
         notes: Use [Titanium.UI.KEYBOARD_TYPE_ASCII](Titanium.UI.KEYBOARD_TYPE_ASCII) instead.
 
   - name: KEYBOARD_DECIMAL_PAD
-    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout showing only numbers, decimal separator, and sign character.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
@@ -1921,8 +1934,15 @@ properties:
         notes: Use [Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD) instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
-    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji, defaulting to numbers layout on iOS.
     description: |
+        On iOS, this will default to showing the "Numbers and Punctuation" side of the keyboard,
+        but still allows the end-user to switch to other keyboards for entering letters as well.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        On Android, this type displays a normal keyboard defaulting to the letter side,
+        but will not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -1934,7 +1954,7 @@ properties:
         notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION) instead.
 
   - name: KEYBOARD_NUMBER_PAD
-    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout only showing numbers for entering positive integers.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
@@ -1975,7 +1995,7 @@ properties:
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number
-    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout showing only numbers, decimal separator, and sign character.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
@@ -1987,8 +2007,15 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_ASCII
-    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji. Defaults to English letters layout on iOS.
     description: |
+        This keyboard type allows the end-user to enter numbers, symbols, and non-English letters too.
+        It just launches with the English letters keyboard layout when shown.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        Android keyboards will typically ignore this setting and show the default language keyboard instead,
+        but will still not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -2025,8 +2052,15 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
-    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
+    summary: Use a keyboard supporting all characters except emoji, defaulting to numbers layout on iOS.
     description: |
+        On iOS, this will default to showing the "Numbers and Punctuation" side of the keyboard,
+        but still allows the end-user to switch to other keyboards for entering letters as well.
+        This type will not allow the end-user to display an emoji keyboard.
+
+        On Android, this type displays a normal keyboard defaulting to the letter side,
+        but will not allow the end-user to enter emoji characters like iOS.
+
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
     type: Number
@@ -2035,7 +2069,7 @@ properties:
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBER_PAD
-    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
+    summary: Use a number pad keyboard layout only showing numbers for entering positive integers.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.

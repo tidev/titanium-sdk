@@ -138,6 +138,7 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 							stash includes: 'junit.*.xml', name: 'test-report-android'
 							junit 'junit.*.xml'
 						} // dir('scripts')
+						archiveArtifacts allowEmptyArchive: true, artifacts: 'diffs/'
 					} // nodejs
 				} // dir('titanium-mobile-mocha-suite')
 			} finally {
@@ -172,6 +173,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
 							stash includes: 'junit.ios.*.xml', name: "test-report-ios-${deviceFamily}"
 							junit 'junit.ios.*.xml'
 						} // dir('scripts')
+						archiveArtifacts allowEmptyArchive: true, artifacts: 'diffs/'
 					} // nodejs
 				} // dir('titanium-mobile-mocha-suite')
 			} finally {

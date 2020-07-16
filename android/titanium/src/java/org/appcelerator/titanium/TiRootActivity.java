@@ -19,6 +19,8 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -31,6 +33,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Window;
+
+import ti.modules.titanium.ui.ShortcutItemProxy;
 
 public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
 {
@@ -366,13 +370,27 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		// Handle the intent if set.
 		if (intent != null) {
 			// If this is a shortcut intent, then fire a Titanium App "shortcutitemclick" event.
-			String shortcutId = intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT);
+			final String shortcutId = intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT);
+			final String shortcutPropertiesJsonString = intent.getStringExtra(TiC.PROPERTY_PROPERTIES);
+			KrollDict shortcutProperties = null;
+			try {
+				if (shortcutPropertiesJsonString != null) {
+					shortcutProperties = new KrollDict(new JSONObject(shortcutPropertiesJsonString));
+				}
+			} catch (JSONException e) {
+			}
 			if (shortcutId != null) {
-				KrollModule appModule = getTiApp().getModuleByName("App");
+				final KrollModule appModule = getTiApp().getModuleByName("App");
+				final KrollModule shortcutModule = getTiApp().getModuleByName("Shortcut");
 				if (appModule != null) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_ID, shortcutId);
 					appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
+				}
+				if (shortcutModule != null && shortcutProperties != null) {
+					final ShortcutItemProxy item = new ShortcutItemProxy();
+					item.handleCreationDict(shortcutProperties);
+					shortcutModule.fireEvent(TiC.EVENT_CLICK, item);
 				}
 			}
 
