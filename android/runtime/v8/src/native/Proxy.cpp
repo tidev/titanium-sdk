@@ -596,7 +596,6 @@ jobject Proxy::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void Proxy::logDeprecation(Isolate* isolate, const char* message)
 {
-#ifdef TI_DEBUG
 	// Print deprecation message.
 	LOGW(TAG, message);
 
@@ -616,7 +615,6 @@ void Proxy::logDeprecation(Isolate* isolate, const char* message)
 	// Log location of deprecated usage.
 	std::string stackString = V8Util::stackTraceString(isolate, exception->GetStackTrace(), 1);
 	LOGW(TAG, stackString.c_str());
-#endif
 }
 
 } // namespace titanium
