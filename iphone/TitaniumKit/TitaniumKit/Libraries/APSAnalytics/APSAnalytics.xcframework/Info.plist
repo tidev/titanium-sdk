@@ -8,6 +8,21 @@
 			<key>HeadersPath</key>
 			<string>Headers</string>
 			<key>LibraryIdentifier</key>
+			<string>ios-armv7_arm64</string>
+			<key>LibraryPath</key>
+			<string>libAPSAnalytics.a</string>
+			<key>SupportedArchitectures</key>
+			<array>
+				<string>armv7</string>
+				<string>arm64</string>
+			</array>
+			<key>SupportedPlatform</key>
+			<string>ios</string>
+		</dict>
+		<dict>
+			<key>HeadersPath</key>
+			<string>Headers</string>
+			<key>LibraryIdentifier</key>
 			<string>ios-x86_64-maccatalyst</string>
 			<key>LibraryPath</key>
 			<string>libAPSAnalytics.a</string>
@@ -36,21 +51,6 @@
 			<string>ios</string>
 			<key>SupportedPlatformVariant</key>
 			<string>simulator</string>
-		</dict>
-		<dict>
-			<key>HeadersPath</key>
-			<string>Headers</string>
-			<key>LibraryIdentifier</key>
-			<string>ios-armv7_arm64</string>
-			<key>LibraryPath</key>
-			<string>libAPSAnalytics.a</string>
-			<key>SupportedArchitectures</key>
-			<array>
-				<string>armv7</string>
-				<string>arm64</string>
-			</array>
-			<key>SupportedPlatform</key>
-			<string>ios</string>
 		</dict>
 	</array>
 	<key>CFBundlePackageType</key>
