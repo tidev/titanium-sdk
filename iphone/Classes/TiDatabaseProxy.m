@@ -333,23 +333,25 @@
 - (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries
 {
   NSError *error = nil;
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
   NSUInteger index = 0;
   for (NSString *sql in queries) {
     TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:&error];
-    if (error != nil) {
-      JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
-      jsError[@"results"] = result;
-      jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
-      [context setException:jsError];
-      return nil;
-    }
     if (result == nil) {
       [results addObject:[JSValue valueWithNullInContext:context]];
     } else {
       [results addObject:result];
     }
+
+    if (error != nil) {
+      JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
+      jsError[@"results"] = results;
+      jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
+      [context setException:jsError];
+      return nil;
+    }
+
     index++;
   }
   return results;
