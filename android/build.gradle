@@ -13,7 +13,7 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.0.0'
+		classpath 'com.android.tools.build:gradle:4.0.1'
 		classpath 'com.google.gms:google-services:4.3.3'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 	}
@@ -28,7 +28,7 @@ allprojects {
 	// Load plugin used to enforce our Java coding style guidelines.
 	project.apply plugin: 'checkstyle'
 	checkstyle {
-		toolVersion = '8.30'
+		toolVersion = '8.34'
 		configFile file("${rootDir}/checkstyle.xml");
 		ignoreFailures false
 		showViolations true
