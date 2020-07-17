@@ -83,8 +83,16 @@ GETTER_IMPL(NSString *, currentLocale, CurrentLocale);
   }
 
   // Remove localized thousands separators from string if they exist. NSScanner fails to parse them.
+  // Note: If locale uses whitespace separators (like French), then remove all whitespace character types.
   NSString *thousandsSeparator = [locale objectForKey:NSLocaleGroupingSeparator];
-  text = [text stringByReplacingOccurrencesOfString:thousandsSeparator withString:@""];
+  NSCharacterSet *whitespaceCharSet = [NSCharacterSet whitespaceCharacterSet];
+  if ([thousandsSeparator rangeOfCharacterFromSet:whitespaceCharSet].location != NSNotFound) {
+    if ([text rangeOfCharacterFromSet:whitespaceCharSet].location != NSNotFound) {
+      text = [[text componentsSeparatedByCharactersInSet:whitespaceCharSet] componentsJoinedByString:@""];
+    }
+  } else {
+    text = [text stringByReplacingOccurrencesOfString:thousandsSeparator withString:@""];
+  }
 
   // Attempt to parse a number from given text. Return not-a-number if failed.
   NSScanner *scanner = [NSScanner localizedScannerWithString:text];

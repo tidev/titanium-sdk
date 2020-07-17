@@ -56,6 +56,17 @@
     lengthValue = [[buffer data] length];
   }
 
+  if (lengthValue == 0) {
+    // NO-OP
+    NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
+    if (stream != nil) {
+      [event setObject:stream forKey:@"source"];
+    }
+    [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
+    [self _fireEventToListener:@"io" withObject:event listener:callback thisObject:nil];
+    return;
+  }
+
   if (offsetValue >= [[buffer data] length]) {
     NSString *errorStr = [NSString stringWithFormat:@"Offset %ld is past buffer bounds (length %lu)", (long)offsetValue, (unsigned long)[[buffer data] length]];
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:errorStr];
