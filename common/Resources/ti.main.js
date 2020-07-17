@@ -32,13 +32,34 @@ import './ti.internal/extensions';
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
 import loadAsync from './ti.internal/bootstrap.loader';
-loadAsync().then(() => { // eslint-disable-line promise/catch-or-return,promise/always-return
+loadAsync().then(() => {
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
 	require('./app');
+
+	// If backgrounding is enabled, verify "app.js" has added a "sessgionbegin" event listener. It's required.
+	if (Ti.App.Properties.getBool('run-in-background', false)) {
+		if (!Ti.UI.hasEventListener('sessionbegin')) {
+			let message;
+			if (global.Alloy) {
+				message = 'You must use Appcelerator CLI 8.1.0 (with Alloy 1.15.0) or higher';
+			} else {
+				message = 'You must add a Titanium.UI "sessionbegin" event listener';
+			}
+			message += ' when "tiapp.xml" property "run-in-background" is enabled.';
+			throw new Error(message);
+		}
+	}
 
 	// This event is to be fired after "app.js" execution. Reasons:
 	// - Allow system to queue startup related events until "app.js" has had a chance to add listeners.
 	// - For Alloy apps, we now know that Alloy has been initialized and its globals were added.
 	Ti.App.fireEvent('started');
+	return;
+}).catch((err) => {
+	// Re-throw error so that Titanium can display it via an error dialog.
+	// Also allows ACA module to process the unhandled error if enabled.
+	setTimeout(() => {
+		throw err;
+	});
 });
