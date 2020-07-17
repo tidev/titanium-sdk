@@ -369,6 +369,8 @@
     return;
   }
   ENSURE_ARRAY(args);
+  ENSURE_ARG_COUNT(args, 2);
+  ENSURE_TYPE(args[1], NSNumber)
   UIImage *image = [TiUtils toImage:args[0] proxy:self];
   NSInteger page = [args[1] integerValue];
   [(TiUIScrollableView *)self.view setIndicatorImage:image forPage:page];

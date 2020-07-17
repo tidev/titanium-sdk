@@ -656,7 +656,6 @@
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
     DebugLog(@"[WARN] Supported on iOS 14.0+");
     return;
-    ;
   }
 
   if (showPageControl) {
