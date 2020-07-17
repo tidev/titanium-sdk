@@ -10,5 +10,6 @@ module.exports = {
 	'iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m': [
 		'npm run ios-sanity-check --'
 	],
-	'!(**/locales/**/*).js': 'eslint'
+	'!(**/locales/**/*).js': 'eslint',
+	'package-lock.json': 'npm run lint:lockfile'
 };

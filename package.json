@@ -46,6 +46,7 @@
     "lint:docs": "tdoc-validate ./apidoc",
     "lint:ios": "clang-format-lint $npm_package_config_format_ios",
     "lint:js": "eslint .",
+    "lint:lockfile": "./check-lockfile.js",
     "package": "./build/scons package",
     "package:android": "npm run package -- android",
     "package:ios": "npm run package -- ios",
