@@ -65,7 +65,7 @@ examples:
     example: |
         Create a shortcut item and detect its click with the `click` event.
 
-        ```
+        ``` javascript
         const win = Ti.UI.createWindow({ backgroundColor: 'grey' });
         
         const shortcut = Ti.UI.createShortcut();
