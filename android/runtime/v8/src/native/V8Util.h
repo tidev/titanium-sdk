@@ -167,7 +167,7 @@ public:
 	static bool constructorNameMatches(v8::Isolate* isolate, v8::Local<v8::Object>, const char* name);
 	static bool isNaN(v8::Isolate* isolate, v8::Local<v8::Value> value);
 	static void dispose();
-	static std::string stackTraceString(v8::Isolate* isolate, v8::Local<v8::StackTrace> frames);
+	static std::string stackTraceString(v8::Isolate* isolate, v8::Local<v8::StackTrace> frames, int maxCount = 0);
 };
 
 }
