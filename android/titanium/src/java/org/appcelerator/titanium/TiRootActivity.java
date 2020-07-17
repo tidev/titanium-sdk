@@ -388,9 +388,11 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 					appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
 				}
 				if (shortcutModule != null && shortcutProperties != null) {
+					final KrollDict data = new KrollDict();
 					final ShortcutItemProxy item = new ShortcutItemProxy();
 					item.handleCreationDict(shortcutProperties);
-					shortcutModule.fireEvent(TiC.EVENT_CLICK, item);
+					data.put(TiC.PROPERTY_ITEM, item);
+					shortcutModule.fireEvent(TiC.EVENT_CLICK, data);
 				}
 			}
 
