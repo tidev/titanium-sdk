@@ -287,14 +287,14 @@ timestamps {
 
 					ansiColor('xterm') {
 						timeout(15) {
-							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R16B}"
+							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R20}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
 							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
-							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B}"
+							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R20}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
