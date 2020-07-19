@@ -314,7 +314,11 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
     [[UIApplication sharedApplication] openURL:newUrl
                                        options:optionsDict
                              completionHandler:^(BOOL success) {
-                               if (callback != nil) {
+                               JSContextRef context = callback.context.JSGlobalContextRef;
+                               BOOL isUndefined = JSValueIsUndefined(context, callback.JSValueRef);
+                               BOOL isNull = JSValueIsNull(context, callback.JSValueRef);
+      
+                               if (!isUndefined && !isNull) {
                                  [callback callWithArguments:@[ @{@"success" : @(success)} ]];
                                }
                              }];
