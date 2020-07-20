@@ -309,6 +309,12 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
   } else if ([options isObject]) {
     optionsDict = [options toDictionary];
   }
+  // Ensure callback is actually a function. If not, make it nil so we don't fire it
+  // Since callback is optional, this may be a JSValue representing 'undefined' here wich is not nil
+  // So we need this special guard
+  if (![callback isFunction]) {
+    callback = nil;
+  }
 
   if (newUrl != nil) {
     [[UIApplication sharedApplication] openURL:newUrl
