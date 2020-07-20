@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="angularBlue">#1976d2</color>
+    <color name="angularDarkBlue">#004ba0</color>
+    <color name="angularLightBlue">#63a4ff</color>
+    <color name="angularRed">#de0032</color>
+    <color name="windowBackground">#fafafa</color>
+</resources>

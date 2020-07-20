@@ -1,41 +1,56 @@
 'use strict';
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 
 exports.id = 'com.appcelerator.angular.post-create';
 
 exports.init = (logger, config, cli) => {
-	cli.on('create.post.app', (creator, next) => {
+	cli.on('create.post.app', async (creator, next) => {
 		const projectName = cli.argv.name;
 		const projectPath = path.join(cli.argv['workspace-dir'], projectName);
-		const packageJsonPath = path.join(projectPath, 'app', 'package.json');
-		if (fs.existsSync(packageJsonPath)) {
-			let packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString());
-			packageJson.name = projectName;
-			fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 4));
-		}
-
+		copyGitIgnore(projectPath);
+		await updatePackageJson(projectPath, { name: projectName });
 		logger.info('Installing Angular project dependencies');
-		let errorOutput = '';
-		let npmExecutable = 'npm';
-		const spawnOptions = { cwd: path.dirname(packageJsonPath) };
-		if (process.platform === 'win32') {
-			spawnOptions.shell = true;
-			npmExecutable += '.cmd';
-		}
+		await installDependencies(projectPath);
+		next();
+	});
+};
+
+async function updatePackageJson(projectPath, data) {
+	const packageJsonPath = path.join(projectPath, 'package.json');
+	if (await fs.exists(packageJsonPath)) {
+		let pkg = await fs.readJson(packageJsonPath);
+		Object.assign(pkg, data);
+		fs.writeJson(packageJsonPath, pkg);
+	}
+}
+
+async function installDependencies(projectPath) {
+	let npmExecutable = 'npm';
+	const spawnOptions = {
+		cwd: projectPath,
+		stdio: 'inherit'
+	};
+	if (process.platform === 'win32') {
+		spawnOptions.shell = true;
+		npmExecutable += '.cmd';
+	}
+	return new Promise((resolve, reject) => {
 		const child = spawn(npmExecutable, [ 'i' ], spawnOptions);
 		child.on('close', code => {
 			if (code !== 0) {
-				logger.error(errorOutput);
-				return next(new Error('Failed to install dependencies.'));
+				return reject(new Error('Failed to install project dependencies.'));
 			}
 
-			next();
-		});
-		child.stderr.on('data', data => {
-			errorOutput += data.toString();
+			resolve();
 		});
 	});
-};
+}
+
+async function copyGitIgnore(projectPath) {
+	const sourcePath = path.resolve(__dirname, '..', 'template', '.gitignore');
+	const destPath = path.join(projectPath, '.gitignore');
+	return fs.copyFile(sourcePath, destPath);
+}
