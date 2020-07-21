@@ -39,8 +39,8 @@ describe('Titanium.UI.ScrollableView', function () {
 		const forwardImage = Ti.UI.iOS.systemImage('forward');
 		const scrollableView = Ti.UI.createScrollableView({
 			preferredIndicatorImage: backwardImage,
-			views: [ view1, view2],
-			showPagingControl:true,
+			views: [ view1, view2 ],
+			showPagingControl: true,
 		});
 
 		win = Ti.UI.createWindow({ extendSafeArea: false });
@@ -70,7 +70,7 @@ describe('Titanium.UI.ScrollableView', function () {
 		const image = Ti.UI.iOS.systemImage('backward');
 		const scrollableView = Ti.UI.createScrollableView({
 			views: [ view1, view2 ],
-			showPagingControl:true,
+			showPagingControl: true,
 		});
 
 		win = Ti.UI.createWindow({ extendSafeArea: false });
