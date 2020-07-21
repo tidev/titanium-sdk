@@ -9,9 +9,9 @@
 #import "Mimetypes.h"
 #import "TiUtils.h"
 #import "UIImage+Alpha.h"
+#import "UIImage+Compare.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "TiFilesystemFileProxy.h"
 
@@ -337,6 +337,15 @@ GETTER_IMPL(NSUInteger, length, Length);
 
   [self setData:newData];
   RELEASE_TO_NIL(newData);
+}
+
+- (BOOL)compare:(TiBlob *)blob withTolerence:(CGFloat)tolerence
+{
+  // Compares only TiBlobTypeImage. Else return false.
+  if (type == TiBlobTypeImage && [blob type] == TiBlobTypeImage) {
+    return [self.image compareWithImage:blob.image tolerance:tolerence];
+  }
+  return NO;
 }
 
 #pragma mark Image Manipulations
