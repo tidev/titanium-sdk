@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.locale;
 
+import java.text.AttributedCharacterIterator;
 import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.Format;
@@ -197,41 +198,33 @@ public class DateTimeFormatProxy extends KrollProxy
 	public KrollDict[] formatToParts(Date value)
 	{
 		// Format date to a string buffer and obtain all of its field positions.
-		StringBuffer stringBuffer = new StringBuffer(64);
-		FieldPosition[] fieldPositionArray = new FieldPosition[] {
-			new FieldPosition(DateFormat.Field.AM_PM),
-			new FieldPosition(DateFormat.Field.DAY_OF_MONTH),
-			new FieldPosition(DateFormat.Field.DAY_OF_WEEK),
-			new FieldPosition(DateFormat.Field.DAY_OF_WEEK_IN_MONTH),
-			new FieldPosition(DateFormat.Field.ERA),
-			new FieldPosition(DateFormat.Field.HOUR0),
-			new FieldPosition(DateFormat.Field.HOUR1),
-			new FieldPosition(DateFormat.Field.HOUR_OF_DAY0),
-			new FieldPosition(DateFormat.Field.HOUR_OF_DAY1),
-			new FieldPosition(DateFormat.Field.MILLISECOND),
-			new FieldPosition(DateFormat.Field.MINUTE),
-			new FieldPosition(DateFormat.Field.MONTH),
-			new FieldPosition(DateFormat.Field.SECOND),
-			new FieldPosition(DateFormat.Field.TIME_ZONE),
-			new FieldPosition(DateFormat.Field.YEAR)
-		};
+		StringBuilder stringBuilder = new StringBuilder(64);
 		HashMap<Integer, FieldPosition> fieldPositionIndexMap = new HashMap<>();
-		for (FieldPosition fieldPosition : fieldPositionArray) {
-			// Fetch the next field position by formatting date to string.
-			// Unfortunately, we have to recreate string every time. There's no way to do this in one shot.
-			stringBuffer.delete(0, stringBuffer.length());
-			this.dateFormat.format(value, stringBuffer, fieldPosition);
+		AttributedCharacterIterator charIter = this.dateFormat.formatToCharacterIterator(value);
+		for (char nextChar = charIter.first(); nextChar != charIter.DONE; nextChar = charIter.next()) {
+			stringBuilder.append(nextChar);
+			for (Map.Entry<AttributedCharacterIterator.Attribute, Object> entry : charIter.getAttributes().entrySet()) {
+				// Skip attributes that are not format fields.
+				if (!(entry.getKey() instanceof Format.Field)) {
+					continue;
+				}
 
-			// Add field to map if it exists in string.
-			int beginIndex = fieldPosition.getBeginIndex();
-			if ((beginIndex >= 0) && (beginIndex != fieldPosition.getEndIndex())) {
-				fieldPositionIndexMap.put(beginIndex, fieldPosition);
+				// Add field position to map if not done already.
+				Format.Field formatField = (Format.Field) entry.getKey();
+				int beginIndex = charIter.getRunStart(formatField);
+				if ((beginIndex >= 0) && !fieldPositionIndexMap.containsKey(beginIndex)) {
+					FieldPosition fieldPosition = new FieldPosition(formatField);
+					fieldPosition.setBeginIndex(beginIndex);
+					fieldPosition.setEndIndex(charIter.getRunLimit(formatField));
+					fieldPositionIndexMap.put(beginIndex, fieldPosition);
+				}
 			}
 		}
+		String stringValue = stringBuilder.toString();
 
 		// Create the parts list.
 		ArrayList<KrollDict> partList = new ArrayList<>(32);
-		for (int index = 0; index < stringBuffer.length();) {
+		for (int index = 0; index < stringValue.length();) {
 			String typeName = null;
 			String substring = null;
 
@@ -239,7 +232,7 @@ public class DateTimeFormatProxy extends KrollProxy
 			FieldPosition fieldPosition = fieldPositionIndexMap.get(index);
 			if (fieldPosition != null) {
 				// Extract the field's string.
-				substring = stringBuffer.substring(fieldPosition.getBeginIndex(), fieldPosition.getEndIndex());
+				substring = stringValue.substring(fieldPosition.getBeginIndex(), fieldPosition.getEndIndex());
 
 				// Get the JavaScript "Intl.DateTimeFormat" part type equivalent.
 				Format.Field formatField = fieldPosition.getFieldAttribute();
@@ -281,8 +274,8 @@ public class DateTimeFormatProxy extends KrollProxy
 
 				// Extract all of the characters up to the next field or end of string.
 				int endIndex = index;
-				for (; (endIndex < stringBuffer.length()) && !fieldPositionIndexMap.containsKey(endIndex); endIndex++);
-				substring = stringBuffer.substring(index, endIndex);
+				for (; (endIndex < stringValue.length()) && !fieldPositionIndexMap.containsKey(endIndex); endIndex++);
+				substring = stringValue.substring(index, endIndex);
 
 				// Update index past this literal substring.
 				index = endIndex;
