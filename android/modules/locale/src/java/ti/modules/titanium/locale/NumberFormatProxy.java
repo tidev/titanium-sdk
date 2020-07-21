@@ -9,6 +9,7 @@ package ti.modules.titanium.locale;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.AttributedCharacterIterator;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
@@ -198,34 +199,36 @@ public class NumberFormatProxy extends KrollProxy
 			value = BigDecimal.valueOf(value).round(this.maxSignificantDigitsContext).doubleValue();
 		}
 
-		// Format value to a string buffer and obtain all of its field positions.
-		// Note: Skip fetching the "GROUPING_SEPARATOR" field since it can't fetch more than one separator.
-		StringBuffer stringBuffer = new StringBuffer(64);
-		FieldPosition[] fieldPositionArray = new FieldPosition[] {
-			new FieldPosition(NumberFormat.Field.CURRENCY),
-			new FieldPosition(NumberFormat.Field.DECIMAL_SEPARATOR),
-			new FieldPosition(NumberFormat.Field.EXPONENT),
-			new FieldPosition(NumberFormat.Field.EXPONENT_SIGN),
-			new FieldPosition(NumberFormat.Field.EXPONENT_SYMBOL),
-			new FieldPosition(NumberFormat.Field.FRACTION),
-			new FieldPosition(NumberFormat.Field.INTEGER),
-			new FieldPosition(NumberFormat.Field.PERCENT),
-			new FieldPosition(NumberFormat.Field.PERMILLE),
-			new FieldPosition(NumberFormat.Field.SIGN)
-		};
+		// Format value to a string and obtain all of its field positions.
+		StringBuilder stringBuilder = new StringBuilder(64);
 		HashMap<Integer, FieldPosition> fieldPositionIndexMap = new HashMap<>();
-		for (FieldPosition fieldPosition : fieldPositionArray) {
-			// Fetch the next field position by formatting value to string.
-			// Unfortunately, we have to recreate string every time. There's no way to do this in one shot.
-			stringBuffer.delete(0, stringBuffer.length());
-			this.numberFormat.format(value, stringBuffer, fieldPosition);
+		AttributedCharacterIterator charIter = this.numberFormat.formatToCharacterIterator(value);
+		for (char nextChar = charIter.first(); nextChar != charIter.DONE; nextChar = charIter.next()) {
+			stringBuilder.append(nextChar);
+			for (Map.Entry<AttributedCharacterIterator.Attribute, Object> entry : charIter.getAttributes().entrySet()) {
+				// Skip attributes that are not format fields.
+				if (!(entry.getKey() instanceof Format.Field)) {
+					continue;
+				}
 
-			// Add field to map if it exists in string.
-			int beginIndex = fieldPosition.getBeginIndex();
-			if ((beginIndex >= 0) && (beginIndex != fieldPosition.getEndIndex())) {
-				fieldPositionIndexMap.put(beginIndex, fieldPosition);
+				// Skip "GROUPING_SEPARATOR" fields since they overlap "INTEGER" fields.
+				// We'll split these fields to substrings later.
+				Format.Field formatField = (Format.Field) entry.getKey();
+				if (formatField.equals(NumberFormat.Field.GROUPING_SEPARATOR)) {
+					continue;
+				}
+
+				// Add field position to map if not done already.
+				int beginIndex = charIter.getRunStart(formatField);
+				if ((beginIndex >= 0) && !fieldPositionIndexMap.containsKey(beginIndex)) {
+					FieldPosition fieldPosition = new FieldPosition(formatField);
+					fieldPosition.setBeginIndex(beginIndex);
+					fieldPosition.setEndIndex(charIter.getRunLimit(formatField));
+					fieldPositionIndexMap.put(beginIndex, fieldPosition);
+				}
 			}
 		}
+		String stringValue = stringBuilder.toString();
 
 		// Fetch the localized symbols used by this formatter.
 		DecimalFormatSymbols symbols = null;
@@ -240,7 +243,7 @@ public class NumberFormatProxy extends KrollProxy
 
 		// Create the parts list.
 		ArrayList<KrollDict> partList = new ArrayList<>(32);
-		for (int index = 0; index < stringBuffer.length();) {
+		for (int index = 0; index < stringValue.length();) {
 			String typeName = null;
 			String substring = null;
 
@@ -248,7 +251,7 @@ public class NumberFormatProxy extends KrollProxy
 			FieldPosition fieldPosition = fieldPositionIndexMap.get(index);
 			if (fieldPosition != null) {
 				// Extract the field's string.
-				substring = stringBuffer.substring(fieldPosition.getBeginIndex(), fieldPosition.getEndIndex());
+				substring = stringValue.substring(fieldPosition.getBeginIndex(), fieldPosition.getEndIndex());
 
 				// Get the JavaScript "Intl.NumberFormat" part type equivalent.
 				Format.Field formatField = fieldPosition.getFieldAttribute();
@@ -291,8 +294,8 @@ public class NumberFormatProxy extends KrollProxy
 
 				// Extract all of the characters up to the next field or end of string.
 				int endIndex = index;
-				for (; (endIndex < stringBuffer.length()) && !fieldPositionIndexMap.containsKey(endIndex); endIndex++);
-				substring = stringBuffer.substring(index, endIndex);
+				for (; (endIndex < stringValue.length()) && !fieldPositionIndexMap.containsKey(endIndex); endIndex++);
+				substring = stringValue.substring(index, endIndex);
 
 				// Update index past this literal substring.
 				index = endIndex;
