@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const eslint = require('@seadub/danger-plugin-eslint').default;
 const junit = require('@seadub/danger-plugin-junit').default;
 const dependencies = require('@seadub/danger-plugin-dependencies').default;
-const load = require('@commitlint/load');
+const load = require('@commitlint/load').default;
 const lint = require('@commitlint/lint').default;
 const packageJSON = require('./package.json');
 // Due to bug in danger, we hack env variables in build process.
