@@ -35,42 +35,44 @@ examples:
         module to read data from a socket. The `pump` method registers a callback that is
         called repeatedly to process incoming data from the socket.
 
-            var socket = Ti.Network.Socket.createTCP({
-                host: 'blog.example.com', port: 80,
-                connected: function (e) {
-                    Ti.API.info('Socket opened!');
-                    Ti.Stream.pump(e.socket, readCallback, 1024, true);
-                    Ti.Stream.write(socket, Ti.createBuffer({
-                        value: 'GET http://blog.example.com/index.html HTTP/1.1\r\n\r\n'
-                    }), writeCallback);
-                },
-                    error: function (e) {
-                    Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
-                },
-            });
-            socket.connect();
+        ``` js
+        var socket = Ti.Network.Socket.createTCP({
+            host: 'blog.example.com', port: 80,
+            connected: function (e) {
+                Ti.API.info('Socket opened!');
+                Ti.Stream.pump(e.socket, readCallback, 1024, true);
+                Ti.Stream.write(socket, Ti.createBuffer({
+                    value: 'GET http://blog.example.com/index.html HTTP/1.1\r\n\r\n'
+                }), writeCallback);
+            },
+                error: function (e) {
+                Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
+            },
+        });
+        socket.connect();
 
-            function writeCallback(e) {
-                Ti.API.info('Successfully wrote to socket.');
-            }
+        function writeCallback(e) {
+            Ti.API.info('Successfully wrote to socket.');
+        }
 
-            function readCallback(e) {
-                if (e.bytesProcessed == -1)
-                {
-                    // Error / EOF on socket. Do any cleanup here.
-                    ...
-                }
-                try {
-                    if(e.buffer) {
-                        var received = e.buffer.toString();
-                        Ti.API.info('Received: ' + received);
-                    } else {
-                        Ti.API.error('Error: read callback called with no buffer!');
-                    }
-                } catch (ex) {
-                    Ti.API.error(ex);
-                }
+        function readCallback(e) {
+            if (e.bytesProcessed == -1)
+            {
+                // Error / EOF on socket. Do any cleanup here.
+                ...
             }
+            try {
+                if(e.buffer) {
+                    var received = e.buffer.toString();
+                    Ti.API.info('Received: ' + received);
+                } else {
+                    Ti.API.error('Error: read callback called with no buffer!');
+                }
+            } catch (ex) {
+                Ti.API.error(ex);
+            }
+        }
+        ```
 
   - title: Listening Socket Example
     example: |
@@ -78,91 +80,93 @@ examples:
         socket. In this case, the application simply sends messages to itself,
         using the loopback address.
 
-            // Hostname to listen on/connect to. Here we use the loopback
-            // address. iOS also supports Ti.Platform.address (the address of
-            // the WiFi interface).
-            // Android supports only the loopback address.
+        ``` js
+        // Hostname to listen on/connect to. Here we use the loopback
+        // address. iOS also supports Ti.Platform.address (the address of
+        // the WiFi interface).
+        // Android supports only the loopback address.
 
-            var hostname = '127.0.0.1';
+        var hostname = '127.0.0.1';
 
-            var clientSocket = Ti.Network.Socket.createTCP({
-                host : hostname,
-                port : 40404,
-                connected : function(e) {
-                    Ti.API.info('Client socket connected!');
-                    Ti.Stream.pump(e.socket, pumpCallback, 1024, true);
-                    e.socket.write(Ti.createBuffer({
-                        value : 'A message from a connecting socket.'
-                    }));
-                },
-                error : function(e) {
-                    Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
-                }
-            });
-
-            function writeCallback(e) {
-                Ti.API.info('Successfully wrote to socket.');
+        var clientSocket = Ti.Network.Socket.createTCP({
+            host : hostname,
+            port : 40404,
+            connected : function(e) {
+                Ti.API.info('Client socket connected!');
+                Ti.Stream.pump(e.socket, pumpCallback, 1024, true);
+                e.socket.write(Ti.createBuffer({
+                    value : 'A message from a connecting socket.'
+                }));
+            },
+            error : function(e) {
+                Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
             }
+        });
 
-            function pumpCallback(e) {
-                // Has the remote socket closed its end?
-                if (e.bytesProcessed < 0) {
-                    Ti.API.info("Closing client socket.");
-                    clientSocket.close();
-                    return;
-                }
-                try {
-                    if(e.buffer) {
-                        var received = e.buffer.toString();
-                        Ti.API.info('Received: ' + received);
-                    } else {
-                        Ti.API.error('Error: read callback called with no buffer!');
-                    }
-                } catch (ex) {
-                    Ti.API.error(ex);
-                }
+        function writeCallback(e) {
+            Ti.API.info('Successfully wrote to socket.');
+        }
+
+        function pumpCallback(e) {
+            // Has the remote socket closed its end?
+            if (e.bytesProcessed < 0) {
+                Ti.API.info("Closing client socket.");
+                clientSocket.close();
+                return;
             }
-
-            //Create a socket and listen for incoming connections
-            var listenSocket = Ti.Network.Socket.createTCP({
-                host : hostname,
-                port : 40404,
-                accepted : function(e) {
-                    // This where you would usually store the newly-connected socket, e.inbound
-                    // so it can be used for read / write operations elsewhere in the app.
-                    // In this case, we simply send a message then close the socket.
-                    Ti.API.info("Listening socket <" + e.socket + "> accepted incoming connection <" + e.inbound + ">");
-                    e.inbound.write(Ti.createBuffer({
-                        value : 'You have been connected to a listening socket.\r\n'
-                    }));
-                    e.inbound.close();
-                    // close the accepted socket
-
-                },
-                error : function(e) {
-                    Ti.API.error("Socket <" + e.socket + "> encountered error when listening");
-                    Ti.API.error(" error code <" + e.errorCode + ">");
-                    Ti.API.error(" error description <" + e.error + ">");
+            try {
+                if(e.buffer) {
+                    var received = e.buffer.toString();
+                    Ti.API.info('Received: ' + received);
+                } else {
+                    Ti.API.error('Error: read callback called with no buffer!');
                 }
-            });
-            // Starts the socket listening for connections, does not accept them
-            listenSocket.listen();
-            Ti.API.info("Listening now...");
+            } catch (ex) {
+                Ti.API.error(ex);
+            }
+        }
 
-            // Tells socket to accept the next inbound connection. listenSocket.accepted gets
-            // called when a connection is accepted via accept()
-            Ti.API.info("Calling accept.");
-            listenSocket.accept({
-                timeout : 10000
-            });
+        // Create a socket and listen for incoming connections
+        var listenSocket = Ti.Network.Socket.createTCP({
+            host : hostname,
+            port : 40404,
+            accepted : function(e) {
+                // This where you would usually store the newly-connected socket, e.inbound
+                // so it can be used for read / write operations elsewhere in the app.
+                // In this case, we simply send a message then close the socket.
+                Ti.API.info("Listening socket <" + e.socket + "> accepted incoming connection <" + e.inbound + ">");
+                e.inbound.write(Ti.createBuffer({
+                    value : 'You have been connected to a listening socket.\r\n'
+                }));
+                e.inbound.close();
+                // close the accepted socket
 
-            // Call connect after a short timeout to ensure the listening socket is ready to go.
-            Ti.API.info("Setting timer to connect.");
-            setTimeout(function(e)
-            {
-                Ti.API.info("Calling connect on client socket.");
-               clientSocket.connect();
-            }, 500);
+            },
+            error : function(e) {
+                Ti.API.error("Socket <" + e.socket + "> encountered error when listening");
+                Ti.API.error(" error code <" + e.errorCode + ">");
+                Ti.API.error(" error description <" + e.error + ">");
+            }
+        });
+        // Starts the socket listening for connections, does not accept them
+        listenSocket.listen();
+        Ti.API.info("Listening now...");
+
+        // Tells socket to accept the next inbound connection. listenSocket.accepted gets
+        // called when a connection is accepted via accept()
+        Ti.API.info("Calling accept.");
+        listenSocket.accept({
+            timeout : 10000
+        });
+
+        // Call connect after a short timeout to ensure the listening socket is ready to go.
+        Ti.API.info("Setting timer to connect.");
+        setTimeout(function(e)
+        {
+            Ti.API.info("Calling connect on client socket.");
+            clientSocket.connect();
+        }, 500);
+        ```
 
 properties:
   - name: host
@@ -215,7 +219,6 @@ properties:
     constants: [ Titanium.Network.Socket.INITIALIZED, Titanium.Network.Socket.CONNECTED,
                  Titanium.Network.Socket.LISTENING, Titanium.Network.Socket.CLOSED,
                  Titanium.Network.Socket.ERROR ]
-
 
 methods:
   - name: connect
@@ -329,7 +332,6 @@ summary: |
     Argument object passed to the [accepted](Titanium.Network.Socket.TCP.accepted)
     callback when a listener accepts a connection.
 since: "1.7"
-
 properties:
   - name: socket
     summary: Socket which received the connection.
@@ -344,7 +346,6 @@ properties:
 
 ---
 name: AcceptDict
-
 summary: Options object for the [accept](Titanium.Network.Socket.TCP.accept) method.
 description: |
     Simple object that defines properties to be set on the next accepted socket.

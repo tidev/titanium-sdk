@@ -30,11 +30,13 @@ description: |
     **Example**
     When clicking a button you should trigger an impact feedback as displayed below.
 
-        var generator = Ti.UI.iOS.createFeedbackGenerator({
-          type: Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT,
-          style: Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
-        });
-        generator.impactOccurred();     
+    ``` js
+    var generator = Ti.UI.iOS.createFeedbackGenerator({
+      type: Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT,
+      style: Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
+    });
+    generator.impactOccurred();     
+    ```
       
     We're not using `generator.prepare()` here because we're triggering the feedback immediately. When you know a feedback generator is triggered within a couple seconds you should use `prepare()` to know for sure the timing is correct.
 
@@ -46,7 +48,6 @@ platforms: [iphone]
 osver: {ios: {min: "10.0"}}
 since: "6.0.0"
 createable: true
-
 properties:
   - name: type
     type: Number
@@ -54,14 +55,14 @@ properties:
     constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_*
     availability: creation
     optional: false
+
   - name: style
     type: Number
     summary: The style of the feedback generator you want to create. This property is only required when using <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_*
     availability: creation
     optional: true    
-    
-    
+
 methods:
   - name: prepare
     summary: Used to prepare the haptic sensor for the upcoming interaction with it.

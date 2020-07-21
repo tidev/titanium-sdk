@@ -41,6 +41,9 @@ public class PickerRowProxy extends TiViewProxy
 	public void setColor(String color)
 	{
 		setPropertyAndFire(TiC.PROPERTY_COLOR, color);
+		if (rowListener != null) {
+			rowListener.rowChanged(this);
+		}
 	}
 
 	@Kroll.method

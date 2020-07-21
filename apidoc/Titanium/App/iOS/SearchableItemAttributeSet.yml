@@ -579,30 +579,30 @@ examples:
         Ti.App.iOS.SearchableIndex object to add it to the on-device search index.
 
         #### app.js
+        ``` js
+        var searchItems = [];
+        var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
+            itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
+            title:"Titanium Core Spotlight Tutorial"
+        });
 
-            var searchItems = [];
-            var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
-                itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
-                title:"Titanium Core Spotlight Tutorial"
-            });
+        itemAttr.contentDescription ="Tech Example \nOn: " + String.formatDate(new Date(),"short");
+        itemAttr.keywords =["Mobile","Appcelerator","Titanium"];
 
-            itemAttr.contentDescription ="Tech Example \nOn: " + String.formatDate(new Date(),"short");
-            itemAttr.keywords =["Mobile","Appcelerator","Titanium"];
+        var item = Ti.App.iOS.createSearchableItem({
+            uniqueIdentifier:"my-id",
+            domainIdentifier:"com.mydomain",
+            attributeSet:itemAttr
+        });
+        searchItems.push(item);
 
-            var item = Ti.App.iOS.createSearchableItem({
-                uniqueIdentifier:"my-id",
-                domainIdentifier:"com.mydomain",
-                attributeSet:itemAttr
-            });
-            searchItems.push(item);
+        var indexer = Ti.App.iOS.createSearchableIndex();
 
-            var indexer = Ti.App.iOS.createSearchableIndex();
-
-            indexer.addToDefaultSearchableIndex(searchItems,function(e){
-                if(e.success){
-                    alert("Press the home button and now search for your keywords");
-                }else{
-                    alert("Errored: " + JSON.stringify(e.error));
-                }
-            });
-
+        indexer.addToDefaultSearchableIndex(searchItems,function(e){
+            if(e.success){
+                alert("Press the home button and now search for your keywords");
+            }else{
+                alert("Errored: " + JSON.stringify(e.error));
+            }
+        });
+        ```

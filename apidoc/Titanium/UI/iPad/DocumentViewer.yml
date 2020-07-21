@@ -15,7 +15,6 @@ description: |
     or printing a specified file. 
     
     For a code sample, see <Titanium.UI.iOS.DocumentViewer>.
-
 platforms: [ipad]
 extends: Titanium.Proxy
 since: "1.8"

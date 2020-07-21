@@ -18,23 +18,24 @@ description: |
     The [Buffer](Titanium.Buffer) object can also contain binary data, and is
     more easily mutable. Extracting blob data to a buffer is somewhat roundabout:
 
-        var blobStream = Ti.Stream.createStream({ source: myBlob, mode: Ti.Stream.MODE_READ });
-        var newBuffer = Ti.createBuffer({ length: myBlob.length });
-        var bytes = blobStream.read(newBuffer);
+    ``` js
+    var blobStream = Ti.Stream.createStream({ source: myBlob, mode: Ti.Stream.MODE_READ });
+    var newBuffer = Ti.createBuffer({ length: myBlob.length });
+    var bytes = blobStream.read(newBuffer);
+    ```
 
     Creating a blob from a buffer is much easier:
-
-        var newBlob = myBuffer.toBlob();
+    ``` js
+    var newBlob = myBuffer.toBlob();
+    ```
 
     In both cases, the conversion involves copying the data from one object to another, so
     you should be conscious of the amount of the data being copied.
-
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
 createable: false
 properties:
-
   - name: file
     type: Titanium.Filesystem.File
     summary: |
@@ -63,15 +64,24 @@ properties:
     type: Number
     summary: If this blob represents an image, this is the height of the image in pixels.
     description: |
-        If this blob doesn't represent an image, `height` is 0.
+        If this blob doesn't represent an image, `height` is reported as 0.
 
+        **NOTE**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
+        This would occur for images with a higher density/scale returned by <Titanium.UI.View.toImage> or images with `@dx` density suffixes.
+        You may multiply by <Ti.Platform.displayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
+        (i.e. a `10px` image would report as `3` on a `3x` density screen, so multiplying would give you `9` pixels, which is still incorrect)
     permission: read-only
 
   - name: width
     type: Number
     summary: If this blob represents an image, this is the width of the image in pixels.
     description: |
-        If this blob doesn't represent an image, `height` is 0.
+        If this blob doesn't represent an image, `width` is reported as 0.
+
+        **NOTE**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
+        This would occur for images with a higher density/scale returned by <Titanium.UI.View.toImage> or images with `@dx` density suffixes.
+        You may multiply by <Ti.Platform.displayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
+        (i.e. a `10px` image would report as `3` on a `3x` density screen, so multiplying would give you `9` pixels, which is still incorrect)
     permission: read-only
 
   - name: nativePath
