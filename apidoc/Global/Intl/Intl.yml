@@ -1,0 +1,37 @@
+---
+name: Intl
+summary: Namespace providing JavaScript's standard internationalization APIs.
+description: |
+    Provides support for localized number formatting, date/time formatting,
+    and language sensitive string comparisons.
+
+    For more detail, see the MDN website about
+    [Intl](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl).
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
+
+methods:
+  - name: getCanonicalLocales
+    summary: Gets canonical locale identifiers matching given BCP 47 locale identifiers.
+    description: |
+      ``` js
+      // Will return ['en-US'].
+      Ti.API.info(Intl.getCanonicalLocales('EN-US'));
+
+      // Will return ['en-US', 'fr'].
+      Ti.API.info(Intl.getCanonicalLocales(['EN-US', 'Fr']));
+      ```
+    parameters:
+      - name: locales
+        summary: A string or array of strings providing BCP 47 locale identifiers to fetch the canoncial names of.
+        type: [String, Array<String>]
+        optional: true
+        default: undefined
+    returns:
+        type: Array<String>
+        summary: |
+          Returns an array of canonical names matching given BCP 47 locale names. Duplicate locales will be removed.
+          Returns an empty array if argument is empty or undefined.
+    platforms: [iphone, ipad, android]
+    osver: {ios: {min: "11.2"}}

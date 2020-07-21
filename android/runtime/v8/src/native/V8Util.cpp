@@ -298,14 +298,14 @@ void V8Util::dispose()
 	isNaNFunction.Reset();
 }
 
-std::string V8Util::stackTraceString(v8::Isolate* isolate, Local<StackTrace> frames) {
+std::string V8Util::stackTraceString(Isolate* isolate, Local<StackTrace> frames, int maxCount) {
 	if (frames.IsEmpty()) {
 		return std::string();
 	}
 
 	std::stringstream stack;
 
-	for (int i = 0, count = frames->GetFrameCount(); i < count; i++) {
+	for (int i = 0, count = frames->GetFrameCount() < maxCount ? frames->GetFrameCount() : maxCount; i < count; i++) {
 		v8::Local<v8::StackFrame> frame = frames->GetFrame(isolate, i);
 
 		v8::String::Utf8Value jsFunctionName(isolate, frame->GetFunctionName());
