@@ -243,7 +243,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
   [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
-  
+
   mimeType = mimeType ?: [self mimeTypeForData:data];
   [[self webView] loadData:data
                    MIMEType:mimeType
