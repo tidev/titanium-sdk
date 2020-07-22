@@ -15,6 +15,9 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.view.View;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -37,6 +40,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final TiNestedRecyclerView recyclerView;
 	private final TableViewAdapter adapter;
 	private final SelectionTracker tracker = null;
+	private final DividerItemDecoration decoration;
 
 	@Override
 	public void filterBy(String query)
@@ -87,7 +91,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-		this.recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+
+		// Set list separator.
+		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+		this.recyclerView.addItemDecoration(decoration);
 
 		this.adapter = new TableViewAdapter(getContext(), this.rows);
 		this.recyclerView.setAdapter(this.adapter);
@@ -169,6 +176,19 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public TiNestedRecyclerView getRecyclerView()
 	{
 		return this.recyclerView;
+	}
+
+	public void setSeparator(int color, int height)
+	{
+		final ShapeDrawable separator = new ShapeDrawable(new RectShape());
+		separator.setIntrinsicHeight(height);
+		separator.getPaint().setColor(color);
+		decoration.setDrawable(separator);
+	}
+
+	public void setSeparator(Drawable drawable)
+	{
+		decoration.setDrawable(drawable);
 	}
 
 	public void updateModels()

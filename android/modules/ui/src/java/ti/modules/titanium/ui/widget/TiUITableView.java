@@ -9,9 +9,14 @@ package ti.modules.titanium.ui.widget;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -19,6 +24,7 @@ import android.widget.RelativeLayout;
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
@@ -103,6 +109,39 @@ public class TiUITableView extends TiUIView
 				view.addView(tableView, tableViewLayout);
 
 				setNativeView(view);
+			}
+		}
+
+		if ((d.containsKey(TiC.PROPERTY_SEPARATOR_STYLE)
+			|| d.containsKey(TiC.PROPERTY_SEPARATOR_HEIGHT)
+			|| d.containsKey(TiC.PROPERTY_SEPARATOR_COLOR))
+			&& this.tableView != null) {
+			final Context context = getProxy().getActivity();
+			final KrollDict properties = getProxy().getProperties();
+			final int style = d.optInt(TiC.PROPERTY_SEPARATOR_STYLE,
+				properties.optInt(TiC.PROPERTY_SEPARATOR_STYLE,
+					UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE));
+			final int height = style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
+				? TiConvert.toTiDimension(d.optString(TiC.PROPERTY_SEPARATOR_HEIGHT,
+					properties.optString(TiC.PROPERTY_SEPARATOR_HEIGHT, "1dp")),
+						TiDimension.TYPE_HEIGHT).getAsPixels((View) getNativeView().getParent()) : 0;
+
+			if (d.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)
+				|| properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
+				final int color = TiConvert.toColor(d.optString(TiC.PROPERTY_SEPARATOR_COLOR,
+					properties.getString(TiC.PROPERTY_SEPARATOR_COLOR)));
+
+				// Set separator with specified color.
+				this.tableView.setSeparator(color, height);
+
+			} else {
+				final TypedArray divider = context.obtainStyledAttributes(new int[]{ android.R.attr.listDivider });
+				final GradientDrawable defaultDrawable = (GradientDrawable) divider.getDrawable(0);
+
+				// Set platform default separator.
+				defaultDrawable.setSize(0, height);
+				this.tableView.setSeparator(defaultDrawable);
+				divider.recycle();
 			}
 		}
 
