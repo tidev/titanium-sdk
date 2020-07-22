@@ -305,6 +305,12 @@ static NSArray *webViewKeySequence;
 
 - (NSNumber *)zoomLevel
 {
+#if IS_SDK_IOS_14
+  if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    return @([self wkWebView].pageZoom);
+  }
+#endif
+  
   NSString *zoomLevel = [self evalJS:@[ @"document.body.style.zoom" ]];
 
   if (zoomLevel == nil || zoomLevel.length == 0) {
@@ -413,6 +419,55 @@ static NSArray *webViewKeySequence;
 - (void)goBack:(id)unused
 {
   [[[self webView] webView] goBack];
+}
+
+- (WKWebView *)wkWebView
+{
+  return (WKWebView *)[[self webView] webView];
+}
+
+- (void)findString:(id)args
+{
+  NSString *searchString = [args objectAtIndex:0];
+  ENSURE_STRING(searchString);
+  
+  KrollCallback *callback = (KrollCallback *)[args objectAtIndex:1];
+  ENSURE_TYPE(callback, KrollCallback);
+  
+  [[self wkWebView] findString:searchString withConfiguration:nil completionHandler:^(WKFindResult * _Nonnull result) {
+    [callback call:@[ @{ @"success" : NUMBOOL(result.matchFound)} ] thisObject:self];
+  }];
+}
+
+- (void)createPdf:(id)args
+{
+  KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
+  ENSURE_TYPE(callback, KrollCallback);
+  
+  [[self wkWebView] createPDFWithConfiguration:nil completionHandler:^(NSData * _Nullable pdfDocumentData, NSError * _Nullable error) {
+    if (error != nil) {
+      [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
+      return;
+    }
+    TiBlob *blob = [[[TiBlob alloc] initWithData:pdfDocumentData mimetype:@"application/pdf"] autorelease];
+    [callback call:@[ @{ @"success" : NUMBOOL(YES), @"data" : blob } ] thisObject:self];
+  }];
+}
+
+- (void)createWebArchive:(id)args
+{
+  KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
+  ENSURE_TYPE(callback, KrollCallback);
+  
+  [[self wkWebView] createWebArchiveDataWithCompletionHandler:^(NSData * _Nonnull archiveData, NSError * _Nonnull error) {
+    if (error != nil) {
+      [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
+      return;
+    }
+
+    TiBlob *blob = [[[TiBlob alloc] initWithData:archiveData mimetype:@"application/x-webarchive"] autorelease];
+    [callback call:@[ @{ @"success" : NUMBOOL(YES), @"data" : blob } ] thisObject:self];
+  }];
 }
 
 - (void)goForward:(id)unused
