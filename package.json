@@ -141,7 +141,7 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "ssri": "^8.0.0",
-    "titanium-docgen": "^4.5.1"
+    "titanium-docgen": "^4.6.0"
   },
   "repository": {
     "type": "git",
