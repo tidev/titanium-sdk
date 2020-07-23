@@ -43,6 +43,7 @@ async function clearPreviousApp() {
  * @param {string} sdkVersion version to install
  * @returns {Promise<void>}
  */
+// TODO: We already have a util.installSDK!
 async function installSDK(sdkDir, sdkVersion) {
 	const args = [ titanium, 'sdk', 'install', '--no-banner', '--no-prompt' ];
 	if (sdkVersion.indexOf('.') === -1) { // no period, probably mean a branch
@@ -635,6 +636,7 @@ function generateJUnitPrefix(platform, target, deviceFamily) {
  *
  * @param {Object} jsonResults JSON containing results of the unit test output
  * @param {String} prefix prefix for test names to identify them uniquely
+ * @returns {Promise<void>}
  */
 async function outputJUnitXML(jsonResults, prefix) {
 	// We need to go through the results and separate them out into suites!
@@ -656,7 +658,9 @@ async function outputJUnitXML(jsonResults, prefix) {
 	const r = ejs.render(template,  { suites: values, prefix: prefix });
 
 	// Write the JUnit XML to a file
-	return fs.writeFile(path.join(REPORT_DIR, `junit.${prefix}.xml`), r);
+	const outFile = path.join(REPORT_DIR, `junit.${prefix}.xml`);
+	console.log(`JUnit test report written to ${outFile}`);
+	return fs.writeFile(outFile, r);
 }
 
 /**
@@ -734,9 +738,9 @@ async function cleanupModules(sdkDir) {
  * @param {String} architecture	Target architecture to build. Only valid on Windows
  * @param {string} [deployType] deployType
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
- * @param {string} [snapshotDir='../Resources'] directory to place generated snapshot images
+ * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  */
-async function test(branch, platforms, target, deviceId, skipSdkInstall, cleanup, architecture, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../Resources')) {
+async function test(branch, platforms, target, deviceId, skipSdkInstall, cleanup, architecture, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
 	// if we're not skipping sdk install and haven't specific whether to clean up or not, default to cleaning up non-GA SDKs
 	if (!skipSdkInstall && cleanup === undefined) {
 		cleanup = true;
@@ -778,7 +782,7 @@ async function test(branch, platforms, target, deviceId, skipSdkInstall, cleanup
 		const result = await runBuild(platform, target, deviceId, architecture, deployType, deviceFamily, snapshotDir, snapshotPromises);
 		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
 		results[prefix] = result;
-		outputJUnitXML(result, prefix);
+		await outputJUnitXML(result, prefix);
 	}
 
 	// If we're gathering images, make sure we get them all before we move on
@@ -863,53 +867,3 @@ async function outputResults(results) {
 // public API
 exports.test = callbackify(test);
 exports.outputResults = callbackify(outputResults);
-
-// When run as single script.
-if (module.id === '.') {
-	async function main(...args) {
-		const program = require('commander');
-		const packageJson = require('../package');
-
-		program
-			.version(packageJson.version)
-			.option('-b, --branch [branchName]', 'Install a specific branch of the SDK to test with', 'master')
-			.option('-p, --platforms <platform1,platform2>', 'Run unit tests on the given platforms', /^(android(,ios|,windows)?)|(ios(,android)?)|(windows(,android)?)$/, 'android,ios')
-			.option('-T, --target [target]', 'Titanium platform target to run the unit tests on. Only valid when there is a single platform provided')
-			.option('-C, --device-id [id]', 'Titanium device id to run the unit tests on. Only valid when there is a target provided')
-			.option('-s, --skip-sdk-install', 'Skip the SDK installation step')
-			.option('-c, --cleanup', 'Cleanup non-GA SDKs. Default is true if we install an SDK')
-			.option('-a, --architecture [architecture]', 'Target architecture to build. Only valid on Windows')
-			.option('-D, --deploy-type <type>', 'the type of deployment', /^(test|development)$/)
-			.option('-F, --device-family <value>', 'the device family to build for ', /^(iphone|ipad)$/)
-			.parse(args);
-
-		const platforms = program.platforms.split(',');
-
-		if (platforms.length > 1 && program.target !== undefined) {
-			throw new Error('--target can only be used when there is a single platform provided');
-		}
-
-		if (program.deviceId && !program.target) {
-			throw new Error('--device-id can only be used when there is a target provided');
-		}
-
-		const results = await test(
-			program.branch, platforms, program.target, program.deviceId, program.skipSdkInstall,
-			program.cleanup, program.architecture, program.deployType, program.deviceFamily);
-
-		for (const platform of platforms) {
-			const prefix = generateJUnitPrefix(platform, program.target, program.deviceFamily);
-			console.log();
-			console.log('=====================================');
-			console.log(prefix.toUpperCase());
-			console.log('-------------------------------------');
-			outputResults(results[prefix].results);
-		}
-	}
-	main(...process.argv)
-		.then(() => process.exit(0))
-		.catch(err => {
-			console.error(err);
-			process.exit(1);
-		});
-}
