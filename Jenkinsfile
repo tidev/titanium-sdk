@@ -60,13 +60,13 @@ def getBuiltSDK() {
 def gatherAndroidCrashReports() {
 	// gather crash reports/tombstones for Android
 	timeout(5) {
-		sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './adb-all.sh pull /data/tombstones'
+		sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './tests/adb-all.sh pull /data/tombstones'
 		archiveArtifacts allowEmptyArchive: true, artifacts: 'tombstones/'
 		sh returnStatus: true, script: 'rm -rf tombstones/'
 		// wipe tombstones and re-build dir with proper permissions/ownership on emulator
-		sh returnStatus: true, script: './adb-all.sh shell rm -rf /data/tombstones'
-		sh returnStatus: true, script: './adb-all.sh shell mkdir -m 771 /data/tombstones'
-		sh returnStatus: true, script: './adb-all.sh shell chown system:system /data/tombstones'
+		sh returnStatus: true, script: './tests/adb-all.sh shell rm -rf /data/tombstones'
+		sh returnStatus: true, script: './tests/adb-all.sh shell mkdir -m 771 /data/tombstones'
+		sh returnStatus: true, script: './tests/adb-all.sh shell chown system:system /data/tombstones'
 	}
 }
 
@@ -104,8 +104,8 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 					} finally {
 						// Kill the app and emulators!
 						timeout(5) {
-							sh returnStatus: true, script: './adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
-							sh returnStatus: true, script: './adb-all.sh uninstall com.appcelerator.testApp.testing'
+							sh returnStatus: true, script: './tests/adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
+							sh returnStatus: true, script: './tests/adb-all.sh uninstall com.appcelerator.testApp.testing'
 						}
 						killAndroidEmulators()
 					} // try/catch/finally
