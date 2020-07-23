@@ -8,9 +8,11 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -18,8 +20,16 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -39,7 +49,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final List<TableViewRowProxy> rows = new ArrayList<>();
 	private final TiNestedRecyclerView recyclerView;
 	private final TableViewAdapter adapter;
-	private final SelectionTracker tracker = null;
+	private final SelectionTracker tracker;
 	private final DividerItemDecoration decoration;
 
 	@Override
@@ -91,6 +101,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		this.recyclerView.setVerticalScrollBarEnabled(true);
 
 		// Set list separator.
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
@@ -109,37 +120,42 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		});
 
 		// TODO: Implement native item selection.
-		/*this.tracker = new SelectionTracker.Builder("table_view_selection",
+		this.tracker = new SelectionTracker.Builder("table_view_selection",
 			this.recyclerView,
 			new ItemKeyProvider(1) {
 				@Nullable
 				@Override
-				public Object getKey(int position) {
-					return models.get(position);
+				public Object getKey(int position)
+				{
+					return rows.get(position);
 				}
 
 				@Override
-				public int getPosition(@NonNull Object key) {
-					return models.indexOf(key);
+				public int getPosition(@NonNull Object key)
+				{
+					return rows.indexOf(key);
 				}
 			},
 			new ItemDetailsLookup() {
 				@Nullable
 				@Override
-				public ItemDetails getItemDetails(@NonNull MotionEvent e) {
+				public ItemDetails getItemDetails(@NonNull MotionEvent e)
+				{
 					final View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
 					if (view != null) {
 						final TableViewHolder holder = (TableViewHolder) recyclerView.getChildViewHolder(view);
 						return new ItemDetails() {
 							@Override
-							public int getPosition() {
+							public int getPosition()
+							{
 								return holder.getAdapterPosition();
 							}
 
 							@Nullable
 							@Override
-							public Object getSelectionKey() {
-								return models.get(getPosition());
+							public Object getSelectionKey()
+							{
+								return rows.get(getPosition());
 							}
 						};
 					}
@@ -153,19 +169,20 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.tracker.addObserver(new SelectionTracker.SelectionObserver() {
 
 			@Override
-			public void onSelectionChanged() {
+			public void onSelectionChanged()
+			{
 				super.onSelectionChanged();
 
 				if (tracker.hasSelection()) {
-					final Iterator<TableViewModel> i = tracker.getSelection().iterator();
+					final Iterator<TableViewRowProxy> i = tracker.getSelection().iterator();
 					while (i.hasNext()) {
-						final TableViewModel model = i.next();
-						Log.d(TAG, "SELECTED: " + model.title);
+						final TableViewRowProxy proxy = i.next();
+						Log.d(TAG, "SELECTED: " + proxy.getProperties().getString(TiC.PROPERTY_TITLE));
 					}
 				}
 			}
 		});
-		this.adapter.setTracker(this.tracker);*/
+		this.adapter.setTracker(this.tracker);
 
 		// Disable pull-down refresh support until a Titanium "RefreshControl" has been assigned.
 		setSwipeRefreshEnabled(false);
@@ -191,11 +208,25 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		decoration.setDrawable(drawable);
 	}
 
+	public TableViewRowProxy getRowByIndex(int index)
+	{
+		for (TableViewRowProxy row : this.rows) {
+			if (row.index == index) {
+				return row;
+			}
+		}
+		return null;
+	}
+
 	public void updateModels()
 	{
-		for (int i = 0; i < this.rows.size(); i++) {
-			final TableViewRowProxy row = this.rows.get(i);
-			row.index = i;
+		int i = 0;
+		for (TableViewRowProxy row : this.rows) {
+			if (row instanceof TableViewProxy.HeaderRow
+				|| row instanceof TableViewProxy.FooterRow) {
+				continue;
+			}
+			row.index = i++;
 		}
 
 		// Notify the adapter of changes.

@@ -22,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.tableview.TableViewAdapter;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -105,6 +106,31 @@ public class TableViewProxy extends TiViewProxy
 		return null;
 	}
 
+	private TableViewRowProxy getRowByIndex(int index)
+	{
+		for (TiViewProxy entry : this.data) {
+			if (entry instanceof TableViewRowProxy) {
+				final TableViewRowProxy row = (TableViewRowProxy) entry;
+				if (row.index == index) {
+					return row;
+				}
+			}
+		}
+		return null;
+	}
+
+	private TableViewSectionProxy getSectionByIndex(int index)
+	{
+		int i = 0;
+		for (TiViewProxy entry : this.data) {
+			if (entry instanceof TableViewSectionProxy && i++ == index) {
+				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
+				return section;
+			}
+		}
+		return null;
+	}
+
 	public void update()
 	{
 		final TiTableView tableView = getTableView();
@@ -159,7 +185,8 @@ public class TableViewProxy extends TiViewProxy
 	public void deleteRow(Object row, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		if (row instanceof Integer) {
-			this.data.remove(((Integer) row).intValue());
+			int index = ((Integer) row).intValue();
+			this.data.remove(getRowByIndex(index));
 		} else if (row instanceof TableViewRowProxy) {
 			this.data.remove(row);
 		} else {
@@ -173,41 +200,36 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		int i = 0;
-		for (TiViewProxy entry : this.data) {
-			if (entry instanceof TableViewSectionProxy && i++ == index) {
-				this.data.remove(entry);
-				update();
-				break;
-			}
-		}
+		this.data.remove(getSectionByIndex(index));
 	}
 
 	@Kroll.method
 	public void updateRow(int index, TableViewRowProxy row)
 	{
-		this.data.set(index, row);
-		update();
+		int rawIndex = this.data.indexOf(getRowByIndex(index));
+		this.data.set(rawIndex, row);
 	}
 
 	@Kroll.method
 	public void updateSection(int index, TableViewSectionProxy section)
 	{
-		this.data.set(index, section);
-		update();
+		int rawIndex = this.data.indexOf(getSectionByIndex(index));
+		this.data.set(rawIndex, section);
 	}
 
 	@Kroll.method
 	public void insertRowAfter(int index, TableViewRowProxy row, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		this.data.add(index + 1, row);
+		int rawIndex = this.data.indexOf(getRowByIndex(index));
+		this.data.add(rawIndex + 1, row);
 		update();
 	}
 
 	@Kroll.method
 	public void insertRowBefore(int index, TableViewRowProxy row)
 	{
-		this.data.add(index, row);
+		int rawIndex = this.data.indexOf(getRowByIndex(index));
+		this.data.add(rawIndex, row);
 		update();
 	}
 
@@ -215,7 +237,8 @@ public class TableViewProxy extends TiViewProxy
 	public void insertSectionAfter(int index, TableViewSectionProxy section,
 								   @Kroll.argument(optional = true) KrollDict animation)
 	{
-		this.data.add(index + 1, section);
+		int rawIndex = this.data.indexOf(getSectionByIndex(index));
+		this.data.add(rawIndex + 1, section);
 		update();
 	}
 
@@ -223,7 +246,8 @@ public class TableViewProxy extends TiViewProxy
 	public void insertSectionBefore(int index, TableViewSectionProxy section,
 									@Kroll.argument(optional = true) KrollDict animation)
 	{
-		this.data.add(index, section);
+		int rawIndex = this.data.indexOf(getSectionByIndex(index));
+		this.data.add(rawIndex, section);
 		update();
 	}
 
@@ -261,9 +285,10 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void selectRow(int row_id)
+	public void selectRow(int index)
 	{
-		// TODO: Select row.
+		final TableViewRowProxy row = getRowByIndex(index);
+		((TableViewAdapter) getTableView().getRecyclerView().getAdapter()).getTracker().select(row);
 	}
 
 	@Kroll.method
@@ -272,22 +297,6 @@ public class TableViewProxy extends TiViewProxy
 	// clang-format on
 	{
 		this.data.clear();
-
-		// Prefix row for TableView header.
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
-			|| getProperties().containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
-			final String headerTitle = getProperties().getString(TiC.PROPERTY_HEADER_TITLE);
-			final KrollProxy headerView = (KrollProxy) getProperties().get(TiC.PROPERTY_HEADER_VIEW);
-			final TableViewRowProxy row = new TableViewRowProxy();
-			final KrollDict dict = new KrollDict();
-
-			// Create empty row with only header defined.
-			dict.put(TiC.PROPERTY_HEADER, headerTitle);
-			dict.put(TiC.PROPERTY_HEADER_VIEW, headerView);
-			row.handleCreationDict(dict);
-
-			this.data.add(row);
-		}
 
 		for (Object d : data) {
 			if (d instanceof TableViewRowProxy) {
@@ -312,21 +321,6 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 
-		// Append row for TableView footer.
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
-			|| getProperties().containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
-			final String footerTitle = getProperties().getString(TiC.PROPERTY_FOOTER_TITLE);
-			final KrollProxy footerView = (KrollProxy) getProperties().get(TiC.PROPERTY_FOOTER_VIEW);
-			final TableViewRowProxy row = new TableViewRowProxy();
-			final KrollDict dict = new KrollDict();
-
-			// Create empty row with only footer defined.
-			dict.put(TiC.PROPERTY_FOOTER, footerTitle);
-			dict.put(TiC.PROPERTY_FOOTER_VIEW, footerView);
-			row.handleCreationDict(dict);
-			this.data.add(row);
-		}
-
 		update();
 	}
 
@@ -336,7 +330,42 @@ public class TableViewProxy extends TiViewProxy
 	public Object[] getData()
 	// clang-format on
 	{
-		return this.data.toArray();
+		final List<TiViewProxy> data = new ArrayList<>();
+
+		// Prefix row for TableView header.
+		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+			|| getProperties().containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final String headerTitle = getProperties().getString(TiC.PROPERTY_HEADER_TITLE);
+			final KrollProxy headerView = (KrollProxy) getProperties().get(TiC.PROPERTY_HEADER_VIEW);
+			final TableViewRowProxy row = new HeaderRow();
+			final KrollDict dict = new KrollDict();
+
+			// Create empty row with only header defined.
+			dict.put(TiC.PROPERTY_HEADER, headerTitle);
+			dict.put(TiC.PROPERTY_HEADER_VIEW, headerView);
+			row.handleCreationDict(dict);
+
+			data.add(row);
+		}
+
+		data.addAll(this.data);
+
+		// Append row for TableView footer.
+		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
+			|| getProperties().containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final String footerTitle = getProperties().getString(TiC.PROPERTY_FOOTER_TITLE);
+			final KrollProxy footerView = (KrollProxy) getProperties().get(TiC.PROPERTY_FOOTER_VIEW);
+			final TableViewRowProxy row = new FooterRow();
+			final KrollDict dict = new KrollDict();
+
+			// Create empty row with only footer defined.
+			dict.put(TiC.PROPERTY_FOOTER, footerTitle);
+			dict.put(TiC.PROPERTY_FOOTER_VIEW, footerView);
+			row.handleCreationDict(dict);
+			data.add(row);
+		}
+
+		return data.toArray();
 	}
 
 	@Override
@@ -344,4 +373,8 @@ public class TableViewProxy extends TiViewProxy
 	{
 		return "Ti.UI.TableView";
 	}
+
+	public class HeaderRow extends TableViewRowProxy {}
+
+	public class FooterRow extends TableViewRowProxy {}
 }

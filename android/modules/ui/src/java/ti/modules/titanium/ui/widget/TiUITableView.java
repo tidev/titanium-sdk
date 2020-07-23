@@ -57,7 +57,6 @@ public class TiUITableView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				this.tableView.getRecyclerView().setOverScrollMode(
@@ -143,6 +142,13 @@ public class TiUITableView extends TiUIView
 				this.tableView.setSeparator(defaultDrawable);
 				divider.recycle();
 			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)
+			|| d.containsKey(TiC.PROPERTY_HEADER_VIEW)
+			|| d.containsKey(TiC.PROPERTY_FOOTER_TITLE)
+			|| d.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			this.tableView.update();
 		}
 
 		super.processProperties(d);

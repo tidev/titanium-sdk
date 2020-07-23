@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class TiNestedRecyclerView extends RecyclerView implements NestedScrollingParent
 {
+	private static final String TAG = "TiNestedRecyclerView";
+
 	private boolean isScrollEnabled = true;
 
 	public TiNestedRecyclerView(@NonNull Context context)
@@ -29,21 +31,34 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 			@Override
 			public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e)
 			{
-				if ((e.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
-					return !isScrollEnabled;
+				final int action = e.getAction() & MotionEvent.ACTION_MASK;
+				final int scrollState = rv.getScrollState();
+
+				switch (action) {
+
+					case MotionEvent.ACTION_DOWN: {
+						if (scrollState == RecyclerView.SCROLL_STATE_SETTLING) {
+							rv.stopScroll();
+						}
+						break;
+					}
+
+					case MotionEvent.ACTION_MOVE: {
+						if (!isScrollEnabled && scrollState != SCROLL_STATE_IDLE) {
+							return true;
+						}
+						break;
+					}
 				}
+
 				return false;
 			}
 
 			@Override
-			public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e)
-			{
-			}
+			public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {}
 
 			@Override
-			public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept)
-			{
-			}
+			public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
 		});
 	}
 
