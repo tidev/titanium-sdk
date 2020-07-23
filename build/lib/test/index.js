@@ -1,8 +1,6 @@
 'use strict';
 
 const promisify = require('util').promisify;
-const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const fs = require('fs-extra');
 const path = require('path');
 
 const ROOT_DIR = path.join(__dirname, '../..');
@@ -19,11 +17,6 @@ const tests = require('./test');
  * @returns {Promise<object>} returns an object whose keys are platform names
  */
 async function runTests(zipfile, platforms, program) {
-	// if we have a package.json in our test overrides, run npm install there first
-	if (await fs.exists(path.join(LOCAL_TESTS, 'Resources/package.json'))) {
-		await exec('npm ci --production', { cwd: path.join(LOCAL_TESTS, 'Resources') });
-	}
-
 	// Load up the main script
 	const test = promisify(tests.test);
 
