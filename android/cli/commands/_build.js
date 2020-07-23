@@ -3274,35 +3274,52 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		return locale;
 	}
 
-	for (const locale of Object.keys(data)) {
-		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
-		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
-		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
+	// Traverse all loaded i18n locales and write them to XML files under the Android "res" folder.
+	for (const locale in data) {
+		// Create a localized strings dictionary if no i18n "strings.xml" file was found.
+		const localeData = data[locale];
+		if (!localeData.strings) {
+			localeData.strings = {};
+		}
+
+		// Add localized app name to strings dictionary under the "app_name" key:
+		// 1) If not already defined in i18n "strings.xml" file. (This is undocumented, but some devs do this.)
+		// 2) If defined in i18n "app.xml". (The preferred cross-platform way to localize it.)
+		// 3) Default to "tiapp.xml" file's <name/> if not defined under i18n. (Not localized.)
+		let appName = localeData.strings['app_name'];
+		if (!appName) {
+			appName = localeData.strings['appname'];
+			if (!appName) {
+				appName = localeData.app && localeData.app.appname;
+				if (!appName) {
+					appName = this.tiapp.name;
+				}
+			}
+			localeData.strings['app_name'] = appName;
+		}
+
+		// Create the XML content for all localized strings.
 		const dom = new DOMParser().parseFromString('<resources/>', 'text/xml');
 		const root = dom.documentElement;
-		const appname = data[locale].app && data[locale].app.appname || this.tiapp.name;
-		const appnameNode = dom.createElement('string');
-
-		appnameNode.setAttribute('name', 'app_name');
-		appnameNode.setAttribute('formatted', 'false');
-		appnameNode.appendChild(dom.createTextNode(appname));
-		root.appendChild(dom.createTextNode('\n\t'));
-		root.appendChild(appnameNode);
-		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
+		for (const name in localeData.strings) {
 			if (name.indexOf(' ') !== -1) {
 				badStringNames[locale] || (badStringNames[locale] = []);
 				badStringNames[locale].push(name);
-			} else if (name !== 'appname') {
+			} else {
 				const node = dom.createElement('string');
 				node.setAttribute('name', name);
 				node.setAttribute('formatted', 'false');
-				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, '\\\'').replace(/^\s+/g, replaceSpaces).replace(/\s+$/g, replaceSpaces)));
+				node.appendChild(dom.createTextNode(localeData.strings[name].replace(/\\?'/g, '\\\'').replace(/^\s+/g, replaceSpaces).replace(/\s+$/g, replaceSpaces)));
 				root.appendChild(dom.createTextNode('\n\t'));
 				root.appendChild(node);
 			}
-		});
+		}
 		root.appendChild(dom.createTextNode('\n'));
 
+		// Create the XML file under the Android "res/values-<locale>" folder.
+		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
+		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
+		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
 		this.logger.debug(__('Writing %s strings => %s', locale.cyan, filePath.cyan));
 		await fs.ensureDir(dirPath);
 		await fs.writeFile(filePath, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
