@@ -9,12 +9,15 @@ package ti.modules.titanium.ui.widget.listview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.ContextThemeWrapper;
 import android.view.MotionEvent;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingParent;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.appcelerator.titanium.R;
 
 public class TiNestedRecyclerView extends RecyclerView implements NestedScrollingParent
 {
@@ -24,7 +27,7 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 
 	public TiNestedRecyclerView(@NonNull Context context)
 	{
-		super(context);
+		super(new ContextThemeWrapper(context, R.style.RecyclerView));
 
 		addOnItemTouchListener(new OnItemTouchListener()
 		{
@@ -64,12 +67,12 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 
 	public TiNestedRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs)
 	{
-		super(context, attrs);
+		super(new ContextThemeWrapper(context, R.style.RecyclerView), attrs);
 	}
 
 	public TiNestedRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr)
 	{
-		super(context, attrs, defStyleAttr);
+		super(new ContextThemeWrapper(context, R.style.RecyclerView), attrs, defStyleAttr);
 	}
 
 	public void setScrollEnabled(boolean enabled)

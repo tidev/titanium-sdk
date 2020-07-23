@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -101,7 +100,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-		this.recyclerView.setVerticalScrollBarEnabled(true);
 
 		// Set list separator.
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
@@ -177,7 +175,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					final Iterator<TableViewRowProxy> i = tracker.getSelection().iterator();
 					while (i.hasNext()) {
 						final TableViewRowProxy proxy = i.next();
-						Log.d(TAG, "SELECTED: " + proxy.getProperties().getString(TiC.PROPERTY_TITLE));
+						// Log.d(TAG, "SELECTED: " + proxy.getProperties().getString(TiC.PROPERTY_TITLE));
 					}
 				}
 			}
