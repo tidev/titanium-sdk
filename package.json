@@ -141,6 +141,8 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "ssri": "^8.0.0",
+    "stream-splitter": "^0.3.2",
+    "titanium": "^5.2.2",
     "titanium-docgen": "^4.6.0"
   },
   "repository": {

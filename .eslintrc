@@ -16,17 +16,6 @@
   },
   "overrides": [
     {
-      "files": [ "tests/Resources/es6.*.js", "tests/Resources/util.test.js" ],
-      "parserOptions": {
-        "ecmaVersion": 2017,
-        "sourceType": "module"
-      },
-      "rules": {
-        "node/no-deprecated-api": "off",
-        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
-      }
-    },
-    {
       "files": [ "dangerfile.js" ],
       "parserOptions": {
         "ecmaVersion": 2017,
