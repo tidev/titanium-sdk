@@ -202,7 +202,7 @@ static NSArray *webViewKeySequence;
 
 - (NSNumber *)disableBounce
 {
-  return @(![[[self  wkWebView] scrollView] bounces]);
+  return @(![[[self wkWebView] scrollView] bounces]);
 }
 
 - (NSNumber *)scrollsToTop
@@ -463,12 +463,12 @@ static NSArray *webViewKeySequence;
 {
   KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
   ENSURE_TYPE(callback, KrollCallback);
-  
+
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
     [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
     return;
   }
-  
+
   [[self wkWebView] createPDFWithConfiguration:nil
                              completionHandler:^(NSData *_Nullable pdfDocumentData, NSError *_Nullable error) {
                                if (error != nil) {
@@ -489,7 +489,7 @@ static NSArray *webViewKeySequence;
     [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
     return;
   }
-  
+
   [[self wkWebView] createWebArchiveDataWithCompletionHandler:^(NSData *_Nonnull archiveData, NSError *_Nonnull error) {
     if (error != nil) {
       [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
