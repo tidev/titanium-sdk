@@ -1,0 +1,37 @@
+{
+  "extends": [ "axway/env-node", "axway/env-titanium", "axway/+mocha"],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "script"
+  },
+  "globals": {
+    "Ti": false,
+    "Titanium": false,
+    "global": false,
+    "__filename": false,
+    "__dirname": false
+  },
+  "rules": {
+    "no-implicit-globals": "off"
+  },
+  "overrides": [
+    {
+      "files": [ "Resources/ti.ui.webview.script.tag.js" ],
+      "parserOptions": {
+        "ecmaVersion": 3,
+        "sourceType": "script"
+      }
+    },
+    {
+      "files": [ "Resources/es6.*.js", "Resources/util.test.js" ],
+      "parserOptions": {
+        "sourceType": "module"
+      },
+      "rules": {
+        "node/no-deprecated-api": "off",
+        "node/no-unsupported-features/es-syntax": "off",
+        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
+      }
+    }
+  ]
+}

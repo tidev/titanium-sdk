@@ -1,0 +1,10 @@
+{
+  "extends": [ "axway/env-node"],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "script"
+  },
+  "rules": {
+    "strict": ["error", "global"]
+  }
+}
