@@ -189,7 +189,13 @@ class Builder {
 		return docs.generate();
 	}
 
-	async install () {
+	async install (zipfile) {
+		if (zipfile) {
+			// Assume we have explicitly said to install this zipfile (from CLI command)
+			zipfile = path.resolve(process.cwd(), zipfile);
+			return utils.installSDKFromZipFile(zipfile, this.program.select);
+		}
+		// Otherwise use fuzzier logic that tries to install local dev built version
 		return utils.installSDK(this.program.versionTag, this.program.symlink);
 	}
 }

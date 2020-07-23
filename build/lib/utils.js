@@ -5,7 +5,9 @@ const promisify = util.promisify;
 const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
+const titanium = require.resolve('titanium');
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
+const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 
 const glob = promisify(require('glob'));
 const appc = require('node-appc');
@@ -345,25 +347,13 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 		osName = 'osx';
 	}
 
-	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
-	try {
-		const destStats = fs.lstatSync(destDir);
-		if (destStats.isDirectory()) {
-			console.log('Destination exists, deleting %s...', destDir);
-			await fs.remove(destDir);
-		} else if (destStats.isSymbolicLink()) {
-			console.log('Destination exists as symlink, unlinking %s...', destDir);
-			fs.unlinkSync(destDir);
-		}
-	} catch (error) {
-		// Do nothing
-	}
+	const destDir = await wipeInstalledSDK(dest, osName, versionTag);
 
+	// Check for locally built unzipped directory
+	// if there, symlink or copy that first
 	const distDir = path.join(__dirname, '../../dist');
-
 	const zipDir = path.join(distDir, `mobilesdk-${versionTag}-${osName}`);
 	const dirExists = await fs.pathExists(zipDir);
-
 	if (dirExists) {
 		console.log('Installing %s...', zipDir);
 		if (symlinkIfPossible) {
@@ -377,15 +367,51 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 
 	// try the zip
 	const zipfile = path.join(distDir, `mobilesdk-${versionTag}-${osName}.zip`);
-	console.log('Installing %s...', zipfile);
-	return new Promise((resolve, reject) => {
-		appc.zip.unzip(zipfile, dest, {}, function (err) {
-			if (err) {
-				return reject(err);
-			}
-			return resolve();
-		});
-	});
+	return Utils.unzip(zipfile, dest);
 };
+
+/**
+ * @param {string} zipfile path to zipfile to install
+ * @param {boolean} [select=false] select the sdk in ti cli after install?
+ * @returns {Promise<void>}
+ */
+Utils.installSDKFromZipFile = async function (zipfile, select = false) {
+	const regexp = /mobilesdk-([^-]+)-(osx|win32|linux)\.zip$/;
+	const matches = zipfile.match(regexp);
+	const osName = matches[2];
+	const versionTag = matches[1];
+
+	// wipe existing
+	const dest = Utils.sdkInstallDir();
+	await wipeInstalledSDK(dest, osName, versionTag);
+
+	await Utils.unzip(zipfile, dest);
+	if (select) {
+		return exec(`node "${titanium}" sdk select ${versionTag}`);
+	}
+};
+
+/**
+ * @param {string} dest base dir of SDK installs
+ * @param {string} osName 'osx' || 'linux' || 'win32'
+ * @param {string} versionTag i.e. '9.2.0'
+ * @returns {Promise<string>}
+ */
+async function wipeInstalledSDK(dest, osName, versionTag) {
+	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
+	try {
+		const destStats = fs.lstatSync(destDir);
+		if (destStats.isDirectory()) {
+			console.log('Destination exists, deleting %s...', destDir);
+			await fs.remove(destDir);
+		} else if (destStats.isSymbolicLink()) {
+			console.log('Destination exists as symlink, unlinking %s...', destDir);
+			fs.unlinkSync(destDir);
+		}
+	} catch (error) {
+		// Do nothing
+	}
+	return destDir;
+}
 
 module.exports = Utils;
