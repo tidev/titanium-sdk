@@ -3286,16 +3286,13 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		// 1) If not already defined in i18n "strings.xml" file. (This is undocumented, but some devs do this.)
 		// 2) If defined in i18n "app.xml". (The preferred cross-platform way to localize it.)
 		// 3) Default to "tiapp.xml" file's <name/> if not defined under i18n. (Not localized.)
-		let appName = localeData.strings['app_name'];
+		let appName = localeData.strings.app_name;
 		if (!appName) {
-			appName = localeData.strings['appname'];
+			appName = localeData.app && localeData.app.appname;
 			if (!appName) {
-				appName = localeData.app && localeData.app.appname;
-				if (!appName) {
-					appName = this.tiapp.name;
-				}
+				appName = this.tiapp.name;
 			}
-			localeData.strings['app_name'] = appName;
+			localeData.strings.app_name = appName;
 		}
 
 		// Create the XML content for all localized strings.
