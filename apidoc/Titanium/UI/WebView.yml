@@ -432,6 +432,48 @@ methods:
     returns:
         type: BackForwardList
 
+  - name: createPdf
+    summary: |
+        Create a PDF document representation from the web page currently displayed in the WebView.
+    description: |
+        If the data is written to a file the resulting file is a valid PDF document.
+    platforms: [iphone, ipad]
+    since: "9.2.0"
+    osver: {ios: {min: "14.0"}}
+    parameters:
+      - name: callback
+        summary: Function to call upon pdf creation.
+        type: Callback<DataCreationResult>
+
+  - name: createWebArchive
+    summary: Create WebKit web archive data representing the current web content of the WebView.
+    description: |
+        WebKit web archive data represents a snapshot of web content. It can be loaded into a WebView directly, 
+        and saved to a file for later use.
+    platforms: [iphone, ipad]
+    since: "9.2.0"
+    osver: {ios: {min: "14.0"}}
+    parameters:
+      - name: callback
+        summary: Function to call upon web archive creation.
+        type: Callback<DataCreationResult>
+
+  - name: findString
+    summary: Searches the page contents for the given string.
+    platforms: [iphone, ipad]
+    since: "9.2.0"
+    osver: {ios: {min: "14.0"}}
+    parameters:
+      - name: searchString
+        summary: The string to search for.
+        type: String
+      - name: options
+        summary: Options for search.
+        type: StringSearchOptions
+        optional: true
+      - name: callback
+        summary: Function to call upon search finished.
+        type: Callback<SearchResult>
 events:
   - name: beforeload
     summary: Fired before the web view starts loading its content.
@@ -1083,6 +1125,67 @@ properties:
     summary: Error message, if any returned.
     description: May be undefined.
     type: String
+
+---
+name: DataCreationResult
+summary: The parameter passed to the <Titanium.UI.WebView.createPdf> or <Titanium.UI.WebView.createWebArchive>callback.
+platforms: [iphone, ipad]
+since: "9.2.0"
+properties:
+  - name: data
+    summary: The created data.
+    type: Titanium.Blob
+  - name: success
+    summary: Indicates if the data creation successful or not.
+    description: Returns `true` on successful creation, otherwise `false`.
+    type: Boolean
+  - name: error
+    summary: Error message, if any returned.
+    description: May be undefined.
+    type: String
+
+---
+name: SearchResult
+summary: The parameter passed to the <Titanium.UI.WebView.findString>.
+platforms: [iphone, ipad]
+since: "9.2.0"
+properties:
+  - name: success
+    summary: Indicates if string found or not.
+    description: Returns `true` if found, otherwise `false`.
+    type: Boolean
+  - name: error
+    summary: Error message, if any returned.
+    description: May be undefined.
+    type: String
+
+---
+name: StringSearchOptions
+summary: |
+    The optional options to pass to the <Titanium.UI.WebView.findString>. Pass a
+    dictionary with one or more of the following string-keys:
+        * `caseSensitive` (Boolean value)
+        * `backward` (Boolean value)
+        * `wraps` (Boolean value)
+properties:
+  - name: caseSensitive
+    summary: Whether or not the search should be case sensitive.
+    type: Boolean
+    default: false
+    optional: true
+
+  - name: backward
+    type: Boolean
+    summary: |
+        The direction to search from the current selection. The search will respect the writing direction of the document
+    default: false
+    optional: true
+
+  - name: wraps
+    summary: Whether the search should start at the beginning of the document once it reaches the end.
+    type: Boolean
+    default: true
+    optional: true
 
 ---
 name: BackForwardList
