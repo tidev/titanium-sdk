@@ -7,7 +7,7 @@ const path = require('path');
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const LOCAL_TESTS = path.join(ROOT_DIR, 'tests');
-const tests = require(path.join(LOCAL_TESTS, 'scripts/test')); // eslint-disable-line security/detect-non-literal-require
+const tests = require('./test');
 
 /**
  * Wipes and re-clones the mocha common test suite, then runs our unit testing script for the

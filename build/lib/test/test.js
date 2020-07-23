@@ -14,10 +14,13 @@ const spawn = require('child_process').spawn; // eslint-disable-line security/de
 const titanium = require.resolve('titanium');
 const { callbackify, promisify } = require('util');
 const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const SOURCE_DIR = path.join(__dirname, '..');
+
+const ROOT_DIR = path.join(__dirname, '../../..');
+const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
 const PROJECT_NAME = 'mocha';
 const APP_ID = 'com.appcelerator.testApp.testing';
-const PROJECT_DIR = path.join(__dirname, PROJECT_NAME);
+const PROJECT_DIR = path.join(ROOT_DIR, 'tmp', PROJECT_NAME);
+const REPORT_DIR = ROOT_DIR; // Write junit xml files to root of repo
 const JUNIT_TEMPLATE = path.join(__dirname, 'junit.xml.ejs');
 
 // The special magic strings we expect in the logs!
@@ -99,7 +102,7 @@ async function generateProject(platforms) {
 			'--name', PROJECT_NAME,
 			'--id', APP_ID,
 			'--url', 'http://www.appcelerator.com',
-			'--workspace-dir', __dirname,
+			'--workspace-dir', path.dirname(PROJECT_DIR),
 			'--no-banner',
 			'--no-prompt' ], { stdio: 'inherit' });
 		prc.on('error', reject);
@@ -653,7 +656,7 @@ async function outputJUnitXML(jsonResults, prefix) {
 	const r = ejs.render(template,  { suites: values, prefix: prefix });
 
 	// Write the JUnit XML to a file
-	return fs.writeFile(path.join(__dirname, 'junit.' + prefix + '.xml'), r);
+	return fs.writeFile(path.join(REPORT_DIR, `junit.${prefix}.xml`), r);
 }
 
 /**
