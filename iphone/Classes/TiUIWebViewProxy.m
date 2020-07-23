@@ -431,12 +431,29 @@ static NSArray *webViewKeySequence;
 {
   NSString *searchString = [args objectAtIndex:0];
   ENSURE_STRING(searchString);
-
-  KrollCallback *callback = (KrollCallback *)[args objectAtIndex:1];
+  KrollCallback *callback;
+  NSDictionary *options = nil;
+  if ([args count] > 2) {
+    options = [args objectAtIndex:1];
+    ENSURE_DICT(options);
+    callback = [args objectAtIndex:2];
+  } else {
+    callback = [args objectAtIndex:1];
+  }
   ENSURE_TYPE(callback, KrollCallback);
 
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
+    return;
+  }
+
+  WKFindConfiguration *configuration = [[WKFindConfiguration alloc] init];
+  configuration.backwards = [TiUtils boolValue:@"backwards" properties:options def:NO];
+  configuration.caseSensitive = [TiUtils boolValue:@"caseSensitive" properties:options def:NO];
+  configuration.wraps = [TiUtils boolValue:@"wraps" properties:options def:YES];
+
   [[self wkWebView] findString:searchString
-             withConfiguration:nil
+             withConfiguration:configuration
              completionHandler:^(WKFindResult *_Nonnull result) {
                [callback call:@[ @{ @"success" : NUMBOOL(result.matchFound) } ] thisObject:self];
              }];
@@ -446,7 +463,12 @@ static NSArray *webViewKeySequence;
 {
   KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
   ENSURE_TYPE(callback, KrollCallback);
-
+  
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
+    return;
+  }
+  
   [[self wkWebView] createPDFWithConfiguration:nil
                              completionHandler:^(NSData *_Nullable pdfDocumentData, NSError *_Nullable error) {
                                if (error != nil) {
@@ -463,6 +485,11 @@ static NSArray *webViewKeySequence;
   KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
   ENSURE_TYPE(callback, KrollCallback);
 
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
+    return;
+  }
+  
   [[self wkWebView] createWebArchiveDataWithCompletionHandler:^(NSData *_Nonnull archiveData, NSError *_Nonnull error) {
     if (error != nil) {
       [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
