@@ -42,6 +42,11 @@ mkdir "${FRAMEWORK}"
 
 cp -r "${DEVICE_LIBRARY_PATH}/." "${FRAMEWORK}"
 
+######################
+# Remove arm64 architecture from simulator build - TIMOB-28042
+######################
+
+lipo -remove arm64 "${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}" -o "${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}"
 
 ######################
 # Make an universal binary
