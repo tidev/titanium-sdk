@@ -253,48 +253,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		if (section == null) {
 
 			// Handle `header` and `footer` for rows without a parent section.
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER)) {
-
-				// Handle header title.
-				this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER));
-				this.headerTitle.setVisibility(View.VISIBLE);
-
-			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
-
-				// Handle header view.
-				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-				final TiUIView view = headerProxy.getOrCreateView();
-				if (view != null) {
-					final View headerView = view.getOuterView();
-					final ViewGroup parent = (ViewGroup) headerView.getParent();
-					if (parent != null) {
-						parent.removeView(headerView);
-					}
-					this.header.addView(headerView, view.getLayoutParams());
-					this.header.setVisibility(View.VISIBLE);
-				}
-			}
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER)) {
-
-				// Handle footer title.
-				this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER));
-				this.footerTitle.setVisibility(View.VISIBLE);
-
-			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
-
-				// Handle footer view.
-				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-				final TiUIView view = footerProxy.getOrCreateView();
-				if (view != null) {
-					final View footerView = view.getOuterView();
-					final ViewGroup parent = (ViewGroup) footerView.getParent();
-					if (parent != null) {
-						parent.removeView(footerView);
-					}
-					this.footer.addView(footerView, view.getLayoutParams());
-					this.footer.setVisibility(View.VISIBLE);
-				}
-			}
+			setHeaderFooter(properties, true, true);
 
 		} else {
 
@@ -305,42 +264,12 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 			// Only set header on first row in section.
 			if (proxy.indexInSection == 0) {
 
-				if (sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)) {
-
-					// Handle header title.
-					this.headerTitle.setText(sectionProperties.getString(TiC.PROPERTY_HEADER_TITLE));
-					this.headerTitle.setVisibility(View.VISIBLE);
-
-				} else if (sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
-
-					// Handle header view.
-					final TiViewProxy headerProxy = (TiViewProxy) sectionProperties.get(TiC.PROPERTY_HEADER_VIEW);
-					final TiUIView view = headerProxy.getOrCreateView();
-					if (view != null) {
-						this.header.addView(view.getOuterView(), view.getLayoutParams());
-						this.header.setVisibility(View.VISIBLE);
-					}
-				}
+				setHeaderFooter(sectionProperties, true, false);
 
 			// Only set footer on last row in section.
 			} else if (proxy.indexInSection == section.getRowCount() - 1) {
 
-				if (sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)) {
-
-					// Handle footer title.
-					this.footerTitle.setText(sectionProperties.getString(TiC.PROPERTY_FOOTER_TITLE));
-					this.footerTitle.setVisibility(View.VISIBLE);
-
-				} else if (sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
-
-					// Handle footer view.
-					final TiViewProxy footerProxy = (TiViewProxy) sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW);
-					final TiUIView view = footerProxy.getOrCreateView();
-					if (view != null) {
-						this.footer.addView(view.getOuterView(), view.getLayoutParams());
-						this.footer.setVisibility(View.VISIBLE);
-					}
-				}
+				setHeaderFooter(sectionProperties, false, true);
 			}
 		}
 
@@ -444,52 +373,56 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		}
 	}
 
-	private void setHeaderFooter(KrollDict properties)
+	private void setHeaderFooter(KrollDict properties, boolean updateHeader, boolean updateFooter)
 	{
 		// Handle `header` and `footer`.
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER)) {
+		if (updateHeader) {
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER)) {
 
-			// Handle header title.
-			this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER));
-			this.headerTitle.setVisibility(View.VISIBLE);
+				// Handle header title.
+				this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER));
+				this.headerTitle.setVisibility(View.VISIBLE);
 
-		} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 
-			// Handle header view.
-			final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-			final TiUIView view = headerProxy.getOrCreateView();
-			if (view != null) {
-				final View headerView = view.getOuterView();
-				if (headerView != null) {
-					final ViewGroup parent = (ViewGroup) headerView.getParent();
-					if (parent != null) {
-						parent.removeView(headerView);
+				// Handle header view.
+				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
+				final TiUIView view = headerProxy.getOrCreateView();
+				if (view != null) {
+					final View headerView = view.getOuterView();
+					if (headerView != null) {
+						final ViewGroup parent = (ViewGroup) headerView.getParent();
+						if (parent != null) {
+							parent.removeView(headerView);
+						}
+						this.header.addView(headerView, view.getLayoutParams());
+						this.header.setVisibility(View.VISIBLE);
 					}
-					this.header.addView(headerView, view.getLayoutParams());
-					this.header.setVisibility(View.VISIBLE);
 				}
 			}
 		}
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER)) {
+		if (updateFooter) {
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER)) {
 
-			// Handle footer title.
-			this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER));
-			this.footerTitle.setVisibility(View.VISIBLE);
+				// Handle footer title.
+				this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER));
+				this.footerTitle.setVisibility(View.VISIBLE);
 
-		} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 
-			// Handle footer view.
-			final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-			final TiUIView view = footerProxy.getOrCreateView();
-			if (view != null) {
-				final View footerView = view.getOuterView();
-				if (footerView != null) {
-					final ViewGroup parent = (ViewGroup) footerView.getParent();
-					if (parent != null) {
-						parent.removeView(footerView);
+				// Handle footer view.
+				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
+				final TiUIView view = footerProxy.getOrCreateView();
+				if (view != null) {
+					final View footerView = view.getOuterView();
+					if (footerView != null) {
+						final ViewGroup parent = (ViewGroup) footerView.getParent();
+						if (parent != null) {
+							parent.removeView(footerView);
+						}
+						this.footer.addView(footerView, view.getLayoutParams());
+						this.footer.setVisibility(View.VISIBLE);
 					}
-					this.footer.addView(footerView, view.getLayoutParams());
-					this.footer.setVisibility(View.VISIBLE);
 				}
 			}
 		}
