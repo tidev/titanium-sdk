@@ -101,6 +101,9 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+		// Optimize scroll performance.
+		recyclerView.setItemViewCacheSize(24);
+
 		// Set list separator.
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
 		this.recyclerView.addItemDecoration(decoration);

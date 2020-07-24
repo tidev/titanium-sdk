@@ -58,6 +58,11 @@ public class TableViewRowProxy extends TiViewProxy
 		super();
 	}
 
+	public TableViewHolder getHolder()
+	{
+		return this.holder;
+	}
+
 	public void setHolder(TableViewHolder holder)
 	{
 		this.holder = holder;

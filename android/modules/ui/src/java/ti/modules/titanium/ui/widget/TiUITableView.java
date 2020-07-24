@@ -68,6 +68,8 @@ public class TiUITableView extends TiUIView
 			Object object = d.get(TiC.PROPERTY_REFRESH_CONTROL);
 			if (object instanceof RefreshControlProxy) {
 				((RefreshControlProxy) object).assignTo(this.tableView);
+			} else if (object == null) {
+				RefreshControlProxy.unassignFrom(this.tableView);
 			}
 		}
 

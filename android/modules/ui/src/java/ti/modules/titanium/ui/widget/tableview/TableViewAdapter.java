@@ -75,9 +75,13 @@ public class TableViewAdapter extends RecyclerView.Adapter<TableViewHolder>
 	@Override
 	public void onBindViewHolder(@NonNull TableViewHolder holder, int position)
 	{
-		// Update TableViewHolder with new model data.
 		final TableViewRowProxy row = this.models.get(position);
-		holder.bind(row, tracker != null ? tracker.isSelected(row) : false);
+		final boolean selected = tracker != null ? tracker.isSelected(row) : false;
+
+		// Update TableViewHolder with new model data.
+		if (row.getHolder() != holder || selected) {
+			holder.bind(row, selected);
+		}
 	}
 
 	@Override

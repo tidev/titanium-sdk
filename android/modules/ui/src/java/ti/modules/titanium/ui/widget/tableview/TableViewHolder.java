@@ -265,7 +265,12 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
 				final TiUIView view = headerProxy.getOrCreateView();
 				if (view != null) {
-					this.header.addView(view.getOuterView(), view.getLayoutParams());
+					final View headerView = view.getOuterView();
+					final ViewGroup parent = (ViewGroup) headerView.getParent();
+					if (parent != null) {
+						parent.removeView(headerView);
+					}
+					this.header.addView(headerView, view.getLayoutParams());
 					this.header.setVisibility(View.VISIBLE);
 				}
 			}
@@ -281,7 +286,12 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
 				final TiUIView view = footerProxy.getOrCreateView();
 				if (view != null) {
-					this.footer.addView(view.getOuterView(), view.getLayoutParams());
+					final View footerView = view.getOuterView();
+					final ViewGroup parent = (ViewGroup) footerView.getParent();
+					if (parent != null) {
+						parent.removeView(footerView);
+					}
+					this.footer.addView(footerView, view.getLayoutParams());
 					this.footer.setVisibility(View.VISIBLE);
 				}
 			}
@@ -431,6 +441,57 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 
 			// Set title default background color.
 			title.setBackgroundColor(COLOR_GRAY);
+		}
+	}
+
+	private void setHeaderFooter(KrollDict properties)
+	{
+		// Handle `header` and `footer`.
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER)) {
+
+			// Handle header title.
+			this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER));
+			this.headerTitle.setVisibility(View.VISIBLE);
+
+		} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+
+			// Handle header view.
+			final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
+			final TiUIView view = headerProxy.getOrCreateView();
+			if (view != null) {
+				final View headerView = view.getOuterView();
+				if (headerView != null) {
+					final ViewGroup parent = (ViewGroup) headerView.getParent();
+					if (parent != null) {
+						parent.removeView(headerView);
+					}
+					this.header.addView(headerView, view.getLayoutParams());
+					this.header.setVisibility(View.VISIBLE);
+				}
+			}
+		}
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER)) {
+
+			// Handle footer title.
+			this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER));
+			this.footerTitle.setVisibility(View.VISIBLE);
+
+		} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+
+			// Handle footer view.
+			final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
+			final TiUIView view = footerProxy.getOrCreateView();
+			if (view != null) {
+				final View footerView = view.getOuterView();
+				if (footerView != null) {
+					final ViewGroup parent = (ViewGroup) footerView.getParent();
+					if (parent != null) {
+						parent.removeView(footerView);
+					}
+					this.footer.addView(footerView, view.getLayoutParams());
+					this.footer.setVisibility(View.VISIBLE);
+				}
+			}
 		}
 	}
 }
