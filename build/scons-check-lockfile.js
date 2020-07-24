@@ -7,7 +7,7 @@
  */
 'use strict';
 
-const lockfile = require('./package-lock.json');
+const lockfile = require('../package-lock.json');
 
 let foundError = false;
 
