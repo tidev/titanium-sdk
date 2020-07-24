@@ -1,57 +1,32 @@
 {
-  "extends": [ "axway/env-node", "axway/+mocha"],
+  "extends": [ "axway/env-node"],
   "parserOptions": {
-    "ecmaVersion": 2017,
     "sourceType": "script"
-  },
-  "globals": {
-    "Ti": "readonly",
-    "Titanium": "readonly",
-    "__filename": "readonly",
-    "__dirname": "readonly",
-    "kroll": "readonly"
-  },
-  "rules": {
-    "strict": ["error", "global"]
   },
   "overrides": [
     {
-      "files": [ "tests/Resources/es6.*.js", "tests/Resources/util.test.js" ],
-      "parserOptions": {
-        "ecmaVersion": 2017,
-        "sourceType": "module"
-      },
-      "rules": {
-        "node/no-deprecated-api": "off",
-        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
-      }
-    },
-    {
-      "files": [ "dangerfile.js" ],
-      "parserOptions": {
-        "ecmaVersion": 2017,
-        "sourceType": "module"
-      }
-    },
-    {
-      "files": [ "build/**/*.js" ],
-      "parserOptions": {
-        "ecmaVersion": 2018,
-        "sourceType": "script"
-      }
-    },
-    {
       "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
       "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "script"
+        "ecmaVersion": 6
+      },
+      "globals": {
+        "kroll": "readonly",
+        "Titanium": "readonly"
       }
+    },
+    {
+      "files": [ "android/app/src/main/assets/Resources/**/*.js", "iphone/Resources/**/*.js" ],
+      "extends": [ "axway/env-titanium" ]
     },
     {
       "files": [ "common/Resources/**/*.js" ],
+      "extends": [ "axway/env-titanium" ],
       "parserOptions": {
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2020,
         "sourceType": "module"
+      },
+      "globals": {
+        "kroll": "readonly"
       },
       "rules": {
         "node/no-deprecated-api": "off",
@@ -60,10 +35,31 @@
       }
     },
     {
-      "files": [ "cli/lib/tasks/*.js" ],
+      "files": [ "android/cli/tests/test-android-manifest.js" ],
+      "extends": [ "axway/env-node", "axway/+mocha"]
+    },
+    {
+      "files": [ "tests/**/*.js" ],
+      "extends": [ "axway/env-titanium", "axway/+mocha"]
+    },
+    {
+      "files": [ "tests/Resources/ti.ui.webview.script.tag.js" ],
+      "extends": [ "axway/env-titanium", "axway/+mocha"],
       "parserOptions": {
-        "ecmaVersion": 2017,
+        "ecmaVersion": 3,
+        "sourceType": "script"
+      }
+    },
+    {
+      "files": [ "tests/Resources/es6.*.js", "tests/Resources/util.test.js" ],
+      "extends": [ "axway/env-titanium", "axway/+mocha"],
+      "parserOptions": {
         "sourceType": "module"
+      },
+      "rules": {
+        "node/no-deprecated-api": "off",
+        "node/no-unsupported-features/es-syntax": "off",
+        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
       }
     }
   ]
