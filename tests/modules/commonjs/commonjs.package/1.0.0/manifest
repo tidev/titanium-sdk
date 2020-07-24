@@ -1,0 +1,17 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0.0
+description: testing
+author: Chris Williams
+license: Appcelerator Commercial License
+copyright: Copyright (c) 2016 by Appcelerator,  Inc.
+
+
+# these should not be edited
+name: commonjs.package
+moduleid: commonjs.package
+guid: 1056b5d2-2bb5-4339-b930-297637aeec4e
+platform: commonjs
+minsdk: 5.4.0
