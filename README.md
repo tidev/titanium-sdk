@@ -5,16 +5,14 @@
 Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
 
-Currently supported native platforms are iOS, Android and Windows Phone / Windows Desktop.
+Currently supported native platforms are iOS and Android.
 
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
-see the LICENSE file for specific details.
+see the [LICENSE](LICENSE) file for specific details.
 
 *[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
 # Table of Contents
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/appcelerator/titanium_mobile.svg)](https://greenkeeper.io/)
 
 - [Table of Contents](#table-of-contents)
   - [Features](#features)
@@ -43,9 +41,6 @@ see the LICENSE file for specific details.
     - [Unit tests](#unit-tests)
       - [How it works](#how-it-works)
       - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
-        - [Adding a new test suite](#adding-a-new-test-suite)
-        - [Editing an existing test suite](#editing-an-existing-test-suite)
-        - [Merging the modified tests back to the common suite](#merging-the-modified-tests-back-to-the-common-suite)
   - [Legal Stuff](#legal-stuff)
 
 ## Features
@@ -117,7 +112,7 @@ Mobile app development for every major mobile OS – with no hybrid compromises.
 
 ### Example
 
-Create a native view in iOS, Android and Windows Phone:
+Create a native view in iOS and Android:
 
 ```js
 // iOS
@@ -125,9 +120,6 @@ var view = new UIView();
 
 // Android
 var view = new View(activity);
-
-// Windows Phone
-var view = new Canvas();
 ```
 
 ### Getting Started
@@ -145,6 +137,7 @@ It is also a separate [open source project](https://github.com/appcelerator/allo
 Manage your application scope by separating your code into different models, views, controllers and more:
 
 **index.xml** (View)
+
 ```xml
 <Alloy>
   <Window title="Titanium and Alloy">
@@ -154,6 +147,7 @@ Manage your application scope by separating your code into different models, vie
 ```
 
 **index.js** (Controller)
+
 ```js
 function handleClick() {
   alert('Hello from the Controller!');
@@ -161,6 +155,7 @@ function handleClick() {
 ```
 
 **index.tss** (Style)
+
 ```js
 Window: {
   backgroundColor: 'white'
@@ -218,7 +213,6 @@ To protect the interests of the Titanium contributors, Appcelerator, customers a
 
 [You can digitally sign the CLA](http://cla.appcelerator.com) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
-
 ## Building Locally
 
 Previously Titanium used scons and python scripts to build the SDK.
@@ -243,7 +237,7 @@ npm run cleanbuild -- [platform1] [platform2] --android-ndk /opt/android-ndk --a
 
 ### Unit tests
 
-We have a [common unit test suite](https://github.com/appcelerator/titanium-mobile-mocha-suite) intended to run across all supported platforms.
+We have a [unit test suite](tests/) intended to run across all supported platforms.
 
 We have npm scripts set up to run a full clean, build, package, symlinked install, `ti sdk select` the built sdk, and then run the unit test suite:
 
@@ -255,31 +249,13 @@ npm run test:ipad
 
 #### How it works
 
-The common test suite generates a single titaniun project targeting the specified platform, builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
+The test suite generates a single Titanium project targeting the specified platform(s), builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
 
 The tests spit out their results to the console log, and the test scripts listen to the logs to gather the results. We then generate an overview on the console as well as a junit report xml file (to be consume by CI build systems like Jenkins).
 
 #### How to modify the tests locally and in your PRs
 
-The `tests` folder acts as an override folder for the common suite. Any files living within that directory are copied on top of the common suite's app structure.
-
-##### Adding a new test suite
-
-We also have a mechanism in our test suite to auto load any files under `tests/Resources` with the suffix `.addontest.js`. So adding new tests, is simply a matter of creating a file named something like `tests/Resources/ti.namespace.addontest.j
-
-
-
-##### Editing an existing test suite
-
-If we want to edit the set of tests for the `Ti.App` namespace, we'd copy the existing test from `titanium-mobile-mocha-suite/Resources/ti.app.test.js` to `tests/Resources/ti.foo.test.js`. We'd then edit the file to add/remove/modify the existing suite.
-
-##### Merging the modified tests back to the common suite
-
-We do not have any automated process for merging the modified tests from the `tests` override folder back to the [common unit test suite](https://github.com/appcelerator/titanium-mobile-mocha-suite).
-
-As a result, we need to manually 'migrate' the modified files back to the suite ourselves. This involves copying the modified folders to a clone of that repository on the same mainline branch (i.e. master, 6_1_X, 7_0_X), committing and pushing it up to the common suite; then removing the files from `titanium_mobile/tests`.
-
-A future improvement could be to modify our Jenkins build in `Jenkinsfile` to automate this merge back to the common suite if all tests run and pass on a mainline branch.
+The `tests` folder contains the test suite. Any files living within that directory are copied on top of the test app's structure.
 
 ## Legal Stuff
 
