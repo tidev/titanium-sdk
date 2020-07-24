@@ -321,6 +321,8 @@ Utils.unzip = function unzip(zipfile, dest) {
  * @returns {string} absolute path to SDK install root
  */
 Utils.sdkInstallDir = function () {
+	// TODO: try ti cli first as below?
+	// TODO: Cache value
 	switch (os.platform()) {
 		case 'win32':
 			return path.join(process.env.ProgramData, 'Titanium');
@@ -333,6 +335,25 @@ Utils.sdkInstallDir = function () {
 			return path.join(process.env.HOME, '.titanium');
 	}
 };
+
+// /**
+//  * @return {Promise<string>} path to Titanium SDK root dir
+//  */
+// async function sdkDir() {
+// 	try {
+// 		const { stdout, _stderr } = await exec(`node "${titanium}" config sdk.defaultInstallLocation -o json`);
+// 		return JSON.parse(stdout.trim());
+// 	} catch (error) {
+// 		const osName = require('os').platform();
+// 		if (osName === 'win32') {
+// 			return path.join(process.env.ProgramData, 'Titanium');
+// 		} else if (osName === 'darwin') {
+// 			return path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
+// 		} else if (osName === 'linux') {
+// 			return path.join(process.env.HOME, '.titanium');
+// 		}
+// 	}
+// }
 
 /**
  * @param  {String}   versionTag [description]
@@ -413,5 +434,43 @@ async function wipeInstalledSDK(dest, osName, versionTag) {
 	}
 	return destDir;
 }
+
+/**
+ * Remove all CI SDKs installed. Skip GA releases.
+ * @returns {Promise<void>}
+ */
+Utils.cleanNonGaSDKs = async function cleanNonGaSDKs() {
+	const { stdout } = await exec(`node "${titanium}" sdk list -o json`);
+	const out = JSON.parse(stdout);
+	const installedSDKs = out.installed;
+	// Loop over the SDKs and remove any where the key doesn't end in GA, or the value isn't sdkPath
+	return Promise.all(Object.keys(installedSDKs).map(async item => {
+		const thisSDKPath = installedSDKs[item];
+		if (item.slice(-2) === 'GA') { // skip GA releases
+			return;
+		}
+		console.log(`Removing ${thisSDKPath}`);
+		return fs.remove(thisSDKPath);
+	}));
+};
+
+/**
+ * Removes the global modules and plugins dirs
+ * @param {string} sdkDir filepath to sdk root install directory
+ * @returns {Promise<void>}
+ */
+Utils.cleanupModules = async function cleanupModules(sdkDir) {
+	const moduleDir = path.join(sdkDir, 'modules');
+	const pluginDir = path.join(sdkDir, 'plugins');
+
+	return Promise.all([ moduleDir, pluginDir ].map(async dir => {
+		if (await fs.exists(dir)) {
+			console.log(`Removing ${dir}`);
+			await fs.remove(dir);
+		} else {
+			console.log(`${dir} doesnt exist`);
+		}
+	}));
+};
 
 module.exports = Utils;

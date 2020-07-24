@@ -26,6 +26,8 @@
     "clean": "./build/scons clean",
     "clean:android": "npm run clean -- android",
     "clean:ios": "npm run clean -- ios",
+    "clean:modules": "./build/scons clean-modules",
+    "clean:sdks": "./build/scons clean-sdks",
     "cleanbuild": "./build/scons cleanbuild",
     "cleanbuild:android": "npm run cleanbuild -- android",
     "cleanbuild:ios": "npm run cleanbuild -- ios",
@@ -51,11 +53,11 @@
     "package:android": "npm run package -- android",
     "package:ios": "npm run package -- ios",
     "test": "npm run ios-sanity-check && npm run lint",
-    "test:android": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- --skip-sdk-install android",
+    "test:android": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- android",
     "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js --reporter=mocha-jenkins-reporter",
     "test:ios": "npm run test:iphone",
-    "test:iphone": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- --skip-sdk-install ios -F iphone",
-    "test:ipad": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- --skip-sdk-install ios -F ipad",
+    "test:iphone": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F iphone",
+    "test:ipad": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F ipad",
     "test:integration": "./build/scons test"
   },
   "husky": {

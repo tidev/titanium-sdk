@@ -11,19 +11,20 @@ const tests = require('./test');
  * Wipes and re-clones the mocha common test suite, then runs our unit testing script for the
  * SDK zipfile in dist against the supplied platforms.
  *
- * @param {string} zipfile path to SDK zipfile
  * @param {string[]} platforms array of platform names for which we should run tests
  * @param {object} program object holding options/switches from CLI
+ * @param {string} [program.target] 'emulator' || 'simulator' || 'device'
+ * @param {string} [program.deviceId] Titanium device id target to run the tests on
+ * @param {string} [program.deployType] 'development' || 'test'
+ * @param {string} [program.deviceFamily] 'ipad' || 'iphone'
  * @returns {Promise<object>} returns an object whose keys are platform names
  */
-async function runTests(zipfile, platforms, program) {
+async function runTests(platforms, program) {
 	// Load up the main script
 	const test = promisify(tests.test);
 
 	// Run the tests
-	const cleanup = undefined;
-	const architecture = undefined;
-	return test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, cleanup, architecture, program.deployType, program.deviceFamily, path.join(LOCAL_TESTS, 'Resources'));
+	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, path.join(LOCAL_TESTS, 'Resources'));
 }
 
 async function outputResults(results) {

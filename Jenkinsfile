@@ -92,22 +92,27 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 							sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 							// run main branch tests on devices
 							if (testOnDevices) {
-								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- --skip-sdk-install android -T device -C all"
+								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
 							// run PR tests on emulator
 							} else {
-								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- --skip-sdk-install android -T emulator -D test -C android-28-playstore-x86"
+								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-28-playstore-x86"
 							}
 						} // timeout
 					} catch (e) {
 						gatherAndroidCrashReports()
 						throw e
 					} finally {
-						// Kill the app and emulators!
-						timeout(5) {
-							sh returnStatus: true, script: './tests/adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
-							sh returnStatus: true, script: './tests/adb-all.sh uninstall com.appcelerator.testApp.testing'
+						try {
+							// Kill the app and emulators!
+							timeout(5) {
+								sh returnStatus: true, script: './tests/adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
+								sh returnStatus: true, script: './tests/adb-all.sh uninstall com.appcelerator.testApp.testing'
+							}
+							killAndroidEmulators()
+						} finally {
+							sh 'npm run clean:sdks' // remove non-GA sdks
+							sh 'npm run clean:modules' // remove modules
 						}
-						killAndroidEmulators()
 					} // try/catch/finally
 					// save the junit reports as artifacts explicitly so danger.js can use them later
 					stash includes: 'junit.*.xml', name: 'test-report-android'
@@ -134,12 +139,15 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
 						timeout(20) {
-							sh label: 'Run Test Suite', script: "npm run test:integration -- --skip-sdk-install ios -F ${deviceFamily}"
+							sh label: 'Run Test Suite', script: "npm run test:integration -- ios -F ${deviceFamily}"
 						}
 					} catch (e) {
 						gatherIOSCrashReports('mocha') // app name is mocha
 						throw e
-					} // timeout
+					} finally {
+						sh 'npm run clean:sdks' // remove non-GA sdks
+						sh 'npm run clean:modules' // remove modules
+					}
 					// save the junit reports as artifacts explicitly so danger.js can use them later
 					stash includes: 'junit.ios.*.xml', name: "test-report-ios-${deviceFamily}"
 					junit 'junit.ios.*.xml'

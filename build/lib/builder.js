@@ -83,16 +83,8 @@ class Builder {
 	}
 
 	async test() {
-		const zipfile = path.join(DIST_DIR, `mobilesdk-${this.program.versionTag}-${this.hostOS}.zip`);
-		// Only enforce zipfile exists if we're going to install it
-		if (!this.program.skipSdkInstall && !await fs.exists(zipfile)) {
-			throw new Error(`Could not find zipped SDK in dist dir: ${zipfile}. Please run node scons.js cleanbuild first.`);
-		}
-
-		const test = require('./test');
-		const runTests = test.runTests;
-		const outputResults = test.outputResults;
-		const results = await runTests(zipfile, this.platforms, this.program);
+		const { runTests, outputResults } = require('./test');
+		const results = await runTests(this.platforms, this.program);
 		return outputResults(results);
 	}
 

@@ -31,63 +31,46 @@ const TEST_START_PREFIX = '!TEST_START: ';
 const TEST_SUITE_STOP = '!TEST_RESULTS_STOP!';
 const OS_VERSION_PREFIX = 'OS_VERSION: ';
 
-async function clearPreviousApp() {
-	// If the project already exists, wipe it
-	if (await fs.exists(PROJECT_DIR)) {
-		return fs.remove(PROJECT_DIR);
-	}
-}
-
 /**
- * @param {string} sdkDir filepath to sdk install directory
- * @param {string} sdkVersion version to install
- * @returns {Promise<void>}
- */
-// TODO: We already have a util.installSDK!
-async function installSDK(sdkDir, sdkVersion) {
-	const args = [ titanium, 'sdk', 'install', '--no-banner', '--no-prompt' ];
-	if (sdkVersion.indexOf('.') === -1) { // no period, probably mean a branch
-		args.push('-b');
-	}
-	args.push(sdkVersion);
-	args.push('-d'); // make default
-	// Add force flag if we find that the modules dir is blown away!
-	// eslint-disable-next-line promise/always-return
-	if (!(await fs.exists(path.join(sdkDir, 'modules')))) {
-		args.push('--force'); // make default
-	}
-	if (process.env.JENKINS || process.env.JENKINS_URL) {
-		args.push('--no-progress-bars');
-	}
-
-	console.log(`Installing SDK with args: ${args.join(' ')}`);
-	return new Promise((resolve, reject) => {
-		const prc = spawn('node', args, { stdio: 'inherit' });
-		prc.on('exit', code => {
-			if (code !== 0) {
-				return reject(new Error('Failed to install SDK'));
-			}
-			resolve();
-		});
-	});
-}
-
-/**
- * Look up the full path to the SDK we just installed (the SDK we'll be hacking
- * to add our locally built Windows SDK into).
+ * Installs a Titanium SDK to test against, generates a test app, then runs the
+ * app for each platform with our mocha test suite. Outputs the results in a JUnit
+ * test report, and holds onto the results in memory as a JSON object.
  *
- * @returns {string}
- **/
-async function getSDKInstallDir() {
-	// TODO: Use fork since we're spawning off another node process
-	const { stdout, _stderr } = await exec(`node "${titanium}" info -o json -t titanium`);
-	const out = JSON.parse(stdout);
-	const selectedSDK = out.titaniumCLI.selectedSDK; // may be null!
-	if (selectedSDK) {
-		return out.titanium[selectedSDK].path;
+ * @param {String|String[]}	platforms [description]
+ * @param {String} [target] Titanium target value to run the tests on
+ * @param {String} [deviceId] Titanium device id target to run the tests on
+ * @param {string} [deployType] deployType
+ * @param {string} [deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
+ * @returns {Promise<object>}
+ */
+async function test(platforms, target, deviceId, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
+
+	// delete old test app (if does not exist, this will no-op)
+	await fs.remove(PROJECT_DIR);
+
+	console.log('Generating project');
+	await generateProject(platforms);
+
+	await copyMochaAssets();
+	await addTiAppProperties();
+
+	// run build for each platform, and spit out JUnit report
+	const results = {};
+	for (const platform of platforms) {
+		const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+		results[prefix] = result;
+		await outputJUnitXML(result, prefix);
 	}
-	// Hope first sdk listed is the one we want
-	return out.titanium[Object.keys(out.titanium)[0]].path;
+
+	// If we're gathering images, make sure we get them all before we move on
+	if (snapshotPromises.length !== 0) {
+		await Promise.all(snapshotPromises);
+	}
+
+	return results;
 }
 
 /**
@@ -113,6 +96,53 @@ async function generateProject(platforms) {
 			}
 			resolve();
 		});
+	});
+}
+
+/**
+ * @returns {Promise<void>}
+ */
+async function copyMochaAssets() {
+	console.log('Copying resources to project...');
+	// TODO: Support root-level package.json!
+	const resourcesDir = path.join(PROJECT_DIR, 'Resources');
+	return Promise.all([
+		// Resources
+		(async () => {
+			await fs.copy(path.join(SOURCE_DIR, 'Resources'), resourcesDir);
+			if (await fs.pathExists(path.join(resourcesDir, 'package.json'))) {
+				return npmInstall(resourcesDir);
+			}
+		})(),
+		// modules
+		fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules')),
+		// plugins
+		fs.copy(path.join(SOURCE_DIR, 'plugins'), path.join(PROJECT_DIR, 'plugins')),
+		// i18n
+		fs.copy(path.join(SOURCE_DIR, 'i18n'), path.join(PROJECT_DIR, 'i18n')),
+	]);
+}
+
+/**
+ * @param {string} dir filepath to dir to run npm install within
+ * @returns {Promise<{ stdout, stderr }>}
+ */
+async function npmInstall(dir) {
+	// If package-lock.json exists, try to run npm ci --production!
+	let args;
+	if (await fs.exists(path.join(dir, 'package-lock.json'))) {
+		args = [ 'ci', '--production' ];
+	} else {
+		args = [ 'install', '--production' ];
+	}
+	return new Promise((resolve, reject) => {
+		spawn('npm', args, { cwd: dir, stdio: 'inherit' })
+			.on('exit', code => {
+				if (code !== 0) {
+					return reject(new Error(`Failed with exit code: ${code}`));
+				}
+				resolve();
+			}).on('error', reject);
 	});
 }
 
@@ -208,69 +238,16 @@ async function addTiAppProperties() {
 }
 
 /**
- * @param {string} dir filepath to dir to run npm install within
- * @returns {Promise<{ stdout, stderr }>}
- */
-async function npmInstall(dir) {
-	// If package-lock.json exists, try to run npm ci --production!
-	let args;
-	if (await fs.exists(path.join(dir, 'package-lock.json'))) {
-		args = [ 'ci', '--production' ];
-	} else {
-		args = [ 'install', '--production' ];
-	}
-	return new Promise((resolve, reject) => {
-		spawn('npm', args, { cwd: dir, stdio: 'inherit' })
-			.on('exit', code => {
-				if (code !== 0) {
-					return reject(new Error(`Failed with exit code: ${code}`));
-				}
-				resolve();
-			}).on('error', reject);
-	});
-}
-
-/**
- * @returns {Promise<void>}
- */
-async function copyMochaAssets() {
-	console.log('Copying resources to project...');
-	// TODO: Support root-level package.json!
-	const resourcesDir = path.join(PROJECT_DIR, 'Resources');
-	return Promise.all([
-		// Resources
-		(async () => {
-			await fs.copy(path.join(SOURCE_DIR, 'Resources'), resourcesDir);
-			if (await fs.pathExists(path.join(resourcesDir, 'package.json'))) {
-				return npmInstall(resourcesDir);
-			}
-		})(),
-		// modules
-		fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules')),
-		// plugins
-		fs.copy(path.join(SOURCE_DIR, 'plugins'), path.join(PROJECT_DIR, 'plugins')),
-		// i18n
-		fs.copy(path.join(SOURCE_DIR, 'i18n'), path.join(PROJECT_DIR, 'i18n')),
-	]);
-}
-
-async function killiOSSimulator() {
-	return new Promise((resolve, reject) => {
-		spawn('killall', [ 'Simulator' ]).on('exit', resolve).on('error', reject);
-	});
-}
-
-/**
  * @param {string} platform 'android' || 'ios' || 'windows'
- * @param {string} [target] 'emulator' || 'simulator' || 'device' || 'wp-emulator'
+ * @param {string} [target] 'emulator' || 'simulator' || 'device'
  * @param {string} [deviceId] uuid of device/simulator to launch
- * @param {string} [architecture] only for 'windows' platform
  * @param {string} [deployType=undefined] 'development' || 'test'
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
  * @param {string} snapshotDir directory to place generated images
  * @param {Promise[]} snapshotPromises array to hold promises for grabbign generated images
+ * @returns {Promise<object>}
  */
-async function runBuild(platform, target, deviceId, architecture, deployType, deviceFamily, snapshotDir, snapshotPromises) {
+async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises) {
 
 	if (target === undefined) {
 		switch (platform) {
@@ -318,22 +295,16 @@ async function runBuild(platform, target, deviceId, architecture, deployType, de
 		}
 	}
 
-	if (platform === 'windows') {
-		if (target !== 'wp-emulator') {
-			args.push('--forceUnInstall');
-		}
-
-		if (architecture) {
-			args.push('--architecture');
-			args.push(architecture);
-		}
-	}
-
 	args.push('--no-prompt');
 	args.push('--color');
-	// TODO Use fork since we're spawning off another node process
 	const prc = spawn('node', args);
 	return handleBuild(prc, target, snapshotDir, snapshotPromises);
+}
+
+async function killiOSSimulator() {
+	return new Promise((resolve, reject) => {
+		spawn('killall', [ 'Simulator' ]).on('exit', resolve).on('error', reject);
+	});
 }
 
 /**
@@ -342,7 +313,7 @@ async function runBuild(platform, target, deviceId, architecture, deployType, de
  * @param {string} target 'emulator' || 'simulator' || 'device'
  * @param {string} snapshotDir directory to place generated images
  * @param {Promise[]} snapshotPromises array to hold promises for grabbign generated images
- * @returns {Promise<void>}
+ * @returns {Promise<object>}
  */
 async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	return new Promise((resolve, reject) => {
@@ -620,6 +591,12 @@ async function handleMismatchedImage(token, target, snapshotDir) {
 	return actual;
 }
 
+/**
+ * @param {string} platform 'ios' || 'android'
+ * @param {string} [target] 'emulator' || 'simulator' || 'device'
+ * @param {string} [deviceFamily] 'iphone' || 'ipad'
+ * @returns {string}
+ */
 function generateJUnitPrefix(platform, target, deviceFamily) {
 	let prefix = platform;
 	if (target) {
@@ -661,147 +638,6 @@ async function outputJUnitXML(jsonResults, prefix) {
 	const outFile = path.join(REPORT_DIR, `junit.${prefix}.xml`);
 	console.log(`JUnit test report written to ${outFile}`);
 	return fs.writeFile(outFile, r);
-}
-
-/**
- * Remove all CI SDKs installed. Skip GA releases, and skip the passed in SDK path we just installed.
- * @param  {String} sdkPath The SDK we just installed for testing. Keep this one in case next run can use it.
- * @returns {Promise<void>}
- */
-async function cleanNonGaSDKs(sdkPath) {
-	// FIXME Use fork since we're spawning off another node process!
-	const { stdout } = await exec(`node "${titanium}" sdk list -o json`);
-	const out = JSON.parse(stdout);
-	const installedSDKs = out.installed;
-	// Loop over the SDKs and remove any where the key doesn't end in GA, or the value isn't sdkPath
-	return Promise.all(Object.keys(installedSDKs).map(async item => {
-		const thisSDKPath = installedSDKs[item];
-		if (item.slice(-2) === 'GA') { // skip GA releases
-			return;
-		}
-		if (thisSDKPath === sdkPath) { // skip SDK we just installed
-			return;
-		}
-		console.log(`Removing ${thisSDKPath}`);
-		return fs.remove(thisSDKPath);
-	}));
-}
-
-/**
- * @return {Promise<string>} path to Titanium SDK root dir
- */
-async function sdkDir() {
-	try {
-		const { stdout, _stderr } = await exec(`node "${titanium}" config sdk.defaultInstallLocation -o json`);
-		return JSON.parse(stdout.trim());
-	} catch (error) {
-		const osName = require('os').platform();
-		if (osName === 'win32') {
-			return path.join(process.env.ProgramData, 'Titanium');
-		} else if (osName === 'darwin') {
-			return path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
-		} else if (osName === 'linux') {
-			return path.join(process.env.HOME, '.titanium');
-		}
-	}
-}
-
-/**
- * @param {string} sdkDir filepath to sdk install directory
- * @returns {Promise<void>}
- */
-async function cleanupModules(sdkDir) {
-	const moduleDir = path.join(sdkDir, 'modules');
-	const pluginDir = path.join(sdkDir, 'plugins');
-
-	return Promise.all([ moduleDir, pluginDir ].map(async dir => {
-		if (await fs.exists(dir)) {
-			console.log(`Removing ${dir}`);
-			await fs.remove(dir);
-		} else {
-			console.log(`${dir} doesnt exist`);
-		}
-	}));
-}
-
-/**
- * Installs a Titanium SDK to test against, generates a test app, then runs the
- * app for each platform with our mocha test suite. Outputs the results in a JUnit
- * test report, and holds onto the results in memory as a JSON object.
- *
- * @param {String} branch branch/zip/url of SDK to install. If null/undefined, no SDK will be installed
- * @param {String|String[]}	platforms [description]
- * @param {String} target Titanium target value to run the tests on
- * @param {String} deviceId Titanium device id target to run the tests on
- * @param {Boolean} skipSdkInstall Don't try to install an SDK from `branch`
- * @param {Boolean} cleanup Delete all the non-GA SDKs when done? Defaults to true if we installed an SDK
- * @param {String} architecture	Target architecture to build. Only valid on Windows
- * @param {string} [deployType] deployType
- * @param {string} [deviceFamily] 'ipad' || 'iphone'
- * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
- */
-async function test(branch, platforms, target, deviceId, skipSdkInstall, cleanup, architecture, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
-	// if we're not skipping sdk install and haven't specific whether to clean up or not, default to cleaning up non-GA SDKs
-	if (!skipSdkInstall && cleanup === undefined) {
-		cleanup = true;
-	}
-
-	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-
-	const dir = await sdkDir();
-
-	// Only ever do this in CI so unless someone changes this code,
-	// or for some reason these are set on your machine it will never
-	// remove when running locally. That way no way can be angry at me
-	if (process.env.JENKINS || process.env.JENKINS_URL) {
-		await cleanupModules(dir);
-	}
-
-	// install new SDK and delete old test app in parallel
-	await Promise.all([
-		(async () => {
-			if (!skipSdkInstall && branch) {
-				return installSDK(dir, branch);
-			}
-		})(),
-		clearPreviousApp(),
-	]);
-
-	// Record the SDK we just installed so we retain it when we clean up at end
-	const sdkPath = await getSDKInstallDir();
-
-	console.log('Generating project');
-	await generateProject(platforms);
-
-	await copyMochaAssets();
-	await addTiAppProperties();
-
-	// run build for each platform, and spit out JUnit report
-	const results = {};
-	for (const platform of platforms) {
-		const result = await runBuild(platform, target, deviceId, architecture, deployType, deviceFamily, snapshotDir, snapshotPromises);
-		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
-		results[prefix] = result;
-		await outputJUnitXML(result, prefix);
-	}
-
-	// If we're gathering images, make sure we get them all before we move on
-	if (snapshotPromises.length !== 0) {
-		await Promise.all(snapshotPromises);
-	}
-
-	if (cleanup) {
-		await cleanNonGaSDKs(sdkPath);
-	}
-
-	// Only ever do this in CI so unless someone changes this code,
-	// or for some reason these are set on your machine it will never
-	// remove when running locally. That way no way can be angry at me
-	if (process.env.JENKINS || process.env.JENKINS_URL) {
-		await cleanupModules(dir);
-	}
-
-	return results;
 }
 
 /**
