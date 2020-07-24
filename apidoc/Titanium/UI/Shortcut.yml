@@ -1,0 +1,92 @@
+---
+name: Titanium.UI.Shortcut
+summary: Manage application shortcuts.
+description: |
+    Allows the creation of application shortcuts, which can be detected using
+    the `click` event from <Titanium.UI.Shortcut>.
+
+    Use the <Titanium.UI.createShortcut> method to manage shortcut creation.
+    
+    In iOS, to use this feature make sure you have a 3D Touch compatible device. To
+    check for the feature, use the <Titanium.UI.iOS.forceTouchSupported> property.
+extends: Titanium.Proxy
+since: "9.1.0"
+platforms: [android, iphone, ipad]
+osver: {android: {min: "7.1"}}
+properties:
+  - name: items
+    summary: List current shortcuts.
+    type: Array<Titanium.UI.ShortcutItem>
+    permission: read-only
+
+  - name: staticItems
+    summary: List current pinned/static shortcuts.
+    type: Array<Titanium.UI.ShortcutItem>
+    permission: read-only
+
+methods:
+  - name: add
+    summary: Add shortcut to application.
+    parameters:
+      - name: item
+        summary: <Titanium.UI.ShortcutItem> to add.
+        type: Titanium.UI.ShortcutItem
+
+  - name: remove
+    summary: Remove shortcut from application.
+    parameters:
+      - name: item
+        summary: <Titanium.UI.ShortcutItem> to remove.
+        type: Titanium.UI.ShortcutItem
+
+  - name: removeAll
+    summary: Remove all shortcuts from application.
+
+  - name: getById
+    summary: Get shortcut by identifier.
+    parameters:
+      - name: id
+        summary: Identifier of shortcut to obtain.
+        type: String
+
+events:
+  - name: click
+    summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
+    properties:
+      - name: item
+        summary: The shortcut item clicked.
+        type: Titanium.UI.ShortcutItem
+    platforms: [iphone, ipad, android]
+    since: '9.1.0'
+
+examples:
+  - title: Simple Shortcut Example
+    example: |
+        Create a shortcut item and detect its click with the `click` event.
+
+        ``` javascript
+        const win = Ti.UI.createWindow({ backgroundColor: 'grey' });
+        
+        const shortcut = Ti.UI.createShortcut();
+        shortcut.addEventListener('click', e => {
+            console.log(`id: ${e.item.id}`);
+
+            // Set background to 'blue' on shortcut click event.
+            win.backgroundColor = 'blue';
+        });
+
+        // Button to add a shortcut item
+        const btn = Ti.UI.createButton({ title: 'ADD SHORTCUT' });
+        btn.addEventListener('click', () => {
+            // Add shortcut item to shortcut
+            const shortcutItem = Ti.UI.createShortcutItem({
+                id: 'test_shortcut',
+                title: 'TEST',
+                description: 'DESCRIPTION'
+            });
+            shortcut.add(shortcutItem);
+        });
+
+        win.add(btn);
+        win.open();
+        ```

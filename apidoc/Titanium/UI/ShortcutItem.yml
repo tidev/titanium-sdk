@@ -1,24 +1,64 @@
 ---
 name: Titanium.UI.ShortcutItem
-summary: An application shortcut.
+summary: An application shortcut item.
 description: |
-    Allows the creation of application shortcuts, which can be detected using
-    the `shortcutitemclick` event from <Titanium.App>.
+    Allows the creation of dynamic application shortcut items which can be set in the app to 
+    offer a dynamic behavior at runtime.
 
-    Use the <Titanium.UI.createShortcutItem> method to create a shortcut.
+    Use the <Titanium.UI.createShortcutItem> method to create a shortcut
+    and <Titanium.UI.createShortcut> to manage shortcuts.
 
+    #### iOS static shortcuts
+    Static shortcut items can be set in the `<ios>` section of the `tiapp.xml` before launching the app.
+
+    Here is an example how to create static application shortcuts in the `tiapp.xml`:
+    ``` xml
+    <ti:app>
+        <!-- ... -->
+        <ios>
+            <plist>  
+                <dict>
+                <key>UIApplicationShortcutItems</key>
+                <array>
+                    <dict>
+                        <key>UIApplicationShortcutItemIconType</key>
+                        <string>UIApplicationShortcutIconTypeSearch</string>
+                        <key>UIApplicationShortcutItemTitle</key>
+                        <string>My title</string>
+                        <key>UIApplicationShortcutItemSubtitle</key>
+                        <string>My subtitle</string>
+                        <key>UIApplicationShortcutItemType</key>
+                        <string>my_identifier</string>
+                        <key>UIApplicationShortcutItemUserInfo</key>
+                        <dict/>
+                    </dict>
+                </array>
+                </dict> 
+            </plist> 
+        </ios>
+        <!-- ... -->
+    </ti:app>
+    ```
+    Static shortcuts can be translated in the `i18n/<language>/app.xml` file. Dynamic shortcuts can be translated by using the
+    methods described [in the Wiki](https://wiki.appcelerator.org/display/guides2/Internationalization).
 extends: Titanium.Proxy
-since: "7.5.0"
-platforms: [android]
+since: { android: 7.5.0, iphone: 9.1.0, ipad: 9.1.0 }
+platforms: [android, iphone, ipad]
 
 methods:
   - name: show
     summary: Allow the shortcut to show.
     platforms: [android]
+    deprecated:
+        since: "9.1.0"
+        notes: Use [Titanium.UI.Shortcut.add](Titanium.UI.Shortcut.add) instead.
 
   - name: hide
     summary: Hide the shortcut.
     platforms: [android]
+    deprecated:
+        since: "9.1.0"
+        notes: Use [Titanium.UI.Shortcut.remove](Titanium.UI.Shortcut.remove) instead.
 
   - name: pin
     summary: Pin shortcut to launcher.
@@ -30,56 +70,66 @@ properties:
     summary: Determines shortcut id.
     description: This should be a unique identifier for the shortcut.
     type: String
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     availability: creation
 
   - name: title
     summary: Title of the shortcut.
+    description: |
+        In iOS the title can be localized. See [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        for more infos.
     type: String
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     availability: creation
 
   - name: description
     summary: Description of the shortcut.
+    description: |
+        In iOS the description can be localized. See [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        for more infos. 
     type: String
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     availability: creation
 
   - name: icon
     summary: Shortcut icon.
-    description: This can be set as a resource id or file path.
+    description: |
+        This can be set as a resource id or file path.
+
+        In iOS, you can use constants Titanium.UI.iOS.SHORTCUT_ICON_TYPE_* or a reference to a
+        <Titanium.Contacts.Person> as well. On iOS 13 and higher, you can pass in the Ti.Blob instance returned from <Ti.UI.iOS.systemImage> also.
+
+        In iOS, if you are using an image file, enable slicing (adding the image to an asset catalog) for
+        the project. To enable slicing, add the `use-app-thinning` element to the `ios` element in the
+        `tiapp.xml` file and set the value to `true`. If you do not enable slicing, the image will
+        not be displayed.
+
+        ``` xml
+        <ti:app>
+            <ios>
+            <use-app-thinning>true</use-app-thinning>
+            </ios>
+        </ti:app>
+        ```
+
+        The recommended size for image files is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationshortcuticon)  
+        for more information on shortcut icons.
     type: [String, Number]
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     availability: creation
 
-examples:
-  - title: Simple ShortcutItem Example
-    example: |
-        Create a shortcut item and detect its click with the `shortcutitemclick` event.
+  - name: data
+    summary: Shortcut data.
+    description: Additional data that can be stored with the shortcut.
+    type: Object
+    platforms: [android, iphone, ipad]
+    availability: creation
 
-        ``` js
-        var win = Ti.UI.createWindow({ backgroundColor: 'grey' }),
-            btn = Ti.UI.createButton({ title: 'TOGGLE SHORTCUT' }),
-            shortcut = Ti.UI.createShortcutItem({
-                id: 'test_shortcut',
-                title: 'TEST',
-                description: 'DESCRIPTION'
-            });
-
-        Ti.App.addEventListener('shortcutitemclick', function () {
-            win.backgroundColor = 'blue';
-        });
-
-        btn.addEventListener('click', function () {
-            if (shortcut.visible) {
-                win.backgroundColor = 'red';
-                shortcut.hide();
-            } else {
-                win.backgroundColor = 'green';
-                shortcut.show();
-            }
-        });
-
-        win.add(btn);
-        win.open();
-        ```
+  - name: visible
+    summary: Shortcut visibility.
+    description: Determines if the shortcut is visible.
+    type: Boolean
+    platforms: [android]
+    deprecated:
+        since: "9.1.0"
+        notes: Use [Titanium.UI.Shortcut.items](Titanium.UI.Shortcut.items) to determine if shortcut is active.
