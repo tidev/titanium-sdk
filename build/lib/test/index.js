@@ -1,15 +1,13 @@
 'use strict';
 
-const promisify = require('util').promisify;
 const path = require('path');
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const LOCAL_TESTS = path.join(ROOT_DIR, 'tests');
-const tests = require('./test');
+const { test, outputResults } = require('./test');
 
 /**
- * Wipes and re-clones the mocha common test suite, then runs our unit testing script for the
- * SDK zipfile in dist against the supplied platforms.
+ * Runs our unit testing script against the supplied platforms for the currently select SDK in `ti` cli.
  *
  * @param {string[]} platforms array of platform names for which we should run tests
  * @param {object} program object holding options/switches from CLI
@@ -20,23 +18,22 @@ const tests = require('./test');
  * @returns {Promise<object>} returns an object whose keys are platform names
  */
 async function runTests(platforms, program) {
-	// Load up the main script
-	const test = promisify(tests.test);
-
-	// Run the tests
 	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, path.join(LOCAL_TESTS, 'Resources'));
 }
 
-async function outputResults(results) {
-	const output = promisify(tests.outputResults);
+/**
+ * @param {object} results
+ * @returns {Promise<void>}
+ */
+async function outputMultipleResults(results) {
 	const platforms = Object.keys(results);
 	for (const p of platforms) {
 		console.log();
 		console.log('=====================================');
 		console.log(p.toUpperCase());
 		console.log('-------------------------------------');
-		await output(results[p].results);
+		await outputResults(results[p].results);
 	}
 }
 
-module.exports = { runTests, outputResults };
+module.exports = { runTests, outputMultipleResults };

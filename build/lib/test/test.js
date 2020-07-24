@@ -12,7 +12,7 @@ const ejs = require('ejs');
 const StreamSplitter = require('stream-splitter');
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const titanium = require.resolve('titanium');
-const { callbackify, promisify } = require('util');
+const { promisify } = require('util');
 const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 
 const ROOT_DIR = path.join(__dirname, '../../..');
@@ -32,14 +32,14 @@ const TEST_SUITE_STOP = '!TEST_RESULTS_STOP!';
 const OS_VERSION_PREFIX = 'OS_VERSION: ';
 
 /**
- * Installs a Titanium SDK to test against, generates a test app, then runs the
- * app for each platform with our mocha test suite. Outputs the results in a JUnit
- * test report, and holds onto the results in memory as a JSON object.
+ * Generates a test app, then runs the app for each platform with our
+ * test suite. Outputs the results in a JUnit test report,
+ * and holds onto the results in memory as a JSON object (returned to caller)
  *
- * @param {String|String[]}	platforms [description]
- * @param {String} [target] Titanium target value to run the tests on
+ * @param {String|String[]}	platforms lits of platforms to build/run against
+ * @param {String} [target] Titanium target value to run the tests on, i.e. 'device' || 'emulator' || 'simulator'
  * @param {String} [deviceId] Titanium device id target to run the tests on
- * @param {string} [deployType] deployType
+ * @param {string} [deployType] 'development' || 'test'
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @returns {Promise<object>}
@@ -701,5 +701,5 @@ async function outputResults(results) {
 }
 
 // public API
-exports.test = callbackify(test);
-exports.outputResults = callbackify(outputResults);
+exports.test = test;
+exports.outputResults = outputResults;

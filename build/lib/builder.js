@@ -83,9 +83,9 @@ class Builder {
 	}
 
 	async test() {
-		const { runTests, outputResults } = require('./test');
+		const { runTests, outputMultipleResults } = require('./test');
 		const results = await runTests(this.platforms, this.program);
-		return outputResults(results);
+		return outputMultipleResults(results);
 	}
 
 	async ensureGitHash() {
