@@ -38,7 +38,7 @@ describe('Titanium.UI.WebView', function () {
 		});
 
 		webView.addEventListener('load', function () {
-			webView.findString('google', function(e) {
+			webView.findString('google', function (e) {
 				if (e.success) {
 					finish();
 				} else {
@@ -58,7 +58,7 @@ describe('Titanium.UI.WebView', function () {
 		});
 
 		webView.addEventListener('load', function () {
-			webView.createPdf(function(e) {
+			webView.createPdf(function (e) {
 				if (e.success) {
 					should(e.data).be.an.object;
 					finish();
