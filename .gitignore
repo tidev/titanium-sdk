@@ -13,7 +13,7 @@
 ._*
 npm-debug.log
 
-node_modules/
+/node_modules
 
 retirejs.output.json
 
@@ -22,6 +22,7 @@ retirejs.output.json
 /titanium-mobile-mocha-suite
 junit.*.xml
 junit_report.xml
+/tmp
 
 /android/.project
 /android/app/.classpath
