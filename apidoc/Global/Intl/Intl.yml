@@ -1,5 +1,5 @@
 ---
-name: Intl
+name: Global.Intl
 summary: Namespace providing JavaScript's standard internationalization APIs.
 description: |
     Provides support for localized number formatting, date/time formatting,
