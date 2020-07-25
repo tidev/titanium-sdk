@@ -19,7 +19,13 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
+import android.os.Build;
+import android.util.TypedValue;
 import android.view.View;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewHolder;
@@ -81,6 +87,10 @@ public class TableViewRowProxy extends TiViewProxy
 
 			row.processProperties(this.properties);
 
+			// Apply ripple effect.
+			final Drawable background = generateRippleDrawable(nativeView.getBackground());
+			nativeView.setBackground(background);
+
 			// TODO: Implement native item selection.
 			// Create a new selector using new background.
 			/*final StateListDrawable selector = new StateListDrawable();
@@ -88,6 +98,25 @@ public class TableViewRowProxy extends TiViewProxy
 			selector.addState(new int[] {}, nativeView.getBackground());
 			nativeView.setBackground(selector);*/
 		}
+	}
+
+	protected Drawable generateRippleDrawable(Drawable drawable)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			if (!(drawable instanceof RippleDrawable)) {
+				final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
+				final TypedValue typedValue = new TypedValue();
+				final TypedArray colorControlHighlight = getActivity().obtainStyledAttributes(
+					typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+				final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
+				final int[] rippleColors = new int[] { colorControlHighlightInt };
+				final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+
+				// Create the RippleDrawable.
+				drawable = new RippleDrawable(colorStateList, drawable, null);
+			}
+		}
+		return drawable;
 	}
 
 	public void invalidate()
