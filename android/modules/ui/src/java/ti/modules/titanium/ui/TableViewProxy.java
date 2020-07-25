@@ -164,7 +164,7 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void appendRow(Object rows, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		TiViewProxy[] rowList =
+		final TiViewProxy[] rowList =
 			rows instanceof Object[] ? (TiViewProxy[]) rows : new TiViewProxy[] { (TiViewProxy) rows };
 
 		this.data.addAll(Arrays.asList(rowList));
@@ -174,7 +174,7 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void appendSection(Object sections, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		TiViewProxy[] rowList =
+		final TiViewProxy[] rowList =
 			sections instanceof Object[] ? (TiViewProxy[]) sections : new TiViewProxy[] { (TiViewProxy) sections };
 
 		this.data.addAll(Arrays.asList(rowList));
@@ -185,7 +185,7 @@ public class TableViewProxy extends TiViewProxy
 	public void deleteRow(Object row, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		if (row instanceof Integer) {
-			int index = ((Integer) row).intValue();
+			final int index = ((Integer) row).intValue();
 			this.data.remove(getRowByIndex(index));
 		} else if (row instanceof TableViewRowProxy) {
 			this.data.remove(row);
@@ -204,51 +204,66 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void updateRow(int index, TableViewRowProxy row)
+	public void updateRow(int index, TableViewRowProxy row, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		int rawIndex = this.data.indexOf(getRowByIndex(index));
-		this.data.set(rawIndex, row);
+		final int rawIndex = this.data.indexOf(getRowByIndex(index));
+		if (rawIndex > -1) {
+			this.data.set(rawIndex, row);
+			update();
+		}
 	}
 
 	@Kroll.method
-	public void updateSection(int index, TableViewSectionProxy section)
+	public void updateSection(int index, TableViewSectionProxy section,
+							  @Kroll.argument(optional = true) KrollDict animation)
 	{
-		int rawIndex = this.data.indexOf(getSectionByIndex(index));
-		this.data.set(rawIndex, section);
+		final int rawIndex = this.data.indexOf(getSectionByIndex(index));
+		if (rawIndex > -1) {
+			this.data.set(rawIndex, section);
+			update();
+		}
 	}
 
 	@Kroll.method
 	public void insertRowAfter(int index, TableViewRowProxy row, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		int rawIndex = this.data.indexOf(getRowByIndex(index));
-		this.data.add(rawIndex + 1, row);
-		update();
+		final int rawIndex = this.data.indexOf(getRowByIndex(index));
+		if (rawIndex > -1) {
+			this.data.add(rawIndex + 1, row);
+			update();
+		}
 	}
 
 	@Kroll.method
 	public void insertRowBefore(int index, TableViewRowProxy row)
 	{
-		int rawIndex = this.data.indexOf(getRowByIndex(index));
-		this.data.add(rawIndex, row);
-		update();
+		final int rawIndex = this.data.indexOf(getRowByIndex(index));
+		if (rawIndex > -1) {
+			this.data.add(rawIndex, row);
+			update();
+		}
 	}
 
 	@Kroll.method
 	public void insertSectionAfter(int index, TableViewSectionProxy section,
 								   @Kroll.argument(optional = true) KrollDict animation)
 	{
-		int rawIndex = this.data.indexOf(getSectionByIndex(index));
-		this.data.add(rawIndex + 1, section);
-		update();
+		final int rawIndex = this.data.indexOf(getSectionByIndex(index));
+		if (rawIndex > -1) {
+			this.data.add(rawIndex + 1, section);
+			update();
+		}
 	}
 
 	@Kroll.method
 	public void insertSectionBefore(int index, TableViewSectionProxy section,
 									@Kroll.argument(optional = true) KrollDict animation)
 	{
-		int rawIndex = this.data.indexOf(getSectionByIndex(index));
-		this.data.add(rawIndex, section);
-		update();
+		final int rawIndex = this.data.indexOf(getSectionByIndex(index));
+		if (rawIndex > -1) {
+			this.data.add(rawIndex, section);
+			update();
+		}
 	}
 
 	@Kroll.method
@@ -288,7 +303,9 @@ public class TableViewProxy extends TiViewProxy
 	public void selectRow(int index)
 	{
 		final TableViewRowProxy row = getRowByIndex(index);
-		((TableViewAdapter) getTableView().getRecyclerView().getAdapter()).getTracker().select(row);
+		if (row != null) {
+			((TableViewAdapter) getTableView().getRecyclerView().getAdapter()).getTracker().select(row);
+		}
 	}
 
 	@Kroll.method
