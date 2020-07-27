@@ -51,8 +51,8 @@
 			"integrity": "sha512-/823uyjx5KL3kqCoyMGVjm7+S6KG8y0E8IYXMuf4JoO41gwcbSxIebltwzo/RyYGcYycVFnHqtudKOh0zN65aQ=="
 		},
 		"ti.identity": {
-			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/v3.0.1-android/ti.identity-android-3.0.1.zip",
-			"integrity": "sha512-nLFmDXRlqa6vzbjBlUEkyvXJadxwxdj5WWg6GuRb3v886UJFqWYE4BNR+bZ/qjBBiG5d9aVkA2iV4jqwDFFZqg=="
+			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/v3.0.2-android/ti.identity-android-3.0.2.zip",
+			"integrity": "sha512-/GmwX41I1F3qqXgZY736j9tHRNVrR5F9i0LIeVXANCgB26nGrFGNWHHP1Yts3R//imXwoVXBPyDjZHX/oV1QAg=="
 		}
 	},
 	"commonjs": {
