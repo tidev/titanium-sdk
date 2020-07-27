@@ -1,5 +1,5 @@
 ---
-name: DateTimeFormat
+name: Global.Intl.DateTimeFormat
 summary: Immutable object used to generate localized date and time formatted strings.
 description: |
     A `DateTimeFormat` object is used to format a `Date` object to a localized date and/or time string.
@@ -142,21 +142,27 @@ properties:
 
       #### Parameters
 
-      *    locales: [String](Global.String)/Array<[String](Global.String)> (optional)
+      *    `locales`: [String](Global.String)/[String](Global.String)`[]` (optional)
+
            The [BCP 47](https://www.unicode.org/reports/tr35/tr35.html#BCP_47_Conformance) language and country
            code(s) to use for localized formatting. Can provide multiple locales where the best-supported
            locale will be favored in the order provided by the array. If parameter is not assigned, then
-           the system may use the 'en-US' locale by default instead of the system's current locale.
+           the system may use the `'en-US'` locale by default instead of the system's current locale.
            It's recommended to set this parameter using <Titanium.Locale.currentLocale>.
-      *    options: <DateTimeFormatOptions> (optional)
+
+      *    `options`: <DateTimeFormatOptions> (optional)
+
            Provides settings indicating how a `Date` object should be formatted to a `String`.
 
-    type: DateTimeFormat
+    type: Global.Intl.DateTimeFormat
     permission: read-only
 
 ---
 name: DateTimeFormatOptions
-summary: Options to be passed into the <DateTimeFormat.constructor> method.
+summary: Options to be passed into the <Global.Intl.DateTimeFormat.constructor> method.
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
 properties:
   - name: dateStyle
     type: String
@@ -177,7 +183,7 @@ properties:
 
   - name: timeStyle
     type: String
-    summary: Specifies the locale's built-in hour, month, and second formatting styles.
+    summary: Specifies the locale's built-in hour, minute, and second formatting styles.
     description: |
       Can be set to one of the following:
 
@@ -348,5 +354,5 @@ properties:
     description: |
       Can be set to one of the following:
 
-      *    `'short'` Outputs the GMT offset such as `'GMT+8'` for US Pacific Time.
+      *    `'short'` Outputs the GMT offset such as `'GMT-8'` for US Pacific Time.
       *    `'long'` Outputs the full time zone name such as `'British Summer Time'`.

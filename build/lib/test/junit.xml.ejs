@@ -1,0 +1,72 @@
+<testsuites name="Mocha Tests">
+<%
+suites.forEach(function(currentSuite)
+{
+-%>
+	<testsuite name="<%= prefix ? (prefix + '.') : '' %><%= currentSuite.suite %>"
+		tests="<%= currentSuite.tests.length %>"
+		failures="<%= currentSuite.failures %>"
+		skipped="<%= (currentSuite.tests.length - currentSuite.failures - currentSuite.passes) %>"
+		timestamp="<%= currentSuite.start %>"
+		time="<%= currentSuite.duration / 1000.0 %>">
+
+<%
+	if (currentSuite.tests.length === 0 && currentSuite.failures > 0) {
+-%>
+		<testcase classname="<%= prefix ? (prefix + '.') : '' %><%= currentSuite.suite %>"
+			name="<%= prefix ? (prefix + '.') : '' %><%= currentSuite.suite %> before">
+			<failure message="Failed during before hook" />
+		</testcase>
+<%
+	} else {
+		currentSuite.tests.forEach(function(test) {
+
+		let title = test.title;
+		if (test.device) {
+			title += ` (${test.device}`;
+			if (test.os_version) {
+				title += ` - ${test.os_version}`;
+			}
+			title += ')';
+		} else if (test.os_version) {
+			title += ` (${test.os_version})`;
+		}
+-%>
+		<testcase
+		 classname="<%= prefix ? (prefix + '.') : '' %><%= currentSuite.suite %>"
+		 name="<%= title %>"
+		 time="<%= (test.duration / 1000.0) %>">
+<% 			if (test.state == "failed") {
+				if (test.error.name === 'AssertionError') { -%>
+			<failure message="<%= test.message %>" type="<%= test.error.name ? test.error.name : 'Error' %>">
+<%  // TODO Do a unified diff here! See https://github.com/futurice/mocha-jenkins-reporter/blob/master/lib/jenkins.js -%>
+				<%= test.stack %>
+			</failure>
+<% 				} else { -%>
+			<error message="<%= test.message %>" type="<%= test.error.name ? test.error.name : 'Error' %>">
+				<%= test.stack %>
+			</error>
+<% 				}
+			} else if (test.state === 'skipped') { -%>
+			<skipped/>
+<% 			} -%>
+<% 		if (test.stdout) { -%>
+			<system-out><![CDATA[
+<%= test.stdout.replace(/[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u10000-\u10FFFF]/g,''); %>
+]]></system-out>
+<% 		}
+		if (test.stderr) { -%>
+			<system-err><![CDATA[
+<%= test.stderr.replace(/[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u10000-\u10FFFF]/g,''); %>
+]]></system-err>
+<% 		} -%>
+		</testcase>
+<%
+		});
+	}
+-%>
+	</testsuite>
+<%
+});
+-%>
+</testsuites>

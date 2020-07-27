@@ -1,79 +1,55 @@
 # Releasing the SDK
 
-## Migrating tests to suite
-
-It's a good habit to migrate any overriden/added tests from the branch over to the suite before cutting a new branch.
-
-Typically this involves copying any resources from tests/Resources over to titanium-mobile-mocha-suite/Resources.
-For files with the `addontest.js` suffix, you'll want to manually merge over the added tests into the existing suite for the API,
-i.e. `tests/Resources/ti.ui.tableview.addontest.js` tests should be copy-pasted into `titanium-mobile-mocha-suite/Resources/ti.ui.tableview.test.js`
-
-Typical steps:
-
-    # Copy new tests over to suite
-    mv tests/Resources/*.test.js ../titanium-mobile-mocha-suite/Resources
-	git add tests/
-	git commit -m "test: migrate overridden tests to suite"
-	git push origin master
-	# NOTE: you'll need to handle addontest.js files manually
-	cd ../titanium-mobile-mocha-suite
-	# Now edit the app.js to add a require for any new test.js files!
-	git add Resources
-	git commit -m "test: migrate overridden tests from SDK"
-	git push origin master
-
-NOTE: the `tests/Resources/ti.example.addontest.js` should remain in the SDK!
-
 ## Cutting a maintenance branch
 
 Typically before a release we generate a new maintenance branch for it, i.e. `9_0_X`
 
-We need to do this for a few repositories: 
-- appcelerator/titanium_mobile
-- appcelerator/titanium-mobile-mocha-suite
-- appcelerator/titanium_mobile_windows (for SDKs < 9)
-
-The process typically is to create the branch off the `master` branch for new major relese, or off the 
+The process typically is to create the branch off the `master` branch for new major relese, or off the
 previous maintenance branch for new minors.
 
 Examples:
 
-**Major New Release**
+### Major New Release
 
-	git checkout master
+``` sh
+git checkout master
 
-	# Create 9_0_X branch and push it to github
-	git checkout -b 9_0_X
-	git push origin 9_0_X
+# Create 9_0_X branch and push it to github
+git checkout -b 9_0_X
+git push origin 9_0_X
 
-	# Bump version on master to 9.1.0 and push to github
-	git checkout master
-	npm --no-git-tag-version version minor
-	git add package.json
-	git add package-lock.json
-	git commit -m "chore(release): bump version to 9.1.0"
-	git push origin master # NOTE that non-admins will likely have to open a PR to achieve this rather than directly push to master
+# Bump version on master to 9.1.0 and push to github
+git checkout master
+npm --no-git-tag-version version minor
+git add package.json
+git add package-lock.json
+git commit -m "chore(release): bump version to 9.1.0"
+git push origin master # NOTE that non-admins will likely have to open a PR to achieve this rather than directly push to master
+```
 
-**Minor New Release**
+### Minor New Release
 
-	git checkout 8_3_X
+``` sh
+git checkout 8_3_X
 
-	# Create 8_4_X branch, update version, push it to github
-	git checkout -b 8_4_X
-	npm --no-git-tag-version version minor
-	git add package.json
-	git add package-lock.json
-	git commit -m "chore(release): bump version to 8.4.0"
-	git push origin 8_4_X  # NOTE that non-admins will likely have to open a PR to achieve this rather than directly push to branch
-
+# Create 8_4_X branch, update version, push it to github
+git checkout -b 8_4_X
+npm --no-git-tag-version version minor
+git add package.json
+git add package-lock.json
+git commit -m "chore(release): bump version to 8.4.0"
+git push origin 8_4_X  # NOTE that non-admins will likely have to open a PR to achieve this rather than directly push to branch
+```
 
 ### Updating milestones of PRs
 
 It's important to take any existing PRs that are open against the master branch and re-assign the new milestone to them of the updated master target version. i.e. If we cut a `9_0_X` branch, assign all the open 9.0.0 PRs against master to have a new milestone of 9.1.0.
-    
+
 Github Issue filter example:
 
-	is:pr is:open milestone:9.0.0 base:master 
+```
+is:pr is:open milestone:9.0.0 base:master
+```
 
 ### Inform the team
 
@@ -83,16 +59,20 @@ Let everyone know the new branch was cut and that bugfixes will need backports o
 
 The changelogs can be generated with an npm script and are the raw input for generating the eventual Release Notes.
 
-    npm run build:changelog
+``` sh
+npm run build:changelog
+```
 
 The CHANGELOG.md should be updated based on the commit history.
 It will likely need some "massaging" to combine community contributions made by members using different logins/emails that are the same underlying user/contributor.
 
 This updated file can be checked in and pushed up via git.
 
-    git add CHANGELOG.md
-	git commit -m "docs(changelog): updated for version 9.0.0"
-	git push origin master
+``` sh
+git add CHANGELOG.md
+git commit -m "docs(changelog): updated for version 9.0.0"
+git push origin master
+```
 
 ## Release Notes
 
@@ -100,7 +80,7 @@ Once the changelog has been generated, I typically open it in an editor like VSC
 
 ### Staging Release Notes
 
-When we generate release notes in advance of a release, you need to be careful not to place it where our doc jobs will export it to docs.appcelerator.com yet. We typically place "staged" notes under https://wiki.appcelerator.org/display/DB/SDK+Releases 
+When we generate release notes in advance of a release, you need to be careful not to place it where our doc jobs will export it to docs.appcelerator.com yet. We typically place "staged" notes under https://wiki.appcelerator.org/display/DB/SDK+Releases
 
 Copy an existing page there, rename it to reflect the new release version and then paste the generated changelog HTML in as the contents.
 
