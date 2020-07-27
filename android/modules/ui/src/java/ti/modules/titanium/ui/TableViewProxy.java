@@ -354,7 +354,7 @@ public class TableViewProxy extends TiViewProxy
 			|| getProperties().containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			final String headerTitle = getProperties().getString(TiC.PROPERTY_HEADER_TITLE);
 			final KrollProxy headerView = (KrollProxy) getProperties().get(TiC.PROPERTY_HEADER_VIEW);
-			final TableViewRowProxy row = new HeaderRow();
+			final TableViewRowProxy row = new TableViewRowProxy();
 			final KrollDict dict = new KrollDict();
 
 			// Create empty row with only header defined.
@@ -372,7 +372,7 @@ public class TableViewProxy extends TiViewProxy
 			|| getProperties().containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 			final String footerTitle = getProperties().getString(TiC.PROPERTY_FOOTER_TITLE);
 			final KrollProxy footerView = (KrollProxy) getProperties().get(TiC.PROPERTY_FOOTER_VIEW);
-			final TableViewRowProxy row = new FooterRow();
+			final TableViewRowProxy row = new TableViewRowProxy();
 			final KrollDict dict = new KrollDict();
 
 			// Create empty row with only footer defined.
@@ -390,8 +390,4 @@ public class TableViewProxy extends TiViewProxy
 	{
 		return "Ti.UI.TableView";
 	}
-
-	public class HeaderRow extends TableViewRowProxy {}
-
-	public class FooterRow extends TableViewRowProxy {}
 }

@@ -223,8 +223,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	{
 		int i = 0;
 		for (TableViewRowProxy row : this.rows) {
-			if (row instanceof TableViewProxy.HeaderRow
-				|| row instanceof TableViewProxy.FooterRow) {
+			final KrollDict properties = row.getProperties();
+			if (properties.containsKey(TiC.PROPERTY_HEADER)
+				|| properties.containsKey(TiC.PROPERTY_HEADER_VIEW)
+				|| properties.containsKey(TiC.PROPERTY_FOOTER)
+				|| properties.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
 				continue;
 			}
 			row.index = i++;

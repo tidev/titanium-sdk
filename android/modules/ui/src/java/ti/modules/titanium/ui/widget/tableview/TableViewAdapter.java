@@ -79,9 +79,8 @@ public class TableViewAdapter extends RecyclerView.Adapter<TableViewHolder>
 		final boolean selected = tracker != null ? tracker.isSelected(row) : false;
 
 		// Update TableViewHolder with new model data.
-		if (row.getHolder() != holder || selected) {
-			holder.bind(row, selected);
-		}
+		// TODO: Optimize `bind()`.
+		holder.bind(row, selected);
 	}
 
 	@Override
