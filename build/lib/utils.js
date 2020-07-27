@@ -463,14 +463,7 @@ Utils.cleanupModules = async function cleanupModules(sdkDir) {
 	const moduleDir = path.join(sdkDir, 'modules');
 	const pluginDir = path.join(sdkDir, 'plugins');
 
-	return Promise.all([ moduleDir, pluginDir ].map(async dir => {
-		if (await fs.exists(dir)) {
-			console.log(`Removing ${dir}`);
-			await fs.remove(dir);
-		} else {
-			console.log(`${dir} doesnt exist`);
-		}
-	}));
+	return Promise.all([ moduleDir, pluginDir ].map(dir => fs.remove(dir)));
 };
 
 module.exports = Utils;
