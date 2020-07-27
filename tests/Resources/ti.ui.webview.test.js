@@ -14,6 +14,7 @@ describe('Titanium.UI.WebView', function () {
 	this.slow(3000);
 	this.timeout(30000);
 
+	const isiOS14 =  (parseInt(Ti.Platform.version.split('.')[0]) >= 14);
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {
@@ -727,5 +728,76 @@ describe('Titanium.UI.WebView', function () {
 			url: 'https://www.google.com'
 		});
 		should(webView).have.a.property('progress').which.is.a.Number(); // should default to 0 until we start loading the page.
+	});
+
+	it.ios('#findString', function (finish) {
+		if (!isiOS14) {
+			finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.findString('google', function (e) {
+				if (e.success) {
+					finish();
+				} else {
+					finish(e.error);
+				}
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('#createPdf', function (finish) {
+		if (!isiOS14) {
+			finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.createPdf(function (e) {
+				if (e.success) {
+					should(e.data).be.an.object;
+					finish();
+				} else {
+					finish(e.error);
+				}
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('#createWebArchive', function (finish) {
+		if (!isiOS14) {
+			finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.createWebArchive(function (e) {
+				if (e.success) {
+					should(e.data).be.an.object;
+					finish();
+				} else {
+					finish(e.error);
+				}
+			});
+		});
+
+		win.add(webView);
+		win.open();
 	});
 });
