@@ -447,4 +447,52 @@ describe('Titanium.Blob', function () {
 		});
 		win.open();
 	});
+
+	describe('#toArrayBuffer()', () => {
+		it('is a Function', () => {
+			const buffer = Ti.createBuffer({ value: '' });
+			const blob = buffer.toBlob();
+			should(blob.toArrayBuffer).be.a.Function();
+		});
+
+		it('returns ArrayBuffer holding expected bytes', () => {
+			const buffer = Ti.createBuffer({ value: 'This is a string', type: Ti.Codec.ASCII });
+			const blob = buffer.toBlob();
+			const arrayBuffer = blob.toArrayBuffer();
+			const array = new Uint8Array(arrayBuffer);
+			should(array.length).eql(16); // single byte characters in ASCII
+			should(array[0]).eql(84); // ascii decimal code for 'T'
+			should(array[4]).eql(32); // ascii decimal code for ' '
+			should(array[5]).eql(105); // ascii decimal code for 'i'
+			should(array[6]).eql(115); // ascii decimal code for 's'
+		});
+	});
+
+	describe('#arrayBuffer()', () => {
+		it('is a Function', () => {
+			const buffer = Ti.createBuffer({ value: '' });
+			const blob = buffer.toBlob();
+			should(blob.arrayBuffer).be.a.Function();
+		});
+
+		it('returns Promise which resolves to ArrayBuffer holding expected bytes', finish => {
+			const buffer = Ti.createBuffer({ value: 'This is a string', type: Ti.Codec.ASCII });
+			const blob = buffer.toBlob();
+			const promise = blob.arrayBuffer();
+			promise.then(arrayBuffer => {
+				// eslint-disable-next-line promise/always-return
+				try {
+					const array = new Uint8Array(arrayBuffer);
+					should(array.length).eql(16); // single byte characters in ASCII
+					should(array[0]).eql(84); // ascii decimal code for 'T'
+					should(array[4]).eql(32); // ascii decimal code for ' '
+					should(array[5]).eql(105); // ascii decimal code for 'i'
+					should(array[6]).eql(115); // ascii decimal code for 's'
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			}).catch(err => finish(err));
+		});
+	});
 });
