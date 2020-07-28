@@ -58,10 +58,10 @@ try {
 }
 
 android {
-	compileSdkVersion 29
+	compileSdkVersion 30
 	defaultConfig {
 		minSdkVersion 19
-		targetSdkVersion 29
+		targetSdkVersion 30
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
 		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
