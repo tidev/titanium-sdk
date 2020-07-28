@@ -35,6 +35,8 @@ import android.os.Looper;
 import android.view.Window;
 
 import ti.modules.titanium.ui.ShortcutItemProxy;
+import ti.modules.titanium.ui.ShortcutProxy;
+import ti.modules.titanium.ui.UIModule;
 
 public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
 {
@@ -382,17 +384,30 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			if (shortcutId != null) {
 				final KrollModule appModule = getTiApp().getModuleByName("App");
 				final KrollModule shortcutModule = getTiApp().getModuleByName("Shortcut");
+				final KrollModule uiModule = getTiApp().getModuleByName("UI");
+
 				if (appModule != null) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_ID, shortcutId);
 					appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
 				}
-				if (shortcutModule != null && shortcutProperties != null) {
+				if (shortcutProperties != null) {
 					final KrollDict data = new KrollDict();
 					final ShortcutItemProxy item = new ShortcutItemProxy();
+
 					item.handleCreationDict(shortcutProperties);
 					data.put(TiC.PROPERTY_ITEM, item);
-					shortcutModule.fireEvent(TiC.EVENT_CLICK, data);
+
+					if (shortcutModule != null) {
+						shortcutModule.fireEvent(TiC.EVENT_CLICK, data);
+					}
+					if (uiModule != null) {
+						final ShortcutProxy shortcutProxy = (ShortcutProxy) ((UIModule) uiModule).createShortcut();
+
+						if (shortcutProxy != null) {
+							shortcutProxy.fireEvent(TiC.EVENT_CLICK, data);
+						}
+					}
 				}
 			}
 

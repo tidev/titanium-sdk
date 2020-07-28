@@ -393,9 +393,11 @@ public class UIModule extends KrollModule
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
+	private static ShortcutProxy shortcutProxy = null;
+
 	public UIModule()
 	{
-		super();
+		super("UI");
 
 		// Register the module's broadcast receiver.
 		final UIModule.Receiver broadcastReceiver = new UIModule.Receiver(this);
@@ -562,6 +564,11 @@ public class UIModule extends KrollModule
 	@Kroll.method
 	public KrollProxy createShortcut()
 	{
-		return new ShortcutProxy();
+		// Always return same `Ti.UI.Shortcut` instance.
+		// This is so we can fire `click` events without needing to track multiple `ShortcutProxy` instances.
+		if (shortcutProxy == null) {
+			shortcutProxy = new ShortcutProxy();
+		}
+		return shortcutProxy;
 	}
 }
