@@ -11,7 +11,10 @@ const AndroidBuilder = require('../../build/lib/android');
 const Builder = require('../../build/lib/builder');
 const BuildUtils = require('../../build/lib/utils');
 const util = require('util');
-const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
+const ejs = require('ejs');
+const child_process = require('child_process'); // eslint-disable-line security/detect-child-process
+const exec = util.promisify(child_process.exec);
+const execFile = util.promisify(child_process.execFile);
 const fs = require('fs-extra');
 const path = require('path');
 const request = require('request-promise-native');
@@ -43,6 +46,75 @@ async function loadPackageJson() {
 }
 
 /**
+ * Debug snapshot generation locally.
+ */
+async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
+
+	// Generate startup.js
+	const STARTUP_PATH = path.join(__dirname, '../../dist/tmp', 'startup.js');
+	await fs.writeFile(STARTUP_PATH, `this._startSnapshot = global => { ${rollupFileContent} };`);
+
+	const packageJsonData = await loadPackageJson();
+	const v8TargetVersion = packageJsonData.v8.version;
+	const v8TargetMode = packageJsonData.v8.mode;
+	const V8_LIB_DIRECTORY = path.join(__dirname, '../../dist/android/libv8', v8TargetVersion, v8TargetMode, 'libs');
+
+	// Obtain V8 architectures.
+	const archs = (await fs.readdir(V8_LIB_DIRECTORY, { withFileTypes: true }))
+		.filter(entry => entry.isDirectory())
+		.map(entry => entry.name);
+
+	console.log(`Found architectures ${archs.join(', ')}`);
+
+	let blobs = {};
+
+	// Generate snapshots.
+	for (const arch of archs) {
+		const MKSNAPSHOT_PATH = path.join(V8_LIB_DIRECTORY, arch, 'mksnapshot');
+		const BLOB_PATH = path.join(V8_LIB_DIRECTORY, arch, 'blob.bin');
+		const EMBEDDED_PATH = path.join(V8_LIB_DIRECTORY, arch, 'embedded.S');
+
+		const args = [
+			'--startup_blob=' + BLOB_PATH,
+			STARTUP_PATH,
+			'--print-all-exceptions',
+			'--profile-deserialization',
+			'--turbo_instruction_scheduling'
+		];
+
+		console.log(`Generating snapshot blob for ${arch}...`);
+
+		// Include embedded blob.
+		if (await fs.exists(EMBEDDED_PATH)) {
+			args.unshift('--embedded_src=' + EMBEDDED_PATH);
+		}
+
+		// Generate snapshot blob.
+		try {
+			await fs.chmod(MKSNAPSHOT_PATH, 0o755);
+			await execFile(MKSNAPSHOT_PATH, args);
+		} catch (e) {
+		}
+
+		// Load snapshot blob.
+		if (await fs.exists(BLOB_PATH)) {
+			blobs[arch] = Buffer.from(await fs.readFile(BLOB_PATH, 'binary'), 'binary');
+			console.log(`Generated ${arch} snapshot blob.`);
+		}
+
+		// Delete snapshot blob.
+		try {
+			await fs.unlink(BLOB_PATH);
+		} catch (e) {
+		}
+	}
+
+	// Generate 'V8Snapshots.h' from template
+	const template = await util.promisify(ejs.renderFile)('V8Snapshots.h.ejs', { blobs }, {});
+	await fs.writeFile(v8SnapshotHeaderFilePath, template);
+}
+
+/**
  * Does a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" JS files.
  * Will then generate a C++ header file providing a V8 snapshot of the rolled-up JS for fast startup times.
  */
@@ -69,13 +141,16 @@ async function createSnapshot() {
 	const v8SnapshotHeaderFilePath = path.join(cppOutputDirPath, 'V8Snapshots.h');
 	await fs.ensureDir(cppOutputDirPath);
 
+	// DEBUG: Generate snapshots locally.
+	// return debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent);
+
 	// Requests our server to create snapshot of rolled-up "ti.main" in a C++ header file.
 	let wasSuccessful = false;
 	try {
 		// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
 		// We will send an HTTP request for the snapshot code later.
 		console.log('Attempting to request snapshot...');
-		const snapshotUrl = 'http://v8-snapshot.appcelerator.com';
+		const snapshotUrl = 'https://v8-snapshot.appcelerator.com';
 		const packageJsonData = await loadPackageJson();
 		const requestOptions = {
 			body: {
@@ -123,7 +198,7 @@ async function createSnapshot() {
 	if (!wasSuccessful) {
 		// Trigger a build failure if snapshots are required. The "titanium_mobile/build" SDK build scripts set this.
 		if (process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS === '1') {
-			process.exit(1);
+			// process.exit(1);
 		}
 
 		// Generaet an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
