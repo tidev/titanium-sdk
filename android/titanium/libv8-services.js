@@ -4,7 +4,8 @@
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
-
+/* eslint no-unused-expressions: "off" */
+/* eslint security/detect-child-process: "off" */
 'use strict';
 
 const AndroidBuilder = require('../../build/lib/android');
@@ -12,7 +13,7 @@ const Builder = require('../../build/lib/builder');
 const BuildUtils = require('../../build/lib/utils');
 const util = require('util');
 const ejs = require('ejs');
-const child_process = require('child_process'); // eslint-disable-line security/detect-child-process
+const child_process = require('child_process');
 const exec = util.promisify(child_process.exec);
 const execFile = util.promisify(child_process.execFile);
 const fs = require('fs-extra');
@@ -47,6 +48,8 @@ async function loadPackageJson() {
 
 /**
  * Debug snapshot generation locally.
+ * @param {String} v8SnapshotHeaderFilePath The path to save generated snapshot header.
+ * @param {String} rollupFileContent Javascript content to store in snapshot.
  */
 async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
 
@@ -74,19 +77,28 @@ async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent
 		const BLOB_PATH = path.join(V8_LIB_DIRECTORY, arch, 'blob.bin');
 		const EMBEDDED_PATH = path.join(V8_LIB_DIRECTORY, arch, 'embedded.S');
 
+		// Delete existing snapshot blob.
+		try {
+			await fs.unlink(BLOB_PATH);
+		} catch (e) {
+			// Do nothing...
+		}
+
 		const args = [
 			'--startup_blob=' + BLOB_PATH,
-			STARTUP_PATH,
-			'--print-all-exceptions',
-			'--profile-deserialization',
-			'--turbo_instruction_scheduling'
+			STARTUP_PATH
 		];
 
 		console.log(`Generating snapshot blob for ${arch}...`);
 
 		// Include embedded blob.
 		if (await fs.exists(EMBEDDED_PATH)) {
-			args.unshift('--embedded_src=' + EMBEDDED_PATH);
+			args.unshift(
+				'--turbo_instruction_scheduling',
+				'--embedded_src=' + EMBEDDED_PATH,
+				'--embedded_variant=Default',
+				'--no-native-code-counters',
+			);
 		}
 
 		// Generate snapshot blob.
@@ -94,18 +106,13 @@ async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent
 			await fs.chmod(MKSNAPSHOT_PATH, 0o755);
 			await execFile(MKSNAPSHOT_PATH, args);
 		} catch (e) {
+			console.error(e);
 		}
 
 		// Load snapshot blob.
 		if (await fs.exists(BLOB_PATH)) {
 			blobs[arch] = Buffer.from(await fs.readFile(BLOB_PATH, 'binary'), 'binary');
 			console.log(`Generated ${arch} snapshot blob.`);
-		}
-
-		// Delete snapshot blob.
-		try {
-			await fs.unlink(BLOB_PATH);
-		} catch (e) {
 		}
 	}
 
@@ -142,7 +149,8 @@ async function createSnapshot() {
 	await fs.ensureDir(cppOutputDirPath);
 
 	// DEBUG: Generate snapshots locally.
-	// return debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent);
+	// await debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent);
+	// return;
 
 	// Requests our server to create snapshot of rolled-up "ti.main" in a C++ header file.
 	let wasSuccessful = false;
@@ -198,7 +206,7 @@ async function createSnapshot() {
 	if (!wasSuccessful) {
 		// Trigger a build failure if snapshots are required. The "titanium_mobile/build" SDK build scripts set this.
 		if (process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS === '1') {
-			// process.exit(1);
+			process.exit(1);
 		}
 
 		// Generaet an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
