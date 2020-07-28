@@ -155,12 +155,10 @@ should.Assertion.add('matchImage', function (imageFilePath) {
 	const pixelmatch = require('pixelmatch');
 
 	// Need to create a Buffer around the contents of each image!
-	const expectedStream = Ti.Stream.createStream({ source: snapshotBlob, mode: Ti.Stream.MODE_READ });
-	const expectedBuffer = Buffer.from(Ti.Stream.readAll(expectedStream));
+	const expectedBuffer = Buffer.from(snapshotBlob.toArrayBuffer());
 	const expectedImg = PNG.sync.read(expectedBuffer);
 
-	const actualStream = Ti.Stream.createStream({ source: blob, mode: Ti.Stream.MODE_READ });
-	const actualBuffer = Buffer.from(Ti.Stream.readAll(actualStream));
+	const actualBuffer = Buffer.from(blob.toArrayBuffer());
 	const actualImg = PNG.sync.read(actualBuffer);
 
 	const { width, height } = actualImg;
