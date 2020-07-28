@@ -30,5 +30,6 @@ module.exports = {
 			}
 		});
 		return `eslint ${filtered.join(' ')}`;
-	}
+	},
+	'package-lock.json': 'npm run lint:lockfile'
 };

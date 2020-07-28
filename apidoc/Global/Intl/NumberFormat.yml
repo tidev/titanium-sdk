@@ -1,0 +1,369 @@
+---
+name: Global.Intl.NumberFormat
+summary: Immutable object used to convert numbers to localized numeric strings.
+description: |
+    A `NumberFormat` object is used to convert a `Number` value to a localized numeric string.
+    It provides various formatting options controlling the number of integer and fractional digits
+    to be displayed. It can also output currency values, percentage based values, and
+    scientific notation.
+
+    For more detail, see the MDN website about
+    [Intl.NumberFormat](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat).
+
+examples:
+  - title: Format with Leading Zeros
+    example: |
+        ``` js
+        // Set up to pad first 3 integer digits with zeros if needed.
+        const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+            minimumIntegerDigits: 3,
+            useGrouping: false
+        });
+
+        // Logs: 000
+        console.log(formatter.format(0));
+
+        // Logs: 001
+        console.log(formatter.format(1));
+
+        // Logs: 001.23
+        console.log(formatter.format(1.23));
+
+        // Logs: 12345
+        console.log(formatter.format(12345));
+        ```
+
+  - title: Round to Significant Digits
+    example: |
+        ``` js
+        // Round up to 3 significant digits.
+        // All trailing non-fractional digits will be zero.
+        const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+            maximumSignificantDigits: 3,
+            useGrouping: false
+        });
+
+        // Logs: 12300
+        console.log(formatter.format(12345.6));
+
+        // Logs: -12300
+        console.log(formatter.format(-12345.6));
+
+        // Logs: 1.23
+        console.log(formatter.format(1.23456));
+        ```
+
+  - title: Currency Format
+    example: |
+        ``` js
+        // Set up currency style format options.
+        const options = {
+            style: 'currency',
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+            useGrouping: true
+        };
+
+        // Format in dollars in USA. Logs: $1,000.00
+        // Note that the "currency" option is required.
+        let formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'USD' }, options));
+        console.log(formatter.format(1000));
+
+        // Format in euros in USA. Logs: €1,000.00
+        formatter = Intl.NumberFormat('en-US', Object.assign({ currency: 'EUR' }, options));
+        console.log(formatter.format(1000));
+
+        // Format in euros in Germany. Logs: 1.000,00 €
+        formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'EUR' }, options));
+        console.log(formatter.format(1000));
+
+        // Format in dollars in Germany. Logs: 1.000,00 $
+        formatter = Intl.NumberFormat('de-DE', Object.assign({ currency: 'USD' }, options));
+        console.log(formatter.format(1000));
+        ```
+
+  - title: Percentage Format
+    example: |
+        ``` js
+        // Set up percentage style numeric formatting.
+        const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+            style: 'percent',
+            maximumFractionDigits: 1,
+            minimumFractionDigits: 1,
+            useGrouping: false
+        });
+
+        // Logs: 25.0%
+        console.log(formatter.format(0.25));
+
+        // Logs: 100.0%
+        console.log(formatter.format(1.0));
+
+        // Logs: 1234.5%
+        console.log(formatter.format(12.345));
+
+        // Logs: 1234.6%
+        // Since value exceeds "maximumFractionDigits" of 1, it is rounded.
+        console.log(formatter.format(12.3456));
+        ```
+
+  - title: Scientific Notation (Android Only)
+    example: |
+        ``` js
+        // Logs: 1.235E5
+        // Decimal point will be a period, comma, or space depending on the locale.
+        const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, { notation: 'scientific' });
+        console.log(formatter.format(123456.7));
+        ```
+
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
+
+methods:
+  - name: format
+    summary: Formats the given number to a localized numeric string.
+    parameters:
+      - name: value
+        summary: The number to be formatted.
+        type: Number
+    returns:
+        type: String
+        summary: The localized numeric string.
+
+  - name: formatToParts
+    summary: Formats given number to an array of components describing what the formmated string would produce.
+    description: |
+      Returns an array of objects providing the "type" and "value" of each component the formatted
+      string would produce. Can be used to fetch localized separator chracters, currency characters,
+      currency symbol positions, etc.
+
+      For more detail, see the MDN website about
+      [formatToParts](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/formatToParts).
+    parameters:
+      - name: value
+        summary: The number to be formatted into parts.
+        type: Number
+    returns:
+        type: Array<Object>
+        summary: Array of objects providing the "type" and "value" of each component in formatted string.
+    osver: {ios: {min: "13.0"}}
+
+  - name: resolvedOptions
+    summary: Gets the object's formatting options.
+    description: |
+      Returns the formatting options the format object uses.
+
+      For more detail, see the MDN website about
+      [resolvedOptions](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/resolvedOptions).
+    returns:
+        type: Object
+        summary: Returns the formatting options used.
+
+  - name: supportedLocalesOf
+    summary: Static method indicating what locales are supported by `NumberFormat` from the given locale(s).
+    description: |
+      For more detail, see the MDN website about
+      [supportedLocalesOf](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/supportedLocalesOf).
+    parameters:
+      - name: locales
+        summary: A string or array of strings providing BCP 47 locale identifiers to query.
+        type: [String, Array<String>]
+    returns:
+        type: Array<String>
+        summary: Array containing a subset of the given locale strings supported by `NumberFormat` objects.
+
+properties:
+  - name: constructor
+    summary: Creates a new `Intl.NumberFormat` object with the given locale and formatting options.
+    description: |
+      #### Syntax
+
+      ``` js
+      new Intl.NumberFormat([locales[, options]])
+      ```
+
+      #### Parameters
+
+      *    `locales`: [String](Global.String)/[String](Global.String)`[]` (optional)
+
+           The [BCP 47](https://www.unicode.org/reports/tr35/tr35.html#BCP_47_Conformance) language and country
+           code(s) to use for localized formatting. Can provide multiple locales where the best-supported
+           locale will be favored in the order provided by the array. If parameter is not assigned, then
+           the system may use the `'en-US'` locale by default instead of the system's current locale.
+           It's recommended to set this parameter using <Titanium.Locale.currentLocale>.
+
+      *    `options`: <NumberFormatOptions> (optional)
+
+           Provides settings indicating how a number should be formatted to a string.
+
+    type: Global.Intl.NumberFormat
+    permission: read-only
+
+---
+name: NumberFormatOptions
+summary: Options to be passed into the <Global.Intl.NumberFormat.constructor> method.
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
+properties:
+  - name: style
+    type: String
+    default: "decimal"
+    summary: Specifies the format style such as decimal, currency, or percentage.
+    description: |
+      Can be set to one of the following:
+
+      *    `'decimal'` Formats as a floating point value such as `'-1,234.5'`.
+      *    `'currency'` Formats value as a currency such as `'$100'`.
+           You must also set the <Global.Intl.NumberFormat.NumberFormatOptions.currency> option
+           when using this style or else an exception will be thrown.
+      *    `'percent'` Multiplies value by 100 and formats as a percentage.
+           For example, a value of `1.0` will be formatted as `'100%'`.
+
+      Note that Android and iOS do not support the `'unit'` style defined in the ECMA standard.
+
+  - name: localeMatcher
+    type: String
+    default: "best fit"
+    summary: The locale matching algorithm to use.
+    description: |
+      Can be set to `'lookup'` or `'best fit'`.
+
+      This option is ignored on Android.
+    platforms: [iphone, ipad]
+
+  - name: currency
+    type: String
+    summary: Set to the ISO 4217 currency code to use when formatting with the currency style.
+    description: |
+      If the <Global.Intl.NumberFormat.NumberFormatOptions.style> option is set to `'currency'`,
+      then you must also set this `currency` option to an
+      [ISO 4217](https://www.currency-iso.org/en/home/tables/table-a1.html) currency code
+      such as `'USD'` for US dollars or `'EUR'` for euros.
+
+  - name: currencyDisplay
+    type: String
+    default: "symbol"
+    summary: Indicates how the currency symbol or name should be shown.
+    description: |
+      This option is only applicable if <Global.Intl.NumberFormat.NumberFormatOptions.style>
+      is set to `'currency'`.
+
+      This option can be set to one of the following:
+
+      *    `'symbol'` Outputs the currency symbol such as `'$'` for US dollars.
+      *    `'code'` Outputs the ISO 4217 currency code such as `'USD'` or `'EUR'`.
+      *    `'name'` Outputs the full currency name such as `'US dollars'`.
+
+      Android ignores this option and will always display a currency symbol.
+    platforms: [iphone, ipad]
+
+  - name: useGrouping
+    type: Boolean
+    default: true
+    summary: Indicates if grouping separators should be displayed.
+    description: |
+      When set `true`, grouping separators will be displayed in the integer portion of the number
+      such as `'1,234,567.8'` for English region formatted numbers.
+
+      Set `false` to not show grouping separators such as `1234567.8`.
+
+  - name: minimumIntegerDigits
+    type: Number
+    default: 1
+    summary: Applies leading zeros to the integer portion of the formatted number.
+    description: |
+      A value ranging between `0` to `21` setting the minimum number of integer digits to be shown
+      on the left side of the decimal separator. This will pad the formatted number with
+      leading zeros if the number of digits is below this minimum value.
+
+      ``` js
+      // Pad with 3 leading zeros.
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          minimumIntegerDigits: 3,
+      });
+      console.log(formatter.format(1));    // Logs:  001
+      console.log(formatter.format(12));   // Logs:  012
+      console.log(formatter.format(123));  // Logs:  123
+      console.log(formatter.format(1234)); // Logs: 1234
+      ```
+
+      Set to `0` to not show any leading zeros.
+
+      ``` js
+      // Do not pad with leading zeros.
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          minimumIntegerDigits: 0,
+      });
+      console.log(formatter.format(1));    // Logs: 1
+      console.log(formatter.format(0));    // Logs: 0
+      console.log(formatter.format(0.5));  // Logs: .5
+      console.log(formatter.format(0.05)); // Logs: .05
+      ```
+
+  - name: minimumFractionDigits
+    type: Number
+    default: 0
+    summary: Applies trailing zeros in fractional portion of the formatted number.
+    description: |
+      A value ranging between `0` to `20` setting the minimum number of fractional digits
+      to be shown. This will pad the formatted number with trailing zeros if needed.
+
+      ``` js
+      // Pad with 2 trailing zeros.
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          minimumFractionDigits: 2,
+      });
+      console.log(formatter.format(123));   // Logs: 123.00
+      console.log(formatter.format(0.1));   // Logs:   0.10
+      console.log(formatter.format(0.123)); // Logs:   0.123
+      ```
+
+  - name: maximumFractionDigits
+    type: Number
+    default: 0
+    summary: Max number of fractional digits to be shown. Will round at this max digit.
+    description: |
+      A value ranging between `0` to `20` setting the maximum number of fractional digits
+      to be shown. Will round the number at this maximum.
+
+      ``` js
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          maximumFractionDigits: 3,
+      });
+      console.log(formatter.format(1.2345)); // Logs: 1.235
+      console.log(formatter.format(0.1));    // Logs: 0.1
+      console.log(formatter.format(1));      // Logs: 1
+      ```
+
+  - name: maximumSignificantDigits
+    type: Number
+    default: 21
+    summary: Max number of significant digits to be shown. Will round at this max digit.
+    description: |
+      A value ranging between `1` to `21` setting the maximum number of significant digits
+      to be shown. Will round the number at this maximum.
+
+      ``` js
+      const formatter = new Intl.NumberFormat(Ti.Locale.currentLocale, {
+          maximumSignificantDigits: 3,
+      });
+      console.log(formatter.format(12345.6));   // Logs:  12300
+      console.log(formatter.format(1.23456));   // Logs:      1.23
+      console.log(formatter.format(0.0123456)); // Logs:      0.0123
+      ```
+
+  - name: notation
+    type: String
+    default: "standard"
+    summary: Indicates if number should be formatted to scientific or engineering notation.
+    description: |
+      Can be set to one of the following:
+
+      *    `'standard'` Format to a plain number such as `'123456.7'`.
+      *    `'scientific'` Formats to scientific notation having only 1 integer digit such as `'1.235E5'`.
+      *    `'engineering'` Formats to engineering notation where exponent is in increments of 3 such as `'123.457E3'`.
+
+      This option is only supported on Android.
+    platforms: [android]
