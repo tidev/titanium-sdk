@@ -443,15 +443,25 @@ Utils.cleanNonGaSDKs = async function cleanNonGaSDKs() {
 	const { stdout } = await exec(`node "${titanium}" sdk list -o json`);
 	const out = JSON.parse(stdout);
 	const installedSDKs = out.installed;
+	let sdkToSelect;
 	// Loop over the SDKs and remove any where the key doesn't end in GA, or the value isn't sdkPath
-	return Promise.all(Object.keys(installedSDKs).map(async item => {
+	await Promise.all(Object.keys(installedSDKs).map(async item => {
 		const thisSDKPath = installedSDKs[item];
 		if (item.slice(-2) === 'GA') { // skip GA releases
+			if (!sdkToSelect) {
+				sdkToSelect = item;
+			}
 			return;
 		}
 		console.log(`Removing ${thisSDKPath}`);
 		return fs.remove(thisSDKPath);
 	}));
+	if (sdkToSelect) {
+		console.log(`Setting ${sdkToSelect} as the selected SDK`);
+		await exec(`node "${titanium}" sdk select ${sdkToSelect}`);
+	} else {
+		console.log('No GA SDK installed, you might find that your next ti command execution will error');
+	}
 };
 
 /**
