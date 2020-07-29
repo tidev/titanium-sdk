@@ -1304,7 +1304,7 @@ describe('util', () => {
 
 			it('returns false for custom Error subclass', () => {
 				class SubError extends Error {}
-				util.types.isNativeError(new SubError()).should.eql(false);
+				util.types.isNativeError(new SubError()).should.be.false();
 			});
 		});
 
@@ -1319,7 +1319,7 @@ describe('util', () => {
 			});
 
 			it('returns false for primitive Number', () => {
-				util.types.isNumberObject(0).should.eql(false);
+				util.types.isNumberObject(0).should.be.false();
 			});
 		});
 
@@ -1334,7 +1334,7 @@ describe('util', () => {
 			});
 
 			it('returns false for primitive String', () => {
-				util.types.isStringObject('foo').should.eql(false);
+				util.types.isStringObject('foo').should.be.false();
 			});
 		});
 
@@ -1349,7 +1349,7 @@ describe('util', () => {
 			});
 
 			it('returns false for primitive Boolean', () => {
-				util.types.isBooleanObject(true).should.eql(false);
+				util.types.isBooleanObject(true).should.be.false();
 			});
 		});
 
@@ -1366,11 +1366,11 @@ describe('util', () => {
 
 		// 	it('returns false for BigInt instance', () => {
 		// 		// eslint-disable-next-line no-undef
-		// 		util.types.isSymbolObject(BigInt(9007199254740991)).should.eql(false);
+		// 		util.types.isSymbolObject(BigInt(9007199254740991)).should.be.false();
 		// 	});
 
 		// it('returns false for primitive BigInt', () => {
-		// 	util.types.isSymbolObject(9007199254740991n).should.eql(false);
+		// 	util.types.isSymbolObject(9007199254740991n).should.be.false();
 		// });
 		// });
 
@@ -1385,7 +1385,7 @@ describe('util', () => {
 			});
 
 			it('returns false for primitive Symbol', () => {
-				util.types.isSymbolObject(Symbol('foo')).should.eql(false);
+				util.types.isSymbolObject(Symbol('foo')).should.be.false();
 			});
 		});
 
@@ -1395,7 +1395,7 @@ describe('util', () => {
 			});
 
 			it('returns false for primitive Boolean', () => {
-				util.types.isBoxedPrimitive(false).should.eql(false);
+				util.types.isBoxedPrimitive(false).should.be.false();
 			});
 
 			it('returns true for boxed Boolean', () => {
@@ -1404,7 +1404,7 @@ describe('util', () => {
 			});
 
 			it('returns false for primitive Symbol', () => {
-				util.types.isBoxedPrimitive(Symbol('foo')).should.eql(false);
+				util.types.isBoxedPrimitive(Symbol('foo')).should.be.false();
 			});
 
 			it('returns true for boxed Symbol', () => {

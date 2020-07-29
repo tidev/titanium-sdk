@@ -95,7 +95,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it.ios('.allowsBackgroundLocationUpdates', function () {
 		should(Ti.Geolocation).have.a.property('allowsBackgroundLocationUpdates').which.is.a.Boolean();
-		should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.eql(false); // defaults to false (unless a special tiapp property is set, see docs)
+		should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.be.false(); // defaults to false (unless a special tiapp property is set, see docs)
 	});
 
 	it.ios('#getAllowsBackgroundLocationUpdates()', function () {
@@ -182,7 +182,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it.ios('.pauseLocationUpdateAutomatically', function () {
 		should(Ti.Geolocation).have.a.property('pauseLocationUpdateAutomatically').which.is.a.Boolean();
-		should(Ti.Geolocation.pauseLocationUpdateAutomatically).eql(false); // defaults to false
+		should(Ti.Geolocation.pauseLocationUpdateAutomatically).be.false(); // defaults to false
 	});
 
 	it.ios('#getPauseLocationUpdateAutomatically()', function () {
@@ -198,7 +198,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it.ios('.showBackgroundLocationIndicator', function () {
 		should(Ti.Geolocation).have.a.property('showBackgroundLocationIndicator').which.is.a.Boolean();
-		should(Ti.Geolocation.showBackgroundLocationIndicator).eql(false); // defaults to false
+		should(Ti.Geolocation.showBackgroundLocationIndicator).be.false(); // defaults to false
 	});
 
 	it.ios('#getShowBackgroundLocationIndicator()', function () {
@@ -225,12 +225,12 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 	it.ios('#setShowCalibration()', function () {
 		should(Ti.Geolocation).have.a.property('setShowCalibration').which.is.a.Function();
 		Ti.Geolocation.setShowCalibration(false); // defaults to true
-		should(Ti.Geolocation.showCalibration).eql(false);
+		should(Ti.Geolocation.showCalibration).be.false();
 	});
 
 	it.ios('.trackSignificantLocationChange', function () {
 		should(Ti.Geolocation).have.a.property('trackSignificantLocationChange').which.is.a.Boolean();
-		should(Ti.Geolocation.trackSignificantLocationChange).eql(false); // defaults to false
+		should(Ti.Geolocation.trackSignificantLocationChange).be.false(); // defaults to false
 	});
 
 	it.ios('#getTrackSignificantLocationChange()', function () {
