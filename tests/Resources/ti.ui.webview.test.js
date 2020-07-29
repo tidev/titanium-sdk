@@ -732,7 +732,7 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('#findString', function (finish) {
 		if (!isiOS14) {
-			finish();
+			return finish();
 		}
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
@@ -755,7 +755,7 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('#createPdf', function (finish) {
 		if (!isiOS14) {
-			finish();
+			return finish();
 		}
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
@@ -779,7 +779,7 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('#createWebArchive', function (finish) {
 		if (!isiOS14) {
-			finish();
+			return finish();
 		}
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
