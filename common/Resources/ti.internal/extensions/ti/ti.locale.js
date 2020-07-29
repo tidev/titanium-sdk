@@ -12,4 +12,5 @@ if (OS_ANDROID) {
 
 		return wrappedGetString.call(Locale, key, defaultValue);
 	};
+	global.L = Locale.getString;
 }
