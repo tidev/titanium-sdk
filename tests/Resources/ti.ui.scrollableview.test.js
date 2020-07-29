@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ScrollableView', function () {
 	this.timeout(5000);
+	const isiOS14 =  (parseInt(Ti.Platform.version.split('.')[0]) >= 14);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -160,6 +161,78 @@ describe('Titanium.UI.ScrollableView', function () {
 				doNextTest();
 			}
 		});
+		win.open();
+	});
+
+	it.ios('preferredIndicatorImage', function (finish) {
+		if (!isiOS14) {
+			return finish();
+		}
+
+		const view1 = Ti.UI.createView({ id: 'view1', backgroundColor: '#836' });
+		const view2 = Ti.UI.createView({ id: 'view2', backgroundColor: '#246' });
+		const backwardImage = Ti.UI.iOS.systemImage('backward');
+		const forwardImage = Ti.UI.iOS.systemImage('forward');
+		const scrollableView = Ti.UI.createScrollableView({
+			preferredIndicatorImage: backwardImage,
+			views: [ view1, view2 ],
+			showPagingControl: true,
+		});
+
+		win = Ti.UI.createWindow({ extendSafeArea: false });
+		win.addEventListener('postlayout', function listener () {
+			win.removeEventListener('postlayout', listener);
+			try {
+				const preferredBackwardImage = win.toImage();
+				scrollableView.preferredIndicatorImage = forwardImage;
+				const preferredForwardImage = win.toImage();
+				should(preferredBackwardImage.compare(preferredForwardImage, 0)).eql(false);
+
+				scrollableView.preferredIndicatorImage = backwardImage;
+				const preferredBackwardImage2 = win.toImage();
+				should(preferredBackwardImage.compare(preferredBackwardImage2, 0)).eql(true);
+			} catch (error) {
+				finish(error);
+			}
+
+			finish();
+		});
+
+		win.add(scrollableView);
+		win.open();
+	});
+
+	it.ios('setIndicatorImageForPage', function (finish) {
+		if (!isiOS14) {
+			return finish();
+		}
+		const view1 = Ti.UI.createView({ id: 'view1', backgroundColor: '#836' });
+		const view2 = Ti.UI.createView({ id: 'view2', backgroundColor: '#246' });
+		const image = Ti.UI.iOS.systemImage('backward');
+		const scrollableView = Ti.UI.createScrollableView({
+			views: [ view1, view2 ],
+			showPagingControl: true,
+		});
+
+		win = Ti.UI.createWindow({ extendSafeArea: false });
+		win.addEventListener('postlayout', function listener () {
+			win.removeEventListener('postlayout', listener);
+			try {
+				const defaultImage = win.toImage();
+				scrollableView.setIndicatorImageForPage(image, 1);
+				const backwardImage = win.toImage();
+				should(defaultImage.compare(backwardImage, 0)).eql(false);
+
+				scrollableView.setIndicatorImageForPage(null, 1); // null will change to default
+				const defaultImage2 = win.toImage();
+				should(defaultImage.compare(defaultImage2, 0)).eql(true);
+			} catch (error) {
+				finish(error);
+			}
+			finish();
+		});
+
+		win.add(scrollableView);
 		win.open();
 	});
 });
