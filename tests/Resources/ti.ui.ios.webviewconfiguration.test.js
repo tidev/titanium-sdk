@@ -38,7 +38,7 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 			configuration: configuration
 		});
 		should(webview.allowsPictureInPictureMediaPlayback).be.a.Boolean();
-		should(webview.allowsPictureInPictureMediaPlayback).eql(true);
+		should(webview.allowsPictureInPictureMediaPlayback).be.true();
 	});
 
 	it('suppressesIncrementalRendering', function () {
@@ -51,7 +51,7 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 		});
 
 		should(webview.suppressesIncrementalRendering).be.a.Boolean();
-		should(webview.suppressesIncrementalRendering).eql(true);
+		should(webview.suppressesIncrementalRendering).be.true();
 	});
 
 	it('allowsAirPlayMediaPlayback', function () {
@@ -64,7 +64,7 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 		});
 
 		should(webview.allowsAirPlayMediaPlayback).be.a.Boolean();
-		should(webview.allowsAirPlayMediaPlayback).eql(true);
+		should(webview.allowsAirPlayMediaPlayback).be.true();
 	});
 
 	it('allowsInlineMediaPlayback', function () {
@@ -77,7 +77,7 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 		});
 
 		should(webview.allowsInlineMediaPlayback).be.a.Boolean();
-		should(webview.allowsInlineMediaPlayback).eql(true);
+		should(webview.allowsInlineMediaPlayback).be.true();
 	});
 
 	it('selectionGranularity', function () {
@@ -123,7 +123,7 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 		should(webview.preferences.minimumFontSize).be.a.Number();
 		should(webview.preferences.minimumFontSize).eql(20.0);
 		should(webview.preferences.javaScriptEnabled).be.a.Boolean();
-		should(webview.preferences.javaScriptEnabled).eql(true);
+		should(webview.preferences.javaScriptEnabled).be.true();
 		should(webview.preferences.javaScriptCanOpenWindowsAutomatically).be.a.Boolean();
 		should(webview.preferences.javaScriptCanOpenWindowsAutomatically).eql(false);
 	});

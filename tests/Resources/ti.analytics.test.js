@@ -73,8 +73,8 @@ describe('Titanium.Analytics', function () {
 
 		Ti.Analytics.optedOut = true;
 
-		should(Ti.Analytics.optedOut).eql(true);
-		should(Ti.Analytics.getOptedOut()).eql(true);
+		should(Ti.Analytics.optedOut).be.true();
+		should(Ti.Analytics.getOptedOut()).be.true();
 
 		Ti.Analytics.setOptedOut(false);
 

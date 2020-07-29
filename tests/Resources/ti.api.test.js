@@ -98,6 +98,6 @@ describe('Titanium.API', function () {
 
 		should(view.bubbleParent).be.eql(false);
 		view.bubbleParent = 1;
-		should(view.bubbleParent).be.eql(true);
+		should(view.bubbleParent).be.be.true();
 	});
 });

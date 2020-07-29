@@ -29,18 +29,18 @@ describe('Titanium.App.Properties', function () {
 	it('getBool default', function () {
 		Ti.App.Properties.removeProperty('test_bool');
 		should(Ti.App.Properties.getBool('test_bool')).be.eql(null);
-		should(Ti.App.Properties.getBool('test_bool', true)).be.eql(true);
+		should(Ti.App.Properties.getBool('test_bool', true)).be.be.true();
 	});
 
 	it('set and getBool', function () {
 		Ti.App.Properties.setBool('test_bool', true);
-		should(Ti.App.Properties.getBool('test_bool')).be.eql(true);
+		should(Ti.App.Properties.getBool('test_bool')).be.be.true();
 	});
 
 	it('setBool on property from tiapp doesnt change value', function () {
-		should(Ti.App.Properties.getBool('presetBool')).be.eql(true);
+		should(Ti.App.Properties.getBool('presetBool')).be.be.true();
 		Ti.App.Properties.setBool('presetBool', false); // should log warning
-		should(Ti.App.Properties.getBool('presetBool')).be.eql(true);
+		should(Ti.App.Properties.getBool('presetBool')).be.be.true();
 	});
 
 	it('getDouble default', function () {
@@ -122,23 +122,23 @@ describe('Titanium.App.Properties', function () {
 		Ti.App.Properties.setBool('test_property', true);
 		var properties = Ti.App.Properties.listProperties();
 		should(properties).be.a.Object();
-		should(properties.contains('test_property')).be.eql(true);
+		should(properties.contains('test_property')).be.be.true();
 	});
 
 	// FIXME Get working on iOS
 	it.iosBroken('listProperties contains tiapp properties', function () {
 		var properties = Ti.App.Properties.listProperties();
 		should(properties).be.a.Object();
-		should(properties.contains('ti.ui.defaultunit')).be.eql(true);
-		should(properties.contains('ti.deploytype')).be.eql(true); // This isn't present on iOS!
-		should(properties.contains('presetBool')).be.eql(true);
+		should(properties.contains('ti.ui.defaultunit')).be.be.true();
+		should(properties.contains('ti.deploytype')).be.be.true(); // This isn't present on iOS!
+		should(properties.contains('presetBool')).be.be.true();
 	});
 
 	it('removeProperty', function () {
 		Ti.App.Properties.setBool('test_property', true);
 		var properties = Ti.App.Properties.listProperties();
 		should(properties).be.a.Object();
-		should(properties.contains('test_property')).be.eql(true);
+		should(properties.contains('test_property')).be.be.true();
 		Ti.App.Properties.removeProperty('test_property');
 		properties = Ti.App.Properties.listProperties();
 		should(properties.contains('test_property')).be.eql(false);
@@ -147,21 +147,21 @@ describe('Titanium.App.Properties', function () {
 	it('removeProperty doesnt remove properties from tiapp', function () {
 		var properties = Ti.App.Properties.listProperties();
 		should(properties).be.a.Object();
-		should(properties.contains('presetString')).be.eql(true);
+		should(properties.contains('presetString')).be.be.true();
 		Ti.App.Properties.removeProperty('presetString');
 		properties = Ti.App.Properties.listProperties();
-		should(properties.contains('presetString')).be.eql(true);
+		should(properties.contains('presetString')).be.be.true();
 	});
 
 	it('hasProperty', function () {
 		Ti.App.Properties.removeProperty('test_has_property');
 		should(Ti.App.Properties.hasProperty('test_has_property')).be.eql(false);
 		Ti.App.Properties.setBool('test_has_property', true);
-		should(Ti.App.Properties.hasProperty('test_has_property')).be.eql(true);
+		should(Ti.App.Properties.hasProperty('test_has_property')).be.be.true();
 	});
 
 	it('hasProperty returns true for tiapp properties', function () {
-		should(Ti.App.Properties.hasProperty('presetString')).be.eql(true);
+		should(Ti.App.Properties.hasProperty('presetString')).be.be.true();
 	});
 
 	// FIXME Get working on Android and iOS
