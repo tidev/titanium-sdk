@@ -75,12 +75,12 @@ static NSArray *webViewKeySequence;
   // This should be deprecated asap, since it is an overhead that should be done using
   // webView.evalJS() within the app if required.
   [[self wkWebView] evaluateJavaScript:code
-                             completionHandler:^(id result, NSError *error) {
-                               if (error != nil) {
-                                 return;
-                               }
-                               [self replaceValue:result forKey:@"html" notification:NO];
-                             }];
+                     completionHandler:^(id result, NSError *error) {
+                       if (error != nil) {
+                         return;
+                       }
+                       [self replaceValue:result forKey:@"html" notification:NO];
+                     }];
 }
 
 - (void)windowWillClose
@@ -147,9 +147,9 @@ static NSArray *webViewKeySequence;
   }
 
   NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
-  [[self  wkWebView] evaluateJavaScript:code
-                             completionHandler:^(id _Nullablecresult, NSError *_Nullable error){
-                             }];
+  [[self wkWebView] evaluateJavaScript:code
+                     completionHandler:^(id _Nullablecresult, NSError *_Nullable error){
+                     }];
 }
 
 - (NSString *)evalJSAndWait:(NSString *)code
@@ -577,13 +577,13 @@ static NSArray *webViewKeySequence;
   TiThreadPerformOnMainThread(
       ^{
         [[self wkWebView] evaluateJavaScript:code
-                                   completionHandler:^(id result, NSError *error) {
-                                     if (!callback) {
-                                       return;
-                                     }
-                                     result = result ?: [NSNull null];
-                                     [callback call:@[ result ] thisObject:self];
-                                   }];
+                           completionHandler:^(id result, NSError *error) {
+                             if (!callback) {
+                               return;
+                             }
+                             result = result ?: [NSNull null];
+                             [callback call:@[ result ] thisObject:self];
+                           }];
       },
       NO);
   return nil;
@@ -599,10 +599,10 @@ static NSArray *webViewKeySequence;
   ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
 
   [[self wkWebView] evaluateJavaScript:code
-                             completionHandler:^(id result, NSError *error) {
-                               resultString = [NULL_IF_NIL(result) retain];
-                               finishedEvaluation = YES;
-                             }];
+                     completionHandler:^(id result, NSError *error) {
+                       resultString = [NULL_IF_NIL(result) retain];
+                       finishedEvaluation = YES;
+                     }];
 
   while (!finishedEvaluation) {
     [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
@@ -619,14 +619,14 @@ static NSArray *webViewKeySequence;
 #if __IPHONE_11_0
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     [[self wkWebView] takeSnapshotWithConfiguration:nil
-                                          completionHandler:^(UIImage *snapshotImage, NSError *error) {
-                                            if (error != nil) {
-                                              [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
-                                              return;
-                                            }
+                                  completionHandler:^(UIImage *snapshotImage, NSError *error) {
+                                    if (error != nil) {
+                                      [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
+                                      return;
+                                    }
 
-                                            [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [[TiBlob alloc] initWithImage:snapshotImage] } ] thisObject:self];
-                                          }];
+                                    [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [[TiBlob alloc] initWithImage:snapshotImage] } ] thisObject:self];
+                                  }];
   } else {
 #endif
     [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [self toImage:nil] } ]
