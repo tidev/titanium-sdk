@@ -10,7 +10,8 @@
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 
 describe.android('ti.cloudpush', () => {
-	it('retrieveDeviceToken()', finish => {
+	// FIXME: Need to set up firebase on test app?
+	it.androidBroken('retrieveDeviceToken()', finish => {
 		const CloudPush = require('ti.cloudpush');
 		CloudPush.retrieveDeviceToken({
 			success: () => finish(),
