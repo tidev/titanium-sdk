@@ -125,7 +125,7 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 		should(webview.preferences.javaScriptEnabled).be.a.Boolean();
 		should(webview.preferences.javaScriptEnabled).be.true();
 		should(webview.preferences.javaScriptCanOpenWindowsAutomatically).be.a.Boolean();
-		should(webview.preferences.javaScriptCanOpenWindowsAutomatically).eql(false);
+		should(webview.preferences.javaScriptCanOpenWindowsAutomatically).be.false();
 	});
 });
 

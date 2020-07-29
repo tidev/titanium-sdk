@@ -57,7 +57,7 @@ describe('ti.playservices', () => {
 
 		result = PlayServices.isUserResolvableError(PlayServices.RESULT_SERVICE_INVALID);
 		should(result).be.a.Boolean();
-		should(result).eql(false);
+		should(result).be.false();
 	});
 
 	it.android('getErrorString()', () => {

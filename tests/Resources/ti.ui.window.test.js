@@ -495,8 +495,8 @@ describe('Titanium.UI.Window', function () {
 		should(win.getLargeTitleEnabled()).be.true();
 
 		win.largeTitleEnabled = false;
-		should(win.largeTitleEnabled).eql(false);
-		should(win.getLargeTitleEnabled()).eql(false);
+		should(win.largeTitleEnabled).be.false();
+		should(win.getLargeTitleEnabled()).be.false();
 
 		win.setLargeTitleEnabled(true);
 		should(win.largeTitleEnabled).be.true();
@@ -588,8 +588,8 @@ describe('Titanium.UI.Window', function () {
 				should(window2.getHidesBackButton()).be.be.true();
 
 				window2.hidesBackButton = false;
-				should(window2.hidesBackButton).be.eql(false);
-				should(window2.getHidesBackButton()).be.eql(false);
+				should(window2.hidesBackButton).be.be.false();
+				should(window2.getHidesBackButton()).be.be.false();
 
 				window2.setHidesBackButton(true);
 				should(window2.hidesBackButton).be.be.true();

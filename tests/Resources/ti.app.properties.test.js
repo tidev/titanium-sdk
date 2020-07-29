@@ -141,7 +141,7 @@ describe('Titanium.App.Properties', function () {
 		should(properties.contains('test_property')).be.be.true();
 		Ti.App.Properties.removeProperty('test_property');
 		properties = Ti.App.Properties.listProperties();
-		should(properties.contains('test_property')).be.eql(false);
+		should(properties.contains('test_property')).be.be.false();
 	});
 
 	it('removeProperty doesnt remove properties from tiapp', function () {
@@ -155,7 +155,7 @@ describe('Titanium.App.Properties', function () {
 
 	it('hasProperty', function () {
 		Ti.App.Properties.removeProperty('test_has_property');
-		should(Ti.App.Properties.hasProperty('test_has_property')).be.eql(false);
+		should(Ti.App.Properties.hasProperty('test_has_property')).be.be.false();
 		Ti.App.Properties.setBool('test_has_property', true);
 		should(Ti.App.Properties.hasProperty('test_has_property')).be.be.true();
 	});
