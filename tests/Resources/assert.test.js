@@ -712,7 +712,7 @@ describe('assert', function () {
 			).then(() => {
 				return finished(new Error('Expected assert.rejects to reject with Error to catch handler if supplied Promise resolves'));
 			}).catch(err => {
-				err.should.be.ok;
+				err.should.be.ok();
 				(err instanceof assert.AssertionError).should.eql(true);
 				finished();
 			});
@@ -1219,7 +1219,7 @@ describe('assert', function () {
 		});
 
 		it('is available off of itself', function () {
-			assert.strict.strict.should.be.ok;
+			assert.strict.strict.should.be.ok();
 		});
 
 		describe('#ok', () => {

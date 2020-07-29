@@ -132,7 +132,7 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 
 		subWindow.addEventListener('close', function () {
 			try {
-				should(subWindow.navigationWindow).not.be.ok; // null or undefined
+				should(subWindow.navigationWindow).not.be.ok(); // null or undefined
 				finish();
 			} catch (err) {
 				finish(err);
@@ -159,7 +159,7 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 
 		subWindow.addEventListener('close', function () {
 			try {
-				should(subWindow.navigationWindow).not.be.ok; // null or undefined
+				should(subWindow.navigationWindow).not.be.ok(); // null or undefined
 				// how else can we tell it got closed? I don't think a visible check is right...
 				// win should not be closed!
 				should(rootWindow.navigationWindow).eql(nav);
