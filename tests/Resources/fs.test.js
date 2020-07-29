@@ -191,7 +191,7 @@ describe('fs', function () {
 			if (destFile.exists()) {
 				should(destFile.deleteFile()).be.true();
 			}
-			should(destFile.exists()).eql(false);
+			should(destFile.exists()).be.false();
 
 			fs.copyFile(thisFilePath, dest, err => {
 				try {
@@ -218,7 +218,7 @@ describe('fs', function () {
 			if (destFile.exists()) {
 				should(destFile.deleteFile()).be.true();
 			}
-			should(destFile.exists()).eql(false);
+			should(destFile.exists()).be.false();
 
 			fs.copyFileSync(thisFilePath, dest);
 			fs.existsSync(dest).should.be.true();
@@ -248,7 +248,7 @@ describe('fs', function () {
 		it('checks that non-existent file returns false', finished => {
 			fs.exists('/some/made/up/path', exists => {
 				try {
-					exists.should.eql(false);
+					exists.should.be.false();
 					finished();
 				} catch (e) {
 					finished(e);
@@ -267,7 +267,7 @@ describe('fs', function () {
 		});
 
 		it('checks that non-existent file returns false', () => {
-			fs.existsSync('/some/made/up/path').should.eql(false);
+			fs.existsSync('/some/made/up/path').should.be.false();
 		});
 	});
 
@@ -278,7 +278,7 @@ describe('fs', function () {
 
 		it('creates directory of depth 0', finished => {
 			const dirPath = path.join(Ti.Filesystem.tempDirectory, `mkdir${Date.now()}`);
-			should(fs.existsSync(dirPath)).eql(false); // should not exist first!
+			should(fs.existsSync(dirPath)).be.false(); // should not exist first!
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // parent should exist first!
 			fs.mkdir(dirPath, err => {
 				try {
@@ -294,8 +294,8 @@ describe('fs', function () {
 
 		it('creates recursively if passed option to', finished => {
 			const subdirPath = path.join(Ti.Filesystem.tempDirectory, `mkdir_r_${Date.now()}`, 'subdir');
-			should(fs.existsSync(subdirPath)).eql(false); // should not exist first!
-			should(fs.existsSync(path.dirname(subdirPath))).eql(false); // parent should not exist first!
+			should(fs.existsSync(subdirPath)).be.false(); // should not exist first!
+			should(fs.existsSync(path.dirname(subdirPath))).be.false(); // parent should not exist first!
 			fs.mkdir(subdirPath, { recursive: true }, err => {
 				try {
 					should.not.exist(err);
@@ -310,8 +310,8 @@ describe('fs', function () {
 
 		it.windowsDesktopBroken('does not create recursively by default', finished => {
 			const subdirPath = path.join(Ti.Filesystem.tempDirectory, `mkdir_r2_${Date.now()}`, 'subdir');
-			should(fs.existsSync(subdirPath)).eql(false); // should not exist first!
-			should(fs.existsSync(path.dirname(subdirPath))).eql(false); // parent should not exist first!
+			should(fs.existsSync(subdirPath)).be.false(); // should not exist first!
+			should(fs.existsSync(path.dirname(subdirPath))).be.false(); // parent should not exist first!
 			fs.mkdir(subdirPath, err => {
 				try {
 					should.exist(err);
@@ -321,7 +321,7 @@ describe('fs', function () {
 					err.errno.should.eql(-2);
 					err.syscall.should.eql('mkdir');
 					err.path.should.eql(subdirPath);
-					should(fs.existsSync(subdirPath)).eql(false);
+					should(fs.existsSync(subdirPath)).be.false();
 				} catch (e) {
 					finished(e);
 					return;
@@ -338,7 +338,7 @@ describe('fs', function () {
 
 		it('creates directory of depth 0', () => {
 			const dirPath = path.join(Ti.Filesystem.tempDirectory, `mkdirSync${Date.now()}`);
-			should(fs.existsSync(dirPath)).eql(false); // should not exist first!
+			should(fs.existsSync(dirPath)).be.false(); // should not exist first!
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // parent should exist first!
 			fs.mkdirSync(dirPath);
 			should(fs.existsSync(dirPath)).be.true();
@@ -346,16 +346,16 @@ describe('fs', function () {
 
 		it('creates recursively if passed option to', () => {
 			const subdirPath = path.join(Ti.Filesystem.tempDirectory, `mkdirSync_r_${Date.now()}`, 'subdir');
-			should(fs.existsSync(subdirPath)).eql(false); // should not exist first!
-			should(fs.existsSync(path.dirname(subdirPath))).eql(false); // parent should not exist first!
+			should(fs.existsSync(subdirPath)).be.false(); // should not exist first!
+			should(fs.existsSync(path.dirname(subdirPath))).be.false(); // parent should not exist first!
 			fs.mkdirSync(subdirPath, { recursive: true });
 			should(fs.existsSync(subdirPath)).be.true();
 		});
 
 		it.windowsDesktopBroken('does not create recursively by default', () => {
 			const subdirPath = path.join(Ti.Filesystem.tempDirectory, `mkdirSync_r2_${Date.now()}`, 'subdir');
-			should(fs.existsSync(subdirPath)).eql(false); // should not exist first!
-			should(fs.existsSync(path.dirname(subdirPath))).eql(false); // parent should not exist first!
+			should(fs.existsSync(subdirPath)).be.false(); // should not exist first!
+			should(fs.existsSync(path.dirname(subdirPath))).be.false(); // parent should not exist first!
 
 			try {
 				fs.mkdirSync(subdirPath);
@@ -368,7 +368,7 @@ describe('fs', function () {
 				err.syscall.should.eql('mkdir');
 				err.path.should.eql(subdirPath);
 			}
-			should(fs.existsSync(subdirPath)).eql(false);
+			should(fs.existsSync(subdirPath)).be.false();
 		});
 
 		it('throws Error when trying to create a directory that exists', () => {
@@ -753,13 +753,13 @@ describe('fs', function () {
 
 			// make sure destiantion doesn't exist
 			const newFile = path.join(Ti.Filesystem.tempDirectory, `renameSync-renamed-${Date.now()}`);
-			should(fs.existsSync(newFile)).eql(false);
+			should(fs.existsSync(newFile)).be.false();
 
 			// rename
 			fs.renameSync(file, newFile);
 
 			// source no longer exists, but dest does
-			should(fs.existsSync(file)).eql(false);
+			should(fs.existsSync(file)).be.false();
 			should(fs.existsSync(newFile)).be.true();
 		});
 
@@ -780,7 +780,7 @@ describe('fs', function () {
 			fs.renameSync(file, existingFile);
 
 			// source no longer exists, but dest does
-			should(fs.existsSync(file)).eql(false);
+			should(fs.existsSync(file)).be.false();
 			should(fs.existsSync(existingFile)).be.true();
 		});
 
@@ -816,7 +816,7 @@ describe('fs', function () {
 		it('throws trying to rename from non-existent source path', () => {
 			// make up a source path that doesn't exist
 			const file = path.join(Ti.Filesystem.tempDirectory, `renameSync_3_${Date.now()}`);
-			should(fs.existsSync(file)).eql(false);
+			should(fs.existsSync(file)).be.false();
 
 			const destFile = path.join(Ti.Filesystem.tempDirectory, `renameSync_4_${Date.now()}`);
 			try {
@@ -847,7 +847,7 @@ describe('fs', function () {
 			fs.rmdir(dirName, err => {
 				try {
 					should.not.exist(err);
-					should(fs.existsSync(dirName)).eql(false);
+					should(fs.existsSync(dirName)).be.false();
 				} catch (e) {
 					return finished(e);
 				}
@@ -899,7 +899,7 @@ describe('fs', function () {
 
 		it('throws trying to remove non-existent directory', finished => {
 			const dirName = '/made/up/path';
-			should(fs.existsSync(dirName)).eql(false);
+			should(fs.existsSync(dirName)).be.false();
 
 			fs.rmdir(dirName, error => {
 				try {
@@ -928,7 +928,7 @@ describe('fs', function () {
 			fs.mkdirSync(dirName);
 			should(fs.existsSync(dirName)).be.true();
 			fs.rmdirSync(dirName);
-			should(fs.existsSync(dirName)).eql(false);
+			should(fs.existsSync(dirName)).be.false();
 		});
 
 		it.windowsDesktopBroken('throws trying to delete directory that is NOT empty', () => {
@@ -969,7 +969,7 @@ describe('fs', function () {
 
 		it('throws trying to remove non-existent directory', () => {
 			const dirName = '/made/up/path';
-			should(fs.existsSync(dirName)).eql(false);
+			should(fs.existsSync(dirName)).be.false();
 
 			try {
 				fs.rmdirSync(dirName);
@@ -1023,7 +1023,7 @@ describe('fs', function () {
 			stats.mtime.should.eql(thisFile.modifiedAt());
 
 			stats.isFile().should.be.true();
-			stats.isDirectory().should.eql(false);
+			stats.isDirectory().should.be.false();
 			// TODO Verify isSocket()/isCharacterDevice()/isBlockDevice()/isFIFO()/isSymbolicLink()?
 		});
 	});
@@ -1101,7 +1101,7 @@ describe('fs', function () {
 				try {
 					should.not.exist(err);
 					// no longer should exist
-					should(fs.existsSync(filename)).eql(false);
+					should(fs.existsSync(filename)).be.false();
 					finished();
 				} catch (e) {
 					return finished(e);
@@ -1135,7 +1135,7 @@ describe('fs', function () {
 		it('throws trying to delete a non-existent path', finished => {
 			const dir = '/made/up/path';
 			// dir should not exist
-			should(fs.existsSync(dir)).eql(false);
+			should(fs.existsSync(dir)).be.false();
 			// try to delete it
 			fs.unlink(dir, error => {
 				try {
@@ -1169,7 +1169,7 @@ describe('fs', function () {
 			// delete it
 			fs.unlinkSync(filename);
 			// no longer should exist
-			should(fs.existsSync(filename)).eql(false);
+			should(fs.existsSync(filename)).be.false();
 		});
 
 		it.windowsDesktopBroken('throws trying to delete a directory', () => {
@@ -1196,7 +1196,7 @@ describe('fs', function () {
 		it('throws trying to delete a non-existent path', () => {
 			const dir = '/made/up/path';
 			// dir should not exist
-			should(fs.existsSync(dir)).eql(false);
+			should(fs.existsSync(dir)).be.false();
 			// try to delete it
 			try {
 				fs.unlinkSync(dir);
@@ -1322,7 +1322,7 @@ describe('fs', function () {
 			// ensure parent dir exists
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // fails on Windows store/desktop here, returns false
 			// ensure file does not
-			should(fs.existsSync(filename)).eql(false);
+			should(fs.existsSync(filename)).be.false();
 			const contents = 'Hello World!';
 			fs.writeFile(filename, contents, err => {
 				try {
@@ -1343,7 +1343,7 @@ describe('fs', function () {
 			// ensure parent dir exists
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // fails on Windows store/desktop here, returns false
 			// ensure file does not
-			should(fs.existsSync(filename)).eql(false);
+			should(fs.existsSync(filename)).be.false();
 			const contents = 'Hello World!';
 			fs.writeFile(filename, contents, err => {
 				try {
@@ -1412,7 +1412,7 @@ describe('fs', function () {
 			// ensure parent dir exists
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true();
 			// ensure file does not
-			should(fs.existsSync(filename)).eql(false);
+			should(fs.existsSync(filename)).be.false();
 			const contents = 'Hello World!';
 			fs.writeFileSync(filename, contents);
 			// file should now exist
@@ -1426,7 +1426,7 @@ describe('fs', function () {
 			// ensure parent dir exists
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // fails on Windows store/desktop here, returns false
 			// ensure file does not
-			should(fs.existsSync(filename)).eql(false);
+			should(fs.existsSync(filename)).be.false();
 			fs.writeFileSync(filename);
 			// file should now exist
 			should(fs.existsSync(filename)).be.true();
@@ -1439,7 +1439,7 @@ describe('fs', function () {
 			// ensure parent dir exists
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // fails on Windows store/desktop here, returns false
 			// ensure file does not
-			should(fs.existsSync(filename)).eql(false);
+			should(fs.existsSync(filename)).be.false();
 			const contents = 'Hello World!';
 			fs.writeFileSync(filename, contents);
 			// file should now exist

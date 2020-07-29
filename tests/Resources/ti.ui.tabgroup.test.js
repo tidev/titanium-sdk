@@ -108,7 +108,7 @@ describe('Titanium.UI.TabGroup', function () {
 		tabGroup.addTab(tab);
 		should(tabGroup.allowUserCustomization).be.true();
 		tabGroup.setAllowUserCustomization(false);
-		should(tabGroup.allowUserCustomization).eql(false);
+		should(tabGroup.allowUserCustomization).be.false();
 	});
 
 	it.ios('.tabsTranslucent', () => {
@@ -124,7 +124,7 @@ describe('Titanium.UI.TabGroup', function () {
 		tabGroup.addTab(tab);
 		should(tabGroup.tabsTranslucent).be.true();
 		tabGroup.setTabsTranslucent(false);
-		should(tabGroup.tabsTranslucent).eql(false);
+		should(tabGroup.tabsTranslucent).be.false();
 	});
 
 	it.windowsBroken('#setTabs()', () => {
@@ -534,14 +534,14 @@ describe('Titanium.UI.TabGroup', function () {
 			tabGroup.closed.should.be.true(); // it's not yet opened, so treat as closed
 			tabGroup.addEventListener('open', () => {
 				try {
-					tabGroup.closed.should.eql(false); // we're being notified the window is open, so should report closed as false!
+					tabGroup.closed.should.be.false(); // we're being notified the window is open, so should report closed as false!
 				} catch (err) {
 					return done(err);
 				}
 				done();
 			});
 			tabGroup.open();
-			tabGroup.closed.should.eql(false); // should be open now
+			tabGroup.closed.should.be.false(); // should be open now
 		});
 
 		it('fires close event', done => {
@@ -558,7 +558,7 @@ describe('Titanium.UI.TabGroup', function () {
 		});
 
 		it('.focused', done => {
-			tabGroup.focused.should.eql(false); // haven't opened it yet, so shouldn't be focused
+			tabGroup.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
 			// NOTE: I had to modify iOS' TabGroup implementation so that the focus event fired within the same timeline as Window's
 			// The previous impl actually fired the focus event while the window was still opening, so a focus event listener
 			// would have seen the TabGroup report itself as not opened or focused yet!
@@ -573,7 +573,7 @@ describe('Titanium.UI.TabGroup', function () {
 			tabGroup.addEventListener('close', () => {
 				try {
 					// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-					tabGroup.focused.should.eql(false);
+					tabGroup.focused.should.be.false();
 				} catch (e) {
 					return done(e);
 				}

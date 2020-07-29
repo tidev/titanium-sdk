@@ -944,7 +944,7 @@ describe('Titanium.UI.View', function () {
 				should(label.accessibilityLabel).eql('New Text');
 				should(label.accessibilityValue).eql('New Value');
 				should(label.accessibilityHint).eql('New Hint');
-				should(label.accessibilityHidden).eql(false);
+				should(label.accessibilityHidden).be.false();
 			} catch (err) {
 				return finish(err);
 			}

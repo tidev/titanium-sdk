@@ -281,7 +281,7 @@ describe('Buffer', () => {
 
 		[ null, undefined, 0, -0, 1, -1, NaN, Infinity, {}, [], 'string' ].forEach(value => {
 			it(`returns false for ${value}`, () => {
-				should(Buffer.isBuffer(value)).eql(false);
+				should(Buffer.isBuffer(value)).be.false();
 			});
 		});
 	});
@@ -304,7 +304,7 @@ describe('Buffer', () => {
 		[ 'madeup', true, false, 0, 1, -1, false, Infinity, null, undefined, {}, [] ]
 			.forEach(encoding => {
 				it(`returns false for ${encoding}`, () => {
-					should(Buffer.isEncoding(encoding)).eql(false);
+					should(Buffer.isEncoding(encoding)).be.false();
 				});
 			});
 	});
@@ -600,7 +600,7 @@ describe('Buffer', () => {
 		it('returns false for Buffers having different contents', () => {
 			const buf1 = Buffer.from('ABC');
 			const buf2 = Buffer.from('BCD');
-			should(buf1.equals(buf2)).eql(false);
+			should(buf1.equals(buf2)).be.false();
 		});
 
 		it('throws if argument is not a Buffer', () => {

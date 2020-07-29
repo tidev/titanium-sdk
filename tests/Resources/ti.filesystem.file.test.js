@@ -696,7 +696,7 @@ describe('Titanium.Filesystem.File', function () {
 			// create a fresh empty dir
 			should(emptyDir.createDirectory()).be.true();
 			should(emptyDir.exists()).be.true();
-			should(emptyDir.isFile()).eql(false);
+			should(emptyDir.isFile()).be.false();
 			should(emptyDir.isDirectory()).be.true();
 
 			const result = emptyDir.getDirectoryListing();
@@ -708,7 +708,7 @@ describe('Titanium.Filesystem.File', function () {
 			const nonExistentDir = Ti.Filesystem.getFile('madeup');
 			const result = nonExistentDir.getDirectoryListing();
 			should(nonExistentDir).be.ok();
-			should(nonExistentDir.exists()).eql(false);
+			should(nonExistentDir.exists()).be.false();
 			should.not.exist(result); // null or undefined // FIXME: ios returns undefined, test checked for exactly null before
 		});
 
@@ -811,7 +811,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const destFile = Ti.Filesystem.getFile(dest);
 
-		should(src.exists()).eql(false); // returns true
+		should(src.exists()).be.false(); // returns true
 		should(destFile.exists()).be.true();
 	});
 
