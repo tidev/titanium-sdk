@@ -1047,7 +1047,7 @@ describe('util', () => {
 			const callbackified = util.callbackify(original);
 			callbackified(23, (err, result) => {
 				try {
-					should(err).not.be.ok;
+					should(err).not.be.ok();
 					should(result).eql(23);
 					finished();
 				} catch (e) {
@@ -1063,8 +1063,8 @@ describe('util', () => {
 			const callbackified = util.callbackify(original);
 			callbackified(new Error('expected this'), (err, result) => {
 				try {
-					should(err).be.ok;
-					should(result).not.be.ok;
+					should(err).be.ok();
+					should(result).not.be.ok();
 					finished();
 				} catch (e) {
 					finished(e);
@@ -1079,7 +1079,7 @@ describe('util', () => {
 			const callbackified = util.callbackify(original);
 			callbackified((err, _result) => {
 				try {
-					should(err).be.ok;
+					should(err).be.ok();
 					should(err instanceof Error).eql(true);
 					should(err.reason).eql(null);
 					finished();

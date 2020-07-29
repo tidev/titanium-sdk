@@ -28,7 +28,7 @@ let fs;
 describe('fs', function () {
 	it('is required as a core module', () => {
 		fs = require('fs');
-		should(fs).be.ok;
+		should(fs).be.ok();
 	});
 
 	describe('.constants', () => {
@@ -67,7 +67,7 @@ describe('fs', function () {
 		it('throws when trying to access file that doesn\'t exist', finished => {
 			fs.access('/madeup', err => {
 				try {
-					should(err).be.ok; // aka, there is an error
+					should(err).be.ok(); // aka, there is an error
 					// TODO Verify the error.code value is EACCESS!
 					finished();
 				} catch (e) {
@@ -91,7 +91,7 @@ describe('fs', function () {
 		it('checks that this file is NOT writable properly', finished => {
 			fs.access(thisFilePath, fs.constants.W_OK, err => {
 				try {
-					should(err).be.ok; // aka, there is an error
+					should(err).be.ok(); // aka, there is an error
 					// TODO Verify the error.code value is EACCESS!
 					finished();
 				} catch (e) {
@@ -103,7 +103,7 @@ describe('fs', function () {
 		it('checks that this file is NOT executable properly', finished => {
 			fs.access(thisFilePath, fs.constants.X_OK, err => {
 				try {
-					should(err).be.ok; // aka, there is an error
+					should(err).be.ok(); // aka, there is an error
 					// TODO Verify the error.code value is EACCESS!
 					finished();
 				} catch (e) {
@@ -196,7 +196,7 @@ describe('fs', function () {
 
 			fs.copyFile(thisFilePath, dest, err => {
 				try {
-					should(err).not.be.ok;
+					should(err).not.be.ok();
 					fs.existsSync(dest).should.eql(true);
 					// TODO: Read in the file and compare contents? Check filesize matches?
 					finished();
@@ -482,9 +482,9 @@ describe('fs', function () {
 		it('returns Error for non-existent path', finished => {
 			fs.readdir('/fake/path', (err, files) => {
 				try {
-					should(err).be.ok; // aka we have an error
+					should(err).be.ok(); // aka we have an error
 					should(err.message).startWith('ENOENT: no such file or directory');
-					should(files).not.be.ok; // no files listing
+					should(files).not.be.ok(); // no files listing
 
 					finished();
 				} catch (e) {
@@ -496,9 +496,9 @@ describe('fs', function () {
 		it('returns Error for file path', finished => {
 			fs.readdir(thisFilePath, (err, files) => {
 				try {
-					should(err).be.ok; // aka we have an error
+					should(err).be.ok(); // aka we have an error
 					should(err.message).startWith('ENOTDIR: not a directory, scandir');
-					should(files).not.be.ok; // no files listing
+					should(files).not.be.ok(); // no files listing
 
 					finished();
 				} catch (e) {
@@ -542,7 +542,7 @@ describe('fs', function () {
 				fs.readdirSync('/fake/path');
 				should.fail(true, false, 'expected fs.readdirSync to throw Error when path does not exist');
 			} catch (err) {
-				should(err).be.ok; // aka we have an error
+				should(err).be.ok(); // aka we have an error
 				should(err.message).startWith('ENOENT: no such file or directory');
 			}
 		});
@@ -552,7 +552,7 @@ describe('fs', function () {
 				fs.readdirSync(thisFilePath);
 				should.fail(true, false, 'expected fs.readdirSync to throw Error when path is a file');
 			} catch (err) {
-				should(err).be.ok; // aka we have an error
+				should(err).be.ok(); // aka we have an error
 				should(err.message).startWith('ENOTDIR: not a directory, scandir');
 			}
 		});
@@ -994,7 +994,7 @@ describe('fs', function () {
 		it('returns stats for this file', finished => {
 			fs.stat(thisFilePath, (err, stats) => {
 				try {
-					should(stats).be.ok;
+					should(stats).be.ok();
 					should(stats).be.an.Object();
 
 					// TODO: Verify some of the values?
@@ -1013,7 +1013,7 @@ describe('fs', function () {
 
 		it('returns stats for this file', () => {
 			const stats = fs.statSync(thisFilePath);
-			should(stats).be.ok;
+			should(stats).be.ok();
 			should(stats).be.an.Object();
 
 			stats.size.should.be.above(0);

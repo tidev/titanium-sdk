@@ -81,7 +81,7 @@ describe('Titanium.Filesystem.File', function () {
 	it('.parent', function () {
 		const file = Ti.Filesystem.getFile('app.js');
 		// parent may be null if at root?
-		// should(file.parent).be.ok; // not null or undefined. should(file).not.be.null causes a stack overflow somehow.
+		// should(file.parent).be.ok(); // not null or undefined. should(file).not.be.null causes a stack overflow somehow.
 		should(file).have.a.readOnlyProperty('parent');
 		// TODO: Test that we get back another file proxy?
 	});
@@ -295,7 +295,7 @@ describe('Titanium.Filesystem.File', function () {
 		const newFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'app.js');
 		should(newFile.exists()).be.true();
 		const blob = newFile.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -308,7 +308,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(msg.exists()).be.true();
 
 		const blob = msg.read();
-		should(blob).be.ok; // not null or undefined
+		should(blob).be.ok(); // not null or undefined
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -327,7 +327,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(msg.write('Appcelerator', true)).be.true();
 
 		const blob = msg.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -348,7 +348,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(to.exists()).be.true();
 
 		const blob = to.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -373,7 +373,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(to.write(from, true)).be.true();
 
 		const blob = to.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -396,7 +396,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(to.exists()).be.true();
 
 		const blob = to.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -422,7 +422,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(to.write(from.read(), true)).be.true();
 
 		const blob = to.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -445,7 +445,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(msg.append('Appcelerator')).be.true();
 
 		const blob = msg.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -469,7 +469,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(to.append(from)).be.true();
 
 		const blob = to.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -495,7 +495,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(to.append(from.read())).be.true();
 
 		const blob = to.read();
-		should(blob).be.ok; // not null or undefined.
+		should(blob).be.ok(); // not null or undefined.
 		if (!isAndroid) {
 			should(blob.size).be.above(0);
 		}
@@ -512,7 +512,7 @@ describe('Titanium.Filesystem.File', function () {
 		const newFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'app.js');
 		should(newFile.exists()).be.true();
 		const stream = newFile.open(Ti.Filesystem.MODE_READ);
-		should(stream).be.ok; // not null or undefined.
+		should(stream).be.ok(); // not null or undefined.
 		stream.close();
 	});
 
@@ -688,7 +688,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		it('returns empty Array for empty directory', function () {
 			const emptyDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'emptyDir');
-			should(emptyDir).be.ok;
+			should(emptyDir).be.ok();
 			// remove it if it exists
 			if (emptyDir.exists()) {
 				should(emptyDir.deleteDirectory()).eql(true);
@@ -707,7 +707,7 @@ describe('Titanium.Filesystem.File', function () {
 		it('returns null for non-existent directory', function () {
 			const nonExistentDir = Ti.Filesystem.getFile('madeup');
 			const result = nonExistentDir.getDirectoryListing();
-			should(nonExistentDir).be.ok;
+			should(nonExistentDir).be.ok();
 			should(nonExistentDir.exists()).eql(false);
 			should.not.exist(result); // null or undefined // FIXME: ios returns undefined, test checked for exactly null before
 		});
@@ -715,7 +715,7 @@ describe('Titanium.Filesystem.File', function () {
 		it('returns null for file', function () {
 			const file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'app.js');
 			const result = file.getDirectoryListing();
-			should(file).be.ok;
+			should(file).be.ok();
 			should(file.exists()).eql(true);
 			should(file.isFile()).eql(true);
 			should.not.exist(result); // null or undefined // FIXME: ios returns undefined, test checked for exactly null before
